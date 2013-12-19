@@ -1,0 +1,64 @@
+/* Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED */
+
+.TabStrip {
+  width: 100%;
+  padding: 0;
+  cursor: default; 
+  margin: 3px 0;
+  border: 1px solid #aaa;
+  border-width: 0 0 1px 0;
+	position: relative;
+}
+.TabStrip table {
+	position: relative;
+  top: 1px;
+}
+.TabStrip table table {
+	position: inherit;
+  top: auto;
+}
+
+.TabStrip .MiddlePart {
+	font-size: 13px;
+  font-family: Tahoma, Arial, Helvetica, sans-serif;
+  line-height: 23px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 100%;
+  padding: 5px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.TabStrip .RightPart {display: none;}
+.TabStrip .LeftPart {display: none;}
+.TabStrip .RightPart div, .TabStrip .LeftPart div {display: block; width: 3px; height: 1px;}
+
+.TabStrip .ActiveTab, .TabStrip .InactiveTab, .TabStrip .DisabledTab {width: 100%; border: 1px solid transparent; border-bottom: none;}
+.TabStrip .ActiveTab, .TabStrip .InactiveTab {cursor: pointer;}
+
+.TabStrip .ActiveTab {
+	border-color: #aaa;
+  position: relative;
+}
+
+.TabStrip .ActiveTab .MiddlePart {background-color: #fff; position: relative; top: 1px;}
+.TabStrip .ActiveTab:hover {background-color: #aaa; color: #fff;}
+.TabStrip .ActiveTab:hover .MiddlePart {background-color: #aaa; color: #fff;}
+.TabStrip .ActiveTab:active .MiddlePart {background-color: #bbb; color: #fff;}
+
+.TabStrip .InactiveTab {cursor: pointer; color: #000;}
+.TabStrip .InactiveTab .MiddlePart {background-color: transparent;}
+
+.TabStrip .DisabledTab {cursor: default; color: #aaa;}
+.TabStrip .DisabledTab .MiddlePart {background-color: transparent;}
+
+.TabStrip .Highlighted .ActiveTab {}
+.TabStrip .Highlighted .ActiveTab .MiddlePart {}
+
+.TabStrip .Highlighted .InactiveTab {}
+.TabStrip .Highlighted .InactiveTab .MiddlePart {}
+
+.TabStrip .TabSeparator {width: auto;}
+
+              

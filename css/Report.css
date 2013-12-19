@@ -1,0 +1,352 @@
+﻿/* Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED */
+
+table.ReportTable
+{	
+	border-style:none;
+	border-width:0;
+	border-collapse:collapse;
+	padding-left:4;
+	padding-right:4;
+	padding-top:1;
+	padding-bottom:1;
+}
+table.ReportTable td
+{
+	font-family: tahoma; 
+	border-width:0px;
+	border-style:solid;
+}
+table.ReportTable td.EmptyCell
+{
+	border-style:none !important;
+	background:none !important;
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+	background-color:white !important;
+	outline:none !important;
+}
+table.ReportTable td.GridCell
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;
+}
+table.ReportTable td.GridCellAGTotal
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-weight:bold;
+	font-style:italic;
+	border-color: White;
+	border-bottom: none;
+	border-right: none;
+}
+table.ReportTable td.GridCellAG
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-style:italic;
+	border-color: White;
+	border-right: none;
+	border-bottom: none;
+}
+table.ReportTable td.EmptyCellAG
+{
+	border-left: 1px solid White;
+	border-top: none;
+	border-bottom: none;
+}
+table.ReportTable td.EmptyCellAG-Line
+{
+	border-left: none;
+	border-right: none;
+	border-top: 1px solid white;
+}
+
+table.ReportTable td.ValueCellAG
+{
+	border-bottom: 1px solid Gainsboro;
+}
+table.ReportTable td.GridCellAGLvl0
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-weight:bold;
+	border-color: White;
+	border-right: none;
+	border-bottom: none;
+}
+table.ReportTable td.GridCellHG0
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:italic;
+	font-weight:bold;
+}
+table.ReportTable td.GridCellHG1
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:normal;
+	font-weight:bold;
+}
+table.ReportTable td.GridCellHG2
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:italic;
+	font-weight:normal;
+}
+table.ReportTable td.GridCellHG3
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:normal;
+	font-weight:normal;
+}
+
+tr.ReportHeader td
+{
+	font-size: 9pt;
+	font-weight:normal; 
+	border-width:1px;
+	border-style:solid;
+	border-bottom: solid 1px #AFAFAF!important;
+}
+tr.ReportFooter, tr.ReportFooter td
+{
+	border-top-color: gainsboro !important;
+	border-top-width: 1px !important;
+	color: Black;
+}
+
+tr.ReportItem td
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;
+}
+tr.ReportItemAGTotal td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;
+	font-weight:bold;
+	font-style:italic;
+}
+tr.ReportItemAG td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	font-style:italic;
+}
+tr.ReportItemAGLvl0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	border-top-width:2px;
+	font-weight:bold;
+}
+tr.ReportItemHG0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:italic;
+	font-weight:bold;
+}
+tr.ReportItemHG1 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:bold;
+}
+tr.ReportItemHG2 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:italic;
+	font-weight:normal;
+}
+tr.ReportItemHG3 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:normal;
+}
+tr.AlternatingItem td
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;	
+}
+tr.AlternatingItemAGTotal td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	font-weight:bold;
+	font-style:italic;
+}
+tr.AlternatingItemAG td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;
+	font-style:italic;
+}
+tr.AlternatingItemAGLvl0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;	
+	border-top-width:2px;	
+	font-weight:bold;
+}
+tr.AlternatingItemHG1 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:bold;
+}
+tr.AlternatingItemHG0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:normal;
+}
+tr.ReportFooter td
+{
+	vertical-align:top;
+	font-size: 8pt;
+	font-weight:bold; 
+	border-width:1px;
+	border-style:solid;
+	border-top-style: double;
+}
+span.ReportTitle
+{
+	font-size: 18pt;
+	font-weight: normal;
+	white-space: nowrap;
+	background-color: #F0F0F0;
+}
+span.Header
+{
+	white-space: nowrap;
+}
+span.Description
+{
+	white-space: nowrap;
+}
+span.Footer
+{
+	white-space: nowrap;
+}
+tr.VisualGroup tr
+{
+	border-width:3px;
+	cursor:pointer;
+	border-style:solid;
+}
+tr.VisualGroup td
+{
+  text-align:left;
+	padding-top:10px;
+	border-right-style:solid;
+	border-right-width:0px;
+}
+div.autoWide 
+{
+	display:inline-table;
+}
