@@ -222,6 +222,7 @@
         <option value="10">10</option>
         <option value="100" selected="selected">100</option>
         <option value="1000">1000</option>
+        <option value="10000">10000</option>
         <option value="-1" lang-text="js_All">All</option>
       </select>
     </li>
