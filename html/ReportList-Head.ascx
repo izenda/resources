@@ -165,7 +165,7 @@
           dashboardDesignerLink.href = nrlConfigObj.DashboardDesignerLink;
       var irdivlink = document.getElementById('irdivlink');
         if (irdivlink != null)
-            irdivlink.onclick = function() { window.location = nrlConfigObj.InstantReportUrl; };
+          irdivlink.onclick = function() { window.location = nrlConfigObj.InstantReportUrl; };
       GetReports(searchKeyword, '');
     }
 
@@ -205,14 +205,12 @@
         function IsSameSubcategory(original, refCategory, refSubcategories) {
             if (original == null || refCategory == null || refSubcategories == null)
                 return false;
-
             var originalSubcategories = original.split('\\');
             if (originalSubcategories[0] != refCategory)
                 return false;
             for (var i = 1; i < originalSubcategories.length; i++)
                 if (refSubcategories.length < i || originalSubcategories[i] != refSubcategories[i - 1])
                     return false;
-
             return true;
         }
 
