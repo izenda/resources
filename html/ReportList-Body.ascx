@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" %>
+﻿<%@ Control AutoEventWireup="true" %>
 
   <div id="cursorChange" class="report-list-page">
 
