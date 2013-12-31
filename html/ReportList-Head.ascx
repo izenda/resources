@@ -205,7 +205,7 @@
         function IsSameSubcategory(original, refCategory, refSubcategories) {
             if (original == null || refCategory == null || refSubcategories == null)
                 return false;
-            var originalSubcategories = original.split('\\');
+            var originalSubcategories = original.split(nrlConfigObj.CategoryCharacter);
             if (originalSubcategories[0] != refCategory)
                 return false;
             for (var i = 1; i < originalSubcategories.length; i++)
@@ -245,14 +245,14 @@
               if (tabIndex < 0) {
                 tabIndex = tabs.length;
                 tabs[tabIndex] = new Object();
-                tabs[tabIndex].TabName = catName.lastIndexOf('\\') > 0 ? catName.substring(catName.lastIndexOf('\\') + 1) : catName;
-                tabs[tabIndex].Category = catName.lastIndexOf('\\') > 0 ? catName.substring(0, catName.lastIndexOf('\\')) : catName;
+                tabs[tabIndex].TabName = catName.lastIndexOf(nrlConfigObj.CategoryCharacter) > 0 ? catName.substring(catName.lastIndexOf(nrlConfigObj.CategoryCharacter) + 1) : catName;
+                tabs[tabIndex].Category = catName.lastIndexOf(nrlConfigObj.CategoryCharacter) > 0 ? catName.substring(0, catName.lastIndexOf(nrlConfigObj.CategoryCharacter)) : catName;
                   tabs[tabIndex].CategoryFull = returnObj.ReportSets[rCnt1].CategoryFull;
                   tabs[tabIndex].Reports = new Array();
                   tabNames[tabIndex] = returnObj.ReportSets[rCnt1].CategoryFull;
 
-                  if (catName.indexOf('\\') > 0) {
-                      var categoriesAll = catName.split('\\');
+                  if (catName.indexOf(nrlConfigObj.CategoryCharacter) > 0) {
+                    var categoriesAll = catName.split(nrlConfigObj.CategoryCharacter);
                       for (var i = 0; i < categoriesAll.length - 1; i++)
                           if (catsWithSubcats[categoriesAll[i]] == null)
                               catsWithSubcats[categoriesAll[i]] = i;
@@ -294,14 +294,14 @@
           var tabName = tabs[tabCnt2].TabName;
           var subTabAdditional = '';
           var catLevel = 0;
-          if (tabs[tabCnt2].CategoryFull != null && tabs[tabCnt2].CategoryFull.indexOf('\\') > 0) {
-              subTabAdditional = 'margin-left:' + (subcatMarginBase * (tabs[tabCnt2].CategoryFull.split('\\').length - 1)) + 'px;';
+          if (tabs[tabCnt2].CategoryFull != null && tabs[tabCnt2].CategoryFull.indexOf(nrlConfigObj.CategoryCharacter) > 0) {
+            subTabAdditional = 'margin-left:' + (subcatMarginBase * (tabs[tabCnt2].CategoryFull.split(nrlConfigObj.CategoryCharacter).length - 1)) + 'px;';
 
-              var categoriesSplit = tabs[tabCnt2].CategoryFull.split('\\');
+            var categoriesSplit = tabs[tabCnt2].CategoryFull.split(nrlConfigObj.CategoryCharacter);
               var partialCategory = categoriesSplit[0];
               for (var j = 0; j < categoriesSplit.length - 1; j++) {
                   if (j > 0)
-                      partialCategory += '\\' + categoriesSplit[j];
+                    partialCategory += nrlConfigObj.CategoryCharacter + categoriesSplit[j];
                   if (catsUsed[partialCategory] == null) {
                       leftContent += '<li data-level="' + j + '" style="margin-left:' + (subcatMarginBase * j) + 'px;' + (j > 0 ? subcatVisibilityTemplate : '') + '"><img src="' + expandIconUrl + '" onclick="javascript:ToggleSubcategories(this);" class="expand-collapse-category-icon"/><a class="category-expander" href="#">' + categoriesSplit[j] + '</a></li>';
                       catsUsed[partialCategory] = true;
@@ -336,7 +336,7 @@
             continue;
           var fullReportName = report.Name;
           if (report.Category != null && report.Category != '')
-            fullReportName = report.Category + '\\' + fullReportName;
+            fullReportName = report.Category + nrlConfigObj.CategoryCharacter + fullReportName;
           var escapedFullRn = fullReportName.replace('\'', '\\\'');
           var templateLink = nrlConfigObj.InstantReportUrl + "?rn=" + report.UrlEncodedName;
           var printLink = "\'rs.aspx?rn=" + report.UrlEncodedName + "&print=1\'";
