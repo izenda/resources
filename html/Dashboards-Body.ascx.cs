@@ -79,7 +79,7 @@ public partial class Resources_html_Dashboards_Body : System.Web.UI.UserControl
     crv.UpdateReferenceGenerated = UpdateReferenceGenerated;
     string currentCat = Request.Params["catSel"];
     if (String.IsNullOrEmpty(currentCat) && !String.IsNullOrEmpty(rn)) {
-      string[] nodes = CropSlashes(rn).Split('\\');
+      string[] nodes = CropSlashes(rn).Split(AdHocSettings.CategoryCharacter);
       currentCat = "Uncategorized";
       if (nodes.Length > 1)
         currentCat = nodes[0];
