@@ -5,16 +5,16 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Izenda.AdHoc;
 
-public class ReportCachedInfo
+public partial class Resources_html_Dashboards_Body : System.Web.UI.UserControl
 {
-  public string Category;
-  public string Name;
-  public string FullName;
-  public bool Dashboard;
-}
+  public class ReportCachedInfo
+  {
+    public string Category;
+    public string Name;
+    public string FullName;
+    public bool Dashboard;
+  }
 
-public partial class Resources_Html_Dashboards_Body : UserControl
-{
   protected override void OnInit(EventArgs e)
   {
     Session["sFrom"] = null;
@@ -46,30 +46,30 @@ public partial class Resources_Html_Dashboards_Body : UserControl
   {
     ReportInfo[] cachedInfos = AdHocSettings.AdHocConfig.FilteredListReports();
     string rn = Request.Params["rn"];
-    if (AdHocContext.CurrentReportSet.IsDashBoard)
-	{
-		try
-		{
-			if (AdHocContext.CurrentReportSet.ReportName == "Dashboard Preview")
-				rn = AdHocContext.CurrentReportSet.ReportName;
-		}
-		catch { }
-	}
-    else if (String.IsNullOrEmpty(Request.Params["rn"])) {
+    if (AdHocContext.CurrentReportSet.IsDashBoard) {
+      try {
+        if (AdHocContext.CurrentReportSet.ReportName == "Dashboard")
+          rn = AdHocContext.CurrentReportSet.ReportName;
+        else if (AdHocContext.CurrentReportSet.ReportName == "Dashboard Preview")
+          return;
+      }
+      catch { }
+    }
+    if (String.IsNullOrEmpty(Request.Params["rn"])) {
       string demoUrl = "";
       string normalUrl = "";
       foreach (ReportInfo reportInfo in cachedInfos)
         if (reportInfo.Dashboard) {
           if (String.IsNullOrEmpty(normalUrl))
-            normalUrl = "Dashboards?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
-          if (String.IsNullOrEmpty(demoUrl) && reportInfo.Category.ToLower() == "department reports" && reportInfo.Name.ToLower() == "dashboard with map")
-            demoUrl = "Dashboards?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
+            normalUrl = "Dashboards.aspx?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
+          if (String.IsNullOrEmpty(demoUrl) && reportInfo.Name.ToLower() == "dashboard")
+            demoUrl = "Dashboards.aspx?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
         }
       if (!String.IsNullOrEmpty(demoUrl))
         Response.Redirect(demoUrl);
       else {
         if (String.IsNullOrEmpty(normalUrl))
-          normalUrl = "DashboardDesigner?clear=1";
+          normalUrl = AdHocSettings.DashboardDesignerUrlWithDelimiter + "clear=1";
         Response.Redirect(normalUrl);
       }
       Response.End();
@@ -132,10 +132,9 @@ public partial class Resources_Html_Dashboards_Body : UserControl
     for (int index = tabs.Length - 1; index >= 0; index--) {
       string reportName = tabs[index];
       string curRn = GetReportName(currentCat, reportName);
-      if (!String.IsNullOrEmpty(curRn) && !String.IsNullOrEmpty(rn))
-      {
-          if (currentTab < 0 && CropSlashes(curRn.Replace("\\", "\\\\")) == CropSlashes(rn))
-              currentTab = index;
+      if (!String.IsNullOrEmpty(curRn) && !String.IsNullOrEmpty(rn)) {
+        if (currentTab < 0 && CropSlashes(curRn.Replace("\\", "\\\\")) == CropSlashes(rn))
+          currentTab = index;
       }
       string clickScript = "";
       if (currentTab != index)
