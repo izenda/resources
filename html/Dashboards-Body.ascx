@@ -54,7 +54,7 @@
 			<div class="btn-toolbar" style="margin: 4px 8px; z-index: 6; position: absolute; top: 12px; white-space: nowrap;">
 
 				<div class="btn-group">
-					<a class="btn" title="Refresh" runat="server" id="updateRef" href="#refresh">
+					<a class="btn" title="Refresh" runat="server" id="updateRef">
 						<img class="icon" src="rs.aspx?image=ModernImages.refresh-18.png" alt="Refresh" />
 						<span>Refresh</span>
 					</a>
