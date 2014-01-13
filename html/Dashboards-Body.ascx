@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Body.ascx.cs" Inherits="Resources_html_Dashboards_Body" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Body.ascx.cs" Inherits="Resources_Html_Dashboards_Body" %>
 
 <%@ Register TagPrefix="cc1" Namespace="Izenda.Web.UI" Assembly="Izenda.AdHoc" %>
 <%@ Register TagPrefix="ss1" Namespace="Izenda.Web.UI.Slider" Assembly="Izenda.AdHoc" %>

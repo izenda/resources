@@ -5,7 +5,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using Izenda.AdHoc;
 
-public partial class Resources_html_Dashboards_Body : UserControl
+public partial class Resources_Html_Dashboards_Body : UserControl
 {
   public class ReportCachedInfo
   {
