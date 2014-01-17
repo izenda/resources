@@ -520,8 +520,8 @@
 	        var tmpStyle1 = jq$('select[name$="_Filters_Column"]').attr("style");
 	        if (!tmpStyle1)
 	          tmpStyle1 = "";
-	        jq$('select[name$="_Filters_Column"]').css("-webkit-appearance", "none");
 	        jq$('select[name$="_Filters_Column"]').css("_wa", "_blank").attr("style", tmpStyle1);
+	        jq$('select[name$="_Filters_Column"]').css("-webkit-appearance", "none");
 	        var tmpStyle2 = jq$('select[name$="_Filters_SelectValue"]').attr("style");
 	        if (!tmpStyle2)
 	          tmpStyle2 = "";
