@@ -508,10 +508,10 @@
 	    $(window).load(function () {
 	      $('#loadingScreen').fadeOut(400, function () {
 	        $('#loadingBg').fadeOut(1000, function () {
-	            $(window).trigger('resize');
+	            //$(window).trigger('resize');
 	        });
 	      });
-	      //FixReportsWidth();
+	      $(window).trigger('resize');
 	    });
 
 	    fixSelectsInIE();
