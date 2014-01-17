@@ -461,8 +461,8 @@
 	    function FixReportsWidth() {
 	      var mainDiv = document.getElementById('dashboardsDiv');
 	      if (window.innerWidth >= 1050) {
-	        mainDiv.style.paddingLeft = '36px';
-	        mainDiv.style.paddingRight = '36px';
+	        mainDiv.style.paddingLeft = '6px';
+	        mainDiv.style.paddingRight = '6px';
 	      }
 	      else {
 	        mainDiv.style.paddingLeft = '0px';
@@ -508,10 +508,10 @@
 	    $(window).load(function () {
 	      $('#loadingScreen').fadeOut(400, function () {
 	        $('#loadingBg').fadeOut(1000, function () {
-	            //$(window).trigger('resize');
+	          //fixSelectsInIE();	      
 	        });
 	      });
-	      $(window).trigger('resize');
+	      FixReportsWidth();
 	    });
 
 	    fixSelectsInIE();
