@@ -174,11 +174,9 @@ function RefreshFilters(returnObj) {
   }
   filtersData = returnObj.Filters;
   calendars = new Array();
-  var fHtml = '<table style="background-color:#FFFFFF;"><tr>';
-  if (returnObj.Filters[0].Parameter == false)
-      fHtml += '<td style="display:none;">';
-  else
-      fHtml += '<td style="padding-top:8px; vertical-align:top;">';
+  var fHtml = '<table style="width:100%;"><tr><td style="width:100%;">';
+  if (returnObj.Filters[0].Parameter != false)
+    fHtml += '<div style="float:left;margin-right:8px;margin-bottom:16px;min-width:300px;width:auto;">';
   var controlsIds = new Array();
   var index = 0;
   while (index < returnObj.Filters.length) {
@@ -187,7 +185,7 @@ function RefreshFilters(returnObj) {
 		controlsIds[controlsIds.length] = new Object();
 		controlsIds[controlsIds.length - 1].Id = divsId;
 		controlsIds[controlsIds.length - 1].filterDesc = filter.Description;
-    fHtml += '<div id="' + filter.Uid + '" style="float:left;margin-left:8px;margin-right:8px;min-width:300px;">';
+    fHtml += '<div id="' + filter.Uid + '" style="float:left;margin-right:8px;min-width:300px;">';
     fHtml += '<div onmouseover="javascript:this.children[0].style.opacity=0.5; this.children[0].style.backgroundImage=\'url(\\\'rs.aspx?image=ModernImages.clear-dark-bigger.png\\\')\'; this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage=\'url(\\\'rs.aspx?image=gear.gif\\\')\'; document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + ' - ' + filter.OperatorFriendlyName + '\';" onmouseout="javascript:for(var index = 0; index < this.children.length - 1; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + '\';" style="background-color:#CCEEFF;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;">';
     if (typeof nrvConfig == 'undefined' || nrvConfig  == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false) {
 			fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:RemoveFilterByUid(\'' + filter.Uid + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
@@ -195,18 +193,14 @@ function RefreshFilters(returnObj) {
     fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:ShowFieldPropertiesByFullFieldName(\'' + filter.ColumnName + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
     fHtml += '<nobr onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}"><div  id="' + divsId + '" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float:left;margin-right:8px">' + filter.Description + ' - ' + filter.OperatorFriendlyName + '</div></nobr></div>';
     fHtml += GenerateFilterControl(index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues);
-    fHtml += '</div></td>';
+    fHtml += '</div></div>';
     index++;
-    if (index > 0 && index % 3 == 0 && index < returnObj.Filters.length)
-      fHtml += '</tr><tr>';
     if (index < returnObj.Filters.length) {
-        if (returnObj.Filters[index].Parameter == false)
-            fHtml += '<td style="display:none;">';
-        else
-            fHtml += '<td style="padding-top:8px; vertical-align:top;">';
+      if (returnObj.Filters[index].Parameter != false)
+        fHtml += '<div style="float:left;margin-right:8px;margin-bottom:16px;">';
     }
   }
-  fHtml += '</tr><tr><td><div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">';
+  fHtml += '</td></tr><tr><td><div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">';
   fHtml += '<a class="blue" onclick="javascript:CommitFiltersData(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="' + IzLocal.Res('js_Refresh', 'Refresh') + '" /><span class="text">' + IzLocal.Res('js_UpdateResults', 'Update Results') + '</span></a>';
   fHtml += '</div></td></tr></table>';
   htmlFilters.innerHTML = fHtml;
