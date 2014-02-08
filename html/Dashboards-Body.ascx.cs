@@ -61,9 +61,9 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       foreach (ReportInfo reportInfo in cachedInfos)
         if (reportInfo.Dashboard) {
           if (String.IsNullOrEmpty(normalUrl))
-            normalUrl = "Dashboards?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
+            normalUrl = "Dashboards.aspx?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
           if (String.IsNullOrEmpty(demoUrl) && reportInfo.Name.ToLower() == "dashboard")
-            demoUrl = "Dashboards?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
+            demoUrl = "Dashboards.aspx?rn=" + HttpUtility.UrlEncode(reportInfo.FullName);
         }
       if (!String.IsNullOrEmpty(demoUrl))
         Response.Redirect(demoUrl);
