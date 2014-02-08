@@ -1,4 +1,4 @@
-﻿<%@ Control AutoEventWireup="true" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Head.ascx.cs" Inherits="Resources_Html_Dashboards_Head" %>
 
 	<title>Dashboards</title>
 
@@ -356,6 +356,7 @@
 	      .fadeIn(1000, function () {
 	        $('#loadingScreen').fadeIn(400, function () {
 	          window.location = 'Dashboards.aspx?rn=' + rn;
+	          console.log('<%= AdHocSettings.DashboardViewer %>');
 	        });
 	      });
 	    return;
