@@ -15,6 +15,10 @@ public partial class Resources_Html_Dashboards_Body : UserControl
     public bool Dashboard;
   }
 
+  public string getDashboardDesignerUrl() {
+    return AdHocSettings.DashboardDesignerUrl;
+  }
+
   protected override void OnInit(EventArgs e)
   {
     Session["sFrom"] = null;

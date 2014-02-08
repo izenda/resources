@@ -115,7 +115,7 @@
 				</div>
 
 				<div class="btn-group designer-only">
-					<a id="designDbBtn" class="btn" title="Open in designer" href="DashboardDesigner.aspx">
+					<a id="designDbBtn" class="btn" title="Open in designer" href="<%= getDashboardDesignerUrl() %>">
 						<img class="icon" src="rs.aspx?image=ModernImages.design.png" alt="Open in designer" />
 						<span class="hide">Open in designer</span>
 					</a>
