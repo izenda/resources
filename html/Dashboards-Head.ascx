@@ -356,7 +356,7 @@
 	      .fadeIn(1000, function () {
 	        $('#loadingScreen').fadeIn(400, function () {
 	          window.location = 'Dashboards.aspx?rn=' + rn;
-	          console.log('<%= AdHocSettings.DashboardViewer %>');
+	          console.log('<%= getDashboardViewer(); %>');
 	        });
 	      });
 	    return;
