@@ -555,7 +555,7 @@
 	    }
 
 	    $('#addDashboardLink').click(function () {
-	      $(location).attr('href', 'DashboardDesigner.aspx?clear=1');
+	      $(location).attr('href', '<%= getDashboardDesignerUrl() %>?clear=1');
 	    });
 	    //			$('#addDashboardLink').click(function () {
 	    //				var reportListSelector = new ReportListSelector({
