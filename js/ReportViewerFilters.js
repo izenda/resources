@@ -111,7 +111,7 @@ function CommitFiltersData(updateReportSet) {
   }
     // Save scroll position within the checkbox filters' divs
     var positions = [];
-    $($('#htmlFilters > table tr')[0]).find('td').find('div').each(function () {
+    $($('#htmlFilters > table tr')[0]).find('td').find('div').find('select').each(function () {
         if (!$(this).attr('id') || this.scrollTop == 0)
             return;
         positions.push(
