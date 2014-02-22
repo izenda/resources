@@ -2,7 +2,7 @@
 
 <title>Report viewer</title>
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
-<link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
+<link rel="stylesheet" type="text/css" href="/Resources/css/Filters.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-1.9.1.min"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-ui-1.9.2.min"></script>
@@ -24,8 +24,8 @@
 <script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
-<script type="text/javascript" src="Resources/js/ReportViewerFilters.js"></script>
-<script type="text/javascript" src="Resources/js/FieldProperties.js"></script>
+<script type="text/javascript" src="/Resources/js/ReportViewerFilters.js"></script>
+<script type="text/javascript" src="/Resources/js/FieldProperties.js"></script>
 <script type="text/javascript" src="rs.aspx?js=VisualizationView"></script>
 <script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 

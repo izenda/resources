@@ -7,8 +7,8 @@
 	<link rel="stylesheet" type="text/css" href="./rs.aspx?css=ModernStyles.custom_dashboard" />
 	<link rel="stylesheet" type="text/css" href="./rs.aspx?css=DashboardViewer" />
 	<link rel="stylesheet" type="text/css" href="./rs.aspx?css=ModernStyles.jqui_modified2" />
-	<link rel="stylesheet" type="text/css" href="./Resources/css/base.css"/>
-	<link rel="stylesheet" type="text/css" href="./Resources/css/report-list-modal.css" />
+	<link rel="stylesheet" type="text/css" href="/Resources/css/base.css"/>
+	<link rel="stylesheet" type="text/css" href="/Resources/css/report-list-modal.css" />
 	<script type="text/javascript" src="./rs.aspx?js=jQuery.DashboardViewer"></script>	
 	<script type="text/javascript" src="./rs.aspx?js=jQuery.NewDashboardControls"></script>	
   <script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery-1.9.1.min"></script>
