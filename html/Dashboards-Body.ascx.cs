@@ -54,8 +54,10 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       try {
         if (AdHocContext.CurrentReportSet.ReportName == "Dashboard")
           rn = AdHocContext.CurrentReportSet.ReportName;
-        else if (AdHocContext.CurrentReportSet.ReportName == "Dashboard Preview")
-          return;
+				else if (AdHocContext.CurrentReportSet.ReportName == "Dashboard Preview") {
+					AdHocContext.CurrentReportSet.ReportName = null;
+					return;
+				}
       }
       catch { }
     }
