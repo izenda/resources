@@ -557,6 +557,12 @@
 	    $('#addDashboardLink').click(function () {
 	      $(location).attr('href', '<%= getDashboardDesignerUrl() %>?clear=1');
 	    });
+  try {
+    ActivateNewDashboardViewerControls();
+  }
+  catch (e) {
+  }
+  AdHoc.Utility.InitGaugeAnimations();
 	    //			$('#addDashboardLink').click(function () {
 	    //				var reportListSelector = new ReportListSelector({
 	    //					selectedHandler: function (e) {

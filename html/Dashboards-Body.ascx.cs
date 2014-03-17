@@ -27,7 +27,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
 
   public void UpdateReferenceGenerated(string href)
   {
-    updateRef.Attributes.Add("onclick", href);
+    updateRef.Attributes.Add("onclick", href.Replace("null", "'ActivateNewDashboardViewerControls()'"));
   }
 
   private string GetReportName(string cat, string repN)
