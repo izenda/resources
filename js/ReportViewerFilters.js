@@ -62,7 +62,7 @@ function GetFilterValues(index) {
       var cb = document.getElementById('ndbfc' + index + '_cb' + cnt8);
       while (cb != null) {
         if (cb.checked) {
-          if (combinedRes8.length > 1)
+          if (combinedRes8.length > 0)
             combinedRes8 += ',';
           combinedRes8 += cb.value;
         }
@@ -81,7 +81,7 @@ function GetFilterValues(index) {
       var selCtl = document.getElementById('ndbfc' + index);
       for (var cnt10 = 0; cnt10 < selCtl.options.length; cnt10++) {
         if (selCtl.options[cnt10].selected) {
-          if (combinedRes.length > 1)
+          if (combinedRes.length > 0)
             combinedRes += ',';
           combinedRes += selCtl.options[cnt10].value;
         }
