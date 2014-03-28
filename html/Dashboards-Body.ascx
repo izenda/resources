@@ -128,12 +128,12 @@
 			</div>
 
 			<div id="cdTabs">
-                <div style="display: inline-block;height: 44px;border-bottom: 1px solid #c4c4c4;" class="tabs-header-spacer">&nbsp;</div>
+                <div style="display: inline-block;height: 44px;" class="tabs-header-spacer">&nbsp;</div>
                 <div style="display: inline-block;border-bottom: 1px solid #c4c4c4;height: 44px;margin: 0;padding: 0;position: absolute;width: 100%;left: 0;">&nbsp;</div>
                 <ul style="line-height: 20px;display: inline-block;float: right;" class="tabs-header">
 					<asp:PlaceHolder ID="dbList" runat="server"></asp:PlaceHolder>
 				</ul>
-                <div class="clearfix"></div>
+                <div class="clearfix" style="border-bottom: 1px solid #c4c4c4;"></div>
 				<asp:PlaceHolder ID="otherTabs" runat="server"></asp:PlaceHolder>
 				<cc1:DashboardViewer ID="crv" runat="server" />
 			</div>

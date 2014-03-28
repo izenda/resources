@@ -737,9 +737,6 @@ tr.ReportFooter td {
 .ui-tabs, .ui-tabs .ui-tabs-panel {
   background-color: transparent !important;
 }
-.ui-tabs .ui-tabs-nav {
-  border-bottom: 1px solid #c4c4c4;
-}
 
 .ui-tabs .ui-tabs-nav li.ui-state-default {
 /*  background-color: transparent;
