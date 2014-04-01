@@ -1,6 +1,8 @@
 ﻿var filtersData;
 var showingC = false;
 var calendars;
+var filtersDataObtained = false;
+var makeFiltersFloat;
 
 function ToggleFilters() {
   var filtersBodyDiv$ = $('#filtersBodyDiv');
@@ -99,7 +101,8 @@ function GetFilterValues(index) {
 */
 function CommitFiltersData(updateReportSet) {
   if (filtersData == null || filtersData.length <= 0)
-    return;
+  	return;
+	filtersDataObtained = false;
   var dataToCommit = new Array();
   for (var index = 0; index < filtersData.length; index++) {
     var filterObj = new Object();
@@ -163,13 +166,91 @@ function RemoveFilterByUid(uid) {
 		updateFields();	
 }
 
+function ShowHideAddFilter() {
+	var dNewFilterDiv = document.getElementById('dNewFilter');
+	var newFilterColumnSelDiv = document.getElementById('newFilterColumnSel');
+	var fuidNewFilterDiv = document.getElementById('fuidNewFilter');
+	var isExpanded = fuidNewFilterDiv.getAttribute('expanded') == 'true';
+	if (isExpanded) {
+		fuidNewFilterDiv.style.width = '30px';
+		dNewFilterDiv.innerHTML = '+';
+		newFilterColumnSelDiv.style.display = 'none';
+		fuidNewFilterDiv.setAttribute('expanded', 'false');
+	}
+	else {
+		fuidNewFilterDiv.style.width = '300px';
+		dNewFilterDiv.innerHTML = 'x';
+		newFilterColumnSelDiv.style.display = '';
+		fuidNewFilterDiv.setAttribute('expanded', 'true');
+	}
+}
+
+function AddNewFilterField() {
+	var newFilterFieldDropDown = document.getElementById('newFilterFieldDropDown');
+	if (newFilterFieldDropDown.value == null || newFilterFieldDropDown.value == '' || newFilterFieldDropDown.value == '...')
+		return;
+	if (typeof GetFieldIndexes == 'undefined')
+		return;
+	var fieldIndexes = GetFieldIndexes(newFilterFieldDropDown.value);
+	if (fieldIndexes == null)
+		return;
+	selectionsList[fieldIndexes[0]].Fields[fieldIndexes[1]].FilterOperator = 'Equals';
+	CommitFiltersData(true);
+	if (typeof updateFields != 'undefined')
+		updateFields();
+}
+
+function GenerateNewFilterDropDown() {
+	var result = '<select style="width:100%;" id="newFilterFieldDropDown" onchange="AddNewFilterField();">';
+	var optionsAdded = false;
+	result += '<option value="..." selected="selected">...</option>';
+	for (var dsCnt = 0; dsCnt < selectionsList.length; dsCnt++) {
+		for (var fCnt = 0; fCnt < selectionsList[dsCnt].Fields.length; fCnt++) {
+			if (selectionsList[dsCnt].Fields[fCnt].Selected < 0)
+				continue;
+			if (selectionsList[dsCnt].Fields[fCnt].FilterOperator != null && selectionsList[dsCnt].Fields[fCnt].FilterOperator != '' && selectionsList[dsCnt].Fields[fCnt].FilterOperator != '...')
+				continue;
+			optionsAdded = true;
+			result += '<option value="' + selectionsList[dsCnt].Fields[fCnt].DbName + '">' + selectionsList[dsCnt].Fields[fCnt].FriendlyName + '</option>';
+		}
+	}
+	result += '</select>';
+	if (!optionsAdded)
+		return '';
+	return result;
+}
+
+function CheckShowAddFilterControls() {
+	if (nrvConfig == null || (nrvConfig.AllowNewFiltersInReportViewer && (nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false))) {
+		var newFilterDataDropDown = GenerateNewFilterDropDown();
+		if (newFilterDataDropDown == '')
+			return;
+		var floatStyle = '';
+		if (makeFiltersFloat)
+			floatStyle = 'float:left;';
+		var addFilterHtml = '<div id="fuidNewFilter" style="' + floatStyle + 'margin-right:8px;width:30px;" expanded="false">';
+		addFilterHtml += '<div style="background-color:#CCEEFF;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;">';
+		addFilterHtml += '<nobr><div id="dNewFilter" onclick="ShowHideAddFilter();" style="float:right;width:30px;text-align:center;cursor:pointer;">+</div></nobr></div>';
+		addFilterHtml += '<div id="newFilterColumnSel" style="display:none;">' + newFilterDataDropDown + '</div>';
+		addFilterHtml += '</div>';
+		var addFilterControlsDiv = document.getElementById('addFilterControls');
+		addFilterControlsDiv.innerHTML = addFilterHtml;
+		addFilterControlsDiv.style.display = '';
+	}
+}
+
 function RefreshFilters(returnObj) {
   var htmlFilters = document.getElementById('htmlFilters');
   if (returnObj.Filters == null || returnObj.Filters.length <= 0) {
-    var fHtml = '<div id="updateBtnP" class="f-button">';
+  	var fHtml = '<div id="addFilterControls" style="display:none;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>';
+  	fHtml += '<div id="updateBtnP" class="f-button">';
     fHtml += '<a class="blue" onclick="javascript:GetRenderedReportSet(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="' + IzLocal.Res('js_Refresh', 'Refresh') + '" /><span class="text">' + IzLocal.Res('js_UpdateResults', 'Update Results') + '</span></a>';
     fHtml += '</div>';
     htmlFilters.innerHTML = fHtml;
+    filtersDataObtained = true;
+	  makeFiltersFloat = false;
+    if (filtersDataObtained && fieldsDataObtained)
+    	CheckShowAddFilterControls();
     return;
   }
   filtersData = returnObj.Filters;
@@ -200,11 +281,12 @@ function RefreshFilters(returnObj) {
         fHtml += '<div style="float:left;margin-right:8px;margin-bottom:16px;">';
     }
   }
-  fHtml += '</td></tr><tr><td><div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">';
+  fHtml += '<div id="addFilterControls" style="display:none;float:left;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>';
+	fHtml += '</td></tr><tr><td><div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">';
   fHtml += '<a class="blue" onclick="javascript:CommitFiltersData(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="' + IzLocal.Res('js_Refresh', 'Refresh') + '" /><span class="text">' + IzLocal.Res('js_UpdateResults', 'Update Results') + '</span></a>';
   fHtml += '</div></td></tr></table>';
   htmlFilters.innerHTML = fHtml;
-
+  filtersDataObtained = true;
 
 	var dateFormatString = '';
 	if (typeof nrvConfig != 'undefined' && nrvConfig  != null && typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
@@ -239,6 +321,9 @@ function RefreshFilters(returnObj) {
 		if (!jq$(document.getElementById('tab1')).hasClass('active'))
 			document.getElementById('tab1a').click();
   }
+	makeFiltersFloat = true;
+  if (filtersDataObtained && fieldsDataObtained)
+  	CheckShowAddFilterControls();
 }
 
 function CascadingFiltersChanged(returnObj, id) {
@@ -431,7 +516,7 @@ function GetFiltersData() {
 
 function GotFiltersData(returnObj, id) {
   if (id != 'getfiltersdata' || returnObj == null)
-    return;
+  	return;
   RefreshFilters(returnObj);
 }
 
