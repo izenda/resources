@@ -24,7 +24,8 @@ function GetFilterValues(index) {
   result[0] = '';
   switch (filtersData[index].ControlType) {
     case 1:
-    case 11:
+  	case 11:
+  	case 100:
 	    var pItem = document.getElementById('ndbfc' + index).parentElement;
 	    if (filtersData[index].ControlType == 11)
 		    pItem = pItem.parentElement;
@@ -321,7 +322,10 @@ function RefreshFilters(returnObj) {
 		if (!jq$(document.getElementById('tab1')).hasClass('active'))
 			document.getElementById('tab1a').click();
   }
-	makeFiltersFloat = true;
+  makeFiltersFloat = true;
+
+  InitAutoComplete();
+
   if (filtersDataObtained && fieldsDataObtained)
   	CheckShowAddFilterControls();
 }
@@ -500,6 +504,9 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
       result += '<div style="display: none;" visibilitymode="1"><input type="text" id="ndbfc' + index + '" value="' + value + '"/></div>';
       result += '<div class="comboboxTreeMultyselect" index=' + index + '></div>';
       break;
+  	case 100:
+  		result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value + '" ' + onKeyUpCmd + ' />';
+  		break;
     default:
       result = '';
   }
@@ -790,3 +797,55 @@ CC_TreeUpdateValues = function (row, values) {
         });
     CC_CheckStatusWasChanged(selectedValuesControl, tree.find("> .node"), tree, row);
 };
+
+function InitAutoComplete() {
+	var autocompleteElements = jq$('input[name="autocomplete-filter"]');
+	if (autocompleteElements.length == 0 || (jq$.browser.msie && 1 * jq$.browser.version < 9))
+		return;
+	for (var i = 0; i < autocompleteElements.length; i++) {
+		var currInput = autocompleteElements[i];
+		jq$(currInput).autocomplete({
+			source: function (req, responeFunction) {
+				var possibleText = CC_extractLast(req.term);
+				var filterIndex = jq$(currInput).attr('id').toString().replace('ndbfc', '');
+				var fullColumnName = filtersData[filterIndex].ColumnName;
+				var cmd = '&possibleValue=' + possibleText.replace('&', '%26');
+				EBC_LoadData('ExistentValuesList', 'columnName=' + fullColumnName + cmd, null, true, function (responseResult) {
+					var options = jq$(responseResult);
+					var cnt = options.length;
+					var result = new Array();
+					for (var i = 0; i < cnt; i++) {
+						var text = options[i].value;
+						if (text != null && text != "" && text != "...")
+							result.push(text);
+					}
+					responeFunction(result);
+				});
+			},
+			search: function () {
+				var term = CC_extractLast(this.value);
+				if (term.length < 1) {
+					return false;
+				}
+			},
+			focus: function () {
+				return false;
+			},
+			select: function (event, ui) {
+				var terms = CC_split(this.value);
+				terms.pop();
+				terms.push(ui.item.value);
+				this.value = terms.join(", ");
+				return false;
+			}
+		});
+	}
+}
+
+function CC_split(val) {
+	return val.split(/,\s*/);
+}
+
+function CC_extractLast(term) {
+	return CC_split(term).pop();
+}
