@@ -358,7 +358,7 @@
               content += '<div class="thumb-buttons">';
               if (!report.ViewOnly && !report.IsLocked)
                   content += '<div class="thumb-edit" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + editLink + '" title="' + IzLocal.Res('js_Edit','Edit') + '"></div>';
-              if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked)
+              if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports)
                   content += '<div class="thumb-remove" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + deleteLink + '" title="' + IzLocal.Res('js_Remove','Remove') + '"></div>';
               content += '<div class="thumb-print" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
               content += '</div>';
@@ -372,7 +372,7 @@
               content += '<div class="thumb-buttons">';
               if (!report.ViewOnly && !report.IsLocked)
                   content += '<div class="thumb-edit" style="top:28px;" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + editLink + '" title="' + IzLocal.Res('js_Edit', 'Edit') + '"></div>';
-              if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked)
+              if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports)
                   content += '<div class="thumb-remove" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + deleteLink + '" title="' + IzLocal.Res('js_Remove', 'Remove') + '"></div>';
               content += '<div class="thumb-print" style="top:28px;" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
               content += '</div>';
