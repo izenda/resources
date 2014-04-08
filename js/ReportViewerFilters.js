@@ -115,12 +115,12 @@ function CommitFiltersData(updateReportSet) {
   }
     // Save scroll position within the checkbox filters' divs
     var positions = [];
-    $($('#htmlFilters > table tr')[0]).find('td').find('div').find('select').each(function () {
+    jq$(jq$('#htmlFilters > table tr')[0]).find('td div').each(function () {
         if (!$(this).attr('id') || this.scrollTop == 0)
             return;
         positions.push(
         {
-            id: $(this).attr('id'),
+            id: jq$(this).attr('id'),
             scroll: this.scrollTop
         });
     });
@@ -134,8 +134,8 @@ function CommitFiltersData(updateReportSet) {
       AjaxRequest(urlSettings.urlRsPage, requestString, function (returnObj, id) {
           CascadingFiltersChanged(returnObj, id);
           for (var i = 0; i < positions.length; i++) {
-              if ($('#' + positions[i].id) != null)
-                  $('#' + positions[i].id)[0].scrollTop = positions[i].scroll;
+              if (jq$('#' + positions[i].id) != null)
+                  jq$('#' + positions[i].id)[0].scrollTop = positions[i].scroll;
           }
       }, null, 'refreshcascadingfilters');
 }
@@ -274,7 +274,7 @@ function RefreshFilters(returnObj) {
     }
     fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:ShowFieldPropertiesByFullFieldName(\'' + filter.ColumnName + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
     fHtml += '<nobr onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}"><div  id="' + divsId + '" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float:left;margin-right:8px">' + filter.Description + ' - ' + filter.OperatorFriendlyName + '</div></nobr></div>';
-    fHtml += GenerateFilterControl(index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues);
+    fHtml += GenerateFilterControl(index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == returnObj.Filters.length - 1);
     fHtml += '</div></div>';
     index++;
     if (index < returnObj.Filters.length) {
@@ -416,8 +416,8 @@ function ShowEqualsPopupDialog(filterInd) {
   popupEsDialog.style.display = '';
 }
 
-function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues) {
-  var onChangeCmd = 'onchange="CommitFiltersData(false);"';
+function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
+  var onChangeCmd = isLastFilter ? '' : 'onchange="CommitFiltersData(false);"';
   //var onKeyUpCmd = 'onkeyup="CommitFiltersData(false);"';
   var onKeyUpCmd = '';
   var result = '';
