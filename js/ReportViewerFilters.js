@@ -293,10 +293,14 @@ function RefreshFilters(returnObj) {
 	if (typeof nrvConfig != 'undefined' && nrvConfig  != null && typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
 		dateFormatString = nrvConfig.DateFormat;
 	for (var cc = 0; cc < calendars.length; cc++) {
+		var showDatePicker = jq$('#iz-ui-datepicker-div').is(':visible');
 		if (dateFormatString == '')
 			jq$(document.getElementById(calendars[cc])).datepicker();
 		else
 			jq$(document.getElementById(calendars[cc])).datepicker({ dateFormat: dateFormatString });
+		jq$('#iz-ui-datepicker-div').hide();
+		if (showDatePicker)
+			jq$('#iz-ui-datepicker-div').show();
 	}
 
   jq$(htmlFilters).find(".comboboxTreeMultyselect").each(function () {
