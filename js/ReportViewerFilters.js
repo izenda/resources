@@ -298,7 +298,6 @@ function RefreshFilters(returnObj) {
 		else
 			jq$(document.getElementById(calendars[cc])).datepicker({ dateFormat: dateFormatString });
 	}
-	setInterval(function() {jq$('#iz-ui-datepicker-div').css('z-index', '2000');}, 300);
 
   jq$(htmlFilters).find(".comboboxTreeMultyselect").each(function () {
       var treeControl = jq$(this);
@@ -452,11 +451,11 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
     case 5:
       result += '<input type="text" ' + onChangeCmd + ' value="' + values[0] + '" style="width:248px" id="ndbfc' + index + '_1" />';
       calendars[calendars.length] = 'ndbfc' + index + '_1';
-      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_1\').focus(); setTimeout(function(){showingC = false;}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
+      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_1\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
       result += '<br />';
       result += '<input type="text" ' + onChangeCmd + ' value="' + values[1] + '" style="width:248px" id="ndbfc' + index + '_2" />';
       calendars[calendars.length] = 'ndbfc' + index + '_2';
-      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_2\').focus(); setTimeout(function(){showingC = false;}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
+      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_2\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
       break;
     case 6:
       result += '<input type="button" style="height:30px;width:300px;background-color:LightGray;border:1px solid DarkGray" onclick="ShowEqualsPopupDialog(' + index + ');" value="...">';
@@ -483,7 +482,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
     case 9:
       result += '<input type="text" ' + onChangeCmd + ' value="' + value + '" style="width:248px" id="ndbfc' + index + '" />';
       calendars[calendars.length] = 'ndbfc' + index;
-      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="rs.aspx?image=calendar_icon.png">';
+      result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="rs.aspx?image=calendar_icon.png">';
       break;
     case 10:
       result += '<select style="width:100%" size="5" multiple="" id="ndbfc' + index + '" ' + onChangeCmd + '>';
