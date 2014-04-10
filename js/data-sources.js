@@ -145,6 +145,13 @@ function ReversedReportSet(returnObj, id) {
 function initDataSources(url) {
 	databaseSchema = $.getValues(url);
 	if (databaseSchema != null) {
+		databaseSchema.sort(function (a, b) {
+			if (a.DataSourceCategory < b.DataSourceCategory)
+				return -1;
+			if (a.DataSourceCategory > b.DataSourceCategory)
+				return 1;
+			return 0;
+		});
 		var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);
 		$(".database").remove();
 		tInd = 0;
