@@ -4,6 +4,7 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
 <link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-1.9.1.min"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery-ui-1.9.2.min"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
