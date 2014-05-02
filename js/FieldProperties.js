@@ -1,7 +1,12 @@
 ﻿function FP_ShowFieldProperties(field, dialog) {
   var titleDiv = document.getElementById('titleDiv');
   titleDiv.innerHTML = IzLocal.Res('js_FieldPropertyForField', 'Field Properties for {0}').replace(/\{0\}/g, field.FriendlyName);
-  document.getElementById('propDescription').value = field.Description;
+  var propDescription = document.getElementById('propDescription');
+  if (field.Selected >= 0)
+  	propDescription.disabled = false;
+  else
+  	propDescription.disabled = true;
+  propDescription.value = field.Description;
   var propTotal = document.getElementById('propTotal');
   propTotal.checked = false;
   if (field.Total == 1)
