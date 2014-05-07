@@ -1,6 +1,5 @@
 ﻿<%@ Control AutoEventWireup="true" %>
 
-
     <iframe style="display:none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
     <div id="loadingrv2" style="z-index:500;top:0px;left:0px;width:100%;background-color:#FFFFFF;position:fixed;display:none;text-align:center;vertical-align:middle;" lang-text="js_Loading">
         Loading...<br />
@@ -140,12 +139,13 @@
         <b lang-text="js_XML">XML</b><br>
         <span lang-text="js_XMLMessage">Both human-readable and machine-readable text file</span>
       </a></li>
-      <li><a href="javascript:void(0)" title="" 
+      <li id="RTFExportButton"><a href="javascript:void(0)" title="" 
         onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=RTF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
-        <img class="icon" src="rs.aspx?image=ModernImages.rtf-32.png" alt="" />
-        <b lang-text="js_RTF">RTF</b><br>
-        <span lang-text="js_RTFMessage">File format for cross-platform document interchange</span>
-      </a></li>
+        <img class='icon' src="rs.aspx?image=ModernImages.rtf-32.png" alt="" />
+        <b lang-text='js_RTF'>RTF</b><br>
+        <span lang-text='js_RTFMessage'>File format for cross-platform document interchange</span>
+        </a>
+      </li>
       <!--<li><a href="javascript:void(0)" title="" 
         onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=ODT', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.open-office-32.png" alt="" />
@@ -302,14 +302,14 @@
 
 </div>
 <script type="text/javascript">
-  var urlSettings;
-  var responseServer;
-  var responseServerWithDelimeter;
-  var switchTabAfterRefreshCycle = false;
+    var urlSettings;
+    var responseServer;
+    var responseServerWithDelimeter;
+    var switchTabAfterRefreshCycle = false;
 
-  $(document).ready(function () {
-    InitializeViewer();
-  });
+    $(document).ready(function () {
+        InitializeViewer();
+    });
 </script>
 
 <div class="page">
