@@ -146,12 +146,6 @@
         <span lang-text='js_RTFMessage'>File format for cross-platform document interchange</span>
         </a>
       </li>
-      <!--<li><a href="javascript:void(0)" title="" 
-        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=ODT', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
-        <img class="icon" src="rs.aspx?image=ModernImages.open-office-32.png" alt="" />
-        <b>Open Office</b><br>
-        File for open-source office software suite 
-      </a></li>-->
     </ul>
   </div>
   <div class="btn-group">
