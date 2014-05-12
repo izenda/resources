@@ -257,8 +257,13 @@ function RefreshFilters(returnObj) {
 	filtersData = returnObj.Filters;
 	calendars = new Array();
 	var fHtml = '<table style="width:100%;"><tr><td style="width:100%;">';
-	if (returnObj.Filters[0].Parameter != false)
-		fHtml += '<div style="float:left;margin-right:8px;margin-bottom:16px;min-width:300px;width:auto;">';
+	var hiddenStyle;
+	if (returnObj.Filters[0].Parameter != false) {
+		hiddenStyle = '';
+		if (returnObj.Filters[0].AgainstHiddenField)
+			hiddenStyle = 'display:none; ';
+		fHtml += '<div style="' + hiddenStyle + 'float:left;margin-right:8px;margin-bottom:16px;min-width:300px;width:auto;">';
+	}
 	var controlsIds = new Array();
 	var index = 0;
 	while (index < returnObj.Filters.length) {
@@ -267,7 +272,10 @@ function RefreshFilters(returnObj) {
 		controlsIds[controlsIds.length] = new Object();
 		controlsIds[controlsIds.length - 1].Id = divsId;
 		controlsIds[controlsIds.length - 1].filterDesc = filter.Description;
-		fHtml += '<div id="' + filter.Uid + '" style="float:left;margin-right:8px;min-width:300px;">';
+		hiddenStyle = '';
+		if (returnObj.Filters[index].AgainstHiddenField)
+			hiddenStyle = ' style="display:none;"';
+		fHtml += '<div id="' + filter.Uid + '" style="' + hiddenStyle + 'float:left;margin-right:8px;min-width:300px;">';
 		fHtml += '<div onmouseover="javascript:this.children[0].style.opacity=0.5; this.children[0].style.backgroundImage=\'url(\\\'rs.aspx?image=ModernImages.clear-dark-bigger.png\\\')\'; this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage=\'url(\\\'rs.aspx?image=gear.gif\\\')\'; document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + ' - ' + filter.OperatorFriendlyName + '\';" onmouseout="javascript:for(var index = 0; index < this.children.length - 1; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + '\';" style="background-color:#CCEEFF;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;">';
 		if (typeof nrvConfig == 'undefined' || nrvConfig == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false) {
 			fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:RemoveFilterByUid(\'' + filter.Uid + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
@@ -278,8 +286,12 @@ function RefreshFilters(returnObj) {
 		fHtml += '</div></div>';
 		index++;
 		if (index < returnObj.Filters.length) {
-			if (returnObj.Filters[index].Parameter != false)
-				fHtml += '<div style="float:left;margin-right:8px;margin-bottom:16px;">';
+			if (returnObj.Filters[index].Parameter != false) {
+				hiddenStyle = '';
+				if (returnObj.Filters[index].AgainstHiddenField)
+					hiddenStyle = ' style="display:none;"';
+				fHtml += '<div style="' + hiddenStyle + 'float:left;margin-right:8px;margin-bottom:16px;">';
+			}
 		}
 	}
 	fHtml += '<div id="addFilterControls" style="display:none;float:left;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>';
