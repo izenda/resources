@@ -127,7 +127,7 @@
         <b lang-text="js_WordDocument">Word document</b><br>
         <span lang-text="js_WordDocumentMessage">File for Microsoft's word processor, most widely-used office application</span>
       </a></li>
-      <li><a href="javascript:void(0)" title="" 
+      <li><a id="csvExportBtn" href="javascript:void(0)" title="" 
         onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=CSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.csv-32.png" alt="" />
         <b lang-text="js_CSV">CSV</b><br>
