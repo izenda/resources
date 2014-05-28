@@ -3,6 +3,7 @@ var showingC = false;
 var calendars;
 var filtersDataObtained = false;
 var makeFiltersFloat;
+var refreshFiltersLastGUID = '';
 
 function ToggleFilters() {
 	var filtersBodyDiv$ = $('#filtersBodyDiv');
@@ -128,6 +129,7 @@ function CommitFiltersData(updateReportSet) {
 	if (!updateReportSet)
 		cmd = 'refreshcascadingfilters';
 	var requestString = 'wscmd=' + cmd + '&wsarg0=' + encodeURIComponent(JSON.stringify(dataToCommit));
+	refreshFiltersLastGUID = GenerateGuid();
 	if (updateReportSet)
 		AjaxRequest(urlSettings.urlRsPage, requestString, FiltersDataSet, null, 'setfiltersdata');
 	else
@@ -137,7 +139,7 @@ function CommitFiltersData(updateReportSet) {
 				if (jq$('#' + positions[i].id) != null)
 					jq$('#' + positions[i].id)[0].scrollTop = positions[i].scroll;
 			}
-		}, null, 'refreshcascadingfilters');
+		}, null, 'refreshcascadingfilters-' + refreshFiltersLastGUID);
 }
 
 /**
@@ -347,7 +349,7 @@ function RefreshFilters(returnObj) {
 }
 
 function CascadingFiltersChanged(returnObj, id) {
-	if (id != 'refreshcascadingfilters' || returnObj == null)
+	if (id != ('refreshcascadingfilters-' + refreshFiltersLastGUID) || returnObj == null)
 		return;
 	RefreshFilters(returnObj);
 }
