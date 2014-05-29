@@ -108,10 +108,10 @@ function CommitFiltersData(updateReportSet) {
 	var dataToCommit = new Array();
 	for (var index = 0; index < filtersData.length; index++) {
 		var filterObj = new Object();
-		var fData = GetFilterValues(index);
-		filterObj.Values = fData.slice(1);
-		filterObj.Uid = fData[0];
 		filterObj.Removed = filtersData[index].Removed;
+		filterObj.Uid = filtersData[index].Uid;
+		if (!filtersData[index].Removed)
+			filterObj.Values = GetFilterValues(index).slice(1);
 		dataToCommit[index] = filterObj;
 	}
 	// Save scroll position within the checkbox filters' divs
