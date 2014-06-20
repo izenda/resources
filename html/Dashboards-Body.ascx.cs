@@ -50,6 +50,8 @@ public partial class Resources_Html_Dashboards_Body : UserControl
   {
     ReportInfo[] cachedInfos = AdHocSettings.AdHocConfig.FilteredListReports();
     string rn = Request.Params["rn"];
+		crv.NoToolbar = true;
+		crv.UpdateReferenceGenerated = UpdateReferenceGenerated;
     if (AdHocContext.CurrentReportSet.IsDashBoard) {
       try {
         if (AdHocContext.CurrentReportSet.ReportName == "Dashboard")
@@ -60,6 +62,8 @@ public partial class Resources_Html_Dashboards_Body : UserControl
 				}
       }
       catch { }
+			if (Request.Params["emptyreport"] == "1" && String.IsNullOrEmpty(Request.Params["rn"]))
+				return;
     }
     if (String.IsNullOrEmpty(Request.Params["rn"])) {
       string demoUrl = "";
@@ -81,8 +85,6 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       Response.End();
       return;
     }
-    crv.NoToolbar = true;
-    crv.UpdateReferenceGenerated = UpdateReferenceGenerated;
     string currentCat = Request.Params["catSel"];
     if (String.IsNullOrEmpty(currentCat) && !String.IsNullOrEmpty(rn)) {
       string[] nodes = CropSlashes(rn).Split(AdHocSettings.CategoryCharacter);
