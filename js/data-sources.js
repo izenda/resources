@@ -70,10 +70,10 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	}
 }
 
-jQuery.extend({
+jq$.extend({
 	getValues: function (url) {
 		var result = null;
-		$.ajax({
+		jq$.ajax({
 			url: url,
 			type: 'get',
 			dataType: 'json',
@@ -143,7 +143,7 @@ function ReversedReportSet(returnObj, id) {
 }
 
 function initDataSources(url) {
-	databaseSchema = $.getValues(url);
+	databaseSchema = jq$.getValues(url);
 	if (databaseSchema != null) {
 		databaseSchema.sort(function (a, b) {
 			if (a.DataSourceCategory < b.DataSourceCategory)
@@ -153,12 +153,12 @@ function initDataSources(url) {
 			return 0;
 		});
 		var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);
-		$(".database").remove();
+		jq$(".database").remove();
 		tInd = 0;
 		var html = "";
 		for (key in databaseSchema)
 			html += renderDatabase(databaseSchema[key], key);
-	  $(html).prependTo("#databases");
+		jq$(html).prependTo("#databases");
 		NDS_Init();
 //		ExistingReportSetInit();
 		/*var databases = $(".database");
@@ -458,7 +458,7 @@ function StoreFieldProps(newField) {
 }
 
 function PreviewFieldManual() {
-  $(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
   PreviewFieldToDiv();
 }
 
@@ -468,7 +468,7 @@ function PreviewFieldDelayed(timeOut) {
 	}
 	catch (e) {
 	}
-	$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
 	previewFieldTimeout = setTimeout(PreviewFieldToDiv, timeOut);
 }
 
@@ -503,12 +503,12 @@ function PreviewField(field, container) {
 
 	function FieldPreviewed(returnObj, id) {
 		if (thisRequestObject.readyState == 4 && thisRequestObject.status == 200)
-			$(container).html(thisRequestObject.responseText);
+			jq$(container).html(thisRequestObject.responseText);
 	}
 }
 
 function PreviewReportManual() {
-  $(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
   PreviewReportToDiv();
 }
 
@@ -518,7 +518,7 @@ function PreviewReportDelayed(timeOut) {
 	}
 	catch (e) {
 	}
-	$(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
 	previewReportTimeout = setTimeout(PreviewReportToDiv, timeOut);
 }
 
@@ -527,13 +527,13 @@ function PreviewReportToDiv() {
 }
 
 function InitEmptyPreviewArea(container) {
-	var container$ = $(container);
+	var container$ = jq$(container);
 	container$.empty();
 
-	var h2$ = $('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
+	var h2$ = jq$('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
 	container$.append(h2$);
   
-  var div$ = $('<div>');
+	var div$ = jq$('<div>');
 	
 	div$.addClass('preview-wrapper-empty');
 	div$.text(IzLocal.Res("js_DragHereToPreview", "Drag field here to preview"));
@@ -569,12 +569,12 @@ function PreviewReport(container) {
 
 	function ReportPreviewed(returnObj, id) {
 		if (thisRequestObject.readyState == 4 && thisRequestObject.status == 200) {
-			$(container).empty();
+			jq$(container).empty();
 
-			var h2$ = $('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
+			var h2$ = jq$('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
 			h2$.appendTo(container);
 
-			var containerWrapper$ = $('<div>');
+			var containerWrapper$ = jq$('<div>');
 			containerWrapper$.addClass('preview-wrapper');
 			containerWrapper$.appendTo(container);
 
@@ -582,43 +582,43 @@ function PreviewReport(container) {
 
 			var visualGroupUsed = (thisRequestObject.responseText.indexOf('class=\'VisualGroup\'') >= 0);
 			if (visualGroupUsed) {
-			    var tablesContainer$ = $('<div>');
-			    var mainTableTemplate$ = $('.preview-wrapper table.ReportTable').clone().html('');
+				var tablesContainer$ = jq$('<div>');
+				var mainTableTemplate$ = jq$('.preview-wrapper table.ReportTable').clone().html('');
 			    var tableIndex = 1;
-			    $('.preview-wrapper table.ReportTable').find('tr').each(function (i) {
-			        if ($(this).attr("class") == 'VisualGroup' && i == 0) {
-			            var vgTitleTable$ = $('<table>');
+			    jq$('.preview-wrapper table.ReportTable').find('tr').each(function (i) {
+			    	if (jq$(this).attr("class") == 'VisualGroup' && i == 0) {
+			    		var vgTitleTable$ = jq$('<table>');
 			            vgTitleTable$.attr('targettable', 'ReportTable_1');
-			            vgTitleTable$.append($(this).clone());
+			            vgTitleTable$.append(jq$(this).clone());
 			            tablesContainer$.append(vgTitleTable$);
 			        }
-			        else if ($(this).attr("class") == 'VisualGroup' && i != 0) {
+			    	else if (jq$(this).attr("class") == 'VisualGroup' && i != 0) {
 			            var tblToInsert = mainTableTemplate$.clone();
 			            tblToInsert.attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex);
 			            tablesContainer$.append(tblToInsert);
 
-			            var vgTitleTable$ = $('<table>');
+			            var vgTitleTable$ = jq$('<table>');
 			            var nextIndex = tableIndex + 1;
 			            vgTitleTable$.attr('targettable', 'ReportTable_' + nextIndex);
-			            vgTitleTable$.append($(this).clone());
+			            vgTitleTable$.append(jq$(this).clone());
 			            tablesContainer$.append(vgTitleTable$);
 			            
 			            tableIndex++;
 			            mainTableTemplate$.html('');
 			            //mainTableTemplate$.append($(this).clone());
 			        }
-			        else if (i == $('.preview-wrapper table.ReportTable').find('tr').length - 1) {
-			            mainTableTemplate$.append($(this).clone());
+			    	else if (i == jq$('.preview-wrapper table.ReportTable').find('tr').length - 1) {
+			    		mainTableTemplate$.append(jq$(this).clone());
 			            tablesContainer$.append(mainTableTemplate$.clone().attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex));
 			            tableIndex++;
 			        }
 			        else {
-			            mainTableTemplate$.append($(this).clone());
+			    		mainTableTemplate$.append(jq$(this).clone());
 			        }
 			    });
 			    tablesContainer$.find('tr.VisualGroup').find('td').attr('style', 'border-width:0px;overflow:hidden;white-space: nowrap;');
 			    tablesContainer$.find('tr.VisualGroup').attr('onclick', 'javascript:EBC_ExpandTable_New(this);');
-			    $('.preview-wrapper table.ReportTable').replaceWith(tablesContainer$.html());
+			    jq$('.preview-wrapper table.ReportTable').replaceWith(tablesContainer$.html());
 			    try {
 			        var preview;
 			        var masterTable;
@@ -629,8 +629,8 @@ function PreviewReport(container) {
 			            if (i == tableIndex - 1)
 			                setTimeout(function () {
 			                    preview.InitialResizeColumns();
-			                    preview.ResizeColumnsInAllTables($('table.ReportTable_1'));
-			                    $('table.ReportTable_1').width($('table.ReportTable_1').width());
+			                    preview.ResizeColumnsInAllTables(jq$('table.ReportTable_1'));
+			                    jq$('table.ReportTable_1').width(jq$('table.ReportTable_1').width());
 			                    masterTable.initResize();
 			                }, 0);
 			        }
@@ -662,13 +662,13 @@ var newThCurrent = null;
 var newThCurrent_index = null;
 
 function initDraggable() {
-  $('a.field').draggable({
+	jq$('a.field').draggable({
     cancel: 'a.field.checked, a.field[locked="true"]',
     cursor: 'move',
     accept: 'table.ReportTable, div.preview-wrapper-empty',
     helper: function(event, ui) {
-      var foo = $('<span style="z-index: 1001; background-color: #0d70cd; white-space: nowrap;"></span>');
-      var target = $(event.currentTarget).clone();
+    	var foo = jq$('<span style="z-index: 1001; background-color: #0d70cd; white-space: nowrap;"></span>');
+    	var target = jq$(event.currentTarget).clone();
       target.css('background-color', '#0d70cd');
       foo.append(target);
       return foo;
@@ -679,8 +679,8 @@ function initDraggable() {
 
     start: function(event, ui) {
       fieldsDragPreformingNow = true;
-      fieldDragged$ = $(event.currentTarget);
-      if ($('table.ReportTable').length == 0 && $('table.ReportTable_1').length == 0) {
+      fieldDragged$ = jq$(event.currentTarget);
+      if (jq$('table.ReportTable').length == 0 && jq$('table.ReportTable_1').length == 0) {
         // no preview
         isEmptyTable = true;
       } else {
@@ -690,10 +690,10 @@ function initDraggable() {
     },
 
     drag: function(event, ui) {
-      var dragTarget = $('table.ReportTable');
+    	var dragTarget = jq$('table.ReportTable');
       var rTableOffset = dragTarget.offset();
-      var w = $(dragTarget).width();
-      var h = $(dragTarget).height();
+      var w = jq$(dragTarget).width();
+      var h = jq$(dragTarget).height();
       if (rTableOffset != null) {
           if (ColReorder.aoInstances == 0)
               return;
@@ -710,8 +710,8 @@ function initDraggable() {
           } else {
               if (newThCurrent != null)
                   return;
-              var nTh = $('table.ReportTable thead tr:first-child');
-              newThCurrent = $('<th>');
+              var nTh = jq$('table.ReportTable thead tr:first-child');
+              newThCurrent = jq$('<th>');
               event['target'] = newThCurrent[0];
               colReorder._fnMouseDownHiddenHelper.call(colReorder, event, nTh);
           }
@@ -720,13 +720,13 @@ function initDraggable() {
           // Dirty workaround. Need to know the exact tables count
           for (var i = 1; i < 1000; i++) {
               {
-                var table = $('table.ReportTable_' + i);
+              	var table = jq$('table.ReportTable_' + i);
                 if (table == undefined || table == null)
                   break;
 
                 var rTableOffset_i = table.offset();
-                var w_i = $(table).width();
-                var h_i = $(table).height();
+                var w_i = jq$(table).width();
+                var h_i = jq$(table).height();
                 if (rTableOffset_i != null) {
                     if (oDatatable['table.ReportTable_' + i] == null || oDatatable['table.ReportTable_' + i]._oPluginColReorder == null)
                         return;
@@ -743,8 +743,8 @@ function initDraggable() {
                     } else {
                         if (newThCurrent != null && newThCurrent_index == i)
                             return;
-                        var nTh = $('table.ReportTable_' + i + ' thead tr:first-child');
-                        newThCurrent = $('<th>');
+                        var nTh = jq$('table.ReportTable_' + i + ' thead tr:first-child');
+                        newThCurrent = jq$('<th>');
                         event['target'] = newThCurrent[0];
 
                         if (oDatatable['table.ReportTable_' + newThCurrent_index] != null && oDatatable['table.ReportTable_' + newThCurrent_index]._oPluginColReorder != null) {
@@ -763,10 +763,10 @@ function initDraggable() {
     stop: function(event, ui) {
       fieldsDragPreformingNow = false;
       if (isEmptyTable) {
-        var dragTarget = $('div.preview-wrapper-empty');
+      	var dragTarget = jq$('div.preview-wrapper-empty');
         var rTableOffset = dragTarget.offset();
-        var w = $(dragTarget).outerWidth();
-        var h = $(dragTarget).outerHeight();
+        var w = jq$(dragTarget).outerWidth();
+        var h = jq$(dragTarget).outerHeight();
         if (rTableOffset != null)
           if (event.pageX < rTableOffset.left || event.pageX > rTableOffset.left + w
 						|| event.pageY < rTableOffset.top || event.pageY > rTableOffset.top + h)
@@ -1072,14 +1072,14 @@ function initFieldsDsp(nwid) {
   var dbKey = hId.substr(0, firstUnder);
   var tKey = hId.substr(firstUnder + 1);
 
-  var willBeTableIndex = $(nwid).attr('tableInd');
+  var willBeTableIndex = jq$(nwid).attr('tableInd');
   fieldsIndex = 0;
   var html = renderSections(willBeTableIndex, databaseSchema[dbKey].tables[tKey].fields);
   html = '<div class=\'table-fields-sections-background\'></div>' + html;
   contentDiv.innerHTML = html;
 
   initDraggable();
-  $(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function(event) {
+  jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
     event.preventDefault();
   });
   var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
@@ -1088,7 +1088,7 @@ function initFieldsDsp(nwid) {
 						<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 						<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
 						<span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
-  $(".table-view-triggers").filter(function(index) {
+	jq$(".table-view-triggers").filter(function (index) {
     var shouldBeReturned = false;
     var npAttr;
     try {
@@ -1104,18 +1104,18 @@ function initFieldsDsp(nwid) {
     return shouldBeReturned;
   }).append(triggersHtml);
 
-  $(".table").each(function() {
-    setView($(this), "fields-view");
+	jq$(".table").each(function () {
+		setView(jq$(this), "fields-view");
   });
 
-  $(".field-popup-trigger").mouseup(function (event) {
+	jq$(".field-popup-trigger").mouseup(function (event) {
       event.cancelBubble = true;
       (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
       (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
     var parent = this.parentElement;
     var fieldSqlName = parent.getAttribute('fieldid');
     if (fieldSqlName != null && fieldSqlName != '') {
-        var friendlyName = $(parent).find('.field-name').html();
+    	var friendlyName = jq$(parent).find('.field-name').html();
         ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
     }
     return false;
@@ -1135,14 +1135,14 @@ function DsClicked(dsInd) {
 			DisengageDs(clicked);
 	}
 	NDS_UpdateDatasourcesAvailability(false);
-	var clicked$ = $(clicked);
+	var clicked$ = jq$(clicked);
 	var table$ = clicked$.closest("div.table");
 	initFieldsDsp(clicked.parentNode);  
 	table$.addClass("opened");
 	if (table$.hasClass('checked')) {
 		table$.removeClass('checked');
-		$.each(table$.find('a.field'), function (i, f) {
-			var field$ = $(f);
+		jq$.each(table$.find('a.field'), function (i, f) {
+			var field$ = jq$(f);
 			var sorder = field$.attr('sorder');
 			if (sorder != -1 && sorder != '-1') {
 				eval(field$.attr('onmouseup'));
@@ -1194,7 +1194,7 @@ function FiClickForcedDrag(tind, find, programmatic, enableOnly) {
   if (clickedDs.getAttribute('locked') == 'false' || clickedDs.getAttribute('sorder') != '-1') {
     var clickedFi = document.getElementById('tcb' + tind + 'fcb' + find);
     EngageDs(clickedDs);
-    $(clickedFi).addClass('checked');
+    jq$(clickedFi).addClass('checked');
     csOrder++;
   }
   NDS_UpdateDatasourcesAvailability(false);
@@ -1213,7 +1213,7 @@ function GotInstantReportConfig(returnObj, id) {
         return;
     nirConfig = returnObj;
 
-    $(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
+    jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
         event.preventDefault();
     });
 
@@ -1223,14 +1223,14 @@ function GotInstantReportConfig(returnObj, id) {
 						<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 						<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
 						<span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
-    $(triggersHTML).appendTo(".table-view-triggers");
+    jq$(triggersHTML).appendTo(".table-view-triggers");
 
-    $(".table-header a .table-view-triggers span").live("click", function (event) {
+    jq$(".table-header a .table-view-triggers span").live("click", function (event) {
         event.cancelBubble = true;
         (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
         (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
-        var trigger = $(this);
-        var table = $(this).closest(".table");
+        var trigger = jq$(this);
+        var table = jq$(this).closest(".table");
         var view = trigger.attr("data-view");
         setView(table, view);
         if (!table.hasClass('opened')) {
@@ -1239,8 +1239,8 @@ function GotInstantReportConfig(returnObj, id) {
         }
     });
 
-    $(".table").each(function () {
-        setView($(this), "fields-view");
+    jq$(".table").each(function () {
+    	setView(jq$(this), "fields-view");
     });
 
     leftDiv = document.getElementById('leftDiv');
@@ -1249,11 +1249,11 @@ function GotInstantReportConfig(returnObj, id) {
     blueHeader = document.getElementById('blueHeader');
     setInterval(checkLeftHeight, 100);
 
-    $(window).resize(function (event) {
+    jq$(window).resize(function (event) {
         checkLeftHeight();
         updatePreviewPosition(event);
     });
-    $(window).scroll(function (event) {
+    jq$(window).scroll(function (event) {
         updatePreviewPosition(event);
     });
     checkLeftHeight();

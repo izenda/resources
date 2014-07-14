@@ -164,7 +164,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
     otherTabs.Controls.Add(new LiteralControl(tabsOtherStr));
     if (currentTab >= 0) {
       int currentTabInv = tabs.Length - currentTab - 1;
-      Session["StartUpScriptDBS"] = "<script language='javascript'>function SwitchTab() {$(\"#cdTabs\").tabs({ active: " + currentTabInv + "});}</script>";
+      Session["StartUpScriptDBS"] = "<script language='javascript'>function SwitchTab() {jqdb$(\"#cdTabs\").tabs({ active: " + currentTabInv + "});}</script>";
     }
     if (String.IsNullOrEmpty(rn) && !string.IsNullOrEmpty(currentCat)) {
       string[] sortedRs = frs[currentCat].ToArray();

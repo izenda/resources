@@ -6,7 +6,7 @@ var makeFiltersFloat;
 var refreshFiltersLastGUID = '';
 
 function ToggleFilters() {
-	var filtersBodyDiv$ = $('#filtersBodyDiv');
+	var filtersBodyDiv$ = jq$('#filtersBodyDiv');
 	if (filtersBodyDiv$.css('visibility') == 'hidden') {
 		filtersBodyDiv$.css('visibility', 'visible');
 		filtersBodyDiv$.css('height', 'auto');
@@ -117,7 +117,7 @@ function CommitFiltersData(updateReportSet) {
 	// Save scroll position within the checkbox filters' divs
 	var positions = [];
 	jq$(jq$('#htmlFilters > table tr')[0]).find('td div').each(function () {
-		if (!$(this).attr('id') || this.scrollTop == 0)
+		if (!jq$(this).attr('id') || this.scrollTop == 0)
 			return;
 		positions.push(
         {

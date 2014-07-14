@@ -103,7 +103,7 @@ is_ie9_or_newer = false;
   function updatePreviewPosition(event) {
     if (whiteHeader == null || blueHeader == null)
       return;
-    var y = $(this).scrollTop();
+    var y = jq$(this).scrollTop();
     var rhdLeft = pdiv.offsetLeft;
     var pdtop = whiteHeader.clientHeight + blueHeader.clientHeight;
     if (rhdLeft > 100) {
@@ -146,7 +146,7 @@ is_ie9_or_newer = false;
 
       //begin some app
       initDraggable();
-      $(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
+      jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
         event.preventDefault();
       });
       var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
@@ -155,7 +155,7 @@ is_ie9_or_newer = false;
             <span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
             <span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
             <span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
-      $(".table-view-triggers").filter(function (index) {
+        jq$(".table-view-triggers").filter(function (index) {
         var shouldBeReturned = false;
         var npAttr;
         try {
@@ -171,11 +171,11 @@ is_ie9_or_newer = false;
         return shouldBeReturned;
       }).append(triggersHtml);
 
-      $(".table").each(function () {
-        setView($(this), "fields-view");
+        jq$(".table").each(function () {
+            setView(jq$(this), "fields-view");
       });
 
-      $(".field-popup-trigger").mouseup(function (event) {
+        jq$(".field-popup-trigger").mouseup(function (event) {
           event.cancelBubble = true;
           (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
           (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
@@ -184,79 +184,79 @@ is_ie9_or_newer = false;
         if (fieldSqlName != null && fieldSqlName != '') {
           ShowFieldProperties(fieldSqlName, parent.children[2].innerHTML, parent.getAttribute('id'));
         }
-        var fieldName = $(this).parent().find(".field-name").text();
+        var fieldName = jq$(this).parent().find(".field-name").text();
         return false;
       });
     }
   }
 
-  $(document).ready(function () {
+  jq$(document).ready(function () {
       FixLayoutForIE8();
       GetInstantReportConfig();
   });
 
-  $(".database-header a").live("click", function () {
-    var dbh = $(this).parent().parent();
+  jq$(".database-header a").live("click", function () {
+      var dbh = jq$(this).parent().parent();
     initializeTables(dbh);
     dbh.toggleClass("opened", animationTime);
     setTimeout(DsDomChanged, animationTime + 100);
   });
 
-  $(".table-header a").live("click", function() {
+  jq$(".table-header a").live("click", function () {
     initFieldsDsp(this);
-    var dsh = $(this).parent().parent();
+    var dsh = jq$(this).parent().parent();
     dsh.toggleClass("opened", animationTime);
     setTimeout(DsDomChanged, animationTime + 100);
   });
 
-  $("a.field .preview").live("click", function (event) {
+  jq$("a.field .preview").live("click", function (event) {
       event.cancelBubble = true;
       (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
       (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
     if (previewWasVisible)
       return;
-    var field = $(this).closest(".field");
+    var field = jq$(this).closest(".field");
     var isShown = field.hasClass("show-preview");
     hideFieldsPreview();
     if (!field.find('.preview-image').html())
-      PreviewField($(this).attr("fieldId"), field.find('.preview-image'));
+        PreviewField(jq$(this).attr("fieldId"), field.find('.preview-image'));
     if (!isShown)
       field.addClass("show-preview");
     //  if (!isShown) field.addClass("show-preview", animationTime/2);
   });
 
-  $(".table-header a .checkbox-container").live("click", function (event) {
+  jq$(".table-header a .checkbox-container").live("click", function (event) {
       event.cancelBubble = true;
       (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
       (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
   });
 
-  $("a.field").live("click", function () {
+  jq$("a.field").live("click", function () {
     hideFieldsPreview();
   });
 
-  $("a.uncheck").live("click", function () {
+  jq$("a.uncheck").live("click", function () {
     NDS_UnckeckAllDs();
   });
 
-  $("a.collapse").live("click", function () {
+  jq$("a.collapse").live("click", function () {
     collapseAll();
   });
 
   function collapseAll() {
-    $(".database-header a, .table-header a").parent().parent().removeClass("opened", animationTime);
+      jq$(".database-header a, .table-header a").parent().parent().removeClass("opened", animationTime);
   }
 
   function collapseTables() {
-    var tables = $(".table-header a");
+      var tables = jq$(".table-header a");
     for (var tCnt = 0; tCnt < tables.length; tCnt++)
       if (tables[tCnt].children[0].getAttribute('sorder') == '-1')
-        $(tables[tCnt]).closest(".table").removeClass("opened", animationTime);
+          jq$(tables[tCnt]).closest(".table").removeClass("opened", animationTime);
   }
 
   function checkUsedTables() {
-    $(".table").each(function (i, el) {
-      el = $(el);
+      jq$(".table").each(function (i, el) {
+          el = jq$(el);
       if (el.find(".field.checked").length) {
         el.addClass("checked");
       } else {
@@ -267,9 +267,9 @@ is_ie9_or_newer = false;
 
   function clearView(table) {
     table.each(function () {
-      var arrayClasses = $(this).attr("class").split(" ");
+        var arrayClasses = jq$(this).attr("class").split(" ");
       for (var i = 0; i < arrayClasses.length; i++) {
-        if (arrayClasses[i].indexOf('-view') != -1) $(this).removeClass(arrayClasses[i]);
+          if (arrayClasses[i].indexOf('-view') != -1) jq$(this).removeClass(arrayClasses[i]);
       }
     });
   }
@@ -288,11 +288,11 @@ is_ie9_or_newer = false;
   }
 
   function restoreViews() {
-    $(".table.fields-view .table-view-triggers span[data-view='fields-view']").addClass("selected");
+      jq$(".table.fields-view .table-view-triggers span[data-view='fields-view']").addClass("selected");
   }
 
   function hideFieldsPreview() {
-    var fields = $(".field");
+      var fields = jq$(".field");
     fields.removeClass("show-preview");
   }
 
@@ -304,28 +304,28 @@ is_ie9_or_newer = false;
 
 
 <script type="text/javascript">
-  $(function () {
-    $("#help").dialog({
+    jq$(function () {
+        jq$("#help").dialog({
       autoOpen: false,
       width: 960,
       height: "auto", height: 640,
       modal: true,
       buttons: {
         "Continue": function () {
-          $(this).dialog("close");
+            jq$(this).dialog("close");
         }
       },
       show: { effect: "fade", duration: 200, },
       hide: { effect: "fade", duration: 200, }
     });
-    $("#help_trigger").click(function () {
-      $("#help").dialog("open");
+        jq$("#help_trigger").click(function () {
+            jq$("#help").dialog("open");
       return false;
     });
 
     var fieldPropertiesDialogContainer = document.getElementById('fieldPropertiesDialogContainer');
     FP_AppendDialogMarkup(fieldPropertiesDialogContainer, true);
-    fieldPopup = $("#data-source-field").dialog({
+    fieldPopup = jq$("#data-source-field").dialog({
       autoOpen: false,
       width: 950,
       height: "auto",
@@ -333,25 +333,25 @@ is_ie9_or_newer = false;
       buttons: {
         "OK": function () {
           StoreFieldProps(FP_CollectProperties());
-          $(this).dialog("close");
+          jq$(this).dialog("close");
           if (updateOnAdvancedOk)
             PreviewReportManual();
         },
         "Cancel": function () {
-          $(this).dialog("close");
+            jq$(this).dialog("close");
         }
       },
       open: function () {
-        $(this).parents(".ui-dialog-buttonpane button:eq(0)").focus();
+          jq$(this).parents(".ui-dialog-buttonpane button:eq(0)").focus();
       },
       show: { effect: "fade", duration: 200, },
       hide: { effect: "fade", duration: 200, },
       beforeClose: function (event, ui) {
-          $('#fieldSamplePreview').html('');
+          jq$('#fieldSamplePreview').html('');
       }
     });
 
-    $(".field-popup-trigger").mouseup(function (event) {
+    jq$(".field-popup-trigger").mouseup(function (event) {
         event.cancelBubble = true;
         (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
         (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
@@ -360,16 +360,16 @@ is_ie9_or_newer = false;
       if (fieldSqlName != null && fieldSqlName != '') {
         ShowFieldProperties(fieldSqlName, parent.children[2].innerHTML, parent.getAttribute('id'));
       }
-      var fieldName = $(this).parent().find(".field-name").text();
+      var fieldName = jq$(this).parent().find(".field-name").text();
 
       fieldPopup.dialog("option", "title", fieldName);
       fieldPopup.dialog("open");
       return false;
     });
 
-    $(".ui-widget-overlay").live("click", function () {
-      $("#help").dialog("close");
-      $("#data-source-field").dialog("close");
+    jq$(".ui-widget-overlay").live("click", function () {
+        jq$("#help").dialog("close");
+        jq$("#data-source-field").dialog("close");
     });
 
   });

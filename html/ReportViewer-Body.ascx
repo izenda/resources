@@ -301,7 +301,7 @@
     var responseServerWithDelimeter;
     var switchTabAfterRefreshCycle = false;
 
-    $(document).ready(function () {
+    jq$(document).ready(function () {
         InitializeViewer();
     });
 </script>

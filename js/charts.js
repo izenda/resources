@@ -2,15 +2,15 @@
 
 // Add new chart
 
-$(function () {
-	$('#add_chart').dialog({
+jq$(function () {
+	jq$('#add_chart').dialog({
 		autoOpen: true,
 		width: 960,
 		height: "auto", height: 640,
 		modal: true,
 		buttons: {
 			"Continue": function () {
-				$(this).dialog("close");
+				jq$(this).dialog("close");
 			}
 		},
 		show: {
@@ -24,28 +24,28 @@ $(function () {
 	});
 
 	// Dialog Link
-	$('#dialog_link').click(function () {
-		$('#dialog').dialog('open');
+	jq$('#dialog_link').click(function () {
+		jq$('#dialog').dialog('open');
 		return false;
 	});
-	$('#add_chart_link').click(function () {
-		$('#add_chart').dialog('open');
+	jq$('#add_chart_link').click(function () {
+		jq$('#add_chart').dialog('open');
 		return false;
 	});
 
-	$('.ui-widget-overlay').live("click", function() {
+	jq$('.ui-widget-overlay').live("click", function () {
 		//Close the dialog
-		$("#add_chart").dialog("close");
-		$("#dialog").dialog("close");
+		jq$("#add_chart").dialog("close");
+		jq$("#dialog").dialog("close");
 	});
 
-	$(function() {
-		$( "#v-tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
+	jq$(function () {
+		jq$("#v-tabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
 	});
 });
 
 
-$(document).keydown(function(e)
+jq$(document).keydown(function (e)
 {
     if (e.which == 116) // key code of the F5 button
     {
@@ -54,15 +54,15 @@ $(document).keydown(function(e)
 }); 
 
 
-$(document).ready(function() {
+jq$(document).ready(function () {
 //	$("#myModal").modal("show");
-	$(".chart-type-selector").parent().parent().addClass("has-chart-type-selector");
+	jq$(".chart-type-selector").parent().parent().addClass("has-chart-type-selector");
 
-	$('a[href="#edit_title"], .h2').live("click", function(event) {
+	jq$('a[href="#edit_title"], .h2').live("click", function (event) {
 		event.preventDefault();
 		event.stopPropagation();
-		$(this).closest("h2").find("input").removeClass("h2").focus().focusout(function() {
-			$(this).closest("h2").find("input").addClass("h2");
+		jq$(this).closest("h2").find("input").removeClass("h2").focus().focusout(function () {
+			jq$(this).closest("h2").find("input").addClass("h2");
 		});
 
 	});

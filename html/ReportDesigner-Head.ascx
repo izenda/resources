@@ -1,7 +1,19 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 
+<!-- Styles Resources -->
+<link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
+
+<!-- Styles Internal -->
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
+
+<!-- jQuery Core -->
+<script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
+<script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
+
 <script type="text/javascript">
-    $(document).ready(function () {
+    jq$(document).ready(function () {
         var fieldWithRn = document.getElementById('reportNameFor2ver');
         if (fieldWithRn != undefined && fieldWithRn != null) {
             var frn = decodeURIComponent(fieldWithRn.value.replace(/\\'/g, "'"));

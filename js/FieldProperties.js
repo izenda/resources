@@ -58,7 +58,7 @@
   valueJ.innerHTML = msvs[field.ValueJ];
   valueJ.setAttribute('msv', msvs[field.ValueJ]);
 	if (IsIE()) {
-	    $('.multi-valued-check-advanced').css("margin-left", '3px');
+	    jq$('.multi-valued-check-advanced').css("margin-left", '3px');
 	}
   dialog.dialog("option", "title", field.FriendlyName);
   dialog.dialog("open");

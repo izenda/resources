@@ -583,7 +583,7 @@ tr.ReportFooter td {
 }
 
 .iz-ui-tabs {
-  margin-left: 18px;
+  
 }
 .iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {
   background-color: transparent !important;
@@ -642,8 +642,6 @@ tr.ReportFooter td {
   background-color: #fff;
   position: relative;
   text-align: center;
-  padding: 2px 5px;
-  outline: 1px solid #cecece;
   width:170px;
   height:220px;
 }
@@ -734,11 +732,11 @@ tr.ReportFooter td {
 
 
 
-.ui-tabs, .ui-tabs .ui-tabs-panel {
+.iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {
   background-color: transparent !important;
 }
 
-.ui-tabs .ui-tabs-nav li.ui-state-default {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-state-default {
 /*  background-color: transparent;
   border: 1px solid transparent;*/
   margin: 0 0 0 6px;
@@ -747,32 +745,32 @@ tr.ReportFooter td {
   text-transform: uppercase;
   letter-spacing: 1px;
 }
-.ui-tabs .ui-tabs-nav li.ui-state-default a {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-state-default a {
   color: #000;
   padding: 10px 12px;
   position: relative;
   top: 2px;
 }
-.ui-tabs .ui-tabs-nav li.ui-state-default a:hover {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-state-default a:hover {
   background-color: #888888;
   color:#eeeeee;
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-tabs-selected {
   border: 1px solid #c4c4c4;
   border-bottom: 1px solid transparent;
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-tabs-selected a {
   border-bottom: 1px solid #f9f9f9;
 }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a:hover {
+.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-tabs-selected a:hover {
   background-color: transparent;
   color: #000;
 }
 
 
-.ui-tabs-panel div.thumbs {
+.iz-ui-tabs-panel div.thumbs {
 }
-.ui-tabs-panel div.thumb {
+.iz-ui-tabs-panel div.thumb {
   cursor:  pointer;
   position: relative;
   display:  inline-block;
@@ -780,21 +778,21 @@ tr.ReportFooter td {
   margin: 14px;
   vertical-align: top;
 }
-.ui-tabs-panel div.thumb img {
+.iz-ui-tabs-panel div.thumb img {
   width:  170px;
   height: 220px;
   outline: 1px solid #cecece;
   background-color: #fff;
 }
-.ui-tabs-panel div.thumb:hover img {
+.iz-ui-tabs-panel div.thumb:hover img {
   opacity: .85;
   outline: none;
 }
-.ui-tabs-panel div.thumb:hover {
+.iz-ui-tabs-panel div.thumb:hover {
   outline: 8px solid #cddbf6;
   background-color: #cddbf6;
 }
-.ui-tabs-panel div.thumb .thumb-buttons {
+.iz-ui-tabs-panel div.thumb .thumb-buttons {
   display: block;
   position: absolute;
   overflow: visible;
@@ -805,12 +803,12 @@ tr.ReportFooter td {
   left: 0;
   right: 0;
 }
-.ui-tabs-panel div.thumb .thumb-edit, .ui-tabs-panel div.thumb .thumb-template, .ui-tabs-panel div.thumb .thumb-print,
-.ui-tabs-panel div.thumb .thumb-remove {
+.iz-ui-tabs-panel div.thumb .thumb-edit, .iz-ui-tabs-panel div.thumb .thumb-template, .iz-ui-tabs-panel div.thumb .thumb-print,
+.iz-ui-tabs-panel div.thumb .thumb-remove {
   display: none;
 }
-.ui-tabs-panel div.thumb:hover .thumb-edit, .ui-tabs-panel div.thumb:hover .thumb-template, .ui-tabs-panel div.thumb:hover .thumb-print,
-.ui-tabs-panel div.thumb:hover .thumb-remove {
+.iz-ui-tabs-panel div.thumb:hover .thumb-edit, .iz-ui-tabs-panel div.thumb:hover .thumb-template, .iz-ui-tabs-panel div.thumb:hover .thumb-print,
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove {
   display: block;
   width: 28px;
   height: 28px;
@@ -822,26 +820,26 @@ tr.ReportFooter td {
   right: 0;
   opacity: .75;
 }
-.ui-tabs-panel div.thumb:hover .thumb-remove {
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove {
   background-image: url(../../rs.aspx?image=ModernImages.remove-icon.png);
 }
-.ui-tabs-panel div.thumb:hover .thumb-edit {
+.iz-ui-tabs-panel div.thumb:hover .thumb-edit {
   background-image: url(../../rs.aspx?image=ModernImages.edit-icon.png);
   right: 0px;
   top: 192px;
 }
-.ui-tabs-panel div.thumb:hover .thumb-print {
+.iz-ui-tabs-panel div.thumb:hover .thumb-print {
   background-image: url(../../rs.aspx?image=ModernImages.print-icon.png);
   right: 28px;
   top: 192px;
 }
-.ui-tabs-panel div.thumb:hover .thumb-template {
+.iz-ui-tabs-panel div.thumb:hover .thumb-template {
   background-image: url(../../rs.aspx?image=ModernImages.template-icon.png);
   right: 56px;
   top: 192px;
 }
 
-.ui-tabs-panel div.thumb:hover .thumb-remove:hover, .ui-tabs-panel div.thumb:hover .thumb-edit:hover, .ui-tabs-panel div.thumb:hover .thumb-template:hover, .ui-tabs-panel div.thumb:hover .thumb-print:hover {
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-edit:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-template:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-print:hover {
   background-color: #b0c8e9;
   opacity: 1;
 }
@@ -857,7 +855,7 @@ tr.ReportFooter td {
   position: relative; 
   word-break: break-all;
 }
-.ui-tabs-panel div.thumb:hover div.thumb-title {
+.iz-ui-tabs-panel div.thumb:hover div.thumb-title {
 }
 
 #reportListDiv {
@@ -996,32 +994,32 @@ tr.ReportFooter td {
   font-weight: normal !important;
 }
 
-.ui-widget-content .ui-state-default,
-.j-metro .ui-button,
-.ui-dialog-titlebar,
-.ui-accordion .ui-accordion-header a,
-.ui-tabs-nav .ui-state-default a {
+.iz-ui-widget-content .iz-ui-state-default,
+.j-metro .iz-ui-button,
+.iz-ui-dialog-titlebar,
+.iz-ui-accordion .iz-ui-accordion-header a,
+.iz-ui-tabs-nav .iz-ui-state-default a {
   font-weight: normal !important;
 }
-.ui-dialog-titlebar {
+.iz-ui-dialog-titlebar {
 }
-.ui-widget-content .ui-state-default,
-.j-metro .ui-button {
+.iz-ui-widget-content .iz-ui-state-default,
+.j-metro .iz-ui-button {
   font-family: "Segoe UI", Arial, sans-serif;
 }
-.ui-accordion .ui-accordion-header a {
+.iz-ui-accordion .iz-ui-accordion-header a {
   padding-left: 2.2em !important;
 }
 
-.ui-widget-overlay {
+.iz-ui-widget-overlay {
   opacity: .5 !important;
   background-color: #000 !important;
 }
-.ui-dialog, 
-.ui-dialog .ui-dialog-buttonpane {
+.iz-ui-dialog, 
+.iz-ui-dialog .iz-ui-dialog-buttonpane {
   border-color: #fff !important;
 }
-.ui-dialog-titlebar {
+.iz-ui-dialog-titlebar {
   background-color: #fff !important;
   border-color: #fff !important;
   color: #000 !important;

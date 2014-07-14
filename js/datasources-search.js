@@ -12,11 +12,11 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 		}
 	}
 
-	var inputCtrl$ = $("#fieldSearch");
-	var clearBtn$ = $("#fieldSearchClearBtn");
-	var searchBtn$ = $("#fieldSearchBtn");
-	var waitMessage$ = $("#fieldSearchMessage");
-	var searchAutocomplete$ = $("#fieldSearchAutoComplete");
+	var inputCtrl$ = jq$("#fieldSearch");
+	var clearBtn$ = jq$("#fieldSearchClearBtn");
+	var searchBtn$ = jq$("#fieldSearchBtn");
+	var waitMessage$ = jq$("#fieldSearchMessage");
+	var searchAutocomplete$ = jq$("#fieldSearchAutoComplete");
 	var currentItem$ = null;
 	var autocompleteHover = false;
 	var autocompleteTimer = null;
@@ -174,13 +174,13 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	var initializeCache = function () {
 		databaseStateCache = [];
 		tableStateCache = [];
-		$.each($("div.database.opened"), function (index, item) {
-			var id = $(item).find("div.database-header").find("a").attr("href");
+		jq$.each(jq$("div.database.opened"), function (index, item) {
+			var id = jq$(item).find("div.database-header").find("a").attr("href");
 			databaseStateCache.push(id);
 		});
 
-		$.each($("div.table.opened"), function (index, item) {
-			var id = $(item).find("div.table-header").find("a").attr("href");
+		jq$.each(jq$("div.table.opened"), function (index, item) {
+			var id = jq$(item).find("div.table-header").find("a").attr("href");
 			tableStateCache.push(id);
 		});
 		return null;
@@ -246,7 +246,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			return result;
 		
 		// database search
-		$.each(databaseSchema, function (i, database) {
+		jq$.each(databaseSchema, function (i, database) {
 			if (database == null) return;
 			var databaseNameText = database["DataSourceCategory"];
 			var complexSearchDatabaseResult = true;
@@ -256,7 +256,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			
 			if (complexSearchDatabaseResult) {
 				// table search
-				$.each(database["tables"], function (tableNameText, table) {
+				jq$.each(database["tables"], function (tableNameText, table) {
 					var complexSearchTableResult = true;
 					if (complexSearch && searchTextTable) {
 						complexSearchTableResult = tableNameText.toLowerCase().indexOf(searchTextTable) >= 0;
@@ -274,7 +274,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 					
 					if (complexSearchTableResult) {
 						// field search
-						$.each(table["fields"], function (fieldNameText, field) {
+						jq$.each(table["fields"], function (fieldNameText, field) {
 							var htmlResultField;
 							if (complexSearch) {
 								htmlResultField = getTextDataResult(fieldNameText, searchTextField);
@@ -327,7 +327,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			var htmlResult = data["htmlResult"];
 
 			// create autocomplete item
-			$("<div>", {
+			jq$("<div>", {
 				"class": "autocomplete-item",
 				"database": data["databaseName"] != null ? data["databaseName"] : "",
 				"table": data["tableName"] != null ? data["tableName"] : "",
@@ -335,9 +335,9 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			}).appendTo(searchAutocomplete$);
 
 			var childs = searchAutocomplete$.children();
-			var autocompleteResult$ = $(childs[childs.length - 1]);
+			var autocompleteResult$ = jq$(childs[childs.length - 1]);
 			autocompleteResult$.live("click", function (e) {
-				var target = $(e.currentTarget);
+				var target = jq$(e.currentTarget);
 				var db = target.attr("database");
 				var table = target.attr("table");
 				var field = target.attr("field");
@@ -353,8 +353,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 
 			// create autocomplete item header and field
 
-			$("<span>", { "class": "autocomplete-item-field" }).appendTo(autocompleteResult$);
-			$("<span>", { "class": "autocomplete-item-header" }).appendTo(autocompleteResult$);
+			jq$("<span>", { "class": "autocomplete-item-field" }).appendTo(autocompleteResult$);
+			jq$("<span>", { "class": "autocomplete-item-header" }).appendTo(autocompleteResult$);
 
 			var headerString = "";
 			if (data["tableName"] != null) {
@@ -432,8 +432,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			hideAutocomplete();
 		}
 		// clear selection
-		$.each($("div.database"), function (i, database) {
-			var database$ = $(database);
+		jq$.each(jq$("div.database"), function (i, database) {
+			var database$ = jq$(database);
 			var databaseTables$ = database$.find('div.database-tables');
 			var databaseName$ = database$.find("span.database-name");
 			databaseName$.removeClass("autocomplete-item-field-selection");
@@ -448,8 +448,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 				if (!database$.hasClass("opened") && databaseStateCache.indexOf(idDatabase) >= 0)
 					database$.addClass("opened");
 			}
-			$.each(database$.find("div.table"), function (j, table) {
-			  var table$ = $(table);
+			jq$.each(database$.find("div.table"), function (j, table) {
+				var table$ = jq$(table);
 				var tableName$ = table$.find("span.table-name");
 				tableName$.removeClass("autocomplete-item-field-selection");
 				if (table$.hasClass("closed")) {
@@ -464,8 +464,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 						table$.addClass("opened");
 				}
 
-				$.each(table$.find("a.field"), function (k, field) {
-					var field$ = $(field);
+				jq$.each(table$.find("a.field"), function (k, field) {
+					var field$ = jq$(field);
 					var fieldName$ = field$.find("span.field-name");
 					if (field$.hasClass("closed")) {
 						field$.stop();
@@ -500,14 +500,14 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	    }
 	  }
 	  var categoriesToExpand = new Array();
-	  $.each(databaseSchema, function(i, database) {
+	  jq$.each(databaseSchema, function (i, database) {
 	    if (database == null) {
 	      return;
 	    }
 	    var databaseFound = false;
 	    var databaseNameText = database["DataSourceCategory"];
 	    var tablesToExpand = new Array();
-	    $.each(database["tables"], function(tableNameText, table) {
+	    jq$.each(database["tables"], function (tableNameText, table) {
 	      var tableFound = false;
 	      var tableid = table["sysname"];
 	      if (!isTextSearch && tableNameText) {
@@ -520,7 +520,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	        databaseFound = true;
 	        tableFound = true;
 	      }
-	      $.each(table["fields"], function(fieldNameText, field) {
+	      jq$.each(table["fields"], function (fieldNameText, field) {
 	        if (!isTextSearch && fieldNameText) {
 	          if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
 									&& searchObject["table"] == tableNameText && searchObject["database"] == databaseNameText) {
@@ -544,10 +544,10 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	      }
 	    });
 	    var database$;
-	    $.each($('span.database-name'), function(idatabase, databaseDom) {
-	      var txt = $(databaseDom).text();
+	    jq$.each(jq$('span.database-name'), function (idatabase, databaseDom) {
+	    	var txt = jq$(databaseDom).text();
 	      if (txt && txt.toLowerCase() == database["DataSourceCategory"].toLowerCase())
-	        database$ = $(databaseDom).closest("div.database");
+	      	database$ = jq$(databaseDom).closest("div.database");
 	    });
 	    if (database$) {
 	      if (databaseFound) {
@@ -560,10 +560,10 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	  });
 	  for (var cCnt = 0; cCnt < categoriesToExpand.length; cCnt++) {
 	    var db = document.getElementById(categoriesToExpand[cCnt].CategoryToExpand);
-	    initializeTables($(db));
+	    initializeTables(jq$(db));
 	    for (var tCnt = 0; tCnt < categoriesToExpand[cCnt].TablesToExpand.length; tCnt++) {
 	      var tableSysName = categoriesToExpand[cCnt].TablesToExpand[tCnt];
-	      var tableTitleSpan = $('span[tableid="' + tableSysName + '"]');
+	      var tableTitleSpan = jq$('span[tableid="' + tableSysName + '"]');
 	      if (tableTitleSpan.length > 0) {
 	        initFieldsDsp(tableTitleSpan[0].parentElement);
 	      }
@@ -598,12 +598,12 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	    }
 	  }
 
-	  $.each(databaseSchema, function(i, database) {
+	  jq$.each(databaseSchema, function (i, database) {
 	    if (database == null) return;
 	    var databaseFound = false;
 	    var databaseNameText = database["DataSourceCategory"];
 
-	    $.each(database["tables"], function(tableNameText, table) {
+	    jq$.each(database["tables"], function (tableNameText, table) {
 	      var tableFound = false;
 	      var tableHighlight = false;
 	      var tableid = table["sysname"];
@@ -624,7 +624,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	      }
 
 	      // Field search
-	      $.each(table["fields"], function(fieldNameText, field) {
+	      jq$.each(table["fields"], function (fieldNameText, field) {
 	        var fieldHighLight = false;
 	        var fieldFound = false;
 	        var needToCheck = false;
@@ -661,9 +661,9 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 
 	        // found ?
 	        if (fieldFound) {
-	          $.each($('a.field[fieldid="' + field["sysname"] + '"]'), function(fieldIdx, fieldDom) {
+	        	jq$.each(jq$('a.field[fieldid="' + field["sysname"] + '"]'), function (fieldIdx, fieldDom) {
 	            // find all fields
-	            var field$ = $(fieldDom);
+	          	var field$ = jq$(fieldDom);
 	            if (fieldHighLight) {
 	              field$.find("span.field-name").addClass("autocomplete-item-field-selection");
 	            }
@@ -679,7 +679,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	      });
 
 	      // found ?
-	      var table$ = $('div.table-header a span.checkbox-container[tableid="' + table["sysname"] + '"]')
+	      var table$ = jq$('div.table-header a span.checkbox-container[tableid="' + table["sysname"] + '"]')
 							.closest("div.table");
 	      if (tableFound) {
 	        var tableName$ = table$.find("span.table-name");
@@ -692,10 +692,10 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 
 	    // found ?
 	    var database$;
-	    $.each($('span.database-name'), function(idatabase, databaseDom) {
-	      var txt = $(databaseDom).text();
+	    jq$.each(jq$('span.database-name'), function (idatabase, databaseDom) {
+	    	var txt = jq$(databaseDom).text();
 	      if (txt && txt.toLowerCase() == database["DataSourceCategory"].toLowerCase())
-	        database$ = $(databaseDom).closest("div.database");
+	      	database$ = jq$(databaseDom).closest("div.database");
 	    });
 	    if (database$) {
 	      if (databaseFound) {
@@ -706,8 +706,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	    }
 	  });
 
-	  $.each($("div.table.checked"), function(idx, table) {
-	    var table$ = $(table);
+	  jq$.each(jq$("div.table.checked"), function (idx, table) {
+	  	var table$ = jq$(table);
 	    table$.addClass("opened").removeClass("closed");
 	    table$.closest("div.database").addClass("opened").removeClass("closed");
 	  });

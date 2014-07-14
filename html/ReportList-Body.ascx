@@ -34,7 +34,7 @@
             <div id="reportListDiv" style="visibility: hidden;">
             </div>
 
-            <div id="addInstantReportContainerDiv" class="ui-tabs-panel ui-widget-content ui-corner-bottom" style="display: none;">
+            <div id="addInstantReportContainerDiv" class="iz-ui-tabs-panel iz-ui-widget-content iz-ui-corner-bottom" style="display: none;">
               <div id="irdivlink" class="thumb">
                 <div class="thumb-container light-colored-text report-list-icon">
                   <div style="text-align: center; width: 100%; top: 50%; position: absolute; margin-top: -14px;" lang-text="js_NewReport">New report</div>
