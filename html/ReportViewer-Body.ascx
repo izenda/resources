@@ -52,7 +52,8 @@
     </div>
     </div>
 
-  <div class="btn-toolbar" style="margin: 4px 38px; z-index: 6; position: relative; width: 50%;">
+<div style="position: relative; margin: 0 8px; padding: 0px 6px;">
+  <div class="btn-toolbar" style="margin: 4px 8px; z-index: 6; position: absolute; top: 12px; white-space: nowrap;">
   <div class="btn-group">
     <a class="btn" id="rlhref" href="ReportList.aspx" lang-title="js_Reportlist" title="Report list">
       <img class="icon" src="rs.aspx?image=ModernImages.report-list.png" lang-alt="js_Reportlist" alt="Report list" />
@@ -207,25 +208,13 @@
 
 
 <div class="tabbable" id="navdiv">
-  <div style="position: relative; width: 100%; height: 0px; overflow: visible;">
-  <div style="position: absolute; top: -1.8em; right: 0; width: 100%; z-index: 5;">
-  <ul class="nav nav-tabs" style="margin:0px;">
-    <li style="padding-left: 8px; display: none;">
-      <select id="RowCount" name="RowCount" class="yaselect-select" title="Rows per page">
-        <option value="1">1</option>
-        <option value="10">10</option>
-        <option value="100" selected="selected">100</option>
-        <option value="1000">1000</option>
-        <option value="10000">10000</option>
-        <option value="-1" lang-text="js_All">All</option>
-      </select>
-    </li>
+  <div style="display: inline-block;height: 45px; width: 285px;" class="tabs-header-spacer">&nbsp;</div>
+  <ul class="nav nav-tabs tabs-header" style="line-height: 20px;display: inline-block;float: right;">
     <li class="visibility-pivots designer-only hide-locked"><a href="#tab3" data-toggle="tab" lang-text="js_Pivots" ><img src="rs.aspx?image=ModernImages.pivots.png" alt="" class="icon" />Pivots</a></li>
     <li class="designer-only hide-locked"><a href="#tab2" data-toggle="tab" lang-text="js_Fields"><img src="rs.aspx?image=ModernImages.fields.png" alt="" class="icon" />Fields</a></li>
     <li id="tab1li"><a href="#tab1" data-toggle="tab" id="tab1a" lang-text="js_Filters"><img src="rs.aspx?image=ModernImages.filter.png" alt="" class="icon" />Filters</a></li>
   </ul>
-  </div>
-  </div>
+  <div class="clearfix" style="border-bottom: 1px solid #c4c4c4;"></div>
   <div id="repHeader"></div>
             <div id="updateBtnPC" class="f-button" style="margin-bottom: 4px; margin-left:40px;">
               <a id="btnUpdateResultsC" class="blue" onclick="GetRenderedReportSet(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="Refresh" /><span class="text" lang-text="js_UpdateResults">Update results</span></a>
@@ -294,6 +283,7 @@
     </div>
   </div>
 
+</div>
 </div>
 <script type="text/javascript">
     var urlSettings;
