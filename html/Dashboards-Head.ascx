@@ -568,7 +568,7 @@
     }
     catch (e) {
     }
-    AdHoc.Utility.InitGaugeAnimations();
+    AdHoc.Utility.InitGaugeAnimations(null, null, false);
 
 	});
 </script>
