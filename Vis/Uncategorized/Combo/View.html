@@ -1,0 +1,171 @@
+﻿<div id="VIS_ID"></div>
+
+<script type="text/javascript" id="skip_within_izenda_1" src="jquery-latest.js"></script>
+<script type="text/javascript" id="skip_within_izenda_2" src="highcharts.js"></script>
+<script type="text/javascript" id="skip_within_izenda_3" src="highcharts-more.js"></script>
+
+<script type="text/javascript">
+	(function(H) {
+		var addEvent = H.addEvent;
+
+		H.wrap(H.Chart.prototype, 'init', function(proceed) {
+			proceed.apply(this, Array.prototype.slice.call(arguments, 1));
+
+			var chart = this,
+				legend = chart.legend,
+				options = chart.legend.options,
+				isDragging,
+				downX, downY,
+				optionsX, optionsY,
+				currentX, currentY;
+
+			if (!options.draggable)
+				return;
+
+			legend.box.css({ cursor: 'move' });
+
+			addEvent(legend.box.element, 'mousedown', function(e) {
+				e = chart.pointer.normalize(e);
+				downX = e.chartX;
+				downY = e.chartY;
+				optionsX = options.x;
+				optionsY = options.y;
+				currentX = legend.group.attr('translateX');
+				currentY = legend.group.attr('translateY');
+				isDragging = true;
+			});
+			addEvent(chart.container, 'mousemove', function(e) {
+				if (!isDragging)
+					return;
+
+				e = chart.pointer.normalize(e);
+				var draggedX = e.chartX - downX,
+				    draggedY = e.chartY - downY;
+
+				options.x = optionsX + draggedX;
+				options.y = optionsY + draggedY;
+
+				if (chart.pointer.selectionMarker)
+					chart.pointer.selectionMarker = chart.pointer.selectionMarker.destroy();
+			});
+
+			addEvent(document, 'mouseup', function() {
+				isDragging = false;
+			});
+		});
+	}(Highcharts));
+	(function ExecuteVIS_ID() {
+		function getItem(list, index) {
+			return list[index % list.length];
+		}
+
+		try {
+			var VIS_EMBEDDED_DATA;
+
+			var width = 720, height = 500, minWidth = 254;
+			var colors = ['#2f7ed8', '#8bbc21', '#0d233a', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'],
+				types = ['column', 'spline', 'spline', 'spline'], //types = ['line', 'spline', 'area', 'areaspline', 'column'],
+				dashstyles = ['solid', 'shortdash', 'shortdot', 'shortdashdot', 'shortdashdotdot', 'dot', 'dash', 'longdash', 'dashdot', 'longdashdot', 'longdashdotdot'];
+
+			var util = window.ReportScripting, vis,
+				emb = typeof util != 'undefined',
+				isThumbnails = (document.URL === 'about:blank');
+
+			var VIS_COLUMNS = emb ? VIS_COLUMNS : [{ name: 'Ship Country' }, { name: 'Count Distinct(Order ID)' }, { name: 'Sum(Freight)' }, { name: 'Sum(Quantity)' }];
+
+			if (emb) {
+				if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}))
+					return;
+
+				vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+				var rows = vis.getRows(true),
+				columns = util.exchangeAxes(rows),
+				items = vis.getItems();
+
+				width = vis.getWidth();
+				height = vis.getHeight();
+
+				if (width < minWidth) { width = minWidth; }
+
+				jq$('#VIS_ID').width(width)
+					.height(height);
+				
+				function showInsufficientWidth(width, height) {
+					var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+					jq$('#VIS_ID').html(insufficientWidthMessage);
+				}
+				function checkInsufficientWidth(width, height, count) {
+					return (width < ((count > 31) ? count * 15 : 480));
+				}
+
+				var insufficient = checkInsufficientWidth(width, height, rows.length);
+				jq$('#VIS_ID div#insufficient-width-message').remove();
+				if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+					showInsufficientWidth(width, height);
+					util.registerResize("VIS_ID", ExecuteVIS_ID);
+					return;
+				}
+			}
+			else {
+				columns = [
+					['Argentina', 'Austria', 'Belgium', 'Brazil', 'Canada', 'Denmark', 'Finland', 'France', 'Germany', 'Ireland', 'Italy', 'Mexico', 'Norway', 'Poland', 'Portugal', 'Spain', 'Sweden', 'Switzerland', 'UK', 'USA', 'Venezuela'],
+					[16, 40, 19, 83, 30, 18, 22, 77, 122, 19, 28, 28, 6, 7, 13, 23, 37, 18, 56, 122, 46],
+					[1772.6700, 27731.4400, 4271.0300, 14582.9800, 6321.9000, 4286.4800, 2874.0900, 12626.5800, 38170.7500, 7214.4900, 2108.8900, 3229.5100, 897.0500, 461.5300, 1749.5300, 2419.2500, 10146.1200, 3913.0200, 8490.5300, 46165.8200, 7872.4400],
+					[339, 5167, 1392, 4247, 1984, 1170, 885, 3254, 9213, 1684, 822, 1025, 161, 205, 533, 718, 2235, 1275, 2742, 9330, 2936]
+				];
+			}
+
+			var yaxis = [], series = [];
+			for (var i = 1; i < VIS_COLUMNS.length; i++) {
+				yaxis.push({
+					labels: { style: { color: getItem(colors, i-1) } },
+					title: {
+						text: null,
+						style: { color: getItem(colors, i-1) }
+					},
+					opposite: i % 2 == 1
+				});
+				series.push({
+					name: VIS_COLUMNS[i].name,
+					type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline', //getItem(types, i-1), //'column',
+					color: getItem(colors, i-1),
+					yAxis: i - 1,
+					data: columns[i]/*,
+				dashStyle: getItem(dashstyles, i-1)*/
+				});
+			}
+
+			jq$('#VIS_ID').highcharts({
+				//chart: { zoomType: 'xy' },
+				title: { text: emb ? VIS_CONTEXT.title : '' },
+				xAxis: [{ categories: columns[0] }],
+				yAxis: yaxis,
+				legend: {
+					enabled: true
+				},
+				series: series,
+				credits: { enabled: false },
+				tooltip: {
+					shared: true,
+					formatter: function () {
+						var html = [];
+						html.push('<span style="font-size: 10px;">' + this.x + '</span>');
+						jq$.each(this.points, function (i, point) {
+							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+							html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
+					});
+						return html.join("<br/>");
+					}
+				}
+			});
+
+			if (emb)
+				util.registerResize("VIS_ID", ExecuteVIS_ID);
+		} catch (e) {
+			var docElement = jq$('<object>');
+			docElement.attr('data', VIS_CONTEXT.docUrl);
+			docElement.width(width).height(height);
+			jq$('#VIS_ID').html(docElement);
+		}
+	})();
+</script>

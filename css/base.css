@@ -26,8 +26,8 @@ a.button:active, a.button:active:hover {
 }
 
 a.button.default {
-  background-color: #0d70cd;
-  border-color: #0d70cd;
+  background-color: #1C4E89;
+  border-color: #1C4E89;
 }
 a.button.default:link, a.button.default:visited {
   color: #fff;
@@ -37,5 +37,5 @@ a.button.default:link:hover, a.button.default:visited:hover {
 }
 a.button.default:active, a.button.default:active:hover {
   background-color: #fff;
-  color: #0d70cd;
+  color: #1C4E89;
 }

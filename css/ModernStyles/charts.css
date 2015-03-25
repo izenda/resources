@@ -1,0 +1,259 @@
+/* Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED */
+
+/* float clearing for IE6 */
+* html .css-only-clearfix{
+  height: 1%;
+  overflow: visible;
+}
+
+/* float clearing for IE7 */
+*+html .css-only-clearfix{
+  min-height: 1%;
+}
+
+/* float clearing for everyone else */
+.css-only-clearfix:after{
+  clear: both;
+  content: ".";
+  display: block;
+  height: 0;
+  visibility: hidden;
+  font-size: 0;
+}
+
+
+.controls {
+  text-align: left;
+}
+.link-button img {
+  vertical-align: middle; 
+  position: relative; 
+  top: -2px;
+  margin-right: 4px;
+}
+.link-button {
+  margin: 3px 0;
+  padding: 8px 12px;
+  display: inline-block;
+}
+.link-button:hover {
+  background-color: #eee;
+}
+
+
+.ui-dialog-titlebar a.ui-dialog-titlebar-close .ui-icon-closethick {
+  position: relative;
+  left: -12px;
+}
+.ui-dialog-titlebar a.ui-dialog-titlebar-close.ui-state-hover {
+  background: none !important;
+}
+.ui-dialog-titlebar .ui-state-hover .ui-icon,
+.ui-dialog-titlebar a.ui-dialog-titlebar-close.ui-state-hover .ui-icon-closethick,
+.ui-dialog-titlebar a.ui-dialog-titlebar-close .ui-icon-closethick {
+  background-image: url(###RS###image=ModernImages.remove-icon.png) !important;
+  background-position: 0 0;
+  background-repeat: none;
+}
+.ui-dialog .ui-dialog-content {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.ui-tabs-vertical {
+  width: 48em;
+}
+.ui-tabs-vertical .ui-tabs-nav {
+  padding: 0; 
+  float: left; 
+  border: none !important;
+}
+.ui-tabs-vertical .ui-tabs-nav li.divider {
+  width: 92%;
+  height: 0;
+  background-color: #fff;
+  border-bottom: 2px dotted #ccc !important;
+  margin: 6px !important;
+  display: block;
+}
+.ui-tabs-vertical .ui-tabs-nav li {
+  clear: left;
+  margin: 0 0 0 0 !important; 
+  display: block;
+  width: 100%;
+  line-height: 18px;
+  letter-spacing: 0px !important; 
+  top: 0 !important;    
+}
+.ui-tabs-vertical .ui-tabs-nav li a {
+  display: block;
+  width: 9.6em;
+  text-transform: none !important;
+  margin-bottom: 0;
+  border: none !important;
+  background-color: #fff !important;
+  top: 0 !important;    
+}
+.ui-tabs-vertical .ui-tabs-nav li a,
+.ui-tabs-vertical .ui-tabs-nav .ui-state-active a {
+  height: auto !important;
+  line-height: 18px !important;
+  padding-top: 8px !important;
+}
+
+.ui-tabs.ui-tabs-vertical .ui-tabs-nav li.ui-state-default a:hover, 
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-hover a {
+  color: #000 !important;
+  background-color: #eee !important;
+}
+.ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active {
+}
+.ui-tabs-vertical .ui-tabs-panel {
+  float: left; 
+  width: 34em;
+}
+.ui-tabs-vertical .ui-tabs-nav .ui-state-active a {
+  border: none !important;
+  background-color: #ccc !important;
+}
+.ui-tabs-vertical ul.chart-tabs {
+  border-right: 2px solid #ccc !important;
+}
+.ui-dialog .ui-tabs .ui-widget-content,
+.ui-tabs .ui-widget-content {
+  border: 0px none transparent !important;
+}
+.ui-dialog .ui-tabs .ui-tabs-panel,
+.ui-tabs .ui-tabs-panel {
+  padding: 0 1em;
+}
+.chart-tabs li a img {
+  margin: 0 4px;
+  position: relative;
+  top: 2px;
+}
+#v-tabs.ui-tabs {
+  top: 0;     
+}
+#v-tabs h2 {
+  font-size: 1em !important;
+  color: #000;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  min-height: 22px;
+  line-height: 22px;
+}
+#tabs-1 a:hover {
+  background-color: #ddd;
+  outline: 4px solid #ddd;
+}
+#tabs-1 a {
+  display: inline-block;
+  max-width: 208px;
+  margin: 0 1em 1em 0;
+  text-decoration: none !important;
+  padding-bottom: 4px;
+}
+#tabs-1 a img {
+  width: 200px;
+  border: 2px solid #ddd;
+  padding: 2px;
+}
+.chart-type-selector {
+  width: auto;
+  white-space: nowrap;
+}
+.chart-type-selector a:hover {
+  border: 4px solid #aaa;
+}
+.chart-type-selector a {
+  background-color: #fff;
+  border: 4px solid #eee;
+  display: inline-block;
+  font-size: smaller;
+  margin: 0 8px 8px 0;
+  line-height: 14px;
+  padding: 2px;
+  vertical-align: top;
+}
+.chart-type-selector a img {
+  width: 60px;
+}
+.chart-type-selector .current {
+  border: 4px solid #1C4E89;
+}
+.chart-type-selector .more:hover,
+.chart-type-selector .more {
+  border: none;
+}
+.ui-dialog .ui-tabs-panel {
+}
+.ui-dialog .ui-tabs-panel h2 a {
+  color: #aaa;
+  padding: 0 2px;
+}
+
+.ui-dialog .ui-tabs-panel h2 input.h2 {
+  /* remove input's visuals */
+  border-color: #ddd;
+  border-style: solid;
+  border-width: 1px;
+  display: inline-block;
+  width: auto;
+  box-shadow: none;
+  background: #fff;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+}
+.ui-dialog .ui-tabs-panel h2 input {
+  /* on focus style */
+  border-width: 1px;
+  cursor: auto;
+  padding: 2px !important;
+  min-width: 5em;
+  max-width: 300px;
+  margin-top: -10px;
+}
+
+.ui-dialog .ui-tabs-panel,
+#v-tabs div {
+  position: relative;
+}
+#v-tabs .type-layer,
+#v-tabs .input-layer,
+#v-tabs .preview-layer {
+  position: absolute;
+}
+#v-tabs .input-layer,
+#v-tabs .type-layer {
+  margin-top: 42px;
+  top: 1em;
+  left: 1.5em;
+}
+#v-tabs .type-layer {
+  z-index: 3005;
+}
+#v-tabs .input-layer {
+  z-index: 3006;
+  margin-left: 0;
+}
+#v-tabs .preview-layer {
+  z-index: 3004;
+  margin-left: 0;
+  position: relative;
+}
+#v-tabs .has-chart-type-selector .preview-layer,
+#v-tabs .has-chart-type-selector .input-layer {
+  margin-top: 96px;
+}
+.ui-dialog .ui-tabs-panel h2 input,
+#v-tabs .input-layer input,
+#v-tabs .input-layer select {
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 18px;
+}
+#v-tabs .input-layer input,
+#v-tabs .input-layer select {
+  position: absolute;
+}

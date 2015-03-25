@@ -1,0 +1,65 @@
+table.fvTable,.fvTable
+{
+	width: 100%;
+	border-style: none;
+	border-width: 0px;
+	border: none;
+	margin-bottom: 10px;
+}
+
+.fvVgTable, .fvVgTable tr.fvVgRow, .fvVgTable tr.fvVgRow td,
+.fvVgTable > tr, .fvVgTable > tr > td
+{
+	border-style: none;
+	border-width: 0px;
+	border: none;
+}
+
+tr.fvRow, .fvRow
+{
+	background: white;
+	border-style: none;
+	border-width: 0px;
+	border: none;
+}
+
+tr.fvRow td.fvOddItem, tr.fvRow td.fvEvenItem, .fvOddItem, .fvEvenItem
+{
+	background: white;
+	border-width: 0px;
+	border-style: none;
+	border: none;
+	border-bottom: 1px gainsboro solid !important;
+	font-weight: normal !important;
+	font-family: 'Segoe UI',Arial,sans-serif;
+	padding: 2px 2px 2px 0px;
+	font-size: 10pt;
+}
+
+table.fvTable tbody tr.fvRow:last-child:not(:first-child) td.fvOddItem, table.fvTable tbody tr.fvRow:last-child:not(:first-child) td.fvEvenItem
+{
+	border-bottom: none !important;
+}
+
+tr.fvRow td.fvOddItem, .fvOddItem
+{
+	text-align: left;
+}
+
+tr.fvRow td.fvEvenItem, .fvEvenItem
+{
+	text-align: right;
+}
+
+tr.fvRow td.fvBlankItem, .fvRow, .fvBlankItem
+{
+	background: white;
+	border: none!important;
+}
+
+.VisualGroup tr
+{
+	border-width: 0px;
+	border-style: none;
+	border: none;
+}

@@ -35,8 +35,20 @@
         for (var i = 0; i < columnsCount; i++)
             order.push(i);
 
-        // init datatable
+    	// init datatable
+        var aaSortingArr = new Array();
+        for (var index = 0; index < columnData.length; index++) {
+        	if (typeof columnData[index]['sorting'] == 'undefined' || columnData[index]['sorting'] == null)
+        		continue;
+        	if (columnData[index]['sorting'] == '1')
+        		aaSortingArr[aaSortingArr.length] = [index, 'asc'];
+        	else if (columnData[index]['sorting'] == '-1')
+        		aaSortingArr[aaSortingArr.length] = [index, 'desc'];
+        }
+        if (aaSortingArr.length == 0)
+        	aaSortingArr[aaSortingArr.length] = [0, 'asc'];
         oDatatable[originalSelector] = previewTable.dataTable({
+        	"aaSorting": aaSortingArr,
             "sDom": 'R',
             "bPaginate": false,
             "bDestroy": true,
@@ -191,6 +203,12 @@
 		collectHeaderInfo();
 		collectFooterInfo();
 
+		var headerAligns = new Array();
+		previewTable.find('tr.ReportHeader td').each(function (idx) {
+			var elem$ = jq$(this);
+			if (elem$.attr('align'))
+				headerAligns.push(elem$.attr('align'));
+		});
 		previewTable.find('tr.ReportHeader').remove();
 		
 		var footerAligns = new Array();
@@ -207,7 +225,7 @@
 	  }
 		
 		// create table header
-		var createHeader = function() {
+		var createHeader = function () {
 			var thead$ = jq$('<thead>');
 			thead$.prependTo(previewTable);
 			var tr$ = jq$('<tr>');
@@ -223,6 +241,8 @@
 				th$.attr('sorder', columnData[i]['sorder']);
 				th$.attr('itmId', columnData[i]['id']);
 				th$.css('width', columnWidths[i]);
+				if (headerAligns.length >= idx)
+					th$.attr('align', headerAligns[idx]);
 				th$.html(item);
 				th$.appendTo(tr$);
 				i++;
@@ -291,7 +311,7 @@
 	/**
 	 * Collect field information from datasources
 	 */
-	var collectSelectedFields = function() {
+	var collectSelectedFields = function () {
 		var selectedFields$ = jq$('a.field:not([sorder="-1"])');
 		if (selectedFields$ == null || selectedFields$.length == 0) {
 			InitEmptyPreviewArea('#rightHelpDiv');
@@ -302,6 +322,9 @@
 			var itm$ = jq$(item);
 			var itmId = itm$.attr('id');
 			var sorder = parseInt(itm$.attr('sorder'));
+			var sorting = '0';
+			if (typeof itm$.attr('sorting') != 'undefined' && itm$.attr('sorting') != null)
+				sorting = itm$.attr('sorting');
 			var name = itm$.find('span.field-name').text();
 
 			if (fieldsOpts != undefined && fieldsOpts != null
@@ -315,7 +338,7 @@
 			    if (max < sorder)
 			        max = sorder;
 
-			    columnData.push({ id: itmId, sorder: sorder, name: name });
+			    columnData.push({ id: itmId, sorder: sorder, name: name, sorting: sorting });
 			}
 		});
 		columnData = columnData.sort(function (a, b) {
@@ -419,6 +442,27 @@
 	    });
 	}
 
+	var GetSortingData = function () {
+		var result = new Array();
+		var previewHeaders$ = previewTable.find('tr.ReportHeader th');
+		if (previewHeaders$ && previewHeaders$.length > 0) {
+			for (var j = 0; j < previewHeaders$.length; j++) {
+				var th$ = jq$(previewHeaders$[j]);
+				var itmId = th$.attr('itmId');
+				var sortAttr = th$.attr('aria-sort');
+				var sorting = '0';
+				if (typeof sortAttr != 'undefined' && sortAttr != null) {
+					if (sortAttr == 'ascending')
+						sorting = '1';
+					else if (sortAttr == 'descending')
+						sorting = '-1';
+				}
+				result[itmId] = sorting;
+			}
+		}
+		return result;
+	}
+
 	var ResizeColumnsInAllTables = function (sourceTable) {
 	    // Dirty workaround. Need to know the exact tables count
 	    for (var i = 2; i < 1000; i++) {
@@ -466,7 +510,8 @@
 	    initialize: initialize,
 	    ResizeColumnsInAllTables: ResizeColumnsInAllTables,
 	    InitialResizeColumns: InitialResizeColumns,
-	    initResize: initResize
+	    initResize: initResize,
+			GetSortingData: GetSortingData
 	};
 }
 

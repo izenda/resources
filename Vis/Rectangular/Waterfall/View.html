@@ -1,0 +1,127 @@
+<div id="VIS_ID"></div>
+
+<script type="text/javascript" id="skip_within_izenda_1" src="jquery-latest.js"></script>
+<script type="text/javascript" id="skip_within_izenda_2" src="highcharts.js"></script>
+<script type="text/javascript" id="skip_within_izenda_3" src="highcharts-more.js"></script>
+
+<script type="text/javascript">
+	(function ExecuteVIS_ID() {
+		if (typeof window.jq$ == "undefined")
+			window.jq$ = jQuery.noConflict(true);
+
+		var VIS_EMBEDDED_DATA;
+
+		var util = window.ReportScripting, vis = {},
+			emb = typeof util != 'undefined', columns,
+			width = 720, height = 500, minWidth = 254,
+			isThumbnails = (document.URL === 'about:blank');
+		
+		var VIS_COLUMNS = emb ? VIS_COLUMNS : [{ name: 'Ship Country' }, { name: 'Sum(Freight)' }];
+		if (emb) {
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}))
+				return;
+
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			var rows = vis.getRows(true);
+			columns = util.exchangeAxes(rows),
+			items = vis.getItems();
+
+			width = vis.getWidth();
+			height = vis.getHeight();
+		}
+		else {
+			columns = [
+				['Brazil', 'Austria', 'Germany', 'USA', 'France'],
+				[50000, 40000, 30000, 20000, 10000]
+			];
+		}
+
+		if (width < minWidth) { width = minWidth; }
+
+		jq$('#VIS_ID').width(width)
+			.height(height);
+
+		function showInsufficientWidth(width, height) {
+			var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+			jq$('#VIS_ID').html(insufficientWidthMessage);
+		}
+		function checkInsufficientWidth(width, height, count) {
+			return (width < ((count > 11) ? count * 40 : 480));
+		}
+
+		var insufficient = checkInsufficientWidth(width, height, columns[0].length);
+		jq$('#VIS_ID div#insufficient-width-message').remove();
+		if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+			showInsufficientWidth(width, height);
+			util.registerResize("VIS_ID", ExecuteVIS_ID);
+			return;
+		}
+
+		var wfData = new Array();
+		for (var i = 0; i < columns[0].length; i++) {
+			wfData[wfData.length] = new Object();
+			wfData[wfData.length - 1].name = columns[0][i];
+			wfData[wfData.length - 1].y = columns[1][i];
+		}
+		var options = {
+			chart: { type: 'waterfall' },
+			title: { text: emb ? VIS_CONTEXT.title : '' },
+			xAxis: {
+				type: 'category',
+				title: { text: VIS_COLUMNS[0].name }
+			},
+			yAxis: {
+				title: { text: VIS_COLUMNS[1].name }
+			},
+			legend: { enabled: false },
+			series: [{
+				name: VIS_COLUMNS[1].name,
+				upColor: Highcharts.getOptions().colors[2],
+				color: Highcharts.getOptions().colors[3],
+				data: wfData,
+				dataLabels: {
+					enabled: true,
+					formatter: function () {
+						return vis.unitLabel(items[this.point.index], 1);
+					},
+					style: {
+						color: '#FFFFFF',
+						fontWeight: 'bold'
+					}
+				},
+				pointPadding: 0
+			}],
+			credits: { enabled: false },
+			tooltip: {
+				formatter: function () {
+					var point = this, html = ['<span style="font-size: 10px;">' + point.key + '</span>'];
+					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+					html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
+					return html.join("<br/>");
+				}
+			}
+		};
+
+		if (emb) {
+			vis.subscribeImageRenderer(options);
+			util.registerResize("VIS_ID", ExecuteVIS_ID);
+		}
+
+	    try{
+	        jq$('#VIS_ID').highcharts(options);
+	    	var sideOffset = 6,
+				items = jq$('.highcharts-series rect'),
+				labels = jq$('.highcharts-data-labels text');
+		    for (var i = 0; i < items.length; ++i) {
+			    if (labels[i].offsetWidth + sideOffset > ~~items[i].getAttribute('width') || labels[i].offsetHeight > ~~items[i].getAttribute('height')) {
+				    labels[i].style.visibility = 'hidden';
+			    }
+		    }
+	    } catch (e) {
+	        var docElement = jq$('<object>');
+	        docElement.attr('data', VIS_CONTEXT.docUrl);
+	        docElement.width(width).height(height);
+	        jq$('#VIS_ID').html(docElement);
+	    }
+	})();
+</script>

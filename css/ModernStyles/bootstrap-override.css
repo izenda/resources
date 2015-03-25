@@ -1,0 +1,200 @@
+/* Reset */
+.btn .hidden-text, .btn .hide {
+  display: none;
+}
+
+.btn .text {
+  display: inline-block;
+  height: 18px;
+  line-height: 18px !important;
+}
+.btn, 
+.dropdown-menu, 
+.dropdown-toggle {
+  background-color: transparent;
+  background-image: none !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+.dropdown-menu li > a:hover, .dropdown-menu li > a:focus, .dropdown-submenu:hover > a,
+.btn:active, .dropdown-toggle:active, 
+.btn:hover, .dropdown-toggle:hover,
+.btn-group.open .btn, .btn-group.open .dropdown-toggle, .btn-group.open .btn.dropdown-toggle {
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+
+
+.btn-toolbar .btn {
+  font-size: 13px !important;
+}
+.btn-toolbar .btn img {
+  vertical-align: bottom;
+}
+.btn-toolbar a.btn, .btn-toolbar a.btn:hover, .btn-toolbar a.btn:focus {
+  color: #555 !important;
+}
+.btn-toolbar .btn-group:hover .btn, 
+.btn-toolbar .btn-group:hover .dropdown-toggle {
+  outline: 2px solid #cee5fb;
+}
+.btn-toolbar .btn, 
+.btn-toolbar .dropdown-toggle {
+  padding: 2px !important;
+}
+.btn-toolbar .btn:active, .btn-toolbar .dropdown-toggle:active, 
+.btn-toolbar .btn:hover, .btn-toolbar .dropdown-toggle:hover,
+.btn-toolbar .btn-group.open .btn, .btn-toolbar .btn-group.open .dropdown-toggle, .btn-toolbar .btn-group.open .btn.dropdown-toggle {
+  background-color: #cee5fb;
+  outline: 2px solid #cee5fb;
+}
+.btn:focus, .dropdown-toggle:focus {
+  outline-offset: 0px;
+}
+.btn-toolbar .btn-group > .btn + .btn {
+  margin-left: 2px !important;
+}
+
+.btn-toolbar .btn-group a {
+  text-decoration: none;
+  position: relative;
+  padding-left: 32px;
+}
+.btn-toolbar .btn-group .btn span {
+  margin-right: 4px;
+}
+.btn-toolbar .btn-group .btn .icon {
+  position: relative;
+  top: -1px;
+  margin: 0 1px;
+}
+.btn-toolbar .btn-group .dropdown-menu a .icon {
+  position: absolute;
+  left: 2px;
+  top: 4px;
+}
+.btn-toolbar .btn-group + .btn-group {
+    margin-left: 4px;
+}
+.btn-toolbar .dropdown-menu {
+  background-color: #FFFFFF;
+  border: 1px solid #c6c6c6 !important;
+  border-radius: 0 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) !important;
+  font-size: 13px !important;
+  padding: 2px 0;
+  margin: 0 0 0 0;
+  left: -2px;
+}
+.btn-toolbar .dropdown-menu li > a:hover, 
+.btn-toolbar .dropdown-menu li > a:focus, 
+.btn-toolbar .dropdown-submenu:hover > a {
+  background-color: #cee5fb !important;
+  filter: none !important;
+  background-image: none !important;
+  text-decoration: none;
+  color: #000;
+}
+
+.dropdown-menu .divider {
+  background-color: #fff;
+  border-top: 1px solid #c6c6c6;
+  height: 1px;
+  margin: 2px 1px 1px;
+  overflow: hidden;
+}
+.btn-group.cool .dropdown-menu li + li {
+  margin-top: 2px;
+}
+.btn-group.cool .dropdown-menu li a {
+  padding-left: 44px;
+  line-height: 16px;
+  min-width: 10em;
+  max-width: 18em;
+  min-height: 34px;
+  white-space: normal !important;
+}
+.btn-group.cool .dropdown-menu li a .icon {
+}
+.btn-group.cool .dropdown-menu li a b {
+  font-weight: semibold;
+}
+.btn-group .dropdown-menu li.selected {
+  background-color: #eee;
+}
+
+
+
+.tabbable {
+  position: relative;
+}
+.nav {
+  margin-bottom: 0;
+  margin-left: 0;
+}
+
+.nav-tabs {
+  padding: 0 36px;
+}
+body .nav-tabs > li {
+  font-size: 13px;
+  line-height: 18px;
+  border: 1px solid transparent;
+  margin-left: 4px;
+  margin-right: 4px;
+  float: right;
+  position: relative;
+}
+
+.nav-tabs > li > a {
+  border: none !important;
+  border-radius: 0 !important;
+  padding-bottom: 2px;
+  padding-top: 2px;
+  color: #000 !important;
+  text-decoration: none !important;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.nav-tabs > li > a, .nav-pills > li > a {
+  margin-right: 0;
+  padding-left: 6px;
+  padding-right: 8px;
+  padding-bottom: .25em;
+  margin-bottom: .25em;
+  position: relative;
+}
+
+.nav-tabs > li > a:hover {
+  border-color: transparent !important;
+}
+
+.nav > li > a img.icon {
+  margin-top: -2px;
+}
+
+.nav > li > a:hover {
+  background-color: #cee5fb;
+  text-decoration: none;
+  color: #000;
+}
+
+body .nav-tabs > li.active {
+  border: 1px solid #d4d4d4;
+  border-bottom-color: #fff;
+}
+body .nav-tabs > li.active a {
+  color: #aaa !important;
+}
+
+.tab-pane {
+  padding: 0 38px;
+}
+.tab-content {
+  overflow: visible;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #d4d4d4;
+}

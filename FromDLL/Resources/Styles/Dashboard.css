@@ -1,0 +1,55 @@
+.DashPartHeaderThird
+{
+	background-color: #dcdcdc; 
+	border-right:6px solid; 
+	border-right-color:#FFFFFF;
+	border-top:4px solid; 
+	border-top-color:#FFFFFF;
+	border-bottom:4px solid; 
+	border-bottom-color:#FFFFFF;
+	border-color:#FFFFFF; 
+	text-align:center;
+}
+.DashPartHeaderFull
+{
+	background-color: #dcdcdc; 
+	border-top:4px solid; 
+	border-top-color:#FFFFFF;
+	border-bottom:4px solid; 
+	border-bottom-color:#FFFFFF;
+	border-color:#FFFFFF; 
+	text-align:center; 
+	width:100%;
+}
+.DashPartBody
+{
+	width:100%; 
+	padding:0px; 
+	border:1px solid; 
+	border-color:#FFFFFF;
+	overflow:auto;
+}
+
+.DashPartBodyNoScroll
+{
+	width:100%; 
+	padding:0px; 
+	text-align:center; 
+	border:1px solid; 
+	border-color:#FFFFFF; 
+	overflow:hidden;
+}
+
+.ViewImage
+{
+	background-repeat: no-repeat; 
+	background-image:url(###RS###image=Search.png);
+	padding-left:0px;
+}
+
+.EditImage
+{
+	background-repeat: no-repeat; 
+	background-image:url(###RS###image=pencil.gif);
+	padding-left:0px;
+}

@@ -1,0 +1,784 @@
+﻿<style type="text/css">
+	#loader > p {
+		line-height: 1.5em;
+		width: 640px;
+		text-rendering: optimizeLegibility;
+	}
+	#charts {
+		padding: 0 0 10px 0;
+	}
+	#charts div {
+		display: inline-block;
+	}
+	#charts2 div {
+		display: inline-block;
+	}
+	.chart {
+		display: inline-block;
+		height: 151px;
+		margin-bottom: 20px;
+	}
+	.reset {
+		padding-left: 1em;
+		font-size: smaller;
+		color: #ccc;
+	}
+	.background.bar {
+		fill: #ccc;
+	}
+	.foreground.bar {
+		fill: steelblue;
+	}
+	.axis path, .axis line {
+		fill: none;
+		stroke: #000;
+		shape-rendering: crispEdges;
+	}
+	.axis text {
+		font: 10px sans-serif;
+	}
+	.brush rect.extent {
+		fill: steelblue;
+		fill-opacity: .125;
+	}
+	.brush .resize path {
+		fill: #eee;
+		stroke: #666;
+	}
+	#hour-chart {
+		width: 260px;
+	}
+	#delay-chart {
+		width: 230px;
+	}
+	#distance-chart {
+		width: 420px;
+	}
+	#date-chart {
+		width: 920px;
+	}
+	#flight-list {
+		min-height: 1024px;
+	}
+	#flight-list .date,
+		#flight-list .day {
+		margin-bottom: .4em;
+	}
+	#flight-list .flight {
+		line-height: 1.5em;
+		background: #eee;
+		width: 640px;
+		margin-bottom: 1px;
+	}
+	#flight-list .time {
+		color: #999;
+	}
+	#flight-list .flight div {
+		display: inline-block;
+		width: 100px;
+	}
+	#flight-list div.distance,
+		#flight-list div.delay {
+		width: 160px;
+		padding-right: 10px;
+		text-align: right;
+	}
+	#flight-list .early {
+		color: green;
+	}
+	aside {
+		position: absolute;
+		left: 740px;
+		font-size: smaller;
+		width: 220px;
+	}
+
+	table#flight-list2.ReportTable td {
+		font-size: 12px !important;
+		line-height: 18px;
+		border-color: white;
+	}
+	table#flight-list2.ReportTable tr.ReportItem td {
+		background-color: white;
+		vertical-align: top;
+		font-size: 8pt;
+		border-width: 1px;
+		border-style: solid;
+	}
+	table#flight-list2.ReportTable tr.AlternatingItem td {
+		background-color: gainsboro;
+		vertical-align: top;
+		font-size: 8pt;
+		border-width: 1px;
+		border-style: solid;
+	}
+	table#flight-list2.ReportTable.ReportTable td {
+		font-family: tahoma;
+		border-width: 0px;
+		border-style: solid;
+	}
+	table#flight-list2 tr.ReportHeader td, thead.ReportHeader td {
+		color: white;
+		background-color: DarkSlateBlue;
+		font-size: 9pt;
+		font-weight: normal;
+		border-width: 1px;
+		border-style: solid;
+		border-bottom: solid 1px #AFAFAF!important;
+	}
+	table#flight-list2.ReportTable td {
+		font-family: tahoma;
+		border-width: 0px;
+		border-style: solid;
+	}
+</style>
+
+<div class="loader" id="VIS_ID">
+	<p>
+		Some questions to consider: How does time-of-day correlate with <a href="javascript:filter([null, [100, 150], null, null])">arrival delay</a>?
+		Are <a href="javascript:filter([null, null, [1700, 2000], null])">longer</a>
+		or <a href="javascript:filter([null, null, [0, 300], null])">shorter</a> flights more likely to arrive early?
+		What happened on <a href="javascript:filter([null, [80, 150], null, [new Date(2001, 0, 12), new Date(2001, 0, 13)]])">January 12</a>?
+		How do flight patterns differ between <a href="javascript:filter([null, null, null, [new Date(2001, 0, 27), new Date(2001, 0, 29)]])">weekends</a>
+		and <a href="javascript:filter([null, null, null, [new Date(2001, 0, 29), new Date(2001, 1, 3)]])">weekdays</a>,
+		or <a href="javascript:filter([[4, 7], null, null, null])">mornings</a> and <a href="javascript:filter([[21, 24], null, null, null])">nights</a>?
+	</p>
+
+	<div id="charts"></div>
+	<aside><span id="active">-</span> of <span id="total">-</span> records selected.</aside>
+	<div id="lists">
+		<!--<div id="flight-list" class="list"></div>
+		 --><table id="flight-list2" class="ReportTable" cellspacing="0" border="0" style="border-collapse: collapse;"></table>
+	</div>
+	<!--<table class="ReportTable" cellspacing="0" name="reportTable" border="0" style="border-collapse: collapse;">
+		<tr class="ReportHeader">
+			<td align="center">
+				<nobr>
+					<div width="100%" height="100%">
+						<div class="header-sort-handler" data-format="dddd, MMMM DD, YYYY h:mm a" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None">
+							<img style="width:1px;height:1px" src="rs.aspx?image=1.gif">
+							<div style="display:inline-block;">Order Date</div>
+							<img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted" />
+						</div>
+
+					</div>
+				</nobr>
+			</td>
+
+			<td align="center" class="header-sort-handler" style="padding: 0px 18px 0 6px; white-space: nowrap;">Order Date</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Order ID</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Freight</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Ship Country</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Discount</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Quantity</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Unit Price</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Units On Order</td>
+			<td align="center" class="header-sort-handler" style="padding: 0px 14px 0 2px; white-space: nowrap;">Reorder Level</td>
+		</tr>
+	</table>
+	<table class="ReportTable" cellspacing="0" name="reportTable" border="0" style="border-collapse: collapse;">
+		<tr class="ReportHeader">
+			<td align="center">
+				<nobr>
+						    <div width="100%" height="100%">
+							    <div class="header-sort-handler" data-format="dddd, MMMM DD, YYYY h:mm a" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None">
+								    <img style="width:1px;height:1px" src="rs.aspx?image=1.gif">
+								    <div style="display:inline-block;">Order Date</div>
+								    <img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted" />
+							    </div>
+						    </div>
+					    </nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Order ID</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Freight</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Ship Country</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Discount</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Quantity</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Unit Price</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr><div width="100%" height="100%"><div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None"><img style="width:1px;height:1px" src="rs.aspx?image=1.gif"><div style="display:inline-block;">Units On Order</div><img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted"></div></div></nobr>
+			</td>
+			<td align="center">
+				<nobr>
+						    <div width="100%" height="100%">
+							    <div class="header-sort-handler" data-format="" onclick="javascript:HORR_SortByColumn(this, 100);" style="display:block;cursor:pointer; margin-right:0px; margin-left:0px; " sorted="None">
+								    <img style="width:1px;height:1px" src="rs.aspx?image=1.gif">
+								    <div style="display:inline-block;">Reorder Level</div>
+								    <img src="rs.aspx?image=1.gif" style="position:relative; margin:0px 0px 0px 3px;" width="10px" alt="Unsorted">
+							    </div>
+						    </div>
+					    </nobr>
+			</td>
+		</tr>
+	</table>-->
+
+</div>
+
+<script src="crossfilter.v1.min.js"></script>
+<script src="d3.v3.min.js"></script>
+<script type="text/javascript">
+	(function ExecuteVIS_ID() {
+		// https://github.com/mbostock/d3/wiki/Ordinal-Scales
+		// http://bl.ocks.org/mbostock/4349509	Ordinal Brushing
+		// filtered by intersection of svg:g ticks can be removed after rendering
+
+		// bar width-count and value dependence
+		// range does no include last bar (max value is just a beginning of last bar)
+
+	    try {
+	        var VIS_EMBEDDED_DATA;
+
+	        var f1, i, items;
+
+	        var util = window.ReportScripting, vis,
+                emb = typeof util != 'undefined',
+				isThumbnails = (document.URL === 'about:blank');
+
+	        if (emb) {
+	            if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true }))
+	                return;
+
+	            f1 = "Resources/Vis/Rectangular/Crossfilter/flights-3m.json"; // (It's CSV, but GitHub Pages only gzip's JSON at the moment.)
+	            vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+	            jq$('#VIS_ID').width(vis.getWidth());
+				if (!VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic) {
+					jq$('#VIS_ID').parent().height(vis.getHeight());
+					jq$('#VIS_ID').parent().css('overflow', 'auto');
+				}
+	        }
+	        else {
+	            f1 = "flights-3m.json";
+	        }
+
+	        (function () {
+	            function processData(flights) {
+	                function parseDate(d) {
+	                    return new Date(2001,
+                            d.substring(0, 2) - 1,
+                            d.substring(2, 4),
+                            d.substring(4, 6),
+                            d.substring(6, 8));
+	                }
+
+	                var formatNumber = d3.format(",d"),
+                        formatChange = d3.format("+,d"),
+                        formatDate = d3.time.format("%B %d, %Y"),
+                        formatTime = d3.time.format("%I:%M %p");
+
+	                //emb = false;
+	                var nestByDate, dateIndex,
+                        cross, crossAll, date;
+
+	                var charts = [];
+
+	                (function () {
+	                    if (emb) {
+	                        d3.select("#VIS_ID p").remove();
+	                        cross = crossfilter(items = vis.getItems());
+	                        crossAll = cross.groupAll();
+
+	                        for (i = 0; i < VIS_COLUMNS.length; i++) {
+	                            // can be faster with
+	                            //   1) custom min/max,
+	                            //   2) precalculated unitValue
+	                            var min = d3.min(items, function (d) { return vis.unitValue(d, i); }),
+                                    max = d3.max(items, function (d) { return vis.unitValue(d, i); });
+
+	                            switch (VIS_COLUMNS[i].sqlType.toLowerCase()) {
+	                                case "numeric":
+	                                case "real":
+	                                case "money":
+	                                    charts.push(new function () {
+	                                        this.width = 10 * 20;
+	                                        max = min + (max - min) * (this.width + 8) / this.width;
+
+	                                        var field = this.field = i;
+	                                        this.id = VIS_COLUMNS[this.field].name.replace(/\s/g, '-').toLowerCase();
+	                                        this.text = VIS_COLUMNS[this.field].name + " (" + VIS_COLUMNS[this.field].sqlType.toLowerCase() + ")";
+	                                        this.dimension = cross.dimension(function (d) { return vis.unitValue(d, field); });
+	                                        this.group = this.dimension.group(function (d) {
+	                                            var iv = (max - min) / 20;
+	                                            return min + Math.floor((d - min) / iv) * iv;
+	                                        });
+
+	                                        this.chart = barChart()
+                                                .dimension(this.dimension)
+                                                .group(this.group)
+                                                .x(d3.scale.linear()
+                                                    .domain([min, max])
+                                                    .rangeRound([0, this.width]));
+	                                    });
+	                                    break;
+	                                case "datetime":
+	                                    charts.push((new function () {
+	                                        this.width = 10 * 90;
+	                                        max = new Date(min.getTime() + (max.getTime() - min.getTime()) * (this.width + 8) / this.width);
+
+	                                        var field = this.field = i;
+	                                        this.id = VIS_COLUMNS[this.field].name.replace(/\s/g, '-').toLowerCase();
+	                                        this.text = VIS_COLUMNS[this.field].name + " (" + VIS_COLUMNS[this.field].sqlType.toLowerCase() + ")";
+	                                        date = this.dimension = cross.dimension(function (d) { return vis.unitValue(d, field); });
+	                                        this.group = this.dimension.group(function (d) {
+	                                            var iv = (max.getTime() - min.getTime()) / 90;
+	                                            return new Date(min.getTime() + Math.floor((d.getTime() - min.getTime()) / iv) * iv);
+	                                        });
+	                                        nestByDate = d3.nest()
+                                                .key(function (d) { return d3.time.day(vis.unitValue(d, dateIndex = field)); });
+
+	                                        this.chart = barChart()
+                                                .dimension(this.dimension)
+                                                .group(this.group)
+                                                .round(d3.time.day.round)
+                                                .x(d3.time.scale()
+                                                    .domain([min, max])
+                                                    .rangeRound([0, this.width]));
+
+	                                        if (!emb || (!vis.toImage)) {
+	                                            this.chart.filter([
+                                                    new Date(new Date(min.getTime() + 1 / 3 * (max.getTime() - min.getTime())).setHours(0)),
+                                                    new Date(new Date(min.getTime() + 2 / 3 * (max.getTime() - min.getTime())).setHours(24))
+	                                            ]);
+	                                        }
+	                                    }));
+	                                    if (d3.max(items, function (d) { d = vis.unitValue(d, i); return d.getHours() * 60 + d.getMinutes(); }) > 0) {
+	                                        charts.push((new function () {
+	                                            this.width = 10 * 20;
+	                                            this.hour = cross.dimension(function (d) { d = vis.unitValue(d, i); return d.getHours() + d.getMinutes() / 60; });
+	                                            this.hours = this.hour.group(Math.floor);
+	                                            this.field = i;
+	                                            this.id = (VIS_COLUMNS[this.field].name + " Time").replace(/\s/g, '-').toLowerCase();
+	                                            this.text = VIS_COLUMNS[this.field].name + " (" + VIS_COLUMNS[this.field].sqlType.toLowerCase() + ")";
+
+	                                            this.chart = barChart()
+                                                    .dimension(this.hour)
+                                                    .group(this.hours)
+                                                    .x(d3.scale.linear()
+                                                        .domain([0, 24])
+                                                        .rangeRound([0, this.width]));
+	                                        }));
+	                                    }
+	                                    break;
+	                                case "string":
+	                                    // https://github.com/mbostock/d3/wiki/Ordinal-Scales
+	                                default:
+	                                    //throw new Error("Unsupported field type: " + VIS_COLUMNS[this.field].sqlType.toLowerCase());
+	                                    break;
+	                            }
+	                        }
+	                    }
+	                    else {
+	                        flights.forEach(function (d, i) {
+	                            d.index = i;
+	                            d.date = parseDate(d.date);
+	                            d.delay = +d.delay;
+	                            d.distance = +d.distance;
+	                        });
+
+	                        nestByDate = d3.nest()
+                                .key(function (d) { return d3.time.day(d.date); });
+	                        cross = crossfilter(flights);
+	                        crossAll = cross.groupAll();
+	                        date = cross.dimension(function (d) { return d.date; });
+	                        charts.push(new function () {
+	                            this.width = 10 * 24;
+	                            this.id = "hour-chart";
+	                            this.text = "Time of Day";
+
+	                            this.chart = barChart()
+                                    .dimension(this.dimension = cross.dimension(function (d) { return d.date.getHours() + d.date.getMinutes() / 60; }))
+                                    .group(this.group = this.dimension.group(Math.floor))
+                                    .x(d3.scale.linear()
+                                        .domain([0, 24])
+                                        .rangeRound([0, this.width]));
+	                        });
+	                        charts.push(new function () {
+	                            this.width = 10 * 21;
+	                            this.id = "delay-chart";
+	                            this.text = "Arrival Delay (min.)";
+
+	                            this.chart = barChart()
+                                    .dimension(this.dimension = cross.dimension(function (d) { return Math.max(-60, Math.min(149, d.delay)); }))
+                                    .group(this.group = this.dimension.group(function (d) { return Math.floor(d / 10) * 10; }))
+                                    .x(d3.scale.linear()
+                                        .domain([-60, 150])
+                                        .rangeRound([0, this.width]));
+	                        });
+	                        charts.push(new function () {
+	                            this.width = 10 * 40;
+	                            this.id = "distance-chart";
+	                            this.text = "Distance (mi.)";
+
+	                            this.chart = barChart()
+                                    .dimension(this.dimension = cross.dimension(function (d) { return Math.min(1999, d.distance); }))
+                                    .group(this.group = this.dimension.group(function (d) { return Math.floor(d / 50) * 50; }))
+                                    .x(d3.scale.linear()
+                                        .domain([0, 2000])
+                                        .rangeRound([0, this.width]));
+	                        });
+	                        charts.push(new function () {
+	                            this.width = 10 * 90;
+	                            this.id = "date-chart";
+	                            this.text = "Date";
+
+	                            this.chart = barChart()
+                                    .dimension(this.dimension = cross.dimension(function (d) { return d.date; }))
+                                    .group(this.group = date.group(d3.time.day))
+                                    .round(d3.time.day.round)
+                                    .x(d3.time.scale()
+                                        .domain([new Date(2001, 0, 1), new Date(2001, 3, 1)])
+                                        .rangeRound([0, this.width]))
+                                    .filter([new Date(2001, 1, 1), new Date(2001, 2, 1)]);
+	                        });
+	                    }
+	                })();
+
+	                var chartList = d3.select("#charts").selectAll(".chart")
+                        .data(charts);
+	                chartList.enter().append("div")
+                        .attr("id", function (d) { return d.id; })
+                        .style("width", function (d) { return (d.width + 20) + "px"; })
+                        .append("div")
+                            .attr("class", "title")
+                            .text(function (d) { return d.text; });
+	                chartList.each(function (d) { d.chart.on("brush", renderAll).on("brushend", renderAll); });
+
+	                var list2 = d3.selectAll("#flight-list2").data([function (div) {
+	                    var byDate = nestByDate.entries(date.top(40));
+
+	                    div.each(function () {
+	                        var date = d3.select(this).selectAll(".date")
+                                .data(byDate, function (d) { return d.key; });
+
+	                        date.enter().append("tr")
+                                .attr("class", "date ReportHeader")
+                                .append("td")
+                                    .attr("align", "center")
+                                    .attr("colspan", emb ? VIS_COLUMNS.length - 1 : 5)
+                                    .text(function (d) {
+                                        return emb
+                                            ? formatDate(vis.unitValue(d.values[0], dateIndex))
+                                            : formatDate(d.values[0].date);
+                                    });
+
+	                        date.exit().remove();
+
+	                        d3.selectAll("#flight-list2 .ReportItem, #flight-list2 .AlternatingItem").remove();
+
+	                        date.order().selectAll(".flight")
+                                .data(function (d) { return d.values; }, function (d) { return d.index; });
+	                        date.order().selectAll(".flight")
+                                .call(function (selection) {
+                                    for (i = 0; i < selection.length; i++) {
+                                        var tr = selection[i].parentNode,
+                                            d = tr.__data__;
+                                        for (var j = 0; j < d.values.length; j++) {
+                                            var tr2 = document.createElement("tr");
+                                            tr.parentNode.insertBefore(tr2, tr.nextSibling);
+                                            tr2.className = j % 2 == 0 ? "ReportItem" : "AlternatingItem";
+
+                                            var cells = [];
+                                            if (emb) {
+                                                for (var k = 1; k < VIS_COLUMNS.length; k++)
+                                                    cells.push("<td>" + d.values[j][VIS_COLUMNS[k].name] + "</td>");
+                                            }
+                                            else {
+                                                cells.push("<td>" + d.values[j].origin + "</td>");
+                                                cells.push("<td>" + d.values[j].destination + "</td>");
+                                                cells.push("<td>" + (formatNumber(d.values[j].distance) + " mi.") + "</td>");
+                                                cells.push("<td>" + (formatChange(d.values[j].delay) + " mi.") + "</td>");
+                                            }
+                                            tr2.innerHTML = cells.join('');
+                                        }
+                                    }
+                                });
+	                    });
+	                }]);
+
+	                d3.selectAll("#total").text(formatNumber(cross.size()));
+
+	                renderAll();
+
+	                function renderAll() {
+	                    chartList.each(function (method) {
+	                        d3.select(this).call(method.chart);
+	                    });
+
+	                    list2.each(function (method) {
+	                        d3.select(this).call(method);
+	                    });
+	                    d3.select("#active").text(formatNumber(crossAll.value()));
+	                }
+
+	                window.filter = function (fs) {
+	                    fs.forEach(function (d, i) { charts[i].chart.filter(d); });
+	                    renderAll();
+	                };
+	                window.reset = function (i) {
+	                    charts[i].chart.filter(null);
+	                    renderAll();
+	                };
+
+	                if (emb && (vis.toImage))
+	                    window.external.SetHeight(jq$("#charts").height());
+
+	                function barChart() {
+	                    if (!barChart.id)
+	                        barChart.id = 0;
+
+	                    var margin = { top: 10, right: 10, bottom: 20, left: 10 },
+                            x, y = d3.scale.linear().range([100, 0]),
+                            id = barChart.id++,
+                            axis = d3.svg.axis().orient("bottom"),
+                            brush = d3.svg.brush(),
+                            brushDirty,
+                            dimension,
+                            group,
+                            round;
+
+	                    function chart(div) {
+	                        var width = x.range()[1],
+                                height = y.range()[0];
+
+	                        y.domain([0, group.top(1)[0].value]);
+
+	                        div.each(function () {
+	                            var div = d3.select(this), g = div.select("g");
+
+	                            // Create the skeletal chart.
+	                            if (g.empty()) {
+	                                div.select(".title").append("a")
+                                        .attr("href", "javascript:reset(" + id + ")")
+                                        .attr("class", "reset")
+                                        .text("reset")
+                                        .style("display", "none");
+
+	                                g = div.append("svg")
+                                        .attr("width", width + margin.left + margin.right)
+                                        .attr("height", height + margin.top + margin.bottom)
+                                        .append("g")
+                                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	                                g.append("clipPath")
+                                        .attr("id", "clip-" + id)
+                                        .append("rect")
+                                        .attr("width", width)
+                                        .attr("height", height);
+
+	                                g.selectAll(".bar")
+                                        .data(["background", "foreground"])
+                                        .enter().append("path")
+                                        .attr("class", function (d) { return d + " bar"; })
+                                        .datum(group.all());
+
+	                                g.selectAll(".foreground.bar")
+                                        .attr("clip-path", "url(#clip-" + id + ")");
+
+	                                g.append("g")
+                                        .attr("class", "axis")
+                                        .attr("transform", "translate(0," + height + ")")
+                                        .call(axis);
+
+	                                var ticks = [];
+	                                g.select("g.axis")
+                                        .selectAll("g.tick")
+                                        .each(function () {
+                                            ticks.push([this.getBoundingClientRect(), this]);
+                                        });
+
+	                                function intersected(i1, i2) {
+	                                    return ticks[i1][0].right - ticks[i2][0].left > -(ticks[i1][0].width) / 4;
+	                                }
+	                                for (i = 1; i < ticks.length; i++) {
+	                                    if (i < ticks.length - 1 && intersected(i, i + 1)) {
+	                                        d3.select(ticks[i][1]).remove();
+	                                        ticks.splice(i, 1);
+	                                    }
+	                                    else if (i == ticks.length - 1 && intersected(i - 1, i)) {
+	                                        d3.select(ticks[i][1]).remove();
+	                                        ticks.splice(i, 1);
+	                                    }
+	                                }
+
+
+	                                // Initialize the brush component with pretty resize handles.
+	                                var gBrush = g.append("g").attr("class", "brush").call(brush);
+	                                gBrush.selectAll("rect").attr("height", height);
+	                                gBrush.selectAll(".resize").append("path").attr("d", resizePath);
+	                            }
+
+	                            // Only redraw the brush if set externally.
+	                            if (brushDirty) {
+	                                brushDirty = false;
+	                                g.selectAll(".brush").call(brush);
+	                                div.select(".title a").style("display", brush.empty() ? "none" : null);
+	                                if (brush.empty()) {
+	                                    g.selectAll("#clip-" + id + " rect")
+                                            .attr("x", 0)
+                                            .attr("width", width);
+	                                } else {
+	                                    var extent = brush.extent();
+	                                    g.selectAll("#clip-" + id + " rect")
+                                            .attr("x", x(extent[0]))
+                                            .attr("width", x(extent[1]) - x(extent[0]));
+	                                }
+	                            }
+
+	                            g.selectAll(".bar").attr("d", barPath);
+	                        });
+
+	                        function barPath(groups) {
+	                            var path = [], i = -1, d;
+	                            while (++i < groups.length) {
+	                                d = groups[i];
+	                                path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
+	                            }
+	                            return path.join("");
+	                        }
+	                        function resizePath(d) {
+	                            var e = +(d == "e"),
+                                    x = e ? 1 : -1,
+                                    y = height / 3;
+	                            return "M" + (.5 * x) + "," + y
+                                    + "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
+                                    + "V" + (2 * y - 6)
+                                    + "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
+                                    + "Z"
+                                    + "M" + (2.5 * x) + "," + (y + 8)
+                                    + "V" + (2 * y - 8)
+                                    + "M" + (4.5 * x) + "," + (y + 8)
+                                    + "V" + (2 * y - 8);
+	                        }
+	                    }
+
+	                    brush.on("brushstart.chart", function () {
+	                        var div = d3.select(this.parentNode.parentNode.parentNode);
+	                        div.select(".title a").style("display", null);
+	                    });
+	                    brush.on("brush.chart", function () {
+	                        var g = d3.select(this.parentNode),
+                                    extent = brush.extent();
+	                        if (round) g.select(".brush")
+                                .call(brush.extent(extent = extent.map(round)))
+                                .selectAll(".resize")
+                                .style("display", null);
+	                        g.select("#clip-" + id + " rect")
+                                .attr("x", x(extent[0]))
+                                .attr("width", x(extent[1]) - x(extent[0]));
+	                        dimension.filterRange(extent);
+	                    });
+	                    brush.on("brushend.chart", function () {
+	                        if (brush.empty()) {
+	                            var div = d3.select(this.parentNode.parentNode.parentNode);
+	                            div.select(".title a").style("display", "none");
+	                            div.select("#clip-" + id + " rect").attr("x", null).attr("width", "100%");
+	                            dimension.filterAll();
+	                        }
+	                    });
+
+	                    chart.margin = function (_) {
+	                        if (!arguments.length) return margin;
+	                        margin = _;
+	                        return chart;
+	                    };
+	                    chart.x = function (_) {
+	                        if (!arguments.length) return x;
+	                        x = _;
+	                        axis.scale(x);
+	                        brush.x(x);
+	                        return chart;
+	                    };
+	                    chart.y = function (_) {
+	                        if (!arguments.length) return y;
+	                        y = _;
+	                        return chart;
+	                    };
+	                    chart.dimension = function (_) {
+	                        if (!arguments.length) return dimension;
+	                        dimension = _;
+	                        return chart;
+	                    };
+	                    chart.filter = function (_) {
+	                        if (_) {
+	                            brush.extent(_);
+	                            dimension.filterRange(_);
+	                        } else {
+	                            brush.clear();
+	                            dimension.filterAll();
+	                        }
+	                        brushDirty = true;
+	                        return chart;
+	                    };
+	                    chart.group = function (_) {
+	                        if (!arguments.length) return group;
+	                        group = _;
+	                        return chart;
+	                    };
+	                    chart.round = function (_) {
+	                        if (!arguments.length) return round;
+	                        round = _;
+	                        return chart;
+	                    };
+
+	                    return d3.rebind(chart, brush, "on");
+	                }
+
+	                var _width = vis.getWidth(), _height = vis.getHeight(), minWidth = 254;
+
+	                if (_width < minWidth) { _width = minWidth; }
+
+	                jq$("#VIS_ID").width(_width);
+
+	                function showInsufficientWidth(width, height) {
+	                	var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+	                	jq$('#VIS_ID').children().each(function (i, child) {
+	                		jq$(child).css('display', 'none');
+	                	});
+	                	jq$('#VIS_ID').append(insufficientWidthMessage);
+	                }
+	                function checkInsufficientWidth(width, height) {
+	                	return (width < 480 || width < jq$('#VIS_ID div#order-date').width() || width < jq$('#VIS_ID div#freight').width());
+	                }
+
+	                var insufficient = checkInsufficientWidth(_width, _height);
+	                jq$('#VIS_ID #insufficient-width-message').remove();
+	                if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+	                	showInsufficientWidth(_width, _height);
+	                	util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+	                		jq$('#VIS_ID').children().each(function (i, child) {
+	                			jq$(child).css('display', '');
+	                		});
+	                		jq$("#VIS_ID div#charts").empty();
+	                	});
+	                	return;
+	                }
+	            }
+
+	            if (emb) {
+	                util.registerResize("VIS_ID", ExecuteVIS_ID, function () { jq$("#VIS_ID div#charts").empty(); });
+	                processData(vis.items);
+	            }
+	            else {
+	                d3.csv(f1, processData);
+	            }
+	        })();
+	    }
+        catch (e) {
+		    var docElement = jq$('<object>');
+		    docElement.attr('data', VIS_CONTEXT.docUrl);
+		    jq$('#VIS_ID').html(docElement);
+		}
+	})();
+</script>

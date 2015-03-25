@@ -1,0 +1,39 @@
+#mbox
+{
+	background-color:#eee;
+	padding:8px;
+	border:1px outset #666;
+	font-family:Verdana;
+	font-size:12px;
+	margin:2px 2px 4px 2px;
+	text-align:center;
+	white-space:nowrap;
+}
+#mbox input
+{
+	vertical-align:middle;
+	margin:2px 2px 2px 2px;
+}
+#mbox button
+{
+	/*background: none repeat scroll 0 0 transparent;
+	border-width: 1px;
+	margin-top: 5px;
+	cursor: pointer;*/
+}
+
+#mbm
+{
+	font-family:Verdana;
+	font-weight:bold;
+	float:right;
+	padding-bottom:5px;
+}
+#ol
+{
+	background-color:Gray;
+	filter: alpha(opacity=35);
+	opacity: 0.35;
+}
+.dialog {display:none}
+

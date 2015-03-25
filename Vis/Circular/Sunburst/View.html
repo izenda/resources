@@ -1,0 +1,615 @@
+﻿<style type="text/css">
+	@font-face {
+		font-family: 'Open Sans';
+		font-style: normal;
+		font-weight: 400;
+		src: local('Open Sans'), local('OpenSans'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+	}
+	@font-face {
+		font-family: 'Open Sans';
+		font-style: normal;
+		font-weight: 600;
+		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+	}
+	#VIS_ID_CONTAINER #VIS_ID {
+		position: relative;
+	}
+	#VIS_ID_CONTAINER #VIS_ID path {
+		stroke: #fff;
+	}
+
+	#VIS_ID_CONTAINER span.hint {
+		font-size: 12px;
+		color: #999;
+		width: auto;
+		display: inline-block;
+	}
+	#VIS_ID_CONTAINER span.hint select {
+		width: auto;
+	}
+	#VIS_ID_CONTAINER #sequence {
+		padding-bottom: 2px;
+	}
+	#VIS_ID_CONTAINER #sequence text {
+		font-weight: 600;
+		fill: #fff;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 12px;
+		pointer-events: none;
+	}
+	#VIS_ID_CONTAINER .clearfix:after {
+		content: "";
+		display: table;
+		clear: both;
+	}
+</style>
+
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="sequence" style="display: inline-block;"></div>
+		<span id="hint" class="hint clearfix" style="float:right; position: relative; right: 0;">
+			<span style="display:inline-block;">Metric:</span>
+			<select id="metricSelect"></select>
+		</span>
+		<div id="VIS_ID"></div>
+	</div>
+</div>
+
+<script type="text/javascript" id="skip_within_izenda_1" src="jquery-latest.js"></script>
+<script src="d3.v3.min.js"></script>
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+		visState = visState || {};
+		var s = visState.VIS_ID || (visState.VIS_ID = {
+			props: undefined
+		});
+
+		if (typeof window.jq$ == "undefined")
+			window.jq$ = jQuery.noConflict(true);
+
+		function getItem(list, index) {
+			return list[index % list.length];
+		}
+		function store() {
+			if (!emb)
+				return;
+
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
+			});
+			util.setProps(s.props);
+		}
+		function restore() {
+			if (typeof s.props != "object")
+				return;
+			if (s.props.metric) {
+				metricSelect.val(s.props.metric);
+			}
+		}
+		try{
+			var VIS_EMBEDDED_DATA;
+
+			var width = 750, height = 600, minWidth = 254;
+			var f1, root, spendField, expText = "of value";
+
+			var util = window.ReportScripting, vis = { },
+				emb = typeof util != 'undefined',
+				b = { w: 75, h: 30, s: 3, t: 10 }, // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+				isThumbnails = (document.URL === 'about:blank');
+
+			var vs = util.container("VIS_ID"),
+				metricSelect = vs.find("select#metricSelect");
+
+			if (emb) {
+				if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true }))
+					return;
+
+				if (!s.props) {
+					try { s.props = JSON.parse(VIS_CONTEXT.props); }
+					catch (e) { }
+				}
+
+				f1 = "Resources/Vis/Circular/Sunburst/visit-sequences.csv";
+				vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+				var _width = vis.getWidth(), _height = vis.getHeight();
+
+				if (_width < minWidth) { _width = minWidth; }
+
+				function toggleHeaderVisibility(visible) {
+					jq$('#VIS_ID_CONTAINER #hint').css("visibility", visible ? "visible" : "hidden");
+					jq$('#VIS_ID_CONTAINER #sequence').css("visibility", visible ? "visible" : "hidden");
+				}
+				function showInsufficientWidth(width, height) {
+					var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+					jq$('#VIS_ID').html(insufficientWidthMessage);
+				}
+				function checkInsufficientWidth(width, height) {
+					return (width < 320);
+				}
+
+				var insufficient = checkInsufficientWidth(_width, _height);
+				jq$('#VIS_ID #insufficient-width-message').remove();
+				toggleHeaderVisibility(!insufficient);
+				if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+					showInsufficientWidth(_width, _height);
+					util.registerResize("VIS_ID", ExecuteVIS_ID);
+					return;
+				}
+
+				vis.collectTree();
+				vis.metrics = vis.metrics.reverse();
+
+				if (!vis.metrics.length) {
+					jq$("#VIS_ID").text("No metric found");
+					return;
+				}
+
+				metricSelect
+					.find("option").remove();
+				jq$.each(vis.metrics, function(i, el) {
+					metricSelect.append("<option>" + el + "</option>");
+				});
+
+				restore();
+				expText = "of " + (spendField = metricSelect.val()) + " value";
+
+				root = vis.traverseTree(function(context) {
+					if (context.isLeaf) {
+						context.node["size"] = vis.unitValue(context.node, spendField);
+					}
+				});
+
+				width = vis.getWidth();
+				height = vis.getHeight();
+			}
+			else {
+				f1 = "visit-sequences.csv";
+			}
+			
+			vs.find("#VIS_ID_CONTAINER").width(width);
+			vs.find("#VIS_ID_HOLDER").width(width)
+				.height(height);
+
+			height -= (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) ? 15 : 34;
+
+			var radius = Math.min(width, height) / 2,
+			breadcrumbMarginLeft = Math.max(0, width / 2 - radius),
+			duration = 750,
+			totalSize = 0, // Total size of all segments; we set this later, after loading the data.
+			cx = 0.003, cy = 0.88, zoomEnabled = false;
+			
+			var colors = !emb ? {
+					"home": "#5687d1",
+					"product": "#7b615c",
+					"search": "#de783b",
+					"account": "#6ab975",
+					"other": "#a173d1",
+					"end": "#bbbbbb"
+				} : d3.scale.category20();
+			vis.createBreadcrumb({
+				selector: "#sequence",
+				width: (width - breadcrumbMarginLeft - d3.select("#VIS_ID_CONTAINER span#hint").node().offsetWidth) - 8,
+				bounds: b,
+				getColor: function(d, i) {
+					var path = vis.getPath(d);
+					if (path.length > 0) {
+						var topmost = path[0];
+						var index = names.indexOf(topmost.name);	// root.children.indexOf(topmost);
+						return util.getColor(i ? emb ? colors(index + 1) : getItem(colors, index + 1) : "#fff", { min: 0, max: topmost.value, factor: 0.7, value: d.value, scale: d3.scale.sqrt() });
+					}
+					return emb ? colors(0) : colors[0];
+				},
+				showRoot: true,
+				onclick: function (d) {
+					zoom(d);
+					if (d.depth != 0) {
+						g.selectAll("path")
+							.each(function (d2) {
+								d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
+								d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
+							});
+					} else {
+						collapseShares();
+					}
+				},
+				root: null,
+				showLabel: true,
+				total: 1
+			});
+
+			vis.container
+				.unbind("mouseenter")
+				.bind("mouseenter", function () {
+					vis.breadcrumb.show();
+					jq$("#hint").stop().animate({ opacity: 1 });
+				})
+				.unbind("mouseleave")
+				.bind("mouseleave", function () {
+					vis.breadcrumb.hide();
+					jq$("#hint").stop().animate({ opacity: 0 });
+				});
+			
+			vs.find("#sequence").css("margin-left", breadcrumbMarginLeft + "px");
+
+			// set zoomEnabled = true => remove border collapsing
+			// set zoomEnabled = false => enable collapsing border and then collapse
+			// on mouseover && !zoomEnabled - collapse/expand border
+
+			var mouseleaveOpacityLock = { },
+				zoomLock = { };
+
+			var g1 = d3.select("#VIS_ID")
+				.append("svg:svg")
+					.attr("width", width)
+					.attr("height", height)
+					.attr("style", "position: absolute");
+			var g = g1.append("svg:g")
+				.attr("class", "container")
+				.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+			g1.append("svg:circle")
+				.attr("r", radius * 0.47)
+				.attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
+				.style("fill", "#ffffff");
+			var g2 = g1.append("svg:g");
+			var explanation = g2.append("svg:text")
+				.attr("x", "0")
+				.attr("y", "0")
+				.attr("style", "fill: #666; color: #666; font-size: 2.5em; align: center; pointer-events: none");
+			var percentage = explanation.append("tspan")
+				.attr("x", "0")
+				.attr("dy", "0")
+				.attr("text-anchor", "middle")
+				.attr("style", "fill: #666; color: #666; font-size: 30px; align: center; font-family: 'Open Sans', sans-serif;")
+				.text("100%");
+			explanation.append("tspan")
+				.attr("x", "0")
+				.attr("dy", "2.5em")
+				.attr("text-anchor", "middle")
+				.attr("style", "fill: #666; color: #666; font-size: 12px; align: center; font-family: 'Open Sans', sans-serif;")
+				.text(expText);
+				
+			var tw = g2.node().getBBox().width, th = g2.node().getBBox().height,
+			textScaleFactor = radius * 0.3 / Math.sqrt((tw * tw + th * th) / 4);
+			g2.attr("transform", "translate(" + width / 2 + "," + height / 2 + ") scale(" + textScaleFactor + ")");
+			if (emb) {				vs.css({
+						"font-family": "'Open Sans', sans-serif",
+						"font-size": "12px",
+						"font-weight": "400",
+						"background-color": "#fff"
+					})
+					.height(vis.getHeight());
+				vs.find("#hint").css("display", (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) ? "none" : "block").css("opacity", 0);
+				vs.find("#sequence").css("display", (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) ? "none" : "inline-block").css("opacity", 0);
+			}
+
+			var partition = d3.layout.partition()
+				.value(function(d) { return d.size; });
+
+			var x = d3.scale.linear().range([0, 2 * Math.PI]);
+			var y = d3.scale.sqrt().range([radius * 0.47, radius]);
+
+			var arc = d3.svg.arc()
+				.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+				.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+				.innerRadius(function(d) { return Math.max(0, y(d.y)); })
+				.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+
+			function trace(node, i) {
+				if (node && node.children) {
+					var index = node.children.findIndex(function (e) {
+						return e.name == s.props.nodePath[i];
+					});
+					if (index > -1)
+						return trace(node.children[index], i + 1);
+				}
+
+				return node;
+			}
+
+			var path, minY = 0;
+			function createVisualization(json) {
+				// Bounding circle underneath the sunburst, to make it easier to detect
+				// when the mouse leaves the parent g.
+				g.append("svg:circle")
+					.attr("r", radius)
+					.style("opacity", 0);
+
+				// For efficiency, filter nodes to keep only those large enough to see.
+				var nodes = partition.nodes(json)
+					.filter(function(d) { return (d.dx > cx/*0.001*/); /*0.005 radians = 0.29 degrees*/ });
+	
+				minY = d3.min(jq$.grep(nodes, function(n) { return n.y > 0; }), function(n) {
+					return n.y;
+				});
+
+				y.domain([minY, 1]);
+
+				names = root.children
+					.sort(function(a, b) { return b.name - a.name; })
+					.map(function(item) { return item.name; });
+
+				path = g.data([json]).selectAll("path")
+					.data(nodes)
+					.enter().append("svg:path")
+					.attr("d", arc)
+					.attr("fill-rule", "evenodd")
+					.style("fill", function(d, i) {
+						var path = vis.getPath(d);
+						if (path.length > 0) {
+							var topmost = path[0];
+							var index = names.indexOf(topmost.name);	// root.children.indexOf(topmost);
+							return util.getColor(i ? emb ? colors(index + 1) : getItem(colors, index + 1) : "#fff", { min: 0, max: topmost.value, factor: 0.7, value: d.value, scale: d3.scale.sqrt() });
+						}
+						return "#fff";
+					})
+					.style("opacity", 1)
+					.on("mouseover", mouseover)
+					.on("mouseout", mouseout)
+					.on("click", zoom);
+
+				d3.select("#VIS_ID .container")
+					.on("mouseleave", mouseleave);
+
+				var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
+					existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0);
+				if (isBackRender && existNodePath) {
+					cx = 0; cy = 1;
+				} else {
+					cx = 0.003; cy = 0.88;
+				}
+
+				g.selectAll("path").transition().duration(750)
+					.call(function(transition) {
+						transition.attrTween("d", function(d) {
+							d.edx = d.dx, d.edy = d.dy;
+							d.cdx = d.edx - cx, d.cdy = d.edy * cy;
+							return function(t) {
+								d.dx = d3.interpolate(d.edx, d.cdx)(t);
+								d.dy = d3.interpolate(d.edy, d.cdy)(t);
+								return arc(d);
+							};
+						});
+					});
+
+				totalSize = path.datum().value;
+
+				if (emb) {
+					metricSelect
+						.unbind("change")
+						.bind("change", function() {
+							vs.find("svg").remove();
+							store();
+							ExecuteVIS_ID();
+							setZoom(false);
+						});
+
+					vis.updateBreadcrumbContext({ root: json, total: totalSize });
+					vis.hideBreadcrumb();
+					vis.onReady(100);
+
+					if (isBackRender && existNodePath) {
+						var d = trace(json, 0);
+						var pathLocks = new Array(path.size());
+						path.each(function (d2, i2) { pathLocks[i2] = this; });
+						x.domain([d.x, d.x + d.dx]);
+						y.domain([(d.depth > 0) ? d.y : minY, 1]);
+						d3.selectAll(pathLocks).each(function (d2, i2) {
+							d3.select(pathLocks[i2]).attr("d", function () {
+								return arc(d2);
+							});
+						});
+				}
+
+					if (!isBackRender && !isThumbnails) {
+						s.props.nodePath = undefined;
+						store();
+					}
+				}
+			};
+
+			function getChildren(node) {
+				var path = [node], children = node["children"];
+				if (!children)
+					return path;
+
+				for (var i = 0; i < children.length; i++) {
+					path.push.apply(path, getChildren(children[i]));
+				}
+				return path;
+			}
+			function getPercentageString(d) {
+				var percentage = (100 * d.value / totalSize).toPrecision(3);
+				return percentage < 0.1 ? "< 0.1%" : percentage + "%";
+			}
+
+			function updateBreadcrumb(d, filter) {
+				if (!emb)
+					return;
+
+				vis.updateBreadcrumb(d, { label: getPercentageString(d), preventFilter: !filter });
+			}
+			function collapseShares() {
+				g.selectAll("path")
+					.transition()
+					.duration(1000)
+					.call(function(tran) {
+						if (zoomEnabled)
+							return;
+						tran.attrTween("d", function(d2) {
+							return function(t) {
+								d2.dx = d3.interpolate(d2.dx, d2.cdx)(t);
+								d2.dy = d3.interpolate(d2.dy, d2.cdy)(t);
+								return arc(d2);
+							};
+						});
+					});
+			}
+
+			function mouseover(d) {
+				percentage.text(getPercentageString(d));
+
+				if (emb) {
+				var ancestors = vis.getPath(d), children = getChildren(d);
+
+				g.selectAll("path")
+					.style("opacity", 0.5)
+					.filter(function(node) { return (ancestors.indexOf(node) >= 0); })
+					.style("opacity", 1);
+				}
+
+				g.selectAll("path")
+					.transition().duration(150)
+					.call(function(transition) {
+						transition.attrTween("d", function(d2) {
+							return function(t) {
+								d2.dx = d3.interpolate(d2.dx, !zoomEnabled ? d2.cdx : d2.edx)(t);
+								d2.dy = d3.interpolate(d2.dy, !zoomEnabled ? d2.cdy : d2.edy)(t);
+								return arc(d2);
+							};
+						});
+					});
+
+				if (!zoomEnabled) {
+					g.selectAll("path")
+						.filter(function(node) { return (children.indexOf(node) >= 0); })
+						.sort(function(a2, b2) { return a2.size - b2.size; })
+						.transition().duration(250)
+						.delay(function(d2, i) { return i / children.length * 250; })
+						.call(function(transition) {
+							transition.attrTween("d", function(d2) {
+								return function(t) {
+									d2.dx = d3.interpolate(d2.dx, d2.edx)(t);
+									d2.dy = d3.interpolate(d2.dy, d2.edy)(t);
+									return arc(d2);
+								};
+							});
+						});
+				}
+				if (emb)
+					util.showTooltip(d, { nested: true, exclusion: ["edx", "edy", "cdx", "cdy"] });
+			}
+			function mouseout() {
+				if (emb)
+					util.hideTooltip();
+				collapseShares();
+			}
+			function mouseleave() {
+				collapseShares();
+
+				d3.select(mouseleaveOpacityLock)
+					.transition().duration(1000)
+					.tween("style:opacity", function() {
+						var i = d3.interpolateString("0.5", "1");
+						return function(t) { path.style("opacity", i(t)); };
+					});
+				percentage.text("100%");
+			}
+
+			function setZoom(value) {
+				zoomEnabled = value;
+			}
+			function zoom(d) {
+				updateBreadcrumb(d, true);
+				store();
+				setZoom(d.depth != 0);
+				vis.setBreadcrumbDefaultNode(zoomEnabled ? d : null);
+
+				var pathLocks = new Array(path.size());
+				path.each(function(d2, i2) { pathLocks[i2] = this; });
+
+				d3.select(zoomLock)
+					.transition().duration(duration)
+					.tween("text", function() {
+						var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+							yd = d3.interpolate(y.domain(), [(d.depth > 0) ? d.y : minY, 1]);
+
+						return function(t) {
+							d3.selectAll(pathLocks).each(function(d2, i2) {
+								d3.select(pathLocks[i2]).attr("d", function() {
+									if (!i2) {
+										x.domain(xd(t));
+										y.domain(yd(t));
+									}
+									return arc(d2);
+								});
+							});
+						};
+					});
+
+				g.selectAll("path")
+					.each(function (d2) {
+						d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
+						d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
+				   });
+			}
+
+			var names;
+			(function() {
+				if (emb) {
+					util.registerResize("VIS_ID", ExecuteVIS_ID, function() { setZoom(false); });
+					createVisualization(root);
+				}
+				else {
+					function buildHierarchy(csv) {
+						// Take a 2-column CSV and transform it into a hierarchical structure suitable
+						// for a partition layout. The first column is a sequence of step names, from
+						// root to leaf, separated by hyphens. The second column is a count of how 
+						// often that sequence occurred.
+
+						var r = { "name": "root", "children": [] };
+						for (var i = 0; i < csv.length; i++) {
+							var sequence = csv[i][0];
+							var size = +csv[i][1];
+							if (isNaN(size))  // e.g. if this is a header row
+								continue;
+
+							var parts = sequence.split("-");
+							var currentNode = r;
+							for (var j = 0; j < parts.length; j++) {
+								var children = currentNode["children"];
+								var nodeName = parts[j];
+								var childNode;
+								if (j + 1 < parts.length) {
+									// Not yet at the end of the sequence; move down the tree.
+									var foundChild = false;
+									for (var k = 0; k < children.length; k++) {
+										if (children[k]["name"] == nodeName) {
+											childNode = children[k];
+											foundChild = true;
+											break;
+										}
+									}
+									// If we don't already have a child node for this branch, create it.
+									if (!foundChild) {
+										childNode = { "name": nodeName, "children": [] };
+										children.push(childNode);
+									}
+									currentNode = childNode;
+								} else {
+									// Reached the end of the sequence; create a leaf node.
+									childNode = { "name": nodeName, "size": size };
+									children.push(childNode);
+								}
+							}
+						}
+						return r;
+					};
+
+					// Use d3.text and d3.csv.parseRows so that we do not need to have a header
+					// row, and can receive the csv as an array of arrays.
+					d3.text(f1, function(text) {
+						createVisualization(root = buildHierarchy(d3.csv.parseRows(text)));
+					});
+				}
+			})();
+		}
+		catch (e) {
+			var docElement = jq$('<object>');
+			docElement.attr('data', VIS_CONTEXT.docUrl);
+			docElement.width(width).height(height);
+			jq$('#VIS_ID').html(docElement);
+		}
+	})();
+</script>

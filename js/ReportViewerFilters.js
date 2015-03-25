@@ -1,4 +1,5 @@
-﻿var filtersData;
+﻿var filtersData = new Array();
+var subreportsFiltersData;
 var showingC = false;
 var calendars;
 var filtersDataObtained = false;
@@ -20,50 +21,55 @@ function ToggleFilters() {
 /**
 * Returns value(s) for filter with number (index)
 */
-function GetFilterValues(index) {
+function GetFilterValues(index, filters, id) {
+	if (filters == null)
+		filters = filtersData;
+	if (id == null)
+		id = index;
+
 	var result = new Array();
 	result[0] = '';
-	switch (filtersData[index].ControlType) {
+	switch (filters[index].ControlType) {
 		case 1:
 		case 11:
 		case 100:
-			var pItem = document.getElementById('ndbfc' + index).parentElement;
-			if (filtersData[index].ControlType == 11)
+			var pItem = document.getElementById('ndbfc' + id).parentElement;
+			if (filters[index].ControlType == 11)
 				pItem = pItem.parentElement;
 			result[0] = pItem.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 2:
-			result[0] = document.getElementById('ndbfc' + index + '_l').parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index + '_l').value;
-			result[2] = document.getElementById('ndbfc' + index + '_r').value;
+			result[0] = document.getElementById('ndbfc' + id + '_l').parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id + '_l').value;
+			result[2] = document.getElementById('ndbfc' + id + '_r').value;
 			break;
 		case 3:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 4:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 5:
-			result[0] = document.getElementById('ndbfc' + index + '_1').parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index + '_1').value;
-			result[2] = document.getElementById('ndbfc' + index + '_2').value;
+			result[0] = document.getElementById('ndbfc' + id + '_1').parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id + '_1').value;
+			result[2] = document.getElementById('ndbfc' + id + '_2').value;
 			break;
 		case 6:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 7:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 8:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
 			var combinedRes8 = '';
 			var cnt8 = 0;
-			var cb = document.getElementById('ndbfc' + index + '_cb' + cnt8);
+			var cb = document.getElementById('ndbfc' + id + '_cb' + cnt8);
 			while (cb != null) {
 				if (cb.checked) {
 					if (combinedRes8.length > 0)
@@ -71,18 +77,18 @@ function GetFilterValues(index) {
 					combinedRes8 += cb.value;
 				}
 				cnt8++;
-				cb = document.getElementById('ndbfc' + index + '_cb' + cnt8);
+				cb = document.getElementById('ndbfc' + id + '_cb' + cnt8);
 			}
 			result[1] = combinedRes8;
 			break;
 		case 9:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + index).value;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
+			result[1] = document.getElementById('ndbfc' + id).value;
 			break;
 		case 10:
-			result[0] = document.getElementById('ndbfc' + index).parentElement.id;
+			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
 			var combinedRes = '';
-			var selCtl = document.getElementById('ndbfc' + index);
+			var selCtl = document.getElementById('ndbfc' + id);
 			for (var cnt10 = 0; cnt10 < selCtl.options.length; cnt10++) {
 				if (selCtl.options[cnt10].selected) {
 					if (combinedRes.length > 0)
@@ -101,22 +107,32 @@ function GetFilterValues(index) {
 /**
 * Save filters stored in 'filtersData' variable.
 */
-function CommitFiltersData(updateReportSet) {
-	if (filtersData == null || filtersData.length <= 0)
-		return;
-	filtersDataObtained = false;
-	var dataToCommit = new Array();
-	for (var index = 0; index < filtersData.length; index++) {
-		var filterObj = new Object();
-		filterObj.Removed = filtersData[index].Removed;
-		filterObj.Uid = filtersData[index].Uid;
-		if (!filtersData[index].Removed)
-			filterObj.Values = GetFilterValues(index).slice(1);
-		dataToCommit[index] = filterObj;
+function CommitChangedFilter(field) {
+	if (field.FilterGUID) {
+		for (var i = 0; i < filtersData.length; i++)
+			if (filtersData[i].GUID == field.FilterGUID) {
+				filtersData[i].OperatorValue = field.FilterOperator;
+				break;
+			}
 	}
+	CommitFiltersData(false);
+}
+
+function CommitFiltersData(updateReportSet) {
+	var dataToCommit = new Array();
+	dataToCommit = dataToCommit.concat(GetFiltersDataToCommit());
+	dataToCommit = dataToCommit.concat(GetSubreportsFiltersDataToCommit());
+
+	if (dataToCommit.length == 0) {
+		GetRenderedReportSet(true);
+		return;
+	}
+
+	filtersDataObtained = false;
+
 	// Save scroll position within the checkbox filters' divs
 	var positions = [];
-	jq$(jq$('#htmlFilters > table tr')[0]).find('td div').each(function () {
+	jq$('#htmlFilters .saveScroll').each(function () {
 		if (!jq$(this).attr('id') || this.scrollTop == 0)
 			return;
 		positions.push(
@@ -125,10 +141,20 @@ function CommitFiltersData(updateReportSet) {
         	scroll: this.scrollTop
         });
 	});
+	// Disable filters so they cannot be changed until they are in the relevant state
+	jq$('#htmlFilters :input').prop('disabled', true);
+
 	var cmd = 'setfiltersdata';
 	if (!updateReportSet)
 		cmd = 'refreshcascadingfilters';
 	var requestString = 'wscmd=' + cmd + '&wsarg0=' + encodeURIComponent(JSON.stringify(dataToCommit));
+	// Instant Report handling
+	if (typeof nirConfig != 'undefined' && nirConfig != null && typeof dataSources != 'undefined' && dataSources != null) {
+		var ds = new Array();
+		for (var i = 0; i < dataSources.length; i++)
+			ds.push(dataSources[i].DbName);
+		requestString += '&wsarg1=' + encodeURIComponent(JSON.stringify(ds));
+	}
 	refreshFiltersLastGUID = GenerateGuid();
 	if (updateReportSet)
 		AjaxRequest(urlSettings.urlRsPage, requestString, FiltersDataSet, null, 'setfiltersdata');
@@ -142,6 +168,61 @@ function CommitFiltersData(updateReportSet) {
 		}, null, 'refreshcascadingfilters-' + refreshFiltersLastGUID);
 }
 
+function GetFiltersDataToCommit() {
+	var dataToCommit = new Array();
+	if (filtersData == null || filtersData.length <= 0)
+		return dataToCommit;
+	
+	for (var index = 0; index < filtersData.length; index++) {
+		var filterObj = new Object();
+		filterObj.Removed = filtersData[index].Removed;
+		filterObj.Uid = filtersData[index].Uid;
+		filterObj.GUID = filtersData[index].GUID;
+		filterObj.Column = filtersData[index].ColumnName;
+		filterObj.FieldFilter = filtersData[index].FieldFilter;
+		filterObj.OperatorValue = filtersData[index].OperatorValue;
+		filterObj.AliasTable = filtersData[index].AliasTable;
+		if (!filtersData[index].Removed)
+			filterObj.Values = GetFilterValues(index, filtersData).slice(1);
+		dataToCommit[index] = filterObj;
+	}
+	return dataToCommit;
+}
+
+function UpdateFiltersDataValuesFromUI() {
+	for (var index = 0; index < filtersData.length; index++) {
+		var filterValues = GetFilterValues(index, filtersData);
+		filtersData[index].Values = filterValues;
+		filtersData[index].Value = filterValues.slice(1);
+	}
+}
+
+function GetSubreportsFiltersDataToCommit() {
+	var dataToCommit = new Array();
+	if (subreportsFiltersData == null || subreportsFiltersData.length <= 0)
+		return dataToCommit;
+
+	var globalIndex = 0;
+	for (var i = 0; i < subreportsFiltersData.length; i++) {
+		for (var index = 0; index < subreportsFiltersData[i].FiltersData.Filters.length; index++) {
+			var filter = subreportsFiltersData[i].FiltersData.Filters[index];
+			var filterObj = new Object();
+			filterObj.Removed = filter.Removed;
+			filterObj.Uid = filter.Uid;
+			filterObj.GUID = filter.GUID;
+			filterObj.IsSubreportFilter = true;
+			filterObj.SubreportName = subreportsFiltersData[i].SubreportFullName;
+			filterObj.AliasTable = subreportsFiltersData[i].AliasTable;
+			if (!filter.Removed)
+				filterObj.Values = GetFilterValues(index, subreportsFiltersData[i].FiltersData.Filters, filter.GUID).slice(1);
+			dataToCommit[globalIndex] = filterObj;
+			globalIndex++;
+		}
+	}
+
+	return dataToCommit;
+}
+
 /**
 * Reload and render filters
 */
@@ -153,18 +234,22 @@ function RemoveFilterByUid(uid) {
 	for (var index = 0; index < filtersData.length; index++) {
 		if (filtersData[index].Uid == uid) {
 			filtersData[index].Removed = true;
-			if (typeof GetFieldIndexes != 'undefined') {
-				var fIndexes = GetFieldIndexes(filtersData[index].ColumnName);
-				if (fIndexes != null)
-					selectionsList[fIndexes[0]].Fields[fIndexes[1]].FilterOperator = '';
-			}
+			for (var i = 0; i < fieldsList.length; i++)
+				if (fieldsList[i].DbName == filtersData[index].ColumnName)
+					fieldsList[i].FilterOperator = '';
 			var filterDiv = document.getElementById(uid);
 			if (filterDiv != null)
 				filterDiv.style.visibility = 'hidden';
 			break;
 		}
 	}
-	CommitFiltersData(true);
+
+	var updateReportSet = true;
+	// Instant Report page
+	if (typeof nirConfig != 'undefined' && nirConfig != null)
+		updateReportSet = false;
+	CommitFiltersData(updateReportSet);
+
 	if (typeof updateFields != 'undefined')
 		updateFields();
 }
@@ -192,13 +277,32 @@ function AddNewFilterField() {
 	var newFilterFieldDropDown = document.getElementById('newFilterFieldDropDown');
 	if (newFilterFieldDropDown.value == null || newFilterFieldDropDown.value == '' || newFilterFieldDropDown.value == '...')
 		return;
-	if (typeof GetFieldIndexes == 'undefined')
-		return;
-	var fieldIndexes = GetFieldIndexes(newFilterFieldDropDown.value);
-	if (fieldIndexes == null)
-		return;
-	selectionsList[fieldIndexes[0]].Fields[fieldIndexes[1]].FilterOperator = 'Equals';
-	CommitFiltersData(true);
+
+	var dupFieldFilter = false;
+	for (var i = 0; i < filtersData.length; i++)
+		if (filtersData[i].ColumnName == newFilterFieldDropDown.value) {
+			dupFieldFilter = true;
+			break;
+		}
+
+	if (!dupFieldFilter)
+		for (var i = 0; i < fieldsList.length; i++) {
+			if (fieldsList[i].DbName == newFilterFieldDropDown.value)
+				fieldsList[i].FilterOperator == 'Equals';
+		}
+
+	var filterObj = new Object();
+	filterObj.Removed = false;
+	filterObj.Uid = '';
+	filterObj.GUID = '';
+	filterObj.Value = null;
+	filterObj.Values = null;
+	filterObj.Type = 1;
+	filterObj.ColumnName = newFilterFieldDropDown.value;
+	filterObj.AliasTable = jq$(newFilterFieldDropDown).find('option[value="' + newFilterFieldDropDown.value + '"]').data('alias');
+
+	filtersData.push(filterObj);
+	CommitFiltersData(false);
 	if (typeof updateFields != 'undefined')
 		updateFields();
 }
@@ -207,15 +311,19 @@ function GenerateNewFilterDropDown() {
 	var result = '<select style="width:100%;" id="newFilterFieldDropDown" onchange="AddNewFilterField();">';
 	var optionsAdded = false;
 	result += '<option value="..." selected="selected">...</option>';
-	for (var dsCnt = 0; dsCnt < selectionsList.length; dsCnt++) {
-		for (var fCnt = 0; fCnt < selectionsList[dsCnt].Fields.length; fCnt++) {
-			if (selectionsList[dsCnt].Fields[fCnt].Selected < 0)
-				continue;
-			if (selectionsList[dsCnt].Fields[fCnt].FilterOperator != null && selectionsList[dsCnt].Fields[fCnt].FilterOperator != '' && selectionsList[dsCnt].Fields[fCnt].FilterOperator != '...')
-				continue;
-			optionsAdded = true;
-			result += '<option value="' + selectionsList[dsCnt].Fields[fCnt].DbName + '">' + selectionsList[dsCnt].Fields[fCnt].FriendlyName + '</option>';
+	for (var dsCnt = 0; dsCnt < dataSources.length; dsCnt++) {
+		if (dataSources.length > 1)
+			result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
+
+		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
+		    if (!dataSources[dsCnt].Columns[fCnt].FilterHidden) {
+		    	result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + dataSources[dsCnt].Columns[fCnt].FriendlyName + '</option>';
+		        optionsAdded = true;
+		    }
 		}
+
+		if (dataSources.length > 1)
+			result += '</optgroup>';
 	}
 	result += '</select>';
 	if (!optionsAdded)
@@ -228,80 +336,56 @@ function CheckShowAddFilterControls() {
 		var newFilterDataDropDown = GenerateNewFilterDropDown();
 		if (newFilterDataDropDown == '')
 			return;
-		var floatStyle = '';
+
+		var addFilterButton$ = jq$('.fuidNewFilterTemplate').clone();
+		addFilterButton$.prop('id', 'fuidNewFilter');
 		if (makeFiltersFloat)
-			floatStyle = 'float:left;';
-		var addFilterHtml = '<div id="fuidNewFilter" style="' + floatStyle + 'margin-right:8px;width:30px;" expanded="false">';
-		addFilterHtml += '<div style="background-color:#CCEEFF;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;">';
-		addFilterHtml += '<nobr><div id="dNewFilter" onclick="ShowHideAddFilter();" style="float:right;width:30px;text-align:center;cursor:pointer;">+</div></nobr></div>';
-		addFilterHtml += '<div id="newFilterColumnSel" style="display:none;">' + newFilterDataDropDown + '</div>';
-		addFilterHtml += '</div>';
-		var addFilterControlsDiv = document.getElementById('addFilterControls');
-		addFilterControlsDiv.innerHTML = addFilterHtml;
-		addFilterControlsDiv.style.display = '';
+			addFilterButton$.css('float', 'left');
+		else
+			addFilterButton$.css('float', '');
+
+		addFilterButton$.find('#newFilterColumnSel').html(newFilterDataDropDown);
+		addFilterButton$.show();
+
+		jq$('#addFilterControls').html(addFilterButton$);
+		jq$('#addFilterControls').show();
 	}
 }
 
 function RefreshFilters(returnObj) {
-	var htmlFilters = document.getElementById('htmlFilters');
-	if (returnObj.Filters == null || returnObj.Filters.length <= 0) {
-		var fHtml = '<div id="addFilterControls" style="display:none;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>';
-		fHtml += '<div id="updateBtnP" class="f-button">';
-		fHtml += '<a class="blue" onclick="javascript:GetRenderedReportSet(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="' + IzLocal.Res('js_Refresh', 'Refresh') + '" /><span class="text">' + IzLocal.Res('js_UpdateResults', 'Update Results') + '</span></a>';
-		fHtml += '</div>';
-		htmlFilters.innerHTML = fHtml;
-		filtersDataObtained = true;
-		makeFiltersFloat = false;
-		if (filtersDataObtained && fieldsDataObtained)
-			CheckShowAddFilterControls();
-		return;
-	}
+	var htmlFilters = jq$('#htmlFilters');
+	htmlFilters.find('.filtersContent').html('');
+
+	// Show Filters tab content instead of Loading
+	if (htmlFilters.is(':hidden'))
+		htmlFilters.show();
+	jq$('#tab1 #loadingDiv').hide();
+
 	filtersData = returnObj.Filters;
 	calendars = new Array();
-	var fHtml = '<table style="width:100%;"><tr><td style="width:100%;">';
-	var hiddenStyle;
-	if (returnObj.Filters[0].Parameter != false) {
-		hiddenStyle = '';
-		if (returnObj.Filters[0].AgainstHiddenField)
-			hiddenStyle = 'display:none; ';
-		fHtml += '<div style="' + hiddenStyle + 'float:left;margin-right:8px;margin-bottom:16px;min-width:300px;width:auto;">';
-	}
+
 	var controlsIds = new Array();
 	var index = 0;
+	var hasFilterLogic = false;
+	if (returnObj.FilterLogic != null && returnObj.FilterLogic.toString().indexOf('example') == -1)
+		hasFilterLogic = true;
 	while (index < returnObj.Filters.length) {
-		var filter = returnObj.Filters[index];
 		var divsId = 'd' + s4() + s4();
 		controlsIds[controlsIds.length] = new Object();
 		controlsIds[controlsIds.length - 1].Id = divsId;
-		controlsIds[controlsIds.length - 1].filterDesc = filter.Description;
-		hiddenStyle = '';
-		if (returnObj.Filters[index].AgainstHiddenField)
-			hiddenStyle = ' style="display:none;"';
-		fHtml += '<div id="' + filter.Uid + '" style="' + hiddenStyle + 'float:left;margin-right:8px;min-width:300px;">';
-		fHtml += '<div onmouseover="javascript:this.children[0].style.opacity=0.5; this.children[0].style.backgroundImage=\'url(\\\'rs.aspx?image=ModernImages.clear-dark-bigger.png\\\')\'; this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage=\'url(\\\'rs.aspx?image=gear.gif\\\')\'; document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + ' - ' + filter.OperatorFriendlyName + '\';" onmouseout="javascript:for(var index = 0; index < this.children.length - 1; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\'' + divsId + '\').innerHTML = \'' + filter.Description + '\';" style="background-color:#CCEEFF;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;">';
-		if (typeof nrvConfig == 'undefined' || nrvConfig == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false) {
-			fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:RemoveFilterByUid(\'' + filter.Uid + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
-		}
-		fHtml += '<div onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;" onclick="javascript:ShowFieldPropertiesByFullFieldName(\'' + filter.ColumnName + '\');" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;"></div>';
-		fHtml += '<nobr onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}"><div  id="' + divsId + '" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float:left;margin-right:8px">' + filter.Description + ' - ' + filter.OperatorFriendlyName + '</div></nobr></div>';
-		fHtml += GenerateFilterControl(index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == returnObj.Filters.length - 1);
-		fHtml += '</div></div>';
+		controlsIds[controlsIds.length - 1].filterDesc = returnObj.Filters[index].Description;
+
+		var filterContent = GetFilterContent(returnObj.Filters, index, divsId, hasFilterLogic, false);
+		htmlFilters.find('.filtersContent').append(filterContent);
 		index++;
-		if (index < returnObj.Filters.length) {
-			if (returnObj.Filters[index].Parameter != false) {
-				hiddenStyle = '';
-				if (returnObj.Filters[index].AgainstHiddenField)
-					hiddenStyle = ' style="display:none;"';
-				fHtml += '<div style="' + hiddenStyle + 'float:left;margin-right:8px;margin-bottom:16px;">';
-			}
-		}
 	}
-	fHtml += '<div id="addFilterControls" style="display:none;float:left;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>';
-	fHtml += '</td></tr><tr><td><div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">';
-	fHtml += '<a class="blue" onclick="javascript:CommitFiltersData(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="' + IzLocal.Res('js_Refresh', 'Refresh') + '" /><span class="text">' + IzLocal.Res('js_UpdateResults', 'Update Results') + '</span></a>';
-	fHtml += '</div></td></tr></table>';
-	htmlFilters.innerHTML = fHtml;
+	var addFilterControl = jq$('.addFilterTemplate').clone();
+	addFilterControl.prop('id', 'addFilterControls');
+	htmlFilters.find('.filtersContent').append(addFilterControl);
+
 	filtersDataObtained = true;
+
+	PopulateSubreportsFilters(returnObj);
 
 	var dateFormatString = '';
 	if (typeof nrvConfig != 'undefined' && nrvConfig != null && typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
@@ -318,7 +402,7 @@ function RefreshFilters(returnObj) {
 			jq$(document.getElementById(calendars[cc])).datepicker("show");
 	}
 
-	jq$(htmlFilters).find(".comboboxTreeMultyselect").each(function () {
+	htmlFilters.find(".comboboxTreeMultyselect").each(function () {
 		var treeControl = jq$(this);
 		var index = treeControl.attr("index");
 		var possibleValues = returnObj.Filters[index].ExistingValues[0];
@@ -335,7 +419,7 @@ function RefreshFilters(returnObj) {
 		labelDiv.style.width = labelDiv.clientWidth + 'px';
 		labelDiv.innerHTML = controlsIds[index].filterDesc;
 	}
-	if (switchTabAfterRefreshCycle) {
+	if (typeof switchTabAfterRefreshCycle != 'undefined' && switchTabAfterRefreshCycle) {
 		switchTabAfterRefreshCycle = false;
 		if (!jq$(document.getElementById('tab1')).hasClass('active'))
 			document.getElementById('tab1a').click();
@@ -346,6 +430,113 @@ function RefreshFilters(returnObj) {
 
 	if (filtersDataObtained && fieldsDataObtained)
 		CheckShowAddFilterControls();
+}
+
+function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter) {
+	var filter = filters[index];
+	var filterContent = jq$('.filterViewerTemplate').clone();
+	filterContent.removeClass('filterViewerTemplate');
+	filterContent.show();
+	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
+
+	var mouseOverScript = 'this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage= \'url(\\\'\' + this.children[1].getAttribute("data-img") + \'\\\')\'; this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage=\'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; document.getElementById(\''
+						+ divsId
+						+ '\').innerHTML = \''
+						+ filter.Description
+						+ ' - '
+						+ filter.OperatorFriendlyName
+						+ '\';';
+	var mouseOutScript = 'for(var index = 1; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
+						+ divsId
+						+ '\').innerHTML = \''
+						+ filter.Description
+						+ '\';';
+	if (!isSimpleFilter) {
+		filterContent.find('.filterHeader').attr('onmouseover', mouseOverScript);
+		filterContent.find('.filterHeader').attr('onmouseout', mouseOutScript);
+	}
+	if (!isSimpleFilter && (typeof nrvConfig == 'undefined' || nrvConfig == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false)) {
+		filterContent.find('.filterRemoveButton').attr('onclick', 'RemoveFilterByUid(\'' + filter.Uid + '\')');
+		filterContent.find('.filterPropertiesButton').attr('onclick', 'ShowFieldPropertiesByFullFieldName(\'' + filter.ColumnName + '\', \'' + filter.GUID + '\')');
+	}
+	else {
+		filterContent.find('.filterRemoveButton').hide();
+		filterContent.find('.filterPropertiesButton').hide();
+	}
+	if (isSimpleFilter)
+		filterContent.find('.filterTitle, .filterTitleContainer').attr('onmouseover', '');
+	filterContent.find('.filterTitle').prop('id', divsId);
+	filterContent.find('.filterTitle').html(filter.Description + ' - ' + filter.OperatorFriendlyName);
+	var filterInnerContent = GenerateFilterControl(isSimpleFilter ? filter.GUID : index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == filters.length - 1 && !hasFilterLogic);
+	filterContent.find('.filterInnerContent').append(filterInnerContent);
+
+	if (filter.Parameter != false && filter.AgainstHiddenField)
+		filterContent.hide();
+
+	return filterContent;
+}
+
+function PopulateSubreportsFilters(returnObj) {
+	var subreportFiltersControl = jq$('#htmlFilters .subreportsFiltersTable');
+	if (returnObj.SubreportsFilters == null || returnObj.SubreportsFilters.length <= 0) {
+		subreportsFiltersData = null;
+		subreportFiltersControl.hide();
+		return;
+	}
+	subreportFiltersControl.html('');
+	subreportFiltersControl.show();
+	for (var i = 0; i < returnObj.SubreportsFilters.length; i++)
+		ProcessSubreportFilters(returnObj.SubreportsFilters[i], returnObj.SubreportsFilters.length > 1);
+	if (returnObj.SubreportsFilters.length == 1)
+		jq$('.subreportsFiltersContent .subreportsTitleText').text(returnObj.SubreportsFilters[0].SubreportFullName);
+
+	jq$('.subreportsFiltersContent').show();
+	subreportsFiltersData = returnObj.SubreportsFilters;
+}
+
+function ProcessSubreportFilters(subreportFilters, addTitle) {
+	if (subreportFilters.FiltersData == null || subreportFilters.FiltersData.Filters == null || subreportFilters.FiltersData.Filters.length == 0)
+		return;
+
+	var filtersControl = jq$('#htmlFilters .subreportsFiltersTable');
+
+	if (addTitle) {
+		var subreportTitle = jq$('.subreportTitleTemplate').clone();
+		subreportTitle.removeClass('subreportTitleTemplate');
+		subreportTitle.find('span').html(subreportFilters.SubreportFullName);
+		var subreportTitleRow = jq$('<tr>').append(jq$("<td>").html(subreportTitle));
+		filtersControl.append(subreportTitleRow);
+	}
+
+	var subreportFiltersCell = jq$('<td>');
+
+	var hasFilterLogic = false;
+	if (subreportFilters.FiltersData.FilterLogic != null && subreportFilters.FiltersData.FilterLogic.toString().indexOf('example') == -1)
+		hasFilterLogic = true;
+
+	var controlsIds = new Array();
+	for (var index = 0; index < subreportFilters.FiltersData.Filters.length; index++) {
+		var divsId = 'd' + s4() + s4();
+		controlsIds[controlsIds.length] = new Object();
+		controlsIds[controlsIds.length - 1].Id = divsId;
+		controlsIds[controlsIds.length - 1].filterDesc = subreportFilters.FiltersData.Filters[index].Description;
+
+		var filterContent = GetFilterContent(subreportFilters.FiltersData.Filters, index, divsId, hasFilterLogic, true);
+
+		subreportFiltersCell.append(filterContent);
+	}
+	filtersControl.append(jq$('<tr>').append(subreportFiltersCell));
+
+	// Process all levels of subreports recursively
+	if (subreportFilters.FiltersData.SubreportsFilters != null && subreportFilters.FiltersData.SubreportsFilters.length > 0)
+		for (var i = 0; i < subreportFilters.FiltersData.SubreportsFilters.length; i++)
+			ProcessSubreportFilters(subreportFilters.FiltersData.SubreportsFilters[i]);
+}
+
+function ToggleSubreportsFiltersControl() {
+	jq$('.subreportsFiltersTable').toggle('slide', { direction: 'up' });
+	jq$('.subreportsCollapse').toggle();
+	jq$('.subreportsExpand').toggle();
 }
 
 function CascadingFiltersChanged(returnObj, id) {
@@ -441,11 +632,11 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 	var result = '';
 	switch (cType) {
 		case 1:
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
 		case 2:
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0] + '" ' + onKeyUpCmd + ' />';
-			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1] + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
+			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
 		case 3:
 			result += '<select style="width:100%;" id="ndbfc' + index + '" ' + onChangeCmd + '>';
@@ -453,7 +644,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 				var selected3 = '';
 				if (existingValues[cnt3] == value)
 					selected3 = 'selected="selected"';
-				result += '<option value="' + existingValues[cnt3] + '" ' + selected3 + '>' + existingLabels[cnt3] + '</option>';
+				result += '<option value="' + existingValues[cnt3].replace(/"/g, '&quot;') + '" ' + selected3 + '>' + existingLabels[cnt3] + '</option>';
 			}
 			result += '</select>';
 			break;
@@ -463,17 +654,17 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 				var selected4 = '';
 				if (existingValues[cnt4] == value)
 					selected4 = 'selected="selected"';
-				result += '<option value="' + existingValues[cnt4] + '" ' + selected4 + '>' + existingLabels[cnt4] + '</option>';
+				result += '<option value="' + existingValues[cnt4].replace(/"/g, '&quot;') + '" ' + selected4 + '>' + existingLabels[cnt4] + '</option>';
 			}
 			result += '</select>';
 			break;
 		case 5:
 			onChangeCmd = 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
-			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0] + '" style="width:248px" id="ndbfc' + index + '_1" />';
+			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_1\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			result += '<br />';
-			result += '<input type="text" ' + onChangeCmd + ' value="' + values[1] + '" style="width:248px" id="ndbfc' + index + '_2" />';
+			result += '<input type="text" ' + onChangeCmd + ' value="' + values[1].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_2" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_2';
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_2\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			break;
@@ -485,7 +676,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
-			result += '<div id="ndbfc' + index + '" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5;">';
+			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5;">';
 			var valuesSet8 = value.split(',');
 			for (var cnt8 = 0; cnt8 < existingValues.length; cnt8++) {
 				var checked8 = '';
@@ -495,18 +686,18 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 						break;
 					}
 				}
-				result += '<nobr><input type="checkbox" id="ndbfc' + index + '_cb' + cnt8 + '" ' + onChangeCmd + ' value="' + existingValues[cnt8] + '"' + checked8 + ' />' + existingLabels[cnt8] + '</nobr><br>';
+				result += '<nobr><input type="checkbox" id="ndbfc' + index + '_cb' + cnt8 + '" ' + onChangeCmd + ' value="' + existingValues[cnt8].replace(/"/g, '&quot;') + '"' + checked8 + ' />' + existingLabels[cnt8] + '</nobr><br>';
 			}
 			result += '</div>';
 			break;
 		case 9:
 			onChangeCmd = 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
-			result += '<input type="text" ' + onChangeCmd + ' value="' + value + '" style="width:248px" id="ndbfc' + index + '" />';
+			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="rs.aspx?image=calendar_icon.png">';
 			break;
 		case 10:
-			result += '<select style="width:100%" size="5" multiple="" id="ndbfc' + index + '" ' + onChangeCmd + '>';
+			result += '<select class="saveScroll" style="width:100%" size="5" multiple="" id="ndbfc' + index + '" ' + onChangeCmd + '>';
 			var valuesSet10 = value.split(',');
 			for (var cnt10 = 0; cnt10 < existingValues.length; cnt10++) {
 				var selected10 = '';
@@ -516,16 +707,16 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 						break;
 					}
 				}
-				result += '<option value="' + existingValues[cnt10] + '" ' + selected10 + '>' + existingLabels[cnt10] + '</option>';
+				result += '<option value="' + existingValues[cnt10].replace(/"/g, '&quot;') + '" ' + selected10 + '>' + existingLabels[cnt10] + '</option>';
 			}
 			result += '</select>';
 			break;
 		case 11:
-			result += '<div style="display: none;" visibilitymode="1"><input type="text" id="ndbfc' + index + '" value="' + value + '"/></div>';
+			result += '<div style="display: none;" visibilitymode="1"><input type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '"/></div>';
 			result += '<div class="comboboxTreeMultyselect" index=' + index + '></div>';
 			break;
 		case 100:
-			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
 		default:
 			result = '';
@@ -545,6 +736,7 @@ function GotFiltersData(returnObj, id) {
 	if (id != 'getfiltersdata' || returnObj == null)
 		return;
 	RefreshFilters(returnObj);
+	jq$('#htmlFilters :input').prop('disabled', false);
 }
 
 CC_InitializeComboTreeView = function (mainControl) {
@@ -650,6 +842,9 @@ CC_InitializeComboTreeView = function (mainControl) {
 };
 
 var CC_appendItem = function (node, itemText, prevText, tree, selectedValues, row) {
+	var itemParts = itemText.split('"-"');
+	itemText = itemParts[0];
+	var itemValue = itemParts.length > 1 ? itemParts[1].substring(0, itemParts[1].length) : itemText;
 	var index = itemText.indexOf("|");
 	var text = itemText;
 	var subNode = "";
@@ -662,11 +857,9 @@ var CC_appendItem = function (node, itemText, prevText, tree, selectedValues, ro
 	if (prevText != "")
 		value = prevText + "|" + value;
 
-
-
 	var newNode = node.find("> .node[value='" + value.replace(/'/g, "''") + "']");
 	if (newNode.length == 0) {
-		newNode = jq$(document.createElement("div")).addClass("node").attr("value", value).attr("text", text);
+		newNode = jq$(document.createElement("div")).addClass("node").attr("value", value).attr("text", text).attr("text-value", itemValue);
 		if (subNode != "")
 			newNode.addClass("haschild");
 		newNode.html('<div class="collapse" ></div><input type="checkbox" class="checkbox"/><span class="text">' + text + "</span>");
@@ -698,7 +891,7 @@ var CC_appendItem = function (node, itemText, prevText, tree, selectedValues, ro
 	}
 
 	if (subNode != "") {
-		CC_appendItem(newNode, subNode, value, tree, selectedValues, row);
+		CC_appendItem(newNode, subNode + "\"-\"" + itemValue, value, tree, selectedValues, row);
 	}
 
 };
@@ -827,7 +1020,7 @@ function InitAutoComplete() {
 		jq$(currInput).autocomplete({
 			source: function (req, responeFunction) {
 				var possibleText = CC_extractLast(req.term);
-				var filterIndex = jq$(currInput).attr('id').toString().replace('ndbfc', '');
+				var filterIndex = jq$(this.element).attr('id').toString().replace('ndbfc', '');
 				var fullColumnName = filtersData[filterIndex].ColumnName;
 				var cmd = '&possibleValue=' + possibleText.replace('&', '%26');
 				EBC_LoadData('ExistentValuesList', 'columnName=' + fullColumnName + cmd, null, true, function (responseResult) {

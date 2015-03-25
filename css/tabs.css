@@ -9,10 +9,19 @@
   border-width: 0 0 1px 0;
 	position: relative;
 }
-.TabStrip table {
-	position: relative;
-  top: 1px;
+.TabStrip table 
+{
+	display: block;
+	 position: relative;
+	 top: 1px;
 }
+
+.TabStrip table td
+{
+	 display: inline-block;
+	 position: relative;
+}
+
 .TabStrip table table {
 	position: inherit;
   top: auto;
@@ -24,7 +33,7 @@
   line-height: 23px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  width: 100%;
+  width: auto;
   padding: 5px 12px;
   text-align: center;
   vertical-align: middle;
@@ -61,4 +70,4 @@
 
 .TabStrip .TabSeparator {width: auto;}
 
-              
+				  

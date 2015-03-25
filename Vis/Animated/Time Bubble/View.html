@@ -1,0 +1,313 @@
+﻿<style type="text/css">
+	#chart {
+		margin-left: -40px;
+		height: 506px;
+	}
+	text {
+		font: 10px sans-serif;
+	}
+	.dot {
+		stroke: #fff;
+		fill-opacity: 0.8;
+	}
+	.axis path, .axis line {
+		fill: none;
+		stroke: #000;
+		shape-rendering: crispEdges;
+	}
+	.label {
+		fill: #777;
+	}
+	.year.label {
+		font: 500 72px "Helvetica Neue";
+		fill: #ddd;
+	}
+	.year.label.active {
+		fill: #aaa;
+	}
+	.overlay {
+		fill: none;
+		pointer-events: all;
+		cursor: ew-resize;
+	}
+	div.tooltip {
+		position: absolute;
+		padding: 3px;
+		font: 12px sans-serif;
+		background: white;
+		border: 1px;
+		border-radius: 3.5px;
+		border-style: solid;
+		border-color: #000;
+		box-shadow: 1px 1px 2px #888888;
+		pointer-events: none;
+	}
+</style>
+
+<div style="width: 100%;" id="VIS_ID"></div>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>  
+
+<script type="text/javascript">
+    (function ExecuteVIS_ID() {
+        try {
+		    var VIS_EMBEDDED_DATA;
+
+		    var _width = 720, _height = 500, minWidth = 254;
+		    var f1;
+
+		    var util = window.ReportScripting, vis = {},
+			    emb = typeof util != 'undefined',
+				isThumbnails = (document.URL === 'about:blank');
+
+		    var VIS_COLUMNS = emb ? VIS_COLUMNS : [{ name: '' }, { name: '' }, { name: 'life expectancy (years)' }, { name: 'income per capita, inflation-adjusted (dollars)' }];
+
+		    if (emb) {
+			    if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true, animation: true }))
+				    return;
+
+			    f1 = "Resources/Vis/Animated/Time Bubble/nations.txt";
+
+			    vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			    vis.collectMonthlyData();
+
+			    _width = vis.getWidth();
+			    _height = vis.getHeight();
+		    }
+		    else {
+			    f1 = "nations.txt";
+		    }
+
+		    if (_width < minWidth) { _width = minWidth; }
+
+		    jq$("#VIS_ID").width(_width)
+			    .height(_height);
+
+		    function showInsufficientWidth(width, height) {
+		    	var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+		    	jq$('#VIS_ID').html(insufficientWidthMessage);
+		    }
+		    function checkInsufficientWidth(width, height) {
+		    	return (width < 480);
+		    }
+
+		    var insufficient = checkInsufficientWidth(_width, _height);
+	        jq$('#VIS_ID div#insufficient-width-message').remove();
+		    if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+		    	showInsufficientWidth(_width, _height);
+		    	util.registerResize("VIS_ID", ExecuteVIS_ID);
+		    	return;
+		    }
+
+		    // Various accessors that specify the four dimensions of data to visualize.                             // year - "Year & Month(Order Date)"  - 0
+		    var x = function(d) { return emb ? vis.unitValue(d, 3) : d.income; };           // x - "Sum(Quantity)"   - 2
+		    var y = function(d) { return emb ? vis.unitValue(d, 2) : d.lifeExpectancy; };   // y - "Count(Order ID)" - 1
+		    var radius = function(d) { return emb ? vis.unitValue(d, 4) : d.population; };  // r - "Sum(Unit Price)" - 3
+		    var color = function(d) { return emb ? vis.unitValue(d, 0) : d.region; };
+		    var key = function(d) { return emb ? vis.unitValue(d, 0) : d.name; };
+		    // Defines a sort order so that the smallest dots are drawn on top.
+		    var order = function(a, b) { return radius(b) - radius(a); };
+
+		    // Chart dimensions.
+		    var margin = { top: 19.5, right: 19.5, bottom: 19.5, left: 39.5 };
+
+		    // Create the SVG container and set the origin.
+		    var svg = d3.select("#VIS_ID").append("svg")
+			    .attr("width", _width)
+			    .attr("height", _height)
+			    .append("g")
+			    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+		    _width -= margin.left + margin.right;
+		    _height -= margin.top + margin.bottom;
+
+		    // Various scales. These domains make assumptions of data, naturally.
+		    var xScale = d3.scale.log().domain(emb ? [vis.unitValue(vis.min, 3), vis.unitValue(vis.max, 3)] : [300, 1e5]).range([0, _width]),
+			    yScale = d3.scale.linear().domain(emb ? [vis.unitValue(vis.min, 2), vis.unitValue(vis.max, 2)] : [10, 85]).range([_height, 0]),
+			    radiusScale = d3.scale.sqrt().domain(emb ? [vis.unitValue(vis.min, 4), vis.unitValue(vis.max, 4)] : [0, 5e8]).range([0, 40]),
+			    colorScale = d3.scale.category10();
+
+		    // Add the x-axis.
+		    var xAxis = d3.svg.axis().orient("bottom").scale(xScale).ticks(12, d3.format(",d"));
+		    svg.append("g")
+			    .attr("class", "x axis")
+			    .attr("transform", "translate(0," + _height + ")")
+			    .call(xAxis);
+		    // Add an x-axis label. 
+		    svg.append("text")
+			    .attr("class", "x label")
+			    .attr("text-anchor", "end")
+			    .attr("x", _width)
+			    .attr("y", _height - 6)
+			    .text(VIS_COLUMNS[3].name);
+
+		    // Add the y-axis.
+		    var yAxis = d3.svg.axis().scale(yScale).orient("left");
+		    svg.append("g")
+			    .attr("class", "y axis")
+			    .call(yAxis);
+		    // Add a y-axis label.
+
+		    svg.append("text")
+			    .attr("class", "y label")
+			    .attr("text-anchor", "end")
+			    .attr("y", 6)
+			    .attr("dy", ".75em")
+			    .attr("transform", "rotate(-90)")
+			    .text(VIS_COLUMNS[2].name);
+		    // Add the year label; the value is set on transition.
+		    var label = svg.append("text")
+			    .attr("class", "year label")
+			    .attr("text-anchor", "end")
+			    .attr("y", _height - 24)
+			    .attr("x", _width)
+			    .text(emb ? util.renderDate(vis.unitValue(vis.min, 1)) : 1800);
+
+		    // Load the data.
+		    (function() {
+			    function processData(nations) {
+				    // A bisector since many nation's data is sparsely-defined.
+				    var bisect = d3.bisector(function(d) { return d[0]; });
+
+				    // Add a dot per nation. Initialize the data at 1800, and set the colors.
+				    var dot = svg.append("g")
+					    .attr("class", "dots")
+					    .selectAll(".dot")
+					    .data(interpolateData(emb ? util.renderDate(vis.unitValue(vis.min, 1)) : 1800))
+					    .enter().append("circle")
+					    .attr("class", "dot")
+					    .style("fill", function(d) { return colorScale(color(d)); })
+					    .on("mouseover", function (d) {
+						    var data = {};
+						    jq$.each(d, function(key, value) {
+							    var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+							    data[key] = fieldFormatter ? fieldFormatter(value, d, vis, key) : value + '';
+						    });
+					    	if (emb) util.showTooltip(data);
+					    })
+					    .on("mouseout", function() { if (emb) util.hideTooltip(); })
+					    .call(position)
+					    .sort(order);
+
+				    /*// Add a title.
+				    dot.append("title")
+					    .text(function(d) { return d.name; });*/
+
+				    // Add an overlay for the year label.
+				    var box = label.node().getBBox();
+
+				    var overlay = svg.append("rect")
+					    .attr("class", "overlay")
+					    .attr("x", box.x)
+					    .attr("y", box.y)
+					    .attr("width", box.width)
+					    .attr("height", box.height)
+					    .on("mouseover", enableInteraction);
+
+				    // Positions the dots based on data.
+				    function position(dot) {
+					    dot.attr("cx", function(d) { return xScale(x(d)); })
+						    .attr("cy", function(d) { return yScale(y(d)); })
+						    .attr("r", function(d) { return radiusScale(radius(d)); });
+				    }
+
+				    // After the transition finishes, you can mouseover to change the year.
+				    function enableInteraction() {
+					    var yearScale = d3.scale.linear()
+						    .domain(emb ? [0, util.getMonthOffset(vis.unitValue(vis.min, 1), vis.unitValue(vis.max, 1))] : [1800, 2009])
+						    .range([box.x + 10, box.x + box.width - 10])
+						    .clamp(true);
+
+					    // Cancel the current transition, if any.
+					    svg.transition().duration(0);
+
+					    overlay
+						    .on("mouseover", function() { label.classed("active", true); })
+						    .on("mouseout", function() { label.classed("active", false); })
+						    .on("mousemove", function() { displayYear(yearScale.invert(d3.mouse(this)[0])); })
+						    .on("touchmove", function() { displayYear(yearScale.invert(d3.mouse(this)[0])); });
+				    }
+
+				    // Tweens the entire chart by first tweening the year, and then the data.
+				    // For the interpolated data, the dots and label are redrawn.
+				    function tweenYear() {
+					    var year = emb
+						    ? d3.interpolateNumber(0, util.getMonthOffset(vis.unitValue(vis.min, 1), vis.unitValue(vis.max, 1)))
+						    : d3.interpolateNumber(1800, 2009);
+					    return function(t) { displayYear(year(t)); };
+				    }
+
+				    // Updates the display to show the specified year.
+				    function displayYear(year) {
+					    dot.data(interpolateData(year), key).call(position).sort(order);
+					    label.text(function() {
+						    if (emb) {
+							    var d = new Date(vis.unitValue(vis.min, 1).getTime());
+							    d.setMonth(d.getMonth() + Math.round(year));
+							    return util.renderDate(d);
+						    }
+						    return Math.round(year);
+					    });
+				    }
+
+				    // Interpolates the dataset for the given (fractional) year.
+				    function interpolateData(year) {
+					    if (emb) {
+						    return vis.items.map(function(d) {
+							    var result = {};
+							    vis.unitLabel(result, 0, { value: vis.unitValue(d, 0) });
+							    vis.unitLabel(result, 2, { value: interpolateValues(vis.unitValue(d, 2), year) });
+							    vis.unitLabel(result, 3, { value: interpolateValues(vis.unitValue(d, 3), year) });
+							    vis.unitLabel(result, 4, { value: interpolateValues(vis.unitValue(d, 4), year) });
+							    return result;
+						    });
+					    }
+					    return nations.map(function(d) {
+						    return {
+							    name: d.name,
+							    region: d.region,
+							    income: interpolateValues(d.income, year),
+							    population: interpolateValues(d.population, year),
+							    lifeExpectancy: interpolateValues(d.lifeExpectancy, year)
+						    };
+					    });
+				    }
+
+				    // Finds (and possibly interpolates) the value for the specified year.
+				    function interpolateValues(values, year) {
+					    var i = bisect.left(values, year, 0, values.length - 1),
+					        a = values[i], result = a[1];
+					    if (i > 0) {
+						    var b = values[i - 1],
+							    t = (year - a[0]) / (b[0] - a[0]);
+							result = a[1] * (1 - t) + b[1] * t;
+					    }
+					    return result;				    }
+
+				    // Start a transition that interpolates the data based on year.
+				    setTimeout(function() {
+					    svg.transition()
+						    .duration(30000)
+						    .ease("linear")
+						    .tween("year", tweenYear)
+						    .each("end", enableInteraction);
+				    }, 3000);
+			    }
+
+			    if (emb) {
+				    util.registerResize("VIS_ID", ExecuteVIS_ID);
+				    processData();
+			    }
+			    else {
+				    d3.json(f1, processData);
+			    }
+		    })();
+        }
+        catch (e) {
+            var docElement = jq$('<object>');
+            docElement.attr('data', VIS_CONTEXT.docUrl);
+            docElement.width(_width).height(_height);
+            jq$('#VIS_ID').html(docElement);
+        }
+	})();
+</script>

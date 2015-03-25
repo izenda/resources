@@ -4,6 +4,7 @@
 
 <!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
+<link rel="stylesheet" type="text/css" href="./Resources/css/shrinkable-grid.css" />
 
 <!-- Styles Internal -->
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
@@ -31,12 +32,15 @@
 <script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
-<script type="text/javascript" src="rs.aspx?js=VisualizationView"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <!-- Utils Resources -->
 <script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>
 <script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
+<script type="text/javascript" src="./Resources/js/shrinkable-grid.js"></script>
+<script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>
 
 <style type="text/css">
   .izenda-toolbar {
@@ -156,11 +160,11 @@
   }
 
   .f-button a.blue, .f-button a.blue.disabled:hover {
-    background-color: #0D70CD;
+    background-color: #1C4E89;
   }
 
   .f-button a.blue:hover {
-    background-color: #0E90FF;
+    background-color: #32649e;
   }
 
   .f-button a.disabled {

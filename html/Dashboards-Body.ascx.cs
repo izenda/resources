@@ -189,5 +189,15 @@ public partial class Resources_Html_Dashboards_Body : UserControl
     string s = ss.ToString();
     if (!String.IsNullOrEmpty(s))
       Page.ClientScript.RegisterStartupScript(typeof(object), "switchTabF", s);
+	Page.ClientScript.RegisterStartupScript(typeof(object), "securityCOnfig", GetSecurityConfigScript());
   }
+
+	private string GetSecurityConfigScript()
+	{
+		string config = string.Format("var dashboardConfig = {{ ReportIsReadOnly: {0}, ReportIsViewOnly: {1}, ReportIsLocked: {2}}};"
+										, AdHocContext.CurrentReportSet.ReadOnly.ToString().ToLower()
+										, AdHocContext.CurrentReportSet.ViewOnly.ToString().ToLower()
+										, AdHocContext.CurrentReportSet.IsLocked.ToString().ToLower());
+		return string.Format("<script language='javascript'>{0}</script>", config);
+	}
 }

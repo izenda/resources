@@ -1,5 +1,6 @@
 ﻿var lastlySelectedCat = 0;
 var tabNames = new Array();
+var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
 //Ajax request for JSON methods-----------------------------------------------------------
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
@@ -46,6 +47,8 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 }
 
 //Delete ReportSet methods--------------------------------------------------------------------
+function ud() { }
+
 function RL_DeleteNew(message, reportName) {
 	var userData = new ud();
 	userData.reportName = reportName;
@@ -250,6 +253,15 @@ function AcceptReports(returnObj, id, parameters) {
 		}
 		if (tabs.length <= 0) {
 			jq$("#RL_SearchingIcon").css("display", "none");
+			content += '<div id="tabs" style="text-align: center; width: 100%; font-size: 36px; color: #aaa; margin-top: 100px;">No Reports Found</div>';
+
+			var reportsDiv = jq$("#reportListDiv");
+			reportsDiv.css("display", "none");
+			reportsDiv.html(content);
+
+			jq$('#loadingDiv').hide('fade', null, 400, function () {
+				reportsDiv.show('fade', 1000);
+			});
 			return;
 		}
 	}
@@ -312,6 +324,7 @@ function AcceptReports(returnObj, id, parameters) {
 	content += '</ul>';
 	leftContent += '</ul>';
 	var grCnt = 0;
+	var report, designTemplate, viewTemplate, linkTemplate, viewLink, designLink, directLink, deleteLink, printLink;
 	for (var tabCnt = 0; tabCnt < tabs.length; tabCnt++) {
 		content += '<div id="tab' + tabCnt + '">';
 		content += '<div class="thumbs">';
@@ -319,48 +332,47 @@ function AcceptReports(returnObj, id, parameters) {
 			if (tabs[tabCnt].Reports[rCnt].Name == null || tabs[tabCnt].Reports[rCnt].Name == '')
 				continue;
 			grCnt++;
-			var report = tabs[tabCnt].Reports[rCnt];
+			report = tabs[tabCnt].Reports[rCnt];
 			if (report.Dashboard && forSelection)
 				continue;
-			var fullReportName = report.Name;
+
+			designTemplate = report.Dashboard ? nrlConfigObj.DashboardDesignTemplate : nrlConfigObj.ReportDesignTemplate;
+			viewTemplate = report.Dashboard ? nrlConfigObj.DashboardViewTemplate : nrlConfigObj.ReportViewTemplate;
+			linkTemplate = report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate;
+
+			var fullName = report.Name;
 			if (report.Category != null && report.Category != '')
-				fullReportName = report.Category + nrlConfigObj.CategoryCharacter + fullReportName;
-			var escapedFullRn = fullReportName.replace('\'', '\\\'');
-			var templateLink = nrlConfigObj.InstantReportUrl + "?rn=" + report.UrlEncodedName;
-			var printLink = "\'rs.aspx?rn=" + report.UrlEncodedName + "&print=1\'";
-			var editLink = report.UrlEncodedName;
-			if (report.Dashboard)
-				editLink = nrlConfigObj.DashboardDesignTemplate[0] + editLink + nrlConfigObj.DashboardDesignTemplate[1];
-			else
-				editLink = nrlConfigObj.ReportDesignTemplate[0] + editLink + nrlConfigObj.ReportDesignTemplate[1];
-			var deleteLink = 'javascript:RL_DeleteNew(\'' + IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?').replace(/\{0\}/g, escapedFullRn) + '\', \'' + report.UrlEncodedName + '\');';
-			var viewLink = "";
-			if (report.Dashboard)
-				viewLink = nrlConfigObj.DashboardViewTemplate[0] + report.UrlEncodedName + nrlConfigObj.DashboardViewTemplate[1];
-			else
-				viewLink = nrlConfigObj.ReportViewTemplate[0] + report.UrlEncodedName + nrlConfigObj.ReportViewTemplate[1];
+				fullName = report.Category + nrlConfigObj.CategoryCharacter + fullName;
+			directLink = linkTemplate + report.UrlEncodedName;
+			printLink = "\'rs.aspx?rn=" + report.UrlEncodedName + "&print=1\'";
+			designLink = designTemplate[0] + report.UrlEncodedName + designTemplate[1];
+			deleteLink = 'javascript:RL_DeleteNew(\'' + IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?').replace(/\{0\}/g, fullName.replace('\'', '\\\'')) + '\', \'' + report.UrlEncodedName + '\');';
+			viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
+			var thumbClass = isTouch ? 'thumb no-hover' : 'thumb';
 			if (!forSelection) {
 				if (nrlConfigObj.ThumbnailsAllowed) {
-					content += '<div class="thumb" onclick="' + viewLink + '" id="">';
+					content += '<a href="' + directLink + '" onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2)){if(event.preventDefault){event.preventDefault();}else{event.returnValue=false;}return false;}">';
+					content += '<div class="' + thumbClass + '" onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2))' + viewLink + '" id="">';
 					content += '<div class="thumb-container" style="background-color:white;width:' + nrlConfigObj.ThumbnailWidth + 'px;height:' + nrlConfigObj.ThumbnailHeight + 'px;"><img src="' + report.ImgUrl + '" />';
 					content += '<div class="thumb-buttons">';
-					if (!report.ViewOnly && !report.IsLocked)
-						content += '<div class="thumb-edit" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + editLink + '" title="' + IzLocal.Res('js_Edit', 'Edit') + '"></div>';
-					if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports)
+					if (!report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDesignReports)
+						content += '<div class="thumb-edit" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + designLink + '" title="' + IzLocal.Res('js_Edit', 'Edit') + '"></div>';
+					if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports && nrlConfigObj.AllowDesignReports)
 						content += '<div class="thumb-remove" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + deleteLink + '" title="' + IzLocal.Res('js_Remove', 'Remove') + '"></div>';
 					content += '<div class="thumb-print" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
 					content += '</div>';
 					content += '</div>';
-					content += '<div class="thumb-title">' + report.Name + '</div>';
+					content += '<div class="thumb-title" style="max-width:' + nrlConfigObj.ThumbnailWidth + 'px;">' + report.Name + '</div>';
 					content += '</div>';
+					content += '</a>';
 				}
 				else {
-					content += '<div class="thumb" style="background-color: #f3f3f3;max-width:' + (nrlConfigObj.ThumbnailWidth + 70) + 'px;line-height:55px;" onclick="' + viewLink + '" id="">';
+					content += '<div class="' + thumbClass + '" style="background-color: #f3f3f3;max-width:' + (nrlConfigObj.ThumbnailWidth + 70) + 'px;line-height:55px;" onclick="' + viewLink + '" id="">';
 					content += '<div class="thumb-container" style="width:' + (nrlConfigObj.ThumbnailWidth + 70) + 'px;height:0px;float:left;">';
 					content += '<div class="thumb-buttons">';
-					if (!report.ViewOnly && !report.IsLocked)
-						content += '<div class="thumb-edit" style="top:28px;" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + editLink + '" title="' + IzLocal.Res('js_Edit', 'Edit') + '"></div>';
-					if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports)
+					if (!report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDesignReports)
+						content += '<div class="thumb-edit" style="top:28px;" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + designLink + '" title="' + IzLocal.Res('js_Edit', 'Edit') + '"></div>';
+					if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports && nrlConfigObj.AllowDesignReports)
 						content += '<div class="thumb-remove" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + deleteLink + '" title="' + IzLocal.Res('js_Remove', 'Remove') + '"></div>';
 					content += '<div class="thumb-print" style="top:28px;" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
 					content += '</div>';
@@ -370,7 +382,7 @@ function AcceptReports(returnObj, id, parameters) {
 				}
 			}
 			else {
-				content += '<div class="thumb" onclick="parent.ReportForPartSelected(\'' + report.UrlEncodedName + '\');" id="">';
+				content += '<div class="' + thumbClass + '" onclick="parent.ReportForPartSelected(\'' + report.UrlEncodedName + '\');" id="">';
 				content += '<div class="thumb-container" style="background-color:white; width:' + nrlConfigObj.ThumbnailWidth + 'px;height:' + nrlConfigObj.ThumbnailHeight + 'px;"><img src="' + report.ImgUrl + '" />';
 				content += '</div>';
 				content += '<div class="thumb-title">' + report.Name + '</div>';
@@ -383,33 +395,30 @@ function AcceptReports(returnObj, id, parameters) {
 	content += '</div>';
 	var recentContent = '<ul>';
 	for (var index = 0; index < returnObj.Recent.length; index++) {
-		var reportR = returnObj.Recent[index];
-		var viewLinkR = nrlConfigObj.ReportViewTemplate[0] + reportR.UrlEncodedName + nrlConfigObj.ReportViewTemplate[1];
-		if (reportR.Dashboard)
-			viewLinkR = nrlConfigObj.DashboardViewTemplate[0] + reportR.UrlEncodedName + nrlConfigObj.DashboardViewTemplate[1];
-		recentContent += '<li><a onclick="' + viewLinkR + '" href="#">' + reportR.Name + '</a></li>';
+		report = returnObj.Recent[index];
+		viewTemplate = report.Dashboard ? nrlConfigObj.DashboardViewTemplate : nrlConfigObj.ReportViewTemplate;
+		viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
+		directLink = (report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + report.UrlEncodedName;
+		recentContent += '<li><a onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2)){' + viewLink + 'if(event.preventDefault){event.preventDefault();}else{event.returnValue=false;}return false;}" href="' + directLink + '">' + report.Name + '</a></li>';
 	}
 	recentContent += '</ul>';
-	jq$("#reportListDiv").css("display", "none");
-	var reportsDiv = document.getElementById('reportListDiv');
-	reportsDiv.innerHTML = content;
-	var leftCatsDiv = document.getElementById('leftSideCats');
-	leftCatsDiv.innerHTML = leftContent;
-	var recentDiv = document.getElementById('recentReports');
-	recentDiv.innerHTML = recentContent;
-	jq$('#tabs').tabs({
-		fx: { opacity: 'toggle' }
-	});
+	jq$("#reportListDiv")
+		.css("display", "none")
+		.html(content);
+	jq$('#leftSideCats').html(leftContent);
+	jq$('#recentReports').html(recentContent);
+	jq$('#tabs').tabs({ fx: { opacity: 'toggle' } });
+
 	jq$('#tabs').tabs('select', lastlySelectedCat);
 	if (lastlySelectedCat > 0)
 		LeftTabClicked(lastlySelectedCat, tabs.length);
 
-	jq$('#loadingDiv').hide('fade', null, 400, function () {
-		document.getElementById('reportListDiv').style.visibility = 'visible';
+	jq$('#loadingDiv').hide('fade', null, 400, function() {
+		jq$('#reportListDiv').css('visibility', 'visible');
 		jq$('#contentDiv').css('cursor', 'default');
 		jq$('#reportListDiv').show('fade', 1000);
 	});
-	document.getElementById('RL_SearchingIcon').style.display = "none";
+	jq$('#RL_SearchingIcon').css("display", "none");
 }
 
 function ToggleSubcategories(target) {

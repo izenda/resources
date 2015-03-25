@@ -1,0 +1,508 @@
+table.ReportTable
+{	
+	border-style:none;
+	border-width:0;
+	border-collapse:collapse;
+	padding-left:4;
+	padding-right:4;
+	padding-top:1;
+	padding-bottom:1;
+}
+table.ReportTable td
+{
+	font-family: tahoma; 
+	border-width:0px;
+	border-style:solid;
+}
+table.ReportTable td.EmptyCell
+{
+	border-style:none !important;
+	background:none !important;
+	filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+	background-color:white !important;
+	outline:none !important;
+}
+table.ReportTable td.GridCell
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;
+}
+table.ReportTable td.GridCellAGTotal
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-weight:bold;
+	font-style:italic;
+	border-color: White;
+	border-bottom: none;
+	border-right: none;
+}
+table.ReportTable td.GridCellAG
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-style:italic;
+	border-color: White;
+	border-right: none;
+	border-bottom: none;
+}
+table.ReportTable td.EmptyCellAG
+{
+	border-left: 1px solid White;
+	border-top: none;
+	border-bottom: none;
+}
+table.ReportTable td.EmptyCellAG-Line
+{
+	border-left: none;
+	border-right: none;
+}
+
+table.ReportTable td.ValueCellAG
+{
+	border-bottom: 1px solid Gainsboro;
+}
+table.ReportTable td.GridCellAGLvl0
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	text-align:left;
+	font-weight:bold;
+	border-color: White;
+	border-right: none;
+	border-bottom: none;
+}
+table.ReportTable td.GridCellHG0
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:italic;
+	font-weight:bold;
+}
+table.ReportTable td.GridCellHG1
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:normal;
+	font-weight:bold;
+}
+table.ReportTable td.GridCellHG2
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:italic;
+	font-weight:normal;
+}
+table.ReportTable td.GridCellHG3
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:left;*/
+	font-style:normal;
+	font-weight:normal;
+}
+tr.ReportHeader td, table.ReportTable td.ReportHeader
+{
+	font-size: 9pt;
+	font-weight:bold; 
+	border-width:1px;
+	border-style:solid;
+}
+thead.ReportHeader td, thead.ReportHeader
+{
+	font-size: 9pt;
+	font-weight:bold; 
+	border-width:1px;
+	border-style:solid;
+}
+tr.ReportItem td, table.ReportTable td.ReportItem
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;
+}
+tr.ReportItemAGTotal td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;
+	font-weight:bold;
+	font-style:italic;
+}
+tr.ReportItemAG td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	font-style:italic;
+}
+tr.ReportItemAGLvl0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	font-weight:bold;
+}
+tr.ReportItemHG0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:italic;
+	font-weight:bold;
+}
+tr.ReportItemHG1 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:bold;
+}
+tr.ReportItemHG2 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:italic;
+	font-weight:normal;
+}
+tr.ReportItemHG3 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:normal;
+}
+tr.AlternatingItem td, table.ReportTable td.AlternatingItem
+{
+	vertical-align:top;
+	font-size: 8pt;
+	border-width:1px;
+	border-style:solid;	
+}
+tr.AlternatingItemAGTotal td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;
+	text-align:right;
+	font-weight:bold;
+	font-style:italic;
+}
+tr.AlternatingItemAG td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;
+	font-style:italic;
+}
+tr.AlternatingItemAGLvl0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	text-align:right;
+	font-weight:bold;
+}
+tr.AlternatingItemHG1 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:bold;
+}
+tr.AlternatingItemHG0 td
+{
+	vertical-align:top;
+	font-size: 10pt;
+	border-width:1px;
+	border-style:solid;
+	border-left:none;
+	border-right:none;	
+	/*text-align:right;*/
+	font-style:normal;
+	font-weight:normal;
+}
+tr.ReportFooter td
+{
+	vertical-align:top;
+	font-size: 8pt;
+	font-weight:bold; 
+	border-width:1px;
+	border-style:solid;
+}
+span.ReportTitle
+{
+	font-size: 20pt;
+	font-weight:bold;
+	white-space: pre-wrap;
+}
+/*span.Header
+{
+	white-space: nowrap;
+}
+span.Description
+{
+	white-space: nowrap;
+}
+span.Footer
+{
+	white-space: nowrap;
+}*/
+tr.VisualGroup tr
+{
+	border-width:3px;
+	cursor:pointer;
+	border-style:solid;
+}
+tr.VisualGroup td
+{
+  text-align:left;
+	padding-top:10px;
+	border-right-style:solid;
+	border-right-width:0px;
+}
+
+div.autoWide 
+{
+	display:inline-table;
+}
+
+.comboboxTreeMultyselect {
+	width: 300px;
+}
+
+.comboboxTreeMultyselect .textArea .showHide {
+	width: 13px;
+	height: 13px;
+	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+	cursor: pointer;
+	float: right;
+	margin-top: 5px;
+}
+
+.comboboxTreeMultyselect .tree {
+	border: 1px solid #8FB3D4;
+	max-height: 300px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	width: 300px;
+	background: white;
+	position: absolute;
+	z-index: 30;
+	margin-top: 1px;
+}
+
+.comboboxTreeMultyselect .tree .node {
+	margin-left: 10px;
+}
+
+.comboboxTreeMultyselect .tree .collapsed div {
+	display: none;
+}
+
+.comboboxTreeMultyselect .tree .node >.collapse {
+	display: inline-block;
+	width: 13px;
+	height: 13px;
+	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -26px 0 transparent;
+}
+
+.comboboxTreeMultyselect .tree .haschild >.collapse {
+	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+}
+
+.comboboxTreeMultyselect .tree .collapsed >.collapse {
+	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll 0 0 transparent;}
+	
+.comboboxTreeMultyselect .textArea {
+	
+    border: 1px solid #8FB3D4;
+    cursor: text;
+    overflow: hidden;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    padding-top: 0;
+    min-height: 18px;
+	width: 298px;
+   
+}
+
+.comboboxTreeMultyselect .cInput {
+	width: 300px;
+	border: 1px solid #FFFFFF;
+    height: 14px;
+    margin-right: -16px;
+    margin-top: 2px;
+    min-width: 4px;
+    overflow: hidden;
+    position: relative;
+    float: left;
+    cursor: text;
+}
+
+.comboboxTreeMultyselect .cInput input {
+	border: 0 none;
+    font-family: Verdana,'Helvetica Neue',Helvetica,Arial,sans-serif;
+    min-width: 4px;
+    outline: medium none;
+    padding-left: 0;
+    position: relative;
+    width: 300px;
+    z-index: 0;
+    margin-top: 0;
+    padding-top: 0;
+    font-size: 11px;
+    padding-bottom: 3px;
+	margin-right: -4px;
+}
+
+.comboboxTreeMultyselect .cValid {
+	background-color: #E0E9F1;
+    border: 1px solid #BAC2CC;
+    color: #243241;
+    cursor: default;
+    font-size: 12px;
+    margin-top: 1px;
+    padding: 0 1px 1px 4px;
+    position: relative;
+    z-index: 1;
+    float: left;
+    margin-right: 3px;
+}
+
+.comboboxTreeMultyselect .chunkX {
+	cursor: pointer;
+    height: 10px;
+    padding: 0 2px;
+    position: relative;
+    top: 1px;
+    vertical-align: baseline;
+    width: 10px;
+    border: medium none;
+    font-size: 11px;
+}
+
+.comboboxTreeMultyselect .search {
+	width: 280px;
+	border: none;
+}
+
+.comboboxTreeMultyselect .tree .hiddenBySearch {
+	display: none;
+}
+
+.comboboxTreeMultyselect .tree .node .highlight {
+	background-color: yellow;
+}
+
+.comboboxTreeMultyselect .selectedValues {
+	display: inline-block;
+	border: 1px solid #BAC2CC;
+	min-width: 300px;
+	max-width: 300px;
+}
+
+.comboboxTreeMultyselect .hiddenTree {
+	display: none;
+}
+
+.MultivaluedCheckbox {
+	height: 0.8em;
+	padding-left: 2px;
+	padding-right: 2px;
+	width: 0.8em;
+}
+
+
+.MultivaluedCheckbox input{
+	height: 0.8em;
+	margin-top: -1px;
+	width: 0.8em;
+	cursor: pointer;
+}
+
+.funnel-border {
+    background-image: -webkit-gradient(linear,left top,right top,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,rgba(255,255,255,1)));
+    background-image: -webkit-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -moz-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -ms-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -o-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background: linear-gradient(to right,rgba(255,255,255,0),rgba(255,255,255,1));
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,StartColorStr='#00ffffff',EndColorStr='#ffffff');
+}

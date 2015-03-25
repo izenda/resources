@@ -1,0 +1,117 @@
+/* CSS Document */
+
+.report-preview-container {
+    display: inline-block;
+    position: relative;
+}
+
+.report-preview-container a {
+    position: relative;		
+    z-index: 3;
+}
+
+.report-preview {
+    display: inline-block;
+    overflow: visible;
+    position:absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+
+
+.report-preview .w1 {
+    display: block;
+    padding: 0;
+
+    top: -15em;
+    left: 8px;
+    width: 100%;
+    line-height: 30em;
+    pointer-events: none;
+}
+
+.report-preview .w1 .w2 {
+    background-color: #fff;
+    border: 1px solid #b9b9b9;
+    box-shadow: #ddd 0px 2px 5px;
+    color: #000;
+    display: inline-block;
+    height: auto;
+
+    position: relative;
+    line-height: 20px; 
+
+    padding: 5px;
+    vertical-align: middle;
+    z-index: 70;
+
+}
+.report-preview .w1 .w2 .pointer {		
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 25px;
+    top: 50%;
+    left: -7px;
+    margin-top: -13px;
+    z-index: 71;
+}
+
+.report-preview .w1 .w2 table td {
+		font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 14.25px;
+    line-height: 18px;
+}
+.report-preview table {
+		width: 395px;
+		width: 25em;
+}
+.pic-td {
+		width: 135px;
+    vertical-align: top;
+    padding-top: 2px;
+    padding-right: 6px;
+}
+.info-td {
+		width: 100%;
+    vertical-align: top;
+}
+.report-preview .preview-header {
+    color: #323299;
+		font-family: Tahoma, Verdana, Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    display: block;
+    letter-spacing: .25px;
+    line-height: 22px;
+}
+.report-preview .preview-comment {
+		color: #323299;
+	  display: block;
+}
+.report-preview .preview-tables {
+		color: #000;
+  	display: block;
+}
+.report-preview .preview-date {
+		color: #999;
+    font-size: 12px;
+	  display: block;
+}
+.report-preview .preview-tag {
+		background-color: #aaa;
+    border-radius: 4px;
+		color: #fff;
+	  display: inline-block;
+    font-size: 12px;
+    line-height: 18px;
+    margin: 2px 4px 2px 0;
+    padding: 0 4px 1px 4px;
+}
+
+

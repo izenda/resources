@@ -1,0 +1,213 @@
+﻿<style type="text/css">
+	rect.bordered {
+		stroke: #E6E6E6;
+		stroke-width:2px;
+	}
+	text.mono {
+		font-size: 9pt;
+		font-family: Consolas, courier;
+		fill: #aaa;
+	}
+	text.axis-workweek {
+		fill: #000;
+	}
+	text.axis-worktime {
+		fill: #000;
+	}
+</style>
+
+<div style="width: 100%;" id="VIS_ID"></div>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>    
+<script type="text/javascript" src="d3.csv.js"></script>
+<script type="text/javascript">
+	(function ExecuteVIS_ID() {
+		if (typeof window.jq$ == "undefined")
+		    window.jq$ = jQuery.noConflict(true);
+
+	    try {
+		    var VIS_EMBEDDED_DATA;
+
+		    function labelBBox(svg, string) {
+			    var text = svg.append("svg:text")
+				    .attr("class", "mono")
+				    .attr("x", 0)
+				    .attr("y", 0)
+				    .style("opacity", 0)
+				    .text(string);
+
+			    return text.node().getBBox();
+		    }
+		    var _width = 720, _height = 500, minWidth = 254;
+		    var f1, i, t, rotate = true, rotateBox, hc = 0;
+
+		    var util = window.ReportScripting, vis = { },
+			    emb = typeof util != 'undefined',
+				isThumbnails = (document.URL === 'about:blank');
+
+		    if (emb) {
+			    if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true }))
+				    return;
+
+			    f1 = "Resources/Vis/Rectangular/Matrix/data.tsv";
+
+			    vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			    vis.collectMonthlyData();
+			    vis.signWithData();
+
+			    _width = vis.getWidth();
+			    _height = vis.getHeight();
+
+			    if (_width < minWidth) { _width = minWidth; }
+
+			    hc = d3.max(vis.items, function(d) { return vis.unitValue(d, 2).length; });
+		    }
+		    else {
+			    f1 = "data.tsv";
+		    }
+
+		    var left = 14, top, svg2;
+		    {
+			    svg2 = d3.select("#VIS_ID").append("svg")
+				    .attr("width", 1)
+				    .attr("height", 1)
+				    .style("visibility", "hidden");
+			    if (emb) {
+				    for (i = 0; i < vis.items.length; i++) {
+					    t = labelBBox(svg2, vis.unitValue(vis.items[i], 0)).width;
+					    left = t > left ? t : left;
+				    }
+			    }
+			    else if (rotate)
+				    rotate = false;
+
+			    rotateBox = rotate ? labelBBox(svg2, "XXX XXXX") : labelBBox(svg2, "XX/XX");
+			    top = rotate ? rotateBox.width : rotateBox.height;
+			    svg2.remove();
+		    }
+
+		    var colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"], // alternatively colorbrewer.YlGnBu[9]
+			    days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+			    times = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "00"];
+		    var margin = { top: top + 6, right: 0, bottom: 30, left: left + 16 },
+			    width = _width - margin.left - margin.right,
+			    gridSize = Math.floor(width / (emb ? hc : times.length)),
+			    buckets = 9;
+		    _height = ((emb ? vis.items.length : days.length) + 1) * gridSize + top + rotateBox.height;
+
+		    if (emb && (vis.toImage))
+			    window.external.SetHeight(_height);
+
+		    function processData(error, data) {
+			    var colorScale = d3.scale.quantile()
+				    .domain([0, buckets - 1, emb ? vis.unitValue(vis.max, 2) : d3.max(data, function(d) { return d.value; })])
+				    .range(colors);
+
+			    var svg = d3.select("#VIS_ID").append("svg")
+				    .attr("width", _width)
+				    .attr("height", _height);
+
+		    	function showInsufficientWidth(width, height) {
+		    		var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+			    	jq$('#VIS_ID').html(insufficientWidthMessage);
+			    }
+			    function checkInsufficientWidth(width, height, count) {
+			    	return (width < 320 || width < count * 32);
+			    }
+
+			    var insufficient = checkInsufficientWidth(_width, _height, hc);
+			    jq$('#VIS_ID div#insufficient-width-message').remove();
+			    
+			    if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+			    	showInsufficientWidth(_width, _height);
+			    	util.registerResize("VIS_ID", ExecuteVIS_ID);
+			    	return;
+			    }
+
+			    var g = svg.append("g")
+				    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			    g.selectAll(".dayLabel")
+				    .data(emb ? vis.items : days)
+				    .enter().append("text")
+					    .text(function(d) { return emb ? vis.unitValue(d, 0) : d; })
+					    .attr("x", 0)
+					    .attr("y", function(d, i2) { return i2 * gridSize; })
+					    .style("text-anchor", "end")
+					    .attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+					    .attr("class", "dayLabel mono axis axis-workweek");
+
+			    g.selectAll(".timeLabel")
+				    .data(emb ? vis.unitValue(vis.items[0], 2) : times)
+				    .enter().append("text")
+					    .text(function(d) { return emb ? util.renderDate(util.getDateByOffset(vis.unitValue(vis.min, 1), d[0])) : d; })
+					    .attr("x", rotate ? 0 : function(d, i2) { return i2 * gridSize; })
+					    .attr("y", rotate ? function(d, i2) { return i2 * gridSize; } : 0)
+					    .style("text-anchor", rotate ? "end" : "middle")
+					    .attr("transform", rotate ? "rotate(-90) translate(" + (rotateBox.width + 6) + ", " + ((gridSize + rotateBox.height - 4) / 2) + ")" : "translate(" + gridSize / 2 + ", -6)")
+					    .attr("class", "timeLabel mono axis axis-worktime");
+
+			    for (i = 0; i < (emb ? vis.items.length : 1) ; i++) {
+				    g.append("g").selectAll(".hour")
+					    .data(emb ? vis.unitValue(vis.items[i], 2) : data)
+					    .enter().append("rect")
+					    .attr("x", function(d, i2) { return emb ? (i2 * gridSize) : (d.hour - 1) * gridSize; })
+					    .attr("y", function(d) { return emb ? (i * gridSize) : (d.day - 1) * gridSize; })
+					    .attr("rx", 4)
+					    .attr("ry", 4)
+					    .attr("class", "hour bordered")
+					    .attr("width", gridSize)
+					    .attr("height", gridSize)
+					    .style("fill", colors[0])
+					    .on("mouseover", function (d) {
+						    var data = {};
+					    	jq$.each(d.data, function (key, value) {
+					    		var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+					    		data[key] = fieldFormatter ? fieldFormatter(value, d.data, vis, key) : value + '';
+					    	});
+							if (emb) util.showTooltip(data);
+					    })
+					    .on("mouseout", function() { if (emb) util.hideTooltip(); });
+			    }
+
+			    g.selectAll(".hour").transition().duration(1000)
+				    .style("fill", function(d) { return colorScale(emb ? d[1] : d.value); });
+
+			    var quantiles, legend = g.selectAll(".legend")
+				    .data(quantiles = [0].concat(colorScale.quantiles()), function(d) { return d; })
+				    .enter().append("g")
+				    .attr("class", "legend");
+
+			    var legendItemWidth = (gridSize * (emb ? vis.unitValue(vis.items[0], 2).length : times.length)) / quantiles.length,
+				    legendItemHeight = gridSize / 3;
+
+			    legend.append("rect")
+				    .attr("x", function(d, i2) { return legendItemWidth * i2; })
+				    .attr("y", ((emb ? vis.items.length : days.length) + 1/3) * gridSize)
+				    .attr("width", legendItemWidth)
+				    .attr("height", legendItemHeight)
+				    .style("fill", function(d, i2) { return colors[i2]; });
+
+			    legend.append("text")
+				    .attr("class", "mono")
+				    .text(function(d) { return "≥ " + Math.round(d); })
+				    .attr("x", function(d, i2) { return legendItemWidth * i2; })
+				    .attr("y", (((emb ? vis.items.length : days.length) + 2/3) * gridSize) + rotateBox.height);
+		    }
+		
+	        if (emb) {
+	            util.registerResize("VIS_ID", ExecuteVIS_ID);
+	            processData();
+	        }
+	        else {
+	            d3.tsv(f1, function(d) { return { day: +d.day, hour: +d.hour, value: +d.value }; }, processData);
+	        }
+	    }
+	    catch (e) {
+	        var docElement = jq$('<object>');
+	        docElement.attr('data', VIS_CONTEXT.docUrl);
+	        docElement.width(_width).height(_height);
+	        jq$('#VIS_ID').html(docElement);
+	    }
+	})();
+</script>

@@ -1,4 +1,5 @@
-﻿<%@ Control AutoEventWireup="true" %>
+﻿<%@ Control AutoEventWireup="true" Language="C#"%>
+<%@ Import Namespace="Izenda.AdHoc" %>
 
     <iframe style="display:none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
     <div id="loadingrv2" style="z-index:500;top:0px;left:0px;width:100%;background-color:#FFFFFF;position:fixed;display:none;text-align:center;vertical-align:middle;" lang-text="js_Loading">
@@ -52,8 +53,13 @@
     </div>
     </div>
 
+<div id="loadingDiv" style="width: 100%; text-align: center; display: none;">
+    <div id="loadingWord" style="font-size: 20px;color:#1D5987;font-family:Verdana,Arial,Helvetica,sans-serif;font-weight:normal !important;font-size: 20px; font-style: normal;" lang-text="js_Loading">Loading...</div>
+    <img style="padding-top: 40px;" id="loadingImg" alt="" src="rs.aspx?image=loading.gif" />
+</div>
+
 <div style="position: relative; margin: 0 8px; padding: 0px 6px;">
-  <div class="btn-toolbar" style="margin: 4px 8px; z-index: 6; position: absolute; top: 12px; white-space: nowrap;">
+  <div class="btn-toolbar" style="margin: 12px 50px 4px 8px; z-index: 6; position: relative; float:left; white-space: nowrap;">
   <div class="btn-group">
     <a class="btn" id="rlhref" href="ReportList.aspx" lang-title="js_Reportlist" title="Report list">
       <img class="icon" src="rs.aspx?image=ModernImages.report-list.png" lang-alt="js_Reportlist" alt="Report list" />
@@ -75,7 +81,7 @@
         <b lang-text="js_Save">Save</b><br>
         <span lang-text="js_SaveChangesMessage">Save changes to the report for everyone it is shared with</span>
       </a></li>
-      <li><a href="javascript:void(0)" 
+      <li><a href="javascript:void(0)" style="min-width: 18em;"
         onclick="javascript:ShowSaveAsDialog();">
         <img class="icon" src="rs.aspx?image=ModernImages.save-as-32.png" lang-alt="js_SaveACopy" alt="Save a copy" />
         <b lang-text="js_SaveAs">Save As</b><br>
@@ -99,11 +105,16 @@
         <b lang-text="js_PrintHTML">Print HTML</b><br>
         <span lang-text="js_PrintDirectlyMessage">Print directly from your browser, the fastest way for modern browsers</span>
       </a></li>
-      <li><a href="javascript:void(0)" title="" onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+      <li>
+        <a id="eoPrintBtn" href="javascript:void(0)" title="" onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.html-to-pdf-32.png" alt="" />
         <b lang-text="js_HTML2PDF">HTML-powered PDF</b><br>
-        <span lang-text="js_HTML2PDFMessage">One-file compilation of all the report's pages</span>
-        </a></li>
+        <span lang-text="js_HTML2PDFMessage">One-file compilation of all the report's pages</span></a>
+        <a style="display:none;" id="testsharpPrintBtn" href="javascript:void(0)" title="" onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        <img class="icon" src="rs.aspx?image=ModernImages.pdf-32.png" alt="" />
+        <b lang-text="js_StandardPDF">Standard PDF</b><br>
+        <span lang-text="js_NonHTMLPDF">Non-HTML PDF generation</span></a>
+      </li>
     </ul>
   </div>  
   <div class="btn-group cool">
@@ -140,6 +151,8 @@
         <b lang-text="js_XML">XML</b><br>
         <span lang-text="js_XMLMessage">Both human-readable and machine-readable text file</span>
       </a></li>
+      <!--
+        http://fogbugz.izenda.us/default.asp?15858#BugEvent.185759
       <li id="RTFExportButton"><a href="javascript:void(0)" title="" 
         onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=RTF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class='icon' src="rs.aspx?image=ModernImages.rtf-32.png" alt="" />
@@ -147,6 +160,7 @@
         <span lang-text='js_RTFMessage'>File format for cross-platform document interchange</span>
         </a>
       </li>
+        -->
     </ul>
   </div>
   <div class="btn-group">
@@ -206,73 +220,165 @@
   </div>  
   </div>
 
+<div id="refreshToolbar"></div>
 
 <div class="tabbable" id="navdiv">
-  <div style="display: inline-block;height: 45px; width: 285px;" class="tabs-header-spacer">&nbsp;</div>
+  <div style="display: inline-block" class="tabs-header-spacer">&nbsp;</div>
   <ul class="nav nav-tabs tabs-header" style="line-height: 20px;display: inline-block;float: right;">
     <li class="visibility-pivots designer-only hide-locked"><a href="#tab3" data-toggle="tab" lang-text="js_Pivots" ><img src="rs.aspx?image=ModernImages.pivots.png" alt="" class="icon" />Pivots</a></li>
-    <li class="designer-only hide-locked"><a href="#tab2" data-toggle="tab" lang-text="js_Fields"><img src="rs.aspx?image=ModernImages.fields.png" alt="" class="icon" />Fields</a></li>
+    <li class="designer-only hide-locked hide-viewonly"><a href="#tab2" data-toggle="tab" lang-text="js_Fields"><img src="rs.aspx?image=ModernImages.fields.png" alt="" class="icon" />Fields</a></li>
     <li id="tab1li"><a href="#tab1" data-toggle="tab" id="tab1a" lang-text="js_Filters"><img src="rs.aspx?image=ModernImages.filter.png" alt="" class="icon" />Filters</a></li>
   </ul>
   <div class="clearfix" style="border-bottom: 1px solid #c4c4c4;"></div>
   <div id="repHeader"></div>
-            <div id="updateBtnPC" class="f-button" style="margin-bottom: 4px; margin-left:40px;">
-              <a id="btnUpdateResultsC" class="blue" onclick="GetRenderedReportSet(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="Refresh" /><span class="text" lang-text="js_UpdateResults">Update results</span></a>
-            </div>
+  <div id="updateBtnPC" class="f-button" style="margin-bottom: 4px; margin-left:40px; display:none;">
+    <a id="btnUpdateResultsC" class="blue" onclick="GetRenderedReportSet(true);" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="Refresh" /><span class="text" lang-text="js_UpdateResults">Update results</span></a>
+  </div>
 
   <div class="tab-content" id="tabsContentsDiv">
     <div class="tab-pane" id="tab1">
-            <style></style>
-          <div id="htmlFilters">
-          </div>
+        <div id="htmlFilters">
+            <table style="width:100%;">
+                <tr>
+                    <td class="filtersContent"></td>
+                </tr>
+                <tr>
+                    <td class="subreportsFiltersContent" style="display:none;">
+                        <div class="subreportsFiltersTitle" onclick="ToggleSubreportsFiltersControl();" style="height: 1px; background-color: #aaa; text-align: center; cursor: pointer;">
+                            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa;top: -13px;font-size: 18px;padding: 0px 10px; float:left; margin-left:10px; display:none;">+</span>
+                            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa;top: -13px;font-size: 18px;padding: 0px 10px; float:left;margin-left:10px;">-</span>
+                            <span class="subreportsTitleText" style="background-color: white; position: relative; color: #aaa;top: -13px;font-size: 18px;padding: 0px 10px;">Subreports</span>
+                            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa;top: -13px;font-size: 18px;padding: 0px 10px; float:right; margin-right:10px; display:none;">+</span>
+                            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa;top: -13px;font-size: 18px;padding: 0px 10px; float:right; margin-right:10px;">-</span>
+                        </div>
+                        <table class="subreportsFiltersTable" style=" width: 100%;">
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="filtersButtons">
+                        <div id="updateBtnP" class="f-button" style="margin: 10px; margin-left:8px;">
+                            <a class="blue" onclick="javascript:CommitFiltersData(true);" href="javascript:void(0);">
+                                <img src="rs.aspx?image=ModernImages.refresh-white.png" lang-alt="js_Refresh" alt="Refresh">
+                                <span class="text" lang-text="js_UpdateResults">Update Results</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <!-- Filters Templates -->
+        <div style="display:none;">
+            <!-- Single Filter Template -->
+            <div class="filterViewerTemplate" style="float:left;margin-right:8px;margin-bottom:16px;min-width:300px;width:auto; display:none;">
+                <div class="filterInnerContent" style="float:left;margin-right:8px;min-width:300px;">
+                    <div class="filterHeader" style="background-color:#1C4E89;padding:2px;padding-left:4px;margin-bottom:2px; height:23px;color:white;">
+                        <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
+                            <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px;"></div>
+                        </nobr>
+                        <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+                        <div class="filterPropertiesButton" style="float:right; width:32px; height:24px; cursor:pointer; background-position:8px 4px; background-repeat:no-repeat;" data-img="rs.aspx?image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Add New Filter Template -->
+            <div class="addFilterTemplate" style="display:none;float:left;margin-right:8px;margin-bottom:16px;" title="Add New Filter"></div>
+            <!-- Add New Filter Button Template -->
+            <div class="fuidNewFilterTemplate" style="margin-right:8px;width:30px;display:none;" expanded="false">
+	            <div style="background-color: #1C4E89;padding-left:4px;margin-bottom:2px; height: 26px;color: white;font-weight: bold;line-height: 22px;">
+		            <nobr>
+			            <div id="dNewFilter" onclick="ShowHideAddFilter();" style="float:right;width:30px;text-align:center;cursor:pointer;">+</div>
+		            </nobr>
+	            </div>
+	            <div id="newFilterColumnSel" style="display:none;"></div>
+            </div>
+            <!-- Subreport Title Template-->
+            <div class="subreportTitleTemplate" style="height: 1px; background-color: #aaa; margin-top: 16px; margin-bottom: 16px; text-align:center;">
+                <span style="background-color: white; position: relative; color: #aaa;top: -11px;font-size: 16px;padding: 0px 10px;"></span>
+            </div>
+        </div>
     </div>
     <div class="tab-pane" id="tab2">
-        <div id="fieldPropertiesDialogContainer"></div>
-        <table id="fieldsCtlTable">
-        <tr><td colspan="3">
-        <select id="dsUlList" onchange="DetectCurrentDs(this.value); wereChecked.length = 0; RefreshFieldsList();">
-        </select>
-        </td></tr>
-        <tr>
-            <td>
-              <div id="remainingFieldsSel" class="field-selector-container"></div>
-            </td>
-            <td>
-                <div style="float:left; width:60px; height:200px; text-align:center;">
+        <div id="fieldPropertiesDialogContainer">
+            <div id="data-source-field" title="Field name" lang-title="js_FieldName">
+	            <div id="propertiesDiv">
+		            <div id="titleDiv" style="margin: 0px; text-align:left;text-transform:capitalize;color:#fff;background-color:#1C4E89;padding:6px; width: 100%; max-width: 388px;"></div>
+		            <div>
+			            <div style="float: left; width: 100%; max-width: 400px;margin-right: 50px;">
+				            <table cellpadding="0" cellspacing="0" style="width: 100%;">
+					            <tr><td style="padding-top:10px;" lang-text="js_Description">Description</td></tr>
+					            <tr><td><input id="propDescription" type="text" value="" style="width:100%;margin:0px;"/></td></tr>
+					            <tr><td style="padding-top:10px;" lang-text="js_Format">Format</td></tr>
+					            <tr><td><select id="propFormats" style="margin:0px;width:100%;"></select></td></tr>
+					            <tr><td style="padding-top:10px;" lang-text="js_FilterOperator">Filter Operator<span id="dupFilterNote" title="Several filters applied to this Field. Use Filters tab to modify specific filter." style="cursor: help; display:none;"> of 1st Filter ( ? )</span></td></tr>
+					            <tr><td><select id="propFilterOperators" style="margin:0px;width:100%;"></select></td></tr>
+				            </table>
+                            <input type="hidden" id="propFilterGUID" value="" />
+			            </div>
+			            <div style="float: left;margin-top: 10px;">
+				            <table>
+					            <tr><td><input id="propTotal" type="checkbox"/><label style="cursor:pointer;" for="propTotal" lang-text="js_Total">Total</label></td></tr>
+					            <tr><td><input id="propVG" type="checkbox"/><label style="cursor:pointer;" for="propVG" lang-text="js_VisualGroup">Visual Group</label></td></tr>
+                                <tr><td><input id="propMultilineHeader" type="checkbox"/><label style="cursor:pointer;" for="propMultilineHeader" lang-text="js_MultilineHeader">Multiline Header</label></td></tr>
+					            <tr>
+						            <td>
+							            <div style="width:100%;">
+								            <div class="multi-valued-check-advanced"><label msv="L" msvs="L,M,R" id="labelJ" onclick="javascript:UpdateMSV('labelJ', false);">L</label></div>
+								            <label onclick="javscript:UpdateMSV('labelJ', false);" style="cursor:pointer;" lang-text="js_LabelJustification">Label Justification</label>
+							            </div>
+						            </td>
+					            </tr>
+					            <tr>
+						            <td>
+							            <div style="width:100%;">
+							            <div class="multi-valued-check-advanced"><label msv="&nbsp;" msvs="&nbsp;,L,M,R" id="valueJ" onclick="javascript:UpdateMSV('valueJ', false);">&nbsp;</label></div>
+							            <label onclick="javascript:UpdateMSV('valueJ', false);" style="cursor:pointer;" lang-text="js_ValueJustification">Value Justification</label>
+							            </div>
+						            </td>
+					            </tr>
+                                <tr><td><label lang-text="js_Width">Width</label><input id="propWidth" type="text" style="margin-left:5px;width: 100px;"></td></tr>
+				            </table>
+			            </div>
+		            </div>
+	            </div>
+            </div>
+        </div>
+        <div id="fieldsCtlTable">
+            <div>
+                <select id="dsUlList" onchange="DetectCurrentDs(this.value); wereChecked.length = 0; RefreshFieldsList();"> </select>
+            </div>
+
+            <div>
+                <div id="remainingFieldsSel" class="field-selector-container" style="display:inline-block;float: inherit;"></div>
+
+                <div style="display:inline-block; width:60px; text-align:center;float: inherit;vertical-align: top;">
                     <div class="f-button middle">
-                      <a class="gray" onclick="javascript:AddRemainingFields();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.right-add-white.png" alt="Right" /><span class="text" lang-text="js_Add">Add</span></a>
+                        <a class="gray" onclick="javascript:AddRemainingFields();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.right-add-white.png" alt="Right" /><span class="text" lang-text="js_Add">Add</span></a>
                     </div>
                     <br />
                     <div class="f-button middle">
-                      <a class="gray" onclick="javascript:RemoveUsedFields();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.left-remove-white.png" alt="Refresh" /><span class="text" lang-text="js_Remove">Remove</span></a>
+                        <a class="gray" onclick="javascript:RemoveUsedFields();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.left-remove-white.png" alt="Refresh" /><span class="text" lang-text="js_Remove">Remove</span></a>
                     </div>
-                </div>        
-            </td>
-            <td>
-              <div id="usedFieldsSel" class="field-selector-container" style=""></div>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">
-              <div class="f-button">
-                <a class="blue" onclick="javascript:updateFields();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="Refresh" /><span class="text" lang-text="js_UpdateResults">Update results</span></a>
-              </div>
-            </td>
-            <td>
-                <div class="f-button right">
-                  <a class="gray" id="fpButton" onclick="javascript:ShowFieldProperties();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.properties-white.png" alt="Cancel" /><span class="text" lang-text="js_FieldProperties">Field properties</span></a>
+                </div> 
+
+                <div id="usedFieldsSel" class="field-selector-container" style="display:inline-block;float: inherit;"></div>
+            </div>
+
+            <div>
+                <div class="f-button">
+                    <a class="blue" onclick="UpdateFieldsAndRefresh();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.refresh-white.png" alt="Refresh" /><span class="text" lang-text="js_UpdateResults">Update results</span></a>
                 </div>
                 <div class="f-button right">
-                  <a class="gray" onclick="javascript:MoveDown();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.down-white.png" alt="Down" /><span class="text" lang-text="js_Down">Down</span></a>
+                    <a class="gray" id="A1" onclick="javascript:ShowFieldProperties();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.properties-white.png" alt="Cancel" /><span class="text" lang-text="js_FieldProperties">Field properties</span></a>
                 </div>
                 <div class="f-button right">
-                  <a class="gray" onclick="javascript:MoveUp();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.up-white.png" alt="Up" /><span class="text" lang-text="js_Up">Up</span></a>
+                    <a class="gray" onclick="javascript:MoveDown();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.down-white.png" alt="Down" /><span class="text" lang-text="js_Down">Down</span></a>
                 </div>
-            </td>
-        </tr>
-        </table>
-        <style type="text/css">
-        </style>
+                <div class="f-button right">
+                    <a class="gray" onclick="javascript:MoveUp();" href="javascript:void(0);"><img src="rs.aspx?image=ModernImages.up-white.png" alt="Up" /><span class="text" lang-text="js_Up">Up</span></a>
+                </div>
+            </div>
+        </div>
     </div>
         <div class="tab-pane" id="tab3">
             <div class="pivot-selector" id="pivot-selector">

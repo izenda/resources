@@ -10,6 +10,8 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.custom_dashboard" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=DashboardViewer" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jqui_modified2" />
+  <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
+  <script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <!-- jQuery Core -->
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
@@ -21,6 +23,9 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.DashboardViewer"></script>	
 <script type="text/javascript" src="rs.aspx?js=jQuery.NewDashboardControls"></script>	
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.blockUI"></script>
+
+<!-- Utils Resources -->
+<script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>
 
 <style type="text/css">
 	.izenda-toolbar {
@@ -130,10 +135,10 @@
     }
 
     .f-button a.blue, .f-button a.blue.disabled:hover {
-        background-color: #0D70CD;
+        background-color: #1C4E89;
     }
     .f-button a.blue:hover {
-        background-color: #0E90FF;
+        background-color: #32649e;
     }
     .f-button a.disabled {
     	opacity: .5;
@@ -152,13 +157,17 @@
 	var prevCatValue;
 
 	function modifyUrl(parameterName, parameterValue) {
-	var queryParameters = {}, queryString = location.search.substring(1),
-            re = /([^&=]+)=([^&]*)/g, m;
-	while (m = re.exec(queryString)) {
-	    queryParameters[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+	location.search = jqdb$.param(modifyUrlParameters(parameterName, parameterValue));
 	}
-	queryParameters[parameterName] = parameterValue;
-	location.search = jqdb$.param(queryParameters);
+
+	function modifyUrlParameters(parameterName, parameterValue) {
+	    var queryParameters = {}, queryString = location.search.substring(1),
+            re = /([^&=]+)=([^&]*)/g, m;
+	    while (m = re.exec(queryString)) {
+	        queryParameters[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+	    }
+	    queryParameters[parameterName] = parameterValue;
+	    return queryParameters;
 	}
 
 	function GetCategoriesList(setRn) {
@@ -200,10 +209,10 @@
 	    for (var index = 0; index < returnObj.AdditionalData.length; index++)
 	    catsArray[catsArray.length] = returnObj.AdditionalData[index];
 	newCategoryName.options.length = 0;
-	var opt = new Option();
-	opt.value = '(Create new)';
-	opt.text = '(Create new)';
-	newCategoryName.add(opt);
+	    //var opt = new Option();
+	    //opt.value = IzLocal.Res('js_CreateNew', '(Create new)');
+	    //opt.text = IzLocal.Res('js_CreateNew', '(Create new)');
+	    //newCategoryName.add(opt);
 	for (var index = 0; index < catsArray.length; index++) {
 	    var opt = new Option();
 	    opt.value = catsArray[index];
@@ -236,7 +245,7 @@
 	var newCatName = document.getElementById('newCategoryName').value;
 	var fieldWithRn = document.getElementById('reportNameFor2ver');
 	var newFullName = newRepName;
-	if (newCatName != null && newCatName != '' && newCatName != 'Uncategorized') {
+	    if (newCatName != null && newCatName != '' && newCatName != IzLocal.Res('js_Uncategorized', 'Uncategorized')) {
 	    newFullName = newCatName + '\\\\' + newFullName;
 	}
 	while (newFullName.indexOf(' ') >= 0) {
@@ -269,6 +278,10 @@
 	    ShowSaveAsDialog();
 	    return;
 	}
+
+	var formControlId = clientControlId ? formId[clientControlId] : 'aspnetForm';
+	jqdb$('#' + formControlId).attr('action', jqdb$('#' + formControlId).attr('action').toString().replace(/&emptyreport=1/, ''));
+
 	var loadingrv2 = document.getElementById('loadingrv2');
 	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
 	loadingrv2.style.height = windowHeight + 'px';
@@ -295,7 +308,10 @@
 	    else {
 	    rnVal = reportName;
 	    }
-	    modifyUrl('rn', rnVal);
+	    var newParams = modifyUrlParameters('rn', rnVal);
+	    if (newParams['emptyreport'])
+	        delete newParams['emptyreport'];
+	    location.search = jqdb$.param(newParams);
 	}
 	}
 
@@ -318,7 +334,7 @@
 
 	function CheckNewCatName() {
 	var newCategoryName = document.getElementById('newCategoryName');
-	if (newCategoryName.value == '(Create new)')
+	    if (newCategoryName.value == IzLocal.Res('js_CreateNew', '(Create new)'))
 	    ShowNewCatDialog();
 	else
 	    prevCatValue = newCategoryName.value;
@@ -341,7 +357,20 @@
 	}
 	//------------------------------------------------------------------------------------------------------------------------
 
-
+	// Utils
+	function ApplySecurityOptions() {
+	    if (typeof dashboardConfig == 'undefined')
+	        return;
+	    if (dashboardConfig.ReportIsReadOnly == true) {
+	        jq$('.hide-readonly').hide();
+	        jq$('#btnSaveDirect').attr('disabled', 'disabled');
+	    }
+	    if (dashboardConfig.ReportIsViewOnly == true)
+	        jq$('.hide-viewonly').hide();
+	    if (dashboardConfig.ReportIsLocked == true)
+	        jq$('.hide-locked').hide();
+	}
+	//------------------------------------------------------------------------------------------------------------------------
 
 	function FixLoadingPos() {
 	var ls = document.getElementById('loadingScreen');
@@ -354,7 +383,7 @@
 	var vSize = document.body.offsetHeight;
 	ls.style.paddingTop = (vSize / 3) + 'px';
 	limg.style.display = '';
-	lw.innerHTML = 'Loading...';
+	    lw.innerHTML = IzLocal.Res('js_Loading', "Loading...");
 	}
 	setTimeout(FixLoadingPos, 10);
 
@@ -548,6 +577,7 @@
 	}
 
 	jqdb$(document).ready(function () {
+	ApplySecurityOptions();
 	var rn = getURLParameter('rn');
 	if (rn != undefined && rn != '') {
 	    var designDbBtn = document.getElementById('designDbBtn');

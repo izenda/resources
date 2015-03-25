@@ -83,6 +83,7 @@ input, textarea, select, option {
   font-size: inherit;
 }
 input {
+
 }
 input[type=button] {
 	padding: 6px 12px;
@@ -178,7 +179,7 @@ a img.icon {
 
 a span.plus {
   font-weight: bold;
-  color: #999;
+  color: #e4e4e4;
   font-size: 175%;
   line-height: 10%;
   vertical-align: baseline;
@@ -231,16 +232,18 @@ a span.plus {
 .header .right-logo {
 	display: inline-block;
 	float: right;
-  height: 60px;
+  height: 65px;
   overflow: hidden;
 }
+
 .header .right-logo a:hover {
 	opacity: .75;
 }
 
 
 .top-nav, ul#topnav ul {
-	background-color: #0d70cd;
+	background-color: #1c4e89
+;
 }
 .top-nav {
   font-family: "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
@@ -268,7 +271,7 @@ a span.plus {
 }
 .top-nav .top-nav-item > a:hover {
 	color: #fff !important;
-	background-color: #0b5eae;
+	background-color: #264456;
 }
 
 #topnav .top-nav-item ul {
@@ -287,7 +290,7 @@ a span.plus {
   height: 38px;
 }
 #topnav .plus {
-  color: #559bdc;
+  color: #e4e4e4;
   margin-left: -10px;
 }
 
@@ -304,7 +307,7 @@ a span.plus {
 
 .footer .line {
   border-top: 1px solid #ccc;
-  margin: 36px 5px;
+  margin: 18px 5px;
   height: 0;
 }
 .footer p a {
@@ -372,28 +375,15 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
   top: 6px;
   background: url(../../rs.aspx?image=ModernImages.search-gray.png) 0 0 no-repeat;
 }
-a#RL_CancelSearchIcon {
-	background-color: rgba(0,0,0, .5);
-  color: #fff;
-  display: none;
-	height: 17px;
-  width: 17px;
-  cursor: pointer;
-  position: relative;
-  top: 2px;
-  line-height: 16px;
-  font-family: Verdana, sans-serif !important;
-  font-size: 15px;
-  font-weight: bold;
-	opacity: .25;
-  text-align: center;
-
-  -webkit-border-radius: 6px;
-	-moz-border-radius: 6px;
-	border-radius: 6px;
-}
-a#RL_CancelSearchIcon:hover {
-	background-color: rgba(0,0,0, .75);
+.RL_CancelSearchIcon {
+	right: 30px;
+	background: url(../../rs.aspx?image=ModernImages.clear-dark.png) 0 0 no-repeat;
+	height: 16px;
+	width: 16px;
+	cursor: pointer;
+	position: absolute;
+	top: 7px;
+	opacity: .5;
 }
 
 
@@ -409,6 +399,11 @@ a#RL_CancelSearchIcon:hover {
   top: -5px;
 }
 
+/* Designer Overrides */
+input[name$="DistinctBox"] {
+    margin-left: 5px;
+    margin-top: 5px;
+}
 
 /* Font-size overrides */
 
@@ -452,7 +447,6 @@ tr.ReportFooter td {
 }
 
 .layout table.izenda-toolbar {
-  background-image: none;
   background-color: #ddd;
 	border: none;
   padding: 3px;
@@ -649,15 +643,21 @@ tr.ReportFooter td {
   width:  170px;
   height: 220px;
 }
-.iz-ui-tabs-panel div.thumb:hover img {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover):not(.no-hover) img,
+.iz-ui-tabs-panel div.thumb.no-hover img{
   opacity: .85;
   outline: none;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-container {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-container,
+.iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-container  {
    outline: none;
 }
-.iz-ui-tabs-panel div.thumb:hover {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) {
   outline: 8px solid #cddbf6;
+  background-color: #cddbf6;
+}
+.iz-ui-tabs-panel div.thumb.no-hover {
+  outline: 2px solid #cddbf6;
   background-color: #cddbf6;
 }
 .iz-ui-tabs-panel div.thumb .thumb-buttons {
@@ -671,7 +671,8 @@ tr.ReportFooter td {
   bottom: 0;
   left: 0;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-buttons {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-buttons,
+.iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-buttons {
   display: block;
 }
 .iz-ui-tabs-panel div.thumb .thumb-edit, .iz-ui-tabs-panel div.thumb .thumb-template, .iz-ui-tabs-panel div.thumb .thumb-print,
@@ -706,30 +707,29 @@ tr.ReportFooter td {
   bottom: 0px;
 }
 
-.iz-ui-tabs-panel div.thumb:hover .thumb-remove:hover, 
-.iz-ui-tabs-panel div.thumb:hover .thumb-edit:hover, 
-.iz-ui-tabs-panel div.thumb:hover .thumb-template:hover, 
-.iz-ui-tabs-panel div.thumb:hover .thumb-print:hover {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove:hover, 
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit:hover, 
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template:hover, 
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print:hover,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove, 
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-print{
   background-color: #b0c8e9;
   opacity: 1;
 }
 
 #tabs .thumbs div.thumb-title {
-  display: inline-block;
-  font-family: "Segoe UI", Tahoma, Verdana, sans-serif !important;
-  font-size: 16px;
-  padding: 2px 10px 2px 10px;
-  line-height: 20px;
   color: #000; 
+  display: block;
+  font-family: "Droid Sans", Tahoma, "Segoe UI", sans-serif !important;
+  font-size: 14.5px;
+  letter-spacing: 0px;
+  line-height: 20px;
+  padding: 2px 0 0 6px;
   position: relative; 
+  word-break: normal;
 }
-.iz-ui-tabs-panel div.thumb:hover div.thumb-title {
-}
-
-#reportListDiv {
-}
-
-
 
 
 .iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {
@@ -774,24 +774,17 @@ tr.ReportFooter td {
   cursor:  pointer;
   position: relative;
   display:  inline-block;
-  max-width: 170px;
+  max-width: initial;
   margin: 14px;
   vertical-align: top;
 }
 .iz-ui-tabs-panel div.thumb img {
-  width:  170px;
-  height: 220px;
+  width:  inherit;
+  height: inherit;
   outline: 1px solid #cecece;
   background-color: #fff;
 }
-.iz-ui-tabs-panel div.thumb:hover img {
-  opacity: .85;
-  outline: none;
-}
-.iz-ui-tabs-panel div.thumb:hover {
-  outline: 8px solid #cddbf6;
-  background-color: #cddbf6;
-}
+
 .iz-ui-tabs-panel div.thumb .thumb-buttons {
   display: block;
   position: absolute;
@@ -807,8 +800,14 @@ tr.ReportFooter td {
 .iz-ui-tabs-panel div.thumb .thumb-remove {
   display: none;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-edit, .iz-ui-tabs-panel div.thumb:hover .thumb-template, .iz-ui-tabs-panel div.thumb:hover .thumb-print,
-.iz-ui-tabs-panel div.thumb:hover .thumb-remove {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit, 
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template, 
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print,
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove, 
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-print,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
   display: block;
   width: 28px;
   height: 28px;
@@ -820,45 +819,27 @@ tr.ReportFooter td {
   right: 0;
   opacity: .75;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-remove {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
   background-image: url(../../rs.aspx?image=ModernImages.remove-icon.png);
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-edit {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit {
   background-image: url(../../rs.aspx?image=ModernImages.edit-icon.png);
   right: 0px;
-  top: 192px;
+  top: auto;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-print {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-print {
   background-image: url(../../rs.aspx?image=ModernImages.print-icon.png);
   right: 28px;
-  top: 192px;
+  top: auto;
 }
-.iz-ui-tabs-panel div.thumb:hover .thumb-template {
+.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-template {
   background-image: url(../../rs.aspx?image=ModernImages.template-icon.png);
   right: 56px;
-  top: 192px;
-}
-
-.iz-ui-tabs-panel div.thumb:hover .thumb-remove:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-edit:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-template:hover, .iz-ui-tabs-panel div.thumb:hover .thumb-print:hover {
-  background-color: #b0c8e9;
-  opacity: 1;
-}
-
-#tabs .thumbs div.thumb-title {
-  color: #000; 
-  display: inline-block;
-  font-family: "Droid Sans", Tahoma, "Segoe UI", sans-serif !important;
-  font-size: 14.5px;
-  letter-spacing: 0px;
-  line-height: 20px;
-  padding: 2px 0 0 6px;
-  position: relative; 
-  word-break: break-all;
-}
-.iz-ui-tabs-panel div.thumb:hover div.thumb-title {
-}
-
-#reportListDiv {
+  top: auto;
 }
 
 
@@ -967,11 +948,11 @@ tr.ReportFooter td {
 
 .top-nav .btn-group.open, 
 .top-nav .btn-group:hover {
-  background-color: #0b5eae;
+  background-color: rgb(44, 87, 137);
 }
 .top-nav .btn-group.open .btn.dropdown-toggle, 
 .top-nav .btn:hover, .top-nav .dropdown-menu a:hover {
-  background-color: #004d94 !important;
+  background-color: #264456 !important;
 }
 .top-nav .btn-group .divider {
   background-color: transparent;
@@ -1062,8 +1043,8 @@ a.button:active, a.button:active:hover {
 }
 
 a.button.default {
-  background-color: #0d70cd;
-  border-color: #0d70cd;
+  background-color: #1C4E89;
+  border-color: #1C4E89;
 }
 a.button.default:link, a.button.default:visited {
   color: #fff;
@@ -1073,7 +1054,7 @@ a.button.default:link:hover, a.button.default:visited:hover {
 }
 a.button.default:active, a.button.default:active:hover {
   background-color: #fff;
-  color: #0d70cd;
+  color: #1C4E89;
 }
 
 #loginas .dropdown-menu {

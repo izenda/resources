@@ -1,0 +1,428 @@
+﻿<style type="text/css">
+	.chart {
+		shape-rendering: crispEdges;
+	}
+	.mini text {
+		font: 9px sans-serif;	
+	}
+	.main text {
+		font: 12px sans-serif;	
+	}
+	.miniItem0 {
+		fill: darksalmon;
+		fill-opacity: .3;
+		stroke-width: 6;	
+	}
+	.miniItem1 {
+		fill: darkolivegreen;
+		fill-opacity: .3;
+		stroke-width: 6;	
+	}
+	.miniItem2 {
+		fill: slategray;
+		fill-opacity: .3;
+		stroke-width: 6;	
+	}
+	.brush .extent {
+		stroke: gray;
+		fill: dodgerblue;
+		fill-opacity: .365;
+	}
+	.axisX path, .axisX line {
+		fill: none;
+		stroke: black;
+		shape-rendering: crispEdges;
+	}
+	.axisX text {
+		font-size: 10px;
+	}
+
+	div.tooltip {
+		position: absolute;
+		/*text-align: left;
+		width: 60px;
+		height: 28px;*/
+		padding: 5px;
+		font: 12px sans-serif;
+		background: white;
+		border: 1px;
+		border-radius: 3.5px;
+		border-style:solid;
+		border-color:#ff0000;
+		box-shadow: 1px 1px 2px #888888;
+		pointer-events: none;
+	}
+	div.tooltip.miniItem0 {
+		border-color:darksalmon;
+	}
+	div.tooltip.miniItem1 {
+		border-color:darkolivegreen;
+	}
+	div.tooltip.miniItem2 {
+		border-color:slategray;
+	}
+</style>
+<div style="width: 100%;" id="VIS_ID"></div>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>
+<script type="text/javascript">
+    (function ExecuteVIS_ID() {
+        try{
+		    var VIS_EMBEDDED_DATA;
+
+		    var lanes = ["Chinese", "Japanese", "Korean"],
+			    laneLength = lanes.length,
+			    items = [
+				    { "lane": 0, "id": "Qin", "start": 5, "end": 205 },
+				    { "lane": 0, "id": "Jin", "start": 265, "end": 420 },
+				    { "lane": 0, "id": "Sui", "start": 580, "end": 615 },
+				    { "lane": 0, "id": "Tang", "start": 620, "end": 900 },
+				    { "lane": 0, "id": "Song", "start": 960, "end": 1265 },
+				    { "lane": 0, "id": "Yuan", "start": 1270, "end": 1365 },
+				    { "lane": 0, "id": "Ming", "start": 1370, "end": 1640 },
+				    { "lane": 0, "id": "Qing", "start": 1645, "end": 1910 },
+				    { "lane": 1, "id": "Yamato", "start": 300, "end": 530 },
+				    { "lane": 1, "id": "Asuka", "start": 550, "end": 700 },
+				    { "lane": 1, "id": "Nara", "start": 710, "end": 790 },
+				    { "lane": 1, "id": "Heian", "start": 800, "end": 1180 },
+				    { "lane": 1, "id": "Kamakura", "start": 1190, "end": 1330 },
+				    { "lane": 1, "id": "Muromachi", "start": 1340, "end": 1560 },
+				    { "lane": 1, "id": "Edo", "start": 1610, "end": 1860 },
+				    { "lane": 1, "id": "Meiji", "start": 1870, "end": 1900 },
+				    { "lane": 1, "id": "Taisho", "start": 1910, "end": 1920 },
+				    { "lane": 1, "id": "Showa", "start": 1925, "end": 1985 },
+				    { "lane": 1, "id": "Heisei", "start": 1990, "end": 1995 },
+				    { "lane": 2, "id": "Three Kingdoms", "start": 10, "end": 670 },
+				    { "lane": 2, "id": "North and South States", "start": 690, "end": 900 },
+				    { "lane": 2, "id": "Goryeo", "start": 920, "end": 1380 },
+				    { "lane": 2, "id": "Joseon", "start": 1390, "end": 1890 },
+				    { "lane": 2, "id": "Korean Empire", "start": 1900, "end": 1945 }
+			    ],
+			    timeBegin = 0, timeEnd = 2000;
+
+		    var width = 720, height = 500, minWidth = 254;
+
+		    var util = window.ReportScripting, vis = { },
+			    emb = typeof util != 'undefined',
+				isThumbnails = (document.URL === 'about:blank');
+
+		    if (emb) {
+			    if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true }))
+				    return;
+
+			    lanes = [], items = [];
+			    timeBegin = undefined;
+			    timeEnd = undefined;
+
+			    var laneIndex = -1;
+			    vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			    var rows = vis.getRows(true);
+			    for (var i = 0; i < rows.length; i++) {
+				    if (lanes.indexOf(rows[i][0]) < 0) {
+					    lanes.push(rows[i][0]);
+					    laneIndex++;
+				    }
+
+				    var obj = { "lane": laneIndex };
+				    for (var j = 1; j < VIS_COLUMNS.length; j++)
+					    vis.unitValue(obj, j, { ri: i });
+
+				    obj.start = Number(rows[i][2]);
+				    if (!timeBegin || timeBegin > obj.start)
+					    timeBegin = obj.start;
+
+				    obj.end = Number(rows[i][3]);
+				    if (!timeEnd || timeEnd < obj.end)
+					    timeEnd = obj.end;
+
+				    obj._identity = (Math.random() * 1000000) | 0;
+
+				    items.push(obj);
+			    }
+			    laneLength = lanes.length;
+
+			    width = vis.getWidth();
+			    height = vis.getHeight();
+
+			    if (width < minWidth) { width = minWidth; }
+		    }
+
+		    //bounds
+		    function getW() { return width - m[1] - m[3]; }
+		    function getH() { return height - m[0] - m[2]; }
+
+		    var m = [16, 5, 15, 60], //top right bottom left
+			    minLH = 7, lPortion = 5;
+		    var container = document.getElementById('VIS_ID');
+		    if (emb) {
+			    if (!VIS_CONTEXT.isDashboard && ((getH() / lPortion) / laneLength < minLH))
+				    height = minLH * laneLength * lPortion;
+		    }
+		    if (getH() / lPortion > minLH)
+			    minLH = (height / lPortion) / laneLength;
+
+		    container.style.width = width + 'px';
+		    container.style.height = height + 'px';
+
+		    function showInsufficientWidth(width, height) {
+		    	var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+		    	jq$('#VIS_ID').html(insufficientWidthMessage);
+		    }
+		    function checkInsufficientWidth(width, height) {
+		    	return (width < 480);
+		    }
+
+		    var insufficient = checkInsufficientWidth(width, height);
+		    jq$('#VIS_ID div#insufficient-width-message').remove();
+		    if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+		    	showInsufficientWidth(width, height);
+		    	util.registerResize("VIS_ID", ExecuteVIS_ID);
+		    	return;
+		    }
+
+		    if (emb && (vis.toImage))
+			    window.external.SetHeight(height);
+
+		    var w = getW(), h = getH(),
+			    miniHeight = laneLength * minLH,
+			    mainHeight = h - miniHeight;
+		    if (emb) {
+			    util.updateTooltip({styles: [
+				    ".miniItem0 { border-color: darksalmon; }",
+				    ".miniItem1 { border-color: darkolivegreen; }",
+				    ".miniItem2 { border-color: slategray; }"
+			    ]});
+		    }
+
+		    //scales
+		    var x = emb
+			    ? d3.time.scale()
+				    .domain([new Date(timeBegin), new Date(timeEnd)])
+				    .range([0, w])
+			    : d3.scale.linear()
+				    .domain([timeBegin, timeEnd])
+				    .range([0, w]);
+		    var y1 = d3.scale.linear()
+			    .domain([0, laneLength])
+			    .range([0, mainHeight]);
+		    var y2 = d3.scale.linear()
+			    .domain([0, laneLength])
+			    .range([0, miniHeight]);
+
+		    var chart = d3.select("#VIS_ID")
+			    .append("svg")
+			    .attr("width", width)
+			    .attr("height", height)
+			    .attr("class", "chart");
+
+		    chart.append("defs").append("clipPath")
+			    .attr("id", "clip")
+			    .append("rect")
+			    .attr("width", w)
+			    .attr("height", mainHeight);
+
+		    function createAxislabel(pane) {
+			    return pane.append("g").attr("class", "axisX axisX2").append("text");
+		    }
+
+		    var box1 = emb ? util.labelBBox(chart, "XX XXXXXXX XXXX", createAxislabel).width : 84,
+			    box2 = emb ? util.labelBBox(chart, "XX XXX 'XX", createAxislabel).width : 50,
+			    box3 = emb ? util.labelBBox(chart, "XX/XX/XX", createAxislabel).width : 44,
+			    box4 = emb ? util.labelBBox(chart, "XXX XXXX", createAxislabel).width : 45,
+			    box5 = emb ? util.labelBBox(chart, "XXX 'XX", createAxislabel).width : 35,
+			    box6 = emb ? util.labelBBox(chart, "XX/XX", createAxislabel).width : 28,
+			    box7 = emb ? util.labelBBox(chart, "XX", createAxislabel).width : 12,
+			    sformat = (w / box1) > 9
+				    ? "%e %B %Y"
+				    : (w / box2) > 9
+					    ? "%e %b '%y"
+					    : (w / box3) > 9
+						    ? "%m/%e/%y" : "%m/%y",
+			    sformat2 = (w / box4) > 9
+				    ? "%b %Y"
+				    : (w / box5) > 9
+					    ? "%b '%y"
+					    : (w / box6) > 9
+						    ? "%m/%y" : "'%y";
+
+		    if (emb) {
+			    var m3 = 0;
+			    for (i = 0; i < lanes.length; i++) {
+				    var t = util.labelBBox(chart, lanes[i], function(pane) { return pane.append("g").attr("class", "main").append("text").attr("class", "laneText"); }).width;
+				    m3 = m3 > t ? m3 : t;
+			    }
+			    m[3] = m3 + 5;
+		    }
+
+		    var main = chart.append("g")
+			    .attr("transform", "translate(" + m[3] + "," + m[0] + ")")
+			    .attr("width", w)
+			    .attr("height", mainHeight)
+			    .attr("class", "main");
+
+		    var mini = chart.append("g")
+			    .attr("transform", "translate(" + m[3] + "," + (mainHeight + m[0]) + ")")
+			    .attr("width", w)
+			    .attr("height", miniHeight)
+			    .attr("class", "mini");
+
+		    //main lanes and texts
+		    main.append("g").selectAll(".laneLines")
+			    .data(items)
+			    .enter().append("line")
+			    .attr("x1", 0)
+			    .attr("y1", function(d) { return y1(d.lane); })
+			    .attr("x2", w)
+			    .attr("y2", function(d) { return y1(d.lane); })
+			    .attr("stroke", "lightgray");
+
+		    main.append("g").selectAll(".laneText")
+			    .data(lanes)
+			    .enter().append("text")
+			    .text(function (d) { return d; })
+			    .attr("x", -m[1])
+			    .attr("y", function (d, i2) { return y1(i2 + .5); })
+			    .attr("dy", ".5ex")
+			    .attr("text-anchor", "end")
+			    .attr("class", "laneText");
+
+		    //mini lanes and texts
+		    mini.append("g").selectAll(".laneLines")
+			    .data(items)
+			    .enter().append("line")
+			    .attr("x1", 0)
+			    .attr("y1", function (d) { return y2(d.lane); })
+			    .attr("x2", w)
+			    .attr("y2", function (d) { return y2(d.lane); })
+			    .attr("stroke", "lightgray");
+
+		    mini.append("g").selectAll(".laneText")
+			    .data(lanes)
+			    .enter().append("text")
+			    .text(function () { return ""/*d*/; })
+			    .attr("x", -m[1])
+			    .attr("y", function (d, i2) { return y2(i2 + .5); })
+			    .attr("dy", ".5ex")
+			    .attr("text-anchor", "end")
+			    .attr("class", "laneText");
+
+		    var itemRects = main.append("g")
+			    .attr("clip-path", "url(#clip)");
+
+		    //mini item rects
+		    mini.append("g").selectAll("miniItems")
+			    .data(items)
+			    .enter().append("rect")
+			    .attr("class", function (d) { return "miniItem" + (d.lane % 3); })
+			    .attr("x", function (d) { return x(d.start); })
+			    .attr("y", function (d) { return y2(d.lane + .5) - (.8 * minLH) / 2; })
+			    .attr("width", function (d) { var r = x(d.end) - x(d.start); return r > 0 ? r : 0; })
+			    .attr("height", .8 * minLH);
+
+		    // mini lane axis
+		    var axisX = d3.svg.axis()
+			    .scale(x)
+			    .orient("bottom")
+			    .ticks(5)
+			    .tickFormat(function(d) { return emb ? d3.time.format(sformat2)(new Date(d)) : d; });
+		    chart.append("g")
+			    .call(axisX)
+			    .attr('class', 'axisX')
+			    .attr('transform', 'translate(' + (m[3]) + ', ' + (height - 16) + ')');
+
+		    var x2 = emb
+			    ? d3.time.scale().range([0, w])
+			    : d3.scale.linear().range([0, w]);
+		    var axisX2 = d3.svg.axis()
+			    .scale(x2)
+			    .orient("top")
+			    .ticks(5)
+			    .tickFormat(function(d) { return emb ? d3.time.format(sformat)(new Date(d)) : d; });
+
+		    chart.append("g")
+			    .call(axisX2)
+			    .attr('class', 'axisX axisX2')
+			    .attr('transform', 'translate(' + (m[3]) + ', ' + (16) + ')');
+
+		    //brush
+		    var brush = d3.svg.brush()
+			    .x(x)
+			    .on("brush", display)
+			    .extent([timeBegin + (timeEnd - timeBegin) / 3, timeBegin + 2 / 3 * (timeEnd - timeBegin)]);
+
+		    mini.append("g")
+			    .attr("class", "x brush")
+			    .call(brush)
+			    .selectAll("rect")
+			    .attr("y", 1)
+			    .attr("height", miniHeight - 1);
+
+		    function display() {
+			    var rects, labels,
+				    minExtent = brush.extent()[0],
+				    maxExtent = brush.extent()[1],
+				    visItems = items.filter(function(d) { return d.start < maxExtent && d.end > minExtent; });
+
+			    mini.select(".brush")
+				    .call(brush.extent([minExtent, maxExtent]));
+
+			    var x1 = (emb ? d3.time.scale() : d3.scale.linear())
+				    .range([0, w])
+				    .domain([minExtent, maxExtent]);
+			    x2.domain(emb ? [new Date(minExtent), new Date(maxExtent)] : [minExtent, maxExtent]);
+
+			    chart.selectAll(".axisX2")
+				    .call(axisX2);
+
+			    //update main item rects
+			    rects = itemRects.selectAll("rect")
+				    .data(visItems, function(d) { return d.id ? d.id : d._identity; })
+				    .attr("x", function(d) { return x1(d.start); })
+				    .attr("width", function(d) { var r = x1(d.end) - x1(d.start); return r > 0 ? r : 0; });
+
+			    rects.enter().append("rect")
+				    .attr("class", function(d) { return "miniItem" + (d.lane % 3); })
+				    .attr("x", function(d) { return x1(d.start); })
+				    .attr("y", function(d) { return y1(d.lane + 0.5) - (.8 * y1(1)) / 2; })
+				    .attr("width", function(d) { var r = x1(d.end) - x1(d.start); return r > 0 ? r : 0; })
+				    .attr("height", function(d) { return .8 * y1(1); })
+				    .on("mouseover", function(d) {
+					    if (emb) {
+						    util.showTooltip(d, { exclusion: ["lane", "id", "start", "end", "_identity"] });
+						    util.tip.removeClass("miniItem0 miniItem1 miniItem2")
+							    .addClass("miniItem" + (d.lane % 3));
+					    }
+				    })
+				    .on("mouseout", function() { if (emb) util.hideTooltip(); });
+
+			    rects.exit().remove();
+
+			    //update the item labels
+			    labels = itemRects.selectAll("text")
+				    .data(visItems, function(d) { return d.id ? d.id : d._identity; })
+				    .attr("x", function(d) { return x1(Math.max(d.start, minExtent) + 2); });
+
+			    labels.enter().append("text")
+				    .text(function(d) { return d.id; })
+				    .attr("x", function(d) { return x1(Math.max(d.start, minExtent)); })
+				    .attr("y", function(d) { return y1(d.lane + .5); })
+				    .attr("text-anchor", "start");
+
+			    labels.exit().remove();
+		    }
+
+		    (function() {
+			    if (emb)
+				    util.registerResize("VIS_ID", ExecuteVIS_ID);
+
+			    display();
+		    })();
+        }
+        catch (e) {
+            var docElement = jq$('<object>');
+            docElement.attr('data', VIS_CONTEXT.docUrl);
+            docElement.width(width).height(height);
+            jq$('#VIS_ID').html(docElement);
+        }
+	})();
+</script>

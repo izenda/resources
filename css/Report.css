@@ -318,10 +318,10 @@ span.ReportTitle
 {
 	font-size: 18pt;
 	font-weight: normal;
-	white-space: nowrap;
+	white-space: pre-wrap;
 	background-color: #F0F0F0;
 }
-span.Header
+/*span.Header
 {
 	white-space: nowrap;
 }
@@ -332,7 +332,7 @@ span.Description
 span.Footer
 {
 	white-space: nowrap;
-}
+}*/
 tr.VisualGroup tr
 {
 	border-width:3px;
@@ -349,4 +349,14 @@ tr.VisualGroup td
 div.autoWide 
 {
 	display:inline-table;
+}
+
+.funnel-border {
+    background-image: -webkit-gradient(linear,left top,right top,color-stop(0%,rgba(255,255,255,0)),color-stop(100%,rgba(255,255,255,1)));
+    background-image: -webkit-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -moz-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -ms-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background-image: -o-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,255,1));
+    background: linear-gradient(to right,rgba(255,255,255,0),rgba(255,255,255,1));
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=1,StartColorStr='#00ffffff',EndColorStr='#ffffff');
 }

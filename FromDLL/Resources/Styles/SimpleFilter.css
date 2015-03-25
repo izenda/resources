@@ -1,0 +1,64 @@
+body
+{
+}
+
+
+table.simpleFilters thead
+{
+	display: none;
+}
+
+table.simpleFilters tr
+{
+	width: 300px;
+	display: block;
+	margin-left: 10px;
+	float: left;
+}
+
+table.simpleFilters td
+{
+	width: 299px;
+	display: block;
+	
+	float: left;
+}
+
+table.simpleFilters td.filterColumn
+{
+	margin-top: 10px;
+	overflow: hidden;
+}
+
+table.simpleFilters td.filterColumn select
+{
+	border: 0 none;
+	background-color: #CEF;
+	color: Black;
+	width: 330px;
+}
+
+
+table.simpleFilters td.filterValue textarea
+{
+	width:inherit;
+}
+
+table.simpleFilters td.filterOperator
+{
+	display: none;
+}
+
+table.simpleFilters td.filterValue div
+{
+	width:inherit;
+	max-height: 150px;
+	/*overflow: auto;*/
+}
+
+
+table.simpleFilters td.filterValue div input[type=checkbox]
+{
+	
+}
+

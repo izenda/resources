@@ -12,6 +12,8 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
 
+<script type="text/javascript" src="./Resources/js/RichEditorPopup.js"></script>
+
 <script type="text/javascript">
     jq$(document).ready(function () {
         var fieldWithRn = document.getElementById('reportNameFor2ver');

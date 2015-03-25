@@ -1,0 +1,392 @@
+﻿<style type="text/css">
+	#VIS_ID #h1 {
+		cursor: pointer;
+		margin-right: auto;
+		margin-left: auto;
+	}
+	#VIS_ID span.hint {
+		font-size: 12px;
+		color: #999;
+		width: auto;
+		display: inline-block;
+	}
+	#VIS_ID span.hint select {
+		width: auto;
+	}
+</style>
+
+<div id="VIS_ID">
+	<span id="hint" class="hint clearfix" style="float:right; position: absolute; right: 0; margin-top: 2px;">
+		<span style="display:inline-block;">Metric:</span>
+		<select id="metricSelect"></select>
+	</span>
+	<div id="h1" style="position: relative; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 30px; text-align: center;"></div>
+</div>
+
+<script src="d3.v3.min.js" type="text/javascript"></script>
+<script src="queue.v1.min.js" type="text/javascript"></script>
+<script src="topojson.v1.min.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+		visState = visState || {};
+		var s = visState.VIS_ID || (visState.VIS_ID = {
+			props: undefined
+		});
+
+		if (typeof window.jq$ == "undefined")
+			window.jq$ = jQuery.noConflict(true);
+
+		function shortName(name) {
+			switch (name) {
+				case "United Kingdom":
+					return "UK";
+				case "United States":
+					return "USA";
+				case "Venezuela, Bolivarian Republic of":
+					return "Venezuela";
+			}
+			return name;
+		}
+		function store() {
+			if (!emb)
+				return;
+
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
+			});
+			util.setProps(s.props);
+		}
+		function restore() {
+			if (typeof s.props != "object")
+				return;
+
+			metricSelect.val(s.props.metric);
+		}
+		try{
+			var VIS_EMBEDDED_DATA;
+
+			var width = 400, height = 400;
+			var f1, f2, items = [], i, j, item;
+
+			var util = window.ReportScripting, vis,
+				emb = typeof util != 'undefined', spendField = undefined,
+				isThumbnails = (document.URL === 'about:blank');
+			var vs = util.container("VIS_ID"),
+				metricSelect = vs.find("select#metricSelect");
+
+			if (emb) {
+				if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, canvas: true, animation: true }))
+					return;
+
+				if (!s.props) {
+					try { s.props = JSON.parse(VIS_CONTEXT.props); }
+					catch (e) { }
+				}
+
+				f1 = 'Resources/Vis/Animated/World Tour/world-110m.json.txt';
+				f2 = 'Resources/Vis/Animated/World Tour/world-country-names.tsv';
+
+				vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+				for (i = 0; i < VIS_ROWS.length; i++) {
+					items.push(item = {});
+					for (j = 0; j < VIS_ROWS[i].length; j++)
+						vis.unitValue(item, j, { ri: i });
+				}
+
+				vis.collectTree();
+
+				if (!vis.metrics.length) {
+					jq$("#VIS_ID").text("No metric found");
+					return;
+				}
+
+				metricSelect
+					.find("option").remove();
+				jq$.each(vis.metrics, function(i, el) {
+					metricSelect.append("<option>" + el + "</option>");
+				});
+
+				restore();
+
+				spendField = metricSelect.val();
+
+				if (!vis.metrics.length) {
+					jq$("#VIS_ID").text("No metric found");
+					return;
+				}
+
+				width = vis.getWidth();
+				height = vis.getHeight();
+
+				function showInsufficientWidth(width, height) {
+					var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+					jq$('#VIS_ID').children().each(function (i, child) {
+						jq$(child).css('display', 'none');
+					});
+					jq$('#VIS_ID').append(insufficientWidthMessage);
+				}
+				function checkInsufficientWidth(width) {
+					return (width < 240);
+				}
+
+				var insufficient = checkInsufficientWidth(width);
+				jq$('#VIS_ID div#insufficient-width-message').remove();
+				if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
+					showInsufficientWidth(width, height);
+					util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
+						jq$('#VIS_ID').children().each(function (i, child) {
+							jq$(child).css('display', '');
+						});
+					});
+					return;
+				}
+			}
+			else {
+				f1 = 'world-110m.json.txt';
+				f2 = 'world-country-names.tsv';
+			}
+
+			var margin = { top: 5, right: 5, bottom: 5, left: 5 },
+				minDimension = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom),
+				center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (height - margin.top - margin.bottom) / 2];
+
+			metricSelect
+				.unbind("change")
+				.bind("change", function() {
+					jq$("#VIS_ID canvas").remove();
+					store();
+					ExecuteVIS_ID();
+				});
+
+			var projection = d3.geo.orthographic()
+				.scale(minDimension / 2)
+				.clipAngle(90)
+				.translate(center);
+
+			var graticule = d3.geo.graticule();
+
+			var m0 = null, m1= null, o0, stopped = false;
+			function mousedown() {  // remember where the mouse was pressed, in canvas coords
+				stopped = true;
+				m0 = trackballAngles(d3.mouse(canvas.node()));
+				o0 = projection.rotate();
+				d3.event.preventDefault();
+				title.style('visibility', 'hidden');
+			}
+			function mousemove() {
+				if (!m0)
+					return;
+
+				m1 = trackballAngles(d3.mouse(canvas.node()));
+				var o1 = [o0[0] + (m1[0] - m0[0]), o0[1] + (m1[1] - m0[1])];
+
+				projection.rotate(o1);
+				draw();
+			}
+			function mouseup() {
+				if (m0 && (!m1 || m0[0] == m1[0] && m0[1] == m1[1])) {
+					title.style('visibility', 'visible');
+					stopped = false;
+					transition();
+				}
+
+				if (m0) {
+					mousemove();
+					m0 = null;
+					m1 = null;
+				}
+			}
+
+			var canvas = d3.select("#VIS_ID").append("canvas")
+				.attr("width", width)
+				.attr("height", height)
+				.on("mousedown", mousedown)
+				.on("mousemove", mousemove)
+				.on("mouseup", mouseup)
+				.on("touchstart", mousedown)
+				.on("touchmove", mousemove)
+				.on("touchend", mouseup);
+
+			function trackballAngles(pt) {
+				// based on http://www.opengl.org/wiki/Trackball  
+				// given a click at (x,y) in canvas coords on the globe (trackball),
+				// calculate the spherical coordianates for the point as a rotation around
+				// the vertical and horizontal axes
+				var r = projection.scale();
+				var c = projection.translate();
+				var x = pt[0] - c[0], y = -(pt[1] - c[1]), ss = x * x + y * y;
+
+				var z = r * r > 2 * ss ? Math.sqrt(r * r - ss) : r * r / 2 / Math.sqrt(ss);
+
+				var lambda = Math.atan2(x, z) * 180 / Math.PI;
+				var phi = Math.atan2(y, z) * 180 / Math.PI;
+				return [lambda, phi];
+			}
+
+			var context = canvas.node().getContext("2d");
+
+			var path = d3.geo.path()
+				.projection(projection)
+				.context(context);
+
+			var title = d3.select("#VIS_ID div#h1")
+				.style({
+					"top": (center[1] + minDimension / 4.9) + "px",
+					"text-shadow": "0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white",
+					"font-size": (minDimension * 3 / 49) + "px",
+					"visibility": "visible"
+				});
+
+			var land, grid, countries, borders, index, min, max;
+			function gc(i) { return countries[i % countries.length]; }
+			function gi(d) { return items.filter(function(i) { return shortName(d.name) == vis.unitValue(i, 0); }); }
+			function draw() {
+				context.clearRect(0, 0, width, height);
+
+				context.beginPath();
+				path({ type: "Sphere" });
+				context.lineWidth = 3;
+				context.strokeStyle = "#000";
+				context.stroke();
+				context.fillStyle = "#fff";
+				context.fill();
+
+				projection.clipAngle(180);
+
+				context.beginPath();
+				path(land);
+				context.fillStyle = "rgba(222,235,247,1)";
+				context.fill();
+
+				context.beginPath();
+				path(grid);
+				context.lineWidth = .5;
+				context.strokeStyle = "rgba(119,119,119,.5)";
+				context.stroke();
+
+				projection.clipAngle(90);
+
+				context.beginPath();
+				path(land);
+				context.fillStyle = "rgba(222,235,247)";
+				context.fill();
+				context.lineWidth = .5;
+				context.strokeStyle = "#000";
+				context.stroke();
+
+				for (var i = 0; i < countries.length; i++) {
+					context.beginPath();
+					path(countries[i]);
+
+					var d = gc(i), i2 = gi(d);
+					var v = vis.unitValue(i2[0], spendField);
+					var c = util.getMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
+					context.fillStyle = util.getRgb(c);
+					context.fill();
+
+					if (i == index) {
+						context.save();
+
+						path(countries[i]);
+						context.clip();
+
+						context.beginPath();
+						context.lineWidth = 2;
+						context.shadowColor = "rgb(20,20,20)";
+						context.strokeStyle = "rgb(20,20,20)";
+						context.shadowBlur = 20;
+						path(countries[i]);
+						context.stroke();
+
+						context.restore();
+					}
+				}
+
+				context.strokeStyle = "#fff";
+				context.lineWidth = 1;
+				context.beginPath();
+				path(borders);
+				context.stroke();
+
+				context.strokeStyle = "rgb(20,20,20)";
+				context.lineWidth = 0.5;
+				context.beginPath();
+				path(countries[index]);
+				context.stroke();
+			}
+			function transition() {
+				if (stopped)
+					return;
+
+				d3.transition()
+					.duration(1000)
+					.each("start", function() {
+						if (emb) {
+							var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
+								fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == spendField; }).formatter,
+								val = vis.unitValue(i2[0], spendField);
+							title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, spendField) : val) + ")");
+						}
+						else {
+							title.text(countries[index = (index + 1) % countries.length].name + " " + countries[index].id);
+						}
+					})
+					.tween("rotate", function() {
+						var p = d3.geo.centroid(countries[index]),
+							r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+						return function(t) {
+							if (stopped)
+								return;
+							projection.rotate(r(t));
+							draw();
+						};
+					})
+					.transition()
+					.each("end", transition);
+			}
+
+			function ready(error, world, names) {
+				land = topojson.feature(world, world.objects.land),
+					grid = graticule(),
+					countries = topojson.feature(world, world.objects.countries).features
+						.filter(function(d) {
+							var result = names.some(function(n) {
+								return d.id == n.id
+									? (d.name = n.name)
+									: undefined;
+							});
+							return emb && result
+								? items.some(function(it) { return shortName(d.name) == vis.unitValue(it, 0); })
+								: result;
+						})
+						.sort(function(a, b) { return a.name.localeCompare(b.name); }),
+					borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
+					index = -1,
+					min = d3.min(items, function (item) { return item.support[spendField].o; });
+					max = d3.max(items, function (item) { return item.support[spendField].o; });
+
+				transition();
+			}
+
+			(function() {
+				if (emb)
+					util.registerResize("VIS_ID", ExecuteVIS_ID);
+
+				queue()
+					.defer(d3.json, f1)
+					.defer(d3.tsv, f2)
+					.await(ready);
+			})();
+		}
+		catch (e) {
+			console.log('error');
+			console.log(e);
+			var docElement = jq$('<object>');
+			docElement.attr('data', VIS_CONTEXT.docUrl);
+			docElement.width(width).height(height);
+			jq$('#VIS_ID').html(docElement);
+		}
+	})();
+</script>

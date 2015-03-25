@@ -17,9 +17,8 @@
 <script type="text/javascript" src="./rs.aspx?js=Utility"></script>
 <script type="text/javascript" src="./rs.aspx?js=ModalDialog"></script>
 <script type="text/javascript" src="./rs.aspx?js=AdHocServer"></script>
-<script type="text/javascript" src="./rs.aspx?js=ReportList"></script>
 <script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
-<!-- Utils Resources -->
 <script type="text/javascript" src="./Resources/js/ReportList.js"></script>
+
    

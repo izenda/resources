@@ -1,0 +1,41 @@
+﻿.buttons {
+  margin: 36px 0;
+}
+
+a.button {
+  display: inline-block;
+  padding: 2px 18px;
+  padding-bottom: 6px;
+  border: 3px solid #aaa;
+  font-size: 20px;
+  margin-right: 8px;
+  line-height: 30px;
+}
+
+a.button:active {
+  background-color: #aaa;
+}
+a.button:link, a.button:visited {
+  color: #000;
+}
+a.button:link:hover, a.button:visited:hover {
+  color: #000;
+}
+a.button:active, a.button:active:hover {
+  color: #fff;
+}
+
+a.button.default {
+  background-color: #1C4E89;
+  border-color: #1C4E89;
+}
+a.button.default:link, a.button.default:visited {
+  color: #fff;
+}
+a.button.default:link:hover, a.button.default:visited:hover {
+  color: #fff;
+}
+a.button.default:active, a.button.default:active:hover {
+  background-color: #fff;
+  color: #1C4E89;
+}

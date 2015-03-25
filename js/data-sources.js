@@ -57,7 +57,7 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 		if (thisRequestObject.readyState == 4) {
 		  if (thisRequestObject.status == 200 && callbackSuccess) {
 		    var toRet;
-		    if (thisRequestObject.requestId != 'getrenderedreportset' && thisRequestObject.requestId != 'getcrsreportpartpreview')
+		    if (thisRequestObject.requestId != 'getrenderedreportset' && thisRequestObject.requestId != 'getcrsreportpartpreview' && thisRequestObject.requestId != 'renderedreportpart')
 		      toRet = DeserializeJson();
 		    else
 		      toRet = thisRequestObject.responseText;			
@@ -89,6 +89,7 @@ jq$.extend({
 	}
 });
 
+var currentPreview = null;
 var tInd = 0;
 var fieldsIndex;
 var csOrder = 0;
@@ -103,6 +104,10 @@ var databaseSchema;
 var origRsData = '';
 var nirConfig;
 var oDatatable;
+var subtotalsAdded = false;
+var chartAvailable = false;
+var chartAdded = false;
+var IR_CurrentChartProps = '';
 
 function IsIE() {
 	if (navigator.appName == 'Microsoft Internet Explorer')
@@ -156,10 +161,21 @@ function initDataSources(url) {
 		jq$(".database").remove();
 		tInd = 0;
 		var html = "";
-		for (key in databaseSchema)
-			html += renderDatabase(databaseSchema[key], key);
+		for (var i = 0; i < databaseSchema.length; i++)
+			html += renderDatabase(databaseSchema[i], i);
 		jq$(html).prependTo("#databases");
-		NDS_Init();
+	  NDS_Init();
+	  if (databaseSchema.length == 1) {
+		  setTimeout(function() {
+		  	var dbh = document.getElementById('rdbh0');
+		  	if (typeof dbh != 'undefined' && dbh != null) {
+		  		dbh = jq$(dbh);
+		  		initializeTables(dbh);
+		  		dbh.toggleClass("opened", animationTime);
+		  		setTimeout(DsDomChanged, animationTime + 100);
+		  	}
+		  }, 100);
+		}
 //		ExistingReportSetInit();
 		/*var databases = $(".database");
 		if (databases && databases.length == 1)
@@ -214,7 +230,7 @@ function renderSections(tableIndex, fields) {
 	var textSectionContent = renderFields(tableIndex, fields, "text");
 	if (textSectionContent.length > 1) {
 	  html += " \
-					<div class='fields-section'> \
+					<div class='fields-section' sectionDataType='text'> \
 						<div class='fields-section-name'> \
 							<span>" + IzLocal.Res("js_text", "text") + "</span> \
 						</div> \ " + textSectionContent + " \
@@ -224,7 +240,7 @@ function renderSections(tableIndex, fields) {
 	var datesSectionContent = renderFields(tableIndex, fields, "dates");
 	if (datesSectionContent.length > 1) {
 	  html += " \
-					<div class='fields-section'> \
+					<div class='fields-section' sectionDataType='dates'> \
 						<div class='fields-section-name'> \
 							<span>" + IzLocal.Res("js_dates", "dates") + "</span> \
 						</div> \ " + datesSectionContent + " \
@@ -234,7 +250,7 @@ function renderSections(tableIndex, fields) {
 	var numbersSectionContent = renderFields(tableIndex, fields, "numeric") + renderFields(tableIndex, fields, "money");
 	if (numbersSectionContent.length > 1) {
 	  html += " \
-					<div class='fields-section'> \
+					<div class='fields-section' sectionDataType='numbers'> \
 						<div class='fields-section-name'> \
 							<span>" + IzLocal.Res("js_numbers", "numbers") + "</span> \
 						</div> \ " + numbersSectionContent + " \
@@ -245,7 +261,7 @@ function renderSections(tableIndex, fields) {
 	if (identifiersSectionContent.length > 1) {
 	  html += " \
 					<div class='fields-section'> \
-						<div class='fields-section-name'> \
+						<div class='fields-section-name' sectionDataType='identifiers'> \
 							<span>" + IzLocal.Res("js_identifiers", "identifiers") + "</span> \
 						</div> \ " + identifiersSectionContent + " \
 					</div> \ ";
@@ -256,9 +272,19 @@ function renderSections(tableIndex, fields) {
 
 function renderFields(tableIndex, fields, sectionName) {
 	var html = "";
-	for (key in fields) {
-	  if (fields[key].type == sectionName) html += renderField(tableIndex, key, fields[key].sysname);
-	}
+	var fieldArray = new Array();
+	for (key in fields)
+		if (fields[key] != null && fields[key].type == sectionName)
+			fieldArray.push({ key: key, value: fields[key] });
+
+	fieldArray.sort(function (a, b) {
+		if (a.key < b.key) return -1;
+		if (a.key > b.key) return 1;
+		return 0;
+	});
+
+	for (var i = 0; i < fieldArray.length; i++)
+		html += renderField(tableIndex, fieldArray[i].key, fieldArray[i].value.sysname);
 	return html;
 }
 
@@ -298,10 +324,13 @@ function CollectReportData() {
 	var fieldWidths = new Array();
 	var fOptions = new Array();
 	var idList = new Array();
+	var sortsList = new Array();
 	var index = 0;
 	var cb;
 	var soVal;
-
+	var sortingData = new Array();
+	if (currentPreview != null)
+		sortingData = currentPreview.GetSortingData();
 	while (true) {
 		cb = document.getElementById('tcb' + index);
 		if (cb == null)
@@ -323,12 +352,18 @@ function CollectReportData() {
 				continue;
 			}
 			var widthVal = cb.getAttribute('itemwidth');
-			if (!widthVal) widthVal = 0;
+			if (!widthVal)
+				widthVal = 0;
 			idList[fieldsList.length] = 'tcb' + index + 'fcb' + fIndex;
 			fieldsList[fieldsList.length] = cb.getAttribute('fieldid');
 			fieldsOrders[fieldsOrders.length] = soVal;
 			fieldWidths[fieldWidths.length] = widthVal;
 			fOptions[fOptions.length] = fieldsOpts[cb.getAttribute('fieldid')];
+			var fSort = '0';
+			if (typeof sortingData[idList[fieldsList.length - 1]] != 'undefined' && sortingData[idList[fieldsList.length - 1]] != null)
+				fSort = sortingData[idList[fieldsList.length - 1]];
+			sortsList[sortsList.length] = fSort;
+			cb.setAttribute('sorting', fSort);
 			fIndex++;
 		}
 		index++;
@@ -339,6 +374,11 @@ function CollectReportData() {
 	repObj.OrdList = fieldsOrders;
 	repObj.WidthList = fieldWidths;
 	repObj.FldOpts = fOptions;
+	repObj.SortsList = sortsList;
+	repObj.SubtotalsAdded = subtotalsAdded;
+	repObj.ChartAdded = chartAdded;
+	repObj.ChartProps = IR_CurrentChartProps;
+	repObj.Filters = typeof filtersData != 'undefined' ? GetFiltersDataToCommit() : null;
 	var uriResult = encodeURIComponent(JSON.stringify(repObj));
 	return uriResult;
 }
@@ -373,16 +413,48 @@ function ReportViewed(returnObj, id) {
 		alert("Error: " + returnObj.Value);
 }
 
-function ShowFieldProperties(fieldSqlName, friendlyName, fiIds) {
-  curFieldIndexes = fiIds;
+function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
+	curFieldIndexes = fiIds;
+	var autoTotal = false;
+	var aRef = document.getElementById(fiIds);
+	var selected = -1;
+	if (typeof aRef != 'undefined' && aRef != null) {
+		selected = aRef.getAttribute('sorder');
+		if (typeof selected == 'undefined' || selected == null)
+			selected = -1;
+		do {
+			aRef = aRef.parentNode;
+		} while (typeof aRef != 'undefined' && aRef != null && aRef.className != 'fields-section');
+		if (typeof aRef != 'undefined' && aRef != null) {
+			var sDataType = aRef.getAttribute('sectionDataType');
+			if (sDataType == 'numbers' || sDataType == 'identifiers')
+				autoTotal = true;
+		}
+	}
 	curPropField = fieldSqlName;
+	var field = DS_GetFullField(fieldSqlName, friendlyName);
+	field.Selected = selected;
+	if (field.Total == null)
+		field.Total = 1;
+	if (filterGUID != null)
+		field.FilterGUID = filterGUID;
+
+	var requestString = 'wscmd=fieldoperatorsandformatswithdefault';
+	requestString += '&wsarg0=' + curPropField;
+	AjaxRequest('./rs.aspx', requestString, FieldPropFormatsGot, null, 'fieldoperatorsandformatswithdefault', field);
+}
+
+function DS_GetFullField(fieldSqlName, friendlyName) {
 	var field = new Object();
 	field.FriendlyName = friendlyName;
 	field.Description = friendlyName;
 	field.Total = 0;
 	field.VG = 0;
 	field.LabelJ = 1;
-	field.ValueJ	 = 0;
+	field.ValueJ = 0;
+	field.Width = '';
+	field.IsMultilineHeader = 0;
+	field.ColumnName = fieldSqlName;
 	var opts = fieldsOpts[fieldSqlName];
 	if (opts != null) {
 		field.Description = opts.Description;
@@ -390,15 +462,15 @@ function ShowFieldProperties(fieldSqlName, friendlyName, fiIds) {
 		field.VG = opts.VgChecked;
 		field.LabelJ = opts.LabelJVal;
 		field.ValueJ = opts.ValueJVal;
-	}	
-  var requestString = 'wscmd=fieldoperatorsandformatswithdefault';
-	requestString += '&wsarg0=' + curPropField;
-	AjaxRequest('./rs.aspx', requestString, FieldPropFormatsGot, null, 'fieldoperatorsandformatswithdefault', field);
+		field.Width = opts.Width;
+		field.IsMultilineHeader = opts.IsMultilineHeader;
+	}
+	return field;
 }
 
 function FieldPropFormatsGot(returnObj, id, field) {
   if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
-	return;
+  	return;
 	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
 		var operatorsData = returnObj.AdditionalData.slice(0, returnObj.Value);
 		var formatsData = returnObj.AdditionalData.slice(returnObj.Value);
@@ -432,6 +504,23 @@ function FieldPropFormatsGot(returnObj, id, field) {
 		field.FilterOperator = '...';
 		if (fieldsOpts[curPropField] != null)
 			field.FilterOperator = fieldsOpts[curPropField].FilterOperator;
+
+		if (field.FilterGUID == null) {
+			for (var find = 0; find < filtersData.length; find++)
+				if (filtersData[find].ColumnName == field.ColumnName) {
+					field.FilterGUID = filtersData[find].GUID;
+					break;
+				}
+		}
+
+		if (field.FilterGUID != null) {
+			for (var find = 0; find < filtersData.length; find++)
+				if (filtersData[find].GUID == field.FilterGUID) {
+					field.FilterOperator = filtersData[find].OperatorValue;
+					break;
+				}
+		}
+
 		FP_ShowFieldProperties(field, fieldPopup);
 		PreviewFieldDelayed(500);
 	}
@@ -446,15 +535,27 @@ function StoreFieldProps(newField) {
 	opts.FilterOperator = newField.FilterOperator;
 	opts.LabelJVal = newField.LabelJ;
 	opts.ValueJVal = newField.ValueJ;
+	opts.Width = newField.Width;
+	opts.IsMultilineHeader = newField.IsMultilineHeader;
 	fieldsOpts[curPropField] = opts;
-	if (curFieldIndexes == null || curFieldIndexes == '')
-	  return;
-	var s = curFieldIndexes.split('fcb');
-	if (s.length != 2 || s[0].length < 4 || s[0].length <= 0)
-	  return;
-	var tcbInd = s[0].substr(3);
-	var fcbInd = s[1];
-  FiClick(tcbInd, fcbInd, true, true);
+
+	if (curFieldIndexes != null && curFieldIndexes != ''){
+		var s = curFieldIndexes.split('fcb');
+		if (s.length == 2 && s[0].length >= 4) {
+			var tcbInd = s[0].substr(3);
+			var fcbInd = s[1];
+			FiClick(tcbInd, fcbInd, true, true);
+		}
+	}
+
+	if (newField.FilterGUID != null && newField.FilterGUID != 'undefined') {
+		for (var i = 0; i < filtersData.length; i++)
+			if (filtersData[i].GUID == newField.FilterGUID) {
+				filtersData[i].OperatorValue = newField.FilterOperator;
+				CommitFiltersData(false);
+				break;
+			}
+	}
 }
 
 function PreviewFieldManual() {
@@ -507,9 +608,20 @@ function PreviewField(field, container) {
 	}
 }
 
+function ShowReportPreviewContent(showContent) {
+	if (showContent) {
+		jq$('#previewLoading').hide();
+		jq$('#previewContentWrapper').children().show();
+	}
+	else {
+		jq$('#previewLoading').show();
+		jq$('#previewContentWrapper').children().hide();
+	}
+}
+
 function PreviewReportManual() {
-	jq$(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
-  PreviewReportToDiv();
+	ShowReportPreviewContent(false);
+	PreviewReportToDiv();
 }
 
 function PreviewReportDelayed(timeOut) {
@@ -518,7 +630,7 @@ function PreviewReportDelayed(timeOut) {
 	}
 	catch (e) {
 	}
-	jq$(document.getElementById('rightHelpDiv')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
+	ShowReportPreviewContent(false);
 	previewReportTimeout = setTimeout(PreviewReportToDiv, timeOut);
 }
 
@@ -528,17 +640,29 @@ function PreviewReportToDiv() {
 
 function InitEmptyPreviewArea(container) {
 	var container$ = jq$(container);
-	container$.empty();
 
-	var h2$ = jq$('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
-	container$.append(h2$);
+	var subtotalsGrey = 'button';
+	var subtotalsImgName = 'subtotalsplus.png';
+	if (!subtotalsAdded) {
+		subtotalsGrey += ' default';
+		subtotalsImgName = "subtotalsplusW.png";
+	}
+
+	jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
+	jq$('#appendSubtotalsBtn img').attr('src', 'rs.aspx?image=' + subtotalsImgName);
+
+	var chartGrey = 'button';
+	var chartImgName = 'chartplus.png';
+	if (!chartAdded) {
+		chartGrey += ' default';
+		chartImgName = "chartplusW.png";
+	}
+
+	jq$('#appendChartBtn').attr('class', chartGrey);
+	jq$('#appendChartBtn img').attr('src', 'rs.aspx?image=' + chartImgName );
+	if (!chartAvailable)
+		jq$('#appendChartBtn').hide();
   
-	var div$ = jq$('<div>');
-	
-	div$.addClass('preview-wrapper-empty');
-	div$.text(IzLocal.Res("js_DragHereToPreview", "Drag field here to preview"));
-	container$.append(div$);
-	
 	container$.droppable({
 		accept: 'a.field',
 		drop: function (event, ui) {
@@ -568,20 +692,71 @@ function PreviewReport(container) {
 	thisRequestObject.send(requestString);
 
 	function ReportPreviewed(returnObj, id) {
+		ShowReportPreviewContent(true);
 		if (thisRequestObject.readyState == 4 && thisRequestObject.status == 200) {
-			jq$(container).empty();
+			var subtotalsGrey = 'button';
+			var subtotalsImgName = 'subtotalsplus.png';
+			if (!subtotalsAdded) {
+				subtotalsGrey += ' default';
+				subtotalsImgName = "subtotalsplusW.png";
+			}
+			jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
+			jq$('#appendSubtotalsBtn img').attr('src', 'rs.aspx?image=' + subtotalsImgName);
 
-			var h2$ = jq$('<h2 style="margin:0px; margin-bottom:20px;"><a class="button default" href="#update_preview" onclick="javascript:PreviewReportManual();">' + IzLocal.Res("js_Preview", "Preview") + '</a></h2>');
-			h2$.appendTo(container);
+			var chartGrey = 'button';
+			var chartImgName = 'chartplus.png';
+			if (!chartAdded) {
+				chartGrey += ' default';
+				chartImgName = "chartplusW.png";
+			}
+			jq$('#appendChartBtn').attr('class', chartGrey);
+			jq$('#appendChartBtn img').attr('src', 'rs.aspx?image=' + chartImgName);
+			if (!chartAvailable)
+				jq$('#appendChartBtn').hide();
 
-			var containerWrapper$ = jq$('<div>');
-			containerWrapper$.addClass('preview-wrapper');
-			containerWrapper$.appendTo(container);
-
+			var containerWrapper$ = jq$('#previewWrapper');
+			if (containerWrapper$ == null || containerWrapper$.length == 0)
+				containerWrapper$ = jq$('<div id="previewWrapper">');
 			containerWrapper$.html(thisRequestObject.responseText);
+			jq$('#previewWrapperEmpty').hide();
+			containerWrapper$.insertAfter(jq$('#previewWrapperEmpty'));
 
+			var index = 0;
+			var cb;
+			var soVal;
+			var widthChanged = false;
+			while (true && !widthChanged) {
+				cb = document.getElementById('tcb' + index);
+				if (cb == null)
+					break;
+				soVal = cb.getAttribute('sorder');
+				if (soVal == '-1') {
+					index++;
+					continue;
+				}
+				var fIndex = 0;
+				while (true && !widthChanged) {
+					cb = document.getElementById('tcb' + index + 'fcb' + fIndex);
+					if (cb == null)
+						break;
+					soVal = cb.getAttribute('sorder');
+					if (soVal == '-1') {
+						fIndex++;
+						continue;
+					}
+					var widthVal = cb.getAttribute('itemwidth');
+					if (typeof widthVal != 'undefined' && widthVal != null && widthVal > 0)
+						widthChanged = true;
+					fIndex++;
+				}
+				index++;
+			}
+			if (!widthChanged)
+				jq$('.preview-wrapper table.ReportTable').css('width', '100%');
+			
 			var visualGroupUsed = (thisRequestObject.responseText.indexOf('class=\'VisualGroup\'') >= 0);
 			if (visualGroupUsed) {
+				currentPreview = null;
 				var tablesContainer$ = jq$('<div>');
 				var mainTableTemplate$ = jq$('.preview-wrapper table.ReportTable').clone().html('');
 			    var tableIndex = 1;
@@ -640,16 +815,27 @@ function PreviewReport(container) {
 			}
 			else {
 			    try {
-			        var preview = new DataSourcesPreview('table.ReportTable');
+			    	var preview = new DataSourcesPreview('table.ReportTable');
+			    	currentPreview = preview;
 			    }
 			    catch (e) {
 			    }
 			}
-			
+			setTimeout(updatePreviewPosition, 100);
 
 			//initializePreviewTable();
 		}
 	}
+}
+
+function AppendSubtotals() {
+	subtotalsAdded = !subtotalsAdded;
+	setTimeout(PreviewReportManual, 100);
+}
+
+function AppendChart() {
+	chartAdded = !chartAdded;
+	setTimeout(PreviewReportManual, 100);
 }
 
 /**
@@ -663,13 +849,13 @@ var newThCurrent_index = null;
 
 function initDraggable() {
 	jq$('a.field').draggable({
-    cancel: 'a.field.checked, a.field[locked="true"]',
+		cancel: 'a.field.checked, a.field[locked="true"], span.field-popup-trigger',
     cursor: 'move',
     accept: 'table.ReportTable, div.preview-wrapper-empty',
     helper: function(event, ui) {
-    	var foo = jq$('<span style="z-index: 1001; background-color: #0d70cd; white-space: nowrap;"></span>');
+    	var foo = jq$('<span style="z-index: 1001; background-color: #1C4E89; white-space: nowrap;"></span>');
     	var target = jq$(event.currentTarget).clone();
-      target.css('background-color', '#0d70cd');
+      target.css('background-color', '#1C4E89');
       foo.append(target);
       return foo;
     },
@@ -678,7 +864,7 @@ function initDraggable() {
     opacity: 0.5,
 
     start: function(event, ui) {
-      fieldsDragPreformingNow = true;
+    	fieldsDragPreformingNow = true;
       fieldDragged$ = jq$(event.currentTarget);
       if (jq$('table.ReportTable').length == 0 && jq$('table.ReportTable_1').length == 0) {
         // no preview
@@ -984,6 +1170,8 @@ function NDS_UpdateDatasourcesAvailability(forceRefresh) {
 	  if (dsState[i] > 0)
 		  NDS_UpdateDsOpacity(dsArr[i], i);
 	}
+
+	UpdateFiltersAvailability();
 }
 
 function NDS_RefreshOpenedList() {
@@ -1116,7 +1304,7 @@ function initFieldsDsp(nwid) {
     var fieldSqlName = parent.getAttribute('fieldid');
     if (fieldSqlName != null && fieldSqlName != '') {
     	var friendlyName = jq$(parent).find('.field-name').html();
-        ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
+        DS_ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
     }
     return false;
   });
@@ -1212,7 +1400,8 @@ function GotInstantReportConfig(returnObj, id) {
     if (id != 'instantreportconfig' || returnObj == undefined || returnObj == null)
         return;
     nirConfig = returnObj;
-
+    chartAvailable = nirConfig.VisualizationsAvailable;
+    InitEmptyPreviewArea('#rightHelpDiv');
     jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
         event.preventDefault();
     });
@@ -1243,8 +1432,18 @@ function GotInstantReportConfig(returnObj, id) {
     	setView(jq$(this), "fields-view");
     });
 
+    rootRightDiv = document.getElementById('rootRightDiv');
     leftDiv = document.getElementById('leftDiv');
     pdiv = document.getElementById('rightHelpDiv');
+    defaultPdivPos = '';
+    databasesDiv = document.getElementById('databases');
+    defaultDbHeight = databasesDiv.style.height;	
+    defaultDbOverflowY = databasesDiv.style.overflowY;
+    previewWrapperDiv = null;
+    defaultPwHeight = '';
+    defaultPwOverflowY = '';
+    defaultPwPaddingRight = '';
+
     whiteHeader = document.getElementById('whiteHeader');
     blueHeader = document.getElementById('blueHeader');
     setInterval(checkLeftHeight, 100);
@@ -1252,10 +1451,123 @@ function GotInstantReportConfig(returnObj, id) {
     jq$(window).resize(function (event) {
         checkLeftHeight();
         updatePreviewPosition(event);
+        PreviewReportDelayed(10);
     });
     jq$(window).scroll(function (event) {
         updatePreviewPosition(event);
     });
     checkLeftHeight();
     updatePreviewPosition(null);
+    InitInstantFilters();
+}
+
+/* ----------------- */
+/* ---- Filters ---- */
+/* ----------------- */
+var dataSources = [];
+var fieldsList = [];
+var fieldsDataObtained;
+var filtersDataObtained;
+var nrvConfig = null;
+var urlSettings = {};
+
+function InitInstantFilters() {
+	fieldsDataObtained = true;
+	filtersDataObtained = true;
+	urlSettings.urlRsPage = nirConfig.ResponseServerUrl;
+}
+
+function GetSelectedDataSources() {
+	var dsList = new Array();
+	var index = 0;
+	var cb;
+	var soVal;
+	while (true) {
+		cb = document.getElementById('tcb' + index);
+		if (cb == null)
+			break;
+		soVal = cb.getAttribute('sorder');
+		if (soVal == '-1') {
+			index++;
+			continue;
+		}
+		dsList[dsList.length] = cb.getAttribute('tableid');
+		index++;
+	}
+	return dsList;
+}
+
+function UpdateDataSources() {
+	if (typeof databaseSchema == 'undefined' || typeof dataSources == 'undefined' || databaseSchema == null)
+		return;
+
+	var selectedDataSources = GetSelectedDataSources();
+	dataSources = new Array();
+	for (var cat = 0; cat < databaseSchema.length; cat++)
+		for (key in databaseSchema[cat].tables) {
+			var table = databaseSchema[cat].tables[key];
+
+			// Only selected data sources are available
+			if (jq$.inArray(table.sysname, selectedDataSources) < 0)
+				continue;
+
+			var ds = {
+				FriendlyName: key,
+				DbName: table.sysname,
+				DataType: 0,
+				IsStoredProc: false,
+				JoinAlias: ''
+			};
+			var columns = new Array();
+			for (fieldKey in table.fields) {
+				var field = table.fields[fieldKey];
+				var column = {
+					FriendlyName: fieldKey,
+					DbName: field.sysname
+				};
+				columns.push(column);
+			}
+			ds.Columns = columns;
+			dataSources.push(ds);
+		}	
+}
+
+function UpdateFiltersAvailability() {
+	if (typeof filtersData == 'undefined' || filtersData == null)
+		return;
+	UpdateDataSources();
+
+	var availableColumns = new Array();
+	for (var ds = 0; ds < dataSources.length; ds++)
+		for (var col = 0; col < dataSources[ds].Columns.length; col++)
+			availableColumns.push(dataSources[ds].Columns[col].DbName);
+
+	var availableFilters = new Array();
+	for (var i = 0; i < filtersData.length; i++)
+		if (availableColumns.indexOf(filtersData[i].ColumnName) >= 0) {
+			var filterObj = filtersData[i];
+			if (!filtersData[i].Removed)
+				filterObj.Value = GetFilterValues(i, filtersData).slice(1)[0];
+			availableFilters.push(filterObj);
+		}
+
+	var returnObject = {
+		Filters: availableFilters,
+		SubreportsFilters: null,
+		FilterLogic: ''
+	};
+	RefreshFilters(returnObject);
+}
+
+// Report Viewer override
+function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
+	for (var dsInd = 0; dsInd < dataSources.length; dsInd++)
+		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++)
+			if (dataSources[dsInd].Columns[colInd].DbName == fieldName) {
+				DS_ShowFieldProperties(fieldName, dataSources[dsInd].Columns[colInd].FriendlyName, null, GUID);
+				return;
+			}
+
+	DS_ShowFieldProperties(fieldName, fieldName, null, GUID);
+	return;
 }
