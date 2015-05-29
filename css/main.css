@@ -2,13 +2,17 @@
 
 /* HTML */
 
+@font-face {
+	font-family: "SourceSansProRegular";
+	src: url("../../rs.aspx?image=ModernImages.SourceSansPro-Regular.otf");
+}
+
 html, body {
-  height: 100%; /* needed for container min-height */
+  height: 100%;
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
-  font-size: 99.99%;
+  font-family: "SourceSansProRegular", "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
 	color: black;
 	background-color: #fff;
 }
@@ -145,9 +149,13 @@ th, td {
 }
 
 /* Links */
+a {
+  cursor: pointer;
+}
+
 a:link {
   color: #0000ff;
-  text-decoration: underline;
+  /*text-decoration: underline;*/
 }
 :visited {
   color: #6b19a8;
@@ -240,10 +248,8 @@ a span.plus {
 	opacity: .75;
 }
 
-
 .top-nav, ul#topnav ul {
-	background-color: #1c4e89
-;
+	background-color: #1c4e89;
 }
 .top-nav {
   font-family: "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
@@ -1096,4 +1102,13 @@ a.button.default:active, a.button.default:active:hover {
   font-weight: bold;
   src: local("Segoe UI Semibold"), local("Segoe UI Bold"), local("Segoe UI"), local("Helvetica Neue");
   unicode-range: U+0000-00FF, U+0300-036F;
+}
+
+.modal .modal-body {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.subjects-row {
+  margin-bottom: 10px;
 }

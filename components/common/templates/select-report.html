@@ -1,0 +1,52 @@
+﻿<!-- select report part modal dialog -->
+<div id="izendaSelectPartModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true" 
+     ng-controller="IzendaSelectReportController as izendaSelectReportController"
+     ng-init="izendaSelectReportController.initialize()">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="row">
+          <div class="col-md-2">
+            <h4 style="margin-top: 5px;" class="pull-right">Category:</h4>
+          </div>
+          <div class="col-md-8">
+            <select class="form-control" ng-model="izendaSelectReportController.category"
+              ng-options="category for category in izendaSelectReportController.categories"
+              ng-change="izendaSelectReportController.categoryChangedHandler()">
+            </select>
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="close" style="margin-left: 50px;" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body" style="min-height: 300px;">
+        <div class="iz-dash-tile-vcentered-container" ng-hide="izendaSelectReportController.isLoading || izendaSelectReportController.groups.length > 0">
+          <div class="iz-dash-tile-vcentered-item">
+            No reports found!
+          </div>
+        </div>
+        <div class="iz-dash-tile-vcentered-container" ng-hide="!izendaSelectReportController.isLoading">
+          <div class="iz-dash-tile-vcentered-item">
+            <img class="img-responsive" ng-src="{{izendaSelectReportController.izendaUrl.urlSettings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+          </div>
+        </div>
+        <div ng-hide="izendaSelectReportController.isLoading || izendaSelectReportController.groups.length == 0">
+          <div ng-repeat="group in izendaSelectReportController.groups" class="row">
+            <div class="col-md-3" ng-repeat="item in group">
+              <div class="thumb" ng-click="izendaSelectReportController.itemSelectedHandler(item)">
+                <div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
+                  <img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}" />
+                </div>
+                <div class="thumb-title">{{item.Name}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

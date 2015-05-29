@@ -1,0 +1,295 @@
+﻿<!-- dashboard body -->
+<div ng-controller="IzendaDashboardController as dashboardController"
+     ng-init="dashboardController.initialize()" ng-cloak>
+  <div id="dashboardsDiv">
+    <!-- filters -->
+    <div id="notificationDiv" ng-hide="dashboardController.notifications.length === 0">
+      <div class="iz-dash-notification fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
+        ng-repeat="notification in dashboardController.notifications">
+        <div class="close-button glyphicon glyphicon-remove"
+          ng-click="dashboardController.closeNotification(notification.id)"
+          ng-mouseover="dashboardController.cancelNotificationTimeout(notification.id)">
+        </div>
+        <div class="title" ng-bind="notification.title"></div>
+        <div class="text" ng-bind="notification.text"></div>
+      </div>
+    </div>
+    <div id="dashboardBodyContainer" class="iz-dash-body-container"
+      ng-style="dashboardController.tileContainerStyle"
+      ng-hide="dashboardController.isGalleryMode">
+      <div class="tile-grid-cell shadow"
+        ng-show="dashboardController.isGridShadowVisible"
+        ng-style="dashboardController.gridShadowStyle">
+        <div class="iz-dash-select-report-front-container"
+          ng-show="dashboardController.isGridShadowPlusButtonVisible">
+          <button type="button" class="iz-dash-select-report-front-btn2 btn" title="Select Report">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </div>
+      </div>
+      <div class="dashboard-grid"
+        ng-show="dashboardController.isGridVisible"
+        ng-style="dashboardController.gridStyle"
+        class="dashboard-grid">
+      </div>
+      <!-- repeat tiles -->
+      <div tileid="{{tile.id}}"
+        tile-report-full-name="{{tileController.reportFullName}}"
+        ng-repeat="tile in dashboardController.tiles"
+        ng-class="tileController.getTileClass()"
+        ng-style="tileController.getTileStyle()"
+        ng-controller="IzendaTileController as tileController"
+        ng-init="tileController.initialize(tile)"
+        ng-cloak>
+
+        <div class="animate-flip">
+          <div class="flippy-front animated fast">
+            <div class="frame">
+              <div ng-show="tileController.description != null && tileController.description != ''"
+                class="iz-dash-tile-description">
+                {{tileController.description}}
+              </div>
+              <div style="cursor: pointer;" class="iz-dash-select-report-front-container" title="Select report part"
+                ng-hide="tileController.reportFullName != null"
+                ng-click="tileController.selectReportPart()">
+                <a class="btn btn-default iz-dash-select-report-front-btn">
+                  <span class="glyphicon glyphicon-plus"></span>
+                </a>
+              </div>
+              <div class="report" name="preview_control_container"
+                ng-hide="tileController.isReportDivHidden()">
+              </div>
+            </div>
+            <div class="title-container-background glyphicon" title="Tile actions">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </div>
+            <div class="title-container" style="height: 35px; overflow: hidden;">
+              <div class="title">
+                <span class="title-text">
+                  <a ng-if="tileController.isTitleSet()"
+                    class="db-title-repname" title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.title}}
+                  </a>
+
+                  <a ng-if="!tileController.isTitleSet() && tileController.reportCategory != null"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.reportCategory}}">{{tileController.reportCategory}}
+                  </a>
+
+                  <span ng-if="!tileController.isTitleSet() && tileController.reportCategory != null && tileController.reportName != null">/</span>
+
+                  <a ng-if="!tileController.isTitleSet() && tileController.reportName != null"
+                    class="db-title-repname"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.reportName}}
+                  </a>
+
+                  <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
+                  <a ng-if="!tileController.isTitleSet() && tileController.reportPartName != null"
+                    class="db-title-repname"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.reportPartName}}
+                  </a>
+                </span>
+                <a title="Show tile options" class="title-button button2"
+                  ng-click="tileController.flipBack()">
+                  <span class="bar"></span>
+                  <span class="bar"></span>
+                  <span class="bar"></span>
+                </a>
+                <a title="Delete tile" class="title-button title-button-remove button1"
+                  ng-click="tileController.showConfirmDelete()">
+                  <img src="Resources/images/remove-18.png" class="img-responsive" />
+                </a>
+                <a title="Confirm delete"
+                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
+                  ng-click="tileController.deleteTile()">
+                  <img src="Resources/images/tile/confirm-delete.png" />
+                  <span ng-if="tileController.getWidth() > 1">remove tile</span>
+                </a>
+                <a title="Cancel delete"
+                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
+                  ng-click="tileController.hideConfirmDelete()">
+                  <img src="Resources/images/tile/turn-back.png" />
+                  <span ng-if="tileController.getWidth() > 1">undo request</span>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div class="flippy-back">
+            <div class="frame">
+              <div class="container-fluid iz-dash-tile-fb-main">
+                <div class="row">
+                  <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
+                    <label>Title</label>
+                  </div>
+                  <div class="col-md-9 col-xs-12">
+                    <input type="text" class="form-control"
+                      ng-model="tileController.title">
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
+                    <label>Description</label>
+                  </div>
+                  <div class="col-md-9 col-xs-12">
+                    <input type="text" class="form-control"
+                      ng-model="tileController.description">
+                  </div>
+                </div>
+              </div>
+              <div class="iz-dash-tile-fb-toolbar2">
+                <div class="iz-dash-tile-fb-toolbtn"
+                     ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible()">
+                  <a title="Print tile report"
+                     ng-click="tileController.printTile()">
+                    <img class="img-responsive" src="Resources/images/back-tile/print.png" />
+                  </a>
+                </div>
+                <div class="iz-dash-tile-fb-toolbtn"
+                  ng-hide="tileController.isOneColumnView()"> 
+                  <a title="Export tile report to excel" 
+                     ng-click="tileController.exportToExcel()">
+                    <img class="img-responsive" src="Resources/images/back-tile/excel.png" />
+                  </a>
+                </div>
+                <div class="iz-dash-tile-fb-toolbtn">
+                  <a href="{{tileController.getReportEditorLink()}}" title="Open tile report in designer">
+                    <img class="img-responsive" src="Resources/images/back-tile/edit.png"/>
+                  </a>
+                </div>
+                <div class="iz-dash-tile-fb-toolbtn" title="Open tile report in viewer">
+                  <a href="{{tileController.getReportViewerLink()}}" title="Open tile report in viewer">
+                    <img class="img-responsive" src="Resources/images/back-tile/view.png" />
+                  </a>
+                </div>
+                <div class="iz-dash-tile-fb-toolbtn">
+                  <a title="Reload tile from it's source" ng-click="tileController.flipFront(true, true)">
+                    <img class="img-responsive" src="Resources/images/back-tile/reload.png">
+                  </a>
+                </div>
+                <div class="iz-dash-tile-fb-toolbtn"
+                  ng-hide="tileController.isOneColumnView()">
+                  <a title="Add new report part to tile" ng-click="tileController.selectReportPart()">
+                    <img class="img-responsive" src="Resources/images/back-tile/add.png">
+                  </a>
+                </div>
+              </div>
+              <div class="iz-dash-tile-fb-toolbar">
+                <span class="iz-dash-tile-fb-rcount">{{tileController.getTopString()}}</span>
+                <span class="iz-dash-tile-fb-rcount-slider">
+                  <div izenda-tile-top-slider ng-model="tileController.top" on-change-end="tileController.topSelected()"></div>
+                </span>
+                <span class="iz-dash-tile-fb-rcount-label">RECORDS COUNT</span>
+              </div>
+            </div>
+            <div class="title-container-background glyphicon" title="Tile actions">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </div>
+            <div class="title-container" style="height: 35px; overflow: hidden;">
+              <div class="title">
+                <span class="title-text">
+                  <a ng-if="tileController.isTitleSet()"
+                    class="db-title-repname"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.title}}
+                  </a>
+
+                  <a ng-if="!tileController.isTitleSet() && tileController.reportCategory != null"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.reportCategory}}">{{tileController.reportCategory}}
+                  </a>
+
+                  <span ng-if="!tileController.isTitleSet() && tileController.reportCategory != null && tileController.reportName != ''">/</span>
+                  <a ng-if="!tileController.isTitleSet()"
+                    class="db-title-repname"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.reportName}}
+                  </a>
+
+                  <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
+                  <a ng-if="!tileController.isTitleSet()"
+                    class="db-title-repname"
+                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.getReportViewerLink()}}">{{tileController.reportPartName}}
+                  </a>
+                </span>
+                <a title="Show tile" class="title-button title-button-remove button2"
+                  ng-click="tileController.flipFront(false)">
+                  <img src="Resources/images/turn-18.png" class="img-responsive" />
+                </a>
+                <a title="Delete tile" class="title-button title-button-remove button1"
+                  ng-click="tileController.showConfirmDelete()">
+                  <img src="Resources/images/remove-18.png" class="img-responsive" />
+                </a>
+                <a title="Confirm delete"
+                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
+                  ng-click="tileController.deleteTile()">
+                  <img src="Resources/images/tile/confirm-delete.png" />
+                  <span ng-if="tileController.getWidth() > 1">remove tile</span>
+                </a>
+                <a title="Cancel delete" ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
+                  ng-click="tileController.hideConfirmDelete()">
+                  <img src="Resources/images/tile/turn-back.png" />
+                  <span ng-if="tileController.getWidth() > 1">undo request</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!-- end tile -->
+    </div>
+    <div id="galleryBodyContainer"
+      ng-show="dashboardController.isGalleryMode"
+      ng-style="dashboardController.galleryContainerStyle">
+      <div style="width: 100%; text-align: center; position: absolute; top: 20px; font-size: 24px;"
+        ng-show="dashboardController.isFullscreenMode">
+        <span style="background-color: #f8f8f8; border: 1px solid #e7e7e7; padding: 5px;"
+          ng-show="dashboardController.galleryTileTitle != null && dashboardController.galleryTileTitle != ''">
+          <span ng-bind="dashboardController.galleryTileTitle"></span>
+        </span>
+      </div>
+      <div id="impresshook">
+        <div class="impress">
+          <div class="step slide" tileid="{{tile.id}}"
+               ng-repeat="tile in dashboardController.tiles"
+               data-x="{{($index + 1) * 1240}}"
+               data-y="{{0}}"
+               data-z="{{0}}"
+               data-rotate-x="{{0}}"
+               data-rotate-y="{{0}}"
+               data-rotate-z="{{0}}">
+            <h1 ng-bind="tile.reportFullName"></h1>
+          </div>
+        </div>
+      </div>
+      <div class="container-fluid iz-dash-gallery-button-container">
+        <div class="row iz-dash-gallery-button-container">
+          <div ng-click="dashboardController.prevGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
+            style="cursor: pointer; width: calc((100% - 1200px) / 2);">
+            <span class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></span>
+          </div>
+          <div class="col-xs-10 text-center" style="width: 1200px;">
+          </div>
+          <div ng-click="dashboardController.nextGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
+            style="cursor: pointer; width: calc((100% - 1200px) / 2);">
+            <span class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="width: 100%; text-align: center; position: absolute; top: 5px;"
+      ng-show="dashboardController.isGalleryMode">
+      <span style="background-color: #f8f8f8; border: 1px solid #e7e7e7; padding: 5px;"
+        ng-show="dashboardController.galleryTileTitle != null && dashboardController.galleryTileTitle != ''">
+        <span ng-bind="dashboardController.galleryTileTitle"></span>
+      </span>
+    </div>
+  </div>
+</div>

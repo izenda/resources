@@ -578,22 +578,13 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 
 /// optimize work with EBC_Humanize
 function EBC_SetDescription(row) {
-	//if(row._ignoreDescriptor){
-//		return;}
-
-	//if(row.getAttribute("userChanged")=="true")
-//		return;
-
 	// Find controls in a row
 	var funcSelect = EBC_GetSelectByName(row, 'Function');
 	var formatSel = EBC_GetSelectByName(row, 'Format');
 	var descriptionEdit = EBC_GetInputByName(row, 'Description');
 	var columnSel = EBC_GetSelectByName(row, 'Column');
 
-	// Check - user modified
 	if (descriptionEdit == null)
-		return;
-	if (descriptionEdit.UserModified && descriptionEdit.value != '')
 		return;
 
 	descriptionEdit.ChangedAutomatically = true;

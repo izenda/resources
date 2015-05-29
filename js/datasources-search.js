@@ -177,15 +177,35 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	var initializeCache = function () {
 		databaseStateCache = [];
 		tableStateCache = [];
-		jq$.each(jq$("div.database.opened"), function (index, item) {
-			var id = jq$(item).find("div.database-header").find("a").attr("href");
+		var rdbhInd = -1;
+		while (true) {
+			rdbhInd++;
+			var dbh = document.getElementById('rdbh' + rdbhInd);
+			if (typeof dbh == 'undefined' || dbh == null)
+				break;
+			if (dbh.nodeName != 'DIV')
+				continue;
+			var classes = ' ' + dbh.className + ' ';
+			if (classes.indexOf(' database ') < 0 || classes.indexOf(' opened ') < 0)
+				continue;
+			var id = jq$(dbh).find("div.database-header").find("a").attr("href");
 			databaseStateCache.push(id);
-		});
-
-		jq$.each(jq$("div.table.opened"), function (index, item) {
-			var id = jq$(item).find("div.table-header").find("a").attr("href");
+		}
+		var tbCnt = -1;
+		while (true) {
+			tbCnt++;
+			var tableChChCh = document.getElementById('tcb' + tbCnt);
+			if (typeof tableChChCh == 'undefined' || tableChChCh == null)
+				break;
+			var tableObj = tableChChCh.parentElement.parentElement.parentElement;
+			if (tableObj.nodeName != 'DIV')
+				continue;
+			var classes = ' ' + tableObj.className + ' ';
+			if (classes.indexOf(' table ') < 0 || classes.indexOf(' opened ') < 0)
+				continue;
+			var id = jq$(tableObj).find("div.table-header").find("a").attr("href");
 			tableStateCache.push(id);
-		});
+		}
 		return null;
 	};
 
@@ -439,9 +459,18 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			hideAutocomplete();
 		}
 		// clear selection
-		jq$.each(jq$("div.database"), function (i, database) {
-			var database$ = jq$(database);
-			var databaseTables$ = database$.find('div.database-tables');
+		var rdbhInd = -1;
+		while (true) {
+			rdbhInd++;
+			var dbh = document.getElementById('rdbh' + rdbhInd);
+			if (typeof dbh == 'undefined' || dbh == null)
+				break;
+			if (dbh.nodeName != 'DIV')
+				continue;
+			var classes = ' ' + dbh.className + ' ';
+			if (classes.indexOf(' database ') < 0)
+				continue;
+			var database$ = jq$(dbh);
 			var databaseName$ = database$.find("span.database-name");
 			databaseName$.removeClass("autocomplete-item-field-selection");
 			if (database$.hasClass("closed")) {
@@ -470,7 +499,6 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 					if (!table$.hasClass("opened") && tableStateCache.indexOf(idTable) >= 0)
 						table$.addClass("opened");
 				}
-
 				jq$.each(table$.find("a.field"), function (k, field) {
 					var field$ = jq$(field);
 					var fieldName$ = field$.find("span.field-name");
@@ -481,7 +509,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 					fieldName$.removeClass("autocomplete-item-field-selection");
 				});
 			});
-		});
+		}
 	};
 
 	var preloadFound = function(searchObject) {
@@ -516,7 +544,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	    var tablesToExpand = new Array();
 	    jq$.each(database["tables"], function (tableNameText, table) {
 	      var tableFound = false;
-	      var tableid = table["sysname"];
+	      var tableid = table.domId;
 	      if (!isTextSearch && tableNameText) {
 	        if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableNameText == searchObject["table"]) {
 	          databaseFound = true;
@@ -550,27 +578,18 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	        tablesToExpand[tablesToExpand.length] = tableid;
 	      }
 	    });
-	    var database$;
-	    jq$.each(jq$('span.database-name'), function (idatabase, databaseDom) {
-	    	var txt = jq$(databaseDom).text();
-	      if (txt && txt.toLowerCase() == database["DataSourceCategory"].toLowerCase())
-	      	database$ = jq$(databaseDom).closest("div.database");
-	    });
-	    if (database$) {
-	      if (databaseFound) {
-	        var cte = new Object();
-	        cte.CategoryToExpand = database$[0].id;
-	        cte.TablesToExpand = tablesToExpand;
-	        categoriesToExpand[categoriesToExpand.length] = cte;
-	      }
+	    if (databaseFound) {
+	      var cte = new Object();
+	      cte.CategoryToExpand = database.domIdHeader;
+	      cte.TablesToExpand = tablesToExpand;
+	      categoriesToExpand[categoriesToExpand.length] = cte;
 	    }
 	  });
 	  for (var cCnt = 0; cCnt < categoriesToExpand.length; cCnt++) {
 	    var db = document.getElementById(categoriesToExpand[cCnt].CategoryToExpand);
 	    initializeTables(jq$(db));
 	    for (var tCnt = 0; tCnt < categoriesToExpand[cCnt].TablesToExpand.length; tCnt++) {
-	      var tableSysName = categoriesToExpand[cCnt].TablesToExpand[tCnt];
-	      var tableTitleSpan = jq$('span[tableid="' + tableSysName + '"]');
+	    	var tableTitleSpan = jq$(document.getElementById(categoriesToExpand[cCnt].TablesToExpand[tCnt]));
 	      if (tableTitleSpan.length > 0) {
 	        initFieldsDsp(tableTitleSpan[0].parentElement);
 	      }
@@ -669,7 +688,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 
 	      		// found ?
 	      		if (fieldFound) {
-	      			jq$.each(jq$('a.field[fieldid="' + field["sysname"] + '"]'), function (fieldIdx, fieldDom) {
+	      			var fieldEnumVar$ = jq$(document.getElementById(field.domId));
+	      			jq$.each(fieldEnumVar$, function (fieldIdx, fieldDom) {
 	      				// find all fields
 	      				var field$ = jq$(fieldDom);
 	      				if (fieldHighLight) {
@@ -688,8 +708,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	      }
 
 	      // found ?
-	      var table$ = jq$('div.table-header a span.checkbox-container[tableid="' + table["sysname"] + '"]')
-							.closest("div.table");
+	      var table$ = jq$(document.getElementById(table.domId).parentElement.parentElement.parentElement);
 	      if (tableFound) {
 	        var tableName$ = table$.find("span.table-name");
 	        tableName$.addClass("autocomplete-item-field-selection");
@@ -700,26 +719,30 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	    });
 
 	    // found ?
-	    var database$;
-	    jq$.each(jq$('span.database-name'), function (idatabase, databaseDom) {
-	    	var txt = jq$(databaseDom).text();
-	      if (txt && txt.toLowerCase() == database["DataSourceCategory"].toLowerCase())
-	      	database$ = jq$(databaseDom).closest("div.database");
-	    });
-	    if (database$) {
-	      if (databaseFound) {
-	        database$.addClass("opened");
-	      } else {
-	        database$.addClass("closed");
-	      }
+	    var database$ = jq$(document.getElementById(database.domIdHeader));
+	    if (databaseFound) {
+	      database$.addClass("opened");
+	    } else {
+	      database$.addClass("closed");
 	    }
 	  });
 
-	  jq$.each(jq$("div.table.checked"), function (idx, table) {
-	  	var table$ = jq$(table);
-	    table$.addClass("opened").removeClass("closed");
-	    table$.closest("div.database").addClass("opened").removeClass("closed");
-	  });
+	  var tbCnt = -1;
+	  while (true) {
+	  	tbCnt++;
+	  	var tableChChCh = document.getElementById('tcb' + tbCnt);
+	  	if (typeof tableChChCh == 'undefined' || tableChChCh == null)
+	  		break;
+	  	var tableObj = tableChChCh.parentElement.parentElement.parentElement;
+	  	if (tableObj.nodeName != 'DIV')
+	  		continue;
+	  	var classes = ' ' + tableObj.className + ' ';
+	  	if (classes.indexOf(' table ') < 0 || classes.indexOf(' checked ') < 0)
+	  		continue;
+	  	var table$ = jq$(tableObj);
+	  	table$.addClass("opened").removeClass("closed");
+	  	table$.closest("div.database").addClass("opened").removeClass("closed");
+	  }
 	};
 
 	/**

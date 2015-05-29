@@ -37,7 +37,6 @@ table.ReportTable td.GridCellAGTotal
 	font-size: 10pt;
 	border-width:1px;
 	border-style:solid;
-	text-align:left;
 	font-weight:bold;
 	font-style:italic;
 	border-color: White;
@@ -50,7 +49,6 @@ table.ReportTable td.GridCellAG
 	font-size: 10pt;
 	border-width:1px;
 	border-style:solid;
-	text-align:left;
 	font-style:italic;
 	border-color: White;
 	border-right: none;
@@ -72,6 +70,22 @@ table.ReportTable td.EmptyCellAG-Line
 table.ReportTable td.ValueCellAG
 {
 	border-bottom: 1px solid Gainsboro;
+}
+table.ReportTable tr.ReportItemAGExpanded > td.ValueCellAG
+{
+    display: none;
+}
+table.ReportTable tr.ReportItemAGExpanded > td.EmptyCellAG
+{
+    display: table-cell;
+}
+table.ReportTable tr.ReportItemAGCollapsed > td.ValueCellAG
+{
+    display: table-cell;
+}
+table.ReportTable tr.ReportItemAGCollapsed > td.EmptyCellAG
+{
+    display: none;
 }
 table.ReportTable td.GridCellAGLvl0
 {
@@ -163,8 +177,7 @@ tr.ReportItemAGTotal td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	text-align:right;
+	border-right:none;
 	font-weight:bold;
 	font-style:italic;
 }
@@ -176,10 +189,10 @@ tr.ReportItemAG td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
 	font-style:italic;
 }
-tr.ReportItemAGLvl0 td
+tr.ReportItemAGLvl0 td,
+tr.ReportItemAGLocalTotal td
 {
 	vertical-align:top;
 	font-size: 10pt;
@@ -187,7 +200,6 @@ tr.ReportItemAGLvl0 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
 	border-top-width:2px;
 	font-weight:bold;
 }
@@ -199,7 +211,6 @@ tr.ReportItemHG0 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:italic;
 	font-weight:bold;
 }
@@ -211,7 +222,6 @@ tr.ReportItemHG1 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:normal;
 	font-weight:bold;
 }
@@ -223,7 +233,6 @@ tr.ReportItemHG2 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:italic;
 	font-weight:normal;
 }
@@ -235,7 +244,6 @@ tr.ReportItemHG3 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:normal;
 	font-weight:normal;
 }
@@ -254,7 +262,6 @@ tr.AlternatingItemAGTotal td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
 	font-weight:bold;
 	font-style:italic;
 }
@@ -265,8 +272,7 @@ tr.AlternatingItemAG td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	text-align:right;
+	border-right:none;
 	font-style:italic;
 }
 tr.AlternatingItemAGLvl0 td
@@ -277,7 +283,6 @@ tr.AlternatingItemAGLvl0 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;	
-	text-align:right;	
 	border-top-width:2px;	
 	font-weight:bold;
 }
@@ -288,8 +293,7 @@ tr.AlternatingItemHG1 td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	/*text-align:right;*/
+	border-right:none;
 	font-style:normal;
 	font-weight:bold;
 }
@@ -300,8 +304,7 @@ tr.AlternatingItemHG0 td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	/*text-align:right;*/
+	border-right:none;
 	font-style:normal;
 	font-weight:normal;
 }

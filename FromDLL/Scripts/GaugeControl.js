@@ -95,6 +95,21 @@ function GC_OnTableListChangedHandler(id, tables)
 				null,
 				null,
 				tempData);
+			var fmtSel = EBC_GetSelectByName(body.rows[i], 'FormatValue');
+			if (fmtSel != null) {
+				EBC_SetFormat(body.rows[i], true, null, null, "FormatValue");
+			}
+		}
+	}
+}
+
+function GC_OnAggregateFunctionChanged(e, chartElementId) {
+	var selectElement = AdHoc.Utility.getElementByEvent(e);
+	var tr = AdHoc.Utility.findParentElement(selectElement, 'tr');
+	if (tr != null) {
+		var fmtSel = EBC_GetSelectByName(tr, 'FormatValue');
+		if (fmtSel != null) {
+			EBC_SetFormat(tr, true, null, null, "FormatValue");
 		}
 	}
 }
@@ -124,7 +139,11 @@ function GC_OnColumnChangedHandler(e)
 	if (columnSel.options[columnSel.selectedIndex].value.indexOf('Desciption!') == 0)
 		jq$(rowFunc).attr('disabled', 'true');
 			
-	EBC_SetFunctions(row, false, row["sectionRowIndex"]!=1);	
+	EBC_SetFunctions(row, false, row["sectionRowIndex"] != 1);
+	var fmtSel = EBC_GetSelectByName(row, 'FormatValue');
+	if (fmtSel != null) {
+		EBC_SetFormat(row, true, null, null, "FormatValue");
+	}
 	var id = EBC_GetParentTable(row).id;
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];

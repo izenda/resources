@@ -67,9 +67,18 @@
 				return;
 			}
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true, animation: true })) {
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, animation: true })) {
 				return;
 			}
+
+			(function () {
+				var fieldCount = VIS_COLUMNS.length;
+				var testCondition = fieldCount > 2 && VIS_COLUMNS[1].type == 'DateTime' && /\d{4}\s+-\s+\d{2}/.test(VIS_ROWS[0][1].f)
+					&& util.isMetric(VIS_COLUMNS[2]);
+				if (!testCondition) {
+					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
+				}
+			})();
 
 			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
@@ -884,10 +893,7 @@
 		}
 		catch (e) {
 			util.logger.error(e);
-			if (VIS_CONTEXT.docUrl) {
-				var docElement = jq$('<object>').width(width).height(height).attr('data', VIS_CONTEXT.docUrl);
-				jq$('#VIS_ID').empty().html(docElement);
-			}
+			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
 		}
 	})();
 </script>

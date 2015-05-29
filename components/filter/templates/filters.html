@@ -1,0 +1,174 @@
+﻿<div class="iz-filters-container"
+  ng-controller="IzendaFiltersController as izendaFiltersController"
+  ng-style="izendaFiltersController.containerStyle"
+  ng-init="izendaFiltersController.initialize()">
+  <!--<h4><a class="iz-dash-toggle-filter"
+                   ng-click="izendaFiltersController.closeFiltersPanel()">Dashboard Filters <span class="glyphicon glyphicon-chevron-up"></span>
+                </a></h4>-->
+  <div class="container-fluid iz-dash-filter-items">
+    <div class="row">
+      <nav class="navbar navbar-default"
+        ng-show="izendaFiltersController.reportPartFilters.length > 1">
+        <ul class="nav navbar-nav">
+          <li ng-repeat="category in izendaFiltersController.reportPartFilters"
+            ng-class="izendaFiltersController.getClassForFiltersCategory(category.Name)"
+            ng-mouseover="izendaFiltersController.ledTile(category.Name, true)"
+            ng-mouseout="izendaFiltersController.ledTile(category.Name, false)">
+            <a ng-click="izendaFiltersController.activateFiltersGroup(category)">{{category.Title}}</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+    <div class="row">
+      <div data-uid="{{filter.Uid}}" class="col-md-3 col-sm-6 col-xs-12 iz-dash-filter-item"
+           ng-repeat="filter in izendaFiltersController.filtersData"
+           ng-show="izendaFiltersController.isFiltersVisible">
+
+        <div class="iz-dash-filter-item-header"
+             ng-style="izendaFiltersController.getFilterSetStyle(filter)">
+          {{filter.Description}}
+          <span class="pull-right" ng-show="filter.showDisableButton">
+            <izenda-toggle-button ng-model="filter.disabled"
+                                  true-value="false"
+                                  false-value="true"
+                                  title="Use filter value from 'All Filters' filter"
+                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)">
+              <span class="glyphicon glyphicon-link"></span>
+            </izenda-toggle-button>
+          </span>
+        </div>
+        <div class="iz-dash-filter-splash"
+             ng-show="filter.isLoading">
+          <div class="iz-dash-filter-splash-inner">
+            Loading...
+          </div>
+        </div>
+        <div ng-switch="filter.ControlType" class="form-group">
+          <div ng-switch-when="1">
+            <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Value"
+                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+                   ng-disabled="filter.disabled" />
+          </div>
+          <div ng-switch-when="2">
+            <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Values[0]"
+                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+                   ng-disabled="filter.disabled" />
+            <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Values[1]"
+                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+                   ng-disabled="filter.disabled" />
+          </div>
+          <div ng-switch-when="3">
+            <select class="iz-dash-filter-fullwidth"
+                    ng-model="filter.Value"
+                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                    ng-disabled="filter.disabled">
+            </select>
+          </div>
+          <div ng-switch-when="4">
+            <select class="iz-dash-filter-fullwidth"
+                    ng-model="filter.Value"
+                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                    ng-disabled="filter.disabled">
+            </select>
+          </div>
+          <div ng-switch-when="5">
+            <div>
+              <izenda-date-picker class="input-group date" ng-model="filter.Values[0]"
+                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                                  ng-disabled="filter.disabled"
+                                  value-format="filter.ValueFormat"/>
+            </div>
+            <div>
+              <izenda-date-picker class="input-group date" ng-model="filter.Values[1]"
+                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                                  ng-disabled="filter.disabled"
+                                  value-format="filter.ValueFormat"/>
+            </div>
+          </div>
+          <div ng-switch-when="6">
+            <div class="btn btn-default"
+                 ng-click="izendaFiltersController.openPopupFilter(filter)"
+                 title="{{izendaFiltersController.getPopupLabelText(filter, false)}}">
+              {{izendaFiltersController.getPopupLabelText(filter, true)}}
+            </div>
+          </div>
+          <div ng-switch-when="7">
+            <textarea rows="4" style="width: 100%;"
+                      ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+                      ng-model="filter.Value"
+                      ng-disabled="filter.disabled">
+                {{filter.Value}}
+            </textarea>
+          </div>
+          <div ng-switch-when="8">
+            <izenda-select-checkboxes class="izenda-select-checkboxes"
+                                      data-labels="filter.ExistingLabels"
+                                      data-values="filter.ExistingValues"
+                                      ng-model="filter.Values"
+                                      ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                                      ng-disabled="filter.disabled" />
+          </div>
+          <div ng-switch-when="9">
+            <div class="form-group">
+              <div>
+                <izenda-date-picker class="input-group date"
+                                    ng-model="filter.Value"
+                                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                                    ng-disabled="filter.disabled"
+                                    value-format="filter.ValueFormat"/>
+              </div>
+            </div>
+          </div>
+          <div ng-switch-when="10">
+            <select style="width: 100%; height: 100px;" size="5"
+                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+                    ng-model="filter.Values"
+                    ng-multiple="true"
+                    multiple
+                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                    ng-disabled="filter.disabled">
+            </select>
+          </div>
+          <div ng-switch-default>
+            Not implemented yet
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <div class="btn btn-primary iz-dash-filter-update"
+          ng-hide="!izendaFiltersController.opened"
+          ng-click="izendaFiltersController.applyFilters()">
+          Update results
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- popup filter -->
+  <div id="izendaFilterCheckboxesModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-body">
+          <form class="form-horizontal" role="form">
+            <div class="form-group">
+              <label class="izenda-select-checkboxes-label" style="width: auto; margin: 10px;"
+                ng-repeat="item in izendaFiltersController.selectedFilter.ExistingLabelsAndValues">
+                <input type="checkbox"
+                  ng-click="izendaFiltersController.clickPopupCheckbox(item.value)"
+                  ng-checked="izendaFiltersController.isPopupChecked(item.value)" />
+                <span ng-bind="item.label"></span>
+              </label>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer text-center">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

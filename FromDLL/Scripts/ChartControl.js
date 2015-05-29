@@ -186,7 +186,7 @@ function CHC_onParetoChange(e) {
 function CHC_onHorizontalChange(e) {
 	if (e)
 		ebc_mozillaEvent = e;
-	var isCheked = e.checked;
+	var isChecked = e.checked;
 	var row = EBC_GetRow(e);
 	var table = EBC_GetParentTable(row);
 	var row2 = EBC_GetRow(table);
@@ -195,11 +195,18 @@ function CHC_onHorizontalChange(e) {
 	var lastSub = tableId.lastIndexOf('_');
 	var searchName = tableId.substr(0, lastSub) + '_Bar_Pareto';
 	var pareto = document.getElementsByName(searchName)[0];
-	if (pareto != null && isCheked) {
+	if (pareto != null && isChecked) {
 		pareto.checked = false;
 	}
 	if (pareto != null)
-		pareto.disabled = isCheked;
+		pareto.disabled = isChecked;
+	var jqtable = jq$(table);
+	jqtable.find("[name=ChartLabelTitleBottom]").toggle(!isChecked);
+	jqtable.find("[name=ChartValueTitleLeft]").toggle(!isChecked);
+	jqtable.find("[name=ChartRightValueTitleRight]").toggle(!isChecked);
+	jqtable.find("[name=ChartLabelTitleLeft]").toggle(isChecked);
+	jqtable.find("[name=ChartValueTitleBottom]").toggle(isChecked);
+	jqtable.find("[name=ChartRightValueTitleTop]").toggle(isChecked);
 }
 
 function CHC_onLineChange(e)

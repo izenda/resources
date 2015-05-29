@@ -531,6 +531,11 @@ function PivotsDataGot(returnObj, id) {
 	pivotHtml += '</select><br />';
 	var pivotSelector = document.getElementById('pivot-selector');
 	pivotSelector.innerHTML = pivotHtml;
+
+	if (returnObj.PerPageCount != null && returnObj.PerPageCount > 0)
+		jq$('.pivots-count .pivots-count-text').val(returnObj.PerPageCount);
+	else
+		jq$('.pivots-count .pivots-count-text').val('');
 }
 
 function SetPivotField() {
@@ -557,6 +562,11 @@ function PivotFunctionSet(returnObj, id) {
 	if (returnObj.Value != 'OK')
 		alert(returnObj.Value);
 	RefreshPivots();
+}
+
+function SetPivotCount() {
+	var requestString = 'wscmd=setpivotcount&wsarg0=' + jq$('.pivots-count .pivots-count-text').val();
+	AjaxRequest('./rs.aspx', requestString, PivotFunctionSet, null, 'setpivotcount');
 }
 //------------------------------------------------------------------------------------------------------------------
 
@@ -739,6 +749,13 @@ function GetCategoriesList(setRn) {
 	AjaxRequest('./rs.aspx', requestString, GotCategoriesList, null, 'crscategories', setRn);
 }
 
+function AddOptsRecursively(selObj, parent) {
+	for (var index = 0; index < parent.subs.length; index++) {
+		selObj.add(parent.subs[index].node);
+		AddOptsRecursively(selObj, parent.subs[index]);
+	}
+}
+
 function GotCategoriesList(returnObj, id, setRn) {
 	if (id != 'crscategories' || returnObj == undefined || returnObj == null)
 		return;
@@ -757,8 +774,10 @@ function GotCategoriesList(returnObj, id, setRn) {
 	var curCatName = '';
 	var curRepName = nodes[0];
 	if (nodes.length > 1) {
+		curRepName = nodes[nodes.length - 1];
 		curCatName = nodes[0];
-		curRepName = nodes[1];
+		for (var ccnIndex = 1; ccnIndex < nodes.length - 1; ccnIndex++)
+			curCatName += nrvConfig.CategoryCharacter + nodes[ccnIndex];
 	}
 	var newReportName = document.getElementById('newReportName');
 	var newCategoryName = document.getElementById('newCategoryName');
@@ -773,24 +792,44 @@ function GotCategoriesList(returnObj, id, setRn) {
 		for (var index = 0; index < returnObj.AdditionalData.length; index++)
 			catsArray[catsArray.length] = returnObj.AdditionalData[index];
 	newCategoryName.options.length = 0;
-	//var opt = new Option();
-	//opt.value = IzLocal.Res('js_CreateNew', '(Create new)');
-	//opt.text = IzLocal.Res('js_CreateNew', '(Create new)');
-	//newCategoryName.add(opt);
+	var root = new Object();
+	root.node = null;
+	root.name = '';
+	root.path = '';
+	root.subs = new Array();
 	for (var index = 0; index < catsArray.length; index++) {
-		var opt = new Option();
-		opt.value = catsArray[index];
-		var ot = catsArray[index];
-		while (ot.indexOf('+') >= 0) {
-			ot = ot.replace('+', ' ');
+		var subCats = catsArray[index].split(nrvConfig.CategoryCharacter);
+		var indent = '';
+		var currentParent = root;
+		for (var scCnt = 0; scCnt < subCats.length; scCnt++) {
+			if (scCnt > 0)
+				indent += String.fromCharCode(160) + String.fromCharCode(160);
+			var newParent = null;
+			for (var rsCnt = 0; rsCnt < currentParent.subs.length; rsCnt++) {
+				if (currentParent.subs[rsCnt].name == subCats[scCnt]) {
+					newParent = currentParent.subs[rsCnt];
+					break;
+				}
+			}
+			if (newParent == null) {
+				newParent = new Object();
+				newParent.name = subCats[scCnt];
+				newParent.path = currentParent.path + (currentParent.path.length > 0 ? nrvConfig.CategoryCharacter : '') + newParent.name;
+				newParent.subs = new Array();
+				var npOpt = new Option();
+				npOpt.value = newParent.path;
+				npOpt.text = indent + newParent.name;
+				while (npOpt.text.indexOf('+') >= 0)
+					npOpt.text = npOpt.text.replace('+', ' ');
+				if (npOpt.value == curCatName)
+					npOpt.selected = 'selected';
+				newParent.node = npOpt;
+				currentParent.subs[currentParent.subs.length] = newParent;
+			}
+			currentParent = newParent;
 		}
-		opt.text = ot;
-		if (opt.text == curCatName && additionalCategories.length == 0)
-			opt.selected = 'selected';
-		if (additionalCategories.length > 0 && opt.text == additionalCategories[additionalCategories.length - 1])
-			opt.selected = 'selected';
-		newCategoryName.add(opt);
 	}
+	AddOptsRecursively(newCategoryName, root);
 	var saveAsDialog = document.getElementById('saveAsDialog');
 	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
 	saveAsDialog.style.height = windowHeight + 'px';
@@ -1053,10 +1092,20 @@ function GotReportViewerConfig(returnObj, id) {
 		if (csvExportBtn != null)
 			csvExportBtn.onclick = function () { responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=BULKCSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl); };
 	}
-	if (nrvConfig.UseDirectPdfPrint) {
+	if (!nrvConfig.ShowHtmlPrint)
+		document.getElementById('htmlPrintBtn').style.display = 'none';
+	if (!nrvConfig.ShowPdfPrint) {
+		document.getElementById('eoPrintBtn').style.display = 'none';
+		document.getElementById('testsharpPrintBtn').style.display = 'none';
+	}
+	else if (nrvConfig.UseDirectPdfPrint) {
 		document.getElementById('eoPrintBtn').style.display = 'none';
 		document.getElementById('testsharpPrintBtn').style.display = '';
 	}
+
+	if (!nrvConfig.ShowHtmlPrint && !nrvConfig.ShowPdfPrint)
+		document.getElementById('printBtnContainer').style.display = 'none';
+
 	ChangeTopRecords(nrvConfig.InitialResults, false);
 	if (urlSettings.reportInfo.exportType != null) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);

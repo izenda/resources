@@ -557,6 +557,8 @@ function SC_OnColumnChangedHandler(e, el)
 			SC_SetAcceptableValues(row, operationElem);
 			parentTable.skipAutogrouping = savedAutogrouping;
 		}
+
+		EBC_SetDescription(row);
 	}
 }
 
@@ -1672,7 +1674,6 @@ function SC_CheckPropertiesModified(dialogRow)
 						element = element.rows[0].cells[0].firstChild;
 						tagName = element.nodeName;
 						elType = element.getAttribute("type");
-						
 					}
 					switch (tagName)
 					{
@@ -1684,8 +1685,9 @@ function SC_CheckPropertiesModified(dialogRow)
 										{
 											var value = element.value;
 											var name = element.getAttribute("name");
-											if (name != null && value == "1" && (name.indexOf("_Coefficient")+12 == name.length))
+											if (name != null && value == "1" && (name.indexOf("_Coefficient") + 12 == name.length)) {
 												value = "";
+											}
 											result = !(value == null || value == "" || (value.indexOf("example") == 0));
 										}
 										break;
@@ -1709,6 +1711,26 @@ function SC_CheckPropertiesModified(dialogRow)
 							{
 								var value = element.value;
 								result = !(value == null || value == "" || value == "..." || (value == "DEFAULT") || (value.indexOf("example") == 0));
+							}
+							break;
+						case "DIV":
+							{
+								var childNode = element.firstChild;
+								if (childNode.nodeName == "INPUT") {
+									var cnName = childNode.getAttribute("name");
+									if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0) {
+										result = (childNode.value != 'M');
+									}
+									else if (cnName.indexOf('_JustificationCurrentValue') >= 0) {
+										result = (childNode.value != ' ' && childNode.value != String.fromCharCode(160));
+									}
+								}
+							}
+							break;
+						case "TEXTAREA":
+							{
+								var value = element.value;
+								result = !(value == null || value == "" || (value.indexOf("example") == 0));
 							}
 							break;
 					}

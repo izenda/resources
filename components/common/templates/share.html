@@ -1,0 +1,24 @@
+﻿<div ng-controller="IzendaShareController as shareController"
+     ng-init="shareController.initialize()">
+  <div izenda-bootstrap-modal opened="shareController.modalOpened">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b>Share</b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">
+        <div id="shareControlContainer" class="container-fluid">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+        ng-click="shareController.closeModal(false)">Close</button>
+      <button id="shareSaveButton" type="button" class="btn btn-primary izenda-width-100"
+        ng-click="shareController.closeModal(true)">OK</button>
+    </div>
+  </div>
+</div>

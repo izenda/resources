@@ -109,9 +109,16 @@
 				return;
 			}
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT != "undefined" ? VIS_CONTEXT : {}), { d3: true, svg: true })) {
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
 				return;
 			}
+
+			(function () {
+				var testCondition = VIS_COLUMNS[0].type == 'DateTime';
+				if (!testCondition) {
+					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
+				}
+			})();
 
 			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
@@ -556,10 +563,7 @@
 		}
 		catch (e) {
 			util.logger.error(e);
-			if (VIS_CONTEXT.docUrl) {
-				var docElement = jq$('<object>').width(width).height(height).attr('data', VIS_CONTEXT.docUrl);
-				jq$('#VIS_ID').empty().html(docElement);
-			}
+			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
 		}
 	})();
 </script>

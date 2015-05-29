@@ -1,0 +1,56 @@
+﻿<div class="iz-filters-container"
+  ng-controller="IzendaFiltersLegacyController as izendaFiltersController"
+  ng-style="izendaFiltersController.containerStyle"
+  ng-init="izendaFiltersController.initialize()">
+  <div id="htmlFilters">
+    <table style="width: 100%;">
+      <tr>
+        <td class="filtersContent"></td>
+      </tr>
+      <tr>
+        <td class="subreportsFiltersContent" style="display: none;">
+          <div class="subreportsFiltersTitle" onclick="ToggleSubreportsFiltersControl();" style="height: 1px; background-color: #aaa; text-align: center; cursor: pointer;">
+            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px; display: none;">+</span>
+            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px;">-</span>
+            <span class="subreportsTitleText" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px;">Subreports</span>
+            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px; display: none;">+</span>
+            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px;">-</span>
+          </div>
+          <table class="subreportsFiltersTable" style="width: 100%;">
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="filtersButtons">
+          <div id="updateBtnP" class="f-button" style="margin: 10px; margin-left: 8px;">
+            <a class="blue" onclick="javascript:CommitFiltersData(true);" href="javascript:void(0);">
+              <img src="rs.aspx?image=ModernImages.refresh-white.png" lang-alt="js_Refresh" alt="Refresh">
+              <span class="text" lang-text="js_UpdateResults">Update Results</span>
+            </a>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+  <!-- Filters Templates -->
+  <div style="display: none;">
+    <!-- Single Filter Template -->
+    <div class="filterViewerTemplate" style="float: left; margin-right: 8px; margin-bottom: 16px; min-width: 300px; width: auto; display: none;">
+      <div class="filterInnerContent" style="float: left; margin-right: 8px; min-width: 300px;">
+        <div class="filterHeader" style="background-color: #CCEEFF; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px;">
+          <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+          <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+          <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
+                            <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px;"></div>
+                        </nobr>
+        </div>
+      </div>
+    </div>
+    <!-- Add New Filter Template -->
+    <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" title="Add New Filter"></div>
+    <!-- Subreport Title Template-->
+    <div class="subreportTitleTemplate" style="height: 1px; background-color: #aaa; margin-top: 16px; margin-bottom: 16px; text-align: center;">
+      <span style="background-color: white; position: relative; color: #aaa; top: -11px; font-size: 16px; padding: 0px 10px;"></span>
+    </div>
+  </div>
+</div>

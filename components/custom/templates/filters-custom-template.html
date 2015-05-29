@@ -1,0 +1,8 @@
+﻿<div class="iz-filters-container"
+     ng-controller="IzendaFiltersCustomController as ifc"
+     ng-style="ifc.containerStyle"
+     ng-init="ifc.initialize()">
+  <div ng-repeat="filter in ifc.filtersData">
+    {{filter.OperatorFriendlyName}}: {{filter.Description}}
+  </div>
+</div>

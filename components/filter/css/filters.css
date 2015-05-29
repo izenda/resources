@@ -1,0 +1,90 @@
+﻿.iz-filters-container {
+	position: relative;
+	padding: 10px;
+	left: 0;
+	margin-top: 4px;
+	width: 100%;
+	opacity: 0;
+	background-color: #fff;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-transition: all 0.2s ease;
+	-o-transition: all 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
+}
+
+/* header */
+
+.iz-dash-filter-header {
+	padding: 15px;
+	background-color: #1c4e89;
+	color: #fff;
+}
+
+.iz-dash-toggle-filter {
+	margin-left: 5px;
+	font-size: 20px;
+	text-decoration: none;
+	color: #fff;
+}
+
+	.iz-dash-toggle-filter > span.glyphicon {
+		font-size: 14px;
+		margin-left: 5px;
+	}
+
+	.iz-dash-toggle-filter:hover,
+	.iz-dash-toggle-filter:focus {
+		text-decoration: none;
+		color: #fff;
+	}
+
+/* button */
+
+.iz-dash-filter-update {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+/* items */
+
+.iz-dash-filter-items {
+}
+
+.iz-dash-filter-item {
+	height: 140px;
+	margin-top: 20px;
+}
+
+.iz-dash-filter-item-header {
+	background-color: #1c4e89;
+	color: #fff;
+	padding: 10px;
+	margin-bottom: 2px;
+}
+
+.iz-dash-filter-fullwidth {
+	width: 100%;
+}
+
+.iz-dash-filter-splash {
+	position: absolute;
+	left: 5px;
+	right: 5px;
+	height: 102px;
+	background-color: rgba(0,0,0,.2);
+	z-index: 3;
+}
+
+.iz-dash-filter-splash-inner {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 16px;
+	height: 16px;
+	margin-left: -8px;
+	margin-top: -8px;
+	display: none;
+}

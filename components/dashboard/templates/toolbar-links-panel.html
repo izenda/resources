@@ -1,0 +1,21 @@
+﻿<div class="iz-dash-linkspanel-navbar unselectable">
+  <div class="iz-dash-linkspanel-slide-btn left"
+       ng-show="isButtonsVisible()"
+       ng-click="moveLeft()">
+    <span class="glyphicon glyphicon-chevron-left"></span>
+  </div>
+  <div class="iz-dash-linkspanel-navbar-2">
+    <div class="iz-dash-linkspanel-navbar-3 left-transition">
+      <div id="{{'izDashToolbarItem' + toolbarItem.id}}" class="iz-dash-linkspanel-navbar-item"
+           ng-repeat="toolbarItem in toolbarItems"
+           ng-class="getLiClass(toolbarItem)">
+        <a>{{getTitle({arg0: toolbarItem})}}</a>
+      </div>
+    </div>
+  </div>
+  <div class="iz-dash-linkspanel-slide-btn right"
+       ng-show="isButtonsVisible()"
+       ng-click="moveRight()">
+    <span class="glyphicon glyphicon-chevron-right"></span>
+  </div>
+</div>

@@ -175,64 +175,96 @@
 	AjaxRequest('./rs.aspx', requestString, GotCategoriesList, null, 'crscategories', setRn);
 	}
 
+	function AddOptsRecursively(selObj, parent) {
+	  for (var index = 0; index < parent.subs.length; index++) {
+	    selObj.add(parent.subs[index].node);
+	    AddOptsRecursively(selObj, parent.subs[index]);
+	  }
+	}
+
 	function GotCategoriesList(returnObj, id, setRn) {
-	if (id != 'crscategories' || returnObj == undefined || returnObj == null)
+	  if (id != 'crscategories' || returnObj == undefined || returnObj == null)
 	    return;
-	var fieldWithRn = document.getElementById('reportNameFor2ver');
-	var rnVal;
-	if (fieldWithRn != null) {
+	  var fieldWithRn = document.getElementById('reportNameFor2ver');
+	  var rnVal;
+	  if (fieldWithRn != null) {
 	    rnVal = fieldWithRn.value;
-	}
-	else {
+	  }
+	  else if (reportName == undefined || reportName == null) {
+	    rnVal = '';
+	  }
+	  else {
 	    rnVal = reportName;
-	}
-	while (rnVal.indexOf('+') >= 0) {
+	  }
+	  while (rnVal.indexOf('+') >= 0) {
 	    rnVal = rnVal.replace('+', ' ');
-	}
-	var nodes = rnVal.split('\\\\');
-	var curCatName = '';
-	var curRepName = nodes[0];
-	if (nodes.length > 1) {
+	  }
+	  var nodes = rnVal.split('\\\\');
+	  var curCatName = '';
+	  var curRepName = nodes[0];
+	  if (nodes.length > 1) {
+	    curRepName = nodes[nodes.length - 1];
 	    curCatName = nodes[0];
-	    curRepName = nodes[1];
-	}
-	var newReportName = document.getElementById('newReportName');
-	var newCategoryName = document.getElementById('newCategoryName');
-	if (setRn) {
+	    for (var ccnIndex = 1; ccnIndex < nodes.length - 1; ccnIndex++)
+	      curCatName += '\\' + nodes[ccnIndex];
+	  }
+	  var newReportName = document.getElementById('newReportName');
+	  var newCategoryName = document.getElementById('newCategoryName');
+	  if (setRn) {
 	    newReportName.value = curRepName;
-	}
-	var catsArray = new Array();
-	catsArray[catsArray.length] = '';
-	for (var acCnt = 0; acCnt < additionalCategories.length; acCnt++)
+	  }
+	  var catsArray = new Array();
+	  catsArray[catsArray.length] = '';
+	  for (var acCnt = 0; acCnt < additionalCategories.length; acCnt++)
 	    catsArray[catsArray.length] = additionalCategories[acCnt];
-	if (returnObj.AdditionalData != null && returnObj.AdditionalData.length > 0)
+	  if (returnObj.AdditionalData != null && returnObj.AdditionalData.length > 0)
 	    for (var index = 0; index < returnObj.AdditionalData.length; index++)
-	    catsArray[catsArray.length] = returnObj.AdditionalData[index];
-	newCategoryName.options.length = 0;
-	    //var opt = new Option();
-	    //opt.value = IzLocal.Res('js_CreateNew', '(Create new)');
-	    //opt.text = IzLocal.Res('js_CreateNew', '(Create new)');
-	    //newCategoryName.add(opt);
-	for (var index = 0; index < catsArray.length; index++) {
-	    var opt = new Option();
-	    opt.value = catsArray[index];
-	    var ot = catsArray[index];
-	    while (ot.indexOf('+') >= 0) {
-	    ot = ot.replace('+', ' ');
+	      catsArray[catsArray.length] = returnObj.AdditionalData[index];
+	  newCategoryName.options.length = 0;
+	  var root = new Object();
+	  root.node = null;
+	  root.name = '';
+	  root.path = '';
+	  root.subs = new Array();
+	  for (var index = 0; index < catsArray.length; index++) {
+	    var subCats = catsArray[index].split('\\');
+	    var indent = '';
+	    var currentParent = root;
+	    for (var scCnt = 0; scCnt < subCats.length; scCnt++) {
+	      if (scCnt > 0)
+	        indent += String.fromCharCode(160) + String.fromCharCode(160);
+	      var newParent = null;
+	      for (var rsCnt = 0; rsCnt < currentParent.subs.length; rsCnt++) {
+	        if (currentParent.subs[rsCnt].name == subCats[scCnt]) {
+	          newParent = currentParent.subs[rsCnt];
+	          break;
+	        }
+	      }
+	      if (newParent == null) {
+	        newParent = new Object();
+	        newParent.name = subCats[scCnt];
+	        newParent.path = currentParent.path + (currentParent.path.length > 0 ? '\\' : '') + newParent.name;
+	        newParent.subs = new Array();
+	        var npOpt = new Option();
+	        npOpt.value = newParent.path;
+	        npOpt.text = indent + newParent.name;
+	        while (npOpt.text.indexOf('+') >= 0)
+	          npOpt.text = npOpt.text.replace('+', ' ');
+	        if (npOpt.value == curCatName)
+	          npOpt.selected = 'selected';
+	        newParent.node = npOpt;
+	        currentParent.subs[currentParent.subs.length] = newParent;
+	      }
+	      currentParent = newParent;
 	    }
-	    opt.text = ot;
-	    if (opt.text == curCatName && additionalCategories.length == 0)
-	    opt.selected = 'selected';
-	    if (additionalCategories.length > 0 && opt.text == additionalCategories[additionalCategories.length - 1])
-	    opt.selected = 'selected';
-	    newCategoryName.add(opt);
-	}
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
-	saveAsDialog.style.height = windowHeight + 'px';
-	saveAsDialog.style.paddingTop = ((windowHeight / 2) - 20) + 'px';
-	saveAsDialog.style.display = '';
-	prevCatValue = newCategoryName.value;
+	  }
+	  AddOptsRecursively(newCategoryName, root);
+	  var saveAsDialog = document.getElementById('saveAsDialog');
+	  var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
+	  saveAsDialog.style.height = windowHeight + 'px';
+	  saveAsDialog.style.paddingTop = ((windowHeight / 2) - 20) + 'px';
+	  saveAsDialog.style.display = '';
+	  prevCatValue = newCategoryName.value;
 	}
 
 	function ShowSaveAsDialog() {
@@ -246,7 +278,7 @@
 	var fieldWithRn = document.getElementById('reportNameFor2ver');
 	var newFullName = newRepName;
 	    if (newCatName != null && newCatName != '' && newCatName != IzLocal.Res('js_Uncategorized', 'Uncategorized')) {
-	    newFullName = newCatName + '\\\\' + newFullName;
+	    newFullName = newCatName + '\\' + newFullName;
 	}
 	while (newFullName.indexOf(' ') >= 0) {
 	    newFullName = newFullName.replace(' ', '+');

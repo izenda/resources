@@ -186,6 +186,7 @@ function initDataSources(url) {
 }
 
 function renderDatabase(database, key) {
+	database.domIdHeader = 'rdbh' + key;
     var element = " \
 	<div class='database' id='rdbh" + key + "'> \
 		<div class='database-header'> \
@@ -210,6 +211,7 @@ function renderTables(tables, dbKey) {
 }
 
 function renderTable(dbKey, table, key, tableId, ind) {
+	table.domId = 'tcb' + ind;
 	var element = " \
 			<div class='table'> \
 				<div class='table-header'> \
@@ -284,11 +286,12 @@ function renderFields(tableIndex, fields, sectionName) {
 	});
 
 	for (var i = 0; i < fieldArray.length; i++)
-		html += renderField(tableIndex, fieldArray[i].key, fieldArray[i].value.sysname);
+		html += renderField(tableIndex, fieldArray[i].key, fieldArray[i].value.sysname, fieldArray[i].value);
 	return html;
 }
 
-function renderField(tableIndex, fieldName, fieldId) {
+function renderField(tableIndex, fieldName, fieldId, fieldObj) {
+	fieldObj.domId = 'tcb' + tableIndex + 'fcb' + fieldsIndex;
 	var html = " \
 						<a class='field' href='#" + fieldName + "' sorder='-1' locked='false' id='tcb" + tableIndex + "fcb" + fieldsIndex + "' fieldId='" + fieldId + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
 							<span class='preview-image'></span> \
@@ -641,21 +644,21 @@ function PreviewReportToDiv() {
 function InitEmptyPreviewArea(container) {
 	var container$ = jq$(container);
 
-	var subtotalsGrey = 'button';
-	var subtotalsImgName = 'subtotalsplus.png';
-	if (!subtotalsAdded) {
-		subtotalsGrey += ' default';
-		subtotalsImgName = "subtotalsplusW.png";
+	var subtotalsGrey = 'button default';
+	var subtotalsImgName = 'subtotalsplusW.png';
+	if (subtotalsAdded) {
+		subtotalsGrey = 'button';
+		subtotalsImgName = "subtotalsplus.png";
 	}
 
 	jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
 	jq$('#appendSubtotalsBtn img').attr('src', 'rs.aspx?image=' + subtotalsImgName);
 
-	var chartGrey = 'button';
-	var chartImgName = 'chartplus.png';
-	if (!chartAdded) {
-		chartGrey += ' default';
-		chartImgName = "chartplusW.png";
+	var chartGrey = 'button default';
+	var chartImgName = 'chartplusW.png';
+	if (chartAdded) {
+		chartGrey = 'button';
+		chartImgName = "chartplus.png";
 	}
 
 	jq$('#appendChartBtn').attr('class', chartGrey);
@@ -1402,6 +1405,7 @@ function GotInstantReportConfig(returnObj, id) {
     nirConfig = returnObj;
     chartAvailable = nirConfig.VisualizationsAvailable;
     InitEmptyPreviewArea('#rightHelpDiv');
+	jq$("#previewH2").show();
     jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
         event.preventDefault();
     });

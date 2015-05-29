@@ -1,0 +1,156 @@
+﻿/* checkboxes directive */
+
+.izenda-select-checkboxes {
+	height: 100px; 
+	overflow: auto; 
+	display: block; 
+	border: 1px solid #ccc;
+	background-color: #fff;
+}
+
+.izenda-select-checkboxes-label {
+	cursor: pointer;
+	font-weight: normal;
+	width: 100%;
+}
+
+.izenda-select-checkboxes-label:hover {
+	background-color: #f3f3f3;
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.izenda-select-checkboxes-label > span {
+	margin-left: 5px;
+}
+
+/* toggle button directive */
+
+.izenda-toggle-button-btn {
+	position: relative;
+	height: 30px;
+	top: -5px;
+}
+	.izenda-toggle-button-btn:hover,
+	.izenda-toggle-button-btn:focus {
+		color: #fff;
+	}
+
+
+.izenda-toggle-button-btn.active {
+	background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* schedule */
+
+.izenda-width-100 {
+	width: 100px !important;
+}
+
+.izenda-width-150 {
+	width: 150px !important;
+}
+
+.izenda-width-200 {
+	width: 200px !important;
+}
+
+.izenda-cursor-pointer {
+	cursor: pointer;
+}
+
+.bootstrap-timepicker-widget {
+	z-index: 1041;
+}
+
+/* switcher */
+
+.izenda-switcher-label {
+	display: inline-block;
+	height: 24px;
+	line-height: 26px;
+	font-size: 16px;
+	position: relative;
+	top: -7px;
+	padding-right: 5px;
+	cursor: pointer;
+}
+
+.izenda-switcher {
+	display: inline-block;
+	position: relative;
+	width: 50px;
+	height: 24px;
+	-ms-border-radius: 12px;
+	border-radius: 3px;
+	background-color: #AB0000;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.4);
+	-webkit-box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
+	box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
+	-webkit-transition: background-color 0.5s ease;
+	-moz-transition: background-color 0.5s ease;
+	-ms-transition: background-color 0.5s ease;
+	-o-transition: background-color 0.5s ease;
+	transition: background-color 0.5s ease;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+	.izenda-switcher.on {
+		background-color: #62c462;
+	}
+
+	.izenda-switcher > .izenda-switcher-text-off,
+	.izenda-switcher > .izenda-switcher-text-on {
+		position: absolute;
+		line-height: 22px;
+		text-align: center;
+		width: 28px;
+		font-size: 16px;
+		font-weight: bold;
+		text-shadow: 0 0 3px rgba(0,0,0,0.5);
+		color: #ddd;
+		-webkit-transition: left 0.5s ease;
+		-moz-transition: left 0.5s ease;
+		-ms-transition: left 0.5s ease;
+		-o-transition: left 0.5s ease;
+		transition: left 0.5s ease;
+	}
+
+	.izenda-switcher > .izenda-switcher-text-on {
+		left: 50px;
+	}
+
+	.izenda-switcher.on > .izenda-switcher-text-on {
+		left: 20px;
+	}
+
+	.izenda-switcher > .izenda-switcher-text-off {
+		left: 0;
+	}
+
+	.izenda-switcher.on > .izenda-switcher-text-off {
+		left: -28px;
+	}
+
+	.izenda-switcher > .izenda-switcher-item {
+		position: absolute;
+		top: 2px;
+		left: 28px;
+		width: 18px;
+		height: 18px;
+		-ms-border-radius: 12px;
+		border-radius: 3px;
+		border: 1px solid #ccc;
+		border: 1px solid rgba(0,0,0,0.2);
+		background-color: #fff;
+		-webkit-transition: left 0.5s ease;
+		-moz-transition: left 0.5s ease;
+		-ms-transition: left 0.5s ease;
+		-o-transition: left 0.5s ease;
+		transition: left 0.5s ease;
+	}
+
+	.izenda-switcher.on > .izenda-switcher-item {
+		left: 2px;
+	}

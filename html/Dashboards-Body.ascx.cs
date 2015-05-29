@@ -90,7 +90,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       string[] nodes = CropSlashes(rn).Split(AdHocSettings.CategoryCharacter);
       currentCat = "Uncategorized";
       if (nodes.Length > 1)
-        currentCat = nodes[0];
+				currentCat = String.Join(AdHocSettings.CategoryCharacter.ToString(), nodes, 0, nodes.Length - 1);
     }
     catSel.Items.Clear();
     Dictionary<string, string> cats = new Dictionary<string, string>();
@@ -118,7 +118,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       Array.Sort(sortedRs);
       li.Attributes.Add("catName", cat);
       li.Attributes.Add("tabInd", "0");
-      li.Attributes.Add("repName", GetReportName(cat, sortedRs[0]).Replace("\\", "\\\\"));
+			li.Attributes.Add("repName", GetReportName(cat, sortedRs[0]).Replace("\\", "\\\\"));
       catSel.Items.Add(li);
     }
     int currentTab = -1;
@@ -146,7 +146,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
       }
       string clickScript = "";
       if (currentTab != index)
-        clickScript = " onclick=\"GoToCatTab('" + GetReportName(currentCat, reportName).Replace("\\", "\\\\") + "');\"";
+				clickScript = " onclick=\"GoToCatTab('" + GetReportName(currentCat, reportName).Replace("\\", "\\\\").Replace("'", "\\'") + "');\"";
       else {
         /*dbTitle.InnerHtml = reportName;
         viewButton.HRef = "ReportViewer.aspx?rn=" + HttpUtility.UrlEncode(GetReportName(currentCat, tabs[index]));
@@ -169,7 +169,7 @@ public partial class Resources_Html_Dashboards_Body : UserControl
     if (String.IsNullOrEmpty(rn) && !string.IsNullOrEmpty(currentCat)) {
       string[] sortedRs = frs[currentCat].ToArray();
       Array.Sort(sortedRs);
-      Session["ReloadScriptDBS"] = "<script language='javascript'>GoToCatTab('" + GetReportName(currentCat, sortedRs[0]).Replace("\\", "\\\\") + "');</script>";
+			Session["ReloadScriptDBS"] = "<script language='javascript'>GoToCatTab('" + GetReportName(currentCat, sortedRs[0]).Replace("\\", "\\\\").Replace("'", "\\'") + "');</script>";
     }
     else
       Session["ReloadScriptDBS"] = "";

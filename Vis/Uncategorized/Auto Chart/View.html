@@ -737,8 +737,9 @@
 				zeroCheckbox = vs.find("input#VIS_ID_PROPERTY_ZERO_CHECKBOX"),
 				combBottom = vs.find("input#VIS_ID_PROPERTY_COMBINE_ITEMS");
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}))
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT)) {
 				return;
+			}
 
 			if (VIS_COLUMNS.findIndex(function (el) { return el.drilldownstyle == "EmbeddedDetail"; }) > -1) {
 				vs.text("Embedded subreports not supported with Visualizations");
@@ -811,24 +812,56 @@
 			}
 
 			vis.collectTree();
+
+			var metricsLength = vis.metrics.length;
+			var aggregatesByMetrics = (function () {
+				var aggregate = {},
+					recordCountAggregate = {
+						func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
+						type: "SUM"
+					};
+				for (i = 0; i < metricsLength; i++) {
+					var metric = vis.metrics[i];
+					for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
+						if (VIS_COLUMNS[j].name === metric) {
+							var isRecordCount = metric == "Record Count";
+							aggregate[metric] = !isRecordCount ? {
+								func: VIS_COLUMNS[j].aggregatefunction,
+								type: VIS_COLUMNS[j].aggregatefunctiontype
+							} : recordCountAggregate;
+							break;
+						}
+					}
+				}
+				return aggregate;
+			})();
+
+			function initNodes(node, metric) {
+				var values = [];
+				if (node.hasOwnProperty("children")) {
+					for (var i = 0, length = node.children.length; i < length; ++i) {
+						var tmp = initNodes(node.children[i], metric);
+						values = values.concat(tmp);
+					}
+					var aggregate = aggregatesByMetrics[metric],
+						nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
+					vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
+				} else {
+					values.push(vis.unitValue(node, metric));
+				}
+				return values;
+			}
+
 			var totals = vis.traverseTree(function (context) {
 				if (!context.node.hasOwnProperty("id")) {
 					context.node["drilldown"] = context.node["id"] = context.node["name"];
 					context.node["label"] = VIS_COLUMNS[context.fi].name;
 				}
-
-				if (context.isLeaf) {
-					for (i = 0; i < vis.metrics.length; i++) {
-						var tmp = context.node, metric = vis.metrics[i], value = vis.unitValue(tmp, metric);
-						while (tmp.parent) {
-							var v = vis.unitValue(tmp.parent, metric, { sf: vis.fields.origin });
-							vis.unitValue(tmp.parent, metric, { sf: vis.fields.origin, value: value + (typeof v == "undefined" ? 0 : v) });
-
-							tmp = tmp.parent;
-						}
-					}
-				}
 			});
+			
+			for (i = 0; i < metricsLength; i++) {
+				initNodes(totals, vis.metrics[i]);
+			}
 
 			var totalSize = 0;
 			for (var i = 0; i < vis.items.length; i++)
@@ -1666,7 +1699,12 @@
 								},
 								slicedOffset: 20,
 								center: ["50%", "50%"],
-								startAngle: s.angle = 0
+								startAngle: s.angle = 0,
+								states: {
+									hover: {
+										halo: false
+									}
+								}
 							},
 							bubble: {
 								cursor: 'pointer',
@@ -1772,11 +1810,8 @@
 		}
 		catch (e) {
 			util.logger.error(e);
-			if (VIS_CONTEXT.docUrl) {
-				var docElement = jq$('<object>').width(width).height(height).attr('data', VIS_CONTEXT.docUrl);
-				jq$('#VIS_ID').empty().html(docElement);
-				toggleHeaderVisibility(false);
-			}
+			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
+			toggleHeaderVisibility(false);
 		}
 	}
 

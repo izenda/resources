@@ -52,15 +52,15 @@ is_ie9_or_newer = false;
                         </td>
                     </tr>
                 </table>
-                <h2 id="previewH2" style="margin: 0px; margin-bottom: 20px;">
+                <h2 id="previewH2" style="margin: 0px; margin-bottom: 20px; display: none;">
                     <a class="button default" href="#update_preview" title="Update Preview" onclick="javascript:PreviewReportManual();">
                         <img style="margin-bottom: -9px;" src="rs.aspx?image=ModernImages.largerefresh.png" />
                     </a>
                     <a id="appendSubtotalsBtn" href="#add_subtotals" title="Add Subtotals" onclick="javascript:AppendSubtotals();">
-                        <img style="margin-bottom: -9px;" src="rs.aspx?image=subtotalsplus.png" />
+                        <img style="margin-bottom: -9px;" src="rs.aspx?image=subtotalsplusW.png" />
                     </a>
                     <a id="appendChartBtn" href="#add_chart" title="Add Chart" onclick="javascript:AppendChart();">
-                        <img style="margin-bottom: -9px;" src="rs.aspx?image=chartplus.png" />
+                        <img style="margin-bottom: -9px;" src="rs.aspx?image=chartplusW.png" />
                     </a>
                     <a class="button" href="#design_report" title="Design Report" onclick="DesignReportRequest(CollectReportData());" lang-text="js_DesignReport">
                         <img style="margin-bottom: -9px;" src="rs.aspx?image=ModernImages.pencilwhite.png" />

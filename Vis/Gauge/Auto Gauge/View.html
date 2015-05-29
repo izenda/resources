@@ -1,0 +1,1023 @@
+﻿<style type="text/css">
+	@font-face {
+		font-family: 'Open Sans Condensed';
+		font-style: normal;
+		font-weight: 300;
+		src: local('Open Sans Cond Light'), local('OpenSans-CondensedLight'), url(http://fonts.gstatic.com/s/opensanscondensed/v10/gk5FxslNkTTHtojXrkp-xNp6u9G1DIDSVZY7MSggfGc.eot) format('embedded-opentype'), url(http://fonts.gstatic.com/s/opensanscondensed/v10/gk5FxslNkTTHtojXrkp-xMTgyteJAvYJ1fpbrx49ekQ.woff) format('woff'), url(http://fonts.gstatic.com/s/opensanscondensed/v10/gk5FxslNkTTHtojXrkp-xK_B8LmCx5iACr1vjg1ziKI.woff2) format('woff2');
+	}
+
+	#VIS_ID_CONTAINER .clearfix:after {
+		content: "";
+		clear: both;
+		display: table;
+	}
+
+	#VIS_ID_CONTAINER .hint {
+		font-size: 12px;
+		color: #999999;
+		height: 30px;
+		width: auto;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .selector {
+		display: inline-block;
+		height: 27px;
+		width: 24px;
+		padding-top: 7px;
+		cursor: pointer;
+		-webkit-touch-callout: none;
+		-webkit-user-select: none;
+		-khtml-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/gear.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR:hover {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/gear.hover.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR.ws_selthumb {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/gear.selected.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/style.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR:hover {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/style.hover.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR.ws_selthumb {
+		background: url('Resources/Vis/Gauge/Auto Gauge/images/style.selected.png') no-repeat center center;
+	}
+
+	#VIS_ID_CONTAINER .gallery {
+		overflow: hidden;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY.slider-group {
+		display: inline-block;
+		margin-right: 20px;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .button-group {
+		border: 1px solid #d0d0d0;
+		border-radius: 3px;
+		display: inline-block;
+		margin-right: 20px;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .button-group div.button {
+		display: inline-block;
+		background-color: #ffffff;
+		border-right: 1px solid #d0d0d0;
+		padding: 5px 10px;
+		font-size: 13px;
+		font-weight: bold;
+		color: #555555;
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .button-group div.button:last-child {
+		border-right: none;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .button-group div.button.ws_selthumb {
+		background-color: #e5e5e5;
+		color: #222222;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY label {
+		font-size: 13px;
+		margin-right: 30px;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .slider {
+		background-color: #ffffff;
+		border: 1px solid #aaaaaa;
+		border-radius: 5px;
+		display: inline-block;
+		height: 4px;
+		width: 200px;
+		margin-left: 12px;
+		margin-bottom: 1px;
+		position: relative;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .slider a {
+		background-color: #eaeaea !important;
+		border: 1px solid #aaaaaa;
+		border-radius: 5px;
+		height: 12px;
+		width: 12px;
+		position: absolute;
+		top: 0;
+		margin: -0.4em;
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_TYPE_GALLERY div.style {
+		width: 98px;
+		height: 59px;
+		margin: 4px;
+		text-indent: 0;
+		border: 1px solid #aaaaaa;
+		opacity: 0.7;
+		display: inline-block;
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_TYPE_GALLERY div.style.ws_selthumb {
+		opacity: 1;
+		margin: 2px;
+		border: 3px solid #9FD5B7;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_TYPE_GALLERY div.style img {
+		width: 98px;
+		height: 59px;
+	}
+		
+	#VIS_ID_CONTAINER #VIS_ID {
+		clear: both;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .wrap-table {
+		border-collapse: collapse;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .wrap-table td {
+		padding: 0;
+	}
+
+	#VIS_ID_CONTAINER .gauge {
+		display: inline;
+		float: left;
+		margin: 20px;
+	}
+
+	#VIS_ID_CONTAINER .simple-gauge {
+		font-family: 'Open Sans Condensed', sans-serif;
+		margin: 10px;
+	}
+
+	#VIS_ID_CONTAINER .simple-gauge .units {
+		fill: #A1A1A1;
+	}
+
+	#VIS_ID_CONTAINER .linear-gauge {
+		font-family: 'Open Sans Condensed', sans-serif;
+		font-weight: bold;
+		margin: 15px;
+	}
+
+	#VIS_ID_CONTAINER .linear-gauge .axis path,
+	#VIS_ID_CONTAINER .linear-gauge .axis line {
+		fill: none;
+		stroke: #000;
+		shape-rendering: crispEdges;
+	}
+	
+	#VIS_ID_CONTAINER .round-gauge .background {
+		fill: #e1e1e1;
+	}
+
+	#VIS_ID_CONTAINER .round-gauge .title {
+		font-family: Myriad, "Helvetic Neue", Helvetica, Arial;
+		text-anchor: middle;
+		fill: #A1A1A1;
+	}
+
+	#VIS_ID_CONTAINER .round-gauge .arcs .arc {
+		fill: #00c0d8;
+	}
+
+	#VIS_ID_CONTAINER .round-gauge .labels .label-value {
+		fill: #4A4A4A;
+		font-family: Myriad, "Helvetic Neue", Helvetica, Arial;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER .round-gauge .labels .label-format-type {
+		fill: #A1A1A1;
+		font-family: Myriad, "Helvetic Neue", Helvetica, Arial;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge {
+		fill: #444444;
+		font-weight: bold;
+		font-family: 'Open Sans Condensed', sans-serif;
+		margin: 0 10px 0 0;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .insetBorder {
+		fill: #000000;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .outsetBorder {
+		fill: none;
+		stroke: #bbbbbb;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .insetBorder {
+		fill: none;
+		stroke: #ffffff;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .area {
+		stroke: #629af0;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .area-point {
+		fill: #629af0;
+		stroke: #6685b5;
+		stroke-width: 1px;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .area-bullseye {
+		fill: none;
+		stroke: #c00000;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .area-bullseye-inner {
+		fill: #c00000;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .bar {
+		fill: #4882ff;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .bar2 {
+		fill: #4882ff;
+		fill-opacity: 0.4;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .bar-background {
+		fill: #cbcbcb;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .current-block .current-value {
+		fill: #4882ff;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .relative-block.up-direction .relative-value,
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .relative-block.up-direction .relative-arrow {
+		fill: #00ac00;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .relative-block.dn-direction .relative-value,
+	#VIS_ID_CONTAINER #VIS_ID .trending-gauge .component .relative-block.dn-direction .relative-arrow {
+		fill: #ac0000;
+	}
+
+	#VIS_ID_CONTAINER .tooltip {
+		position: absolute;
+		text-align: center;
+		padding: 4px;
+		font-family: Myriad, "Helvetic Neue", Helvetica, Arial;
+		font-size: 12px;
+		background: #FFFFFF;
+		border: 1px solid rgb(173, 173, 173);
+		border-radius: 4px;
+		pointer-events: none;
+	}
+</style>
+
+
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint" style="float:right; position: relative; right: 0;">
+			<div id="VIS_ID_TYPE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
+			<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
+		</div>
+		<div class="clearfix"></div>
+		<div id="VIS_ID_TYPE_GALLERY" class="gallery" style="display: none;">
+			<div id="VIS_ID_TYPE_CONTROL" class="property-control">
+				<div class="style" value="simple"><a href="javascript:void(0)" title="Simple Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/simple-style.png" /></a></div>
+				<div class="style" value="linear"><a href="javascript:void(0)" title="Linear Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/linear-style.png" /></a></div>
+				<div class="style" value="round"><a href="javascript:void(0)" title="Round Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/round-style.png" /></a></div>
+				<div class="style" value="trending"><a href="javascript:void(0)" title="Trending Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/trending-style.png" /></a></div>
+			</div>
+		</div>
+		<div id="VIS_ID_GEAR_GALLERY" class="gallery" style="display: none;">
+		</div>
+		<div id="VIS_ID" style="overflow: hidden"></div>
+	</div>
+</div>
+
+<script type="text/javascript" src="jquery-latest.js"></script>
+<script type="text/javascript" src="d3.v3.min.js"></script>
+
+<script type="text/javascript" src="gauge.base.js"></script>
+<script type="text/javascript" src="gauge.simple.js"></script>
+<script type="text/javascript" src="gauge.linear.js"></script>
+<script type="text/javascript" src="gauge.round.js"></script>
+<script type="text/javascript" src="gauge.trending.js"></script>
+
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+
+		var VIS_EMBEDDED_DATA;
+
+		var width = 720, height = 500;
+
+		var util = window.ReportScripting, vis,
+			isThumbnails = (document.URL === 'about:blank');
+
+		visState = visState || {};
+
+		try {
+			if (typeof window.jq$ == "undefined") {
+				window.jq$ = jQuery.noConflict(true);
+			}
+
+			if (jq$("#VIS_ID").size() < 1) {
+				util.unregisterResize("VIS_ID");
+				return;
+			}
+
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
+				return;
+			}
+
+			var vs = util.container("VIS_ID");
+
+			var sliderEventActive = false;
+
+			var styles = {
+				simple: function () {
+					return {
+						name: "simple",
+						initGearGallery: function () {
+							var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
+							gearGallery.empty();
+
+							var timeoutId = 0;
+
+							gearGallery.append(jq$("<label>Size</label>").append(jq$("<div></div>")
+								.attr("id", "slider-size").addClass("slider")));
+
+							jq$("#VIS_ID_CONTAINER #slider-size").slider({
+								min: 100,
+								max: 450,
+								value: s.props.gauge.simple.size,
+							}).on("slide", function (event, ui) {
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(function () {
+									gauges.forEach(function (gauge) {
+										gauge.resize(ui.value);
+									});
+									wrapGaugesInTable();
+								}, 0);
+							}).on("slidechange", function () {
+								store();
+							}).on("slidestart", function () {
+								sliderEventActive = true;
+							}).on("slidestop", function () {
+								sliderEventActive = false;
+							});
+						},
+						storeProperties: function () {
+							return {
+								simple: {
+									size: jq$('#VIS_ID_CONTAINER #slider-size').slider("option", "value")
+								}
+							};
+						},
+						draw: function (name, data) {
+							var gaugeDiv = jq$("<div></div>").addClass("gauge").addClass("simple-gauge").css("float", "left");
+							jq$("#VIS_ID").append(gaugeDiv);
+							var gauge = new izenda.gauges.SimpleGauge(gaugeDiv.get(0), name, s.props.gauge.simple.size, data);
+							gauges.push(gauge);
+							gauge.render(true);
+						},
+						postDrawAll: function () {
+							wrapGaugesInTable();
+						},
+						destroy: function () {
+							jq$("#VIS_ID").empty();
+							gauges = [];
+						}
+					};
+				},
+				linear: function () {
+					return {
+						name: "linear",
+						initGearGallery: function () {
+							var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
+							gearGallery.empty();
+
+							gearGallery.append(jq$("<div></div>").addClass("button-group").addClass("modes")
+								.append(jq$("<div></div>").addClass("button").addClass("mode").attr("value", "horizontal").text("Horizontal"))
+								.append(jq$("<div></div>").addClass("button").addClass("mode").attr("value", "vertical").text("Vertical"))
+							);
+
+							gearGallery.find("div.mode")
+								.unbind("click")
+								.bind("click", function () {
+									gearGallery.find("div.mode").removeClass("ws_selthumb");
+									jq$(this).addClass("ws_selthumb");
+
+									var mode = jq$(this).attr("value");
+
+									setTimeout(function () {
+										gauges.forEach(function (gauge) {
+											gauge.changeMode(mode);
+
+										});
+										wrapGaugesInTable();
+									}, 0);
+
+									store();
+								});
+
+							gearGallery.find("div.mode").removeClass("ws_selthumb");
+							gearGallery.find("div.mode[value=" + s.props.gauge.linear.mode + "]").addClass("ws_selthumb");
+
+
+							gearGallery.append(jq$("<div></div>").addClass("slider-group").addClass("properties")
+								.append(jq$("<label>Size</label>").append(jq$("<div></div>").attr("id", "slider-size").addClass("slider")))
+							);
+
+							var timeoutId = 0;
+							jq$("#VIS_ID_CONTAINER #slider-size").slider({
+								min: 200,
+								max: 400,
+								value: s.props.gauge.linear.size,
+							}).on("slide", function (event, ui) {
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(function () {
+									gauges.forEach(function (gauge) {
+										gauge.resize(ui.value);
+									});
+									wrapGaugesInTable();
+								}, 0);
+							}).on("slidechange", function () {
+								store();
+							}).on("slidestart", function () {
+								sliderEventActive = true;
+							}).on("slidestop", function () {
+								sliderEventActive = false;
+							});
+						},
+						storeProperties: function () {
+							return {
+								linear: {
+									mode: jq$('#VIS_ID_GEAR_GALLERY .modes div.mode.ws_selthumb').attr("value"),
+									size: jq$('#VIS_ID_GEAR_GALLERY #slider-size').slider("option", "value")
+								}
+							};
+						},
+						draw: function (name, data) {
+							var gaugeDiv = jq$("<div></div>").addClass("gauge").addClass("linear-gauge").css("float", "left");
+							jq$("#VIS_ID").append(gaugeDiv);
+							var gauge = new izenda.gauges.LinearGauge(gaugeDiv.get(0), name, s.props.gauge.linear.mode, s.props.gauge.linear.size, data);
+							gauges.push(gauge);
+							gauge.render(true);
+						},
+						postDrawAll: function () {
+							wrapGaugesInTable();
+						},
+						destroy: function () {
+							jq$("#VIS_ID").empty();
+							gauges = [];
+						}
+					};
+				},
+				round: function () {
+					var diameter = 200,
+						gaugesBlock = {},
+						gaugesPerBlock = Math.floor(width / (diameter - 30 + 40)) || 1;
+
+					return {
+						name: "round",
+						initGearGallery: function () {
+							var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
+							gearGallery.empty();
+
+							var timeoutId = 0;
+
+							gearGallery.append(jq$("<label>Size</label>").append(jq$("<div></div>")
+								.attr("id", "slider-size").addClass("slider")));
+
+							jq$("#VIS_ID_CONTAINER #slider-size").slider({
+								min: 60,
+								max: 360,
+								value: s.props.gauge.round.size,
+							}).on("slide", function (event, ui) {
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(function () {
+									gauges.forEach(function (gauge) {
+										gauge.setDegree(ui.value);
+									});
+								}, 0);
+							}).on("slidechange", function () {
+								store();
+							}).on("slidestart", function() {
+								sliderEventActive = true;
+							}).on("slidestop", function() {
+								sliderEventActive = false;
+							});
+
+							gearGallery.append(jq$("<label>Width</label>").append(jq$("<div></div>")
+								.attr("id", "slider-width").addClass("slider")));
+
+							jq$("#VIS_ID_CONTAINER #slider-width").slider({
+								min: 1,
+								max: 50,
+								value: s.props.gauge.round.width,
+							}).on("slide", function (event, ui) {
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(function () {
+									gauges.forEach(function (gauge) {
+										gauge.setTickness(ui.value);
+									});
+								}, 0);
+							}).on("slidechange", function () {
+								store();
+							}).on("slidestart", function () {
+								sliderEventActive = true;
+							}).on("slidestop", function () {
+								sliderEventActive = false;
+							});
+						},
+						storeProperties: function () {
+							return {
+								round: {
+									size: jq$('#VIS_ID_CONTAINER #slider-size').slider("option", "value"),
+									width: jq$('#VIS_ID_CONTAINER #slider-width').slider("option", "value")
+								}
+							};
+						},
+						draw: function (name, data) {
+							if (gauges.length % gaugesPerBlock == 0) {
+								gaugesBlock = jq$("<div></div>").css("float", "left");
+								jq$("#VIS_ID").append(gaugesBlock);
+							}
+
+							var gaugeDiv = $("<div></div>").addClass("gauge").addClass("round-gauge");
+							gaugesBlock.append(gaugeDiv);
+
+							var gauge = new izenda.gauges.RoundGauge(gaugeDiv.get(0), name, s.props.gauge.round.size, s.props.gauge.round.width, data);
+							gauges.push(gauge);
+							gauge.render(true);
+						},
+						postDrawAll: function () { },
+						destroy: function () {
+							jq$("#VIS_ID").empty();
+							gauges = [];
+						}
+					};
+				},
+				trending: function () {
+					return {
+						name: "trending",
+						initGearGallery: function () {
+							var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
+							gearGallery.empty();
+
+							var timeoutId = 0;
+
+							gearGallery.append(jq$("<label>Size</label>").append(jq$("<div></div>")
+								.attr("id", "slider-size").addClass("slider")));
+
+							jq$("#VIS_ID_CONTAINER #slider-size").slider({
+								min: 200,
+								max: 600,
+								value: s.props.gauge.trending.size,
+							}).on("slide", function (event, ui) {
+								clearTimeout(timeoutId);
+								timeoutId = setTimeout(function () {
+									gauges.forEach(function (gauge) {
+										gauge.resize(ui.value);
+									});
+								}, 0);
+							}).on("slidechange", function () {
+								store();
+							}).on("slidestart", function () {
+								sliderEventActive = true;
+							}).on("slidestop", function () {
+								sliderEventActive = false;
+							});
+						},
+						storeProperties: function () {
+							return {
+								trending: {
+									size: jq$('#VIS_ID_CONTAINER #slider-size').slider("option", "value")
+								}
+							};
+						},
+						draw: function (name, data) {
+							var gaugeDiv = jq$("<div></div>").addClass("gauge").addClass("trending-gauge").css("float", "left");
+							jq$("#VIS_ID").append(gaugeDiv);
+							var gauge = new izenda.gauges.TrendingGauge(gaugeDiv.get(0), name, s.props.gauge.trending.size, data);
+							gauges.push(gauge);
+							gauge.render(true);
+						},
+						postDrawAll: function () {
+
+						},
+						destroy: function () {
+							jq$("#VIS_ID").empty();
+							gauges = [];
+						}
+					};
+				}
+			};
+
+			var s = visState.VIS_ID || (visState.VIS_ID = {});
+			if (!s.props) {
+				try {
+					s.props = {
+						gauge: {
+							style: "",
+							simple: {
+								size: 150
+							},
+							linear: {
+								mode: "horizontal",
+								size: 200
+							},
+							round: {
+								size: 360,
+								width: 5
+							},
+							trending: {
+								size: 400
+							}
+						}
+					};
+
+					jq$.extend(true, s.props, JSON.parse(VIS_CONTEXT.props));
+
+				} catch (e) {
+					s.props = {};
+					util.logger.error(e);
+				}
+			}
+
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+			width = vis.getWidth();
+
+			vs.find("#VIS_ID_HOLDER").width(width);
+
+			var style, gauges = [];
+
+			var isDateExist = false;
+			for (var key in VIS_COLUMNS) {
+				if (VIS_COLUMNS[key].type == "DateTime") {
+					isDateExist = true;
+					break;
+				}
+			}
+
+			if (!isDateExist) {
+				jq$("#VIS_ID_TYPE_CONTROL div[value='trending']").hide();
+			}
+
+			if (!s.props.gauge.style || s.props.gauge.style == "trending") {
+				s.props.gauge.style = (isDateExist) ? "trending" : "simple";
+			}
+
+			style = styles[s.props.gauge.style]();
+
+			function initSelector(id, context) {
+				vs.find(id)
+					.unbind("click")
+					.bind("click", context.onClick);
+			}
+
+			var galleries = {};
+
+			function initGallery(id, context, initContentHandle) {
+				galleries[id] = {
+					gallery: vs.find(id)
+						.css({ "z-index": 1 }),
+					context: context,
+					t: undefined
+				};
+
+				jq$.extend(galleries[id].context, {
+					show: function () {
+						hideGalleries(id);
+						dropGalleryTimeout(id);
+						showGallery(id);
+						galleries[id].gallery.bind("mouseenter", function () {
+							dropGalleryTimeout(id);
+							galleries[id].gallery.bind("mouseleave", function () {
+								function hideGalleryByCondition() {
+									setTimeout(function () {
+										if (sliderEventActive) {
+											hideGalleryByCondition();
+										} else {
+											setGalleryTimeout(id, context.hideTimeout);
+										}
+									}, 100);
+								}
+								hideGalleryByCondition();
+							});
+						});
+					},
+					hide: function () {
+						dropGalleryTimeout(id);
+						hideGallery(id);
+					}
+				});
+
+				initSelector(id + "_SELECTOR", {
+					onClick: function () {
+
+						if (galleries[id].gallery.is(":visible")) {
+							galleries[id].context.hide();
+						} else {
+							galleries[id].context.show();
+						}
+					}
+				});
+
+				if (typeof initContentHandle === "function") {
+					initContentHandle();
+				}
+			}
+
+			function showGallery(id) {
+				vs.find(id).slideDown({ duration: 300 });
+				vs.find(id + "_SELECTOR").addClass("ws_selthumb");
+			}
+
+			function hideGallery(id) {
+				vs.find(id).slideUp({ duration: 200 });
+				vs.find(id + "_SELECTOR").removeClass("ws_selthumb");
+			}
+
+			function hideGalleries(id) {
+				util.enumerateFields(galleries, function (obj, galleryId) {
+					if (galleryId != id) {
+						dropGalleryTimeout(galleryId);
+						hideGallery(galleryId);
+					}
+				});
+			}
+
+			function setGalleryTimeout(id, timeout) {
+				dropGalleryTimeout(id);
+				if (!timeout) {
+					return;
+				}
+				galleries[id].t = setTimeout(function () {
+					galleries[id].gallery
+						.unbind("mouseenter")
+						.unbind("mouseleave");
+					hideGallery(id);
+				}, timeout);
+			}
+
+			function dropGalleryTimeout(id) {
+				if (galleries[id].t) {
+					clearTimeout(galleries[id].t);
+				}
+			}
+
+			function validateControls() {
+				var gaugeStyle = jq$("#VIS_ID_TYPE_GALLERY div.style.ws_selthumb").attr("value");
+				if (gaugeStyle) {
+					s.props.gauge.style = gaugeStyle;
+
+					jq$.extend(s.props.gauge, style.storeProperties());
+
+					return true;
+				}
+				return false;
+			}
+
+			function store() {
+				if (validateControls()) {
+					vis.setProps(s.props);
+				}
+			}
+
+			var propertiesPanel = d3.select("#VIS_ID_PROPERTIES_PANEL");
+			d3.select("#VIS_ID_CONTAINER")
+				.on("mouseover", function (d) {
+					propertiesPanel.transition()
+						.duration(500)
+						.style("opacity", 1);
+				})
+				.on("mouseout", function (d) {
+					propertiesPanel.transition()
+						.duration(500)
+						.style("opacity", 0)
+						.each("end", hideGalleries);
+				});
+
+			initGallery("#VIS_ID_TYPE_GALLERY", { hideTimeout: 1000 }, function () {
+				galleries["#VIS_ID_TYPE_GALLERY"].gallery.find("div.style")
+				.unbind("click")
+				.bind("click", function () {
+					galleries["#VIS_ID_TYPE_GALLERY"].gallery.find("div.style").removeClass("ws_selthumb");
+					jq$(this).addClass("ws_selthumb");
+
+					style.destroy();
+					style = styles[jq$(this).attr("value")]();
+
+					style.initGearGallery();
+
+					store();
+
+					waitFontFaceOnLoadAndDraw();
+				});
+			});
+
+			galleries["#VIS_ID_TYPE_GALLERY"].gallery.find("div.style").removeClass("ws_selthumb");
+			jq$("div.style[value=" + s.props.gauge.style + "]").addClass("ws_selthumb");
+
+			initGallery("#VIS_ID_GEAR_GALLERY", { hideTimeout: 1000 }, style.initGearGallery);
+
+			function wrapGaugesInTable() {
+
+				if (jq$("#VIS_ID").get(0).offsetWidth == 0) {
+					return;
+				}
+
+				var w0 = 0, i0 = 1;
+				for (var i = 0; i < gauges.length && (w0 + gauges[i].parent.offsetWidth <= width) ; ++i) {
+					w0 += gauges[i].parent.offsetWidth + 20;
+					i0 = i + 1;
+				}
+
+				for (var j = i0; j >= 0; --j) {
+					var rowsCount = Math.ceil(gauges.length / j);
+					var gaugesTable = jq$("<table></table>").addClass("wrap-table");
+					for (var k = 0; k < rowsCount; ++k) {
+						var tr = jq$("<tr></tr>");
+						for (var l = 0; l < ((k + 1 != rowsCount || gauges.length % j == 0) ? j : (gauges.length % j)) ; ++l) {
+							tr.append(jq$("<td></td>").append(gauges[k * j + l].parent));
+						}
+						gaugesTable.append(tr);
+					}
+
+					jq$("#VIS_ID").empty().append(gaugesTable);
+
+					if (gaugesTable.get(0).offsetWidth <= width || j == 1) {
+						break;
+					}
+				}
+			}
+
+			function getProcessedData(node) {
+				var data = {};
+
+				data.items = [];
+
+				for (var key in node) {
+					switch (key.toLowerCase()) {
+						case "units":
+							data.units = { value: node[key] };
+							break;
+					}
+				}
+
+				for (var key in node.support) {
+					switch (key.toLowerCase()) {
+						case "low":
+							data.low = { name: "low", value: node.support[key].o, color: "#00C000" };
+							break;
+						case "high":
+							data.high = { name: "high", value: node.support[key].o, color: "#C00000" };
+							break;
+						case "target":
+							data.target = { name: "target", value: node.support[key].o, color: "#0034ff" };
+							break;
+						case "max":
+							data.max = {
+								value: node.support[key].o,
+								format: (function () {
+									var precisionMatch = node.support[key].f.match(/(\.)(\d+)/),
+										currencyMath = node.support[key].f.match(/\$|€|£/);
+									return {
+										precision: (precisionMatch) ? precisionMatch[2].length : 0,
+										isCurrency: currencyMath != null,
+										currency: (currencyMath) ? currencyMath[0] : "",
+										isPercentage: /%/.test(node.support[key].f)
+									};
+								})()
+							};
+							break;
+						default:
+							if (node.support[key].o instanceof Date) {
+								data.date = node.support[key].o;
+							} else if (typeof node.support[key].o === "number") {
+								var value = node.support[key].f;
+								value = value.replaceAll(/[^\d\.,]/, '').replaceAll(/,(?=.*(?:,|\.))/, '').replaceAll(',', '.').trim();
+								if (!value || isNaN(value)) {
+									value = node.support[key].o;
+								}
+								data.items.push({
+									value: parseFloat(value),
+									format: (function () {
+										var precisionMatch = node.support[key].f.match(/(\.)(\d+)/),
+											currencyMath = node.support[key].f.match(/\$|€|£/);
+										return {
+											precision: (precisionMatch) ? precisionMatch[2].length : 0,
+											isCurrency: currencyMath != null,
+											currency: (currencyMath) ? currencyMath[0] : "",
+											isPercentage: /%/.test(node.support[key].f)
+										};
+									})()
+								});
+							}
+							break;
+					}
+				}
+
+				return data;
+			}
+
+			function drawAllGauges() {
+				if (vis.getItems().length == 0) {
+					return;
+				}
+
+				if (style.name == "trending") {
+					var items = {};
+					jq$.each(vis.getItems(), function (index, item) {
+						var name = vis.rowData(index, 0);
+						if (!items[name]) {
+							items[name] = [];
+						}
+
+						var data = getProcessedData(item);
+						if (data.date) {
+							items[name].push(data);
+						}
+					});
+
+					for (var key in items) {
+						var values = items[key];
+
+						if (values.length > 1) {
+							style.draw(key, values);
+						}
+					}
+				} else {
+					jq$.each(vis.getItems(), function (index, item) {
+						var name = vis.rowData(index, 0);
+						style.draw(name, getProcessedData(item));
+					});
+				}
+				style.postDrawAll();
+			}
+
+			function waitFontFaceOnLoadAndDraw() {
+				if (style.name == "simple" || style.name == "linear" || style.name == "trending") {
+					FontFaceOnload('Open Sans Condensed', {
+						success: function () {
+							try {
+								drawAllGauges();
+							} catch (err) {
+								var gaugeDiv = jq$("<div></div>")
+									.html("Error: " + err);
+								jq$("#VIS_ID").empty().append(gaugeDiv);
+							}
+						},
+						error: function () {
+							var gaugeDiv = jq$("<div></div>")
+								.html("Interactive Visualizations are not available: the webfont has not been loaded.");
+							jq$("#VIS_ID").empty().append(gaugeDiv);
+						},
+						timeout: 5000
+					});
+				} else {
+					drawAllGauges();
+
+				}
+			}
+
+			waitFontFaceOnLoadAndDraw();
+
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+				style.destroy();
+				jq$("#VIS_ID").empty();
+			});
+		} catch (e) {
+			util.logger.error(e);
+			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
+			toggleHeaderVisibility(false);
+		}
+	})();
+</script>

@@ -442,25 +442,20 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 			pause(100);
 			ShowDialog(jsResources.Saving + "...<br><image src='" + responseServerWithDelimeter + "image=loading.gif'/>");
 			pause(100);
+			var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
+			if (mvcHack != null)
+				mvcHack.value = "1";
+			theForm.hidden = true;
+			theForm.onsubmit = function () {
+				for (i = 0; i < theForm.length; i++) {
+					if (theForm[i].name.search("miscControls") != -1 || theForm[i].name.search("Description") != -1)
+						if (theForm[i].value)
+							theForm[i].value = theForm[i].value.EscapeHTML();
+				}
+				return true;
+			}
+			eval(PostBackScript);
 		}
-
-		var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
-		if (mvcHack != null)
-			mvcHack.value = "1";
-
-	    theForm.hidden = true;
-	    theForm.onsubmit = function() {
-            for (i = 0; i < theForm.length; i++) {
-                if (theForm[i].name.search("miscControls") != -1 || theForm[i].name.search("Description") != -1)
-                {
-                    if (theForm[i].value) {
-                        theForm[i].value = theForm[i].value.EscapeHTML();
-                    }
-                }
-            }
-	        return true;
-	    }
-	    eval(PostBackScript);
 	}
 	else
 		ebc_cancelSubmiting = true;

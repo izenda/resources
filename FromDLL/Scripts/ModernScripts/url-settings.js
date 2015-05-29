@@ -40,10 +40,41 @@ function UrlSettings(customUrlRsPage) {
 		} else
 			reportName = reportFullNameParts[0];
 	}
-	var isNew = url.param('isNew') == '1';
+	var isNew = url.param('isNew') === '1';
 	var exportType = url.param('exportType');
 
+  /**
+   * Replace "rn=category\name" parameter to "#/category/name" for angular app
+   */
+	var replaceRnForAngularApp = function () {
+	  var locationFunc = window.location;
+	  var historyFunc = window.history;
+	  var urlStr = window.location.href;
+	  var reportNameParameter = url.param('rn');
+	  if (reportNameParameter) {
+	    var replaceString;
+	    if (urlStr.indexOf('?rn=') >= 0) {
+	      replaceString = '?rn=' + reportNameParameter.split(' ').join('+');
+	    } else if (urlStr.indexOf('&rn=') >= 0) {
+	      replaceString = '&rn=' + reportNameParameter.split(' ').join('+');
+	    } else {
+	      replaceString = 'rn=' + reportNameParameter.split(' ').join('+');
+	    }
+	    var modifiedUrl = urlStr.replace(replaceString, '');
+	    modifiedUrl = modifiedUrl.replace(replaceString.split(' ').join('+'), '');
+	    modifiedUrl += '#/' + reportNameParameter.split('\\').join('/');
+	    if (historyFunc && historyFunc.replaceState) {
+	      historyFunc.replaceState(null, window.document.title, modifiedUrl);
+	    } else if (historyFunc && historyFunc.pushState) {
+	      historyFunc.pushState(null, window.document.title, modifiedUrl);
+	    } else if (locationFunc && locationFunc.replace) {
+	      locationFunc.replace(modifiedUrl);
+	    }
+	  }
+	};
+
 	return {
+	  replaceRnForAngularApp: replaceRnForAngularApp,
 		urlBase: urlBase,
 		urlRsPage: urlRsPage,
 		urlDashboardsPage: urlDashboardsPage,
