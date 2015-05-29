@@ -608,6 +608,10 @@ function EBC_GetInputByName(row, inputName)
 	return EBC_GetElementByName(row, inputName, 'INPUT');
 }
 
+function EBC_TextAreaByName(row, areaName) {
+	return EBC_GetElementByName(row, areaName, 'TEXTAREA');
+}
+
 function EBC_Humanize(func, input, suffix)
 {
 	input = input.replace(/([a-z])([A-Z])/g, '$1 $2');

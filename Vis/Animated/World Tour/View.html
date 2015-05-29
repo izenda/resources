@@ -1,42 +1,75 @@
 ﻿<style type="text/css">
-	#VIS_ID #h1 {
+	#VIS_ID_CONTAINER #VIS_ID_LABEL {
 		cursor: pointer;
 		margin-right: auto;
 		margin-left: auto;
+		position: relative;
+		font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+		font-size: 30px;
+		text-align: center;
 	}
-	#VIS_ID span.hint {
+
+	#VIS_ID_CONTAINER .clearfix:after {
+		content: "";
+		clear: both;
+		display: table;
+	}
+
+	#VIS_ID_CONTAINER .hint {
 		font-size: 12px;
 		color: #999;
+		height: 30px;
 		width: auto;
-		display: inline-block;
 	}
-	#VIS_ID span.hint select {
+
+	#VIS_ID_CONTAINER .hint span {
+		vertical-align: middle;
+	}
+
+	#VIS_ID_CONTAINER .hint select {
 		width: auto;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+	}
+	
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
 	}
 </style>
 
-<div id="VIS_ID">
-	<span id="hint" class="hint clearfix" style="float:right; position: absolute; right: 0; margin-top: 2px;">
-		<span style="display:inline-block;">Metric:</span>
-		<select id="metricSelect"></select>
-	</span>
-	<div id="h1" style="position: relative; font-family: Helvetica Neue, Helvetica, Arial, sans-serif; font-size: 30px; text-align: center;"></div>
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
+			<div class="property-control">
+				<span>Metrics:</span>
+				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<div id="VIS_ID"></div>
+	</div>
 </div>
 
 <script src="d3.v3.min.js" type="text/javascript"></script>
-<script src="queue.v1.min.js" type="text/javascript"></script>
 <script src="topojson.v1.min.js" type="text/javascript"></script>
+<script src="izenda.world.m110.js" type="text/javascript"></script>
+<script src="izenda.world.country.names.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 	var visState;
 	(function ExecuteVIS_ID() {
-		visState = visState || {};
-		var s = visState.VIS_ID || (visState.VIS_ID = {
-			props: undefined
-		});
+		var VIS_EMBEDDED_DATA;
 
-		if (typeof window.jq$ == "undefined")
-			window.jq$ = jQuery.noConflict(true);
+		var width = 720, height = 500;
+
+		var util = window.ReportScripting, vis,
+			isThumbnails = (document.URL === 'about:blank');
+
+		visState = visState || {};
 
 		function shortName(name) {
 			switch (name) {
@@ -46,119 +79,130 @@
 					return "USA";
 				case "Venezuela, Bolivarian Republic of":
 					return "Venezuela";
+				default:
+					return name;
 			}
-			return name;
 		}
-		function store() {
-			if (!emb)
-				return;
 
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
-			});
-			util.setProps(s.props);
+		function toggleHeaderVisibility(visible) {
+			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
 		}
-		function restore() {
-			if (typeof s.props != "object")
-				return;
 
-			metricSelect.val(s.props.metric);
-		}
 		try{
-			var VIS_EMBEDDED_DATA;
+			if (typeof window.jq$ == "undefined") {
+				window.jq$ = jQuery.noConflict(true);
+			}
 
-			var width = 400, height = 400;
-			var f1, f2, items = [], i, j, item;
+			if (jq$("#VIS_ID").size() < 1) {
+				util.unregisterResize("VIS_ID");
+				return;
+			}
 
-			var util = window.ReportScripting, vis,
-				emb = typeof util != 'undefined', spendField = undefined,
-				isThumbnails = (document.URL === 'about:blank');
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, canvas: true, animation: true })) {
+				return;
+			}
+			
 			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("select#metricSelect");
+				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-			if (emb) {
-				if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, canvas: true, animation: true }))
-					return;
-
-				if (!s.props) {
-					try { s.props = JSON.parse(VIS_CONTEXT.props); }
-					catch (e) { }
+			var s = visState.VIS_ID || (visState.VIS_ID = {});
+			if (!s.props) {
+				try {
+					s.props = JSON.parse(VIS_CONTEXT.props);
+				} catch (e) {
+					s.props = {};
+					util.logger.error(e);
 				}
+			}
+			
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			
+			width = vis.getWidth();
+			height = vis.getHeight();
 
-				f1 = 'Resources/Vis/Animated/World Tour/world-110m.json.txt';
-				f2 = 'Resources/Vis/Animated/World Tour/world-country-names.tsv';
+			d3.select("#VIS_ID").append("div")
+				.attr("id", "VIS_ID_LABEL");
 
-				vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-				for (i = 0; i < VIS_ROWS.length; i++) {
-					items.push(item = {});
-					for (j = 0; j < VIS_ROWS[i].length; j++)
-						vis.unitValue(item, j, { ri: i });
-				}
+			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
 
-				vis.collectTree();
+			function showInsufficientWidth(width, height) {
+				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+				jq$('#VIS_ID').children().each(function (i, child) {
+					jq$(child).css('display', 'none');
+				});
+				jq$('#VIS_ID').append(insufficientWidthMessage);
+			}
 
-				if (!vis.metrics.length) {
-					jq$("#VIS_ID").text("No metric found");
-					return;
-				}
+			function checkInsufficientWidth(width) {
+				return (width < 240);
+			}
 
-				metricSelect
-					.find("option").remove();
-				jq$.each(vis.metrics, function(i, el) {
-					metricSelect.append("<option>" + el + "</option>");
+			var isInsufficientWidth = checkInsufficientWidth(width),
+				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+
+			toggleHeaderVisibility(!isImageRender && !isInsufficientWidth);
+
+			if (isInsufficientWidth && !isImageRender) {
+				showInsufficientWidth(width, height);
+				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+					stopped = true;
+					jq$("#VIS_ID").empty();
+				});
+				return;
+			}
+
+			function store() {
+				jq$.extend(s.props = (s.props || {}), {
+					"metric": metricSelect.val()
 				});
 
-				restore();
-
-				spendField = metricSelect.val();
-
-				if (!vis.metrics.length) {
-					jq$("#VIS_ID").text("No metric found");
-					return;
-				}
-
-				width = vis.getWidth();
-				height = vis.getHeight();
-
-				function showInsufficientWidth(width, height) {
-					var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-					jq$('#VIS_ID').children().each(function (i, child) {
-						jq$(child).css('display', 'none');
-					});
-					jq$('#VIS_ID').append(insufficientWidthMessage);
-				}
-				function checkInsufficientWidth(width) {
-					return (width < 240);
-				}
-
-				var insufficient = checkInsufficientWidth(width);
-				jq$('#VIS_ID div#insufficient-width-message').remove();
-				if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
-					showInsufficientWidth(width, height);
-					util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
-						jq$('#VIS_ID').children().each(function (i, child) {
-							jq$(child).css('display', '');
-						});
-					});
-					return;
-				}
-			}
-			else {
-				f1 = 'world-110m.json.txt';
-				f2 = 'world-country-names.tsv';
+				vis.setProps(s.props);
 			}
 
-			var margin = { top: 5, right: 5, bottom: 5, left: 5 },
-				minDimension = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom),
-				center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (height - margin.top - margin.bottom) / 2];
+			function restore() {
+				if (typeof s.props != "object") {
+					return;
+				}
+				if (s.props.metric) {
+					metricSelect.val(s.props.metric);
+				}
+			}
+			
+			var items = [], i, j, item, stopped = false;
+			for (i = 0; i < VIS_ROWS.length; i++) {
+				items.push(item = {});
+				for (j = 0; j < VIS_ROWS[i].length; j++) {
+					vis.unitValue(item, j, { ri: i });
+				}
+			}
+			
+			vis.collectTree();
+			
+			if (!vis.metrics.length) {
+				jq$("#VIS_ID").text("No metric found");
+				return;
+			}
+
+			metricSelect.find("option").remove();
+			jq$.each(vis.metrics, function (i, el) {
+				metricSelect.append("<option>" + el + "</option>");
+			});
 
 			metricSelect
 				.unbind("change")
-				.bind("change", function() {
+				.bind("change", function () {
 					jq$("#VIS_ID canvas").remove();
 					store();
 					ExecuteVIS_ID();
 				});
+
+			restore();
+
+			var spendField = s.props.metric || vis.metrics[0];
+
+			var margin = { top: 5, right: 5, bottom: 5, left: 5 },
+				minDimension = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom),
+				center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (height - margin.top - margin.bottom) / 2];
 
 			var projection = d3.geo.orthographic()
 				.scale(minDimension / 2)
@@ -167,8 +211,8 @@
 
 			var graticule = d3.geo.graticule();
 
-			var m0 = null, m1= null, o0, stopped = false;
-			function mousedown() {  // remember where the mouse was pressed, in canvas coords
+			var m0 = null, m1= null, o0;
+			function mousedown() {
 				stopped = true;
 				m0 = trackballAngles(d3.mouse(canvas.node()));
 				o0 = projection.rotate();
@@ -231,7 +275,7 @@
 				.projection(projection)
 				.context(context);
 
-			var title = d3.select("#VIS_ID div#h1")
+			var title = d3.select("#VIS_ID_LABEL")
 				.style({
 					"top": (center[1] + minDimension / 4.9) + "px",
 					"text-shadow": "0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white",
@@ -242,6 +286,7 @@
 			var land, grid, countries, borders, index, min, max;
 			function gc(i) { return countries[i % countries.length]; }
 			function gi(d) { return items.filter(function(i) { return shortName(d.name) == vis.unitValue(i, 0); }); }
+
 			function draw() {
 				context.clearRect(0, 0, width, height);
 
@@ -316,29 +361,27 @@
 				path(countries[index]);
 				context.stroke();
 			}
+
 			function transition() {
-				if (stopped)
+				if (stopped) {
 					return;
+				}
 
 				d3.transition()
 					.duration(1000)
-					.each("start", function() {
-						if (emb) {
-							var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
+					.each("start", function () {
+						var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
 								fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == spendField; }).formatter,
 								val = vis.unitValue(i2[0], spendField);
-							title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, spendField) : val) + ")");
-						}
-						else {
-							title.text(countries[index = (index + 1) % countries.length].name + " " + countries[index].id);
-						}
+						title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, spendField) : val) + ")");
 					})
 					.tween("rotate", function() {
 						var p = d3.geo.centroid(countries[index]),
 							r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
 						return function(t) {
-							if (stopped)
+							if (stopped) {
 								return;
+							}
 							projection.rotate(r(t));
 							draw();
 						};
@@ -347,7 +390,7 @@
 					.each("end", transition);
 			}
 
-			function ready(error, world, names) {
+			function startTransition(world, names) {
 				land = topojson.feature(world, world.objects.land),
 					grid = graticule(),
 					countries = topojson.feature(world, world.objects.countries).features
@@ -357,7 +400,7 @@
 									? (d.name = n.name)
 									: undefined;
 							});
-							return emb && result
+							return result
 								? items.some(function(it) { return shortName(d.name) == vis.unitValue(it, 0); })
 								: result;
 						})
@@ -366,27 +409,23 @@
 					index = -1,
 					min = d3.min(items, function (item) { return item.support[spendField].o; });
 					max = d3.max(items, function (item) { return item.support[spendField].o; });
-
 				transition();
 			}
 
-			(function() {
-				if (emb)
-					util.registerResize("VIS_ID", ExecuteVIS_ID);
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+				stopped = true;
+				jq$("#VIS_ID").empty();
+			});
 
-				queue()
-					.defer(d3.json, f1)
-					.defer(d3.tsv, f2)
-					.await(ready);
-			})();
+			startTransition(izenda.world.m110, izenda.world.country.names);
 		}
 		catch (e) {
-			console.log('error');
-			console.log(e);
-			var docElement = jq$('<object>');
-			docElement.attr('data', VIS_CONTEXT.docUrl);
-			docElement.width(width).height(height);
-			jq$('#VIS_ID').html(docElement);
+			util.logger.error(e);
+			if (VIS_CONTEXT.docUrl) {
+				var docElement = jq$('<object>').width(width).height(height).attr('data', VIS_CONTEXT.docUrl);
+				jq$('#VIS_ID').empty().html(docElement);
+				toggleHeaderVisibility(false);
+			}
 		}
 	})();
 </script>

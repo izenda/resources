@@ -144,11 +144,12 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 	var tablesHash = '';
 	for (var i = 0; i < dsArr.length; i++) {
 
-		var dsInfo = new Array();
+		var dsInfo = new Object();
 		dsInfo.Name = dsArr[i].parentNode.attributes['tfn'].nodeValue;
 		dsInfo.Checked = dsArr[i].checked;
 		dsInfo.CanBeExcludedOrAdded = false;
 		dsInfo.PathTo = false;
+		dsInfo.JoinAlias = dsArr[i].parentNode.getAttribute('joinalias');
 		allDatasources[dsInfo.Name] = dsInfo;
 		allDatasources.push(dsInfo);
 		if (dsInfo.Checked) {
@@ -156,9 +157,11 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 			checkedDatasources[dsInfo.Name] = dsInfo;
 			checkedDatasources.push(dsInfo);
 			tablesHash += dsInfo.Name + ',';
+			if (typeof dsInfo.JoinAlias != 'undefined' && dsInfo.JoinAlias != null && dsInfo.JoinAlias != '')
+				tablesHash += dsInfo.JoinAlias;
+			tablesHash += ',';
 		}
 	}
-
 	var allowNullsId = id + '_AllowNullsDiv';
 	var allowNullsCtl = document.getElementById(allowNullsId);
 	if (allowNullsCtl) {
@@ -260,11 +263,16 @@ function JTCS_UpdateControls(id, dsListId, initialDatasources) {
 	var dsArr = dsList.getElementsByTagName('input');
 	for (var i = 0; i < dsArr.length; i++) {
 		dsArr[i].checked = false;
-		for (var j = 0; j < initialArr.length; j++) {
-			if (initialArr[j].toString().toLowerCase() == dsArr[i].parentNode.attributes['tfn'].nodeValue.toString().toLowerCase()) {
+		var initialCnt = 0;
+		while (initialCnt < initialArr.length - 1) {
+			if (initialArr[initialCnt].toString().toLowerCase() == dsArr[i].parentNode.attributes['tfn'].nodeValue.toString().toLowerCase()) {
 				dsArr[i].checked = true;
+				if (initialArr[initialCnt + 1].toString() != '') {
+					dsArr[i].parentNode.setAttribute('joinalias', initialArr[initialCnt + 1].toString());
+				}
 				break;
 			}
+			initialCnt += 2;
 		}
 	}
 }

@@ -1,155 +1,183 @@
 ﻿<style type="text/css">
-	.node circle {
+	#VIS_ID_CONTAINER .node circle {
 		cursor: pointer;
 		fill: #fff;
 		stroke: steelblue;
 		stroke-width: 1.5px;
 	}
-	.node text {
+
+	#VIS_ID_CONTAINER .node text {
 		cursor: pointer;
 		font-family: "Helvetica Neue",Helvetica;
 		font-size: 11px;
-		text-shadow: 0 0 5px white, 0 0 5px white, 0 0 5px white, 0 0 5px white, 0 0 2px white, 0 0 2px white, 0 0 2px white
+		text-shadow: 0 0 5px white, 0 0 5px white, 0 0 5px white, 0 0 5px white, 0 0 2px white, 0 0 2px white, 0 0 2px white;
 	}
-	path.link {
+
+	#VIS_ID_CONTAINER path.link {
 		fill: none;
 		stroke: #ccc;
 		stroke-width: 1.5px;
 	}
 
-	span.hint {
+	#VIS_ID_CONTAINER .hint {
 		font-size: 12px;
 		color: #999;
+		height: 30px;
 		width: auto;
-		display: inline-block;
 	}
-	span.hint select {
+
+	#VIS_ID_CONTAINER .hint span {
+		vertical-align: middle;
+	}
+
+	#VIS_ID_CONTAINER .hint select {
 		width: auto;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
 	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
 	<div id="VIS_ID_HOLDER">
-		<span class="hint" style="float:right;">
-			<span style="display:inline-block">Metric:</span>
-			<select id="metricSelect"></select>
-		</span>
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
+			<div class="property-control">
+				<span>Metrics:</span>
+				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+			</div>
+		</div>
 		<div id="VIS_ID"></div>
 	</div>
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
+
 <script type="text/javascript">
 	var visState;
 	(function ExecuteVIS_ID() {
+		var VIS_EMBEDDED_DATA;
+
+		var width = 720, height = 500;
+
+		var util = window.ReportScripting, vis,
+			isThumbnails = (document.URL === 'about:blank');
+
 		visState = visState || {};
-		var s = visState.VIS_ID || (visState.VIS_ID = {
-			spendField: undefined,
-			props: undefined
-		});
 
-		if (typeof window.jq$ == "undefined")
-			window.jq$ = jQuery.noConflict(true);
-
-		function store() {
-			if (!emb)
-				return;
-
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
-			});
-			util.setProps(s.props);
+		function toggleHeaderVisibility(visible) {
+			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
 		}
-		function restore() {
-			if (typeof s.props != "object")
+
+		try {
+			if (typeof window.jq$ == "undefined") {
+				window.jq$ = jQuery.noConflict(true);
+			}
+
+			if (jq$("#VIS_ID").size() < 1) {
+				util.unregisterResize("VIS_ID");
 				return;
+			}
 
-			metricSelect.val(s.props.metric);
-		}
-		try{
-			var VIS_EMBEDDED_DATA;
-
-			var width = 960, height = 500, minWidth = 254;
-			var f1, root,
-				colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
-
-			var util = window.ReportScripting, vis = { },
-				emb = typeof util != 'undefined',
-				isThumbnails = (document.URL === 'about:blank');
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true })) {
+				return;
+			}
+			
+			var root, colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
 
 			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("select#metricSelect");
+				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-			if (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) {
-				metricSelect.parent().css("visibility", "hidden");
+			var s = visState.VIS_ID || (visState.VIS_ID = {});
+			if (!s.props) {
+				try {
+					s.props = JSON.parse(VIS_CONTEXT.props);
+				} catch (e) {
+					s.props = {};
+					util.logger.error(e);
+				}
 			}
 
-			if (emb) {
-				if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, (typeof VIS_CONTEXT) != "undefined" ? VIS_CONTEXT : {}, { d3: true, svg: true }))
-					return;
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-				if (!s.props) {
-					try { s.props = JSON.parse(VIS_CONTEXT.props); }
-					catch (e) { }
-				}
+			width = vis.getWidth();
+			height = vis.getHeight();
 
-				f1 = "Resources/Vis/Other/Tree/Data.json.txt";
+			var heightWithOffset = height - (VIS_CONTEXT.toImage ? 0 : jq$("#VIS_ID_PROPERTIES_PANEL").outerHeight());
 
-				vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-				vis.collectTree();
-				root = vis.traverseTree();
-				vis.metrics = vis.metrics.reverse();
+			jq$('#VIS_ID').width(width).height(heightWithOffset);
 
-				if (!vis.metrics.length) {
-					jq$("#VIS_ID").text("No metric found");
-					return;
-				}
+			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
 
-				metricSelect
-					.find("option").remove();
-				jq$.each(vis.metrics, function(i, el) {
-					metricSelect.append("<option>" + el + "</option>");
+			function showInsufficientWidth(width, height) {
+				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+				jq$('#VIS_ID').html(insufficientWidthMessage);
+			}
+
+			function checkInsufficientWidth(width) {
+				return (width < 480);
+			}
+
+			var isInsufficientWidth = checkInsufficientWidth(width),
+				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+
+			toggleHeaderVisibility(!isImageRender && !isInsufficientWidth);
+
+			if (isInsufficientWidth && !isImageRender) {
+				showInsufficientWidth(width, height);
+				util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
+					jq$("#VIS_ID").empty();
+				});
+				return;
+			}
+
+			function store() {
+				jq$.extend(s.props = (s.props || {}), {
+					"metric": metricSelect.val()
 				});
 
-				restore();
-				s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
+				vis.setProps(s.props);
+			}
 
-				width = vis.getWidth();
-				height = vis.getHeight() - (vis.toImage ? 0 : jq$("span.hint").outerHeight());
-
-				if (width < minWidth) { width = minWidth; }
-
-				jq$('#VIS_ID').width(width)
-					.height(height);
-
-				function toggleHeaderVisibility(visible) {
-					jq$('#VIS_ID_CONTAINER span.hint').css("display", visible ? "" : "none");
-				}
-				function showInsufficientWidth(width, height) {
-					var insufficientWidthMessage = '<div id="insufficient-width-message" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-					jq$('#VIS_ID').html(insufficientWidthMessage);
-				}
-				function checkInsufficientWidth(width, height) {
-					return (width < 480);
-				}
-
-				var insufficient = checkInsufficientWidth(width, height);
-				jq$('#VIS_ID div#insufficient-width-message').remove();
-				toggleHeaderVisibility(!insufficient);
-				if (insufficient && !VIS_CONTEXT.toImage && !VIS_CONTEXT.toStatic && !isThumbnails) {
-					showInsufficientWidth(width, height);
-					util.registerResize("VIS_ID", ExecuteVIS_ID);
+			function restore() {
+				if (typeof s.props != "object") {
 					return;
 				}
-			}
-			else {
-				f1 = "Data.json.txt";
+
+				if (s.props.metric) {
+					metricSelect.val(s.props.metric);
+				}
 			}
 
+			vis.collectTree();
+			root = vis.traverseTree();
+
+			vis.metrics = vis.metrics.reverse();
+
+			if (!vis.metrics.length) {
+				jq$("#VIS_ID").text("No metric found");
+				return;
+			}
+
+			metricSelect.find("option").remove();
+			jq$.each(vis.metrics, function (i, el) {
+				metricSelect.append("<option>" + el + "</option>");
+			});
+
+			restore();
+
+			s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
+
 			var maxradius = 20,
-				m = [maxradius, maxradius, maxradius, maxradius],//m = [20, 120, 20, 120],
+				m = [maxradius, maxradius, maxradius, maxradius],
 				w = width - m[1] - m[3],
-				h = height - m[0] - m[2],
+				h = heightWithOffset - m[0] - m[2],
 				nodeId = 0;
 			var levels, alreadySummed = false;
 
@@ -162,28 +190,25 @@
 			var g = d3.select("#VIS_ID")
 				.append("svg:svg")
 					.attr("width", width)
-					.attr("height", height)
+					.attr("height", heightWithOffset)
 				.append("svg:g")
 					.attr("transform", "translate(" + m[3] + ", " + m[0] + ")");
 
-			jq$("#VIS_ID_HOLDER").width(width);
-			if (emb) {
-				jq$("#VIS_ID_CONTAINER").height(vis.getHeight());
-				jq$("span.hint").css("display", vis.toImage ? "none" : "block");
-			}
+			jq$("#VIS_ID_CONTAINER").height(height);
 
 			function update(source) {
 				function getStrokeWidth(d) {
 					var result = levels[d.source.depth].radius(vis.unitValue(d.target, s.spendField)) * 2;
 					return isNaN(result) ? 4 : result;
 				}
+
 				function getStrokeOpacity(d) {
 					return vis.unitValue(d.target, s.spendField) <= 0 ? 0 : (d.source.depth + 2) / (levels.length * 4);
 				}
 
 				var levelWidth = width / (levels.length + 1);
 				var duration = d3.event && d3.event.altKey ? 5000 : 500;
-				var nodes = tree.nodes(root).reverse();	// Compute the new tree layout.
+				var nodes = tree.nodes(root).reverse();
 				var depthCounter = 0;
 
 				nodes.forEach(function(d) {
@@ -197,19 +222,17 @@
 					if (d.numChildren == 0 && d._children)
 						d.numChildren = d._children.length;
 				});
+
 				nodes.forEach(function(d) {
-					//Set link colors
 					var obj = d;
 					while ((obj.source && obj.source.depth > 1) || obj.depth > 1)
 						obj = (obj.source) ? obj.source.parent : obj.parent;
 					d.linkColor = (obj.source) ? obj.source.linkColor : obj.linkColor;
 				});
 
-				// Update the nodes…
 				var node = g.selectAll("g.node")
 					.data(nodes, function(d) { return d.id || (d.id = ++nodeId); });
 
-				// Enter any new nodes at the parent's previous position.
 				var nodeEnter = node.enter().append("svg:g")
 					.attr("class", "node")
 					.attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
@@ -221,15 +244,15 @@
 						var exclusion = [];
 						for (var j = 0; j < vis.metrics.length; j++) {
 							if (vis.metrics[j] != s.spendField)
-								exclusion.push(/*"sum_" + */vis.metrics[j]);
+								exclusion.push(vis.metrics[j]);
 						}
-						if (emb) util.showTooltip(d, {
+						util.showTooltip(d, {
 							nested: true,
-							exclusion: ["id", "x0", "y0", "_children", "children", "numChildren", "linkColor"],
+							exclusion: ["id", "x0", "y0", "_children", "children", "link", "numChildren", "linkColor"],
 							pass: function(obj, v) { return !obj.children && !obj._children || exclusion.indexOf(v) < 0; }
 						});
 					})
-					.on("mouseout", function() { if (emb) util.hideTooltip(); });
+					.on("mouseout", function() { util.hideTooltip(); });
 
 				nodeEnter.append("svg:circle")
 					.attr("r", 1e-6)
@@ -244,7 +267,6 @@
 					.text(function(d) { return d.name; })
 					.style("fill-opacity", 1e-6);
 
-				// Transition nodes to their new position.
 				var nodeUpdate = node.transition()
 					.duration(duration)
 					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
@@ -262,7 +284,6 @@
 
 				nodeUpdate.select("text").style("fill-opacity", 1);
 
-				// Transition exiting nodes to the parent's new position.
 				var nodeExit = node.exit().transition()
 					.duration(duration)
 					.attr("transform", function() { return "translate(" + source.y + "," + source.x + ")"; })
@@ -271,11 +292,9 @@
 				nodeExit.select("circle").attr("r", 1e-6);
 				nodeExit.select("text").style("fill-opacity", 1e-6);
 
-				// Update the links…
 				var link = g.selectAll("path.link")
 					.data(tree.links(nodes), function(d) { return d.target.id; });
 
-				// Enter any new links at the parent's previous position.
 				var rootCounter = 0;
 				link.enter().insert("svg:path", "g")
 					.attr("class", "link")
@@ -300,7 +319,6 @@
 					.duration(duration)
 					.attr("d", diagonal);
 
-				// Transition links to their new position.
 				var linkUpdate = link.transition()
 					.duration(duration)
 					.attr("d", diagonal);
@@ -309,7 +327,6 @@
 					.style("stroke-width", getStrokeWidth)
 					.style("stroke-opacity", getStrokeOpacity);
 
-				// Transition exiting nodes to the parent's new position.
 				link.exit().transition()
 					.duration(duration)
 					.attr("d", function() {
@@ -318,9 +335,9 @@
 					})
 					.remove();
 
-				// Stash the old positions for transition.
 				nodes.forEach(function(d) { d.x0 = d.x; d.y0 = d.y; });
 			}
+
 			function toggle(d) {
 				if (d.children) {
 					d._children = d.children;
@@ -332,98 +349,96 @@
 				}
 			}
 
-			(function() {
-				function processData(json) {
-					function setup() {
-						var levelLength = 0;
-						for (var i = 0; i < nodes.length; i++)
-							levelLength = Math.max(levelLength, nodes[i].depth);
-						levels = new Array(levelLength);
+			function processData() {
+				function setup() {
+					var levelLength = 0;
+					for (var i = 0; i < nodes.length; i++)
+						levelLength = Math.max(levelLength, nodes[i].depth);
+					levels = new Array(levelLength);
 
-						for (i = 0; i < levels.length; i++)
-							levels[i] = { max: 0, sum: 0, radius: 0 };
+					for (i = 0; i < levels.length; i++)
+						levels[i] = { max: 0, sum: 0, radius: 0 };
 
-						for (i = 0; i < nodes.length; i++)
-							rollup(nodes[i]);
+					for (i = 0; i < nodes.length; i++)
+						rollup(nodes[i]);
 
-						var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == s.spendField; }).formatter;
-						for (i = 0; i < nodes.length; i++) {
-							vis.unitLabel(nodes[i], VIS_COLUMNS.findIndex(function (d) { return d.name == s.spendField; }), {
-								value: (fieldFormatter ? fieldFormatter(vis.unitValue(nodes[i], s.spendField), nodes[i], vis, s.spendField)
-									: Math.round(vis.unitValue(nodes[i], s.spendField) * 100) / 100)
-							});
-						}
-
-						for (i = 0; i < levels.length; i++)
-							levels[i].radius = d3.scale.sqrt().domain([0, levels[i].max]).range([2, maxradius]);
-					}
-					function rollup(node) {
-						for (var i = 0; i < vis.metrics.length; i++) {
-							var sumField = vis.metrics[i];
-
-							if (!alreadySummed && !node.hasOwnProperty("children")) {
-								var p = node, sum = vis.unitValue(node, sumField);
-								while (p.parent) {
-									vis.unitValue(p.parent, sumField, { sf: "o", value: (isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) });									p = p.parent;
-								}
-							}
-
-							if ((node.parent) && (s.spendField == sumField)) {
-								levels[node.depth - 1].max = Math.max(levels[node.depth - 1].max, vis.unitValue(node, sumField));
-								levels[node.depth - 1].sum += vis.unitValue(node, sumField);
-							}
-						}
-
-						if (node.parent)
-							rollup(node.parent);
-					}
-					function toggleAll(d) {
-						if (d.children) {
-							d.children.forEach(toggleAll);
-							toggle(d);
-						}
-					}
-
-					if (!emb)
-						root = json;
-					root.x0 = h / 2;
-					root.y0 = 0;
-
-					var nodes = tree.nodes(root).reverse();
-					tree.children(function(d) { return d.children; });
-
-					setup();
-
-					alreadySummed = true;
-
-					root.children.forEach(toggleAll); // Initialize the display to show a few nodes.
-
-					metricSelect
-						.unbind("change")
-						.bind("change", function() {
-							s.spendField = this.value;
-
-							store();
-							setup();
-							update(root);
+					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == s.spendField; }).formatter;
+					for (i = 0; i < nodes.length; i++) {
+						vis.unitLabel(nodes[i], VIS_COLUMNS.findIndex(function (d) { return d.name == s.spendField; }), {
+							value: (fieldFormatter ? fieldFormatter(vis.unitValue(nodes[i], s.spendField), nodes[i], vis, s.spendField)
+								: Math.round(vis.unitValue(nodes[i], s.spendField) * 100) / 100)
 						});
-					update(root);
+					}
+
+					for (i = 0; i < levels.length; i++)
+						levels[i].radius = d3.scale.sqrt().domain([0, levels[i].max]).range([2, maxradius]);
 				}
 
-				if (emb) {
-					util.registerResize("VIS_ID", ExecuteVIS_ID);
-					processData();
+				function rollup(node) {
+					for (var i = 0; i < vis.metrics.length; i++) {
+						var sumField = vis.metrics[i];
+
+						if (!alreadySummed && !node.hasOwnProperty("children")) {
+							var p = node, sum = vis.unitValue(node, sumField);
+							while (p.parent) {
+								vis.unitValue(p.parent, sumField, { sf: "o", value: (isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) }); p = p.parent;
+							}
+						}
+
+						if ((node.parent) && (s.spendField == sumField)) {
+							levels[node.depth - 1].max = Math.max(levels[node.depth - 1].max, vis.unitValue(node, sumField));
+							levels[node.depth - 1].sum += vis.unitValue(node, sumField);
+						}
+					}
+
+					if (node.parent)
+						rollup(node.parent);
 				}
-				else {
-					d3.json(f1, processData);
+
+				function toggleAll(d) {
+					if (d.children) {
+						d.children.forEach(toggleAll);
+						toggle(d);
+					}
 				}
-			})();
+
+				root.x0 = h / 2;
+				root.y0 = 0;
+
+				var nodes = tree.nodes(root).reverse();
+				tree.children(function (d) { return d.children; });
+
+				setup();
+
+				alreadySummed = true;
+
+				root.children.forEach(toggleAll);
+
+				metricSelect
+					.unbind("change")
+					.bind("change", function () {
+						s.spendField = this.value;
+
+						store();
+						setup();
+						update(root);
+					});
+				update(root);
+			}
+
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+				jq$("#VIS_ID").empty();
+			});
+
+			processData();
 		}
 		catch (e) {
-			var docElement = jq$('<object>');
-			docElement.attr('data', VIS_CONTEXT.docUrl);
-			docElement.width(width).height(height);
-			jq$('#VIS_ID').html(docElement);
+			util.logger.error(e);
+			if (VIS_CONTEXT.docUrl) {
+				var docElement = jq$('<object>').width(width).height(height).attr('data', VIS_CONTEXT.docUrl);
+				jq$('#VIS_ID').empty().html(docElement);
+				toggleHeaderVisibility(false);
+			}
 		}
 	})();
 </script>

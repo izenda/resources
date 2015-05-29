@@ -400,7 +400,8 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
 }
 
 /* Designer Overrides */
-input[name$="DistinctBox"] {
+input[name$="DistinctBox"],
+input[name$="AllowNulls"] {
     margin-left: 5px;
     margin-top: 5px;
 }

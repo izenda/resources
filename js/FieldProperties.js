@@ -34,7 +34,12 @@
 		propFormats.add(optFormat);
 	}
 	var propFilterOperators = document.getElementById('propFilterOperators');
-	propFilterOperators.options.length = 0;
+	if (typeof propFilterOperators.options.hasChildNodes != 'undefined') {
+		while (propFilterOperators.options.hasChildNodes())
+			propFilterOperators.options.removeChild(propFilterOperators.options.firstChild);
+	}
+	else if (typeof propFilterOperators.options.length != 'undefined')
+		propFilterOperators.options.length = 0;
 	while (propFilterOperators.hasChildNodes())
 		propFilterOperators.removeChild(propFilterOperators.firstChild);
 	var currentOptGroup = null;

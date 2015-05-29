@@ -626,7 +626,8 @@ function ShowEqualsPopupDialog(filterInd) {
 }
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
-	var onChangeCmd = isLastFilter ? '' : 'onchange="CommitFiltersData(false);"';
+	var notRefreshFilters = isLastFilter || nrvConfig && nrvConfig.CascadeFilterValues == false;
+	var onChangeCmd = notRefreshFilters ? '' : 'onchange="CommitFiltersData(false);"';
 	//var onKeyUpCmd = 'onkeyup="CommitFiltersData(false);"';
 	var onKeyUpCmd = '';
 	var result = '';
@@ -659,7 +660,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</select>';
 			break;
 		case 5:
-			onChangeCmd = 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_1\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
@@ -691,7 +692,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</div>';
 			break;
 		case 9:
-			onChangeCmd = 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="rs.aspx?image=calendar_icon.png">';

@@ -177,7 +177,7 @@ function SC_GetFieldsList(id, columnName, functionName)
 		var funcSelect = EBC_GetSelectByName(body.rows[i], functionName);
 		var descriptionEdit = EBC_GetInputByName(body.rows[i], 'Description');
 		var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', body.rows[i]);
-		var coefficientEdit = EBC_GetInputByName(body.rows[i], 'Coefficient');
+		var coefficientEdit = EBC_TextAreaByName(body.rows[i], 'Coefficient');
 		if (columnSel != null)
 		{
 			var columnSelValue = columnSel.value;
@@ -1588,6 +1588,7 @@ function SC_AfterArithmeticOperationChanged(e)
 	}
 	var id = EBC_GetParentTable(row).id;
 	SC_CheckGroupingAndFunctions(id);
+	SC_CallOnColumnFunctionChangeHandlers(id);
 }
 
 function SC_OnVisualGroupsCheckedHandler(e)
@@ -1732,33 +1733,21 @@ function SC_HideProperties(id)
 	HideDialog(sc_propsTable, false);
 	var row = EBC_GetRow(sc_propsTable);
 	SC_CheckPropertiesModified(row);
-	//SC_CheckTotalsIsUsed(id);
+	SC_CallOnColumnFunctionChangeHandlers(id);
 }
 
 function SC_SubtotalFunctionChange(obj)
 {
-	var table = EBC_GetParentTable(obj);
-	var expressionEdit = EBC_GetElementByName(table, "SubtotalExpression", "INPUT")
-	if (expressionEdit!=null)
-	{
-		var option = obj.options[obj.selectedIndex];
-		var sqlTemplate = option.getAttribute("sqltemplate")
-		if (sqlTemplate!=null && sqlTemplate!="")
-		{
-			var columnSelect = EBC_GetSelectByName(dialogRow, 'Column');
-			if (columnSelect!=null && columnSelect.value!=null && columnSelect.value!="")
-				expressionEdit.value = sqlTemplate.replace("{0}", columnSelect.value);
+	var table = jq$(obj).closest('table[name$="PropertiesTable"]');
+	if (table != null && table.length > 0) {
+		var expressionEdit = table.find('textarea[name$="SubtotalExpression"]');
+		if (expressionEdit != null && expressionEdit.length > 0) {
+			if (jq$(obj).val() == "EXPRESSION")
+				expressionEdit.closest('tr').show();
+			else
+				expressionEdit.closest('tr').hide();
 		}
 	}
-}
-
-function SC_SubtotalExpressionActivate(obj) {
-	var table = EBC_GetParentTable(obj);
-	var sutotalSel = EBC_GetSelectByName(table, "SubtotalFunction");
-	var save = sutotalSel.onchange;
-	sutotalSel.onchange = null;
-	sutotalSel.value = "EXPRESSION";
-	sutotalSel.onchange = save;
 }
 
 function SC_ShowExtraColumns(id)
