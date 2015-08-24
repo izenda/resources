@@ -286,63 +286,6 @@ is_ie9_or_newer = false;
         }
     }
 
-    function initializeTables(database$) {
-        if (database$.length > 0) {
-            var hId = database$[0].id;
-            hId = hId.substr(4);
-            var contentDiv = document.getElementById('rdb' + hId);
-            var currHtml = contentDiv.innerHTML;
-            if (currHtml != IzLocal.Res("js_Loading", "Loading..."))
-                return;
-            var html = renderTables(databaseSchema[hId].tables, hId);
-            contentDiv.innerHTML = html;
-
-            //begin some app
-            initDraggable();
-            jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
-                event.preventDefault();
-            });
-            var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
-              <img src='rs.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
-            </span> \
-            <span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
-            <span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
-            <span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
-            jq$(".table-view-triggers").filter(function (index) {
-                var shouldBeReturned = false;
-                var npAttr;
-                try {
-                    npAttr = this.getAttribute('notProcessed1');
-                }
-                catch (e) {
-                    npAttr = '0';
-                }
-                if (npAttr == '1') {
-                    shouldBeReturned = true;
-                    this.setAttribute('notProcessed1', '0');
-                }
-                return shouldBeReturned;
-            }).append(triggersHtml);
-
-            jq$(".table").each(function () {
-                setView(jq$(this), "fields-view");
-            });
-
-            jq$(".field-popup-trigger").mouseup(function (event) {
-                event.cancelBubble = true;
-                (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
-                (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
-                var parent = this.parentElement;
-                var fieldSqlName = parent.getAttribute('fieldid');
-                if (fieldSqlName != null && fieldSqlName != '') {
-                    ShowFieldProperties(fieldSqlName, parent.children[2].innerHTML, parent.getAttribute('id'));
-                }
-                var fieldName = jq$(this).parent().find(".field-name").text();
-                return false;
-            });
-        }
-    }
-
     jq$(document).ready(function () {
         FixLayoutForIE8();
         GetInstantReportConfig();
@@ -350,7 +293,6 @@ is_ie9_or_newer = false;
 
     jq$(".database-header a").live("click", function () {
         var dbh = jq$(this).parent().parent();
-        initializeTables(dbh);
         dbh.toggleClass("opened", animationTime);
         setTimeout(DsDomChanged, animationTime + 100);
     });
@@ -412,32 +354,6 @@ is_ie9_or_newer = false;
                 el.removeClass("checked");
             };
         });
-    }
-
-    function clearView(table) {
-        table.each(function () {
-            var arrayClasses = jq$(this).attr("class").split(" ");
-            for (var i = 0; i < arrayClasses.length; i++) {
-                if (arrayClasses[i].indexOf('-view') != -1) jq$(this).removeClass(arrayClasses[i]);
-            }
-        });
-    }
-
-    function setView(table, view) {
-        clearView(table);
-        table.addClass(view);
-        table.attr('data-view', view);
-        var trigger = table.find("span[data-view=" + view + "]");
-        selectTrigger(trigger);
-    }
-
-    function selectTrigger(trigger) {
-        trigger.parent().children().removeClass("selected");
-        trigger.addClass("selected");
-    }
-
-    function restoreViews() {
-        jq$(".table.fields-view .table-view-triggers span[data-view='fields-view']").addClass("selected");
     }
 
     function hideFieldsPreview() {

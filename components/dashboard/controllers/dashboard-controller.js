@@ -15,6 +15,7 @@
     '$izendaCompatibility',
     '$izendaDashboardQuery',
     '$izendaRsQuery',
+    '$izendaEvent',
     izendaDashboardController]);
 
 /**
@@ -34,7 +35,8 @@ function izendaDashboardController(
   $izendaUrl,
   $izendaCompatibility,
   $izendaDashboardQuery,
-  $izendaRsQuery) {
+  $izendaRsQuery,
+  $izendaEvent) {
 
   'use strict';
   var vm = this;
@@ -88,7 +90,7 @@ function izendaDashboardController(
   vm.isGridShadowVisible = false;
   vm.isGridShadowPlusButtonVisible = false;
   vm.gridShadowStyle = {
-    
+
   };
 
   ////////////////////////////////////////////////////////
@@ -105,7 +107,7 @@ function izendaDashboardController(
     return _('#galleryBodyContainer');
   };
   vm.getTileById = function (tileId) {
-    var searchResult = _.grep(vm.tiles, function(tile) {
+    var searchResult = _.grep(vm.tiles, function (tile) {
       return tile.id === tileId;
     });
     return searchResult.length > 0 ? searchResult[0] : null;
@@ -183,199 +185,20 @@ function izendaDashboardController(
     vm.refreshTileGrid();
   });
 
-  /**
-   * Dashboard window resized handler
-   */
-  $scope.$on('dashboardResizeEvent', function () {
-    // update dashboard tile sizes
-    vm.updateDashboardSize();
-    updateGalleryContainer();
-    vm.updateDashboardHandlers();
-  });
 
-  /**
-   * Listen dashboard "save/save as" event
-   */
-  $scope.$on('dashboardSaveEvent', function (event, args) {
-    if (args[0]) {
-      $rootScope.$broadcast('openSelectReportNameModalEvent', []);
-    } else {
-      var dashboardName = $izendaUrl.getReportInfo().name,
-          dashboardCategory = $izendaUrl.getReportInfo().category;
-      save(dashboardName, dashboardCategory);
-    }
-  });
 
-  /**
-   * Listen show notification event.
-   */
-  $scope.$on('showNotificationEvent', function(event, args) {
-    if (args.length > 0) {
-      var title = args.length > 1 ? args[1] : '';
-      var text = args[0];
-      vm.showNotification(title, text);
-    }
-  });
 
-  /**
-   * Save dashboard as (create dashboard copy). Fires when user selects name of new dashboard in IzendaSelectReportNameController.
-   */
-  $scope.$on('selectedReportNameEvent', function (event, args) {
-    var dashboardName = args[0],
-        dashboardCategory = args[1];
-    save(dashboardName, dashboardCategory);
-  });
 
-  /**
-   * Listen 'dashboardSetEvent' event. Initialize dashboard when it is fired.
-   */
-  $scope.$on('dashboardSetEvent', function (event, args) {
-    var options = args[0];
-    $rootScope.$broadcast('izendaFiltersClose', []);
-    vm.initializeDashboard(options);
-  });
 
-  /**
-   * Listen dashboard refresh event.
-   */
-  $scope.$on('dashboardRefreshEvent', function (event, args) {
-    refreshAllTiles();
-  });
 
-  /**
-   * Dashboard tile changes event
-   */
-  $scope.$on('dashboardLayoutLoadedEvent', function (event, args) {
-    if (!angular.isUndefined(args) && !angular.isUndefined(args[0]))
-      updateTileContainerSize(args[0]);
-    else
-      updateTileContainerSize();
-    turnOnAddTileHandler();
-    vm.updateDashboardHandlers();
-  });
 
-  /**
-   * Start tile edit event handler
-   */
-  $scope.$on('startEditTileEvent', function (event, args) {
-    var options = args.length > 0 ? args[0] : {};
-    vm.editTileEvent = vm.editTileEvent || { actionName: null };
-    var isMouseMove = options.actionName == 'addtile';
-    var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
 
-    vm.showTileGrid();
-    if (isMouseMove) {
-      if (!isInEdit) {
-        vm.showTileGridShadow({
-          left: options.shadowX,
-          top: options.shadowY,
-          width: vm.tileWidth,
-          height: vm.tileHeight
-        }, true);
-        vm.editTileEvent.actionName = options.actionName;
-      }
-    } else {
-      vm.editTileEvent.actionName = options.actionName;
-    }
-    $scope.$applyAsync();
-  });
 
-  /**
-   * Tile edit completed event handler
-   */
-  $scope.$on('stopEditTileEvent', function (event, args) {
-    var options = args.length > 0 ? args[0] : {};
-    vm.editTileEvent = vm.editTileEvent || { actionName: null };
-    var isMouseMove = options.actionName == 'addtile';
-    var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
 
-    if (isMouseMove) {
-      if (!isInEdit) {
-        vm.hideTileGrid();
-        vm.editTileEvent.actionName = null;
-      }
-    } else {
-      vm.hideTileGrid();
-      updateTileContainerSize();
-      vm.editTileEvent.actionName = null;
-    }
-    $scope.$applyAsync();
-  });
 
-  /**
-   * Delete tile event handler
-   */
-  $scope.$on('deleteTileEvent', function (event, args) {
-    if (angular.isUndefined(args) || angular.isUndefined(args[0]))
-      throw 'Should be 1 argument with object: { tileId: <tileid> }';
-    var tileid = args[0].tileId;
-    var tile = vm.getTileById(tileid);
-    if (tile == null)
-      throw 'Tile "' + tileid + '" not found';
-    var idx = -1;
-    for (var i = 0; i < vm.tiles.length; i++)
-      if (vm.tiles[i].id == tileid)
-        idx = i;
-    vm.tiles.splice(idx, 1);
-    $rootScope.$broadcast('refreshFilters', []);
-  });
 
-  /**
-   * Gallery mode activated/deactivated
-   */
-  $scope.$on('toggleGalleryMode', function (event, args) {
-    if (angular.isUndefined(args) || angular.isUndefined(args[0]))
-      throw 'Should be 1 argument with boolean parameter';
-    var activate = args[0];
-    if ((activate && vm.isGalleryMode) || (!activate && !vm.isGalleryMode))
-      return;
-    if (activate) {
-      activateGallery();
-    } else {
-      deactivateGallery();
-    }
-  });
 
-  /**
-   * Open gallery mode in full screen
-   */
-  $scope.$on('toggleGalleryModeFullscreen', function (event, args) {
-    var requestFullScreen = function (htmlElement) {
-      var requestMethod = htmlElement.requestFullScreen || htmlElement.webkitRequestFullScreen || htmlElement.mozRequestFullScreen
-        || htmlElement.msRequestFullscreen;
-      if (requestMethod) {
-        requestMethod.call(htmlElement);
-      } else if (typeof window.ActiveXObject !== "undefined") {
-        var wscript = new ActiveXObject("WScript.Shell");
-        if (typeof (wscript.SendKeys) === 'function') {
-          wscript.SendKeys("{F11}");
-        } else {
-          alert('Can\'t run fullscreen mode!');
-        }
-      }
-    };
-    var $galleryRoot = vm.getGalleryContainer();
-    if ($galleryRoot.length == 0) {
-      alert('Can\'t find gallery root node!');
-      return;
-    }
-    requestFullScreen($galleryRoot.get(0));
-  });
 
-  /**
-   * print dashboard handler
-   */
-  $scope.$on('printWholeDashboardEvent', function (event, args) {
-    if (!args || args.length === 0)
-      throw 'printWholeDashboardEvent event require 1 arg';
-    var printType = args[0];
-    if (printType === 'html')
-      vm.printDashboardAsHtml();
-    else if (printType === 'pdf')
-      vm.printDashboardAsPDF();
-    else
-      throw 'Unknown print type "' + printType + '"';
-  });
 
   ////////////////////////////////////////////////////////
   // scope functions:
@@ -395,50 +218,34 @@ function izendaDashboardController(
     return $izendaCompatibility.isEditAllowed();
   };
 
-  /**
-   * Print whole dashboard as HTML
-   */
+	/**
+	 * Print whole dashboard as HTML
+	 */
   vm.printDashboardAsHtml = function () {
-    sync().then(function() {
-      $izendaDashboardQuery.loadDashboardForPrint()
-      .then(function (htmlData) {
-        $timeout(function () {
-          var windowPrint = $window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-          htmlData += "<script>jq$('.DashPartBody').css('height', 'auto');";
-          windowPrint.document.write(htmlData);
-          windowPrint.document.close();
-          windowPrint.focus();
-          $timeout(function () {
-            windowPrint.print();
-            windowPrint.close();
-          }, 2000);
-        }, 0);
-      });
-    }, function(reason) {
-      vm.openMessageBox(reason);
-    });
-  };
+  	var addParam = '';
+  	if (typeof (window.izendaPageId$) !== 'undefined')
+  		addParam = '&izpid=' + window.izendaPageId$;
+  	ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
+	};
 
-  /**
-   * Print whole dashboard as PDF
-   */
+	/**
+	 * Print whole dashboard as PDF
+	 */
   vm.printDashboardAsPDF = function () {
-    sync().then(function() {
-      var url = $izendaUrl.urlSettings.urlRsPage + '?output=PDF';
-      $window.open(url, '_self');
-    }, function (reason) {
-      vm.openMessageBox(reason);
-    });
-  };
+  	var addParam = '';
+  	if (typeof (window.izendaPageId$) !== 'undefined')
+  		addParam = '&izpid=' + window.izendaPageId$;
+  	$window.open($izendaUrl.settings.urlRsPage + '?output=PDF' + addParam, '_self');
+	};
 
   ////////////////////////////////////////////////////////
   // Notifications
   ////////////////////////////////////////////////////////
-  
+
   /**
    * Close modal box
    */
-  vm.closeMessageBox = function() {
+  vm.closeMessageBox = function () {
     vm.isMessageDialogOpened = false;
     $scope.$applyAsync();
   }
@@ -446,7 +253,7 @@ function izendaDashboardController(
   /**
    * Open modal message
    */
-  vm.openMessageBox = function(text, title) {
+  vm.openMessageBox = function (text, title) {
     vm.isMessageDialogOpened = true;
     vm.messageDialogText = text;
     vm.messageDialogTitle = angular.isDefined(title) ? title : '';
@@ -522,7 +329,7 @@ function izendaDashboardController(
   /**
    * Update tile grid parameters
    */
-  vm.refreshTileGrid = function() {
+  vm.refreshTileGrid = function () {
     vm.gridStyle = {
       'background-size': vm.tileWidth + 'px ' + vm.tileHeight + 'px, ' + vm.tileWidth + 'px ' + vm.tileHeight + 'px'
     };
@@ -783,6 +590,181 @@ function izendaDashboardController(
       document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
       document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
     }
+    /**
+     * Listen show notification event.
+     */
+    $scope.$on('showNotificationEvent', function (event, args) {
+      if (args.length > 0) {
+        var title = args.length > 1 ? args[1] : '';
+        var text = args[0];
+        vm.showNotification(title, text);
+      }
+    });
+    /**
+     * Save dashboard as (create dashboard copy). Fires when user selects name of new dashboard in IzendaSelectReportNameController.
+     */
+    $scope.$on('selectedReportNameEvent', function (event, args) {
+      var dashboardName = args[0],
+          dashboardCategory = args[1];
+      save(dashboardName, dashboardCategory);
+    });
+    /**
+     * Dashboard tile changes event
+     */
+    $scope.$on('dashboardLayoutLoadedEvent', function (event, args) {
+      if (!angular.isUndefined(args) && !angular.isUndefined(args[0]))
+        updateTileContainerSize(args[0]);
+      else
+        updateTileContainerSize();
+      turnOnAddTileHandler();
+      vm.updateDashboardHandlers();
+    });
+    /**
+     * Start tile edit event handler
+     */
+    $scope.$on('startEditTileEvent', function (event, args) {
+      var options = args.length > 0 ? args[0] : {};
+      vm.editTileEvent = vm.editTileEvent || { actionName: null };
+      var isMouseMove = options.actionName == 'addtile';
+      var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
+      vm.showTileGrid();
+      if (isMouseMove) {
+        if (!isInEdit) {
+          vm.showTileGridShadow({
+            left: options.shadowX,
+            top: options.shadowY,
+            width: vm.tileWidth,
+            height: vm.tileHeight
+          }, true);
+          vm.editTileEvent.actionName = options.actionName;
+        }
+      } else {
+        vm.editTileEvent.actionName = options.actionName;
+      }
+      $scope.$applyAsync();
+    });
+    /**
+     * Tile edit completed event handler
+     */
+    $scope.$on('stopEditTileEvent', function (event, args) {
+      var options = args.length > 0 ? args[0] : {};
+      vm.editTileEvent = vm.editTileEvent || { actionName: null };
+      var isMouseMove = options.actionName == 'addtile';
+      var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
+      if (isMouseMove) {
+        if (!isInEdit) {
+          vm.hideTileGrid();
+          vm.editTileEvent.actionName = null;
+        }
+      } else {
+        vm.hideTileGrid();
+        updateTileContainerSize();
+        vm.editTileEvent.actionName = null;
+      }
+      $scope.$applyAsync();
+    });
+    /**
+     * Delete tile event handler
+     */
+    $scope.$on('deleteTileEvent', function (event, args) {
+      if (angular.isUndefined(args) || angular.isUndefined(args[0]))
+        throw 'Should be 1 argument with object: { tileId: <tileid> }';
+      var tileid = args[0].tileId;
+      var tile = vm.getTileById(tileid);
+      if (tile == null)
+        throw 'Tile "' + tileid + '" not found';
+      var idx = -1;
+      for (var i = 0; i < vm.tiles.length; i++)
+        if (vm.tiles[i].id == tileid)
+          idx = i;
+      vm.tiles.splice(idx, 1);
+      $izendaEvent.queueEvent('refreshFilters', [], true);
+    });
+    /**
+     * Gallery mode activated/deactivated
+     */
+    $scope.$on('toggleGalleryMode', function (event, args) {
+      if (angular.isUndefined(args) || angular.isUndefined(args[0]))
+        throw 'Should be 1 argument with boolean parameter';
+      var activate = args[0];
+      if ((activate && vm.isGalleryMode) || (!activate && !vm.isGalleryMode))
+        return;
+      if (activate) {
+        activateGallery();
+      } else {
+        deactivateGallery();
+      }
+    });
+    /**
+     * Open gallery mode in full screen
+     */
+    $scope.$on('toggleGalleryModeFullscreen', function (event, args) {
+      var requestFullScreen = function (htmlElement) {
+        var requestMethod = htmlElement.requestFullScreen || htmlElement.webkitRequestFullScreen || htmlElement.mozRequestFullScreen
+          || htmlElement.msRequestFullscreen;
+        if (requestMethod) {
+          requestMethod.call(htmlElement);
+        } else if (typeof window.ActiveXObject !== "undefined") {
+          var wscript = new ActiveXObject("WScript.Shell");
+          if (typeof (wscript.SendKeys) === 'function') {
+            wscript.SendKeys("{F11}");
+          } else {
+            alert('Can\'t run fullscreen mode!');
+          }
+        }
+      };
+      var $galleryRoot = vm.getGalleryContainer();
+      if ($galleryRoot.length === 0) {
+        alert('Can\'t find gallery root node!');
+        return;
+      }
+      requestFullScreen($galleryRoot.get(0));
+    });
+    // when all tiles in dashboard added
+    $scope.$on('tilesAdded', function () {
+      // notify filters to start
+      $izendaEvent.queueEvent('refreshFilters', [], true);
+      
+      $izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function () {
+      	sync().then(function () {
+      		$izendaEvent.queueEvent('dashboardSyncCompletedEvent', []);
+      	});
+      });
+
+      // 'printWholeDashboardEvent' event handle
+      $izendaEvent.handleQueuedEvent('printWholeDashboardEvent', $scope, vm, function (printType) {
+        if (printType === 'html')
+          vm.printDashboardAsHtml();
+        else if (printType === 'pdf')
+          vm.printDashboardAsPDF();
+        else
+          throw 'Unknown print type "' + printType + '"';
+      });
+      // 'dashboardRefreshEvent' event handle
+      $izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function () {
+        refreshAllTiles();
+      });
+      // 'dashboardSaveEvent' event handle
+      $izendaEvent.handleQueuedEvent('dashboardSaveEvent', $scope, vm, function (showNameDialog) {
+        if (showNameDialog) {
+          $rootScope.$broadcast('openSelectReportNameModalEvent', []);
+        } else {
+          var dashboardName = $izendaUrl.getReportInfo().name,
+              dashboardCategory = $izendaUrl.getReportInfo().category;
+          save(dashboardName, dashboardCategory);
+        }
+      });
+    });
+    // 'dashboardResizeEvent' event handle
+    $izendaEvent.handleQueuedEvent('dashboardResizeEvent', $scope, vm, function () {
+      vm.updateDashboardSize();
+      updateGalleryContainer();
+      vm.updateDashboardHandlers();
+    });
+    // 'dashboardSetEvent' event handle
+    $izendaEvent.handleQueuedEvent('dashboardSetEvent', $scope, vm, function (options) {
+      vm.initializeDashboard(options);
+    });
   };
 
   /**
@@ -1041,7 +1023,7 @@ function izendaDashboardController(
     var deferred = $q.defer();
     var json = createSaveJson();
     if (json.Rows[0].ColumnsCount !== 0) {
-      $izendaDashboardQuery.syncDashboard(json).then(function(data) {
+      $izendaDashboardQuery.syncDashboard(json).then(function (data) {
         if (data.Value !== 'OK') {
           deferred.reject('Can\'t sync dashboard. Error: ' + data.Value);
           $scope.$applyAsync();
@@ -1139,6 +1121,7 @@ function izendaDashboardController(
             width: cell.Width,
             height: cell.Height,
             title: cell.ReportTitle,
+            isSourceReportDeleted: cell.IsSourceReportDeleted,
             description: cell.ReportDescription,
             top: cell.RecordsCount
           });
@@ -1155,7 +1138,7 @@ function izendaDashboardController(
       }
 
       // start loading tiles:
-      $scope.$broadcast('dashboardLayoutLoadedEvent', [{
+      $scope.$emit('dashboardLayoutLoadedEvent', [{
         top: 0,
         left: 0,
         height: (maxHeight) * vm.tileHeight,
@@ -1170,6 +1153,7 @@ function izendaDashboardController(
           clearInterval(vm.refreshIntervalId);
           if (index >= tilesToAdd.length) {
             // update dashboard size when all finished
+            $scope.$emit('tilesAdded', []);
             vm.updateDashboardSize();
           }
           return;
@@ -1219,7 +1203,7 @@ function izendaDashboardController(
    * Refresh all tiles
    */
   function refreshAllTiles() {
-    $scope.$broadcast('tileRefreshEvent', [false]);
+    $scope.$broadcast('tileRefreshEvent', [true]);
   }
 
   ////////////////////////////////////////////////////////

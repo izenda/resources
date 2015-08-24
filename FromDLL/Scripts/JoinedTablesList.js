@@ -503,8 +503,8 @@ function JTC_OnListChanged(id) {
 	if (handlers != null)
 	{
 		for (var i = 0; i < handlers.length; i++)
-			handlers[i].func(handlers[i].id, tables);
-  }
+			handlers[i].func(handlers[i].id, tables, true);
+	}
 }
 
 function getEnd(source, len)

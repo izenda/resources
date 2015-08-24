@@ -526,11 +526,16 @@ a.field.checked:hover .field-name {
 .search-container #fieldSearch {
   position: relative;
   width: 10em;
-	font-size: 24px;
+  font-size: 24px;
   line-height: 29px;
   height: 39px;
   z-index: 1;
   padding-right: 56px;
+}
+.search-container #fieldSearch::-ms-clear {
+  display: none;
+  width : 0;
+  height: 0;
 }
 .search-container .find, .search-container .clear {
   position: absolute;

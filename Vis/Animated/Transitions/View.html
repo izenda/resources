@@ -90,34 +90,12 @@
 
 			jq$("#VIS_ID").width(width).height(height);
 
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-
-			function checkInsufficientWidth(width) {
-				return (width < 480);
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
-
 			var x, y;
 
 			var m = [20, 20, 30, 20],
 				w = width - m[1] - m[3],
 				h = height - m[0] - m[2];
-		
+
 			var g, svg = d3.select("#VIS_ID")
 				.append("svg:svg")
 				.attr("width", width)

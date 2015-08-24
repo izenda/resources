@@ -1,93 +1,76 @@
 ﻿/**
  * jquery plugin required jquery.purl.js
+ * response server url passed in variable "window.rsUrl$" which added in ResponseServer
  */
-function UrlSettings(customUrlRsPage) {
-	var location = window.location.href;
-	var url = typeof (jq$.url == 'undefined') ? window.purl(location) : jq$.url(location);
-
-	// root url
-	var path = url.attr('path').split('/');
-	var urlBase = '';
-	for (var i = path.length - 2; i >= 0; i--) {
-		if (path[i].replace(/^\s+|\s+$/g, '') != '')
-			urlBase = '/' + path[i].replace(/^\s+|\s+$/g, '') + urlBase;
-	}
-
-	// pages
-	var urlRsPage;
-	if (customUrlRsPage == undefined || customUrlRsPage == null || customUrlRsPage == '') {
-	  urlRsPage = urlBase + '/rs.aspx';
-	}
-	else {
-	  urlRsPage = customUrlRsPage;
-	}
-	var urlDashboardsPage = urlBase + '/Dashboards.aspx';
-	var urlReportViewer = urlBase + '/ReportViewer.aspx';
-	var urlReportDesigner = urlBase + '/ReportDesigner.aspx';
-	var urlReportList = urlBase + '/ReportList.aspx';
-	var urlResources = urlBase + '/Resources';
-
-	// process parameters
-	var reportFullName = url.param('rn');
-	var reportName = null;
-	var reportCategoryName = null;
-	if (reportFullName != null) {
-	  //11328?
-		var reportFullNameParts = reportFullName.split('\\');
-		if (reportFullNameParts.length == 2) {
-			reportName = reportFullNameParts[1];
-			reportCategoryName = reportFullNameParts[0];
-		} else
-			reportName = reportFullNameParts[0];
-	}
-	var isNew = url.param('isNew') === '1';
-	var exportType = url.param('exportType');
-
+function UrlSettings() {
   /**
-   * Replace "rn=category\name" parameter to "#/category/name" for angular app
+   * Append base url part if targetUrl is relative.
    */
-	var replaceRnForAngularApp = function () {
-	  var locationFunc = window.location;
-	  var historyFunc = window.history;
-	  var urlStr = window.location.href;
-	  var reportNameParameter = url.param('rn');
-	  if (reportNameParameter) {
-	    var replaceString;
-	    if (urlStr.indexOf('?rn=') >= 0) {
-	      replaceString = '?rn=' + reportNameParameter.split(' ').join('+');
-	    } else if (urlStr.indexOf('&rn=') >= 0) {
-	      replaceString = '&rn=' + reportNameParameter.split(' ').join('+');
-	    } else {
-	      replaceString = 'rn=' + reportNameParameter.split(' ').join('+');
-	    }
-	    var modifiedUrl = urlStr.replace(replaceString, '');
-	    modifiedUrl = modifiedUrl.replace(replaceString.split(' ').join('+'), '');
-	    modifiedUrl += '#/' + reportNameParameter.split('\\').join('/');
-	    if (historyFunc && historyFunc.replaceState) {
-	      historyFunc.replaceState(null, window.document.title, modifiedUrl);
-	    } else if (historyFunc && historyFunc.pushState) {
-	      historyFunc.pushState(null, window.document.title, modifiedUrl);
-	    } else if (locationFunc && locationFunc.replace) {
-	      locationFunc.replace(modifiedUrl);
-	    }
-	  }
-	};
+  var appendBaseUrl = function(baseUrl, targetUrl) {
+    var expression = /(http|https):\/\//gi;
+    var regex = new RegExp(expression);
+    return targetUrl.match(regex) ? targetUrl : baseUrl + '/' + targetUrl;
+  };
 
-	return {
-	  replaceRnForAngularApp: replaceRnForAngularApp,
-		urlBase: urlBase,
-		urlRsPage: urlRsPage,
-		urlDashboardsPage: urlDashboardsPage,
-		urlReportViewer: urlReportViewer,
-		urlReportDesigner: urlReportDesigner,
-        urlReportList: urlReportList,
-		urlResources: urlResources,
-		reportInfo: {
-			fullName: reportFullName,
-			name: reportName,
-			category: reportCategoryName,
-			isNew: isNew,
-			exportType: exportType
-		}
-	};
+  // start process url
+  var location = window.location.href;
+  var url = (typeof (jq$.url) == 'undefined') ? window.purl(location) : jq$.url(location);
+
+  // get base part of url:
+  var urlBase = '';
+  var path = url.attr('path').split('/');
+  for (var i = path.length - 2; i >= 0; i--) {
+    if (path[i].replace(/^\s+|\s+$/g, '') !== '')
+      urlBase = '/' + path[i].replace(/^\s+|\s+$/g, '') + urlBase;
+  }
+
+  // process parameters
+  var reportFullName = url.param('rn');
+  var reportName = null;
+  var reportCategoryName = null;
+  if (reportFullName != null) {
+    var reportFullNameParts = reportFullName.split('\\');
+    if (reportFullNameParts.length === 2) {
+      reportName = reportFullNameParts[1];
+      reportCategoryName = reportFullNameParts[0];
+    } else
+      reportName = reportFullNameParts[0];
+  }
+  var isNew = url.param('isNew') === '1';
+  var exportType = url.param('exportType');
+  var reportInfo = {
+    fullName: reportFullName,
+    name: reportName,
+    category: reportCategoryName,
+    isNew: isNew,
+    exportType: exportType
+  };
+
+  // load url settings from server:
+  var srvConfig, settings;
+  var rsUrl = (typeof (window.rsUrl$) != 'undefined') ? window.rsUrl$ : './rs.aspx';
+  jq$.ajax({
+    url: rsUrl,
+    data: 'wscmd=reportviewerconfig&wsarg0=' + window.innerWidth + '&wsarg1=' + window.innerHeight + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''),
+    success: function (returnObj) {
+      srvConfig = returnObj;
+      
+      // new
+      settings = {
+        urlBase: urlBase,
+        urlRsPage: appendBaseUrl(urlBase, srvConfig.ResponseServerUrl),
+        urlDashboardDesigner: appendBaseUrl(urlBase, srvConfig.DashboardDesignerUrl),
+        urlDashboardViewer: appendBaseUrl(urlBase, srvConfig.DashboardViewerUrl),
+        urlInstantReport: appendBaseUrl(urlBase, srvConfig.InstantReportUrl),
+        urlSettings: appendBaseUrl(urlBase, srvConfig.SettingsUrl),
+        urlReportDesigner: appendBaseUrl(urlBase, srvConfig.ReportDesignerUrl),
+        urlReportList: appendBaseUrl(urlBase, srvConfig.ReportListUrl),
+        urlReportViewer: appendBaseUrl(urlBase, srvConfig.ReportViewerUrl),
+        urlResources: appendBaseUrl(urlBase, 'Resources'),
+        reportInfo: reportInfo
+      }
+    },
+    async: false
+  });
+  return settings;
 }

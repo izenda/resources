@@ -12,7 +12,7 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 	thisRequestObject.requestId = id;
 	thisRequestObject.onreadystatechange = ProcessRequest;
 
-	thisRequestObject.open('GET', url + '?' + parameters, true);
+	thisRequestObject.open('GET', url + '?' + parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''), true);
 	thisRequestObject.send();
 
 	function DeserializeJson() {

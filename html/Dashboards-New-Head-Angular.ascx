@@ -1,6 +1,9 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true"%>
+<%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
-
+<script type="text/javascript">
+  window.izendaPageId$ = (new Date()).getTime().toString();
+</script>
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css"/>
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/bootstrap-datepicker3.min.css"/>
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/bootstrap-timepicker.min.css"/>
@@ -16,13 +19,11 @@
 
 <!-- url settings -->
 <script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.purl"></script>
-<script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.nicescroll.min"></script>
 <script type="text/javascript" src="./rs.aspx?js=ModernScripts.url-settings"></script>
-<script>
-  // Hue rotate function
-  var urlSettings = new UrlSettings();
-  urlSettings.replaceRnForAngularApp();
+<script type="text/javascript">
+  window.urlSettings$ = UrlSettings();
 </script>
+<script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.nicescroll.min"></script>
 <script type="text/javascript">
   window.jQueryTemp = null;
   if (window.jQuery)
@@ -89,18 +90,17 @@
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 <script>
-  // legacy code: needed for correct report handlers work
-  var urlSettings = new UrlSettings();
-  jq$.ajax(urlSettings.urlRsPage + '?wscmd=reportviewerconfig&wsarg0=0&wsarg1=0&wsarg2=' + urlSettings.reportInfo.fullName, {
+  // legacy code: needed for correct report old scripts work
+  var urlSettings = window.urlSettings$;
+  jq$.ajax(urlSettings.urlRsPage + '?wscmd=reportviewerconfig&wsarg0=0&wsarg1=0&wsarg2=' + urlSettings.reportInfo.fullName + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''), {
     dataType: 'json'
   }).done(function (returnObj) {
     nrvConfig = returnObj;
     nrvConfig.serverDelimiter = '?';
     if (nrvConfig.ResponseServerUrl.indexOf('?') >= 0)
       nrvConfig.serverDelimiter = '&';
-    urlSettings = new UrlSettings(nrvConfig.ResponseServerUrl);
     var delimiter = '';
-    if (urlSettings.urlRsPage.lastIndexOf(nrvConfig.serverDelimiter) != urlSettings.urlRsPage.length - 1)
+    if (urlSettings.urlRsPage.lastIndexOf(nrvConfig.serverDelimiter) !== urlSettings.urlRsPage.length - 1)
       delimiter = nrvConfig.serverDelimiter;
     responseServer = new AdHoc.ResponseServer(urlSettings.urlRsPage + delimiter, 0);
     responseServerWithDelimeter = responseServer.ResponseServerUrl;
@@ -113,7 +113,6 @@
 <script type="text/javascript" src="./Resources/js/Share.js"></script>
 <script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
 <script type="text/javascript" src="./Resources/js/shrinkable-grid.js"></script>
-<script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>
 <style type="text/css">
   .izenda-toolbar {
     display: none !important;
@@ -286,11 +285,13 @@
 <!-- common -->
 <script type="text/javascript" src="Resources/components/common/module-definition.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/url-service.js"></script>
+<script type="text/javascript" src="Resources/components/common/services/event-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/compatibility-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/rs-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/common-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/settings-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/ping-service.js"></script>
+<script type="text/javascript" src="Resources/components/common/directive/utility.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/color-picker.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/toggle-button.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/datetime-picker.js"></script>
@@ -319,6 +320,37 @@
 <script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-links-panel.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/dashboard-background.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/tile-top-slider.js"></script>
+<script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-folder-menu-accordion.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/controllers/tile-controller.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/controllers/dashboard-controller.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/controllers/toolbar-controller.js"></script>
+
+<script runat="server">
+	protected override void OnInit(EventArgs e)
+	{
+		if (Utility.PageIsPostBack(Page))
+			return;
+
+		if (Page.Request.Params["clear"] != null)
+		{
+			AdHocContext.CurrentReportSet = ReportSet.InitializeNew();
+			Response.Redirect(Page.Request.Url.LocalPath + "#?new");
+		}
+
+		if (Page.Request.Params["rn"] != null)
+		{
+			string report = Page.Request.Params["rn"],
+				query = null;
+			foreach (string key in Request.QueryString.AllKeys)
+			{
+				if (key == "rn")
+					continue;
+				if (!string.IsNullOrEmpty(query))
+					query += "&";
+				query += string.Format("{0}={1}", key, Request.QueryString[key]);
+			}
+
+			Response.Redirect(Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query + "#/" + report.Replace('\\', '/'));
+		}
+	}
+</script>

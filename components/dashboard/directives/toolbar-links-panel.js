@@ -17,7 +17,7 @@
         equalsFunc: '&',
         getTitle: '&'
       },
-      templateUrl: $izendaUrl.urlSettings.urlBase + '/Resources/components/dashboard/templates/toolbar-links-panel.html',
+      templateUrl: $izendaUrl.settings.urlBase + '/Resources/components/dashboard/templates/toolbar-links-panel.html',
       link: function ($scope, elem, attrs) {
         var $slideContainer = _(elem).find('.iz-dash-linkspanel-navbar-3');
 

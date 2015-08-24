@@ -7,6 +7,7 @@
     '$sce',
     '$izendaUrl',
     '$izendaFiltersQuery',
+    '$izendaEvent',
     IzendaFiltersController]);
 
 /**
@@ -19,7 +20,8 @@ function IzendaFiltersController(
   $log,
   $sce,
   $izendaUrl,
-  $izendaFiltersQuery) {
+  $izendaFiltersQuery,
+  $izendaEvent) {
   'use strict';
 
   var _ = angular.element;
@@ -545,7 +547,7 @@ function IzendaFiltersController(
     $izendaFiltersQuery
       .setFiltersData(preparedFilters)
       .then(function (data) {
-        $rootScope.$broadcast('dashboardRefreshEvent', []);
+        $izendaEvent.queueEvent('dashboardRefreshEvent', [], true);
       });
   };
 

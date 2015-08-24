@@ -81,11 +81,9 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	thisRequestObject.dtk = dataToKeep;
 	thisRequestObject.onreadystatechange = ProcessRequest;
 
-	/*thisRequestObject.open('GET', url + '?' + parameters, true);
-    thisRequestObject.send();*/
 	thisRequestObject.open('POST', url, true);
 	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	thisRequestObject.send(parameters);
+	thisRequestObject.send(parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''));
 
 	function DeserializeJson() {
 		var responseText = thisRequestObject.responseText;
@@ -212,8 +210,10 @@ function ChangeTopRecords(recsNum, updateReportData) {
 	for (var i = 0; i < 6; i++)
 		jq$('#resNumLi' + i).removeClass('selected');
 	var resNumImg = document.getElementById('resNumImg');
+	if (!resNumImg) {
+		return;
+	}
 	var uvcVal = '100';
-	var baseUrl = resNumImg.src.substr(0, resNumImg.src.lastIndexOf("ModernImages.") + 13);
 	if (recsNum == 1) {
 		uvcVal = '1';
 		jq$('#resNumLi0').addClass('selected');
@@ -1047,7 +1047,7 @@ function GetReportViewerConfig() {
     var rnParam = '';
     if (reportName)
     	rnParam = reportName;
-    var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam;
+    var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam + window.innerHeight;
 	AjaxRequest('./rs.aspx', requestString, GotReportViewerConfig, null, 'reportviewerconfig');
 }
 
@@ -1156,10 +1156,13 @@ function GotRenderedReportSet(returnObj, id) {
 
 function FirstLoadInit() {
 	var designerBtn = document.getElementById('designerBtn');
-	var reportParam = '';
-	if (reportName != undefined && reportName != null)
-		reportParam = '?rn=' + reportName;
-	designerBtn.onclick = function () { window.location = nrvConfig.ReportDesignerUrl + reportParam; };
+	if (designerBtn) {
+		var reportParam = '';
+		if (reportName != undefined && reportName != null) {
+			reportParam = '?rn=' + reportName;
+		}
+		designerBtn.onclick = function () { window.location = nrvConfig.ReportDesignerUrl + reportParam; };
+	}
 	jq$('#navdiv ul li a').click(function () {
 		var currentTab = jq$(this).attr('href');
 		var vis = jq$(currentTab).is(':visible');
@@ -1178,9 +1181,9 @@ function FirstLoadInit() {
 		}
 	});
 
-    InitializeFields();
-    RefreshPivots();   
-    GetFiltersData();
+	InitializeFields();
+	RefreshPivots();   
+	GetFiltersData();
 }
 
 function AppendReportNameTitle(forcedReportName){
@@ -1216,7 +1219,8 @@ function AppendReportNameTitle(forcedReportName){
 		rntc = rntc.substr(7);
 	var hdr = '<h1 style=\"margin-left:40px;\">' + rntc + (catPart.length <= 0 ? '' : ' <i>(' + catPart + ')</i>') + '</h1>';
 	var repHeader = document.getElementById('repHeader');
-	repHeader.innerHTML = hdr;
+	if (typeof repHeader != 'undefined' && repHeader != null)
+		repHeader.innerHTML = hdr;
 }
 
 function GetDatasourcesList() {

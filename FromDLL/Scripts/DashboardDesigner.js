@@ -34,307 +34,277 @@
 |___________________________________________________________________|
 */
 
-var multiPageId;
-var callback;
-var previewIDs = {};
-var ids = new Array();
+var toolbarId;
+var reportViewerURL;
 
-function DD_OnReportEdit(reportName, callbackFunction)
+function DD2_GetReportsByReportSet(reportSetSelect)
 {
-	var div = document.getElementById(multiPageId);
-	for(var i=0;i<div.childNodes.length;i++)
+	var reportSetName = reportSetSelect.value;
+	var td = EBC_GetColumn(reportSetSelect);
+	if (td != null)
 	{
-		if(div.childNodes[i].id==reportName+"_containerDiv") 
+		var sel = EBC_GetElementByName(td, "ReportName", "SELECT");
+		if (sel != null)
 		{
-			callback = callbackFunction;
-			ShowDialog(div.childNodes[i].firstChild, (pageWidth()-100) + "px"); //
-			break;
+		  var value = sel.getAttribute("oldValue");
+		  EBC_LoadData("DashReportsNames", "rn=" + reportSetName, sel, false);
+			sel = EBC_GetElementByName(td, "ReportName", "SELECT");
+			/*var hasFilters = false;
+			if (sel.options.length > 1)
+			{
+				hasFilters = (sel.options[sel.options.length-1].value == "HasDateTimeFilter");
+				if (hasFilters)
+					sel.options.length = sel.options.length-1;
+			}*/
+			//sel.setAttribute("HasDateTimeFilters", hasFilters ? "yes" : "no");
+			if (value != null)
+			{
+				EBC_SetSelectedIndexByValue(sel, value);
+				DD2_CheckReport(sel);
+			}
+			if (sel.options.length == 2)
+			{
+				sel.options[1].selected = true;
+				DD2_CheckReport(sel);
+			}
+			
+			/*var dateFiltersCount = hasFilters ? 1 : 0;
+			var table = EBC_GetParentTable(td);
+			var rows = table.rows;
+			for (var j=0;j<rows.length && dateFiltersCount < 1;j++) 
+			{
+				var cells = rows[j].cells;
+				for (var i=0;i<cells.length && dateFiltersCount < 1; i++) 
+				{
+					var selWithAttribute = EBC_GetElementByName(cells[i], "ReportName", "SELECT");
+					if (selWithAttribute.getAttribute("HasDateTimeFilters") == "yes")
+						dateFiltersCount++;
+				}
+			}
+			var id = table.id;
+			var index = id.lastIndexOf('_');
+			if (index > 0)
+			{
+				id = id.substring(0, index) + "_AdHocSliderDiv";
+				var div = document.getElementById(id);
+				if (div != null)
+					div.style["visibility"] = ((dateFiltersCount > 0) ? "" : "hidden");
+			}*/
 		}
 	}
 }
 
-function DD_HideDesigner(id, simpleHide)
+function DD2_CheckReport(sel)
 {
-	var designer = document.getElementById(id);
-	HideDialog(designer);
-	if (simpleHide == null || simpleHide == false)
-		callback();
-}
-
-function DD_OnReportDeleted(reportName, matrix)
-{
-	var reportDiv = document.getElementById(reportName+"_div");
-	reportDiv.parentNode.removeChild(reportDiv);
-}
-
-function DD_Init(id)
-{
-	multiPageId = id;
-}
-
-function DD_OnTabChanged() //horrId, index, continueScript
-{
-	EBC_RemoveAllUnusedRows();
-}
-
-function DD_ShowStylePopup(styleControlId)
-{
-	var styleControl = document.getElementById(styleControlId);
-	ShowDialog(styleControl);
-}
-
-function DD_HidePopup(styleControlId)
-{
-	var styleControl = document.getElementById(styleControlId);
-	HideDialog(styleControl);
-}
-
-function DD_ShowHideButtons(cell, hide)
-{
-	var table = cell.getElementsByTagName("table")[0];
-	if (table==null)
-		return;
-	var row = table.rows[0];
-	var cells = row.cells;
-	for (var i=0;i<cells.length;i++)
-	    if (cells[i].childNodes.length>0)
-	        cells[i].childNodes[0].style['visibility'] = hide ? "hidden" : "visible";
-}
-
-function DD_MoveUpHandler(el) {
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	var cell = AdHoc.Utility.findParentElement(el, 'td');
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	matrix.moveUpCell(cell);
-}
-
-function DD_MoveDownHandler(el) {
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	var cell = AdHoc.Utility.findParentElement(el, 'td');
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	matrix.moveDownCell(cell);
-}
-
-function DD_MoveLeftHandler(el) {
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	var cell = AdHoc.Utility.findParentElement(el, 'td');
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	matrix.moveLeftCell(cell);
-}
-
-function DD_MoveRightHandler(el) {
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	var cell = AdHoc.Utility.findParentElement(el, 'td');
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	matrix.moveRightCell(cell);
-}
-
-function DD_RemoveReport(el, onReportDeleted) {
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	DD_RemoveReportInternal(el, onReportDeleted);
-}
-
-function DD_RemoveReportInternal(el, onReportDeleted) {
-	var cell = AdHoc.Utility.findParentElement(el, 'td'); 
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	var hidden = cell.getElementsByTagName("input")[0];
-	matrix.removeCell(cell);
-	onReportDeleted(hidden.value, matrix);
-}
-
-var title;
-
-function DD_OnMouseOver(id)
-{
-	var sid = "TableCell_"+id;
-	var item = document.getElementById(sid);
-	item.style.border = "black thin solid";
-	item = document.getElementById("idTitleInfo");
-	item.innerHTML = "<a align='left'>"+title[id]+"</a>";
-}
-
-function DD_OnMouseOut(id)
-{
-	var sid = "TableCell_"+id;
-	var item = document.getElementById(sid);
-	item.style.border = "white thin solid";
-	item = document.getElementById("idTitleInfo");
-	item.innerHTML = "<br><br><br>";
-}
-
-function DD_ReportEdit(el, onReportChanged, param)
-{
-	el = AdHoc.Utility.findParentElement(el, 'table').parentNode;
-	var cell = AdHoc.Utility.findParentElement(el, 'td'); 
-	var table = AdHoc.Utility.findParentElement(el, 'table');
-	var matrix = new AdHoc.MatrixEditorBaseControl(table);
-	var hidden = cell.getElementsByTagName("input")[0];
-	onReportChanged(hidden.value, function() { DD_EndReportEdit(hidden.value, param); });
-}
-
-function DD_EndReportEdit(reportName, param)
-{
-	var previewControlId = previewIDs[reportName];
-	HORR_UpdateContent(previewControlId, null, true, param);
-}
-
-function DRL_Init(id, rowIndex)
-{
-	AdHoc.MatrixEditorBaseControl.RegisterControl(id);
-}
-
-function DD_PromptReportName(id, postBackFunction, formId, action, reportType) {
-	var rnIndex = window.location.search.indexOf('rn=');
-	if (rnIndex!=-1)
+	var td = EBC_GetColumn(sel);
+	var reportSelect = EBC_GetElementByName(td, "ReportSetName", "SELECT");
+	var reportName = reportSelect.value;
+	var subReport = EBC_GetSelectValue(sel);
+	sel.setAttribute("oldValue",subReport);
+	var reportState = false;
+	if (reportName == null || reportName == "...")
 	{
-		var reportName = "";
-		var category = "";
-		var l = window.location.search.indexOf('&', rnIndex+3);
-		if (l==-1)
-			reportName = window.location.search.slice(rnIndex+3);
-		else
-			reportName = window.location.search.slice(rnIndex+3, l);
-		var lastfolderIndex = reportName.lastIndexOf(jsResources.categoryCharacter);
-		if(lastfolderIndex!=-1)
-		{
-			category = reportName.substring(0, lastfolderIndex);
-			reportName = reportName.substr(lastfolderIndex+1);
-		}
-		lastfolderIndex = reportName.lastIndexOf('%5c');
-		if(lastfolderIndex!=-1)
-		{
-			category = reportName.substring(0, lastfolderIndex);
-			reportName = reportName.substr(lastfolderIndex+3);
-		}
-		
-		category = category.replace(/\+/g," ");
-		reportName = reportName.replace(/\+/g," ");
-		
-		reportName = SRA_ProcessReportName(reportName, category, false);
-		if (reportName!=null)
-		{
-		  action = action.replace("__report_name__", reportName.replace(/ /g, "+"));
-			ChangeFormAction(formId, action);
-		}
-	}
-
-	if (reportType==null)
-	{
-		var reportTypeSelect = document.getElementById(id + "_ReportType");
-		reportType = reportTypeSelect.value;
+		reportState = true;
 	}
 	else
 	{
-		var reportTypeHiddenField = document.getElementById(id + "_ReportType");
-		reportTypeHiddenField.value = reportType;
+		reportState = (subReport != "..." && subReport  != null);
 	}
+	DD2_SetReportState(td, reportState);
+
+	DD2_CheckSelectedReports();
+}
+
+function DD2_CheckSelectedReports() {
+    var reportSelected = false;
+    jq$('[name$="_ReportName"]').each(function(){
+        if (jq$(this).val() != '...'){
+            reportSelected = true;
+            return;
+        }
+    });
+    jq$('[name="ReportState"]').each(function(){
+        if (jq$(this).is(':visible')){
+            reportSelected = false;
+            return;
+        }
+    });
 	
-	var i = 0;
-	var haveThisName;
-	
-	do
+    if (reportSelected)
+        DisableEnableToolbar(false, true);
+    else
+        DisableEnableToolbar(false, false);
+}
+
+function DD2_CheckState(table)
+{
+	var result = true;
+	var rows = table.rows;
+	for (var j=0;((j<rows.length) && result);j++) {
+		var cells = rows[j].cells;
+		for (var i=0;((i<cells.length) && result); i++) {
+			result = DD2_GetReportState(cells[i]);
+		}
+	}
+	DD2_Ready(result);
+}
+
+function DD2_SetReportState(td, reportState)
+{
+	if (td != null)
 	{
-		i++;
-		var currentName = reportType + i;
-		haveThisName = false;
-		for(var j=0;j<names.length;j++)
+		td.setAttribute("reportState", reportState ? "" : "notReady");
+		
+		var img = EBC_GetElementByName(td, "ReportState", "IMG");
+		if (img != null)
+			img.style.display = reportState ? "none" : "";
+		
+		if (!reportState)
+			DD2_Ready(reportState);
+		else
+			DD2_CheckState(EBC_GetParentTable(td));
+	}
+}
+
+function DD2_GetReportState(td)
+{
+	if (td == null)
+		return true;
+	var state = td.getAttribute("reportState");
+	return (state != "notReady");
+}
+
+function DD2_OnMouseOver(cell)
+{
+	cell.setAttribute("mouseOver", "true");
+	var table = EBC_GetParentTable(cell);
+	var rows = table.rows;
+	for (var i=0;i<rows.length;i++)
+	{
+		var cells = rows[i].cells;
+		for (var j=0;j<cells.length;j++)
 		{
-			if (names[j]==currentName)
+			if (cells[j] != cell)
+				DD2_OnMouseOut(cells[j]);
+		}
+	}
+	var childs = cell.childNodes;
+	for (var i =0;i<childs.length;i++)
+		if (childs[i].style != null)
+		{
+			jQ(childs[i]).fadeIn("fast", function() {this.style.visibility="";});
+		}
+}
+
+function DD2_OnMouseOut(cell)
+{
+	cell.setAttribute("mouseOver", "");
+	var reportField = EBC_GetSelectByName(cell, "ReportSetName");
+	var reportTitleField = EBC_GetInputByName(cell, "TextBox");
+	if (reportField != null && reportTitleField != null)
+	{
+		var reportSetName = reportField.value;
+		var reportSetTitle = reportTitleField.value;
+		if ((reportSetName == "" || reportSetName == "..." || reportSetName == null) && 
+		(reportSetTitle == "" || reportSetTitle == null))
+		{
+			var childs = cell.childNodes;
+			var needHide = true;
+			var focusedElement;
+			for (var i=0;needHide && i<childs.length;i++)
 			{
-				haveThisName = true;
-				break;
+				needHide = (childs[i] != document.activeElement);
+				focusedElement = childs[i];
+			}
+			if (needHide)
+			{
+				for (var i =0;i<childs.length;i++)
+					if (childs[i].style != null)
+						if (childs[i].style.visibility != "hidden")
+							jQ(childs[i]).fadeOut("slow", function() {this.style.visibility="hidden";this.style.display="inline";});
+			}
+			else
+			{
+				if (focusedElement.onblur == null)
+					focusedElement.onblur = function(){DD2_OnUnfocuse(cell)};
 			}
 		}
 	}
-	while(haveThisName);
-
-	
-	var userData = {};
-	userData.postBackFunction = postBackFunction;
-	userData.controlId = id;
-	
-	DD_PromptReportNameCallBack(userData, reportType + i, true);
-	
-	return true;
 }
 
-function DD_PromptReportNameCallBack(userData, reportName, isOk)
+function DD2_OnUnfocuse(cell)
 {
-	if(isOk && reportName!=null)
+	var mouseOver = (cell.getAttribute("mouseOver") == "true");
+	if (!mouseOver)
+		DD2_OnMouseOut(cell);
+}
+
+function DD2_Ready(ready)
+{
+	var toolbarRow = document.getElementById(toolbarId);
+	var anchors = toolbarRow.getElementsByTagName("A");
+	for(var i=0;i<anchors.length;i++)
 	{
-		if (reportName == '')
+		var anchor = anchors[i];
+		var buttonId = anchor.getAttribute("buttonId");
+		if(!(
+			buttonId=="BackButton" ||
+			buttonId=="NewButton" ||
+			buttonId=="AdminButton" ||
+			buttonId=="DatabaseDiagram" ||
+			buttonId=="ReportListButton" ||
+			buttonId=="UpgradeButton" ||
+			buttonId=="ShowHelp" ||
+			buttonId=="EtlButton" ||
+			buttonId=="AddReportButton"))
 		{
-			modal_ok(jsResources.EnterANameOfTheSavedReport);
-			return;
-		}
-		var haveThisName = false;
-		for(var j=0;j<names.length;j++)
-		{
-		    if (names[j] == reportName)
-		    {
-		        haveThisName = true;
-				break;
-		    }
-		}
-		
-		if(haveThisName)
-		{
-			modal_ok(jsResources.ThisReportAlreadyExists);
-			return;
-		}
-		else
-		{
-			var reportNameControl = document.getElementById(userData.controlId + "_NewReportName");
-			reportNameControl.value = reportName;			
-			var postBackFunction = userData.postBackFunction.replace(/&quot;/g, '"');
-			pause(100);
-			ShowDialog("Saving...<br><image src='" + responseServerWithDelimeter + "image=loading.gif'/>");
-			pause(100);
-			eval(postBackFunction);
+			disableAnchor(anchor, !ready);
+			var cell = anchor.parentNode;
+			var row = cell.parentNode;
+			var tBody = row.parentNode;
+			var table = tBody.parentNode;
+			var content = table.parentNode;
+			if(!ready)
+				content.setAttribute("contentdisabled", true);
+			else
+				content.removeAttribute("contentdisabled");
 		}
 	}
 }
 
-function pause(ms) {
-  var now = new Date();
-  var exitTime = now.getTime() + ms;
-  while (true) {
-    now = new Date();
-    if (now.getTime() >= exitTime) return;
-  }
+function DD2_Init(tableID, viewerURL, hideUnused)
+{
+    reportViewerURL = viewerURL;
+	/*var table = document.getElementById(tableID);
+	var rows = table.rows;
+	for (var j=0;j<rows.length;j++) 
+	{
+		var cells = rows[j].cells;
+		for (var i=0;i<cells.length; i++) 
+		{
+			var sel = EBC_GetElementByName(cells[i], "ReportSetName", "SELECT");
+			DD2_GetReportsByReportSet(sel);
+			if (hideUnused)
+				DD2_OnMouseOut(cells[i]);
+		}
+	}*/
 }
 
-var names;
-function DD_PopupAddReport(id, postBackFunction, formId, action, rs, keysString, namesString, titles)
+jq$(document).ready(function () {
+    DD2_CheckSelectedReports();
+});
+
+
+function DD2_OpenReport(obj)
 {
-	//alert(namesString);
-	//FADINGTOOLTIP = null;
-	var keys = keysString.split(",");
-	names = namesString.split(",");
-	title = titles.split(";");
-	var html = "<div id = 'Dashboard_NewReportTypeSelect'  style='width : 600px'><a align='center' style='text-align:center'>" + jsResources.WhatTypeOfReportElementWouldYouLikeToAdd + "</a><br>";
-	html += "<table align='center'>";
-	for (var i = 0; i < keys.length; i++)
+	if (obj != null)
 	{
-		var onclick = "DD_PromptReportName('" + id + "', '" + postBackFunction + "', '" + formId + "', '" + action + "', '" + keys[i] + "')";
-		if (i%4 == 0)
-			html += "<tr>";
-		html += "<td id = 'TableCell_"+i+"' style = 'border: white thin solid;' "+
-			"onmouseover = javascript:DD_OnMouseOver("+i+") "+
-			"onmouseout = javascript:DD_OnMouseOut("+i+")>";
-		html += "<img onclick=\"" + onclick + "\" src='" + rs + "image=Dashboard." + keys[i] + ".gif' alt='" + keys[i] + "'/>";
-		html += "</td>";
-		if (i%4 == 3)
-			html += "</tr>";
+		var td = EBC_GetColumn(obj);
+		var reportSelect = EBC_GetElementByName(td, "ReportSetName", "SELECT");
+		var reportSetName = reportSelect.value;
+		if (reportSetName != '...' && reportSetName != '' && reportSetName != null) {
+		  redirectUrl = reportViewerURL + "rn=" + reportSetName;
+			window.open(redirectUrl, '_blank')
+		}
 	}
-	html += "</table><br>";
-	html += "<div id = 'idTitleInfo'><br><br><br></div>";
-	html += "</div>";
-	html += "<input type='button' value='Cancel' onclick='hm()'>"
-	ShowDialog(html);
 }

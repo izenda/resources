@@ -55,7 +55,7 @@
             <img id="limg" style="display: none; margin-left: 70px;" src="rs.aspx?image=loading.gif" alt="" />
         </div>
 
-        <div class="btn-toolbar" style="margin: 12px 10px 4px 8px; z-index: 6; position: relative; float: left; white-space: nowrap;">
+        <div class="btn-toolbar" style="margin: 12px 10px 4px 8px; z-index: 2; position: relative; float: left; white-space: nowrap;">
 
             <div class="btn-group">
                 <a class="btn" title="Refresh" lang-title="js_Refresh" runat="server" id="updateRef">

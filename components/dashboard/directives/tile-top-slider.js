@@ -19,12 +19,12 @@
         // set ng-model value
         var setModelValue = function (value) {
           $scope.ngModel = parseInt(value);
-          $scope.$parent.$apply();
+          $scope.$parent.$applyAsync();
         };
         // set end-value value
         var setEndValue = function(value) {
           $scope.endValue = parseInt(value);
-          $scope.$parent.$apply();
+          $scope.$parent.$applyAsync();
         }
         // set value to slider widget
         var setSliderValue = function (value) {
@@ -48,7 +48,7 @@
             var value = data.from;
             setEndValue(value);
             $scope.onChangeEnd({});
-            $scope.$parent.$apply();
+            $scope.$parent.$applyAsync();
           }
         });
 

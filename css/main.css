@@ -4,7 +4,7 @@
 
 @font-face {
 	font-family: "SourceSansProRegular";
-	src: url("../../rs.aspx?image=ModernImages.SourceSansPro-Regular.otf");
+	src: url("../../rs.aspx?font=Fonts.SourceSansPro-Regular.otf");
 }
 
 html, body {
@@ -356,7 +356,7 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
   position: relative;
 }
 #RL_QuickSearchBox {
-	width: 100%;
+  width: 100%;
   color: #858585 !important;
   border: 1px solid #aaa;
   padding: 0;
@@ -371,6 +371,11 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
   position: relative;
   left: -4px;
   background-color: #fff;
+}
+#RL_QuickSearchBox::-ms-clear {
+  display: none;
+  width : 0;
+  height: 0;
 }
 .search-icon {
   display: block;
@@ -390,6 +395,7 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
 	position: absolute;
 	top: 7px;
 	opacity: .5;
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=50);
 }
 
 

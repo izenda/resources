@@ -13,7 +13,7 @@ angular
     function ($rootScope, $http, $q, $log, $izendaUrl) {
       'use strict';
 
-      var rsQueryBaseUrl = $izendaUrl.urlSettings.urlRsPage;
+      var rsQueryBaseUrl = $izendaUrl.settings.urlRsPage;
 
       var rsQueryLog = {};
 
@@ -137,14 +137,14 @@ angular
       }
 
       /**
-       * Do query to rs.aspx
+       * Do query to RespornceServer
        */
       function rsQuery(queryParams, options, errorOptions) {
         return customQuery(rsQueryBaseUrl, queryParams, options, errorOptions);
       }
 
       /**
-       * Base query to rs.aspx with wscmd and wsargN parameters
+       * Base query to RespornceServer with wscmd and wsargN parameters
        */
       function query(wsCmd, wsArgs, options, errorOptions) {
         // prepare params:
@@ -163,6 +163,10 @@ angular
         } else {
           throw new Error('wsArgs: expected array, but got: ' + typeof (wsArgs));
         }
+
+				// apply izendaPageId$
+				if (typeof(window.izendaPageId$) !== 'undefined')
+					params['izpid'] = window.izendaPageId$;
 
         // set default error options if it is not defined:
         var eOptions;

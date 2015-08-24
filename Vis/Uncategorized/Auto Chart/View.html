@@ -770,48 +770,6 @@
 				jq$('#VIS_ID').html(insufficientWidthMessage);
 			}
 
-			function checkInsufficientWidth(width, type, count) {
-				var typeMap = function (type, count) {
-					switch (type) {
-						case 'area':
-						case 'areaspline':
-						case 'scatter':
-						case 'line':
-						case 'spline':
-							return count ? count * 20 : 240;
-						case 'column':
-						case 'column-stacked':
-						case 'column-stacked-percent':
-							return count ? count * 30 : 240;
-						case 'pie':
-						case 'pie-donut':
-						case 'line-polar':
-						case 'spline-polar':
-							return 320;
-						default:
-							return 240;
-					}
-				};
-				return (width < typeMap(type, count));
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width, types[s.props.type].name),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			toggleHeaderVisibility(!isImageRender && !isInsufficientWidth);
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize('VIS_ID', ExecuteVIS_ID, function () {
-					var highchart = jq$('#VIS_ID').highcharts();
-					if (highchart) {
-						highchart.destroy();
-					}
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
-
 			vis.collectTree();
 
 			var metricsLength = vis.metrics.length;
@@ -1580,11 +1538,6 @@
 				var seriesCount = s.options.series.length,
 					itemsInSeries = (seriesCount > 0) ? s.options.series[0].data.length : 0,
 					itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
-				if (checkInsufficientWidth(width, types[s.props.type].name, itemsOnScreen) && !isImageRender) {
-					showInsufficientWidth(width, height);
-					toggleHeaderVisibility(false);
-					return;
-				}
 
 				execBreadcrumb(o.data);
 				vs.find("#VIS_ID").height(height - (vis.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height())));

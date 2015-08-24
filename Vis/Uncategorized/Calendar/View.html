@@ -1,0 +1,1250 @@
+﻿<style type="text/css">
+	/*!
+ * FullCalendar v2.3.1 Stylesheet
+ * Docs & License: http://fullcalendar.io/
+ * (c) 2015 Adam Shaw
+ */
+
+
+	#VIS_ID_CONTAINER .fc {
+		direction: ltr;
+		text-align: left;
+	}
+
+	#VIS_ID_CONTAINER .fc-rtl {
+		text-align: right;
+	}
+
+	#VIS_ID_CONTAINER .fc { /* extra precedence to overcome jqui */
+		font-size: 1em;
+	}
+
+
+	/* Colors
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-unthemed th,
+	#VIS_ID_CONTAINER .fc-unthemed td,
+	#VIS_ID_CONTAINER .fc-unthemed thead,
+	#VIS_ID_CONTAINER .fc-unthemed tbody,
+	#VIS_ID_CONTAINER .fc-unthemed .fc-divider,
+	#VIS_ID_CONTAINER .fc-unthemed .fc-row,
+	#VIS_ID_CONTAINER .fc-unthemed .fc-popover {
+		border-color: #ddd;
+	}
+
+	#VIS_ID_CONTAINER  .fc-unthemed .fc-popover {
+		background-color: #fff;
+	}
+
+	#VIS_ID_CONTAINER .fc-unthemed .fc-divider,
+	#VIS_ID_CONTAINER .fc-unthemed .fc-popover .fc-header {
+		background: #eee;
+	}
+
+	#VIS_ID_CONTAINER .fc-unthemed .fc-popover .fc-header .fc-close {
+		color: #666;
+	}
+
+	#VIS_ID_CONTAINER .fc-unthemed .fc-today {
+		background: #fcf8e3;
+	}
+
+	#VIS_ID_CONTAINER .fc-highlight { /* when user is selecting cells */
+		background: #bce8f1;
+		opacity: .3;
+		filter: alpha(opacity=30); /* for IE */
+	}
+
+	#VIS_ID_CONTAINER .fc-bgevent { /* default look for background events */
+		background: rgb(143, 223, 130);
+		opacity: .3;
+		filter: alpha(opacity=30); /* for IE */
+	}
+
+	#VIS_ID_CONTAINER .fc-nonbusiness { /* default look for non-business-hours areas */
+		/* will inherit .fc-bgevent's styles */
+		background: #d7d7d7;
+	}
+
+
+	/* Icons (inline elements with styled text that mock arrow icons)
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-icon {
+		display: inline-block;
+		width: 1em;
+		height: 1em;
+		line-height: 1em;
+		font-size: 1em;
+		text-align: center;
+		overflow: hidden;
+		font-family: "Courier New", Courier, monospace;
+	}
+
+	/*
+Acceptable font-family overrides for individual icons:
+	"Arial", sans-serif
+	"Times New Roman", serif
+
+NOTE: use percentage font sizes or else old IE chokes
+*/
+
+	#VIS_ID_CONTAINER .fc-icon:after {
+		position: relative;
+		margin: 0 -1em; /* ensures character will be centered, regardless of width */
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-left-single-arrow:after {
+		content: "\02039";
+		font-weight: bold;
+		font-size: 200%;
+		top: -7%;
+		left: 3%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-right-single-arrow:after {
+		content: "\0203A";
+		font-weight: bold;
+		font-size: 200%;
+		top: -7%;
+		left: -3%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-left-double-arrow:after {
+		content: "\000AB";
+		font-size: 160%;
+		top: -7%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-right-double-arrow:after {
+		content: "\000BB";
+		font-size: 160%;
+		top: -7%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-left-triangle:after {
+		content: "\25C4";
+		font-size: 125%;
+		top: 3%;
+		left: -2%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-right-triangle:after {
+		content: "\25BA";
+		font-size: 125%;
+		top: 3%;
+		left: 2%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-down-triangle:after {
+		content: "\25BC";
+		font-size: 125%;
+		top: 2%;
+	}
+
+	#VIS_ID_CONTAINER .fc-icon-x:after {
+		content: "\000D7";
+		font-size: 200%;
+		top: 6%;
+	}
+
+
+	/* Buttons (styled <button> tags, normalized to work cross-browser)
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc button {
+		/* force height to include the border and padding */
+		-moz-box-sizing: border-box;
+		-webkit-box-sizing: border-box;
+		box-sizing: border-box;
+		/* dimensions */
+		margin: 0;
+		height: 2.1em;
+		padding: 0 .6em;
+		/* text & cursor */
+		font-size: 1em; /* normalize */
+		white-space: nowrap;
+		cursor: pointer;
+	}
+
+	/* Firefox has an annoying inner border */
+	#VIS_ID_CONTAINER .fc button::-moz-focus-inner {
+		margin: 0;
+		padding: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-state-default { /* non-theme */
+		border: 1px solid;
+	}
+
+	#VIS_ID_CONTAINER .fc-state-default.fc-corner-left { /* non-theme */
+		border-top-left-radius: 4px;
+		border-bottom-left-radius: 4px;
+	}
+
+	#VIS_ID_CONTAINER .fc-state-default.fc-corner-right { /* non-theme */
+		border-top-right-radius: 4px;
+		border-bottom-right-radius: 4px;
+	}
+
+	/* icons in buttons */
+
+	#VIS_ID_CONTAINER .fc button .fc-icon { /* non-theme */
+		position: relative;
+		top: -0.05em; /* seems to be a good adjustment across browsers */
+		margin: 0 .2em;
+		vertical-align: middle;
+	}
+
+	/*
+  button states
+  borrowed from twitter bootstrap (http://twitter.github.com/bootstrap/)
+*/
+
+	#VIS_ID_CONTAINER .fc-state-default {
+		background-color: #f5f5f5;
+		background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
+		background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
+		background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
+		background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+		background-repeat: repeat-x;
+		border-color: #e6e6e6 #e6e6e6 #bfbfbf;
+		border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+		color: #333;
+		text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+	}
+
+	#VIS_ID_CONTAINER .fc-state-hover,
+	#VIS_ID_CONTAINER .fc-state-down,
+	#VIS_ID_CONTAINER .fc-state-active,
+	#VIS_ID_CONTAINER .fc-state-disabled {
+		color: #333333;
+		background-color: #e6e6e6;
+	}
+
+	#VIS_ID_CONTAINER .fc-state-hover {
+		color: #333333;
+		text-decoration: none;
+		background-position: 0 -15px;
+		-webkit-transition: background-position 0.1s linear;
+		-moz-transition: background-position 0.1s linear;
+		-o-transition: background-position 0.1s linear;
+		transition: background-position 0.1s linear;
+	}
+
+	#VIS_ID_CONTAINER .fc-state-down,
+	#VIS_ID_CONTAINER .fc-state-active {
+		background-color: #cccccc;
+		background-image: none;
+		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
+	}
+
+	#VIS_ID_CONTAINER .fc-state-disabled {
+		cursor: default;
+		background-image: none;
+		opacity: 0.65;
+		filter: alpha(opacity=65);
+		box-shadow: none;
+	}
+
+
+	/* Buttons Groups
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-button-group {
+		display: inline-block;
+	}
+
+	/*
+every button that is not first in a button group should scootch over one pixel and cover the
+previous button's border...
+*/
+
+	#VIS_ID_CONTAINER .fc .fc-button-group > * { /* extra precedence b/c buttons have margin set to zero */
+		float: left;
+		margin: 0 0 0 -1px;
+	}
+
+	#VIS_ID_CONTAINER .fc .fc-button-group > :first-child { /* same */
+		margin-left: 0;
+	}
+
+
+	/* Popover
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-popover {
+		position: absolute;
+		box-shadow: 0 2px 6px rgba(0,0,0,.15);
+	}
+
+	#VIS_ID_CONTAINER .fc-popover .fc-header { /* TODO: be more consistent with fc-head/fc-body */
+		padding: 2px 4px;
+	}
+
+	#VIS_ID_CONTAINER .fc-popover .fc-header .fc-title {
+		margin: 0 2px;
+	}
+
+	#VIS_ID_CONTAINER .fc-popover .fc-header .fc-close {
+		cursor: pointer;
+	}
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-popover .fc-header .fc-title,
+	#VIS_ID_CONTAINER .fc-rtl .fc-popover .fc-header .fc-close {
+		float: left;
+	}
+
+	#VIS_ID_CONTAINER .fc-rtl .fc-popover .fc-header .fc-title,
+	#VIS_ID_CONTAINER .fc-ltr .fc-popover .fc-header .fc-close {
+		float: right;
+	}
+
+	/* unthemed */
+
+	#VIS_ID_CONTAINER .fc-unthemed .fc-popover {
+		border-width: 1px;
+		border-style: solid;
+	}
+
+	#VIS_ID_CONTAINER .fc-unthemed .fc-popover .fc-header .fc-close {
+		font-size: .9em;
+		margin-top: 2px;
+	}
+
+	/* jqui themed */
+
+	#VIS_ID_CONTAINER .fc-popover > .ui-widget-header + .ui-widget-content {
+		border-top: 0; /* where they meet, let the header have the border */
+	}
+
+
+	/* Misc Reusable Components
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-divider {
+		border-style: solid;
+		border-width: 1px;
+	}
+
+	#VIS_ID_CONTAINER hr.fc-divider {
+		height: 0;
+		margin: 0;
+		padding: 0 0 2px; /* height is unreliable across browsers, so use padding */
+		border-width: 1px 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-clear {
+		clear: both;
+	}
+
+	#VIS_ID_CONTAINER .fc-bg,
+	#VIS_ID_CONTAINER .fc-bgevent-skeleton,
+	#VIS_ID_CONTAINER .fc-highlight-skeleton,
+	#VIS_ID_CONTAINER .fc-helper-skeleton {
+		/* these element should always cling to top-left/right corners */
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-bg {
+		bottom: 0; /* strech bg to bottom edge */
+	}
+
+	#VIS_ID_CONTAINER .fc-bg table {
+		height: 100%; /* strech bg to bottom edge */
+	}
+
+
+	/* Tables
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc table {
+		width: 100%;
+		table-layout: fixed;
+		border-collapse: collapse;
+		border-spacing: 0;
+		font-size: 1em; /* normalize cross-browser */
+	}
+
+	#VIS_ID_CONTAINER .fc th {
+		text-align: center;
+	}
+
+	#VIS_ID_CONTAINER .fc th,
+	#VIS_ID_CONTAINER .fc td {
+		border-style: solid;
+		border-width: 1px;
+		padding: 0;
+		vertical-align: top;
+	}
+
+	#VIS_ID_CONTAINER .fc td.fc-today {
+		border-style: double; /* overcome neighboring borders */
+	}
+
+
+	/* Fake Table Rows
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc .fc-row { /* extra precedence to overcome themes w/ .ui-widget-content forcing a 1px border */
+		/* no visible border by default. but make available if need be (scrollbar width compensation) */
+		border-style: solid;
+		border-width: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-row table {
+		/* don't put left/right border on anything within a fake row.
+	   the outer tbody will worry about this */
+		border-left: 0 hidden transparent;
+		border-right: 0 hidden transparent;
+		/* no bottom borders on rows */
+		border-bottom: 0 hidden transparent;
+	}
+
+	#VIS_ID_CONTAINER .fc-row:first-child table {
+		border-top: 0 hidden transparent; /* no top border on first row */
+	}
+
+
+	/* Day Row (used within the header and the DayGrid)
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-row {
+		position: relative;
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-bg {
+		z-index: 1;
+	}
+
+	/* highlighting cells & background event skeleton */
+
+	#VIS_ID_CONTAINER .fc-row .fc-bgevent-skeleton,
+	#VIS_ID_CONTAINER .fc-row .fc-highlight-skeleton {
+		bottom: 0; /* stretch skeleton to bottom of row */
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-bgevent-skeleton table,
+	#VIS_ID_CONTAINER .fc-row .fc-highlight-skeleton table {
+		height: 100%; /* stretch skeleton to bottom of row */
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-highlight-skeleton td,
+	#VIS_ID_CONTAINER .fc-row .fc-bgevent-skeleton td {
+		border-color: transparent;
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-bgevent-skeleton {
+		z-index: 2;
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-highlight-skeleton {
+		z-index: 3;
+	}
+
+	/*
+row content (which contains day/week numbers and events) as well as "helper" (which contains
+temporary rendered events).
+*/
+
+	#VIS_ID_CONTAINER .fc-row .fc-content-skeleton {
+		position: relative;
+		z-index: 4;
+		padding-bottom: 2px; /* matches the space above the events */
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-helper-skeleton {
+		z-index: 5;
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-content-skeleton td,
+	#VIS_ID_CONTAINER .fc-row .fc-helper-skeleton td {
+		/* see-through to the background below */
+		background: none; /* in case <td>s are globally styled */
+		border-color: transparent;
+		/* don't put a border between events and/or the day number */
+		border-bottom: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-row .fc-content-skeleton tbody td, /* cells with events inside (so NOT the day number cell) */
+	#VIS_ID_CONTAINER .fc-row .fc-helper-skeleton tbody td {
+		/* don't put a border between event cells */
+		border-top: 0;
+	}
+
+
+	/* Scrolling Container
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-scroller { /* this class goes on elements for guaranteed vertical scrollbars */
+		overflow-y: scroll;
+		overflow-x: hidden;
+	}
+
+	#VIS_ID_CONTAINER .fc-scroller > * { /* we expect an immediate inner element */
+		position: relative; /* re-scope all positions */
+		width: 100%; /* hack to force re-sizing this inner element when scrollbars appear/disappear */
+		overflow: hidden; /* don't let negative margins or absolute positioning create further scroll */
+	}
+
+
+	/* Global Event Styles
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-event {
+		position: relative; /* for resize handle and other inner positioning */
+		display: block; /* make the <a> tag block */
+		font-size: .85em;
+		line-height: 1.6;
+		border-radius: 3px;
+		border: 1px solid #2f7ed8;
+		background-color: #ffffff;
+		font-weight: normal; /* undo jqui's ui-widget-header bold */
+	}
+
+	/* overpower some of bootstrap's and jqui's styles on <a> tags */
+	#VIS_ID_CONTAINER .fc-event,
+	#VIS_ID_CONTAINER .fc-event:hover,
+	#VIS_ID_CONTAINER .ui-widget .fc-event {
+		color: #fff; /* default TEXT color */
+		text-decoration: none; /* if <a> has an href */
+	}
+
+	#VIS_ID_CONTAINER .fc-event[href],
+	#VIS_ID_CONTAINER .fc-event.fc-draggable {
+		cursor: pointer; /* give events with links and draggable events a hand mouse pointer */
+	}
+
+	#VIS_ID_CONTAINER .fc-not-allowed, /* causes a "warning" cursor. applied on body */
+	#VIS_ID_CONTAINER .fc-not-allowed .fc-event { /* to override an event's custom cursor */
+		cursor: not-allowed;
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-bg { /* the generic .fc-bg already does position */
+		z-index: 1;
+		background: #fff;
+		opacity: .25;
+		filter: alpha(opacity=25); /* for IE */
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-content {
+		position: relative;
+		z-index: 2;
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-resizer {
+		position: absolute;
+		z-index: 3;
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-title {
+		text-align: center;
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-value {
+		color: #4c4c4c;
+		background-color: #ffffff;
+		text-align: center;
+		font-size: 30px;
+		position: relative;
+		top: 50%;
+		left: 0;
+		bottom: 0;
+		right: 0;
+		z-index: -1;
+		overflow: hidden;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-container .fc-event .fc-value {
+		margin-top: -9.5px;
+		-webkit-transform: translateY(-50%);
+		-ms-transform: translateY(-50%);
+		transform: translateY(-50%);
+	}
+
+	/* Horizontal Events
+--------------------------------------------------------------------------------------------------*/
+
+	/* events that are continuing to/from another week. kill rounded corners and butt up against edge */
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-start,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-end {
+		margin-left: 0;
+		border-left-width: 0;
+		padding-left: 1px; /* replace the border with padding */
+		border-top-left-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-end,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-start {
+		margin-right: 0;
+		border-right-width: 0;
+		padding-right: 1px; /* replace the border with padding */
+		border-top-right-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+	/* resizer */
+
+	#VIS_ID_CONTAINER .fc-h-event .fc-resizer { /* positioned it to overcome the event's borders */
+		top: -1px;
+		bottom: -1px;
+		left: -1px;
+		right: -1px;
+		width: 5px;
+	}
+
+	/* left resizer  */
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-start-resizer,
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-start-resizer:before,
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-start-resizer:after,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-end-resizer,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-end-resizer:before,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-end-resizer:after {
+		right: auto; /* ignore the right and only use the left */
+		cursor: w-resize;
+	}
+
+	/* right resizer */
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-end-resizer,
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-end-resizer:before,
+	#VIS_ID_CONTAINER .fc-ltr .fc-h-event .fc-end-resizer:after,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-start-resizer,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-start-resizer:before,
+	#VIS_ID_CONTAINER .fc-rtl .fc-h-event .fc-start-resizer:after {
+		left: auto; /* ignore the left and only use the right */
+		cursor: e-resize;
+	}
+
+
+	/* DayGrid events
+----------------------------------------------------------------------------------------------------
+We use the full "fc-day-grid-event" class instead of using descendants because the event won't
+be a descendant of the grid when it is being dragged.
+*/
+
+	#VIS_ID_CONTAINER .fc-day-grid-event {
+		margin: 1px 2px 0; /* spacing between events and edges */
+		padding: 0 0;
+	}
+
+
+	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content { /* force events to be one-line tall */
+		white-space: nowrap;
+		overflow: hidden;
+	}
+
+	#VIS_ID_CONTAINER .fc-day-grid-event .fc-time {
+		font-weight: bold;
+	}
+
+	#VIS_ID_CONTAINER .fc-day-grid-event .fc-resizer { /* enlarge the default hit area */
+		left: -3px;
+		right: -3px;
+		width: 7px;
+	}
+
+
+	/* Event Limiting
+--------------------------------------------------------------------------------------------------*/
+
+	/* "more" link that represents hidden events */
+
+	#VIS_ID_CONTAINER a.fc-more {
+		margin: 1px 3px;
+		font-size: .85em;
+		cursor: pointer;
+		text-decoration: none;
+	}
+
+	#VIS_ID_CONTAINER a.fc-more:hover {
+		text-decoration: underline;
+	}
+
+	#VIS_ID_CONTAINER .fc-limited { /* rows and cells that are hidden because of a "more" link */
+		display: none;
+	}
+
+	/* popover that appears when "more" link is clicked */
+
+	#VIS_ID_CONTAINER .fc-day-grid .fc-row {
+		z-index: 1; /* make the "more" popover one higher than this */
+	}
+
+	#VIS_ID_CONTAINER .fc-more-popover {
+		z-index: 2;
+		width: 220px;
+	}
+
+	#VIS_ID_CONTAINER .fc-more-popover .fc-event-container {
+		padding: 10px;
+	}
+
+	/* Toolbar
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-toolbar {
+		text-align: center;
+		margin-bottom: 1em;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-left {
+		float: left;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-right {
+		float: right;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-center {
+		display: inline-block;
+	}
+
+	/* the things within each left/right/center section */
+	#VIS_ID_CONTAINER .fc .fc-toolbar > * > * { /* extra precedence to override button border margins */
+		float: left;
+		margin-left: .75em;
+	}
+
+	/* the first thing within each left/center/right section */
+	#VIS_ID_CONTAINER .fc .fc-toolbar > * > :first-child { /* extra precedence to override button border margins */
+		margin-left: 0;
+	}
+
+	/* title text */
+
+	#VIS_ID_CONTAINER .fc-toolbar h2 {
+		margin: 0;
+	}
+
+	/* button layering (for border precedence) */
+
+	#VIS_ID_CONTAINER .fc-toolbar button {
+		position: relative;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-state-hover,
+	#VIS_ID_CONTAINER .fc-toolbar .ui-state-hover {
+		z-index: 2;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-state-down {
+		z-index: 3;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar .fc-state-active,
+	#VIS_ID_CONTAINER .fc-toolbar .ui-state-active {
+		z-index: 4;
+	}
+
+	#VIS_ID_CONTAINER .fc-toolbar button:focus {
+		z-index: 5;
+	}
+
+
+	/* View Structure
+--------------------------------------------------------------------------------------------------*/
+
+	/* undo twitter bootstrap's box-sizing rules. normalizes positioning techniques */
+	/* don't do this for the toolbar because we'll want bootstrap to style those buttons as some pt */
+	#VIS_ID_CONTAINER .fc-view-container *,
+	#VIS_ID_CONTAINER .fc-view-container *:before,
+	#VIS_ID_CONTAINER .fc-view-container *:after {
+		-webkit-box-sizing: content-box;
+		-moz-box-sizing: content-box;
+		box-sizing: content-box;
+	}
+
+	#VIS_ID_CONTAINER .fc-view, /* scope positioning and z-index's for everything within the view */
+	#VIS_ID_CONTAINER .fc-view > table { /* so dragged elements can be above the view's main element */
+		position: relative;
+		z-index: 1;
+	}
+
+	/* BasicView
+--------------------------------------------------------------------------------------------------*/
+
+	/* day row structure */
+
+	#VIS_ID_CONTAINER .fc-basicWeek-view .fc-content-skeleton,
+	#VIS_ID_CONTAINER .fc-basicDay-view .fc-content-skeleton {
+		/* we are sure there are no day numbers in these views, so... */
+		padding-top: 1px; /* add a pixel to make sure there are 2px padding above events */
+		padding-bottom: 1em; /* ensure a space at bottom of cell for user selecting/clicking */
+	}
+
+	#VIS_ID_CONTAINER .fc-basic-view .fc-body .fc-row {
+		min-height: 4em; /* ensure that all rows are at least this tall */
+	}
+
+	/* a "rigid" row will take up a constant amount of height because content-skeleton is absolute */
+
+	#VIS_ID_CONTAINER .fc-row.fc-rigid {
+		overflow: hidden;
+	}
+
+	#VIS_ID_CONTAINER .fc-row.fc-rigid .fc-content-skeleton {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+
+	/* week and day number styling */
+
+	#VIS_ID_CONTAINER .fc-basic-view .fc-week-number,
+	#VIS_ID_CONTAINER .fc-basic-view .fc-day-number {
+		padding: 0 2px;
+	}
+
+	#VIS_ID_CONTAINER .fc-basic-view td.fc-week-number span,
+	#VIS_ID_CONTAINER .fc-basic-view td.fc-day-number {
+		padding-top: 2px;
+		padding-bottom: 2px;
+	}
+
+	#VIS_ID_CONTAINER .fc-basic-view .fc-week-number {
+		text-align: center;
+	}
+
+	#VIS_ID_CONTAINER .fc-basic-view .fc-week-number span {
+		/* work around the way we do column resizing and ensure a minimum width */
+		display: inline-block;
+		min-width: 1.25em;
+	}
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-basic-view .fc-day-number {
+		text-align: right;
+	}
+
+	#VIS_ID_CONTAINER .fc-rtl .fc-basic-view .fc-day-number {
+		text-align: left;
+	}
+
+	#VIS_ID_CONTAINER .fc-day-number.fc-other-month {
+		opacity: 0.3;
+		filter: alpha(opacity=30); /* for IE */
+		/* opacity with small font can sometimes look too faded
+	   might want to set the 'color' property instead
+	   making day-numbers bold also fixes the problem */
+	}
+
+	/* AgendaView all-day area
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-agenda-view .fc-day-grid {
+		position: relative;
+		z-index: 2; /* so the "more.." popover will be over the time grid */
+	}
+
+	#VIS_ID_CONTAINER .fc-agenda-view .fc-day-grid .fc-row {
+		min-height: 3em; /* all-day section will never get shorter than this */
+	}
+
+	#VIS_ID_CONTAINER .fc-agenda-view .fc-day-grid .fc-row .fc-content-skeleton {
+		padding-top: 1px; /* add a pixel to make sure there are 2px padding above events */
+		padding-bottom: 1em; /* give space underneath events for clicking/selecting days */
+	}
+
+
+	/* TimeGrid axis running down the side (for both the all-day area and the slot area)
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc .fc-axis { /* .fc to overcome default cell styles */
+		vertical-align: middle;
+		padding: 0 4px;
+		white-space: nowrap;
+	}
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-axis {
+		text-align: right;
+	}
+
+	#VIS_ID_CONTAINER .fc-rtl .fc-axis {
+		text-align: left;
+	}
+
+	#VIS_ID_CONTAINER .ui-widget td.fc-axis {
+		font-weight: normal; /* overcome jqui theme making it bold */
+	}
+
+
+	/* TimeGrid Structure
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-time-grid-container, /* so scroll container's z-index is below all-day */
+	#VIS_ID_CONTAINER .fc-time-grid { /* so slats/bg/content/etc positions get scoped within here */
+		position: relative;
+		z-index: 1;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid {
+		min-height: 100%; /* so if height setting is 'auto', .fc-bg stretches to fill height */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid table { /* don't put outer borders on slats/bg/content/etc */
+		border: 0 hidden transparent;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid > .fc-bg {
+		z-index: 1;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-slats,
+	#VIS_ID_CONTAINER .fc-time-grid > hr { /* the <hr> AgendaView injects when grid is shorter than scroller */
+		position: relative;
+		z-index: 2;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-bgevent-skeleton,
+	#VIS_ID_CONTAINER .fc-time-grid .fc-content-skeleton {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-bgevent-skeleton {
+		z-index: 3;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-highlight-skeleton {
+		z-index: 4;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-content-skeleton {
+		z-index: 5;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-helper-skeleton {
+		z-index: 6;
+	}
+
+
+	/* TimeGrid Slats (lines that run horizontally)
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-slats td {
+		height: 1.5em;
+		border-bottom: 0; /* each cell is responsible for its top border */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-slats .fc-minor td {
+		border-top-style: dotted;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-slats .ui-widget-content { /* for jqui theme */
+		background: none; /* see through to fc-bg */
+	}
+
+
+	/* TimeGrid Highlighting Slots
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-highlight-container { /* a div within a cell within the fc-highlight-skeleton */
+		position: relative; /* scopes the left/right of the fc-highlight to be in the column */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-highlight {
+		position: absolute;
+		left: 0;
+		right: 0;
+		/* top and bottom will be in by JS */
+	}
+
+
+	/* TimeGrid Event Containment
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-event-container, /* a div within a cell within the fc-content-skeleton */
+	#VIS_ID_CONTAINER .fc-time-grid .fc-bgevent-container { /* a div within a cell within the fc-bgevent-skeleton */
+		position: relative;
+	}
+
+	#VIS_ID_CONTAINER .fc-ltr .fc-time-grid .fc-event-container { /* space on the sides of events for LTR (default) */
+		margin: 0 2.5% 0 2px;
+	}
+
+	#VIS_ID_CONTAINER .fc-rtl .fc-time-grid .fc-event-container { /* space on the sides of events for RTL */
+		margin: 0 2px 0 2.5%;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-event,
+	#VIS_ID_CONTAINER .fc-time-grid .fc-bgevent {
+		position: absolute;
+		z-index: 1; /* scope inner z-index's */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid .fc-bgevent {
+		/* background events always span full width */
+		left: 0;
+		right: 0;
+	}
+
+
+	/* Generic Vertical Event
+--------------------------------------------------------------------------------------------------*/
+
+	#VIS_ID_CONTAINER .fc-v-event.fc-not-start { /* events that are continuing from another day */
+		/* replace space made by the top border with padding */
+		border-top-width: 0;
+		padding-top: 1px;
+		/* remove top rounded corners */
+		border-top-left-radius: 0;
+		border-top-right-radius: 0;
+	}
+
+	#VIS_ID_CONTAINER .fc-v-event.fc-not-end {
+		/* replace space made by the top border with padding */
+		border-bottom-width: 0;
+		padding-bottom: 1px;
+		/* remove bottom rounded corners */
+		border-bottom-left-radius: 0;
+		border-bottom-right-radius: 0;
+	}
+
+
+	/* TimeGrid Event Styling
+----------------------------------------------------------------------------------------------------
+We use the full "fc-time-grid-event" class instead of using descendants because the event won't
+be a descendant of the grid when it is being dragged.
+*/
+
+	#VIS_ID_CONTAINER .fc-time-grid-event {
+		overflow: hidden; /* don't let the bg flow over rounded corners */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event .fc-time,
+	#VIS_ID_CONTAINER .fc-time-grid-event .fc-title {
+		padding: 0 1px;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event .fc-time {
+		font-size: .85em;
+		white-space: nowrap;
+	}
+
+	/* short mode, where time and title are on the same line */
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-content {
+		/* don't wrap to second line (now that contents will be inline) */
+		white-space: nowrap;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-time,
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-title {
+		/* put the time and title on the same line */
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-time span {
+		display: none; /* don't display the full time text... */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-time:before {
+		content: attr(data-start); /* ...instead, display only the start time */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-time:after {
+		content: "\000A0-\000A0"; /* seperate with a dash, wrapped in nbsp's */
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event.fc-short .fc-title {
+		font-size: .85em; /* make the title text the same size as the time */
+		padding: 0; /* undo padding from above */
+	}
+
+	/* resizer */
+
+	#VIS_ID_CONTAINER .fc-time-grid-event .fc-resizer {
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 8px;
+		overflow: hidden;
+		line-height: 8px;
+		font-size: 11px;
+		font-family: monospace;
+		text-align: center;
+		cursor: s-resize;
+	}
+
+	#VIS_ID_CONTAINER .fc-time-grid-event .fc-resizer:after {
+		content: "=";
+	}
+</style>
+
+<style>
+	#VIS_ID_CONTAINER #VIS_ID {
+		margin: 40px 10px;
+		padding: 0;
+		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
+		font-size: 14px;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_CALENDAR {
+		margin: 0 auto;
+	}
+</style>
+
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID"></div>
+	</div>
+</div>
+
+<script type="text/javascript" src="moment.min.js"></script>
+<script type="text/javascript" src="fullcalendar.min.js"></script>
+
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+		var VIS_EMBEDDED_DATA;
+
+		var width = 720, height = 500;
+
+		var colorScheme = ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28f43", "#77a1e5", "#c42525", "#a6c96a", "#d86524", "#707cd3"],
+			u = {}, n = [];
+		function color(item) {
+			var name = item[VIS_COLUMNS[1].name];
+			return colorScheme[((u[name] || (u[name] = n.push(name))) - 1) % colorScheme.length];
+		}
+
+		var util = window.ReportScripting, vis,
+			isThumbnails = (document.URL === 'about:blank');
+
+		visState = visState || {};
+
+		try {
+			if (typeof window.jq$ == "undefined") {
+				window.jq$ = jQuery.noConflict(true);
+			}
+
+			if (jq$("#VIS_ID").size() < 1) {
+				util.unregisterResize("VIS_ID");
+				return;
+			}
+
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { })) {
+				return;
+			}
+
+			(function () {
+				var fieldCount = VIS_COLUMNS.length;
+				var testCondition = fieldCount > 2 && VIS_COLUMNS[2].type == 'DateTime';
+				if (!testCondition) {
+					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
+				}
+			})();
+
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+			width = vis.getWidth();
+
+			var events = [];
+
+			function ISOString(date) {
+				return new Date(date.getTime() - timezoneOffset).toISOString();
+			}
+
+			function ISODateString(date) {
+				var isoString = ISOString(date);
+				return isoString.substr(0, 10);
+			}
+
+			var defaultDate = null,
+				items = vis.getItems(),
+				now = new Date(),
+				timezoneOffset = now.getTimezoneOffset() * 60000,
+				twoDateFields = VIS_COLUMNS.length > 3 && VIS_COLUMNS[3].type == 'DateTime';
+
+			for (var i = 0; i < items.length; ++i) {
+				var item = items[i],
+					startDate = vis.unitValue(item, VIS_COLUMNS[2].name),
+					endDate = twoDateFields ? vis.unitValue(item, VIS_COLUMNS[3].name) : null,
+					title = item[VIS_COLUMNS[0].name],
+					value = vis.unitValue(item, VIS_COLUMNS[1].name),
+					formattedValue = item[VIS_COLUMNS[1].name];
+
+				if (startDate == null || isNaN(startDate.valueOf())) {
+					continue;
+				}
+
+				if (endDate == null || isNaN(endDate.valueOf())) {
+					endDate = null;
+				}
+
+				if (defaultDate == null || startDate.getTime() < defaultDate.getTime()) {
+					defaultDate = startDate;
+				}
+
+				var event = {
+					item: item,
+					title: title,
+					value: value,
+					formattedValue: formattedValue
+				};
+
+				if (!twoDateFields || endDate == null) {
+					event.start = ISODateString(startDate);
+				} else {
+					event.start = ISOString(startDate);
+					event.end = ISOString(endDate);
+				}
+
+				events.push(event);
+			}
+
+			util.createTootip();
+
+			jq$(document).ready(function () {
+				jq$("#VIS_ID").empty();
+				jq$('#VIS_ID').append("<div id='VIS_ID_CALENDAR'></div>");
+				jq$('#VIS_ID_CALENDAR').width(width - 20);
+				jq$('#VIS_ID_CALENDAR').fullCalendar({
+					header: {
+						left: 'prev,next today',
+						center: 'title',
+						right: 'month,agendaWeek,agendaDay'
+					},
+					defaultDate: ISODateString(defaultDate),
+					editable: false,
+					slotEventOverlap: false,
+					eventLimit: true,
+					events: events,
+					eventRender: function (event, element) {
+						var eventColor = color(event.item);
+						element.context.style.borderColor = eventColor;
+						element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value">' + event.formattedValue + '</div></div>';
+					},
+					eventAfterRender: function (event, element) {
+						// TODO dynamic decrease font-size
+					},
+					eventMouseover: function (event, e) {
+						var html = '<span style="color:' + color(event.item) + ';">\u25CF</span><span> ' + event.title + ': </span><span>' + event.formattedValue + '</span>';
+						util.showTooltip(html, { event: e });
+					},
+					eventMouseout: function () {
+						util.hideTooltip();
+					}
+				});
+			});
+
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+				jq$("#VIS_ID").empty();
+			});
+		}
+		catch (e) {
+			util.logger.error(e);
+			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
+		}
+	})();
+</script>

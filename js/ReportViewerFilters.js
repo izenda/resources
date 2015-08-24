@@ -146,7 +146,7 @@ function CommitFiltersData(updateReportSet) {
 
 	var cmd = 'setfiltersdata';
 	if (!updateReportSet)
-	  cmd = 'refreshcascadingfilters';
+		cmd = 'refreshcascadingfilters';
 	var requestString = 'wscmd=' + cmd + '&wsarg0=' + encodeURIComponent(JSON.stringify(dataToCommit));
 	// Instant Report handling
 	if (typeof nirConfig != 'undefined' && nirConfig != null && typeof dataSources != 'undefined' && dataSources != null) {
@@ -172,7 +172,7 @@ function GetFiltersDataToCommit() {
 	var dataToCommit = new Array();
 	if (filtersData == null || filtersData.length <= 0)
 		return dataToCommit;
-	
+
 	for (var index = 0; index < filtersData.length; index++) {
 		var filterObj = new Object();
 		filterObj.Removed = filtersData[index].Removed;
@@ -311,10 +311,10 @@ function GenerateNewFilterDropDown() {
 			result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
 
 		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
-		    if (!dataSources[dsCnt].Columns[fCnt].FilterHidden) {
-		    	result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + dataSources[dsCnt].Columns[fCnt].FriendlyName + '</option>';
-		        optionsAdded = true;
-		    }
+			if (!dataSources[dsCnt].Columns[fCnt].FilterHidden) {
+				result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + dataSources[dsCnt].Columns[fCnt].FriendlyName + '</option>';
+				optionsAdded = true;
+			}
 		}
 
 		if (dataSources.length > 1)
@@ -332,7 +332,7 @@ function CheckShowAddFilterControls() {
 		if (newFilterDataDropDown == '')
 			return;
 
-		var addFilterButton$ = jq$('.fuidNewFilterTemplate').clone();
+		var addFilterButton$ = jq$(jq$('.fuidNewFilterTemplate').clone()[0]);
 		addFilterButton$.prop('id', 'fuidNewFilter');
 		if (makeFiltersFloat)
 			addFilterButton$.css('float', 'left');
@@ -434,7 +434,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.show();
 	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
 
-	var mouseOverScript = 'this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage= \'url(\\\'\' + this.children[1].getAttribute("data-img") + \'\\\')\'; this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage=\'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; document.getElementById(\''
+	var mouseOverScript = 'if(this.children[1]) { this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage= \'url(\\\'\' + this.children[1].getAttribute("data-img") + \'\\\')\'; } if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage=\'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
 						+ filter.Description
@@ -681,7 +681,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
-			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5;">';
+			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';
 			var valuesSet8 = value.split(',');
 			for (var cnt8 = 0; cnt8 < existingValues.length; cnt8++) {
 				var checked8 = '';
@@ -699,7 +699,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
-			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="rs.aspx?image=calendar_icon.png">';
+			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			break;
 		case 10:
 			result += '<select class="saveScroll" style="width:100%" size="5" multiple="" id="ndbfc' + index + '" ' + onChangeCmd + '>';
@@ -967,7 +967,7 @@ CC_FillCombobox = function (selectedValues, node, row) {
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
-		var responseServerUrl = 'rs.aspx?';
+		var responseServerUrl = urlSettings.urlRsPage + '?';
 		// From ReportViewer.js
 		if (typeof nrvConfig != 'undefined')
 			responseServerUrl = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter;

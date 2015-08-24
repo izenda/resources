@@ -72,7 +72,7 @@ function JTCS_OnListChanged(id, tablesList) {
 	var handlers = JTCS_onListChangedHandler[id];
 	if (handlers != null) {
 		for (var i = 0; i < handlers.length; i++)
-			handlers[i].func(handlers[i].id, tablesList);
+			handlers[i].func(handlers[i].id, tablesList, true);
 	}
 	allTabsFilled = true;
 }
@@ -302,8 +302,8 @@ function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasour
 		CHC_OnTableListChangedHandlerWithStoredParams();
 	if (typeof GC_OnTableListChangedHandlerWithStoredParams === "function")
 		GC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof MC_OnTableListChangedHandlerWithStoredParams === "function") {
+	if (typeof MC_OnTableListChangedHandlerWithStoredParams === "function")
 		MC_OnTableListChangedHandlerWithStoredParams();
-	}
-	RC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof RC_OnTableListChangedHandlerWithStoredParams === "function")
+		RC_OnTableListChangedHandlerWithStoredParams();
 }

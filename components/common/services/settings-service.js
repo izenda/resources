@@ -39,7 +39,6 @@
           });
         } else {
           // get cached value
-          $log.debug('Got from cache AdHocSettings.PrintMode: ' + printModeCached);
           defer.resolve(printModeCached);
         }
         return defer.promise;

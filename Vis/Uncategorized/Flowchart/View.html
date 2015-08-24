@@ -1,0 +1,220 @@
+﻿<style type="text/css">
+	#VIS_ID_CONTAINER svg {
+		overflow: hidden;
+	}
+	#VIS_ID_CONTAINER .hint {
+		font-size: 12px;
+		color: #999;
+		height: 30px;
+		width: auto;
+	}
+
+	#VIS_ID_CONTAINER .hint span {
+		vertical-align: middle;
+	}
+
+	#VIS_ID_CONTAINER .hint select {
+		width: auto;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
+	}
+
+	.node rect {
+		stroke: #333;
+		fill: #fff;
+	}
+	.edgePath path {
+		stroke: #333;
+		fill: #333;
+		stroke-width: 1.5px;
+	}
+</style>
+
+
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
+			<div class="property-control">
+				<span>Metrics:</span>
+				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+			</div>
+		</div>
+		<div id="VIS_ID"></div>
+	</div>
+</div>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>
+<script type="text/javascript" src="dagre-d3.min.js"></script>
+
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+		var VIS_EMBEDDED_DATA;
+
+		var width = 720, height = 500;
+
+		var util = window.ReportScripting, vis;
+
+		visState = visState || {};
+
+		try {
+			if (typeof window.jq$ == "undefined")
+				window.jq$ = jQuery.noConflict(true);
+
+			if (jq$("#VIS_ID").size() < 1) {
+				util.unregisterResize("VIS_ID");
+				return;
+			}
+
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+				return;
+
+			var root,
+				vs = util.container("VIS_ID"),
+				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
+
+			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+			var s = visState.VIS_ID || (visState.VIS_ID = {});
+			if (!s.props) {
+				try {
+					s.props = JSON.parse(VIS_CONTEXT.props);
+				} catch (e) {
+					s.props = {};
+					util.logger.error(e);
+				}
+			}
+
+			width = vis.getWidth();
+			height = vis.getHeight();
+
+			if (util.getIEVersion() > 0)
+				util.updateStyle(".edgePath path { fill: none !important; }", "izenda-VIS_ID-style");
+
+			function store() {
+				jq$.extend(s.props = (s.props || {}), {
+					"metric": metricSelect.val()
+				});
+
+				vis.setProps(s.props);
+			}
+
+			function restore() {
+				if (typeof s.props != "object") {
+					return;
+				}
+
+				if (s.props.metric) {
+					metricSelect.val(s.props.metric);
+				}
+			}
+
+			vis.collectGraph();
+
+			vis.metrics = vis.metrics.reverse();
+
+			if (!vis.metrics.length) {
+				jq$("#VIS_ID").text("No metric found");
+				return;
+			}
+
+			metricSelect.find("option").remove();
+			jq$.each(vis.metrics, function (i, el) {
+				metricSelect.append("<option>" + el + "</option>");
+			});
+
+			restore();
+
+			s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
+
+			var names = [];
+			
+			function safename(name) {
+				return util.wordwrap(name, 15);
+			}
+
+			for (var i = 0, label; i < vis.edges.length; i++) {
+				if (names.indexOf(label = safename(vis.unitLabel(vis.edges[i], 0))) < 0)
+					names.push(label);
+				if (names.indexOf(label = safename(vis.unitLabel(vis.edges[i], 1))) < 0)
+					names.push(label);
+			}
+
+			var g = new dagreD3.graphlib.Graph().setGraph({});
+
+			names.forEach(function (name) { g.setNode(name, { label: name }); });
+
+			for (var i = 0; i < vis.edges.length; i++) {
+				g.setEdge(safename(vis.unitLabel(vis.edges[i], 0)), safename(vis.unitLabel(vis.edges[i], 1)), { label: vis.unitValue(vis.edges[i], s.spendField), lineInterpolate: 'basis' });
+			}
+
+			g.nodes().forEach(function (v) {
+				var node = g.node(v);
+				node.rx = node.ry = 10;
+			});
+
+			var svg = d3.select("#VIS_ID")
+				.append("svg:svg")
+					.attr("width", width)
+					.attr("height", height),
+				inner = svg.append("svg:g");
+
+			var zoom = d3.behavior.zoom().on("zoom", function () {
+				inner.attr("transform", "translate(" + d3.event.translate + ")" + "scale(" + d3.event.scale + ")");
+			});
+			svg.call(zoom);
+
+			var render = new dagreD3.render();
+
+			render(inner, g);
+
+			var initialScale = 0.75;
+			zoom
+				.translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
+				.scale(initialScale)
+				.event(svg);
+			svg.attr("height", g.graph().height * initialScale + 40);
+
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+				jq$("#VIS_ID").empty();
+			});
+
+			function processData() {
+				metricSelect
+					.unbind("change")
+					.bind("change", function () {
+						s.spendField = this.value;
+
+						inner
+							.selectAll("g.edgeLabel")
+							.each(function (element, index) {
+								var text = vis.unitValue(vis.edges[index], s.spendField);
+								var result = util.labelBBox(d3.select(this).select("g.label"), text);
+
+								d3.select(this).select("div").html(text);
+								d3.select(this)
+									.selectAll(function () { return this.getElementsByTagName("foreignObject"); })
+									.attr("width", result.width);
+							});
+
+						store();
+						update(root);
+					});
+			}
+
+			processData();
+		}
+		catch (e) {
+			util.logger.error(e);
+			util.showVisualizationErrorMessage("VIS_ID", VIS_CONTEXT, e);
+		}
+	})();
+</script>

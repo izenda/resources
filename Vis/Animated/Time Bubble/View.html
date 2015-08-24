@@ -14,16 +14,16 @@
 		stroke: #000;
 		shape-rendering: crispEdges;
 	}
-	
+
 	#VIS_ID_CONTAINER .label {
 		fill: #777;
 	}
-	
+
 	#VIS_ID_CONTAINER .year.label {
 		font: 500 72px "Helvetica Neue";
 		fill: #ddd;
 	}
-	
+
 	#VIS_ID_CONTAINER .year.label.active {
 		fill: #aaa;
 	}
@@ -41,7 +41,7 @@
 	</div>
 </div>
 
-<script type="text/javascript" src="d3.v3.min.js"></script>  
+<script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
 	(function ExecuteVIS_ID() {
@@ -84,28 +84,6 @@
 
 			jq$("#VIS_ID").width(width).height(height);
 
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-
-			function checkInsufficientWidth(width) {
-				return (width < 480);
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-			
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
-
 			var margin = { top: 19.5, right: 19.5, bottom: 19.5, left: 39.5 };
 
 			var x = function(d) { return vis.unitValue(d, 3); };
@@ -113,7 +91,7 @@
 			var radius = function(d) { return vis.unitValue(d, 4); };
 			var color = function(d) { return vis.unitValue(d, 0); };
 			var key = function(d) { return vis.unitValue(d, 0); };
-			
+
 			var order = function(a, b) { return radius(b) - radius(a); };
 
 			var svg = d3.select("#VIS_ID").append("svg")
@@ -121,10 +99,10 @@
 				.attr("height", height)
 				.append("g")
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-			
+
 			var widthWithOffset = width - margin.left - margin.right,
 				heightWithOffset = height - margin.top - margin.bottom;
-			
+
 			var xScale = d3.scale.log().domain([vis.unitValue(vis.min, 3), vis.unitValue(vis.max, 3)]).range([0, widthWithOffset]).clamp(true),
 				yScale = d3.scale.linear().domain([vis.unitValue(vis.min, 2), vis.unitValue(vis.max, 2)]).range([heightWithOffset, 0]).clamp(true),
 				radiusScale = d3.scale.sqrt().domain([vis.unitValue(vis.min, 4), vis.unitValue(vis.max, 4)]).range([0, 40]).clamp(true),

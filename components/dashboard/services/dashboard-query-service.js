@@ -78,7 +78,8 @@ angular
        */
       function syncDashboard(dashboardConfigObject) {
         return $izendaRsQuery.query('synccrsdashboard', [JSON.stringify(dashboardConfigObject)], {
-          dataType: 'text'
+          dataType: 'text',
+          method: 'POST'
         },
         // custom error handler:
         {

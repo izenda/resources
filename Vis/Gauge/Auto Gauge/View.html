@@ -922,13 +922,8 @@
 							if (node.support[key].o instanceof Date) {
 								data.date = node.support[key].o;
 							} else if (typeof node.support[key].o === "number") {
-								var value = node.support[key].f;
-								value = value.replaceAll(/[^\d\.,]/, '').replaceAll(/,(?=.*(?:,|\.))/, '').replaceAll(',', '.').trim();
-								if (!value || isNaN(value)) {
-									value = node.support[key].o;
-								}
 								data.items.push({
-									value: parseFloat(value),
+									value: node.support[key].o,
 									format: (function () {
 										var precisionMatch = node.support[key].f.match(/(\.)(\d+)/),
 											currencyMath = node.support[key].f.match(/\$|€|£/);

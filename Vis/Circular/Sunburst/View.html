@@ -143,30 +143,7 @@
 			width = vis.getWidth();
 			height = vis.getHeight();
 
-			vs.find("#VIS_ID_HOLDER").width(width).height(height);
-
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-			function checkInsufficientWidth(width) {
-				return (width < 320);
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			toggleHeaderVisibility(!isImageRender && !isInsufficientWidth);
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
+			var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
 
 			function store() {
 				jq$.extend(s.props = (s.props || {}), {
@@ -315,7 +292,7 @@
 				"font-weight": "400",
 				"background-color": "#fff"
 			}).height(height);
-			
+
 			var partition = d3.layout.partition()
 				.value(function(d) { return d.size; });
 
@@ -350,7 +327,7 @@
 				// For efficiency, filter nodes to keep only those large enough to see.
 				var nodes = partition.nodes(json)
 					.filter(function(d) { return (d.dx > cx /*0.001*/); /*0.005 radians = 0.29 degrees*/ });
-	
+
 				minY = d3.min(jq$.grep(nodes, function(n) { return n.y > 0; }), function(n) {
 					return n.y;
 				});
@@ -418,7 +395,7 @@
 				vis.updateBreadcrumbContext({ root: json, total: totalSize });
 				vis.hideBreadcrumb();
 				vis.onReady(100);
-				
+
 				if (isBackRender && existNodePath) {
 					var d = trace(json, 0);
 					var pathLocks = new Array(path.size());

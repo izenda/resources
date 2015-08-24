@@ -13,7 +13,9 @@
     '$izendaSettings',
     '$izendaPing',
     '$izendaDashboardToolbarQuery',
-    '$izendaUrl', izendaToolbarController]);
+    '$izendaUrl',
+		'$izendaEvent',
+		izendaToolbarController]);
 
 /**
    * Toolbar controller
@@ -31,7 +33,8 @@ function izendaToolbarController(
   $izendaSettings,
   $izendaPing,
   $izendaDashboardToolbarQuery,
-  $izendaUrl) {
+  $izendaUrl,
+	$izendaEvent) {
 
   'use strict';
 
@@ -62,6 +65,20 @@ function izendaToolbarController(
   vm.isIE8 = $izendaCompatibility.checkIsIe8();
   vm.isStorageAvailable = $izendaBackground.isStorageAvailable();
   vm.isPresentationModeEnable = !$izendaCompatibility.checkIsLteIe10();
+  vm.synchronized = false;
+
+  vm.refreshInterval = null;
+  vm.autoRefreshIntervals = [];
+  $izendaDashboardToolbarQuery.loadAutoRefreshIntervals().then(function (data) {
+    var isFirst = true;
+    angular.forEach(data, function (value, key) {
+      this.push({ name: key, value: value, selected: isFirst });
+      isFirst = false;
+    }, vm.autoRefreshIntervals);
+    if (vm.autoRefreshIntervals.length > 0 && vm.autoRefreshIntervals[0].value >= 1) {
+      vm.refreshDashboardHandler(0, true);
+    }
+  });
 
   vm.backgroundModalRadio = 'url';
   vm.izendaUrl = $izendaUrl;
@@ -70,7 +87,7 @@ function izendaToolbarController(
   vm.dashboardsInCurrentCategory = [];
   vm.activeDashboard = null;
   vm.printMode = 'Html2PdfAndHtml';
-  vm.isNewDashboard = true;
+  vm.isNewDashboard = $location.search()['new'] || false;
 
   vm.sendEmailModalOpened = false;
   vm.sendEmailState = {
@@ -209,36 +226,33 @@ function izendaToolbarController(
   };
 
   /**
-   * Create new dashboard. Fires when user selects name for new dashboard in IzendaSelectReportNameController
-   */
-  $scope.$on('selectedNewReportNameEvent', function (event, args) {
-    var dashboardName = args[0],
-        dashboardCategory = args[1];
-    var url = dashboardName;
-    if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== 'uncategorized') {
-      url = dashboardCategory + '/' + dashboardName;
-    }
-    // load dashboard navigation
-    $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
-      vm.dashboardNavigationLoaded(data);
-    });
-    $location.url(url);
-    vm.hideButtonBar();
-    $scope.$evalAsync();
-  });
-
-  /**
    * Refresh dashboard button handler.
    */
-  vm.refreshDashboardHandler = function () {
-    $rootScope.$broadcast('dashboardRefreshEvent', []);
+  vm.refreshDashboardHandler = function (index, skipFirst) {
+    if (!skipFirst) {
+    	$izendaEvent.queueEvent('dashboardRefreshEvent', [], true);
+    }
+    if (typeof index != 'undefined') {
+      var interval = vm.autoRefreshIntervals[index].value;
+      var numberOfIntervals = vm.autoRefreshIntervals.length;
+      for (var i = 0; i < numberOfIntervals; ++i) {
+        vm.autoRefreshIntervals[i].selected = index == i;
+      }
+      clearInterval(vm.refreshInterval);
+      if (interval >= 1) {
+        interval *= 1000;
+        vm.refreshInterval = setInterval(function () {
+        	$izendaEvent.queueEvent('dashboardRefreshEvent', [], true);
+        }, interval);
+      }
+    }
   };
 
   /**
    * Save/SaveAS dialog
    */
   vm.saveDashboardHandler = function (showSaveAsDialog) {
-    $rootScope.$broadcast('dashboardSaveEvent', [showSaveAsDialog || vm.isNewDashboard]);
+  	$izendaEvent.queueEvent('dashboardSaveEvent', [showSaveAsDialog || vm.isNewDashboard], true);
   };
 
   /**
@@ -291,7 +305,7 @@ function izendaToolbarController(
         vm.windowResizeOptions.timeout = false;
         vm.isChangingNow = false;
         vm.updateToolbarItems();
-        $rootScope.$broadcast('dashboardResizeEvent', [{}]);
+        $izendaEvent.queueEvent('dashboardResizeEvent', [], true);
         $scope.$evalAsync();
       }
       vm.windowResizeOptions.previousWidth = _($window).width();
@@ -462,13 +476,10 @@ function izendaToolbarController(
 
     // create new dashboard and set it as CRS
     $izendaDashboardToolbarQuery.newDashboard().then(function () {
+    	$rootScope.$broadcast('izendaFiltersClose', []);
       // notify dashboard to start
-      $rootScope.$broadcast('dashboardSetEvent', [{
-        isNew: true
-      }]);
-      // notify filters to start
-      $rootScope.$broadcast('refreshFilters', []);
-      // update toolbar items
+    	$izendaEvent.queueEvent('dashboardSetEvent', [{ isNew: true }], true);
+    	// update toolbar items
       vm.updateToolbarItems();
       $scope.$evalAsync();
     });
@@ -491,14 +502,8 @@ function izendaToolbarController(
       .setCurrentReportSet(dashboardFullName)
       .then(function () {
         // notify dashboard to start
-        $rootScope.$broadcast('dashboardSetEvent', [{
-          isNew: false
-        }]);
-
-        // notify filters to start
-        $rootScope.$broadcast('refreshFilters', []);
-
-        // update toolbar items
+      	$izendaEvent.queueEvent('dashboardSetEvent', [{ isNew: false }], true);
+      	// update toolbar items
         vm.updateToolbarItems();
 
         $scope.$evalAsync();
@@ -620,11 +625,17 @@ function izendaToolbarController(
     return vm.printMode === 'Html' || vm.printMode === 'Html2PdfAndHtml';
   };
 
+	//crutch to avoid call of window.open inside anonymous function
+  vm.beforePrintDashboard = function () {
+  	vm.synchronized = false;
+  	$izendaEvent.queueEvent('dashboardSyncEvent', []);
+  }
+
   /**
    * Print whole dashboard
    */
   vm.printDashboard = function () {
-    $rootScope.$broadcast('printWholeDashboardEvent', ['html']);
+  	$izendaEvent.queueEvent('printWholeDashboardEvent', ['html']);
   };
 
   /**
@@ -638,7 +649,7 @@ function izendaToolbarController(
    * Print dashboard as pdf
    */
   vm.printDashboardPdf = function () {
-    $rootScope.$broadcast('printWholeDashboardEvent', ['pdf']);
+  	$izendaEvent.queueEvent('printWholeDashboardEvent', ['pdf']);
   };
 
   /**
@@ -691,6 +702,25 @@ function izendaToolbarController(
    * Initialize event handlers
    */
   vm.initializeEventHandlers = function () {
+  	/**
+		 * Create new dashboard. Fires when user selects name for new dashboard in IzendaSelectReportNameController
+		 */
+  	$scope.$on('selectedNewReportNameEvent', function (event, args) {
+  		var dashboardName = args[0],
+					dashboardCategory = args[1];
+  		var url = dashboardName;
+  		if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== 'uncategorized') {
+  			url = dashboardCategory + '/' + dashboardName;
+  		}
+  		// load dashboard navigation
+  		$izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
+  			vm.dashboardNavigationLoaded(data);
+  		});
+  		$location.url(url);
+  		vm.hideButtonBar();
+  		$scope.$evalAsync();
+  	});
+
     $scope.$on('$locationChangeSuccess', function () {
       vm.dashboardLocationChangedHandler();
     });
@@ -701,6 +731,10 @@ function izendaToolbarController(
 
     $scope.$on('stopEditTileEvent', function () {
       vm.turnOnWindowResizeHandler();
+    });
+
+    $izendaEvent.handleQueuedEvent('dashboardSyncCompletedEvent', $scope, vm, function () {
+    	vm.synchronized = true;
     });
   };
 

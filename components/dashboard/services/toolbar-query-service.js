@@ -67,11 +67,25 @@ angular
         });
       }
 
+      function loadAutoRefreshIntervals() {
+        return $izendaRsQuery.query('autorefreshintervals', [], {
+          dataType: 'json'
+        },
+        // custom error handler:
+        {
+          handler: function () {
+            return 'Failed to get auto refresh intervals';
+          },
+          params: []
+        });
+      }
+
       // PUBLIC API
       return {
         loadDashboardNavigation: loadDashboardNavigation,
         setCurrentReportSet: setCurrentReportSet,
         newDashboard: newDashboard,
-        sendReportViaEmail: sendReportViaEmail
+        sendReportViaEmail: sendReportViaEmail,
+        loadAutoRefreshIntervals: loadAutoRefreshIntervals
       };
     }]);

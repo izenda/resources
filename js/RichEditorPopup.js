@@ -27,37 +27,41 @@ function RE_AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dat
 	}
 }
 
+// Prevent jQuery UI dialog from blocking focusin
+jq$(document).on('focusin', function (e) {
+	if (jq$(e.target).closest(".mce-window, .moxman-window").length) {
+		e.stopImmediatePropagation();
+	}
+});
+
 function CreateTextareaPopup(baseId, width, height) {
-	var outerPopupDiv = document.createElement('div');
-	outerPopupDiv.id = baseId + '__outerPopupDiv';
-	outerPopupDiv.style.width = '100%';
-	outerPopupDiv.style.minHeight = '100%';
-	outerPopupDiv.style.overflow = 'hidden';
-	outerPopupDiv.style.position = 'fixed';
-	outerPopupDiv.style.top = '0px';
-	outerPopupDiv.style.zIndex = '999';
-	var innerPopupDiv = document.createElement('div');
-	innerPopupDiv.id = baseId + '__innerPopupDiv';
-	var topMargin = (jq$(window).height() - height) / 2;
-	innerPopupDiv.style.margin = topMargin + 'px auto 0px auto';
-	innerPopupDiv.style.width = width + 'px';
-	innerPopupDiv.style.height = height + 'px';
-	innerPopupDiv.style.padding = '2px';
-	innerPopupDiv.style.backgroundColor = '#C5C5C5';
-	var textArea = document.createElement('textarea');
-	textArea.id = baseId + '__textarea';
-	innerPopupDiv.appendChild(textArea);
-	outerPopupDiv.appendChild(innerPopupDiv);
-	document.getElementsByTagName('body')[0].appendChild(outerPopupDiv);
+	var textArea = jq$('<textarea>');
+	textArea.prop('id', baseId + '__textarea');
+	var outerPopupDiv = jq$('<div>');
+	outerPopupDiv.append(textArea);
+	outerPopupDiv.prop('id', baseId + '_iz-richeditor-container');
+	jq$(outerPopupDiv).dialog({
+		width: width,
+		height: height + 50,
+		minWidth: 600,
+		minHeight: 300,
+		modal: true,
+		dialogClass: 'iz-richeditor-dialog',
+		resize: function (event, ui) {
+			jq$('#re_popup_win_01__textarea_ifr').css('height', (ui.size.height - 200) + 'px');
+		},
+		close: function (event, ui) {
+			if (typeof tinymce != 'undefined' && tinymce != null && tinymce.editors != null && tinymce.editors.length > 0)
+				RE_TerminateRichEditor(tinymce.editors[0]);
+			else
+				jq$(this).remove();
+		}
+	});
 }
 
 function DisposeTextareaPopup(baseId) {
-	var textArea = document.getElementById(baseId + '__textarea');
-	textArea.parentElement.removeChild(textArea);
-	var innerPopupDiv = document.getElementById(baseId + '__innerPopupDiv');
-	innerPopupDiv.parentElement.removeChild(innerPopupDiv);
-	var outerPopupDiv = document.getElementById(baseId + '__outerPopupDiv');
-	outerPopupDiv.parentElement.removeChild(outerPopupDiv);
+	var dialog = jq$('#' + baseId + '_iz-richeditor-container');
+	dialog.dialog('destroy').remove();
 }
 
 function RE_TerminateRichEditor(editor) {
@@ -130,12 +134,12 @@ function RE_InstantiateRichEditor(paramsObj) {
 			forced_root_block: false,
 			force_p_newlines: false,
 			selector: paramsObj.TargetSelector,
-			width: paramsObj.Width,
 			height: paramsObj.Height,
 			mode: "exact",
 			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image importcss insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace spellchecker tabfocus table template textcolor textpattern visualchars wordcount",
 			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic",
 			skin_url: './rs.aspx?wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
+			resize: false,
 			init_instance_callback: RE_InitializeEditorInstance,
 			setup: function (editor) {
 			    editor.on('BeforeSetContent', function (e) {
@@ -162,7 +166,6 @@ function RE_InstantiateRichEditor(paramsObj) {
 		var editorParamsObj = RE_EditorsParamsList[paramsObj.TargetSelector];
 		editorParamsObj.ContentData = paramsObj.ContentData;
 		editorParamsObj.ContentRequestMsg = paramsObj.ContentRequestMsg;
-		editorParamsObj.Width = paramsObj.Width;
 		editorParamsObj.Height = paramsObj.Height;
 		editorParamsObj.ContentSaveCallback = paramsObj.ContentSaveCallback;
 		editorParamsObj.ContentSaveRequestCallback = paramsObj.ContentSaveRequestCallback;
@@ -201,7 +204,6 @@ function RE_ShowRichEditor(targetSelector, width, height, contentData, contentRe
 	paramsObj.TargetSelector = targetSelector;
 	paramsObj.ContentData = contentData;
 	paramsObj.ContentRequestMsg = contentRequestMsg;
-	paramsObj.Width = width;
 	paramsObj.Height = height;
 	paramsObj.ContentSaveCallback = contentSaveCallback;
 	paramsObj.ContentSaveRequestCallback = contentSaveRequestCallback;

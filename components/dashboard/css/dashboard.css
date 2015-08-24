@@ -4,6 +4,10 @@
 	-ms-overflow-style: scrollbar;
 }
 
+.ReportTitle, #dbTitle {
+	display: none !important;
+}
+
 .iz-dash-toolbtn-panel.navbar-nav>.open>a,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:hover,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:focus {
@@ -432,26 +436,32 @@ body {
 	box-shadow: 0px 2px 4px rgba(0,0,0,.5);
 }
 
-	.iz-dash-toolbtn-panel.opened {
-		left: -1px;
-	}
+.iz-dash-toolbtn-panel.opened {
+	left: -1px;
+}
 
 .iz-dash-toolbtn-panel-ie8 {
 	display: none;
 }
-	.iz-dash-toolbtn-panel-ie8.opened {
-		display: table;
-	}
 
-	.iz-dash-toolbtn-panel > li > a {
-		padding-top: 4px;
-		padding-bottom: 4px;
-		color: #ddd !important;
-	}
+.iz-dash-toolbtn-panel-ie8.opened {
+	display: table;
+}
 
-		.iz-dash-toolbtn-panel > li > a:hover {
-			color: #fff !important;
-		}
+.iz-dash-toolbtn-panel > li > a {
+	padding-top: 4px;
+	padding-bottom: 4px;
+	color: #ddd !important;
+}
+
+.iz-dash-toolbtn-panel > li > a:hover {
+	color: #fff !important;
+}
+
+.iz-dash-toolbtn-panel .selected-item {
+	background-color: #163D6B;
+	color: #fff;
+}
 
 /* color preview */
 
@@ -818,10 +828,16 @@ body {
 	overflow: auto;
 }
 
-	.animate-flip .frame .report {
-		text-align: center;
-		min-height: 100%;
-	}
+.animate-flip .frame .report {
+	min-height: 100%;
+}
+
+/* disable global bootstrap CSS rule */
+.animate-flip .frame .report * {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
 
 /*title*/
 .animate-flip .title {
@@ -1087,74 +1103,6 @@ body {
 /**************************************************************************************/
 /*dashboard navigation toolbar*/
 /**************************************************************************************/
-.iz-dash-menu-item > a > span.glyphicon {
-	color: #333;
-	position: relative;
-}
-
-.iz-dash-menu-item > a:before {
-	position: absolute;
-	content: "";
-	left: 0;
-	right: 0;
-	bottom: 0;
-	height: 0;
-	background-color: rgba(11, 94, 171, 0.3);
-	transition: all 0.2s ease-out;
-}
-
-.iz-dash-menu-item > a:hover:before {
-	height: 4px;
-}
-
-.iz-dash-menu-catergory {
-	background-color: #fff;
-	margin: 0 8px;
-	font-weight: bold;
-}
-
-	.iz-dash-menu-catergory > a:hover {
-		background-color: #f3f3f3;
-	}
-
-.iz-dash-navigation-menu-item {
-	padding: 5px 25px;
-}
-
-	.iz-dash-navigation-menu-item:hover {
-		background-color: #f3f3f3;
-	}
-
-	.iz-dash-navigation-menu-item > a {
-		height: 100%;
-		color: #666;
-	}
-
-		.iz-dash-navigation-menu-item > a:hover {
-			text-decoration: none;
-			color: #666;
-		}
-
-.iz-dash-menu-item {
-	top: 0;
-	right: 0;
-	border-bottom: 5px solid transparent;
-	-webkit-transition: right 0.5s ease;
-	-moz-transition: right 0.5s ease;
-	-ms-transition: right 0.5s ease;
-	-o-transition: right 0.5s ease;
-	transition: right 0.5s ease;
-}
-
-	.iz-dash-menu-item:hover,
-	.iz-dash-menu-item:focus {
-		border-bottom: 5px solid #cee5fb;
-	}
-
-	.iz-dash-menu-item > a {
-		white-space: nowrap;
-	}
-
 
 	.iz-zero-chart-results {
 	text-align: center;
@@ -1313,3 +1261,66 @@ body {
 	text-align: center;
 	cursor: pointer;
 }
+
+/*****************toolbar accordion***************/
+
+.iz-dash-category-container {
+	min-width: 400px;
+}
+
+.iz-dash-category-container .category-header {
+  background-color: #ddd;
+  cursor: pointer;
+  padding: 8px;
+  border-bottom: 1px solid #ccc;
+}
+
+.iz-dash-category-container .category {
+  -webkit-transition: max-height 0.5s ease-in-out;
+  -moz-transition: max-height 0.5s ease-in-out;
+  -o-transition: max-height 0.5s ease-in-out;
+  transition: max-height 0.5s ease-in-out;
+  max-height: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+  .iz-dash-category-container .category.in {
+    height: auto;
+    max-height: 1000px;
+  }
+
+	.iz-dash-category-container .category-item {
+		padding: 8px 25px;
+		cursor: pointer;
+	}
+
+	.iz-dash-category-container .category-item.active {
+		background-color: rgb(214, 99, 28);
+	}
+
+	.iz-dash-category-container .category-item:hover {
+		background-color: #f3f3f3;
+	}
+
+	.iz-dash-category-container .category-item.active:hover {
+		background-color: rgb(214, 99, 28);
+	}
+
+	.iz-dash-category-container .category-item > a {
+		color: #666;
+	}
+
+	.iz-dash-category-container .category-item.active > a {
+		color: #fff;
+	}
+
+		.iz-dash-category-container .category-item > a:hover {
+			text-decoration: none;
+			color: #666;
+		}
+
+		.iz-dash-category-container .category-item.active > a:hover {
+			text-decoration: none;
+			color: #fff;
+		}

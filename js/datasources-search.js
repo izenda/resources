@@ -279,7 +279,9 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			
 			if (complexSearchDatabaseResult) {
 				// table search
-				jq$.each(database["tables"], function (tableNameText, table) {
+				jq$.each(database["tables"], function (i, table) {
+					var tableNameText = table["name"],
+						tableSysnameText = table["sysname"];
 					var complexSearchTableResult = true;
 					if (complexSearch && searchTextTable) {
 						complexSearchTableResult = tableNameText.toLowerCase().indexOf(searchTextTable) >= 0;
@@ -289,6 +291,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 							result.push({
 								databaseName: databaseNameText,
 								tableName: tableNameText,
+								tableSysname: tableSysnameText,
 								fieldName: null,
 								htmlResult: htmlResultTable
 							});
@@ -308,6 +311,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 								result.push({
 									databaseName: databaseNameText,
 									tableName: tableNameText,
+									tableSysname: tableSysnameText,
 									fieldName: fieldNameText,
 									htmlResult: htmlResultField
 								});
@@ -365,7 +369,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			// Create autocomplete item
 			var itemContainerDiv = '<div class="autocomplete-item" database="'
 								+ (data["databaseName"] != null ? data["databaseName"] : "")
-								+ '" table="' + (data["tableName"] != null ? data["tableName"] : "")
+								+ '" table="' + (data["tableSysname"] != null ? data["tableSysname"] : "")
 								+ '" field="' + (data["fieldName"] != null ? data["fieldName"] : "")
 								+ '">'
 								+ itemField + itemHeader
@@ -513,236 +517,241 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	};
 
 	var preloadFound = function(searchObject) {
-	  var isTextSearch = searchObject["type"] == "string";
-	  var text = searchObject["text"];
-	  if (isTextSearch && !text)
-	    return;
-	  if (isTextSearch) {
-	    var complexResult = getFieldSearchResult(text);
-	    var complexSearch = complexResult["isComplexSearch"];
-	    var searchTextField = complexResult["searchTextField"];
-	    var searchTextTable = complexResult["searchTextTable"];
-	    var searchTextDatabase = complexResult["searchTextDatabase"];
-	    if (complexSearch) {
-	      searchObject = {
-	        type: "field",
-	        isPartial: true,
-	        database: searchTextDatabase,
-	        table: searchTextTable,
-	        field: searchTextField
-	      };
-	      isTextSearch = false;
-	    }
-	  }
-	  var categoriesToExpand = new Array();
-	  jq$.each(databaseSchema, function (i, database) {
-	    if (database == null) {
-	      return;
-	    }
-	    var databaseFound = false;
-	    var databaseNameText = database["DataSourceCategory"];
-	    var tablesToExpand = new Array();
-	    jq$.each(database["tables"], function (tableNameText, table) {
-	      var tableFound = false;
-	      var tableid = table.domId;
-	      if (!isTextSearch && tableNameText) {
-	        if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableNameText == searchObject["table"]) {
-	          databaseFound = true;
-	          tableFound = true;
-	        }
-	      }
-	      if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-	        databaseFound = true;
-	        tableFound = true;
-	      }
-	      jq$.each(table["fields"], function (fieldNameText, field) {
-	        if (!isTextSearch && fieldNameText) {
-	          if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
-									&& searchObject["table"] == tableNameText && searchObject["database"] == databaseNameText) {
-	            databaseFound = true;
-	            tableFound = true;
-	          } else if (searchObject["isPartial"]
+		var isTextSearch = searchObject["type"] == "string";
+		var text = searchObject["text"];
+		if (isTextSearch && !text) {
+			return;
+		}
+		if (isTextSearch) {
+			var complexResult = getFieldSearchResult(text);
+			var complexSearch = complexResult["isComplexSearch"];
+			var searchTextField = complexResult["searchTextField"];
+			var searchTextTable = complexResult["searchTextTable"];
+			var searchTextDatabase = complexResult["searchTextDatabase"];
+			if (complexSearch) {
+				searchObject = {
+					type: "field",
+					isPartial: true,
+					database: searchTextDatabase,
+					table: searchTextTable,
+					field: searchTextField
+				};
+				isTextSearch = false;
+			}
+		}
+		var categoriesToExpand = new Array();
+		jq$.each(databaseSchema, function (i, database) {
+			if (database == null) {
+				return;
+			}
+			var databaseFound = false;
+			var databaseNameText = database["DataSourceCategory"];
+			var tablesToExpand = new Array();
+			jq$.each(database["tables"], function (i, table) {
+				var tableFound = false;
+				var tableid = table.domId;
+				var tableNameText = table["name"],
+					tableSysnameText = table["sysname"];
+				if (!isTextSearch && tableNameText) {
+					if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableSysnameText == searchObject["table"]) {
+						databaseFound = true;
+						tableFound = true;
+					}
+				}
+				if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+					databaseFound = true;
+					tableFound = true;
+				}
+				jq$.each(table["fields"], function (fieldNameText, field) {
+					if (!isTextSearch && fieldNameText) {
+						if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
+									&& searchObject["table"] == tableSysnameText && searchObject["database"] == databaseNameText) {
+							databaseFound = true;
+							tableFound = true;
+						} else if (searchObject["isPartial"]
 									&& (!searchObject["database"] || databaseNameText.toLowerCase().indexOf(searchObject["database"]) >= 0)
 									&& tableNameText.toLowerCase().indexOf(searchObject["table"]) >= 0
 									&& fieldNameText.toLowerCase().indexOf(searchObject["field"]) >= 0) {
-	            databaseFound = true;
-	            tableFound = true;
-	          }
-	        }
-	        if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-	          databaseFound = true;
-	          tableFound = true;
-	        }
-	      });
-	      if (tableFound) {
-	        tablesToExpand[tablesToExpand.length] = tableid;
-	      }
-	    });
-	    if (databaseFound) {
-	      var cte = new Object();
-	      cte.CategoryToExpand = database.domIdHeader;
-	      cte.TablesToExpand = tablesToExpand;
-	      categoriesToExpand[categoriesToExpand.length] = cte;
-	    }
-	  });
-	  for (var cCnt = 0; cCnt < categoriesToExpand.length; cCnt++) {
-	    var db = document.getElementById(categoriesToExpand[cCnt].CategoryToExpand);
-	    initializeTables(jq$(db));
-	    for (var tCnt = 0; tCnt < categoriesToExpand[cCnt].TablesToExpand.length; tCnt++) {
-	    	var tableTitleSpan = jq$(document.getElementById(categoriesToExpand[cCnt].TablesToExpand[tCnt]));
-	      if (tableTitleSpan.length > 0) {
-	        initFieldsDsp(tableTitleSpan[0].parentElement);
-	      }
-	    }
-	  }
+							databaseFound = true;
+							tableFound = true;
+						}
+					}
+					if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+						databaseFound = true;
+						tableFound = true;
+					}
+				});
+				if (tableFound) {
+					tablesToExpand[tablesToExpand.length] = tableid;
+				}
+			});
+			if (databaseFound) {
+				var cte = new Object();
+				cte.CategoryToExpand = database.domIdHeader;
+				cte.TablesToExpand = tablesToExpand;
+				categoriesToExpand[categoriesToExpand.length] = cte;
+			}
+		});
+		for (var cCnt = 0; cCnt < categoriesToExpand.length; cCnt++) {
+			var db = document.getElementById(categoriesToExpand[cCnt].CategoryToExpand);
+			initializeTables(jq$(db));
+			for (var tCnt = 0; tCnt < categoriesToExpand[cCnt].TablesToExpand.length; tCnt++) {
+				var tableTitleSpan = jq$(document.getElementById(categoriesToExpand[cCnt].TablesToExpand[tCnt]));
+				if (tableTitleSpan.length > 0) {
+					initFieldsDsp(tableTitleSpan[0].parentElement);
+				}
+			}
+		}
 	};
 
 	var _applySearch = function(searchObject, isHideAutocomplete) {
-	  preloadFound(searchObject);
-	  clear(isHideAutocomplete);
+		preloadFound(searchObject);
+		clear(isHideAutocomplete);
 
-	  var isTextSearch = searchObject["type"] == "string";
-	  var text = searchObject["text"];
-	  if (isTextSearch && !text)
-	    return;
+		var isTextSearch = searchObject["type"] == "string";
+		var text = searchObject["text"];
+		if (isTextSearch && !text) {
+			return;
+		}
 
-	  if (isTextSearch) {
-	    var complexResult = getFieldSearchResult(text);
-	    var complexSearch = complexResult["isComplexSearch"];
-	    var searchTextField = complexResult["searchTextField"];
-	    var searchTextTable = complexResult["searchTextTable"];
-	    var searchTextDatabase = complexResult["searchTextDatabase"];
-	    if (complexSearch) {
-	      searchObject = {
-	        type: "field",
-	        isPartial: true,
-	        database: searchTextDatabase,
-	        table: searchTextTable,
-	        field: searchTextField
-	      };
-	      isTextSearch = false;
-	    }
-	  }
+		if (isTextSearch) {
+			var complexResult = getFieldSearchResult(text);
+			var complexSearch = complexResult["isComplexSearch"];
+			var searchTextField = complexResult["searchTextField"];
+			var searchTextTable = complexResult["searchTextTable"];
+			var searchTextDatabase = complexResult["searchTextDatabase"];
+			if (complexSearch) {
+				searchObject = {
+					type: "field",
+					isPartial: true,
+					database: searchTextDatabase,
+					table: searchTextTable,
+					field: searchTextField
+				};
+				isTextSearch = false;
+			}
+		}
 
-	  jq$.each(databaseSchema, function (i, database) {
-	    if (database == null) return;
-	    var databaseFound = false;
-	    var databaseNameText = database["DataSourceCategory"];
+		jq$.each(databaseSchema, function (i, database) {
+			if (database == null) {
+				return;
+			}
+			var databaseFound = false;
+			var databaseNameText = database["DataSourceCategory"];
 
-	    jq$.each(database["tables"], function (tableNameText, table) {
-	      var tableFound = false;
-	      var tableHighlight = false;
-	      var tableid = table["sysname"];
+			jq$.each(database["tables"], function (i, table) {
+				var tableFound = false;
+				var tableNameText = table["name"],
+					tableSysnameText = table["sysname"];
 
-	      // Table search from autosuggest
-	      if (!isTextSearch && tableNameText) {
-	        if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableNameText == searchObject["table"]) {
-	          databaseFound = true;
-	          tableFound = true;
-	          tableHighlight = true;
-	        }
-	      }
-	      // Text search
-	      if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-	        databaseFound = true;
-	        tableFound = true;
-	        tableHighlight = true;
-	      }
+				// Table search from autosuggest
+				if (!isTextSearch && tableSysnameText) {
+					if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableSysnameText == searchObject["table"]) {
+						databaseFound = true;
+						tableFound = true;
+					}
+				}
+				// Text search
+				if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+					databaseFound = true;
+					tableFound = true;
+				}
 
-	      // Field search
-	      if (isTextSearch || tableFound) {
-	      	jq$.each(table["fields"], function (fieldNameText, field) {
-	      		var fieldHighLight = false;
-	      		var fieldFound = false;
-	      		var needToCheck = false;
+				// Field search
+				if (isTextSearch || tableFound) {
+					jq$.each(table["fields"], function (fieldNameText, field) {
+						var fieldHighLight = false;
+						var fieldFound = false;
+						var needToCheck = false;
 
-	      		// Field search
-	      		if (!isTextSearch && fieldNameText) {
-	      			if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
-										  && searchObject["table"] == tableNameText && searchObject["database"] == databaseNameText) {
-	      				databaseFound = true;
-	      				tableFound = true;
-	      				fieldFound = true;
-	      				tableHighlight = true;
-	      				fieldHighLight = true;
-	      				needToCheck = true;
-	      			} else if (searchObject["isPartial"]
-										  && (!searchObject["database"] || databaseNameText.toLowerCase().indexOf(searchObject["database"]) >= 0)
-										  && tableNameText.toLowerCase().indexOf(searchObject["table"]) >= 0
-										  && fieldNameText.toLowerCase().indexOf(searchObject["field"]) >= 0) {
-	      				databaseFound = true;
-	      				tableFound = true;
-	      				fieldFound = true;
-	      				tableHighlight = true;
-	      				fieldHighLight = true;
-	      			}
-	      		}
+						// Field search
+						if (!isTextSearch && fieldNameText) {
+							if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
+										&& searchObject["table"] == tableSysnameText && searchObject["database"] == databaseNameText) {
+								databaseFound = true;
+								tableFound = true;
+								fieldFound = true;
+								fieldHighLight = true;
+								needToCheck = true;
+							} else if (searchObject["isPartial"]
+										&& (!searchObject["database"] || databaseNameText.toLowerCase().indexOf(searchObject["database"]) >= 0)
+										&& tableNameText.toLowerCase().indexOf(searchObject["table"]) >= 0
+										&& fieldNameText.toLowerCase().indexOf(searchObject["field"]) >= 0) {
+								databaseFound = true;
+								tableFound = true;
+								fieldFound = true;
+								fieldHighLight = true;
+							}
+						}
 
-	      		// Text search
-	      		if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-	      			databaseFound = true;
-	      			tableFound = true;
-	      			fieldFound = true;
-	      			fieldHighLight = true;
-	      		}
+						// Text search
+						if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
+							databaseFound = true;
+							tableFound = true;
+							fieldFound = true;
+							fieldHighLight = true;
+						}
 
-	      		// found ?
-	      		if (fieldFound) {
-	      			var fieldEnumVar$ = jq$(document.getElementById(field.domId));
-	      			jq$.each(fieldEnumVar$, function (fieldIdx, fieldDom) {
-	      				// find all fields
-	      				var field$ = jq$(fieldDom);
-	      				if (fieldHighLight) {
-	      					field$.find("span.field-name").addClass("autocomplete-item-field-selection");
-	      				}
-	      				if (needToCheck) {
-	      					var locked = (field$.attr("locked") == "true");
-	      					var checkScript = field$.attr("onmouseup");
-	      					if (!locked && checkScript) {
-	      						eval(checkScript);
-	      					}
-	      				}
-	      			});
-	      		}
-	      	});
-	      }
+						// found ?
+						if (fieldFound) {
+							var fieldEnumVar$ = jq$(document.getElementById(field.domId));
+							jq$.each(fieldEnumVar$, function (fieldIdx, fieldDom) {
+								// find all fields
+								var field$ = jq$(fieldDom);
+								if (fieldHighLight) {
+									field$.find("span.field-name").addClass("autocomplete-item-field-selection");
+								}
+								if (needToCheck) {
+									var locked = (field$.attr("locked") == "true");
+									var checkScript = field$.attr("onmouseup");
+									if (!locked && checkScript) {
+										eval(checkScript);
+									}
+								}
+							});
+						}
+					});
+				}
 
-	      // found ?
-	      var table$ = jq$(document.getElementById(table.domId).parentElement.parentElement.parentElement);
-	      if (tableFound) {
-	        var tableName$ = table$.find("span.table-name");
-	        tableName$.addClass("autocomplete-item-field-selection");
-	        table$.addClass("opened");
-	      } else {
-	        table$.addClass("closed");
-	      }
-	    });
+				// found ?
+				var table$ = jq$(document.getElementById(table.domId).parentElement.parentElement.parentElement);
+				if (tableFound) {
+					var tableName$ = table$.find("span.table-name");
+					tableName$.addClass("autocomplete-item-field-selection");
+					table$.addClass("opened");
+				} else {
+					table$.addClass("closed");
+				}
+			});
 
-	    // found ?
-	    var database$ = jq$(document.getElementById(database.domIdHeader));
-	    if (databaseFound) {
-	      database$.addClass("opened");
-	    } else {
-	      database$.addClass("closed");
-	    }
-	  });
+			// found ?
+			var database$ = jq$(document.getElementById(database.domIdHeader));
+			if (databaseFound) {
+				database$.addClass("opened");
+			} else {
+				database$.addClass("closed");
+			}
+		});
 
-	  var tbCnt = -1;
-	  while (true) {
-	  	tbCnt++;
-	  	var tableChChCh = document.getElementById('tcb' + tbCnt);
-	  	if (typeof tableChChCh == 'undefined' || tableChChCh == null)
-	  		break;
-	  	var tableObj = tableChChCh.parentElement.parentElement.parentElement;
-	  	if (tableObj.nodeName != 'DIV')
-	  		continue;
-	  	var classes = ' ' + tableObj.className + ' ';
-	  	if (classes.indexOf(' table ') < 0 || classes.indexOf(' checked ') < 0)
-	  		continue;
-	  	var table$ = jq$(tableObj);
-	  	table$.addClass("opened").removeClass("closed");
-	  	table$.closest("div.database").addClass("opened").removeClass("closed");
-	  }
+		var tbCnt = -1;
+		while (true) {
+			tbCnt++;
+			var tableChChCh = document.getElementById('tcb' + tbCnt);
+			if (typeof tableChChCh == 'undefined' || tableChChCh == null) {
+				break;
+			}
+			var tableObj = tableChChCh.parentElement.parentElement.parentElement;
+			if (tableObj.nodeName != 'DIV') {
+				continue;
+			}
+			var classes = ' ' + tableObj.className + ' ';
+			if (classes.indexOf(' table ') < 0 || classes.indexOf(' checked ') < 0) {
+				continue;
+			}
+			var table$ = jq$(tableObj);
+			table$.addClass("opened").removeClass("closed");
+			table$.closest("div.database").addClass("opened").removeClass("closed");
+		}
 	};
 
 	/**

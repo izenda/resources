@@ -28,11 +28,9 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	thisRequestObject.dtk = dataToKeep;
 	thisRequestObject.onreadystatechange = ProcessRequest;
 
-	/*thisRequestObject.open('GET', url + '?' + parameters, true);
-	thisRequestObject.send();*/
 	thisRequestObject.open('POST', url, true);
 	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	thisRequestObject.send(parameters);
+	thisRequestObject.send(parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''));
 
 	function DeserializeJson() {
 		var responseText = thisRequestObject.responseText;
@@ -150,44 +148,36 @@ function ReversedReportSet(returnObj, id) {
 function initDataSources(url) {
 	databaseSchema = jq$.getValues(url);
 	if (databaseSchema != null) {
-		databaseSchema.sort(function (a, b) {
-			if (a.DataSourceCategory < b.DataSourceCategory)
-				return -1;
-			if (a.DataSourceCategory > b.DataSourceCategory)
-				return 1;
-			return 0;
-		});
 		var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);
 		jq$(".database").remove();
 		tInd = 0;
 		var html = "";
-		for (var i = 0; i < databaseSchema.length; i++)
+		for (var i = 0; i < databaseSchema.length; i++) {
 			html += renderDatabase(databaseSchema[i], i);
-		jq$(html).prependTo("#databases");
-	  NDS_Init();
-	  if (databaseSchema.length == 1) {
-		  setTimeout(function() {
-		  	var dbh = document.getElementById('rdbh0');
-		  	if (typeof dbh != 'undefined' && dbh != null) {
-		  		dbh = jq$(dbh);
-		  		initializeTables(dbh);
-		  		dbh.toggleClass("opened", animationTime);
-		  		setTimeout(DsDomChanged, animationTime + 100);
-		  	}
-		  }, 100);
 		}
-//		ExistingReportSetInit();
-		/*var databases = $(".database");
-		if (databases && databases.length == 1)
-			$(databases[0]).addClass("opened");
-		initDraggable();
-		var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);*/
+		jq$(html).prependTo("#databases");
+		NDS_Init();
+
+		setTimeout(function () {
+			var length = databaseSchema.length;
+			for (var i = 0; i < length; i++) {
+				var dbh = document.getElementById('rdbh' + i);
+				if (typeof dbh != 'undefined' && dbh != null) {
+					dbh = jq$(dbh);
+					initializeTables(dbh);
+					if (length == 1) {
+						dbh.toggleClass("opened", animationTime);
+						setTimeout(DsDomChanged, animationTime + 100);
+					}
+				}
+			}
+		}, 100);
 	};
 }
 
 function renderDatabase(database, key) {
 	database.domIdHeader = 'rdbh' + key;
-    var element = " \
+	var element = " \
 	<div class='database' id='rdbh" + key + "'> \
 		<div class='database-header'> \
 			<a href='#" + database.DataSourceCategory + "'> \
@@ -198,30 +188,112 @@ function renderDatabase(database, key) {
  \
 		<div class='database-tables' id='rdb" + key + "'>" + IzLocal.Res("js_Loading", "Loading...") + "</div> \
 	</div> \ ";
-    return element;
+	return element;
+}
+
+function clearView(table) {
+	table.each(function () {
+		var arrayClasses = jq$(this).attr("class").split(" ");
+		for (var i = 0; i < arrayClasses.length; i++) {
+			if (arrayClasses[i].indexOf('-view') != -1) jq$(this).removeClass(arrayClasses[i]);
+		}
+	});
+}
+
+function selectTrigger(trigger) {
+	trigger.parent().children().removeClass("selected");
+	trigger.addClass("selected");
+}
+
+function setView(table, view) {
+	clearView(table);
+	table.addClass(view);
+	table.attr('data-view', view);
+	var trigger = table.find("span[data-view=" + view + "]");
+	selectTrigger(trigger);
+}
+
+function initializeTables(database$) {
+	if (database$.length > 0) {
+		var hId = database$[0].id;
+		hId = hId.substr(4);
+		var contentDiv = document.getElementById('rdb' + hId);
+		var currHtml = contentDiv.innerHTML;
+		if (currHtml != IzLocal.Res("js_Loading", "Loading..."))
+			return;
+		var html = renderTables(databaseSchema[hId].tables, hId);
+		contentDiv.innerHTML = html;
+
+		//begin some app
+		initDraggable();
+		jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
+			event.preventDefault();
+		});
+		var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
+								<img src='rs.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
+							</span> \
+							<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
+							<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
+							<span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
+
+		jq$(".table-view-triggers").filter(function (index) {
+			var shouldBeReturned = false;
+			var npAttr;
+			try {
+				npAttr = this.getAttribute('notProcessed1');
+			}
+			catch (e) {
+				npAttr = '0';
+			}
+			if (npAttr == '1') {
+				shouldBeReturned = true;
+				this.setAttribute('notProcessed1', '0');
+			}
+			return shouldBeReturned;
+		}).append(triggersHtml);
+
+		jq$(".table").each(function () {
+			setView(jq$(this), "fields-view");
+		});
+
+		jq$(".field-popup-trigger").mouseup(function (event) {
+			event.cancelBubble = true;
+			(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
+			(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+			var parent = this.parentElement;
+			var fieldSqlName = parent.getAttribute('fieldid');
+			if (fieldSqlName != null && fieldSqlName != '') {
+				ShowFieldProperties(fieldSqlName, parent.children[2].innerHTML, parent.getAttribute('id'));
+			}
+			return false;
+		});
+	}
 }
 
 function renderTables(tables, dbKey) {
-	var html = "";
-	for (key in tables) {
-	  html += renderTable(dbKey, tables[key], key, tables[key].sysname, tInd);
+	var html = "",
+		length = tables.length;
+	for (var i = 0; i < length; ++i) {
+		var table = tables[i];
+		html += renderTable(dbKey, table, table.name, table.sysname, tInd);
 		tInd++;
 	}
 	return html;
 }
 
-function renderTable(dbKey, table, key, tableId, ind) {
+function renderTable(dbKey, table, name, tableId, ind) {
 	table.domId = 'tcb' + ind;
+	var tableIdPart = tableId.replace(/[\]\[\.]/g, "");
 	var element = " \
 			<div class='table'> \
 				<div class='table-header'> \
-					<a href='#" + key + "' tableInd='" + ind + "' id='rdbh" + dbKey + "_" + key + "'> \
+					<a href='#" + name + "' tableInd='" + ind + "' id='rdbh" + dbKey + "_" + tableIdPart + "'> \
 						<span class='checkbox-container' locked='false' sorder='-1' id='tcb" + ind + "' tableid='" + tableId + "' onclick='DsClicked(" + ind + ")'><span class='checkbox'></span></span> \
-						<span class='table-name'>" + key + "</span> \
+						<span class='table-name'>" + name + "</span> \
 						<div class='clearfix'></div> \
 					</a> \
 				</div> \
-				<div class='table-fields' id='rdb" + dbKey + "_" + key + "'>" + IzLocal.Res("js_Loading", "Loading...") + "</div> \
+				<div class='table-fields' id='rdb" + dbKey + "_" + tableIdPart + "'>" + IzLocal.Res("js_Loading", "Loading...") + "</div> \
 			</div> \ ";
 	return element;
 }
@@ -479,8 +551,8 @@ function DS_GetFullField(fieldSqlName, friendlyName) {
 }
 
 function FilterPropFormatsGot(returnObj, id, field) {
-	if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
-		return;
+  if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
+  	return;
 	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
 		var operatorsData = returnObj.AdditionalData.slice(0, returnObj.Value);
 		field.FilterOperatorNames = new Array();
@@ -1253,64 +1325,77 @@ function NDS_RestoreDsSelection(tind) {
 }
 
 function initFieldsDsp(nwid) {
-  var hId = nwid.id;
-  hId = hId.substr(4);
-  var contentDiv = document.getElementById('rdb' + hId);
-  var currHtml = contentDiv.innerHTML;
-  if (currHtml != IzLocal.Res("js_Loading", "Loading..."))
-    return;
-  var firstUnder = hId.indexOf('_');
-  var dbKey = hId.substr(0, firstUnder);
-  var tKey = hId.substr(firstUnder + 1);
+	var hId = nwid.id;
+	hId = hId.substr(4);
+	var contentDiv = document.getElementById('rdb' + hId);
+	var currHtml = contentDiv.innerHTML;
+	if (currHtml != IzLocal.Res("js_Loading", "Loading...")) {
+		return;
+	}
+	var firstUnder = hId.indexOf('_');
+	var dbKey = hId.substr(0, firstUnder);
+	var tKey = hId.substr(firstUnder + 1);
 
-  var willBeTableIndex = jq$(nwid).attr('tableInd');
-  fieldsIndex = 0;
-  var html = renderSections(willBeTableIndex, databaseSchema[dbKey].tables[tKey].fields);
-  html = '<div class=\'table-fields-sections-background\'></div>' + html;
-  contentDiv.innerHTML = html;
+	var willBeTableIndex = jq$(nwid).attr('tableInd');
+	fieldsIndex = 0;
+	var getFieldsByTableKey = function(key) {
+		var tables = databaseSchema[dbKey].tables,
+		length = tables.length,
+		result = {};
+		for (var i = 0; i < length; ++i) {
+			var table = tables[i];
+			if (table.sysname.replace(/[\]\[\.]/g, "") == key) {
+				result = table.fields;
+				break;
+			}
+		}
+		return result;
+	};
+	var html = renderSections(willBeTableIndex, getFieldsByTableKey(tKey));
+	html = '<div class=\'table-fields-sections-background\'></div>' + html;
+	contentDiv.innerHTML = html;
 
-  initDraggable();
-  jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
-    event.preventDefault();
-  });
-  var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
+	initDraggable();
+	jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
+		event.preventDefault();
+	});
+	var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
 							<img src='rs.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
 						</span> \
 						<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 						<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
 						<span class='b-trigger' data-view='relationships-view'>" + IzLocal.Res("js_Relationships", "Relationships") + "</span> \ ";
 	jq$(".table-view-triggers").filter(function (index) {
-    var shouldBeReturned = false;
-    var npAttr;
-    try {
-      npAttr = this.getAttribute('notProcessed1');
-    }
-    catch (e) {
-      npAttr = '0';
-    }
-    if (npAttr == '1') {
-      shouldBeReturned = true;
-      this.setAttribute('notProcessed1', '0');
-    }
-    return shouldBeReturned;
-  }).append(triggersHtml);
+		var shouldBeReturned = false;
+		var npAttr;
+		try {
+			npAttr = this.getAttribute('notProcessed1');
+		} catch (e) {
+			npAttr = '0';
+		}
+		if (npAttr == '1') {
+			shouldBeReturned = true;
+			this.setAttribute('notProcessed1', '0');
+		}
+		return shouldBeReturned;
+	}).append(triggersHtml);
 
 	jq$(".table").each(function () {
 		setView(jq$(this), "fields-view");
-  });
+	});
 
 	jq$(".field-popup-trigger").mouseup(function (event) {
-      event.cancelBubble = true;
-      (event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
-      (event.preventDefault) ? event.preventDefault() : event.returnValue = false;
-    var parent = this.parentElement;
-    var fieldSqlName = parent.getAttribute('fieldid');
-    if (fieldSqlName != null && fieldSqlName != '') {
-    	var friendlyName = jq$(parent).find('.field-name').html();
+		event.cancelBubble = true;
+		(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
+		(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+		var parent = this.parentElement;
+		var fieldSqlName = parent.getAttribute('fieldid');
+		if (fieldSqlName != null && fieldSqlName != '') {
+			var friendlyName = jq$(parent).find('.field-name').html();
       DS_ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
-    }
-    return false;
-  });
+		}
+		return false;
+	});
 }
 
 function DsClicked(dsInd) {

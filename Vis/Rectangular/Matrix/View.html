@@ -115,28 +115,6 @@
 
 				svg.attr("width", width).attr("height", height);
 
-				jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-				function showInsufficientWidth(width, height) {
-					var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-					jq$('#VIS_ID').html(insufficientWidthMessage);
-				}
-
-				function checkInsufficientWidth(width, count) {
-					return (width < 320 || width < count * 32);
-				}
-
-				var isInsufficientWidth = checkInsufficientWidth(width, hc),
-					isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-				if (isInsufficientWidth && !isImageRender) {
-					showInsufficientWidth(width, height);
-					util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
-						jq$("#VIS_ID").empty();
-					});
-					return;
-				}
-
 				var g = svg.append("g")
 					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 

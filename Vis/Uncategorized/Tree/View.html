@@ -88,7 +88,7 @@
 			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
 				return;
 			}
-			
+
 			var root, colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
 
 			var vs = util.container("VIS_ID"),
@@ -112,30 +112,6 @@
 			var heightWithOffset = height - (VIS_CONTEXT.toImage ? 0 : jq$("#VIS_ID_PROPERTIES_PANEL").outerHeight());
 
 			jq$('#VIS_ID').width(width).height(heightWithOffset);
-
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-
-			function checkInsufficientWidth(width) {
-				return (width < 480);
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			toggleHeaderVisibility(!isImageRender && !isInsufficientWidth);
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
 
 			function store() {
 				jq$.extend(s.props = (s.props || {}), {
@@ -364,7 +340,7 @@
 
 					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == s.spendField; }).formatter;
 					for (i = 0; i < nodes.length; i++) {
-						vis.unitLabel(nodes[i], VIS_COLUMNS.findIndex(function (d) { return d.name == s.spendField; }), {
+						vis.unitLabel(nodes[i], s.spendField, {
 							value: (fieldFormatter ? fieldFormatter(vis.unitValue(nodes[i], s.spendField), nodes[i], vis, s.spendField)
 								: Math.round(vis.unitValue(nodes[i], s.spendField) * 100) / 100)
 						});

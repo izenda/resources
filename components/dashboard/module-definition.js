@@ -25,6 +25,6 @@ angular.module('izendaDashboard', modules);
 
 angular.module('izendaDashboard').config([
   '$logProvider', function($logProvider) {
-    $logProvider.debugEnabled(false );
+    $logProvider.debugEnabled(false);
   }
 ]);

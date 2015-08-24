@@ -126,7 +126,7 @@
 
 			var m = [16, 5, 15, 60], //top right bottom left
 				minLH = 7, lPortion = 5;
-			
+
 
 			if (!VIS_CONTEXT.isDashboard && ((getH() / lPortion) / laneLength < minLH)) {
 				height = minLH * laneLength * lPortion;
@@ -137,28 +137,6 @@
 			}
 
 			jq$("#VIS_ID").width(width).height(height);
-
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-
-			function checkInsufficientWidth(width) {
-				return (width < 480);
-			}
-
-			var isInsufficientWidth = checkInsufficientWidth(width),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
 
 			var w = getW(), h = getH(),
 				miniHeight = laneLength * minLH,

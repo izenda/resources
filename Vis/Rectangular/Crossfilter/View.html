@@ -55,7 +55,7 @@
 		border: none;
 		border-collapse: collapse;
 	}
-	
+
 	#VIS_ID_CONTAINER #VIS_ID_LISTS .ReportTable td {
 		font-size: 12px !important;
 		line-height: 18px;
@@ -253,7 +253,7 @@
 
 				var reportList = d3.select("#VIS_ID_REPORT_LIST").data([function (list) {
 					var byDate = nestByDate.entries(date.top(40));
-					
+
 					list.each(function () {
 						var date = d3.select(this).selectAll(".ReportHeader")
 							.data(byDate, function (d) { return d.key; });
@@ -524,34 +524,6 @@
 					};
 
 					return d3.rebind(chart, brush, "on");
-				}
-
-				jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-				function showInsufficientWidth(width, height) {
-					var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-					jq$('#VIS_ID').children().each(function (i, child) {
-						jq$(child).css('display', 'none');
-					});
-					jq$('#VIS_ID').append(insufficientWidthMessage);
-				}
-
-				function checkInsufficientWidth(width) {
-					var chartCrossWidth = Math.max.apply(Math, jq$.map(jq$("#VIS_ID .chart"), function (chart) {
-						return jq$(chart).width();
-					}));
-					return (width < 480 || width < chartCrossWidth);
-				}
-
-				var isInsufficientWidth = checkInsufficientWidth(width),
-					isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-				if (isInsufficientWidth && !isImageRender) {
-					showInsufficientWidth(width, height);
-					util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-						jq$("#VIS_ID").empty();
-					});
-					return;
 				}
 			}
 

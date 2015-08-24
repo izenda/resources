@@ -102,33 +102,6 @@
 
 			jq$('#VIS_ID').width(width).height(height);
 
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
-
-			function checkInsufficientWidth(width, count) {
-				return (width < 240 || width < count * 30);
-			}
-
-			var itemsOnScreen = (columns.length < 3) ? rows.length : rows.length * 2,
-				isInsufficientWidth = checkInsufficientWidth(width, itemsOnScreen),
-				isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			if (isInsufficientWidth && !isImageRender) {
-				showInsufficientWidth(width, height);
-				util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-					var highchart = jq$('#VIS_ID').highcharts();
-					if (highchart) {
-						highchart.destroy();
-					}
-					jq$("#VIS_ID").empty();
-				});
-				return;
-			}
-
 			var yaxis = [], series = [];
 			for (var i = 1; i < VIS_COLUMNS.length; i++) {
 				yaxis.push({

@@ -252,7 +252,7 @@ function GC_TargetReportChanged(e)
 	{
 		var value = e.value;
 		var visible = (value != "..." && value != "" && value != null);
-		for (var i=2;i<4;i++)
+		for (var i = 2; i < 4; i++)
 		{
 			row.cells[i].style.visibility = (visible ? "" : "hidden");
 		}

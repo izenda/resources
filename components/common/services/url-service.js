@@ -7,7 +7,7 @@
     function ($window, $location, $log) {
       'use strict';
 
-      var urlSettings = new UrlSettings();
+      var urlSettings = $window.urlSettings$;
 
       /**
        * Get report full
@@ -105,13 +105,11 @@
        * Get isNew parameter
        */
       function getIsNew() {
-        var isNewParam = $location.search()['isNew'];
+        var isNewParam = $location.search()['new'];
         // $location.search() return object with parameters
         // and if there is no such parameter - result will be undefined.
-        if (angular.isUndefined(isNewParam)) {
-          var reportInfoFromRn = getReportInfoFromRn();
-          isNewParam = reportInfoFromRn.isNew;
-        }
+        if (angular.isUndefined(isNewParam))
+          isNewParam = getReportInfoFromRn().isNew;
         return isNewParam;
       }
 
@@ -119,18 +117,16 @@
        * Get report full name from "#/category/reportname" or "rn=category\reportname" url parameters.
        */
       function getReportFullName() {
-        var result = null;
-        if ($location.path().trim() !== '') {
-          var loc = $location.path();
-          if ($location.path().charAt(0) === '/')
+        var result = null, loc = $location.path().trim();
+        if (loc !== '') {
+          if (loc.charAt(0) === '/')
             loc = loc.substring(1);
           result = loc.split('/').join('\\');
-        } else {
+        } else if (!getIsNew()) {
           // try to find "rn=..." parameter in url (for external links):
           var reportInfoFromRn = getReportInfoFromRn();
-          if (angular.isString(reportInfoFromRn.fullName) && reportInfoFromRn.fullName !== '') {
+          if (angular.isString(reportInfoFromRn.fullName) && reportInfoFromRn.fullName !== '')
             result = reportInfoFromRn.fullName.split('/').join('\\');
-          }
         }
         return result;
       }
@@ -156,7 +152,7 @@
       }
 
       return {
-        urlSettings: new UrlSettings(),
+        settings: urlSettings,
         extractReportName: extractReportName,
         extractReportCategory: extractReportCategory,
         extractReportPartNames: extractReportPartNames,

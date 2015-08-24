@@ -34,7 +34,7 @@
     <div class="modal-body" ng-show="toolbarController.sendEmailState.isLoading">
       <div class="iz-dash-tile-vcentered-container" style="height: 50px;">
         <div class="iz-dash-tile-vcentered-item">
-          <img class="img-responsive" ng-src="{{toolbarController.izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" 
+          <img class="img-responsive" ng-src="{{toolbarController.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" 
             alt="Loading..." />
         </div>
       </div>
@@ -113,10 +113,8 @@
             </a>
             <ul class="dropdown-menu pull-right" role="menu">
               <li ng-repeat="category in toolbarController.dashboardCategories">
-                <div class="iz-dash-menu-catergory">{{category.name}}</div>
-                <div class="iz-dash-navigation-menu-item"
-                  ng-repeat="dashboard in category.dashboards">
-                  <a href="#{{dashboard}}">{{toolbarController.extractReportName(dashboard)}}</a>
+                <div class="dropdown-menu pull-right" role="menu" style="padding: 0;">
+                  <div izenda-toolbar-folder-menu-accordion categories="toolbarController.dashboardCategories"></div>
                 </div>
               </li>
             </ul>
@@ -218,12 +216,29 @@
             </a>
           </li>
           <!-- refresh -->
-          <li>
+          <li ng-if="toolbarController.autoRefreshIntervals.length == 0">
             <a title="Refresh Dashboard"
               ng-click="toolbarController.refreshDashboardHandler()"
               ng-hide="toolbarController.isGalleryMode">
               <span class="glyphicon glyphicon-refresh"></span>
             </a>
+          </li>
+          <li class="dropdown" 
+            ng-if="toolbarController.autoRefreshIntervals.length != 0">
+            <a class="dropdown-toggle" data-toggle="dropdown" title="Refresh Dashboard"
+               ng-hide="toolbarController.isGalleryMode">
+              <span class="glyphicon glyphicon-refresh">&nbsp;<b class="caret"></b></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
+                <a title="{{interval.name}}"
+                  ng-class="{'selected-item': interval.selected}"
+                  ng-click="toolbarController.refreshDashboardHandler($index)">
+                  <span class="glyphicon glyphicon-refresh"></span>&nbsp;{{interval.name}}
+                </a>
+              </li>
+            </ul>
+ 
           </li>
           <li>
             <a title="Show Dashboard Filters"
@@ -246,28 +261,27 @@
               <span class="glyphicon glyphicon-calendar"></span>
             </a>
           </li>
-          <li class="dropdown"
+          <li class="dropdown" ng-click="toolbarController.beforePrintDashboard()"
               ng-show="!toolbarController.isGalleryMode && toolbarController.isPrintDropdownVisible()">
             <a class="dropdown-toggle" data-toggle="dropdown" title="Print Dashboard">
               <span class="glyphicon glyphicon-print">&nbsp;<b class="caret"></b></span>
             </a>
             <ul class="dropdown-menu">
               <li>
-                <a title="Print Dashboard HTML"
-                   ng-show="toolbarController.isPrintDashboardVisible()"
+                <a id="newDbHtmlPrint" title="Print Dashboard HTML"
+                   ng-show="toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
                    ng-click="toolbarController.printDashboard()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;Print dashboard HTML
                 </a>
               </li>
               <li>
-                <a title="Print Dashboard PDF"
-                   ng-show="toolbarController.isPrintDashboardPdfVisible()"
+                <a id="newDbPdfPrint" title="Print Dashboard PDF"
+                   ng-show="toolbarController.isPrintDashboardPdfVisible() && toolbarController.synchronized"
                    ng-click="toolbarController.printDashboardPdf()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;Print report PDF
                 </a>
               </li>
             </ul>
-            
           </li>
           <li class="dropdown"
               ng-show="!toolbarController.isGalleryMode && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
@@ -350,21 +364,15 @@
               </span>
             </a>
             <a class="dropdown-toggle" data-toggle="dropdown" title="Open dashboard"
-              ng-if="toolbarController.isIE8">
+               ng-if="toolbarController.isIE8">
               <span>
                 <img src="Resources/images/folder.png" />
                 <b class="caret"></b>
               </span>
             </a>
-            <ul class="dropdown-menu pull-right" role="menu">
-              <li ng-repeat="category in toolbarController.dashboardCategories">
-                <div class="iz-dash-menu-catergory">{{category.name}}</div>
-                <div class="iz-dash-navigation-menu-item"
-                  ng-repeat="dashboard in category.dashboards">
-                  <a href="#{{dashboard}}">{{toolbarController.extractReportName(dashboard)}}</a>
-                </div>
-              </li>
-            </ul>
+            <div class="dropdown-menu pull-right" role="menu" style="padding: 0;">
+              <div izenda-toolbar-folder-menu-accordion categories="toolbarController.dashboardCategories"></div>
+            </div>
           </li>
         </ul>
 

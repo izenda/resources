@@ -5,13 +5,14 @@
 '$rootScope',
 '$log',
 '$izendaUrl',
+'$izendaEvent',
 IzendaFiltersLegacyController]);
 
 /**
  * Controller for old non angular filters
  */
 // ReSharper disable once InconsistentNaming
-function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl) {
+function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $izendaEvent) {
   var _ = angular.element;
   var vm = this;
   vm.opened = false;
@@ -80,36 +81,32 @@ function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl) {
    * Initialize filters controllers
    */
   vm.initialize = function () {
+      // open filters event handler
+      $scope.$on('izendaFiltersOpen', function () {
+        vm.openFiltersPanel();
+      });
 
-    // open filters event handler
-    $scope.$on('izendaFiltersOpen', function () {
-      vm.openFiltersPanel();
-    });
+      // close filters event handler
+      $scope.$on('izendaFiltersClose', function () {
+        vm.closeFiltersPanel();
+      });
 
-    // close filters event handler
-    $scope.$on('izendaFiltersClose', function () {
-      vm.closeFiltersPanel();
-    });
+      // toggle filters event handler
+      $scope.$on('izendaFiltersToggle', function () {
+        vm.toggleFiltersPanel();
+      });
 
-    // toggle filters event handler
-    $scope.$on('izendaFiltersToggle', function () {
-      vm.toggleFiltersPanel();
-    });
-
-    /**
-     * Refresh filters event
-     */
-    $scope.$on('refreshFilters', function () {
       vm.initializeFilters();
-    });
 
-    vm.initializeFilters();
+      // 'refreshFilters' event handle
+      $izendaEvent.handleQueuedEvent('refreshFilters', $scope, vm, function () {
+        vm.initializeFilters();
+      });
 
-    _('#updateBtnP > a').click(function(event) {
-      event.preventDefault();
-      CommitFiltersData(true);
-      $rootScope.$broadcast('dashboardRefreshEvent', []);
-    });
-
+      _('#updateBtnP > a').click(function (event) {
+        event.preventDefault();
+        CommitFiltersData(true);
+        $izendaEvent.queueEvent('dashboardRefreshEvent', [], true);
+      });
   };
 }

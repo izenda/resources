@@ -61,11 +61,9 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
     thisRequestObject.dtk = dataToKeep;
     thisRequestObject.onreadystatechange = ProcessRequest;
 
-    /*thisRequestObject.open('GET', url + '?' + parameters, true);
-    thisRequestObject.send();*/
     thisRequestObject.open('POST', url, true);
     thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    thisRequestObject.send(parameters);
+    thisRequestObject.send(parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''));
 
     function DeserializeJson() {
         var responseText = thisRequestObject.responseText;

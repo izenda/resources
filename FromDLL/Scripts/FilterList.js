@@ -323,14 +323,14 @@ function CC_GetFilterCMD(row) {
             cmd = cmd + "&" + "fo" + i + "=" + filters[i].Operator;
             if (filters[i].val1 != null) {
                 var v1 = filters[i].val1.replace('&', '%26');
-                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "EqualsCalendar") {
+                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
                     v1 = CC_CropDate(v1);
                 }
                 cmd = cmd + "&" + "fvl" + i + "=" + encodeURIComponent(v1);
             }
             if (filters[i].val2 != null) {
                 var v2 = filters[i].val2.replace('&', '%26');
-                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "EqualsCalendar") {
+                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
                     v2 = CC_CropDate(v2);
                 }
                 cmd = cmd + "&" + "fvr" + i + "=" + encodeURIComponent(v2);
@@ -706,11 +706,11 @@ function CC_GetShowEditForRow(row) {
 		var showEdit3 = (operatorValue == 'Equals_Select' || operatorValue == 'NotEquals_Select' || operatorValue == 'Equals_Multiple' || operatorValue == 'NotEquals_Multiple' ||
 						(showFieldAsValueDropDown && (operatorValue == 'EqualsField' || operatorValue == 'LessThanField' || operatorValue == 'GreaterThanField' || operatorValue == 'NotEqualsField')));
 		var showEdit4 = (operatorValue == 'InTimePeriod');
-		var showEdit5 = (operatorValue == "BetweenTwoDates");
+		var showEdit5 = (operatorValue == "BetweenTwoDates" || operatorValue == "NotBetweenTwoDates");
 		var showEdit6 = (operatorValue == "EqualsPopup" || operatorValue == "NotEqualsPopup");
 		var showEdit7 = (operatorValue == 'Equals_TextArea');
 		var showEdit8 = (operatorValue == 'Equals_CheckBoxes');
-		var showEdit9 = (operatorValue == "EqualsCalendar");
+		var showEdit9 = (operatorValue == "EqualsCalendar" || operatorValue == "NotEqualsCalendar");
 		var showEdit10 = false;
 		var showEdit11 = (operatorValue == "Equals_TreeView" || operatorValue == "NotEquals_TreeView");
 

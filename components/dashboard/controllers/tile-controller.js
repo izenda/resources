@@ -11,6 +11,7 @@
     reportCategory: null,
     reportNameWithCategory: null,
     previousReportFullName: null,
+    isSourceReportDeleted: false,
     x: 0,
     y: 0,
     width: 1,
@@ -33,6 +34,7 @@ angular
     '$izendaCommonQuery',
     '$izendaSettings',
     '$izendaDashboardQuery',
+    '$izendaEvent',
     izendaTileController]);
 
 /**
@@ -50,7 +52,8 @@ function izendaTileController(
   $izendaCompatibility,
   $izendaCommonQuery,
   $izendaSettings,
-  $izendaDashboardQuery) {
+  $izendaDashboardQuery,
+  $izendaEvent) {
 
   'use strict';
   var _ = angular.element;
@@ -72,7 +75,7 @@ function izendaTileController(
   /**
    * Check tile is read only
    */
-  vm.isEditAllowed = function() {
+  vm.isEditAllowed = function () {
     return $izendaCompatibility.isEditAllowed();
   };
 
@@ -162,8 +165,8 @@ function izendaTileController(
   // tile events
   ////////////////////////////////////////////////////////
 
-  vm.initializeEventHandlers = function() {
-   
+  vm.initializeEventHandlers = function () {
+
     /**
      * Watch top changed
      */
@@ -175,7 +178,7 @@ function izendaTileController(
         updateParentTile();
       }
     });
-    
+
     /**
      * Watch title changed
      */
@@ -198,7 +201,15 @@ function izendaTileController(
         updateParentTile();
       }
     });
+  };
 
+  ////////////////////////////////////////////////////////
+  // scope functions:
+  ////////////////////////////////////////////////////////
+  /**
+   * Initialize tile
+   */
+  vm.initialize = function (tile) {
     /**
      * Tile refresh event handler
      */
@@ -212,7 +223,7 @@ function izendaTileController(
     /**
      * Tile light effect
      */
-    $scope.$on('tileLedStartEvent', function(event, args) {
+    $scope.$on('tileLedStartEvent', function (event, args) {
       if (args.length != 1 || typeof (args[0]) !== 'string')
         return;
       var reportFullName = args[0];
@@ -224,7 +235,7 @@ function izendaTileController(
     /**
      * Turn off tile led effect
      */
-    $scope.$on('tileLedEndEvent', function(event, args) {
+    $scope.$on('tileLedEndEvent', function (event, args) {
       if (args.length != 1 || typeof (args[0]) !== 'string')
         return;
       var reportFullName = args[0];
@@ -296,18 +307,10 @@ function izendaTileController(
       vm.endTop = 100;
       vm.flipFront(true, true);
       updateParentTile();
-      $rootScope.$broadcast('refreshFilters', []);
+      $izendaEvent.queueEvent('refreshFilters', [], true);
     });
-  };
 
-  ////////////////////////////////////////////////////////
-  // scope functions:
-  ////////////////////////////////////////////////////////
 
-  /**
-   * Initialize tile
-   */
-  vm.initialize = function (tile) {
     // extend scope with tile parameters and default parameters:
     var tileDefaults = $injector.get('tileDefaults');
     angular.extend(this, tileDefaults, tile);
@@ -350,14 +353,36 @@ function izendaTileController(
    * Get report viewer link for tile report
    */
   vm.getReportViewerLink = function () {
-    return vm.izendaUrl.urlSettings.urlReportViewer + '?rn=' + vm.getSourceReportName();
+    return vm.izendaUrl.settings.urlReportViewer + '?rn=' + vm.getSourceReportName();
+  };
+
+  /**
+   * Go to report viewer
+   */
+  vm.fireReportViewerLink = function () {
+    if (!vm.isSourceReportDeleted) {
+    	$window.open(vm.getReportViewerLink(), '_blank');
+    } else {
+      $scope.$parent.$emit('showNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+    }
   };
 
   /**
    * Get report editor link for tile report
    */
   vm.getReportEditorLink = function () {
-    return vm.izendaUrl.urlSettings.urlReportDesigner + '?rn=' + vm.getSourceReportName();
+    return vm.izendaUrl.settings.urlReportDesigner + '?rn=' + vm.getSourceReportName();
+  };
+
+  /**
+   * Go to report editor
+   */
+  vm.fireReportEditorLink = function () {
+    if (!vm.isSourceReportDeleted) {
+    	$window.open(vm.getReportEditorLink(), '_blank');
+    } else {
+      $scope.$parent.$emit('showNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+    }
   };
 
   /**
@@ -413,7 +438,7 @@ function izendaTileController(
    */
   vm.topSelected = function () {
     updateParentTile();
-    $izendaDashboardQuery.setReportPartTop(vm.reportFullName, vm.top).then(function() {
+    $izendaDashboardQuery.setReportPartTop(vm.reportFullName, vm.top).then(function () {
       flipTileFront(true);
     });
   };
@@ -440,13 +465,13 @@ function izendaTileController(
    */
   vm.printTile = function () {
     $izendaDashboardQuery.loadTileReportForPrint(vm.reportFullName)
-      .then(function(htmlData) {
-        $timeout(function() {
+      .then(function (htmlData) {
+        $timeout(function () {
           var windowPrint = $window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
           windowPrint.document.write(htmlData);
           windowPrint.document.close();
           windowPrint.focus();
-          $timeout(function() {
+          $timeout(function () {
             windowPrint.print();
             windowPrint.close();
           }, 2000);
@@ -459,7 +484,7 @@ function izendaTileController(
    * Export to excel
    */
   vm.exportToExcel = function () {
-    var url = vm.izendaUrl.urlSettings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)';
+    var url = vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)';
     $window.open(url, '_self');
     vm.flipFront(true, false);
   };
@@ -479,7 +504,7 @@ function izendaTileController(
     vm.height = height;
     updateParentTile();
   };
-  
+
   /**s
    * Flip tile back
    */
@@ -892,7 +917,7 @@ function izendaTileController(
     }
     var loadingHtml = '<div class="iz-dash-tile-vcentered-container">' +
       '<div class="iz-dash-tile-vcentered-item">' +
-      '<img class="img-responsive" src="' + vm.izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+      '<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
       '</div>' +
       '</div>';
     var $body = _($element).find('.report');
@@ -917,7 +942,7 @@ function izendaTileController(
         .then(function (htmlData) {
           applyTileHtml(htmlData);
           if (updateFromSourceReport)
-            $rootScope.$broadcast('refreshFilters', []);
+            $izendaEvent.queueEvent('refreshFilters', [], true);
         });
       }
     }
@@ -952,7 +977,7 @@ function izendaTileController(
     if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
       AdHoc.Utility.InitGaugeAnimations(null, null, false);
     }
-    divs$.on('click.dashboard.tile.content', function() {
+    divs$.on('click.dashboard.tile.content', function () {
       vm.setScroll();
     });
     if (!vm.isOneColumnView())
