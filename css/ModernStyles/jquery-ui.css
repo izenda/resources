@@ -649,6 +649,7 @@ html, body{background-color:#ffffff;}
 .iz-ui-icon { width: 16px; height: 16px; }
 /* General */
 .iz-ui-icon, .iz-ui-widget-content .iz-ui-icon, .iz-ui-widget-header .iz-ui-icon  {background-image:url(###RS###image=ModernImages.iz-ui-icons_d4d4d4_0.png)}
+.iz-ui-icon-light, .iz-ui-widget-content .iz-ui-icon-light, .iz-ui-widget-header .iz-ui-icon-light  {background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png)}
 .iz-ui-state-default .iz-ui-icon {background-image:url(images/ui-icons_525252_0.png)}
 .iz-ui-state-active .iz-ui-icon, .iz-ui-state-hover .iz-ui-icon{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);}
 .iz-ui-widget-overlay{background:#ffffff;}

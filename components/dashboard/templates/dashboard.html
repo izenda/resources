@@ -1,8 +1,29 @@
 ﻿<!-- dashboard body -->
 <div ng-controller="IzendaDashboardController as dashboardController"
-     ng-init="dashboardController.initialize()" ng-cloak>
+  ng-init="dashboardController.initialize()" ng-cloak>
   <div id="dashboardsDiv">
-    <!-- filters -->
+    <!-- message box -->
+    <div izenda-bootstrap-modal opened="dashboardController.isMessageDialogOpened">
+      <div class="modal-header">
+        <div class="row">
+          <div class="col-md-12">
+            <b>{{dashboardController.messageDialogTitle}}</b>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          {{dashboardController.messageDialogText}}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+          ng-click="dashboardController.closeMessageBox()">
+          Close</button>
+      </div>
+    </div>
+
+    <!-- notifications -->
     <div id="notificationDiv" ng-hide="dashboardController.notifications.length === 0">
       <div class="iz-dash-notification fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
         ng-repeat="notification in dashboardController.notifications">
@@ -10,6 +31,7 @@
           ng-click="dashboardController.closeNotification(notification.id)"
           ng-mouseover="dashboardController.cancelNotificationTimeout(notification.id)">
         </div>
+        <div class="icon" ng-class="notification.iconClass" ng-show="notification.iconClass !== ''"></div>
         <div class="title" ng-bind="notification.title"></div>
         <div class="text" ng-bind="notification.text"></div>
       </div>
@@ -69,27 +91,27 @@
               <div class="title">
                 <span class="title-text">
                   <a ng-if="tileController.isTitleSet()"
-                    class="db-title-repname" title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    class="db-title-repname" title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.title}}
                   </a>
 
-                  <a ng-if="!tileController.isTitleSet() && tileController.reportCategory != null"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.reportCategory}}">{{tileController.reportCategory}}
+                  <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.getConvertedReportCategory()}}">{{tileController.getConvertedReportCategory()}}
                   </a>
 
-                  <span ng-if="!tileController.isTitleSet() && tileController.reportCategory != null && tileController.reportName != null">/</span>
+                  <span ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null && tileController.reportName != null">/</span>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.reportName != null"
                     class="db-title-repname"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.reportName}}
                   </a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet() && tileController.reportPartName != null"
                     class="db-title-repname"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.reportPartName}}
                   </a>
                 </span>
@@ -142,30 +164,30 @@
               </div>
               <div class="iz-dash-tile-fb-toolbar2">
                 <div class="iz-dash-tile-fb-toolbtn"
-                     ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible()">
+                  ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible() && !tileController.isTileEmpty()">
                   <a title="Print tile report"
-                     ng-click="tileController.printTile()">
+                    ng-click="tileController.printTile()">
                     <img class="img-responsive" src="Resources/images/back-tile/print.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn"
-                  ng-hide="tileController.isOneColumnView()"> 
-                  <a title="Export tile report to excel" 
-                     ng-click="tileController.exportToExcel()">
+                  ng-show="!tileController.isOneColumnView() && !tileController.isTileEmpty()">
+                  <a title="Export tile report to excel"
+                    ng-click="tileController.exportToExcel()">
                     <img class="img-responsive" src="Resources/images/back-tile/excel.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn">
+                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
                   <a href="{{tileController.getReportEditorLink()}}" title="Open tile report in designer">
-                    <img class="img-responsive" src="Resources/images/back-tile/edit.png"/>
+                    <img class="img-responsive" src="Resources/images/back-tile/edit.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn" title="Open tile report in viewer">
+                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
                   <a href="{{tileController.getReportViewerLink()}}" title="Open tile report in viewer">
                     <img class="img-responsive" src="Resources/images/back-tile/view.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn">
+                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
                   <a title="Reload tile from it's source" ng-click="tileController.flipFront(true, true)">
                     <img class="img-responsive" src="Resources/images/back-tile/reload.png">
                   </a>
@@ -180,7 +202,10 @@
               <div class="iz-dash-tile-fb-toolbar">
                 <span class="iz-dash-tile-fb-rcount">{{tileController.getTopString()}}</span>
                 <span class="iz-dash-tile-fb-rcount-slider">
-                  <div izenda-tile-top-slider ng-model="tileController.top" on-change-end="tileController.topSelected()"></div>
+                  <div izenda-tile-top-slider ng-model="tileController.top"
+                    end-value="tileController.endTop"
+                    on-change-end="tileController.topSelected()">
+                  </div>
                 </span>
                 <span class="iz-dash-tile-fb-rcount-label">RECORDS COUNT</span>
               </div>
@@ -195,26 +220,26 @@
                 <span class="title-text">
                   <a ng-if="tileController.isTitleSet()"
                     class="db-title-repname"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.title}}
                   </a>
 
-                  <a ng-if="!tileController.isTitleSet() && tileController.reportCategory != null"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.reportCategory}}">{{tileController.reportCategory}}
+                  <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    href="{{tileController.izendaUrl.urlSettings.urlReportList}}#{{tileController.getConvertedReportCategory()}}">{{tileController.getConvertedReportCategory()}}
                   </a>
 
-                  <span ng-if="!tileController.isTitleSet() && tileController.reportCategory != null && tileController.reportName != ''">/</span>
+                  <span ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null && tileController.reportName != ''">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                     class="db-title-repname"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.reportName}}
                   </a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                     class="db-title-repname"
-                    title="{{tileController.reportCategory}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                    title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
                     href="{{tileController.getReportViewerLink()}}">{{tileController.reportPartName}}
                   </a>
                 </span>
@@ -258,13 +283,13 @@
       <div id="impresshook">
         <div class="impress">
           <div class="step slide" tileid="{{tile.id}}"
-               ng-repeat="tile in dashboardController.tiles"
-               data-x="{{($index + 1) * 1240}}"
-               data-y="{{0}}"
-               data-z="{{0}}"
-               data-rotate-x="{{0}}"
-               data-rotate-y="{{0}}"
-               data-rotate-z="{{0}}">
+            ng-repeat="tile in dashboardController.tiles"
+            data-x="{{($index + 1) * 1240}}"
+            data-y="{{0}}"
+            data-z="{{0}}"
+            data-rotate-x="{{0}}"
+            data-rotate-y="{{0}}"
+            data-rotate-z="{{0}}">
             <h1 ng-bind="tile.reportFullName"></h1>
           </div>
         </div>

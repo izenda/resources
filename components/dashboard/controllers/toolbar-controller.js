@@ -72,6 +72,16 @@ function izendaToolbarController(
   vm.printMode = 'Html2PdfAndHtml';
   vm.isNewDashboard = true;
 
+  vm.sendEmailModalOpened = false;
+  vm.sendEmailState = {
+    errors: [],
+    isLoading: false,
+    errorOccured: false,
+    sendType: 'Link',
+    email: '',
+    opened: false
+  };
+
   // background options
   var backColor = $izendaBackground.getBackgroundColor();
   vm.izendaBackgroundColor = backColor ? backColor : '#1c8fd6';
@@ -119,6 +129,10 @@ function izendaToolbarController(
   //////////////////////////////////////////////////////
   // PUBLIC
   //////////////////////////////////////////////////////
+
+  vm.extractReportName = function(fullName) {
+    return $izendaUrl.extractReportName(fullName);
+  }
 
   /**
    * Check if one column view required
@@ -399,7 +413,7 @@ function izendaToolbarController(
    */
   vm.toolbarLoadDashboard = function (item) {
     vm.activeDashboard = item;
-    $location.url(item.fullName.replace(/\\/, '/'));
+    $location.url(item.fullName.split('\\').join('/'));
   };
 
   /**
@@ -543,6 +557,63 @@ function izendaToolbarController(
   };
 
   /**
+   * Open send email dialog
+   */
+  vm.showEmailModal = function (type) {
+    vm.sendEmailState.isLoading = false;
+    vm.sendEmailState.opened = true;
+    vm.sendEmailState.sendType = type;
+    vm.sendEmailState.email = '';
+    vm.sendEmailState.errors = [];
+    vm.sendEmailState.errorOccured = false;
+  }
+
+  /**
+   * Close send email dialog
+   */
+  vm.hideEmailModal = function (success) {
+    vm.sendEmailState.errorOccured = true;
+    vm.sendEmailState.errors = [];
+    if (success) {
+      // OK pressed
+      if (!vm.validateEmail(vm.sendEmailState.email)) {
+        vm.sendEmailState.errorOccured = true;
+        vm.sendEmailState.errors.push('Incorrect Email');
+      } else {
+        vm.sendEmailState.isLoading = true;
+        $izendaDashboardToolbarQuery.sendReportViaEmail(vm.sendEmailState.sendType, vm.sendEmailState.email).then(function (result) {
+          vm.sendEmailState.opened = false;
+          if (result === 'OK') {
+            $rootScope.$broadcast('showNotificationEvent', ['Email to "' + vm.sendEmailState.email + '" was sent']);
+          } else {
+            $rootScope.$broadcast('showNotificationEvent', ['Failed to send email to "' + vm.sendEmailState.email + '": ' + result]);
+          }
+          $scope.$applyAsync();
+        });
+      }
+    } else {
+      // cancel pressed
+      vm.sendEmailState.opened = false;
+    }
+    
+  }
+
+  /**
+   * Validate email
+   */
+  vm.validateEmail = function(email) {
+    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+    return re.test(email);
+  }
+
+  /**
+   * Send dashboard via email
+   */
+  vm.sendEmail = function (type) {
+    vm.showEmailModal(type);
+  };
+
+  /**
    * Is html model enabled in AdHocSettings
    */
   vm.isPrintDashboardVisible = function() {
@@ -552,21 +623,8 @@ function izendaToolbarController(
   /**
    * Print whole dashboard
    */
-  vm.printDashboard = function() {
-    $izendaDashboardToolbarQuery.loadDashboardForPrint()
-      .then(function (htmlData) {
-        $timeout(function () {
-          var windowPrint = $window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
-          htmlData += "<script>jq$('.DashPartBody').css('height', 'auto');";
-          windowPrint.document.write(htmlData);
-          windowPrint.document.close();
-          windowPrint.focus();
-          $timeout(function () {
-            windowPrint.print();
-            windowPrint.close();
-          }, 2000);
-        }, 0);
-      });
+  vm.printDashboard = function () {
+    $rootScope.$broadcast('printWholeDashboardEvent', ['html']);
   };
 
   /**
@@ -579,9 +637,8 @@ function izendaToolbarController(
   /**
    * Print dashboard as pdf
    */
-  vm.printDashboardPdf = function() {
-    var url = vm.izendaUrl.urlSettings.urlRsPage + '?output=PDF';
-    $window.open(url, '_self');
+  vm.printDashboardPdf = function () {
+    $rootScope.$broadcast('printWholeDashboardEvent', ['pdf']);
   };
 
   /**

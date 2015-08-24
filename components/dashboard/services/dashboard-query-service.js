@@ -61,7 +61,8 @@ angular
        */
       function saveDashboard(dashboardName, dashboardConfigObject) {
         return $izendaRsQuery.query('savecrsdashboard', [JSON.stringify(dashboardConfigObject), dashboardName], {
-          dataType: 'text'
+          dataType: 'text',
+          method: 'POST'
         },
         // custom error handler:
         {
@@ -69,6 +70,22 @@ angular
             return 'Failed to save dashboard "' + name + '"';
           },
           params: [dashboardName]
+        });
+      }
+
+      /**
+       * Sync dashboard state to server
+       */
+      function syncDashboard(dashboardConfigObject) {
+        return $izendaRsQuery.query('synccrsdashboard', [JSON.stringify(dashboardConfigObject)], {
+          dataType: 'text'
+        },
+        // custom error handler:
+        {
+          handler: function () {
+            return 'Failed to sync dashboard';
+          },
+          params: []
         });
       }
 
@@ -88,12 +105,33 @@ angular
         });
       }
 
+      /**
+       * Load rendered for print dashboard
+       */
+      function loadDashboardForPrint() {
+        return $izendaRsQuery.rsQuery({
+          'p': 'htmlreport',
+          'printmanual': '1'
+        }, {
+          dataType: 'text'
+        },
+        // custom error handler:
+        {
+          handler: function () {
+            return 'Failed to load dashboard for print';
+          },
+          params: []
+        });
+      }
+
       // PUBLIC API
       return {
         loadDashboardLayout: loadDashboardLayout,
         loadTileReport: loadTileReport,
         loadTileReportForPrint: loadTileReportForPrint,
         saveDashboard: saveDashboard,
-        setReportPartTop: setReportPartTop
+        syncDashboard: syncDashboard,
+        setReportPartTop: setReportPartTop,
+        loadDashboardForPrint: loadDashboardForPrint
       };
     }]);

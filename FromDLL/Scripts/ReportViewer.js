@@ -158,8 +158,6 @@ function SendFieldsData(data) {
 function FieldsDataSent(returnObj, id) {
 	if (id != 'updatecrsfields' || returnObj == undefined || returnObj == null || returnObj.Value == null)
 		return;
-	GetFiltersData();
-	//GetRenderedReportSet(true);
 }
 //------------------------------------------------------------------------------------------------------------------
 
@@ -461,7 +459,6 @@ function updateFields() {
 		usedField.Description = fieldsList[i].Description;
 		usedField.Format = fieldsList[i].Format;
 		usedField.Width = fieldsList[i].Width;
-		usedField.FilterOperator = fieldsList[i].FilterOperator;
 		usedField.LabelJ = fieldsList[i].LabelJ;
 		usedField.ValueJ = fieldsList[i].ValueJ;
 		usedField.GUID = fieldsList[i].GUID; // Empty for new fields
@@ -572,46 +569,36 @@ function SetPivotCount() {
 
 //Field advanced properties-------------------------------------------------------------------------------------------------------
 function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
-	var foundField = -1;
 	var calcFieldIndex = -1;
-
 	var tableAlias = '';
-	for (var i = 0; i < filtersData.length; i++)
+	for (var i = 0; i < filtersData.length; i++) {
 		if (filtersData[i].GUID == GUID) {
 			tableAlias = filtersData[i].AliasTable;
 			break;
 		}
-
-	for (var i = 0; i < fieldsList.length; i++)
-		if (fieldsList[i].DbName == fieldName) {
-			if (foundField >= 0) // Second field on the same column
-				foundField = -1;
-			else
-				foundField = i;	
-		}
-		else if (fieldsList[i].Description == fieldName) {
-			calcFieldIndex = i;
-		}
-
-	if (foundField >= 0) {
-		curPropFInd = foundField;
-		FP_ShowFieldProperties(fieldsList[foundField], fieldPopup);
-		return;
 	}
-
-	for (var dsInd = 0; dsInd < dataSources.length; dsInd++)
-		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++)
+	for (var dsInd = 0; dsInd < dataSources.length; dsInd++) {
+		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++) {
 			if (dataSources[dsInd].Columns[colInd].DbName == fieldName && (tableAlias == '' || dataSources[dsInd].Columns[colInd].TableJoinAlias == tableAlias)) {
 				var newField = jq$.extend({}, dataSources[dsInd].Columns[colInd]);
 				newField.FilterGUID = GUID;
-				for (var i = 0; i < filtersData.length; i++)
+				for (var i = 0; i < filtersData.length; i++) {
 					if (filtersData[i].GUID == GUID) {
 						newField.FilterOperator = filtersData[i].OperatorValue;
 						break;
 					}
-				FP_ShowFieldProperties(newField, fieldPopup);
+				}
+				FP_ShowFilterProperties(newField, fieldPopup);
 				return;
 			}
+		}
+	}
+	for (var i = 0; i < fieldsList.length; i++) {
+		if (fieldsList[i].Description == fieldName) {
+			calcFieldIndex = i;
+			break;
+		}
+	}
 	if (calcFieldIndex >= 0) {
 		curPropFInd = calcFieldIndex;
 		FP_ShowFieldProperties(fieldsList[calcFieldIndex], fieldPopup);
@@ -635,16 +622,12 @@ function ShowFieldProperties() {
 function updateFieldProperties(newField) {
 	fieldsList[curPropFInd].Description = newField.Description;
 	fieldsList[curPropFInd].Total = newField.Total;
-	fieldsList[curPropFInd].VG = newField.VG
+	fieldsList[curPropFInd].VG = newField.VG;
 	fieldsList[curPropFInd].IsMultilineHeader = newField.IsMultilineHeader;
 	fieldsList[curPropFInd].Format = newField.Format;
 	fieldsList[curPropFInd].Width = newField.Width;
-	fieldsList[curPropFInd].FilterOperator = newField.FilterOperator;
 	fieldsList[curPropFInd].LabelJ = newField.LabelJ;
 	fieldsList[curPropFInd].ValueJ = newField.ValueJ;
-	for (var i = 0; i < fieldsList.length; i++)
-		if (i != curPropFInd && fieldsList[i].DbName == fieldsList[curPropFInd].DbName)
-			fieldsList[i].FilterOperator = newField.FilterOperator;
 	updateFields();
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -667,14 +650,6 @@ function AddRemainingFields() {
 					break;
 				}
 		}
-
-		for (var j = 0; j < fieldsList.length; j++)
-			if (fieldsList[j].DbName == newField.DbName && fieldsList[j].FilterOperator != '') {
-				newField.FilterOperator = fieldsList[j].FilterOperator;
-				newField.DupFilter = true;
-				fieldsList[j].DupFilter = true;
-				break;
-			}
 		fieldsList.push(newField);
 	}
 	wereChecked.length = 0;
@@ -1002,11 +977,15 @@ function InitializePopup() {
 		buttons: {
 			"OK": function () {
 				switchTabAfterRefreshCycle = true;
-				var field = FP_CollectProperties();
-				if (field.FilterGUID && field.FilterGUID != 'undefined')
-					CommitChangedFilter(field);
-				else
+				var propDialogMode = document.getElementById('propDialogMode');
+				if (propDialogMode.value == 'filter') {
+					var filter = FP_CollectFilterProperties();
+					CommitChangedFilter(filter);
+				}
+				else if (propDialogMode.value == 'field') {
+					var field = FP_CollectFieldProperties();
 					updateFieldProperties(field);
+				}
 				jq$(this).dialog("close");
 			},
 			"Cancel": function () {

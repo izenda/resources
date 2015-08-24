@@ -61,6 +61,7 @@ function izendaTileController(
   vm.printMode = 'Html2PdfAndHtml';
 
   vm.state = {
+    empty: true,
     resizableHandlerStarted: false
   };
 
@@ -73,6 +74,15 @@ function izendaTileController(
    */
   vm.isEditAllowed = function() {
     return $izendaCompatibility.isEditAllowed();
+  };
+
+  /**
+   * change report category from cat1\cat2\cat3 to cat1/cat2/cat3
+   */
+  vm.getConvertedReportCategory = function () {
+    if (!angular.isString(vm.reportCategory))
+      return null;
+    return vm.reportCategory.split('\\').join('/');
   };
 
   /**
@@ -122,6 +132,13 @@ function izendaTileController(
   };
 
   /**
+   * Check if tile is empty
+   */
+  vm.isTileEmpty = function () {
+    return vm.state.empty;
+  };
+
+  /**
    * Return style object for '.iz-dash-tile'
    */
   vm.getTileStyle = function () {
@@ -150,10 +167,11 @@ function izendaTileController(
     /**
      * Watch top changed
      */
-    $scope.$watch(angular.bind(vm, function (top) {
-      return vm.top;
+    $scope.$watch(angular.bind(vm, function (endTop) {
+      return vm.endTop;
     }), function (newVal, oldVal) {
       if (newVal !== oldVal) {
+        vm.top = newVal;
         updateParentTile();
       }
     });
@@ -275,6 +293,7 @@ function izendaTileController(
       if (vm.reportCategory != null)
         vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
       vm.top = 100;
+      vm.endTop = 100;
       vm.flipFront(true, true);
       updateParentTile();
       $rootScope.$broadcast('refreshFilters', []);
@@ -916,7 +935,7 @@ function izendaTileController(
       AdHoc.Utility.InitGaugeAnimations(null, null, false);
     }
     var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
-
+    divs$.css('height', 'auto');
     divs$.find('span').each(function (iSpan, span) {
       var $span = _(span);
       if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
@@ -933,8 +952,13 @@ function izendaTileController(
     if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
       AdHoc.Utility.InitGaugeAnimations(null, null, false);
     }
+    divs$.on('click.dashboard.tile.content', function() {
+      vm.setScroll();
+    });
     if (!vm.isOneColumnView())
       vm.setScroll();
+
+    vm.state.empty = false;
   }
 }
 

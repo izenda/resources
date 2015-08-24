@@ -416,6 +416,16 @@ function ReportViewed(returnObj, id) {
 		alert("Error: " + returnObj.Value);
 }
 
+function DS_ShowFilterProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
+	curPropField = fieldSqlName;
+	var filter = DS_GetFullField(fieldSqlName, friendlyName);
+	if (filterGUID != null)
+		filter.FilterGUID = filterGUID;
+	var requestString = 'wscmd=fieldoperatorsandformatswithdefault';
+	requestString += '&wsarg0=' + curPropField;
+	AjaxRequest('./rs.aspx', requestString, FilterPropFormatsGot, null, 'fieldoperatorsandformatswithdefault', filter);
+}
+
 function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 	curFieldIndexes = fiIds;
 	var autoTotal = false;
@@ -439,9 +449,6 @@ function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 	field.Selected = selected;
 	if (field.Total == null)
 		field.Total = 1;
-	if (filterGUID != null)
-		field.FilterGUID = filterGUID;
-
 	var requestString = 'wscmd=fieldoperatorsandformatswithdefault';
 	requestString += '&wsarg0=' + curPropField;
 	AjaxRequest('./rs.aspx', requestString, FieldPropFormatsGot, null, 'fieldoperatorsandformatswithdefault', field);
@@ -471,11 +478,47 @@ function DS_GetFullField(fieldSqlName, friendlyName) {
 	return field;
 }
 
+function FilterPropFormatsGot(returnObj, id, field) {
+	if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
+		return;
+	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
+		var operatorsData = returnObj.AdditionalData.slice(0, returnObj.Value);
+		field.FilterOperatorNames = new Array();
+		field.FilterOperatorValues = new Array();
+		fCnt = 0;
+		avCnt = 0;
+		while (avCnt < operatorsData.length) {
+			field.FilterOperatorNames[fCnt] = operatorsData[avCnt];
+			avCnt++;
+			field.FilterOperatorValues[fCnt] = operatorsData[avCnt];
+			avCnt++;
+			fCnt++;
+		}
+		field.FilterOperator = '...';
+		if (fieldsOpts[curPropField] != null)
+			field.FilterOperator = fieldsOpts[curPropField].FilterOperator;
+		if (field.FilterGUID == null) {
+			for (var find = 0; find < filtersData.length; find++)
+				if (filtersData[find].ColumnName == field.ColumnName) {
+					field.FilterGUID = filtersData[find].GUID;
+					break;
+				}
+		}
+		if (field.FilterGUID != null) {
+			for (var find = 0; find < filtersData.length; find++)
+				if (filtersData[find].GUID == field.FilterGUID) {
+					field.FilterOperator = filtersData[find].OperatorValue;
+					break;
+				}
+		}
+		FP_ShowFilterProperties(field, fieldPopup);
+	}
+}
+
 function FieldPropFormatsGot(returnObj, id, field) {
   if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
   	return;
 	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
-		var operatorsData = returnObj.AdditionalData.slice(0, returnObj.Value);
 		var formatsData = returnObj.AdditionalData.slice(returnObj.Value);
 		field.Format = '...';
 		if (fieldsOpts[curPropField] != null)
@@ -493,37 +536,6 @@ function FieldPropFormatsGot(returnObj, id, field) {
 			avCnt++;
 			fCnt++;
 		}
-		field.FilterOperatorNames = new Array();
-		field.FilterOperatorValues = new Array();	
-		fCnt = 0;
-		avCnt = 0;
-		while (avCnt < operatorsData.length) {
-			field.FilterOperatorNames[fCnt] = operatorsData[avCnt];
-			avCnt++;
-			field.FilterOperatorValues[fCnt] = operatorsData[avCnt];
-			avCnt++;
-			fCnt++;
-		}
-		field.FilterOperator = '...';
-		if (fieldsOpts[curPropField] != null)
-			field.FilterOperator = fieldsOpts[curPropField].FilterOperator;
-
-		if (field.FilterGUID == null) {
-			for (var find = 0; find < filtersData.length; find++)
-				if (filtersData[find].ColumnName == field.ColumnName) {
-					field.FilterGUID = filtersData[find].GUID;
-					break;
-				}
-		}
-
-		if (field.FilterGUID != null) {
-			for (var find = 0; find < filtersData.length; find++)
-				if (filtersData[find].GUID == field.FilterGUID) {
-					field.FilterOperator = filtersData[find].OperatorValue;
-					break;
-				}
-		}
-
 		FP_ShowFieldProperties(field, fieldPopup);
 		PreviewFieldDelayed(500);
 	}
@@ -535,13 +547,11 @@ function StoreFieldProps(newField) {
 	opts.TotalChecked = newField.Total;
 	opts.VgChecked = newField.VG;
 	opts.Format = newField.Format;
-	opts.FilterOperator = newField.FilterOperator;
 	opts.LabelJVal = newField.LabelJ;
 	opts.ValueJVal = newField.ValueJ;
 	opts.Width = newField.Width;
 	opts.IsMultilineHeader = newField.IsMultilineHeader;
 	fieldsOpts[curPropField] = opts;
-
 	if (curFieldIndexes != null && curFieldIndexes != ''){
 		var s = curFieldIndexes.split('fcb');
 		if (s.length == 2 && s[0].length >= 4) {
@@ -549,15 +559,6 @@ function StoreFieldProps(newField) {
 			var fcbInd = s[1];
 			FiClick(tcbInd, fcbInd, true, true);
 		}
-	}
-
-	if (newField.FilterGUID != null && newField.FilterGUID != 'undefined') {
-		for (var i = 0; i < filtersData.length; i++)
-			if (filtersData[i].GUID == newField.FilterGUID) {
-				filtersData[i].OperatorValue = newField.FilterOperator;
-				CommitFiltersData(false);
-				break;
-			}
 	}
 }
 
@@ -582,15 +583,14 @@ function PreviewFieldToDiv() {
 
 function PreviewField(field, container) {
 	var requestString = 'wscmd=getfieldpreview';
-	var fProps = FP_CollectProperties();
+	var fProps = FP_CollectFieldProperties();
 	var description = fProps.Description;
 	var totalChecked = fProps.Total;
 	var vgChecked = fProps.VG;
 	var format = fProps.Format;
-	var filterOperator = fProps.FilterOperator;
 	var labelJVal = fProps.LabelJ;
 	var valueJVal = fProps.ValueJ;
-	var fieldOpts = ',\'Desc\':\'' + description + '\',\'Total\':\'' + totalChecked + '\',\'Vg\':\'' + vgChecked + '\',\'LabelJ\':\'' + labelJVal + '\',\'ValueJ\':\'' + valueJVal + '\',\'Format\':\'' + format + '\',\'FilterOperator\':\'' + filterOperator + '\'';
+	var fieldOpts = ',\'Desc\':\'' + description + '\',\'Total\':\'' + totalChecked + '\',\'Vg\':\'' + vgChecked + '\',\'LabelJ\':\'' + labelJVal + '\',\'ValueJ\':\'' + valueJVal + '\',\'Format\':\'' + format + '\'';
 	requestString += "&wsarg0=" + encodeURIComponent("{'Na':'" + field + "','Cnt':'10'" + fieldOpts + "}");
 
 	var thisRequestObject;
@@ -1307,7 +1307,7 @@ function initFieldsDsp(nwid) {
     var fieldSqlName = parent.getAttribute('fieldid');
     if (fieldSqlName != null && fieldSqlName != '') {
     	var friendlyName = jq$(parent).find('.field-name').html();
-        DS_ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
+      DS_ShowFieldProperties(fieldSqlName, friendlyName, parent.getAttribute('id'));
     }
     return false;
   });
@@ -1568,10 +1568,8 @@ function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
 	for (var dsInd = 0; dsInd < dataSources.length; dsInd++)
 		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++)
 			if (dataSources[dsInd].Columns[colInd].DbName == fieldName) {
-				DS_ShowFieldProperties(fieldName, dataSources[dsInd].Columns[colInd].FriendlyName, null, GUID);
+				DS_ShowFilterProperties(fieldName, dataSources[dsInd].Columns[colInd].FriendlyName, null, GUID);
 				return;
 			}
-
-	DS_ShowFieldProperties(fieldName, fieldName, null, GUID);
 	return;
 }

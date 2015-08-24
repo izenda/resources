@@ -200,8 +200,9 @@ function izendaSelectReportNameController(
       // resolve if it is same report
       var reportInfo = $izendaUrl.getReportInfo();
       if (reportInfo.name === rName && reportInfo.category === selectedCategoryName) {
-        resolve();
-        return true;
+        vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + rName));
+        reject();
+        return false;
       }
       
       // check report isn't in that category

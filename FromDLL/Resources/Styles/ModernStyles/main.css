@@ -1094,3 +1094,7 @@ a.button.default:active, a.button.default:active:hover {
   src: local("Segoe UI Semibold"), local("Segoe UI Bold"), local("Segoe UI"), local("Helvetica Neue");
   unicode-range: U+0000-00FF, U+0300-036F;
 }
+
+.iz-ui-slider dt {
+  border-bottom: none !important; /* fix FB-18972*/
+ }

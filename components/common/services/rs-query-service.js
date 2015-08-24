@@ -40,15 +40,35 @@ angular
        * Do query to custom url
        */
       function customQuery(baseUrl, queryParams, options, errorOptions) {
-        // prepare url
-        var url = baseUrl + '?';
-        for (var paramName in queryParams) {
-          if (queryParams.hasOwnProperty(paramName)) {
-            url += paramName + '=' + encodeURIComponent(queryParams[paramName]) + '&';
+        var isPost = angular.isObject(options) && options.method === 'POST';
+        
+        var postData = {};
+        var url = baseUrl;
+        if (!isPost) {
+          // GET request url:
+          url += '?';
+          for (var paramName in queryParams) {
+            if (queryParams.hasOwnProperty(paramName)) {
+              url += paramName + '=' + encodeURIComponent(queryParams[paramName]) + '&';
+            }
           }
-        }
-        if (url.substring(url.length - 1) === '&') {
-          url = url.substring(0, url.length - 1);
+          if (url.substring(url.length - 1) === '&') {
+            url = url.substring(0, url.length - 1);
+          }
+        } else {
+          // POST request params string:
+          var postParamsString = '';
+          for (var paramName2 in queryParams) {
+            if (queryParams.hasOwnProperty(paramName2)) {
+              postParamsString += paramName2 + '=' + queryParams[paramName2] + '&';
+            }
+            if (url.substring(url.length - 1) === '&') {
+              postParamsString = postParamsString.substring(0, postParamsString.length - 1);
+            }
+          }
+          postData = {
+            data: postParamsString
+          };
         }
 
         // create promises
@@ -75,6 +95,7 @@ angular
         if (angular.isObject(options)) {
           angular.extend(req, options);
         }
+        angular.extend(req, postData); // it is empty for http GET requests
 
         // add request to list
         requestList.push({
@@ -83,7 +104,6 @@ angular
           resolver: resolver
         });
         rsQueryLog[url] = new Date();
-
         // run query
         $http(req).then(function (response) {
           // handle success

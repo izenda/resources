@@ -39,7 +39,7 @@
 		display: inline-block;
 	}
 
-	#VIS_ID_CONTAINER .hint span, 
+	#VIS_ID_CONTAINER .hint span,
 	#VIS_ID_CONTAINER .hint ul {
 		vertical-align: middle;
 	}
@@ -522,23 +522,23 @@
 				};
 
 				jq$.extend(galleries[id].context, {
-					show: function() {
+					show: function () {
 						hideGalleries(id);
 						dropGalleryTimeout(id);
 						showGallery(id);
-						galleries[id].gallery.bind("mouseenter", function() {
+						galleries[id].gallery.bind("mouseenter", function () {
 							dropGalleryTimeout(id);
-							galleries[id].gallery.bind("mouseleave", function() { setGalleryTimeout(id, context.hideTimeout); });
+							galleries[id].gallery.bind("mouseleave", function () { setGalleryTimeout(id, context.hideTimeout); });
 						});
 					},
-					hide: function() {
+					hide: function () {
 						dropGalleryTimeout(id);
 						hideGallery(id);
 					}
 				});
 
 				initSelector(id + "_SELECTOR", {
-					onClick: function() {
+					onClick: function () {
 						if (galleries[id].gallery.is(":visible")) {
 							galleries[id].context.hide();
 						} else {
@@ -570,7 +570,7 @@
 			}
 
 			function hideGalleries(id) {
-				util.enumerateFields(galleries, function(obj, galleryId) {
+				util.enumerateFields(galleries, function (obj, galleryId) {
 					if (galleryId != id) {
 						dropGalleryTimeout(galleryId);
 						hideGallery(galleryId);
@@ -583,7 +583,7 @@
 				if (!timeout) {
 					return;
 				}
-				galleries[id].t = setTimeout(function() {
+				galleries[id].t = setTimeout(function () {
 					galleries[id].gallery
 						.unbind("mouseenter")
 						.unbind("mouseleave");
@@ -609,7 +609,7 @@
 			function initStrip(id, context) {
 				vs.find(id).find("li")
 					.unbind("click")
-					.bind("click", function() {
+					.bind("click", function () {
 						vs.find(id).find("li").removeClass("selected");
 						jq$(this).addClass("selected");
 
@@ -694,7 +694,8 @@
 				});
 				if (!isEmbedded) {
 					vis.setProps(s.props);
-				}			}
+				}
+			}
 
 			function restore() {
 				if (typeof s.props != "object") {
@@ -727,7 +728,7 @@
 				funnelRx = /^funnel/g,
 				animationComplete = false;
 
-			var subreported = VIS_COLUMNS.findIndex(function(el) { return typeof el.drilldownstyle == "string"; }) > -1,
+			var subreported = VIS_COLUMNS.findIndex(function (el) { return typeof el.drilldownstyle == "string"; }) > -1,
 				isEmbedded = jq$('#VIS_ID').parents('[id*=_EXPAND_GALLERY_CONTAINER]').length > 0;
 
 			var vs = util.container("VIS_ID"),
@@ -858,7 +859,7 @@
 					context.node["label"] = VIS_COLUMNS[context.fi].name;
 				}
 			});
-			
+
 			for (i = 0; i < metricsLength; i++) {
 				initNodes(totals, vis.metrics[i]);
 			}
@@ -1032,9 +1033,11 @@
 			toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", fromZero || subreported || rounded);
 			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
 
+			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", true);
 			var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
 				breadcrumbWidthOffset = 10,
 				breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
+			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
 			vis.createBreadcrumb({
 				selector: "#VIS_ID_BREADCRUMBS_PANEL",
 				width: breadcrumbWidth,
@@ -1083,7 +1086,6 @@
 					var percentage = (100 * vis.unitValue(d, metricValue) / vis.unitValue(totals, metricValue)).toPrecision(3);
 					vis.updateBreadcrumb(d, { label: percentage < 0.1 ? "< 0.1%" : percentage + "%" });
 				}
-				store();
 			}
 
 			function registerLabelEvents() {
@@ -1181,10 +1183,11 @@
 					jq$(elements[index])
 						.bind("click", function (e) {
 							function filterReport(code) {
-								jq$.each(jq$.grep(code.match(/<script[\s\S]+?>([\s\S]+?)<\/script>/g), function(item){ 
-									return item.indexOf("ReportScripting.globalEval") < 0;}), function(i, item){ 
-										code = code.replace(item, '');
-									});
+								jq$.each(jq$.grep(code.match(/<script[\s\S]+?>([\s\S]+?)<\/script>/g), function (item) {
+									return item.indexOf("ReportScripting.globalEval") < 0;
+								}), function (i, item) {
+									code = code.replace(item, '');
+								});
 								return code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1];
 							}
 
@@ -1395,25 +1398,28 @@
 				}
 
 				recreateChart({ data: d, title: metricValue, subtitle: subtitle });
+				store();
 			}
 
+			var yAxisMins, yAxisMaxs;
 			function getSeries(data, yaxis, series) {
-				var max = new Array(vis.metrics.length),
-					min = new Array(vis.metrics.length),
-					value;
+				yAxisMins = new Array(vis.metrics.length);
+				yAxisMaxs = new Array(vis.metrics.length);
+				var value;
 				for (var i = 0; i < data.length; i++) {
 					for (var j = 0; j < vis.metrics.length; j++) {
 						value = vis.unitValue(data[i], vis.metrics[j]);
+						var visibility = !s.props.visibility || (j < s.props.visibility.length && s.props.visibility[j]);
 
-						if (typeof max[j] == "undefined" || max[j] < value)
-							max[j] = value;
-						if (typeof max.All == "undefined" || max.All < value)
-							max.All = value;
+						if (typeof yAxisMaxs[j] == "undefined" || yAxisMaxs[j] < value)
+							yAxisMaxs[j] = value;
+						if (visibility && (typeof yAxisMaxs.All == "undefined" || yAxisMaxs.All < value))
+							yAxisMaxs.All = value;
 
-						if (typeof min[j] == "undefined" || min[j] > value)
-							min[j] = value;
-						if (typeof min.All == "undefined" || min.All > value)
-							min.All = value;
+						if (typeof yAxisMins[j] == "undefined" || yAxisMins[j] > value)
+							yAxisMins[j] = value;
+						if (visibility && (typeof yAxisMins.All == "undefined" || yAxisMins.All > value))
+							yAxisMins.All = value;
 					}
 				}
 
@@ -1422,27 +1428,26 @@
 					yaxis.push({
 						labels: { style: { color: getItem(colors, 0) } },
 						title: { text: null },
-						opposite: 0 % 2 == 1,
-						min: zero ? undefined : min[vis.metrics.indexOf(metricValue)],
-						max: zero ? undefined : max[vis.metrics.indexOf(metricValue)],
+						min: zero ? 0 : yAxisMins[vis.metrics.indexOf(metricValue)],
+						max: zero ? null : yAxisMaxs[vis.metrics.indexOf(metricValue)],
 						gridLineInterpolation: polar ? 'polygon' : null
 					});
-					series.push(getSerie(data, max, vis.metrics.indexOf(metricValue)));
+					series.push(getSerie(data, vis.metrics.indexOf(metricValue)));
 				} else {
 					for (var i = 0; i < vis.metrics.length; i++) {
 						yaxis.push({
 							labels: { style: { color: getItem(colors, 0) } },
 							title: { text: null },
-							min: zero ? undefined : min.All,
-							max: zero ? undefined : max.All,
+							min: zero ? 0 : yAxisMins.All,
+							max: zero ? null : yAxisMaxs.All,
 							gridLineInterpolation: polar ? 'polygon' : null
 						});
-						series.push(getSerie(data, max, i));
+						series.push(getSerie(data, i));
 					}
 				}
 			}
 
-			function getSerie(data, max, index) {
+			function getSerie(data, index) {
 				var pieFamily = (type == "pie" || type == "pie-donut");
 				if (pieFamily) {
 					data = data.slice(0);
@@ -1483,7 +1488,7 @@
 						yAxis: i,
 						y: val,
 						data: data,
-						color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: 0, max: max[index], value: val, factor: single ? 0.7 : 0.15 }) : pc,
+						color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: 0, max: yAxisMaxs[index], value: val, factor: single ? 0.7 : 0.15 }) : pc,
 						colorByPoint: false
 					});
 
@@ -1504,7 +1509,7 @@
 						others: true,
 						color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
 							min: 0,
-							max: max[index],
+							max: yAxisMaxs[index],
 							value: sum,
 							factor: single ? 0.7 : 0.15
 						}) : pc,
@@ -1632,8 +1637,24 @@
 
 				function legendItemClick(event) {
 					var that = this;
+					var min = null, max = null;
+					var zero = s.props.fromZero || (type == "pie" || stacked || percent);
 					s.props.visibility = s.chart.series.map(function (item) {
 						return item == that ? !item.visible : item.visible;
+					});
+					for (var i = 0; i < s.props.visibility.length; ++i) {
+						if (s.props.visibility[i]) {
+							if (min == null || min > yAxisMins[i]) {
+								min = yAxisMins[i];
+							}
+							if (max == null || max < yAxisMaxs[i]) {
+								max = yAxisMaxs[i];
+							}
+						}
+					}
+					that.yAxis.update({
+						min: zero ? 0 : min,
+						max: zero ? null : max,
 					});
 					store();
 				}
@@ -1667,12 +1688,11 @@
 						subtitle: { text: null },
 						xAxis: {
 							type: 'category',
-							tickmarkPlacement: polar ? 'on' : null,
+							tickmarkPlacement: polar ? 'on' : 'between',
 							lineWidth: polar ? 0 : 1
 						},
 						legend: {
-							enabled: true /*,
-							verticalAlign: 'top'*/
+							enabled: true
 						},
 						plotOptions: {
 							column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },

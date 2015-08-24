@@ -346,7 +346,9 @@ function AcceptReports(returnObj, id, parameters) {
 			directLink = linkTemplate + report.UrlEncodedName;
 			printLink = "\'rs.aspx?rn=" + report.UrlEncodedName + "&print=1\'";
 			designLink = designTemplate[0] + report.UrlEncodedName + designTemplate[1];
-			deleteLink = 'javascript:RL_DeleteNew(\'' + IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?').replace(/\{0\}/g, fullName.replace('\'', '\\\'')) + '\', \'' + report.UrlEncodedName + '\');';
+			deleteLink = 'javascript:RL_DeleteNew(\'' + IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?')
+				// RegEx /([#;?%&,.+*~\\':"!^$[\]()=><|\/@])/g escapes characters from the set in square brackets by two slashes
+				.replace(/\{0\}/g, fullName.replace(/([#;?%&,.+*~\\':"!^$[\]()=><|\/@])/g, '\\$1')) + '\', \'' + report.UrlEncodedName + '\');';
 			viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
 			var thumbClass = isTouch ? 'thumb no-hover' : 'thumb';
 			if (!forSelection) {

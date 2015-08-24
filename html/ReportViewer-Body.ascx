@@ -312,31 +312,32 @@
 		            <div>
                                 <div style="float: left; width: 100%; max-width: 400px; margin-right: 50px;">
 				            <table cellpadding="0" cellspacing="0" style="width: 100%;">
-                                        <tr>
+                                        <tr id="fieldPropRow1">
                                             <td style="padding-top: 10px;" lang-text="js_Description">Description</td>
                                         </tr>
-                                        <tr>
+                                        <tr id="fieldPropRow2">
                                             <td>
                                                 <input id="propDescription" type="text" value="" style="width: 100%; margin: 0px;" /></td>
                                         </tr>
-                                        <tr>
+                                        <tr id="fieldPropRow3">
                                             <td style="padding-top: 10px;" lang-text="js_Format">Format</td>
                                         </tr>
-                                        <tr>
+                                        <tr id="fieldPropRow4">
                                             <td>
                                                 <select id="propFormats" style="margin: 0px; width: 100%;"></select></td>
                                         </tr>
-                                        <tr>
+                                        <tr id="filterPropRow1">
                                             <td style="padding-top: 10px;" lang-text="js_FilterOperator">Filter Operator<span id="dupFilterNote" title="Several filters applied to this Field. Use Filters tab to modify specific filter." style="cursor: help; display: none;"> of 1st Filter ( ? )</span></td>
                                         </tr>
-                                        <tr>
+                                        <tr id="filterPropRow2">
                                             <td>
                                                 <select id="propFilterOperators" style="margin: 0px; width: 100%;"></select></td>
                                         </tr>
 				            </table>
                             <input type="hidden" id="propFilterGUID" value="" />
+                                  <input type="hidden" id="propDialogMode" value="" />
 			            </div>
-                                <div style="float: left; margin-top: 10px;">
+                                <div style="float: left; margin-top: 10px;" id="fieldPropDiv">
 				            <table>
 					            <tr>
 						            <td>

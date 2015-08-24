@@ -29,6 +29,8 @@
         element.children('.modal').on('show.bs.modal', function (e) {
           element.children('.modal').css('background-color', 'rgba(0,0,0,0.8)');
           element.children('.modal').css('filter', 'alpha(opacity=80)');
+          angular.element('body').css('margin-right', '0');
+          angular.element('body').css('overflow', 'hidden');
         });
         element.children('.modal').on('shown.bs.modal', function (e) {
           angular.element('body').css('overflow', 'hidden');
@@ -39,12 +41,10 @@
           angular.element('body').css('margin-right', '0');
         });
         scope.$parent.$watch(attrs.opened, function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            if (scope.opened) {
-              element.children('.modal').modal();
-            } else {
-              element.children('.modal').modal('hide');
-            }
+          if (newVal) {
+            element.children('.modal').modal();
+          } else {
+            element.children('.modal').modal('hide');
           }
         });
       }

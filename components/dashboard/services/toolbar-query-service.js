@@ -36,25 +36,6 @@ angular
       }
 
       /**
-       * Load rendered for print dashboard
-       */
-      function loadDashboardForPrint() {
-        return $izendaRsQuery.rsQuery({
-          'p': 'htmlreport',
-          'printmanual': '1'
-        }, {
-          dataType: 'text'
-        },
-        // custom error handler:
-        {
-          handler: function () {
-            return 'Failed to load dashboard for print';
-          },
-          params: []
-        });
-      }
-
-      /**
        * Create new dashboard report set and set it as CurrentReportSet
        */
       function newDashboard() {
@@ -70,11 +51,27 @@ angular
         });
       }
 
+      /**
+       * Send report via email
+       */
+      function sendReportViaEmail(type, to) {
+        return $izendaRsQuery.query('sendReportEmail', [type, to], {
+          dataType: 'json'
+        },
+        // custom error handler:
+        {
+          handler: function () {
+            return 'Failed to send report to email';
+          },
+          params: []
+        });
+      }
+
       // PUBLIC API
       return {
         loadDashboardNavigation: loadDashboardNavigation,
         setCurrentReportSet: setCurrentReportSet,
         newDashboard: newDashboard,
-        loadDashboardForPrint: loadDashboardForPrint
+        sendReportViaEmail: sendReportViaEmail
       };
     }]);

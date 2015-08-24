@@ -298,8 +298,10 @@ function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasour
 	JTCS_UpdateControls(id, dsListId, initialDatasources);
 	JTCS_UpdateDatasourcesAvailability(id, false);
 	JTCS_Init_executes = false;
-	CHC_OnTableListChangedHandlerWithStoredParams();
-	GC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof CHC_OnTableListChangedHandlerWithStoredParams === "function")
+		CHC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof GC_OnTableListChangedHandlerWithStoredParams === "function")
+		GC_OnTableListChangedHandlerWithStoredParams();
 	if (typeof MC_OnTableListChangedHandlerWithStoredParams === "function") {
 		MC_OnTableListChangedHandlerWithStoredParams();
 	}

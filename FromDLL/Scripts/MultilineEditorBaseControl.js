@@ -411,30 +411,47 @@ function EBC_RemoveAllUnusedRows()
 	}
 }
 
-function EBC_GetDataTypeGroup(row, columnName, functionName, formatName)
+function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, expressionTypeName)
 {
 	if (columnName == null)
 		columnName = 'Column';
 	if (formatName == null)
-		formatName = 'Format';
+	    formatName = 'Format';
+    
 	var columnSel = EBC_GetSelectByName(row, columnName);
 	var formatSelect = EBC_GetSelectByName(row, formatName);
-	
-	return EBC_GetDataTypeGroup_Internal(row,columnSel, functionName, formatSelect);
+
+	if (columnSel == null)
+		columnSel = EBC_GetSelectByName(row, 'ExtraValue');
+	if (formatSelect == null)
+		formatSelect = EBC_GetSelectByName(row, 'ExtraFormat');
+
+	if (columnSel == null)
+		columnSel = EBC_GetSelectByName(row, 'ExtraColumn');
+
+	return EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName);
 }
 
-function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect)
-{
-	if (functionName == null)
-		functionName = 'Function';
+function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName) {
+    if (!expressionTypeName)
+        expressionTypeName = "ExpressionType";
+
+    var expressionTypeSelect = EBC_GetSelectByName(row, expressionTypeName);
+
+    if (expressionTypeSelect && expressionTypeSelect.value != "...")
+        return expressionTypeSelect.value;
+
+	if (!functionName)
+	    functionName = 'Function';
+
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
 	var typeGroup = formatSelect==null ? "" : formatSelect.getAttribute("TypeGroup");
 	
-	if((!typeGroup || typeGroup=="None") && functionSel.selectedIndex > -1)
+	if ((!typeGroup || typeGroup == "None") && functionSel != null && functionSel.selectedIndex > -1)
 		typeGroup = functionSel==null ? "" : functionSel.options[functionSel.selectedIndex].getAttribute("dataTypeGroup");
 		
-	if((!typeGroup || typeGroup=="None") && columnSel.selectedIndex > -1)
+	if((!typeGroup || typeGroup=="None") && columnSel != null && columnSel.selectedIndex > -1)
 		typeGroup = columnSel==null ? "" : columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
 	return typeGroup;
 }
@@ -498,7 +515,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 		isOperation = true;
 	if (columnSel.selectedIndex >= 0) {
 		var option_ = columnSel.options[columnSel.selectedIndex];
-		var typeGroup = option_.getAttribute("dataTypeGroup");
+		var typeGroup = EBC_GetDataTypeGroup(row);
 		var type = option_.getAttribute("dataType");
 		if (funcSelectName == "SubtotalFunction" && mainFuncSelect != null) {
 			var mainFuncOption = mainFuncSelect.options[mainFuncSelect.selectedIndex];
@@ -511,6 +528,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 				}
 			}
 		}
+
 		if (typeGroup == null)
 			typeGroup = "";
 		if (type == null)

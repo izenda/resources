@@ -4,6 +4,7 @@
     '$rootScope',
     '$scope',
     '$window',
+    '$timeout',
     '$q',
     '$log',
     '$location',
@@ -23,6 +24,7 @@ function izendaDashboardController(
   $rootScope,
   $scope,
   $window,
+  $timeout,
   $q,
   $log,
   $location,
@@ -74,6 +76,9 @@ function izendaDashboardController(
   // dashboard notifications:
   vm.notificationsIdCounter = 1;
   vm.notifications = [];
+  vm.isMessageDialogOpened = false;
+  vm.messageDialogText = '';
+  vm.messageDialogTitle = '';
 
   // grid:
   vm.isGridVisible = false;
@@ -357,6 +362,21 @@ function izendaDashboardController(
     requestFullScreen($galleryRoot.get(0));
   });
 
+  /**
+   * print dashboard handler
+   */
+  $scope.$on('printWholeDashboardEvent', function (event, args) {
+    if (!args || args.length === 0)
+      throw 'printWholeDashboardEvent event require 1 arg';
+    var printType = args[0];
+    if (printType === 'html')
+      vm.printDashboardAsHtml();
+    else if (printType === 'pdf')
+      vm.printDashboardAsPDF();
+    else
+      throw 'Unknown print type "' + printType + '"';
+  });
+
   ////////////////////////////////////////////////////////
   // scope functions:
   ////////////////////////////////////////////////////////
@@ -373,6 +393,64 @@ function izendaDashboardController(
    */
   vm.isEditAllowed = function () {
     return $izendaCompatibility.isEditAllowed();
+  };
+
+  /**
+   * Print whole dashboard as HTML
+   */
+  vm.printDashboardAsHtml = function () {
+    sync().then(function() {
+      $izendaDashboardQuery.loadDashboardForPrint()
+      .then(function (htmlData) {
+        $timeout(function () {
+          var windowPrint = $window.open('', '', 'left=0,top=0,width=900,height=900,toolbar=0,scrollbars=0,status=0');
+          htmlData += "<script>jq$('.DashPartBody').css('height', 'auto');";
+          windowPrint.document.write(htmlData);
+          windowPrint.document.close();
+          windowPrint.focus();
+          $timeout(function () {
+            windowPrint.print();
+            windowPrint.close();
+          }, 2000);
+        }, 0);
+      });
+    }, function(reason) {
+      vm.openMessageBox(reason);
+    });
+  };
+
+  /**
+   * Print whole dashboard as PDF
+   */
+  vm.printDashboardAsPDF = function () {
+    sync().then(function() {
+      var url = $izendaUrl.urlSettings.urlRsPage + '?output=PDF';
+      $window.open(url, '_self');
+    }, function (reason) {
+      vm.openMessageBox(reason);
+    });
+  };
+
+  ////////////////////////////////////////////////////////
+  // Notifications
+  ////////////////////////////////////////////////////////
+  
+  /**
+   * Close modal box
+   */
+  vm.closeMessageBox = function() {
+    vm.isMessageDialogOpened = false;
+    $scope.$applyAsync();
+  }
+
+  /**
+   * Open modal message
+   */
+  vm.openMessageBox = function(text, title) {
+    vm.isMessageDialogOpened = true;
+    vm.messageDialogText = text;
+    vm.messageDialogTitle = angular.isDefined(title) ? title : '';
+    $scope.$applyAsync();
   };
 
   /**
@@ -394,12 +472,20 @@ function izendaDashboardController(
   /**
    * Open notification
    */
-  vm.showNotification = function (title, text) {
+  vm.showNotification = function (title, text, icon) {
     var nextId = vm.notificationsIdCounter++;
+
+    var iconClass = '';
+    if (angular.isString(icon)) {
+      if (icon === 'error') {
+        iconClass = 'glyphicon glyphicon-exclamation-sign';
+      }
+    }
     var objToShow = {
       id: nextId,
       title: title,
-      text: text
+      text: text,
+      iconClass: iconClass
     };
     objToShow.timeoutId = setTimeout(function () {
       vm.closeNotification(objToShow.id);
@@ -916,33 +1002,59 @@ function izendaDashboardController(
   /**
    * Prepare tiles for saving: cleaning, validating and so on...
    */
-  function createSaveJson(dashboardName, dashboardCategory) {
+  function createSaveJson() {
     var tiles = vm.tiles;
     var config = {
       Rows: [{
         Cells: [],
-        ColumnsCount: tiles.length
+        ColumnsCount: 0
       }],
       RowsCount: 1
     };
 
     for (var i = 0; i < tiles.length; i++) {
       var tile = tiles[i];
-      var saveObject = {
-        ReportTitle: angular.isUndefined(tile.title) ? '' : tile.title,
-        ReportDescription: angular.isUndefined(tile.description) ? '' : tile.description,
-        ReportFullName: tile.reportFullName,
-        ReportPartName: tile.reportPartName,
-        ReportSetName: tile.reportNameWithCategory,
-        RecordsCount: tile.top,
-        X: tile.x,
-        Y: tile.y,
-        Height: tile.height,
-        Width: tile.width
-      };
-      config.Rows[0].Cells[i] = saveObject;
+      if (angular.isString(tile.reportFullName) && tile.reportFullName !== '') {
+        var saveObject = {
+          ReportTitle: angular.isUndefined(tile.title) ? '' : tile.title,
+          ReportDescription: angular.isUndefined(tile.description) ? '' : tile.description,
+          ReportFullName: tile.reportFullName,
+          ReportPartName: tile.reportPartName,
+          ReportSetName: tile.reportNameWithCategory,
+          RecordsCount: tile.top,
+          X: tile.x,
+          Y: tile.y,
+          Height: tile.height,
+          Width: tile.width
+        };
+        config.Rows[0].Cells[i] = saveObject;
+        config.Rows[0].ColumnsCount++;
+      }
     }
     return config;
+  }
+
+  /**
+   * Sync tiles state to server
+   */
+  function sync() {
+    var deferred = $q.defer();
+    var json = createSaveJson();
+    if (json.Rows[0].ColumnsCount !== 0) {
+      $izendaDashboardQuery.syncDashboard(json).then(function(data) {
+        if (data.Value !== 'OK') {
+          deferred.reject('Can\'t sync dashboard. Error: ' + data.Value);
+          $scope.$applyAsync();
+        } else {
+          deferred.resolve();
+          $scope.$applyAsync();
+        }
+      });
+    } else {
+      deferred.reject('Can\'t print empty dashboard!');
+      $scope.$applyAsync();
+    }
+    return deferred.promise;
   }
 
   /**
@@ -950,10 +1062,14 @@ function izendaDashboardController(
    */
   function save(dashboardName, dashboardCategory) {
     var dashboardFullName = dashboardName;
-    if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() != 'uncategorized') {
+    if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() !== 'uncategorized') {
       dashboardFullName = dashboardCategory + '\\' + dashboardName;
     }
-    var json = createSaveJson(dashboardName, dashboardCategory);
+    var json = createSaveJson();
+    if (json.Rows[0].ColumnsCount === 0) {
+      vm.openMessageBox('Can\'t save empty dashboard');
+      return;
+    }
     $izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
       if (data.Value !== 'OK') {
         // handle save error:
@@ -986,7 +1102,7 @@ function izendaDashboardController(
 
     // cancel all current queries
     var countCancelled = $izendaRsQuery.cancelAllQueries({
-      ignoreList: ['wscmd=getdashboardcategories', 'wscmd=ping']
+      ignoreList: ['wscmd=getdashboardcategories', 'wscmd=getprintmodesetting', 'wscmd=ping']
     });
     if (countCancelled > 0)
       $log.debug('>>> Cancelled ' + countCancelled + ' queryes');

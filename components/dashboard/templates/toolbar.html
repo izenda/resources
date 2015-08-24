@@ -5,6 +5,48 @@
                                background-image="toolbarController.izendaBackgroundImageUrl"
                                hue-rotate="toolbarController.hueRotate"></div>
 
+  <div izenda-bootstrap-modal opened="toolbarController.sendEmailState.opened">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b>Send Report Email</b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body" ng-hide="toolbarController.sendEmailState.isLoading">
+      <form ng-submit="toolbarController.hideEmailModal(true)">
+        <div class="alert alert-danger" role="alert"
+             ng-show="toolbarController.sendEmailState.errorOccured">
+          <div ng-repeat="error in toolbarController.sendEmailState.errors">
+            {{error}}
+          </div>
+        </div>
+        {{toolbarController.sendEmailState.type}}
+        <div class="form-group">
+          <label for="izendaDashboardModalSendEmail" class="col-sm-2 control-label">Email</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="izendaDashboardModalSendEmail"
+                   ng-model="toolbarController.sendEmailState.email" placeholder="Email">
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-body" ng-show="toolbarController.sendEmailState.isLoading">
+      <div class="iz-dash-tile-vcentered-container" style="height: 50px;">
+        <div class="iz-dash-tile-vcentered-item">
+          <img class="img-responsive" ng-src="{{toolbarController.izendaUrl.urlSettings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" 
+            alt="Loading..." />
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" ng-hide="toolbarController.sendEmailState.isLoading">
+      <button type="button" class="btn btn-default" data-dismiss="modal"
+              ng-click="toolbarController.hideEmailModal(false)">Close</button>
+      <button type="button" class="btn btn-primary"
+              ng-click="toolbarController.hideEmailModal(true)">OK</button>
+    </div>
+  </div>
+
   <!-- select background image modal dialog -->
   <div izenda-bootstrap-modal opened="toolbarController.selectBackgroundImageModalOpened">
     <div class="modal-body">
@@ -74,7 +116,7 @@
                 <div class="iz-dash-menu-catergory">{{category.name}}</div>
                 <div class="iz-dash-navigation-menu-item"
                   ng-repeat="dashboard in category.dashboards">
-                  <a href="#{{dashboard}}">{{dashboard}}</a>
+                  <a href="#{{dashboard}}">{{toolbarController.extractReportName(dashboard)}}</a>
                 </div>
               </li>
             </ul>
@@ -250,6 +292,26 @@
             </ul>
           </li>
           <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
+            <a class="dropdown-toggle" data-toggle="dropdown" title="Send Email"
+               ng-hide="toolbarController.isGalleryMode">
+              <span class="glyphicon glyphicon-envelope">&nbsp;<b class="caret"></b></span>
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <a title="Send dashboard link to email"
+                  ng-click="toolbarController.sendEmail('Link')">
+                  <span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Link To Email
+                </a>
+              </li>
+              <li>
+                <a title="Send dashboard PDF to email"
+                  ng-click="toolbarController.sendEmail('PDF')">
+                  <span class="glyphicon glyphicon-envelope"></span>&nbsp;Send PDF To Email
+                </a>
+              </li>
+            </ul>
+          </li>
+          <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
             <a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
               title="Toggle background hue rotate"
               ng-show="toolbarController.isToggleHueRotateEnabled();"
@@ -299,7 +361,7 @@
                 <div class="iz-dash-menu-catergory">{{category.name}}</div>
                 <div class="iz-dash-navigation-menu-item"
                   ng-repeat="dashboard in category.dashboards">
-                  <a href="#{{dashboard}}">{{dashboard}}</a>
+                  <a href="#{{dashboard}}">{{toolbarController.extractReportName(dashboard)}}</a>
                 </div>
               </li>
             </ul>

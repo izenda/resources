@@ -558,6 +558,12 @@ function EBC_PrepareNewRow(row)
 			{
 				sel.selectedIndex = 0;
 			}
+			else if (sel.name.lastIndexOf("_ExpressionType") > 1) {
+				sel.selectedIndex = 0;
+			}
+			else if (sel.name.lastIndexOf("_ConditionOperator") > 1) {
+				sel.selectedIndex = 0;
+			}
 			else
 				EBC_SetSelectContent(sel, '<option value=\'...\'>Loading ...</option>');
 		}
@@ -847,7 +853,7 @@ function EBC_PopulateDescriptions(fields) {
     	calcField.fieldIndex = field.index;
         if ((field.func != 'None' && field.func != 'GROUP' || field.coefficient != null && field.coefficient != "") && field.description != '' && field.description != null) {           
             calcField.description = field.description;
-            calcField.datatype = field.datatype;
+            calcField.datatype = (field.expressionType && field.expressionType!='...') ? field.expressionType: field.datatype;
             descriptions.push(calcField);
         }
         else if (field.operationElem == '~' && (i + 1 < fields.length) && (fields[i + 1].operationElem != '~')) {

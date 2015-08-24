@@ -10,6 +10,7 @@
       require: ['ngModel'],
       scope: {
         ngModel: '=',
+        endValue: '=',
         onChangeEnd: '&'
       },
       template: '<input></input>',
@@ -20,6 +21,11 @@
           $scope.ngModel = parseInt(value);
           $scope.$parent.$apply();
         };
+        // set end-value value
+        var setEndValue = function(value) {
+          $scope.endValue = parseInt(value);
+          $scope.$parent.$apply();
+        }
         // set value to slider widget
         var setSliderValue = function (value) {
           $input.data("ionRangeSlider").update({
@@ -40,12 +46,17 @@
           },
           onFinish: function (data) {
             var value = data.from;
-            setModelValue(value);
+            setEndValue(value);
             $scope.onChangeEnd({});
             $scope.$parent.$apply();
           }
         });
+
+        // slider outer listeners
         setSliderValue($scope.ngModel);
+        $scope.$watch('endValue', function () {
+          setSliderValue($scope.ngModel);
+        });
       }
     };
   }

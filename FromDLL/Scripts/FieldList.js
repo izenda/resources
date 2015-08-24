@@ -178,6 +178,8 @@ function SC_GetFieldsList(id, columnName, functionName)
 		var descriptionEdit = EBC_GetInputByName(body.rows[i], 'Description');
 		var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', body.rows[i]);
 		var coefficientEdit = EBC_TextAreaByName(body.rows[i], 'Coefficient');
+		var expressionTypeElem = EBC_GetSelectByName(body.rows[i], 'ExpressionType');
+
 		if (columnSel != null)
 		{
 			var columnSelValue = columnSel.value;
@@ -206,6 +208,7 @@ function SC_GetFieldsList(id, columnName, functionName)
 				    if (coefVal.trim() != "" && coefVal.indexOf('example:') != 0)
 				        field.coefficient = coefVal;
 				}
+				field.expressionType = expressionTypeElem == null ? '' : expressionTypeElem.value;
 				field.index = i;
 				fields.push(field);
 			}
@@ -1408,11 +1411,16 @@ function SC_QuickAdd_Close_Callback() {
 	sc_qac_timers = 0;
 	sc_qac_requests = 0;
 	sc_qac_works = false;
-	CHC_OnTableListChangedHandlerWithStoredParams();
-	GC_OnTableListChangedHandlerWithStoredParams();
-	CC_OnTableListChangedHandlerWithStoredParams();
-	SC_CheckGroupingAndFunctionsWithStoredParams();
-	EBC_CheckFieldsCountWithStoredParams();
+	if (typeof CHC_OnTableListChangedHandlerWithStoredParams === "function")
+		CHC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof GC_OnTableListChangedHandlerWithStoredParams === "function")
+		GC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof CC_OnTableListChangedHandlerWithStoredParams === "function")
+		CC_OnTableListChangedHandlerWithStoredParams();
+	if (typeof SC_CheckGroupingAndFunctionsWithStoredParams === "function")
+		SC_CheckGroupingAndFunctionsWithStoredParams();
+	if (typeof EBC_CheckFieldsCountWithStoredParams === "function")
+		EBC_CheckFieldsCountWithStoredParams();
 }
 
 function SC_QuickAdd_Keydown(evt)
@@ -1593,34 +1601,43 @@ function SC_AfterArithmeticOperationChanged(e)
 	SC_CallOnColumnFunctionChangeHandlers(id);
 }
 
-function SC_OnVisualGroupsCheckedHandler(e)
-{
-	if(e)
+function SC_OnVisualGroupsCheckedHandler(e) {
+	if (e) {
 		ebc_mozillaEvent = e;
+	}
 	var row = EBC_GetRow();
 	var orderCheckbox = EBC_GetElementByName(row, 'Order', 'INPUT');
 	var orderDescCheckbox = EBC_GetElementByName(row, 'OrderDesc', 'INPUT');
 	var masterCheckbox = EBC_GetElementByName(row, 'Master', 'INPUT');
 	var invisibleCheckbox = EBC_GetElementByName(row, 'Invisible', 'INPUT');
-	if(masterCheckbox.checked) {
-		if(orderCheckbox!=null && !orderCheckbox.checked && orderDescCheckbox!=null && !orderDescCheckbox.checked)
+	var pageBreakCheckbox = EBC_GetElementByName(row, 'BreakPage', 'INPUT');
+	if (masterCheckbox != null && masterCheckbox.checked) {
+		if (orderCheckbox != null && !orderCheckbox.checked && orderDescCheckbox != null && !orderDescCheckbox.checked) {
 			orderCheckbox.checked = true;
 	}
-	if (invisibleCheckbox!=null)
+	}
+	if (invisibleCheckbox != null) {
+		invisibleCheckbox.checked = false;
 		invisibleCheckbox.disabled = masterCheckbox.checked;
+	}
+	if (pageBreakCheckbox != null) {
+		pageBreakCheckbox.checked = false;
+		pageBreakCheckbox.disabled = !masterCheckbox.checked;
+	}
+	SC_CheckPropertiesModified(row);
 }
 
 function SC_OnDescriptionChangedHandler(e) {
   var emptyVal = false;
-	if(e)
-	{
+	if(e) {
 		ebc_mozillaEvent = e;
 		var element = e.target ? e.target : e.srcElement;
 		if (!(element.ChangedAutomatically)) {
 		  element.UserModified = true;
-		  if (element.value == '')
+			if (element.value == '') {
 		    emptyVal = true;
 		}
+	}
 	}
 	var row = EBC_GetRow();
 	if (emptyVal) {
@@ -1630,20 +1647,18 @@ function SC_OnDescriptionChangedHandler(e) {
 	SC_CallOnColumnFunctionChangeHandlers(id);
 }
 
-function SC_OnRemoveTableRow(id)
-{
+function SC_OnRemoveTableRow(id) {
 	SC_CallOnColumnFunctionChangeHandlers(id);
 	SC_CheckGroupingAndFunctions(id);
 }
 
-
 //var sc_properties_container;
 var sc_propsTable;
 var dialogRow;
-function SC_ShowProperties(e, sc_id)
-{
-	if(e)
+function SC_ShowProperties(e, sc_id) {
+	if (e) {
 		ebc_mozillaEvent = e;
+	}
 	dialogRow = EBC_GetRow();
 	var propsTable = EBC_GetElementByName(dialogRow, "PropertiesTable", "table");
 	var sc = document.getElementById(sc_id);
@@ -1652,86 +1667,62 @@ function SC_ShowProperties(e, sc_id)
 	sc_propsTable = ShowDialog(propsTable, null, null, top - 12, null, false);
 }
 
-function SC_CheckPropertiesModified(dialogRow)
-{
+function SC_CheckPropertiesModified(dialogRow) {
 	var result = false;
 	var propsTable = EBC_GetElementByName(dialogRow, "PropertiesTable", "table");
-	if (propsTable != null)
-	{
+	if (propsTable != null) {
 		var row = propsTable.rows;
-		for (var i=0;i<row.length && !result;i++)
-		{
+		for (var i = 0; i < row.length && !result; i++) {
 			var cell = row[i].cells[1];
-			if (cell != null)
-			{
+			if (cell != null) {
 				var element = cell.firstChild;
-				if (element != null)
-				{
+				if (element != null) {
 					var tagName = element.nodeName;
 					var elType = element.getAttribute("type");
-					if (tagName == "TABLE")
-					{
+					if (tagName == "TABLE") {
 						element = element.rows[0].cells[0].firstChild;
 						tagName = element.nodeName;
 						elType = element.getAttribute("type");
+						
 					}
-					switch (tagName)
-					{
+					switch (tagName) {
 						case "INPUT":
-							{
-								switch (elType)
-								{
+							switch (elType) {
 									case "text":
-										{
 											var value = element.value;
 											var name = element.getAttribute("name");
-											if (name != null && value == "1" && (name.indexOf("_Coefficient") + 12 == name.length)) {
+											if (name != null && value == "1" && (name.indexOf("_Coefficient")+12 == name.length))
 												value = "";
-											}
 											result = !(value == null || value == "" || (value.indexOf("example") == 0));
-										}
 										break;
 									case "checkbox":
 										result = element.checked;
 										break;
 									case "hidden":
-										{
-											var value = element.value;
-											var defValue = element.getAttribute("data-default");
-											if (value && defValue && value != defValue && value != "&nbsp;")
-												result = true;
-											else
-												result = false;
-										}
+										var value = element.value;
+										var defValue = element.getAttribute("data-default");
+										result = (value && defValue && value != defValue && value != "&nbsp;");
 										break;
 								}
-							}
 							break;
 						case "SELECT":
-							{
 								var value = element.value;
 								result = !(value == null || value == "" || value == "..." || (value == "DEFAULT") || (value.indexOf("example") == 0));
-							}
 							break;
 						case "DIV":
-							{
 								var childNode = element.firstChild;
 								if (childNode.nodeName == "INPUT") {
 									var cnName = childNode.getAttribute("name");
 									if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0) {
 										result = (childNode.value != 'M');
-									}
-									else if (cnName.indexOf('_JustificationCurrentValue') >= 0) {
+									} else if (cnName.indexOf('_JustificationCurrentValue') >= 0) {
 										result = (childNode.value != ' ' && childNode.value != String.fromCharCode(160));
 									}
 								}
-							}
 							break;
 						case "TEXTAREA":
-							{
 								var value = element.value;
 								result = !(value == null || value == "" || (value.indexOf("example") == 0));
-							}
 							break;
 					}
 				}
@@ -1743,8 +1734,9 @@ function SC_CheckPropertiesModified(dialogRow)
 	var index = src.indexOf("advanced-settings");
 	src = src.substring(0,index);
 	src += "advanced-settings";
-	if (result)
+	if (result) {
 		src += "-dot";
+	}
 	src += ".png";
 	button.setAttribute("src", src);
 	return result;
@@ -1755,7 +1747,12 @@ function SC_HideProperties(id)
 	HideDialog(sc_propsTable, false);
 	var row = EBC_GetRow(sc_propsTable);
 	SC_CheckPropertiesModified(row);
+	var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");
+	if (row != null && expressionTypeSelect) {
+		EBC_SetFormat(row, true);
+	}
 	SC_CallOnColumnFunctionChangeHandlers(id);
+	CC_UpdateFiltersFromLogic();
 }
 
 function SC_SubtotalFunctionChange(obj)

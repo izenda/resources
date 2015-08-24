@@ -205,7 +205,7 @@ function modal_resized() {
 // obj - Html text with Dialog Window
 // wd - Window width
 // ht - Window heigth
-function ShowDialog(obj, wd, ht, top, left, autoResize) {
+function ShowDialog(obj, wd, ht, top, left, autoResize, showClose) {
 	if (!initComplete)
 		initmb(autoResize);
 
@@ -226,6 +226,7 @@ function ShowDialog(obj, wd, ht, top, left, autoResize) {
 	var h = 'hidden';
 	var b = 'block';
 	var p = 'px';
+
 	//fill content div
 	if (obj.style != null) {
 		if (currentDialogObject != null && currentDialogObject != '') {
@@ -255,6 +256,11 @@ function ShowDialog(obj, wd, ht, top, left, autoResize) {
 	else {
 		inf(h);
 		contentDiv.innerHTML = obj;
+	}
+
+	if (showClose) {
+		var closeElem = '<div style="width: 100%; text-align: right;"><a href="#" onclick="hm();" style="padding:2px;background-color:#1C4E89; display: inline-block;" role="button"><span class="iz-ui-icon iz-ui-icon-light iz-ui-icon-closethick"></span></a></div>';
+		contentDiv.innerHTML = closeElem + contentDiv.innerHTML;
 	}
 
 	if (wd != null && wd != 0)
@@ -291,12 +297,6 @@ function ShowDialog(obj, wd, ht, top, left, autoResize) {
 
 	centralDiv.style.top = (tp < 0 ? 0 : tp) + p;
 	centralDiv.style.left = (lt < 0 ? 0 : lt) + p;
-
-	var backDiv = ElementById('ol');
-	var centralDiv = ElementById('mbox');
-	var obody = document.getElementsByTagName('body')[0];
-	obody.appendChild(backDiv);
-	obody.appendChild(centralDiv);
 
 	return obj.style == null ? false : obj;
 }
@@ -422,7 +422,7 @@ function Modal_ShowPopupDiv(url) {
     var content = responseServer.RequestData(url, null, false);
 
     if (content != "") {
-      ShowDialog("<div onclick='hm()' onmouseover = 'Modal_OnMouseOver(this, true)' onmouseout = 'Modal_OnMouseOver(this, false)' style ='border:lightgrey 0px solid; width:auto; height:auto'><div id=\"popupDiv\"></div></div>", 0, 0);
+      ShowDialog("<div onmouseover = 'Modal_OnMouseOver(this, true)' onmouseout = 'Modal_OnMouseOver(this, false)' style ='border:lightgrey 0px solid; width:auto; height:auto'><div id=\"popupDiv\"></div></div>", 0, 0, null, null, null, true);
       ReportScripting.loadReportResponse(content, "#popupDiv");
       modal_resized();
       AdHoc.Utility.InitGaugeAnimations(null, null, true);
@@ -431,7 +431,7 @@ function Modal_ShowPopupDiv(url) {
       });
     }
     else {
-        ShowDialog("<iframe onclick='hm()' src='" + url + "'></iframe>", 1000, 800);
+    	ShowDialog("<iframe src='" + url + "'></iframe>", 1000, 800, null, null, null, true);
     }
 }
 

@@ -249,9 +249,6 @@ function RemoveFilterByUid(uid) {
 	if (typeof nirConfig != 'undefined' && nirConfig != null)
 		updateReportSet = false;
 	CommitFiltersData(updateReportSet);
-
-	if (typeof updateFields != 'undefined')
-		updateFields();
 }
 
 function ShowHideAddFilter() {
@@ -303,8 +300,6 @@ function AddNewFilterField() {
 
 	filtersData.push(filterObj);
 	CommitFiltersData(false);
-	if (typeof updateFields != 'undefined')
-		updateFields();
 }
 
 function GenerateNewFilterDropDown() {

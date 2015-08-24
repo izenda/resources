@@ -21,16 +21,17 @@
        */
       function setReportFullName(reportFullName) {
         // add #/category/name parameter
-        $location.path(reportFullName.replace('\\', '/'));
+        $location.path(reportFullName.split('\\').join('/'));
       }
 
       /**
        * Extract report name from category\report full name
        */
-      function extractReportName(fullName) {
+      function extractReportName(fullName, separator) {
         var result = null;
+        var currentSeparator = separator || '\\';
         if (angular.isString(fullName)) {
-          var reportFullNameParts = fullName.split('\\');
+          var reportFullNameParts = fullName.split(currentSeparator);
           result = reportFullNameParts[reportFullNameParts.length - 1];
         }
         return result;
@@ -39,20 +40,24 @@
       /**
        * Extract report category from category\report full name
        */
-      function extractReportCategory(fullName) {
-        if (!angular.isString(fullName))
-          return 'Uncategorized';
-        var reportFullNameParts = fullName.split('\\');
-        if (reportFullNameParts.length === 2)
-          return reportFullNameParts[0];
-        else
-          return 'Uncategorized';
+      function extractReportCategory(fullName, separator) {
+        var category = 'Uncategorized';
+        var currentSeparator = separator || '\\';
+        if (angular.isString(fullName)) {
+          var reportFullNameParts = fullName.split(currentSeparator);
+          if (reportFullNameParts.length >= 2)
+            category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join(currentSeparator);
+          else
+            category = 'Uncategorized';
+        }
+        return category;
       }
 
       /**
        * Extract report name, category, report set name for report part.
        */
-      function extractReportPartNames(reportFullName, isPartNameAtRight) {
+      function extractReportPartNames(reportFullName, isPartNameAtRight, separator) {
+        var currentSeparator = separator || '\\';
         if (reportFullName == null)
           throw 'full name is null';
         var parseReportSetName = function (rsName) {
@@ -91,7 +96,7 @@
         result.reportCategory = reportNameObj.reportCategory;
         result.reportNameWithCategory = result.reportName;
         if (result.reportCategory != null)
-          result.reportNameWithCategory = result.reportCategory + '\\' + result.reportNameWithCategory;
+          result.reportNameWithCategory = result.reportCategory + currentSeparator + result.reportNameWithCategory;
         result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
         return result;
       }
@@ -119,12 +124,12 @@
           var loc = $location.path();
           if ($location.path().charAt(0) === '/')
             loc = loc.substring(1);
-          result = loc.replace('/', '\\');
+          result = loc.split('/').join('\\');
         } else {
           // try to find "rn=..." parameter in url (for external links):
           var reportInfoFromRn = getReportInfoFromRn();
           if (angular.isString(reportInfoFromRn.fullName) && reportInfoFromRn.fullName !== '') {
-            result = reportInfoFromRn.fullName.replace('/', '\\');
+            result = reportInfoFromRn.fullName.split('/').join('\\');
           }
         }
         return result;

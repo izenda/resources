@@ -424,7 +424,7 @@ body {
 	position: absolute;
 	top: 10px;
 	bottom: 10px;
-	left: -600px;
+	left: -650px;
 	background-color: #666;
 	-moz-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
 	-webkit-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
@@ -1109,6 +1109,8 @@ body {
 
 .iz-dash-menu-catergory {
 	background-color: #fff;
+	margin: 0 8px;
+	font-weight: bold;
 }
 
 	.iz-dash-menu-catergory > a:hover {
@@ -1286,10 +1288,19 @@ body {
 
 .iz-dash-notification > .title {
 	font-weight: bold;
+	margin-left: 16px;
 }
 
 .iz-dash-notification > .text {
 	
+}
+
+.iz-dash-notification > .icon {
+	color: red;
+  float: left;
+  position: absolute;
+  left: 8px;
+  top: 18px;
 }
 
 .iz-dash-notification > .close-button {

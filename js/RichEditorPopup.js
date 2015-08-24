@@ -127,6 +127,8 @@ function RE_InstantiateRichEditor(paramsObj) {
 	if (editor == null) {
 		RE_EditorsParamsList[paramsObj.TargetSelector] = paramsObj;
 		tinymce.init({
+			forced_root_block: false,
+			force_p_newlines: false,
 			selector: paramsObj.TargetSelector,
 			width: paramsObj.Width,
 			height: paramsObj.Height,

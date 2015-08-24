@@ -1,4 +1,58 @@
-﻿function FP_ShowFieldProperties(field, dialog) {
+﻿function FP_ShowFilterProperties(filter, dialog) {
+	document.getElementById('propDialogMode').value = 'filter';
+	for (var index = 1; index < 5; index++)
+		document.getElementById('fieldPropRow' + index).style.display = 'none';
+	for (var index = 1; index < 3; index++)
+		document.getElementById('filterPropRow' + index).style.display = '';
+	document.getElementById('fieldPropDiv').style.display = 'none';
+	var titleDiv = document.getElementById('titleDiv');
+	var fieldFriendlyName = filter.FriendlyName;
+	if (filter.TableJoinAlias)
+		fieldFriendlyName += " (" + filter.TableJoinAlias + ")";
+	titleDiv.innerHTML = IzLocal.Res('js_FfilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
+	var propFilterOperators = document.getElementById('propFilterOperators');
+	if (typeof propFilterOperators.options.hasChildNodes != 'undefined') {
+		while (propFilterOperators.options.hasChildNodes())
+			propFilterOperators.options.removeChild(propFilterOperators.options.firstChild);
+	}
+	else if (typeof propFilterOperators.options.length != 'undefined')
+		propFilterOperators.options.length = 0;
+	var currentOptGroup = null;
+	for (var filterOperatorCnt = 0; filterOperatorCnt < filter.FilterOperatorValues.length; filterOperatorCnt++) {
+		if (filter.FilterOperatorValues[filterOperatorCnt] == '###OPTGROUP###') {
+			if (filter.FilterOperatorNames[filterOperatorCnt] != '') {
+				currentOptGroup = document.createElement('optgroup');
+				currentOptGroup.label = filter.FilterOperatorNames[filterOperatorCnt];
+				propFilterOperators.appendChild(currentOptGroup);
+			}
+			continue;
+		}
+		var optOper = document.createElement('option');
+		optOper.value = filter.FilterOperatorValues[filterOperatorCnt];
+		optOper.innerHTML = filter.FilterOperatorNames[filterOperatorCnt];
+		if (filter.FilterOperator == filter.FilterOperatorValues[filterOperatorCnt])
+			optOper.selected = 'selected';
+		if (currentOptGroup == null)
+			propFilterOperators.appendChild(optOper);
+		else
+			currentOptGroup.appendChild(optOper);
+	}
+	if (filter.DupFilter)
+		jq$('#dupFilterNote').show();
+	else
+		jq$('#dupFilterNote').hide();
+	document.getElementById('propFilterGUID').value = filter.FilterGUID;
+	dialog.dialog("option", "title", fieldFriendlyName);
+	dialog.dialog("open");
+}
+
+function FP_ShowFieldProperties(field, dialog) {
+	document.getElementById('propDialogMode').value = 'field';
+	for (var index = 1; index < 5; index++)
+		document.getElementById('fieldPropRow' + index).style.display = '';
+	for (var index = 1; index < 3; index++)
+		document.getElementById('filterPropRow' + index).style.display = 'none';
+	document.getElementById('fieldPropDiv').style.display = '';
 	var titleDiv = document.getElementById('titleDiv');
 	var fieldFriendlyName = field.FriendlyName;
 	if (field.TableJoinAlias)
@@ -33,39 +87,7 @@
 			optFormat.selected = 'selected';
 		propFormats.add(optFormat);
 	}
-	var propFilterOperators = document.getElementById('propFilterOperators');
-	if (typeof propFilterOperators.options.hasChildNodes != 'undefined') {
-		while (propFilterOperators.options.hasChildNodes())
-			propFilterOperators.options.removeChild(propFilterOperators.options.firstChild);
-	}
-	else if (typeof propFilterOperators.options.length != 'undefined')
-		propFilterOperators.options.length = 0;
-	while (propFilterOperators.hasChildNodes())
-		propFilterOperators.removeChild(propFilterOperators.firstChild);
-	var currentOptGroup = null;
-	for (var filterOperatorCnt = 0; filterOperatorCnt < field.FilterOperatorValues.length; filterOperatorCnt++) {
-		if (field.FilterOperatorValues[filterOperatorCnt] == '###OPTGROUP###') {
-			if (field.FilterOperatorNames[filterOperatorCnt] != '') {
-				currentOptGroup = document.createElement('optgroup');
-				currentOptGroup.label = field.FilterOperatorNames[filterOperatorCnt];
-				propFilterOperators.appendChild(currentOptGroup);
-			}
-			continue;
-		}
-		var optOper = document.createElement('option');
-		optOper.value = field.FilterOperatorValues[filterOperatorCnt];
-		optOper.innerHTML = field.FilterOperatorNames[filterOperatorCnt];
-		if (field.FilterOperator == field.FilterOperatorValues[filterOperatorCnt])
-			optOper.selected = 'selected';
-		if (currentOptGroup == null)
-			propFilterOperators.appendChild(optOper);
-		else
-			currentOptGroup.appendChild(optOper);
-	}
-	if (field.DupFilter)
-		jq$('#dupFilterNote').show();
-	else
-		jq$('#dupFilterNote').hide();
+	jq$('#dupFilterNote').hide();
 	var labelJ = document.getElementById('labelJ');
 	var msvs = labelJ.getAttribute('msvs').split(',');
 	labelJ.innerHTML = msvs[field.LabelJ - 1];
@@ -77,13 +99,21 @@
 	if (IsIE()) {
 		jq$('.multi-valued-check-advanced').css("margin-left", '3px');
 	}
-	document.getElementById('propWidth').value = field.Width;
-	document.getElementById('propFilterGUID').value = field.FilterGUID;
+	var propWidth = document.getElementById('propWidth');
+	propWidth.value = field.Width;
 	dialog.dialog("option", "title", fieldFriendlyName);
 	dialog.dialog("open");
 }
 
-function FP_CollectProperties() {
+function FP_CollectFilterProperties() {
+	var filter = new Object();
+	var propFilterOperators = document.getElementById('propFilterOperators');
+	filter.FilterOperator = propFilterOperators.value;
+	filter.FilterGUID = document.getElementById('propFilterGUID').value;
+	return filter;
+}
+
+function FP_CollectFieldProperties() {
 	var field = new Object();
 	field.Description = document.getElementById('propDescription').value;
 	var propTotal = document.getElementById('propTotal');
@@ -103,8 +133,6 @@ function FP_CollectProperties() {
 		field.IsMultilineHeader = 0;
 	var propFormats = document.getElementById('propFormats');
 	field.Format = propFormats.value;
-	var propFilterOperators = document.getElementById('propFilterOperators');
-	field.FilterOperator = propFilterOperators.value;
 	var labelJ = document.getElementById('labelJ');
 	var msvs = labelJ.getAttribute('msvs').split(',');
 	var msv = labelJ.getAttribute('msv');
@@ -128,7 +156,6 @@ function FP_CollectProperties() {
 	}
 	field.ValueJ = curInd;
 	field.Width = document.getElementById('propWidth').value;
-	field.FilterGUID = document.getElementById('propFilterGUID').value;
 	return field;
 }
 
