@@ -5,15 +5,17 @@
 angular
   .module('izendaQuery')
   .factory('$izendaRsQuery', [
+		'$window',
     '$rootScope',
     '$http',
     '$q',
     '$log',
-    '$izendaUrl',
-    function ($rootScope, $http, $q, $log, $izendaUrl) {
+    function ($window, $rootScope, $http, $q, $log) {
       'use strict';
 
-      var rsQueryBaseUrl = $izendaUrl.settings.urlRsPage;
+      var urlSettings = $window.urlSettings$;
+
+      var rsQueryBaseUrl = urlSettings.urlRsPage;
 
       var rsQueryLog = {};
 

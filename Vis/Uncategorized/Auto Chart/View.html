@@ -123,51 +123,51 @@
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/refresh.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/refresh.hover.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.hover.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/refresh.selected.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.selected.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/palette.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/palette.hover.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.hover.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/palette.selected.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.selected.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/type.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/type.hover.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.hover.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/type.selected.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.selected.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/gear.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/gear.hover.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.hover.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/gear.selected.png') no-repeat center center;
+		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.selected.png') no-repeat center center;
 	}
 
 	#VIS_ID_CONTAINER .gallery {
@@ -218,7 +218,7 @@
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_BACKGROUND {
-		padding: 10px;
+		padding: 1px;
 		background-color: black;
 	}
 
@@ -229,19 +229,19 @@
 		font-size: 12px;
 		padding-left: 5px;
 		line-height: 18px;
-		background-color: white;
+		/*background-color: white;*/
+		color: white;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON {
 		float: right;
 		cursor: pointer;
 		display: block;
-		height: 18px;
-		padding: 5px 5px 5px 5px;
+		padding: 0 4px;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_CONTAINER {
-		display: inline-block;
+		/*display: inline-block;*/
 		max-height: 300px;
 		overflow: auto;
 		width: 100% /*auto*/;
@@ -286,6 +286,7 @@
 					<li val="EmbeddedDetail">Expand</li>
 					<li val="DetailLink">Link</li>
 					<li val="DetailLinkNewWindow">New Tab</li>
+					<li val="DetailLinkPopup">Popup</li>
 				</ul>
 			</div>
 			<div class="property-control hint"><label>Combine bottom, % <input type="text" id="VIS_ID_PROPERTY_COMBINE_ITEMS" value="5" /></label></div>
@@ -293,7 +294,7 @@
 		<div id="VIS_ID" style="overflow: hidden"></div>
 		<div id="VIS_ID_EXPAND_GALLERY" class="gallery" style="display: none;">
 			<div id="VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON">
-				<img id="VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE" src="Resources/Vis/Uncategorized/Auto Chart/close.png" />
+				<img id="VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE" src="Resources/Vis/Uncategorized/Auto Chart/icons/close.min.png" />
 			</div>
 			<div id="VIS_ID_EXPAND_GALLERY_BACKGROUND">
 				<div id="VIS_ID_EXPAND_GALLERY_LABEL"></div>
@@ -446,15 +447,6 @@
 		];
 	})();
 
-	function getIndexItemByName(collection, name) {
-		for (var i = 0; i < collection.length; ++i) {
-			if (collection[i].name === name) {
-				return i;
-			}
-		}
-		return 0;
-	}
-
 	function ExecuteVIS_ID() {
 		var VIS_EMBEDDED_DATA;
 
@@ -488,6 +480,10 @@
 
 			if (jq$("#VIS_ID").size() < 1) {
 				util.unregisterResize("VIS_ID");
+				return;
+			}
+
+			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT)) {
 				return;
 			}
 
@@ -539,11 +535,10 @@
 
 				initSelector(id + "_SELECTOR", {
 					onClick: function () {
-						if (galleries[id].gallery.is(":visible")) {
+						if (galleries[id].gallery.is(":visible"))
 							galleries[id].context.hide();
-						} else {
+						else
 							galleries[id].context.show();
-						}
 					}
 				});
 			}
@@ -738,10 +733,6 @@
 				zeroCheckbox = vs.find("input#VIS_ID_PROPERTY_ZERO_CHECKBOX"),
 				combBottom = vs.find("input#VIS_ID_PROPERTY_COMBINE_ITEMS");
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT)) {
-				return;
-			}
-
 			if (VIS_COLUMNS.findIndex(function (el) { return el.drilldownstyle == "EmbeddedDetail"; }) > -1) {
 				vs.text("Embedded subreports not supported with Visualizations");
 				return;
@@ -750,8 +741,8 @@
 			if (!s.props) {
 				try {
 					s.props = JSON.parse(VIS_CONTEXT.props);
-					s.props.type = (s.props.type && typeof s.props.type != "undefined" && jq$.isNumeric(s.props.type)) ? s.props.type : getIndexItemByName(types, "column");
-					s.props.palette = (s.props.palette && typeof s.props.palette != "undefined" && jq$.isNumeric(s.props.palette)) ? s.props.palette : getIndexItemByName(palettes, "default");
+					s.props.type = (s.props.type && typeof s.props.type != "undefined" && jq$.isNumeric(s.props.type)) ? s.props.type : types.findIndex(function (item) { return item.name === "column"; });
+					s.props.palette = (s.props.palette && typeof s.props.palette != "undefined" && jq$.isNumeric(s.props.palette)) ? s.props.palette : palettes.findIndex(function (item) { return item.name === "default"; });
 				} catch (e) {
 				}
 			}
@@ -772,6 +763,13 @@
 
 			vis.collectTree();
 
+			var totals = vis.traverseTree(function (context) {
+				if (!context.node.hasOwnProperty("id")) {
+					context.node["drilldown"] = context.node["id"] = context.node["name"];
+					context.node["label"] = VIS_COLUMNS[context.fi].name;
+				}
+			});
+
 			var metricsLength = vis.metrics.length;
 			var aggregatesByMetrics = (function () {
 				var aggregate = {},
@@ -786,7 +784,8 @@
 							var isRecordCount = metric == "Record Count";
 							aggregate[metric] = !isRecordCount ? {
 								func: VIS_COLUMNS[j].aggregatefunction,
-								type: VIS_COLUMNS[j].aggregatefunctiontype
+								type: VIS_COLUMNS[j].aggregatefunctiontype,
+								subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
 							} : recordCountAggregate;
 							break;
 						}
@@ -796,27 +795,25 @@
 			})();
 
 			function initNodes(node, metric) {
-				var values = [];
+				var values = [],
+					nodeValue, subtotalValue,
+					aggregate = aggregatesByMetrics[metric];
 				if (node.hasOwnProperty("children")) {
 					for (var i = 0, length = node.children.length; i < length; ++i) {
 						var tmp = initNodes(node.children[i], metric);
 						values = values.concat(tmp);
 					}
-					var aggregate = aggregatesByMetrics[metric],
-						nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
+					nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
 					vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
 				} else {
 					values.push(vis.unitValue(node, metric));
 				}
+
+				subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
+				vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
+
 				return values;
 			}
-
-			var totals = vis.traverseTree(function (context) {
-				if (!context.node.hasOwnProperty("id")) {
-					context.node["drilldown"] = context.node["id"] = context.node["name"];
-					context.node["label"] = VIS_COLUMNS[context.fi].name;
-				}
-			});
 
 			for (i = 0; i < metricsLength; i++) {
 				initNodes(totals, vis.metrics[i]);
@@ -866,7 +863,28 @@
 			var egOptions;
 			initGallery("#VIS_ID_EXPAND_GALLERY", egOptions = {
 				onclick: function () { },
-				onShow: function () { },
+				onShow: function () {
+					var $gallery = vs.find("#VIS_ID_EXPAND_GALLERY").css({ display: "table", width: "auto" }),
+						$galleryBackground = vs.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND").css({ "width": "" }),
+						$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").css({ "height": "" }),
+						bounds = {};
+					var scrollable = util.fitScollableContainer($gallery.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND"), { maxWidth: width, maxHeight: 300 }, bounds);
+
+					if (scrollable) {
+						if (isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
+							$galleryBackground.width(bounds.width);
+						if (isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
+							$galleryContainer.height(bounds.height - 17);
+					}
+
+					var xpos = egOptions.cx - $gallery.width() / 2;
+					if (xpos + $gallery.width() > width)
+						xpos = width - $gallery.width();
+
+					$gallery.css({
+						margin: "0 auto 0 " + (xpos < 0 ? 0 : xpos) + "px"
+					});
+				},
 				onHide: function () {
 					delete egOptions.shownIndex;
 					if (egOptions.style == "EmbeddedDetail") {
@@ -1146,7 +1164,9 @@
 								}), function (i, item) {
 									code = code.replace(item, '');
 								});
-								return code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1];
+								code = jq$('<div>' + code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1] + '</div>');
+								code.find("input[type=hidden]").remove();
+								return code.html();
 							}
 
 							var hoderIndex = egOptions.hoverIndex, // IE8 event handling workaround
@@ -1176,32 +1196,31 @@
 												.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
 												.add();
 											if (y < s.chart.chartHeight - 20)
-												s.chart.renderer.path(['M', c, y, 'L', c, s.chart.chartHeight - 20])
+												s.chart.renderer.path(['M', egOptions.cx, y, 'L', egOptions.cx, s.chart.chartHeight - 20])
 													.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
 													.add();
-											s.chart.renderer.path(['M', c - 10, s.chart.chartHeight, c + 10, s.chart.chartHeight, c, s.chart.chartHeight - 10, 'Z'])
+											s.chart.renderer.path(['M', egOptions.cx - 10, s.chart.chartHeight, egOptions.cx + 10, s.chart.chartHeight, egOptions.cx, s.chart.chartHeight - 10, 'Z'])
 												.attr({ 'fill': uc, 'class': 'expandtools' })
 												.add();
 
 											util.hideTooltip();
 											vs.find("#VIS_ID_EXPAND_GALLERY")
 												.css("border-color", uc)
-												.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(filterReport(html));
-
-											vs.find("#VIS_ID_EXPAND_GALLERY")
+												.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(filterReport(html))
+											.end()
 												.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND")
 												.css("background-color", uc)
-												.end()
+											.end()
 												.find("#VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON")
-												.width(util.scrollSize().width)
+												/*.width(util.scrollSize().width)*/
 												.unbind("click")
 												.bind("click", function () {
 													egOptions.hide();
 												})
 												.find("#VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE")
-												.css("padding-left", ((util.scrollSize().width - 15) / 2) | 0);
-
-											vs.find("#VIS_ID_EXPAND_GALLERY")
+													.css("padding-left", ((util.scrollSize().width - 15) / 2) | 0)
+												.end()
+											.end()
 												.find("#VIS_ID_EXPAND_GALLERY_LABEL")
 												.css("margin-right", util.scrollSize().width + "px")
 												.text(s.chartOptions.usedData[index].name);
@@ -1211,8 +1230,9 @@
 											egOptions.style = style;
 										}
 
-										var x, y, w, c,
+										var x, y, w,
 											pos = { left: 0, top: 0 };
+										egOptions.cx = -1;
 
 										var uc = s.chartOptions.usedColors[index];
 
@@ -1227,7 +1247,7 @@
 												x = pos.left;
 												y = pos.top + le.clientHeight;
 												w = le.clientWidth;
-												c = x + w / 2;
+												egOptions.cx = x + w / 2;
 
 												finish();
 											});
@@ -1236,21 +1256,21 @@
 											x = le.offsetLeft;
 											y = le.offsetTop + le.offsetHeight;
 											w = le.offsetWidth;
-											c = x + w / 2;
+											egOptions.cx = x + w / 2;
 											finish();
 										}
 									});
 									break;
 								case "DetailLinkPopup":
 									{
+										if (hoderIndex != index)
+											return;
 										util.showTooltip(loadImage, { event: e });
 										if (type != "pie")
 											egOptions.clickFlag = true;
 										jq$.get(reportLinkFixed, function (html) {
-											if (hoderIndex != index)
-												return;
 											egOptions.clickIndex = index;
-											util.showTooltip(filterReport(html), { event: e, /*maxWidth: 500, */maxHeight: 300, offset: { x: 0, y: 10 }, width: jq$(window).width() });
+											util.showTooltip(filterReport(html), { event: e, maxWidth: 500, maxHeight: 300, offset: { x: 0, y: 10 } });
 										});
 									}
 									break;
@@ -1500,7 +1520,7 @@
 					for (var i = 0; i < s.options.series.length; i++)
 						s.options.series[i] = series[i];
 				} else {
-					if (vis.toImage && s.props.visibility && s.props.visibility.length > 0) {
+					if (VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0) {
 						for (var i = Math.min(s.props.visibility.length, series.length) - 1; i > -1; i--) {
 							if (!s.props.visibility[i])
 								series.removeAt(i);
@@ -1510,7 +1530,7 @@
 					s.options.series = series;
 				}
 
-				if (!vis.toImage && s.props.visibility && s.props.visibility.length > 0)
+				if (!VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0)
 					for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
 						s.options.series[i].visible = s.props.visibility[i];
 
@@ -1540,7 +1560,7 @@
 					itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
 
 				execBreadcrumb(o.data);
-				vs.find("#VIS_ID").height(height - (vis.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height())));
+				vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height())));
 				try {
 					new Highcharts.Chart(s.options, function (chart) {
 						s.chart = chart;

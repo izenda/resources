@@ -1,10 +1,10 @@
-/* Copyright (c) 2005-2010 Izenda, L.L.C.
+/* Copyright (c) 2005 Izenda, Inc.
 
  ____________________________________________________________________
 |                                                                   |
 |   Izenda .NET Component Library                                   |
 |                                                                   |
-|   Copyright (c) 2005-2010 Izenda, L.L.C.                          |
+|   Copyright (c) 2005 Izenda, Inc.                                 |
 |   ALL RIGHTS RESERVED                                             |
 |                                                                   |
 |   The entire contents of this file is protected by U.S. and       |
@@ -419,9 +419,19 @@ function SC_OnColumnChangedHandler(e, el) {
 	}
 
 	var row = EBC_GetRow();
-	var id = EBC_GetParentTable(row).id;
 
 	if (row != null && row.parentNode != null) {
+		if (row._scColumnChangeFired == true) {
+			return;
+		}
+		row._scColumnChangeFired = true;
+		row._ignoreDescriptor = 0;
+
+		var parentTable = EBC_GetParentTable(row);
+		var id = parentTable.id;
+		var savedAutogrouping = parentTable.skipAutogrouping;
+		parentTable.skipAutogrouping = true;
+
 		try {
 			var isLoadCalled = loadCalled[row.rowIndex - 1] == 1;
 
@@ -432,6 +442,7 @@ function SC_OnColumnChangedHandler(e, el) {
 			var oldValue = columnSel.getAttribute("oldValue");
 			var isNotSelectedColumnSel = (columnSel.value == "" || columnSel.value == "..." || columnSel.selectedIndex == -1);
 
+			var isSameValue = oldValue != null && columnSel.options[columnSel.selectedIndex].value == oldValue;
 			var fieldCannotBeSelected = false;
 			var showChangeRowCheckDialog = false;
 			var coefficientEditTemp = EBC_GetElementByName(row, "Coefficient", "TEXTAREA");
@@ -480,10 +491,13 @@ function SC_OnColumnChangedHandler(e, el) {
 			SC_ColumnChangeContext.oldValue = oldValue;
 			SC_ColumnChangeContext.isNotSelectedColumnSel = isNotSelectedColumnSel;
 
-			if (!showChangeRowCheckDialog) {
+			if (!showChangeRowCheckDialog && !isSameValue) {
 				SC_ResetRowToDefault();
 			}
-		} catch (exc) { }
+		} finally {
+			row._scColumnChangeFired = false;
+			parentTable.skipAutogrouping = savedAutogrouping;
+		}
 	}
 }
 
@@ -495,285 +509,270 @@ function SC_ResetRowToDefault() {
 		isNotSelectedColumnSel = SC_ColumnChangeContext.isNotSelectedColumnSel;
 
 	if (row && columnSel) {
-		if (row._scColumnChangeFired == true) {
-			return;
-		}
-
 		if (EBC_IsRealChangedSelValue(columnSel)) {
 			row.setAttribute("userChanged", "false");
 		}
 
-		row._scColumnChangeFired = true;
-		row._ignoreDescriptor = 0;
+		var parentTable = EBC_GetParentTable(row);
 
-		try {
-			var parentTable = EBC_GetParentTable(row);
-			parentTable.skipAutogrouping = true;
-			var savedAutogrouping = parentTable.skipAutogrouping;
-
-			var dataTypeGroup = "";
-			if (columnSel.selectedIndex != -1) {
-				dataTypeGroup = EBC_GetDataTypeGroup(row, strColumn, strFunction, null);
-				if (dataTypeGroup == null) {
-					dataTypeGroup = "";
-				}
-			}
-
-			var isBinaryDataTypeGroup = dataTypeGroup == "Binary";
-			var disabledSort = isBinaryDataTypeGroup;
-
-			/* 
-			 * General Field Settings
-			 */
-
-			/* Description */
-			var descriptionEdit = EBC_GetInputByName(row, "Description");
-			if (descriptionEdit) {
-				descriptionEdit.value = "";
-				descriptionEdit.disabled = false;
-
-				EBC_SetDescription(row);
-			}
-
-			/* Function */
-			var funcSelect = EBC_GetSelectByName(row, strFunction);
-			if (funcSelect) {
-				funcSelect.selectedIndex = 0;
-				funcSelect.disabled = false;
-			}
-
-			var mustGroupOrFunction = false;
-			var body = parentTable.tBodies[0];
-			var rows = body.rows;
-			var i = 0;
-			var count = rows.length;
-			while (!mustGroupOrFunction && i < count) {
-				var funcTemp = EBC_GetSelectByName(rows[i], strFunction);
-				var groupCheckboxTemp = EBC_GetElementByName(rows[i], "Group", "INPUT");
-				var isGruopChecked = groupCheckboxTemp && groupCheckboxTemp.checked;
-				var isScalar = funcTemp == null ? null : funcTemp.options[funcTemp.selectedIndex].getAttribute("isScalar");
-				isScalar = isScalar == null || isScalar.length == 0 ? "0" : isScalar;
-				mustGroupOrFunction = (funcTemp == null ? false : (funcTemp.selectedIndex > 0 || isGruopChecked) && isScalar == "0");
-				i++;
-			}
-
-			/* Group */
-			var groupCheckbox = EBC_GetElementByName(row, "Group", "INPUT");
-			if (groupCheckbox) {
-				groupCheckbox.checked = mustGroupOrFunction && !isNotSelectedColumnSel;
-				groupCheckbox.disabled = false;
-				mustGroupOrFunction = false;
-			}
-
-			/* Sort */
-			var orderCheckbox = EBC_GetElementByName(row, "Order", "INPUT");
-			if (orderCheckbox) {
-				orderCheckbox.checked = false;
-				orderCheckbox.disabled = disabledSort;
-			}
-
-			/* VG */
-			var masterCheckbox = EBC_GetElementByName(row, "Master", "INPUT");
-			if (masterCheckbox) {
-				masterCheckbox.checked = false;
-				masterCheckbox.disabled = false;
-			}
-
-			/* A */
-			var arithmeticOperationElem = new AdHoc.MultivaluedCheckBox("ArithmeticOperation", row);
-			if (arithmeticOperationElem.ElementExists()) {
-				if (isNotSelectedColumnSel || isBinaryDataTypeGroup) {
-					arithmeticOperationElem.disable();
-				} else {
-					arithmeticOperationElem.enable();
-					arithmeticOperationElem.setValueInternal(" ");
-				}
-				SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
-			}
-
-			/* 
-			 * Advanced Field Settings
-			 */
-
-			/* Column Group */
-			var columnGroupEdit = EBC_GetInputByName(row, "ColumnGroup");
-			if (columnGroupEdit) {
-				columnGroupEdit.value = columnGroupEdit.getAttribute("data-default") || "";;
-				columnGroupEdit.disabled = false;
-			}
-
-			/* Break Page After VG (PDF) */
-			var breakPageCheckbox = EBC_GetElementByName(row, "BreakPage", "INPUT");
-			if (breakPageCheckbox) {
-				breakPageCheckbox.checked = false;
-				breakPageCheckbox.disabled = true;
-			}
-
-			/* Multiline Header */
-			var multilineHeaderCheckbox = EBC_GetElementByName(row, "IsMultilineHeader", "INPUT");
-			if (multilineHeaderCheckbox) {
-				multilineHeaderCheckbox.checked = false;
-				multilineHeaderCheckbox.disabled = false;
-			}
-
-			/* Hide this field */
-			var invisibleCheckbox = EBC_GetElementByName(row, "Invisible", "INPUT");
-			if (invisibleCheckbox) {
-				invisibleCheckbox.checked = false;
-				invisibleCheckbox.disabled = false;
-			}
-
-			/* Separator */
-			var separatorCheckbox = EBC_GetElementByName(row, "Separator", "INPUT");
-			if (separatorCheckbox) {
-				separatorCheckbox.checked = false;
-				separatorCheckbox.disabled = false;
-			}
-
-			/* Sort (z-a) */
-			var orderDescCheckbox = EBC_GetElementByName(row, "OrderDesc", "INPUT");
-			if (orderDescCheckbox) {
-				orderDescCheckbox.checked = false;
-				orderDescCheckbox.disabled = disabledSort;
-			}
-
-			/* Italic */
-			var italicCheckbox = EBC_GetElementByName(row, "Italic", "INPUT");
-			if (italicCheckbox) {
-				italicCheckbox.checked = false;
-				italicCheckbox.disabled = false;
-			}
-
-			/* Bold */
-			var boldCheckbox = EBC_GetElementByName(row, "Bold", "INPUT");
-			if (boldCheckbox) {
-				boldCheckbox.checked = false;
-				boldCheckbox.disabled = false;
-			}
-
-			/* Width */
-			var widthEdit = EBC_GetInputByName(row, "Width");
-			if (widthEdit) {
-				widthEdit.value = widthEdit.getAttribute("data-default") || "";
-				widthEdit.disabled = false;
-			}
-
-			/* Label Justification */
-			var labelJustificationElem = new AdHoc.MultivaluedCheckBox("LabelJustification", row);
-			if (labelJustificationElem.ElementExists()) {
-				labelJustificationElem.enable();
-				labelJustificationElem.setValueInternal("M");
-			}
-
-			/* Value Justification */
-			var justificationElem = new AdHoc.MultivaluedCheckBox("Justification", row);
-			if (justificationElem.ElementExists()) {
-				justificationElem.enable();
-				justificationElem.setValueInternal(" ");
-			}
-
-			/* Subreport */
-			var subreportSelect = EBC_GetSelectByName(row, "Subreport");
-			if (subreportSelect) {
-				subreportSelect.selectedIndex = 0;
-				subreportSelect.disabled = false;
-			}
-
-			/* Drill-Down Style */
-			var drillDownStyleSelect = EBC_GetSelectByName(row, "DrillDownStyle");
-			if (drillDownStyleSelect) {
-				drillDownStyleSelect.selectedIndex = 0;
-				drillDownStyleSelect.disabled = true;
-			}
-
-			/* Url */
-			var urlEdit = EBC_GetInputByName(row, "Url");
-			if (urlEdit) {
-				urlEdit.value = urlEdit.getAttribute("data-default") || "";
-				urlEdit.disabled = false;
-			}
-
-			/* Subtotal Function */
-			var subtotalFunctionSelect = EBC_GetSelectByName(row, "SubtotalFunction");
-			if (subtotalFunctionSelect) {
-				subtotalFunctionSelect.selectedIndex = 0;
-				subtotalFunctionSelect.disabled = false;
-			}
-
-			/* Subtotal Expression */
-			var subtotalExpressionEdit = EBC_GetElementByName(row, "SubtotalExpression", "TEXTAREA");
-			if (subtotalExpressionEdit) {
-				subtotalExpressionEdit.value = subtotalExpressionEdit.getAttribute("data-default") || "";
-				subtotalExpressionEdit.disabled = false;
-			}
-
-			/* Gradient Cells Shading */
-			var gradientCheckbox = EBC_GetElementByName(row, "Gradient", "INPUT");
-			if (gradientCheckbox) {
-				gradientCheckbox.checked = false;
-				gradientCheckbox.disabled = false;
-			}
-
-			/* Text Highlight */
-			var textHighlightEdit = EBC_GetInputByName(row, "TextHighlight");
-			if (textHighlightEdit) {
-				textHighlightEdit.value = textHighlightEdit.getAttribute("data-default") || "";
-				textHighlightEdit.disabled = false;
-			}
-
-			/* Cell Highlight */
-			var cellHighlightEdit = EBC_GetInputByName(row, "CellHighlight");
-			if (cellHighlightEdit) {
-				cellHighlightEdit.value = cellHighlightEdit.getAttribute("data-default") || "";
-				cellHighlightEdit.disabled = false;
-			}
-
-			/* Value Ranges */
-			var valueRangesEdit = EBC_GetInputByName(row, "ValueRanges");
-			if (valueRangesEdit) {
-				valueRangesEdit.value = valueRangesEdit.getAttribute("data-default") || "";
-				valueRangesEdit.disabled = false;
-			}
-
-			/* Expression */
-			var coefficientEdit = EBC_GetElementByName(row, "Coefficient", "TEXTAREA");
-			if (coefficientEdit) {
-				coefficientEdit.value = coefficientEdit.getAttribute("data-default") || "";
-				coefficientEdit.disabled = false;
-			}
-
-			/* Expression type */
-			var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");
-			if (expressionTypeSelect) {
-				expressionTypeSelect.selectedIndex = 0;
-				expressionTypeSelect.disabled = false;
-			}
-
-			/* Group By Expression */
-			var groupByExpressionCheckbox = EBC_GetElementByName(row, "GroupByExpression", "INPUT");
-			if (groupByExpressionCheckbox) {
-				groupByExpressionCheckbox.checked = false;
-				groupByExpressionCheckbox.disabled = false;
-			}
-
-			/* 
-			 * Post-Actions
-			 */
-
-			EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, strFunction, null, null, strColumn);
-			EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, "SubtotalFunction", false, true, strColumn);
-
-			if (!isNotSelectedColumnSel && strColumn == "Column") {
-				SC_CheckPropertiesModified(row);
-			}
-
-			if (arithmeticOperationElem.ElementExists()) {
-				SC_SetAcceptableValues(row, arithmeticOperationElem);
+		var dataTypeGroup = "";
+		if (columnSel.selectedIndex != -1) {
+			dataTypeGroup = EBC_GetDataTypeGroup(row, strColumn, strFunction, null);
+			if (dataTypeGroup == null) {
+				dataTypeGroup = "";
 			}
 		}
-		finally {
-			row._scColumnChangeFired = false;
-			parentTable.skipAutogrouping = savedAutogrouping;
+
+		var isBinaryDataTypeGroup = dataTypeGroup == "Binary";
+		var disabledSort = isBinaryDataTypeGroup;
+
+		/* 
+		 * General Field Settings
+		 */
+
+		/* Description */
+		var descriptionEdit = EBC_GetInputByName(row, "Description");
+		if (descriptionEdit) {
+			descriptionEdit.value = "";
+			descriptionEdit.disabled = false;
+
+			EBC_SetDescription(row, true);
+		}
+
+		/* Function */
+		var funcSelect = EBC_GetSelectByName(row, strFunction);
+		if (funcSelect) {
+			funcSelect.selectedIndex = 0;
+			funcSelect.disabled = false;
+		}
+
+		var mustGroupOrFunction = false;
+		var body = parentTable.tBodies[0];
+		var rows = body.rows;
+		var i = 0;
+		var count = rows.length;
+		while (!mustGroupOrFunction && i < count) {
+			var funcTemp = EBC_GetSelectByName(rows[i], strFunction);
+			var groupCheckboxTemp = EBC_GetElementByName(rows[i], "Group", "INPUT");
+			var isGruopChecked = groupCheckboxTemp && groupCheckboxTemp.checked;
+			var isScalar = funcTemp == null ? null : funcTemp.options[funcTemp.selectedIndex].getAttribute("isScalar");
+			isScalar = isScalar == null || isScalar.length == 0 ? "0" : isScalar;
+			mustGroupOrFunction = (funcTemp == null ? false : (funcTemp.selectedIndex > 0 || isGruopChecked) && isScalar == "0");
+			i++;
+		}
+
+		/* Group */
+		var groupCheckbox = EBC_GetElementByName(row, "Group", "INPUT");
+		if (groupCheckbox) {
+			groupCheckbox.checked = mustGroupOrFunction && !isNotSelectedColumnSel;
+			groupCheckbox.disabled = false;
+			mustGroupOrFunction = false;
+		}
+
+		/* Sort */
+		var orderCheckbox = EBC_GetElementByName(row, "Order", "INPUT");
+		if (orderCheckbox) {
+			orderCheckbox.checked = false;
+			orderCheckbox.disabled = disabledSort;
+		}
+
+		/* VG */
+		var masterCheckbox = EBC_GetElementByName(row, "Master", "INPUT");
+		if (masterCheckbox) {
+			masterCheckbox.checked = false;
+			masterCheckbox.disabled = false;
+		}
+
+		/* A */
+		var arithmeticOperationElem = new AdHoc.MultivaluedCheckBox("ArithmeticOperation", row);
+		if (arithmeticOperationElem.ElementExists()) {
+			if (isNotSelectedColumnSel || isBinaryDataTypeGroup) {
+				arithmeticOperationElem.disable();
+			} else {
+				arithmeticOperationElem.enable();
+				arithmeticOperationElem.setValueInternal(" ");
+			}
+			SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
+		}
+
+		/* 
+		 * Advanced Field Settings
+		 */
+
+		/* Column Group */
+		var columnGroupEdit = EBC_GetInputByName(row, "ColumnGroup");
+		if (columnGroupEdit) {
+			columnGroupEdit.value = columnGroupEdit.getAttribute("data-default") || "";;
+			columnGroupEdit.disabled = false;
+		}
+
+		/* Break Page After VG (PDF) */
+		var breakPageCheckbox = EBC_GetElementByName(row, "BreakPage", "INPUT");
+		if (breakPageCheckbox) {
+			breakPageCheckbox.checked = false;
+			breakPageCheckbox.disabled = true;
+		}
+
+		/* Multiline Header */
+		var multilineHeaderCheckbox = EBC_GetElementByName(row, "IsMultilineHeader", "INPUT");
+		if (multilineHeaderCheckbox) {
+			multilineHeaderCheckbox.checked = false;
+			multilineHeaderCheckbox.disabled = false;
+		}
+
+		/* Hide this field */
+		var invisibleCheckbox = EBC_GetElementByName(row, "Invisible", "INPUT");
+		if (invisibleCheckbox) {
+			invisibleCheckbox.checked = false;
+			invisibleCheckbox.disabled = false;
+		}
+
+		/* Separator */
+		var separatorCheckbox = EBC_GetElementByName(row, "Separator", "INPUT");
+		if (separatorCheckbox) {
+			separatorCheckbox.checked = false;
+			separatorCheckbox.disabled = false;
+		}
+
+		/* Sort (z-a) */
+		var orderDescCheckbox = EBC_GetElementByName(row, "OrderDesc", "INPUT");
+		if (orderDescCheckbox) {
+			orderDescCheckbox.checked = false;
+			orderDescCheckbox.disabled = disabledSort;
+		}
+
+		/* Italic */
+		var italicCheckbox = EBC_GetElementByName(row, "Italic", "INPUT");
+		if (italicCheckbox) {
+			italicCheckbox.checked = false;
+			italicCheckbox.disabled = false;
+		}
+
+		/* Bold */
+		var boldCheckbox = EBC_GetElementByName(row, "Bold", "INPUT");
+		if (boldCheckbox) {
+			boldCheckbox.checked = false;
+			boldCheckbox.disabled = false;
+		}
+
+		/* Width */
+		var widthEdit = EBC_GetInputByName(row, "Width");
+		if (widthEdit) {
+			widthEdit.value = widthEdit.getAttribute("data-default") || "";
+			widthEdit.disabled = false;
+		}
+
+		/* Label Justification */
+		var labelJustificationElem = new AdHoc.MultivaluedCheckBox("LabelJustification", row);
+		if (labelJustificationElem.ElementExists()) {
+			labelJustificationElem.enable();
+			labelJustificationElem.setValueInternal("M");
+		}
+
+		/* Value Justification */
+		var justificationElem = new AdHoc.MultivaluedCheckBox("Justification", row);
+		if (justificationElem.ElementExists()) {
+			justificationElem.enable();
+			justificationElem.setValueInternal(" ");
+		}
+
+		/* Subreport */
+		var subreportSelect = EBC_GetSelectByName(row, "Subreport");
+		if (subreportSelect) {
+			subreportSelect.selectedIndex = 0;
+			subreportSelect.disabled = false;
+		}
+
+		/* Drill-Down Style */
+		var drillDownStyleSelect = EBC_GetSelectByName(row, "DrillDownStyle");
+		if (drillDownStyleSelect) {
+			drillDownStyleSelect.selectedIndex = 0;
+			drillDownStyleSelect.disabled = true;
+		}
+
+		/* Url */
+		var urlEdit = EBC_GetInputByName(row, "Url");
+		if (urlEdit) {
+			urlEdit.value = urlEdit.getAttribute("data-default") || "";
+			urlEdit.disabled = false;
+		}
+
+		/* Subtotal Function */
+		var subtotalFunctionSelect = EBC_GetSelectByName(row, "SubtotalFunction");
+		if (subtotalFunctionSelect) {
+			subtotalFunctionSelect.selectedIndex = 0;
+			subtotalFunctionSelect.disabled = false;
+		}
+
+		/* Subtotal Expression */
+		var subtotalExpressionEdit = EBC_GetElementByName(row, "SubtotalExpression", "TEXTAREA");
+		if (subtotalExpressionEdit) {
+			subtotalExpressionEdit.value = subtotalExpressionEdit.getAttribute("data-default") || "";
+			subtotalExpressionEdit.disabled = false;
+		}
+
+		/* Gradient Cells Shading */
+		var gradientCheckbox = EBC_GetElementByName(row, "Gradient", "INPUT");
+		if (gradientCheckbox) {
+			gradientCheckbox.checked = false;
+			gradientCheckbox.disabled = false;
+		}
+
+		/* Text Highlight */
+		var textHighlightEdit = EBC_GetInputByName(row, "TextHighlight");
+		if (textHighlightEdit) {
+			textHighlightEdit.value = textHighlightEdit.getAttribute("data-default") || "";
+			textHighlightEdit.disabled = false;
+		}
+
+		/* Cell Highlight */
+		var cellHighlightEdit = EBC_GetInputByName(row, "CellHighlight");
+		if (cellHighlightEdit) {
+			cellHighlightEdit.value = cellHighlightEdit.getAttribute("data-default") || "";
+			cellHighlightEdit.disabled = false;
+		}
+
+		/* Value Ranges */
+		var valueRangesEdit = EBC_GetInputByName(row, "ValueRanges");
+		if (valueRangesEdit) {
+			valueRangesEdit.value = valueRangesEdit.getAttribute("data-default") || "";
+			valueRangesEdit.disabled = false;
+		}
+
+		/* Expression */
+		var coefficientEdit = EBC_GetElementByName(row, "Coefficient", "TEXTAREA");
+		if (coefficientEdit) {
+			coefficientEdit.value = coefficientEdit.getAttribute("data-default") || "";
+			coefficientEdit.disabled = false;
+		}
+
+			/* Expression type */
+		var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");
+		if (expressionTypeSelect) {
+			expressionTypeSelect.selectedIndex = 0;
+			expressionTypeSelect.disabled = false;
+		}
+
+		/* Group By Expression */
+		var groupByExpressionCheckbox = EBC_GetElementByName(row, "GroupByExpression", "INPUT");
+		if (groupByExpressionCheckbox) {
+			groupByExpressionCheckbox.checked = false;
+			groupByExpressionCheckbox.disabled = false;
+		}
+
+		/* 
+		 * Post-Actions
+		 */
+
+		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, strFunction, null, null, strColumn);
+		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, "SubtotalFunction", false, true, strColumn);
+
+		if (!isNotSelectedColumnSel && strColumn == "Column") {
+			SC_CheckPropertiesModified(row);
+		}
+
+		if (arithmeticOperationElem.ElementExists()) {
+			SC_SetAcceptableValues(row, arithmeticOperationElem);
 		}
 	}
 }
@@ -1976,6 +1975,7 @@ function SC_HideProperties(id)
 	var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");
 	if (row != null && expressionTypeSelect) {
 		EBC_SetFormat(row, true);
+		EBC_SetFunctions(row);
 	}
 	SC_CallOnColumnFunctionChangeHandlers(id);
 	CC_UpdateFiltersFromLogic();

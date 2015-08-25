@@ -13,42 +13,53 @@
 
 	// Extract header
 	var headerValues = new Array();
-	var headerRowCells$ = jq$(table).find('tr.ReportHeader td:nth-last-child(-n+' + columnsToHide + ')');
-	headerRowCells$.each(function () {
-		headerValues.push(jq$(this).text());
-	});
-
+	var headerRow$ = jq$(table).find('tr.ReportHeader');
+	if (headerRow$.length > 0) {
+		var cells = headerRow$[0].cells;
+		var cCnt = cells.length - columnsToHide;
+		while (cCnt < cells.length) {
+			headerValues.push(jq$(cells[cCnt]).text());
+			cCnt++;
+		}
+	}
+	
 	// Generate inner tables for each row
 	jq$(table).find('tr:not(.ReportHeader)').each(function (idx) {
-		var row$ = jq$(this);
-		var cells$ = row$.find('td:nth-last-child(-n+' + columnsToHide + ')');
-
 		var innerTable$ = jq$(document.createElement('table'));
 		innerTable$.attr('class', 'inner-field-value-table');
-		cells$.each(function (i) {
+
+		var cCnt = this.cells.length - columnsToHide;
+		while (cCnt < this.cells.length) {
 			var innerRow$ = jq$(document.createElement('tr'));
 
 			var headerCell$ = jq$(document.createElement('td'));
 			headerCell$.attr('class', 'field');
-			headerCell$.text(headerValues[i]);
+			headerCell$.text(headerValues[cCnt - (this.cells.length - columnsToHide)]);
 
 			var valueCell$ = jq$(document.createElement('td'));
 			valueCell$.attr('class', 'value');
-			valueCell$.html(jq$(this).html());
+			valueCell$.html(jq$(this.cells[cCnt]).html());
 
 			innerRow$.append(headerCell$);
 			innerRow$.append(valueCell$);
 			innerTable$.append(innerRow$);
-		});
+
+			cCnt++;
+		}
+
 		innerTables.push(innerTable$);
 	});
 
 	// Modify Report Grid
 	jq$(table).find('tr').each(function (i) {
-		row$ = jq$(this);
-
 		// Hide columns wich were copied to the inner grid
-		row$.find('td:nth-last-child(-n+' + columnsToHide + ')').hide();
+		var cCnt = this.cells.length - columnsToHide;
+		while (cCnt < this.cells.length) {
+			jq$(this.cells[cCnt]).hide();
+			cCnt++;
+		}
+
+		row$ = jq$(this);
 
 		// Insert hiddable row with inner grid
 		if (!row$.hasClass("ReportHeader")) {
@@ -69,11 +80,11 @@
 }
 
 function ToggleReportGrids() {
-	if (jq$('.ReportTable.SimpleGrid tr').length > 5001)
-		return;
 	var reportTables$ = jq$('.ReportTable.SimpleGrid');
 	reportTables$.each(function () {
 		var this$ = jq$(this);
+		if (this$.find('tr.ReportItem:not(.hiddable), tr.AlternatingItem:not(.hiddable)').length > 5001)
+			return;
 		var columnsToHide = 0;
 		jq$(this$.find('.ReportHeader td').get().reverse()).each(function () {
 			if (NeedHideColumn(this))
@@ -102,12 +113,14 @@ function ToggleControlIcon(element) {
 }
 
 function NeedHideColumn(header) {
-	header$ = jq$(header);
-	var rightBorder = header$.offset().left + header$.width();
+	var header$ = jq$(header),
+		report$ = header$.parents('[id$=_ReportsDiv]');
+	var rightHeaderBorder = header$.offset().left + header$.width(),
+		rightReportBorder = report$.offset().left + report$.width();
 	if (header$.data('right-border'))
-		rightBorder = header$.data('right-border');
-	if (rightBorder > jq$('body').innerWidth()) {
-		header$.data('right-border', rightBorder);
+		rightHeaderBorder = header$.data('right-border');
+	if (rightHeaderBorder > rightReportBorder) {
+		header$.data('right-border', rightHeaderBorder);
 		return true;
 	}
 	return false;

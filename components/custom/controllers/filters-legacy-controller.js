@@ -13,7 +13,8 @@ IzendaFiltersLegacyController]);
  */
 // ReSharper disable once InconsistentNaming
 function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $izendaEvent) {
-  var _ = angular.element;
+	var _ = angular.element;
+	$scope.izendaUrl = $izendaUrl;
   var vm = this;
   vm.opened = false;
 
@@ -73,7 +74,7 @@ function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $iz
    * Run filters
    */
   vm.initializeFilters = function() {
-    // start legacy code
+  	// start legacy code
     GetFiltersData();
   };
 
@@ -100,13 +101,25 @@ function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $iz
 
       // 'refreshFilters' event handle
       $izendaEvent.handleQueuedEvent('refreshFilters', $scope, vm, function () {
-        vm.initializeFilters();
+      	vm.initializeFilters();
+      });
+
+      $izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (updateFromSource) {
+      	if (updateFromSource)
+      		vm.initializeFilters();
       });
 
       _('#updateBtnP > a').click(function (event) {
         event.preventDefault();
         CommitFiltersData(true);
-        $izendaEvent.queueEvent('dashboardRefreshEvent', [], true);
+        $izendaEvent.queueEvent('dashboardRefreshEvent', [], false);
       });
+
+			// watch for location change: we can set dashboard when location is changing
+      $scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+      	if (reportInfo.fullName === null && !reportInfo.isNew)
+      		return;
+				vm.closeFiltersPanel();
+			});
   };
 }

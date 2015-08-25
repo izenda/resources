@@ -11,8 +11,17 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 		thisRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
 	thisRequestObject.requestId = id;
 	thisRequestObject.onreadystatechange = ProcessRequest;
-
-	thisRequestObject.open('GET', url + '?' + parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''), true);
+	url = url + '?' + parameters;
+	if (typeof (window.izendaPageId$) !== 'undefined') {
+		if (url.indexOf("?") == -1)
+			url = url + "?";
+		else {
+			if (url[url.length - 1] != '&' && url[url.length - 1] != '?')
+				url = url + "&";
+		}
+		url = url + 'izpid=' + window.izendaPageId$;
+	}
+	thisRequestObject.open('GET', url, true);
 	thisRequestObject.send();
 
 	function DeserializeJson() {
@@ -353,8 +362,8 @@ function AcceptReports(returnObj, id, parameters) {
 			var thumbClass = isTouch ? 'thumb no-hover' : 'thumb';
 			if (!forSelection) {
 				if (nrlConfigObj.ThumbnailsAllowed) {
-					content += '<a href="' + directLink + '" onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2)){if(event.preventDefault){event.preventDefault();}else{event.returnValue=false;}return false;}">';
-					content += '<div class="' + thumbClass + '" onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2))' + viewLink + '" id="">';
+					content += '<a href="' + directLink + '" onclick="javascript:var evt=event||window.event;if((evt.which==null&&evt.button<2)||(evt.which!=null&&evt.which<2)){if(evt.preventDefault){evt.preventDefault();}else{evt.returnValue=false;}return false;}">';
+					content += '<div class="' + thumbClass + '" onclick="javascript:var evt=event||window.event;if((evt.which==null&&evt.button<2)||(evt.which!=null&&evt.which<2))' + viewLink + '" id="">';
 					content += '<div class="thumb-container" style="background-color:white;width:' + nrlConfigObj.ThumbnailWidth + 'px;height:' + nrlConfigObj.ThumbnailHeight + 'px;"><img src="' + report.ImgUrl + '" />';
 					content += '<div class="thumb-buttons">';
 					if (!report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDesignReports)
@@ -401,7 +410,7 @@ function AcceptReports(returnObj, id, parameters) {
 		viewTemplate = report.Dashboard ? nrlConfigObj.DashboardViewTemplate : nrlConfigObj.ReportViewTemplate;
 		viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
 		directLink = (report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + report.UrlEncodedName;
-		recentContent += '<li><a onclick="javascript:event=event||window.event;if((event.which==null&&event.button<2)||(event.which!=null&&event.which<2)){' + viewLink + 'if(event.preventDefault){event.preventDefault();}else{event.returnValue=false;}return false;}" href="' + directLink + '">' + report.Name + '</a></li>';
+		recentContent += '<li><a onclick="javascript:var evt=event||window.event;if((evt.which==null&&evt.button<2)||(evt.which!=null&&evt.which<2)){' + viewLink + 'if(evt.preventDefault){evt.preventDefault();}else{evt.returnValue=false;}return false;}" href="' + directLink + '">' + report.Name + '</a></li>';
 	}
 	recentContent += '</ul>';
 	jq$("#reportListDiv")

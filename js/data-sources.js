@@ -27,10 +27,18 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	thisRequestObject.requestId = id;
 	thisRequestObject.dtk = dataToKeep;
 	thisRequestObject.onreadystatechange = ProcessRequest;
-
+	if (typeof (window.izendaPageId$) !== 'undefined') {
+		if (url.indexOf("?") == -1)
+			url = url + "?";
+		else {
+			if (url[url.length - 1] != '&' && url[url.length - 1] != '?')
+				url = url + "&";
+		}
+		url = url + 'izpid=' + window.izendaPageId$;
+	}
 	thisRequestObject.open('POST', url, true);
 	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	thisRequestObject.send(parameters + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''));
+	thisRequestObject.send(parameters);
 
 	function DeserializeJson() {
 		var responseText = thisRequestObject.responseText;
@@ -1601,7 +1609,7 @@ function UpdateDataSources() {
 				continue;
 
 			var ds = {
-				FriendlyName: key,
+				FriendlyName: table.name,
 				DbName: table.sysname,
 				DataType: 0,
 				IsStoredProc: false,

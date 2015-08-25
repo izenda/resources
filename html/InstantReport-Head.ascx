@@ -44,9 +44,9 @@
 
 <script type="text/javascript">
 	var previewWasVisible = false;
-    var updateOnDrag = true;
-    var updateOnClick = true;
-    var updateOnAdvancedOk = true;
+	var updateOnDrag = true;
+	var updateOnClick = true;
+	var updateOnAdvancedOk = true;
 
 	function hideAllPreview() {
 		previewWasVisible = false;

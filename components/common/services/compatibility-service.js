@@ -77,7 +77,6 @@
       var isFullAccess = function () {
         var rights = getRights();
         var allowed = [rightFullAccess].indexOf(rights) >= 0;
-        allowed = allowed && !isOneColumnView();
         allowed = allowed && !checkIsIe8();
         return allowed;
       };
@@ -99,7 +98,6 @@
       var isSaveAsAllowed = function() {
         var rights = getRights();
         var allowed = [rightFullAccess, rightReadOnly].indexOf(rights) >= 0;
-        allowed = allowed && !isOneColumnView();
         allowed = allowed && !checkIsIe8();
         return allowed;
       };
@@ -110,7 +108,6 @@
       var isFiltersEditAllowed = function() {
         var rights = getRights();
         var allowed = [rightFullAccess, rightReadOnly, rightLocked].indexOf(rights) >= 0;
-        allowed = allowed && !isOneColumnView();
         allowed = allowed && !checkIsIe8();
         return allowed;
       };

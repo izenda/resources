@@ -6,7 +6,7 @@ function UrlSettings() {
   /**
    * Append base url part if targetUrl is relative.
    */
-  var appendBaseUrl = function(baseUrl, targetUrl) {
+  var appendBaseUrl = function (baseUrl, targetUrl) {
     var expression = /(http|https):\/\//gi;
     var regex = new RegExp(expression);
     return targetUrl.match(regex) ? targetUrl : baseUrl + '/' + targetUrl;
@@ -54,7 +54,7 @@ function UrlSettings() {
     data: 'wscmd=reportviewerconfig&wsarg0=' + window.innerWidth + '&wsarg1=' + window.innerHeight + ((typeof (window.izendaPageId$) !== 'undefined') ? '&izpid=' + window.izendaPageId$ : ''),
     success: function (returnObj) {
       srvConfig = returnObj;
-      
+
       // new
       settings = {
         urlBase: urlBase,

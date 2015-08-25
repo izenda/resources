@@ -106,7 +106,7 @@ function izendaSelectReportNameController(
         'id': 1,
         'name': vm.UNCATEGORIZED_TEXT
       });
-      if (reportInfo.category === vm.UNCATEGORIZED_TEXT)
+      if (reportInfo.category === null || reportInfo.category === vm.UNCATEGORIZED_TEXT)
         vm.selectedCategoryId = 1;
       for (var i = 0; i < vm.reportSets.length; i++) {
         var id = vm.categories.length;

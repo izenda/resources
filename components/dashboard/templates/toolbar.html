@@ -34,7 +34,7 @@
     <div class="modal-body" ng-show="toolbarController.sendEmailState.isLoading">
       <div class="iz-dash-tile-vcentered-container" style="height: 50px;">
         <div class="iz-dash-tile-vcentered-item">
-          <img class="img-responsive" ng-src="{{toolbarController.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" 
+          <img class="img-responsive" ng-src="{{izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" 
             alt="Loading..." />
         </div>
       </div>
@@ -189,7 +189,8 @@
               <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
           </li>
-          <li ng-show="toolbarController.isPresentationModeEnable">
+          <!-- presentation mode -->
+          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.isPresentationModeEnable">
             <a title="Presentation Mode"
               ng-click="toolbarController.toggleGalleryMode(true)"
               ng-hide="toolbarController.isGalleryMode">
@@ -201,14 +202,15 @@
               <span class="glyphicon glyphicon-th"></span>
             </a>
           </li>
-          <li>
+          <li ng-show="!toolbarController.isOneColumnView()">
             <a title="Fullscreen Mode"
-              ng-click="toolbarController.toggleGalleryModeFullScreen()"
-              ng-show="toolbarController.isGalleryMode">
+               ng-click="toolbarController.toggleGalleryModeFullScreen()"
+               ng-show="toolbarController.isGalleryMode">
               <span class="glyphicon glyphicon-fullscreen"></span>
             </a>
           </li>
-          <li>
+          <!-- new dashboard -->
+          <li ng-show="!toolbarController.isOneColumnView()">
             <a title="Create New Dashboard"
               ng-click="toolbarController.createNewDashboardHandler()"
               ng-hide="toolbarController.isGalleryMode">
@@ -223,8 +225,8 @@
               <span class="glyphicon glyphicon-refresh"></span>
             </a>
           </li>
-          <li class="dropdown" 
-            ng-if="toolbarController.autoRefreshIntervals.length != 0">
+          <li class="dropdown"
+              ng-if="toolbarController.autoRefreshIntervals.length != 0">
             <a class="dropdown-toggle" data-toggle="dropdown" title="Refresh Dashboard"
                ng-hide="toolbarController.isGalleryMode">
               <span class="glyphicon glyphicon-refresh">&nbsp;<b class="caret"></b></span>
@@ -232,35 +234,38 @@
             <ul class="dropdown-menu">
               <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
                 <a title="{{interval.name}}"
-                  ng-class="{'selected-item': interval.selected}"
-                  ng-click="toolbarController.refreshDashboardHandler($index)">
+                   ng-class="{'selected-item': interval.selected}"
+                   ng-click="toolbarController.refreshDashboardHandler($index)">
                   <span class="glyphicon glyphicon-refresh"></span>&nbsp;{{interval.name}}
                 </a>
               </li>
             </ul>
- 
           </li>
+          <!-- filters -->
           <li>
             <a title="Show Dashboard Filters"
-              ng-hide="toolbarController.isGalleryMode || !toolbarController.isFiltersEditAllowed()"
-              ng-click="toolbarController.toggleDashboardFilters()">
+               ng-hide="toolbarController.isGalleryMode || !toolbarController.isFiltersEditAllowed()"
+               ng-click="toolbarController.toggleDashboardFilters()">
               <span class="glyphicon glyphicon-filter"></span>
             </a>
           </li>
+          <!-- share -->
           <li>
             <a title="Share"
-              ng-hide="!toolbarController.isFullAccess()"
-              ng-click="toolbarController.showShareDialog()">
+               ng-hide="toolbarController.isGalleryMode || !toolbarController.isFullAccess()"
+               ng-click="toolbarController.showShareDialog()">
               <span class="glyphicon glyphicon-share-alt"></span>
             </a>
           </li>
+          <!-- schedule -->
           <li>
             <a title="Schedule"
-               ng-hide="!toolbarController.isFullAccess()"
+               ng-hide="toolbarController.isGalleryMode || !toolbarController.isFullAccess()"
                ng-click="toolbarController.showScheduleDialog()">
               <span class="glyphicon glyphicon-calendar"></span>
             </a>
           </li>
+          <!-- print -->
           <li class="dropdown" ng-click="toolbarController.beforePrintDashboard()"
               ng-show="!toolbarController.isGalleryMode && toolbarController.isPrintDropdownVisible()">
             <a class="dropdown-toggle" data-toggle="dropdown" title="Print Dashboard">
@@ -269,7 +274,7 @@
             <ul class="dropdown-menu">
               <li>
                 <a id="newDbHtmlPrint" title="Print Dashboard HTML"
-                   ng-show="toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
+                   ng-show="!toolbarController.isOneColumnView() && toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
                    ng-click="toolbarController.printDashboard()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;Print dashboard HTML
                 </a>
@@ -283,6 +288,7 @@
               </li>
             </ul>
           </li>
+          <!-- save -->
           <li class="dropdown"
               ng-show="!toolbarController.isGalleryMode && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
             <a class="dropdown-toggle" data-toggle="dropdown" title="Save Dashboard"
@@ -305,6 +311,7 @@
               </li>
             </ul>
           </li>
+          <!-- email -->
           <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
             <a class="dropdown-toggle" data-toggle="dropdown" title="Send Email"
                ng-hide="toolbarController.isGalleryMode">
@@ -313,22 +320,22 @@
             <ul class="dropdown-menu">
               <li>
                 <a title="Send dashboard link to email"
-                  ng-click="toolbarController.sendEmail('Link')">
+                   ng-click="toolbarController.sendEmail('Link')">
                   <span class="glyphicon glyphicon-envelope"></span>&nbsp;Send Link To Email
                 </a>
               </li>
               <li>
                 <a title="Send dashboard PDF to email"
-                  ng-click="toolbarController.sendEmail('PDF')">
+                   ng-click="toolbarController.sendEmail('PDF')">
                   <span class="glyphicon glyphicon-envelope"></span>&nbsp;Send PDF To Email
                 </a>
               </li>
             </ul>
           </li>
+          <!-- color -->
           <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
             <a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
               title="Toggle background hue rotate"
-              ng-show="toolbarController.isToggleHueRotateEnabled();"
               ng-style="toolbarController.backgroundColorStyle">
               <img class="icon" ng-src="{{toolbarController.getHueRotateBtnImageUrl()}}" style="width: 16px;" alt="Hue rotate" />
               &nbsp;<b class="caret"></b>

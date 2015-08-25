@@ -1,10 +1,10 @@
-/* Copyright (c) 2005-2010 Izenda, L.L.C.
+/* Copyright (c) 2005 Izenda, Inc.
 
  ____________________________________________________________________
 |                                                                   |
 |   Izenda .NET Component Library                                   |
 |                                                                   |
-|   Copyright (c) 2005-2010 Izenda, L.L.C.                          |
+|   Copyright (c) 2005 Izenda, Inc.                                 |
 |   ALL RIGHTS RESERVED                                             |
 |                                                                   |
 |   The entire contents of this file is protected by U.S. and       |
@@ -312,7 +312,7 @@ function JTC_ShowHideParams(e)
 	JTC_innerShowHideParams(row, hideRightTable, '2');
 	JTC_innerShowHideParams(row, hideJoinType, '3');
 	JTC_CheckAliases(EBC_GetParentTable(row).id);
-	JTC_UpdateAdditionalConditions(row, 'Join');
+	JTC_UpdateAdditionalConditionsElem(row, 'Join');
 }
 
 function JTC_TableChanged(e)
@@ -389,7 +389,8 @@ function JTC_TableChanged(e)
 				JTC_SetRightTableSelValues(tableId, i , tablesWithAliases)
 				JTC_leftAutoJoinQueue[i] = 1;
 				// Update Right table and join Fields
-				JTC_SelectRightTableSelValue(tableId, i);
+				if (i == startFrom)
+					JTC_SelectRightTableSelValue(tableId, i);
 			}
 			finally
 			{
@@ -654,6 +655,22 @@ function JTC_Internal_FindEqualColumns(row) {
 	return flag;
 }
 
+function JTC_AliasChanged(e) {
+	if (e) ebc_mozillaEvent = e;
+	var row = EBC_GetRow(e instanceof HTMLElement ? e : undefined);
+	if (row == null)
+		return;
+
+	var baseRow = jq$(row);
+
+	var additionalConditionRow = baseRow.next();
+	while (jq$(additionalConditionRow).attr('additional') == 'true') {
+		var additionalAlias = additionalConditionRow.find('input[name$="_TableAlias"]');
+		additionalAlias.val(baseRow.find('input[name$="_TableAlias"]').val());
+		additionalConditionRow = jq$(additionalConditionRow).next();
+	}
+}
+
 function JTC_AddCondition(e) {
 	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e instanceof HTMLElement ? e : undefined);
@@ -676,6 +693,9 @@ function JTC_AddCondition(e) {
 		  .attr('additional', 'true')
 		  .prop('disabled', 'disabled')
 		  .val(jq$(row).find('select[name$="_Join"]').val());
+	newRow.find('input[name$="_TableAlias"]')
+		  .attr('additional', 'true')
+		  .prop('disabled', 'disabled');
 
 	newRow.find('select[name$="ConditionOperator"]').parent().show();
 
@@ -714,12 +734,15 @@ function JTC_UpdateAdditionalConditions(row) {
 		additionalRightTable.val(baseRow.find('select[name$="_RightTable"]').val());
 		JTC_RightTableChanged(additionalRightTable[0]);
 
+		var additionalAlias = additionalConditionRow.find('input[name$="_TableAlias"]');
+		additionalAlias.val(baseRow.find('input[name$="_TableAlias"]').val());
+
 		additionalConditionRow.find('select[name$="_Join"]').val(baseRow.find('select[name$="_Join"]').val());
 		additionalConditionRow = jq$(additionalConditionRow).next();
 	}
 }
 
-function JTC_UpdateAdditionalConditions(row, elemName) {
+function JTC_UpdateAdditionalConditionsElem(row, elemName) {
 	var baseRow = jq$(row);
 	var additionalConditionRow = baseRow.next();
 	while (jq$(additionalConditionRow).attr('additional') == 'true') {
@@ -739,6 +762,9 @@ function JTC_InsertDataSourceBelow(e) {
 		selectionIndex++;
 	}
 
+	jq$(row.parentNode).find('input[name$="_TableAlias"]:not([alwayshide="true"])').parent().show();
+	jq$(row).closest('table').find('span.alias-header').show();
+
 	EBC_internalInsertHandler(row, selectionIndex + 1, null);
 }
 
@@ -751,7 +777,12 @@ function JTC_RemoveHandler(e)
 	var table = EBC_GetParentTable(row);
 	EBC_RemoveHandler(ebc_mozillaEvent);
 	JTC_CheckAliases(table.id);
-	JTC_OnListChanged(table.id);	
+	JTC_OnListChanged(table.id);
+
+	if (JTC_oldTableList.length < 2) {
+		jq$(table).find('input[name$="_TableAlias"]').parent().hide();
+		jq$(table).find('span.alias-header').hide();
+	}
 }
 
 function JTC_InitRow(row)

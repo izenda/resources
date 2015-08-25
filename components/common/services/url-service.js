@@ -1,162 +1,210 @@
 ﻿angular
-  .module('izendaQuery')
-  .factory('$izendaUrl', [
-    '$window',
-    '$location',
-    '$log',
-    function ($window, $location, $log) {
-      'use strict';
+.module('izendaQuery')
+.factory('$izendaUrl', [
+	'$window',
+	'$rootScope',
+	'$location',
+	'$log',
+	'$izendaRsQuery',
+	'$izendaCommonQuery',
+	'$izendaPing',
+	function ($window, $rootScope, $location, $log, $izendaRsQuery, $izendaCommonQuery, $izendaPing) {
+		'use strict';
 
-      var urlSettings = $window.urlSettings$;
+		var urlSettings = $window.urlSettings$;
 
-      /**
-       * Get report full
-       */
-      function getReportInfoFromRn() {
-        return urlSettings.reportInfo;
-      }
+		var UNCATEGORIZED = 'Uncategorized';
 
-      /**
-       * Update report url: set parameter rn=reportFullName
-       */
-      function setReportFullName(reportFullName) {
-        // add #/category/name parameter
-        $location.path(reportFullName.split('\\').join('/'));
-      }
+		var reportNameInfo = {
+			fullName: null,
+			name: null,
+			category: null,
+			isNew: false
+		};
 
-      /**
-       * Extract report name from category\report full name
-       */
-      function extractReportName(fullName, separator) {
-        var result = null;
-        var currentSeparator = separator || '\\';
-        if (angular.isString(fullName)) {
-          var reportFullNameParts = fullName.split(currentSeparator);
-          result = reportFullNameParts[reportFullNameParts.length - 1];
-        }
-        return result;
-      }
+		/**
+		* Extract report name from category\report full name
+		*/
+		function extractName(fullName) {
+			if (angular.isString(fullName)) {
+				var reportFullNameParts = fullName.split('\\');
+				return reportFullNameParts[reportFullNameParts.length - 1];
+			} else
+				throw 'Can\'t extract category from object ' + fullName + 'with type ' + typeof (fullName);
+		}
 
-      /**
-       * Extract report category from category\report full name
-       */
-      function extractReportCategory(fullName, separator) {
-        var category = 'Uncategorized';
-        var currentSeparator = separator || '\\';
-        if (angular.isString(fullName)) {
-          var reportFullNameParts = fullName.split(currentSeparator);
-          if (reportFullNameParts.length >= 2)
-            category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join(currentSeparator);
-          else
-            category = 'Uncategorized';
-        }
-        return category;
-      }
+		/**
+		* Extract report category from "category\report full name
+		*/
+		var extractCategory = function (fullName) {
+			if (angular.isString(fullName)) {
+				var reportFullNameParts = fullName.split('\\');
+				var category;
+				if (reportFullNameParts.length >= 2)
+					category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join('\\');
+				else
+					category = UNCATEGORIZED;
+				return category;
+			} else
+				throw 'Can\'t extract category from object ' + fullName + 'with type ' + typeof (fullName);
+		}
 
-      /**
-       * Extract report name, category, report set name for report part.
-       */
-      function extractReportPartNames(reportFullName, isPartNameAtRight, separator) {
-        var currentSeparator = separator || '\\';
-        if (reportFullName == null)
-          throw 'full name is null';
-        var parseReportSetName = function (rsName) {
-          var separatorIndex = rsName.lastIndexOf('\\');
-          if (separatorIndex > 0) {
-            return {
-              reportCategory: rsName.substr(0, separatorIndex),
-              reportName: rsName.substr(separatorIndex + 1)
-            };
-          }
-          return {
-            reportCategory: null,
-            reportName: rsName
-          };
-        };
+		/**
+		* Extract report name, category, report set name for report part.
+		*/
+		var extractReportPart = function (reportFullName, isPartNameAtRight) {
+			if (reportFullName == null)
+				throw 'Full name is null';
 
-        var result = {
-          reportPartName: null,
-          reportFullName: reportFullName
-        };
-        var reportSetName = reportFullName;
-        if (reportFullName.indexOf('@') >= 0) {
-          var parts = reportFullName.split('@');
-          if (!angular.isUndefined(isPartNameAtRight) && isPartNameAtRight) {
-            result.reportPartName = parts[1];
-            reportSetName = parts[0];
-          } else {
-            result.reportPartName = parts[0];
-            reportSetName = parts[1];
-          }
-        }
+			var result = {
+				reportPartName: null,
+				reportFullName: reportFullName
+			};
+			// extract report part name
+			var reportSetName = reportFullName;
+			if (reportFullName.indexOf('@') >= 0) {
+				var parts = reportFullName.split('@');
+				if (!angular.isUndefined(isPartNameAtRight) && isPartNameAtRight) {
+					result.reportPartName = parts[1];
+					reportSetName = parts[0];
+				} else {
+					result.reportPartName = parts[0];
+					reportSetName = parts[1];
+				}
+			}
+			// collect results into one object:
+			result.reportSetName = reportSetName;
+			result.reportName = extractName(reportSetName);
+			result.reportCategory = extractCategory(reportSetName);
+			result.reportNameWithCategory = result.reportName;
+			if (result.reportCategory !== UNCATEGORIZED)
+				result.reportNameWithCategory = result.reportCategory + '\\' + result.reportNameWithCategory;
+			result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
+			return result;
+		}
 
-        var reportNameObj = parseReportSetName(reportSetName);
-        result.reportSetName = reportSetName;
-        result.reportName = reportNameObj.reportName;
-        result.reportCategory = reportNameObj.reportCategory;
-        result.reportNameWithCategory = result.reportName;
-        if (result.reportCategory != null)
-          result.reportNameWithCategory = result.reportCategory + currentSeparator + result.reportNameWithCategory;
-        result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
-        return result;
-      }
+		/**
+		* Returns report full name (category delimiter: '/')
+		*/
+		var getLocation = function () {
+			var result = {
+				fullName: null,
+				category: null,
+				name: null,
+				isNew: false
+			};
+			var path = $location.path();
+			if (path !== '' && path !== '/') {
+				if (path.indexOf('/') === 0) {
+					path = path.slice(1, path.length);
+				}
+				path = path.split('/').join('\\');
+				result['fullName'] = path;
+				result['category'] = extractCategory(path);
+				result['name'] = extractName(path);
+			} else {
+				var newParameter = $location.search()['new'];
+				if (angular.isDefined(newParameter)) {
+					result['isNew'] = true;
+				} else {
+					throw 'Location should contain report full name or "?new" parameter';
+				}
+			}
+			return result;
+		};
 
-      /**
-       * Get isNew parameter
-       */
-      function getIsNew() {
-        var isNewParam = $location.search()['new'];
-        // $location.search() return object with parameters
-        // and if there is no such parameter - result will be undefined.
-        if (angular.isUndefined(isNewParam))
-          isNewParam = getReportInfoFromRn().isNew;
-        return isNewParam;
-      }
+		/**
+		* Set report name and category to location
+		*/
+		var setLocation = function (reportNameObject) {
+			var path = '';
+			if (reportNameObject.isNew) {
+				$location.path('');
+				$location.search('new');
+				return;
+			}
+			var category = reportNameObject['category'];
+			if (angular.isString(category) && category !== UNCATEGORIZED) {
+				var reportCategoryFixed = reportNameObject['category'].split('\\').join('/');
+				if (reportCategoryFixed.indexOf('/') !== 0) {
+					reportCategoryFixed = '/' + reportCategoryFixed;
+				}
+				path = reportCategoryFixed;
+			}
+			path += '/' + reportNameObject['name'];
 
-      /**
-       * Get report full name from "#/category/reportname" or "rn=category\reportname" url parameters.
-       */
-      function getReportFullName() {
-        var result = null, loc = $location.path().trim();
-        if (loc !== '') {
-          if (loc.charAt(0) === '/')
-            loc = loc.substring(1);
-          result = loc.split('/').join('\\');
-        } else if (!getIsNew()) {
-          // try to find "rn=..." parameter in url (for external links):
-          var reportInfoFromRn = getReportInfoFromRn();
-          if (angular.isString(reportInfoFromRn.fullName) && reportInfoFromRn.fullName !== '')
-            result = reportInfoFromRn.fullName.split('/').join('\\');
-        }
-        return result;
-      }
+			$location.search('new', null);
+			$location.path(path);
+		};
 
-      function getReportCategory() {
-        return extractReportCategory(getReportFullName());
-      }
+		/**
+		* Set report name and category to location
+		*/
+		var setReportFullName = function (fullName) {
+			setLocation({
+				fullName: fullName,
+				name: extractName(fullName),
+				category: extractCategory(fullName),
+				isNew: false
+			});
+		};
 
-      function getReportName() {
-        return extractReportName(getReportFullName());
-      }
+		var setIsNew = function () {
+			setLocation({
+				fullName: null,
+				name: null,
+				category: null,
+				isNew: true
+			});
+		};
 
-      /**
-       * Get url settings for current report from url
-       */
-      function getReportInfo() {
-        return {
-          fullName: getReportFullName(),
-          name: getReportName(),
-          category: getReportCategory(),
-          isNew: getIsNew()
-        };
-      }
+		/**
+		* Handler, which reacts on page load and $location change.
+		*/
+		var locationChangedHandler = function () {
+			// cancel all current queries
+			var countCancelled = $izendaRsQuery.cancelAllQueries({
+				ignoreList: ['wscmd=getdashboardcategories', 'wscmd=getprintmodesetting', 'wscmd=ping']
+			});
+			if (countCancelled > 0)
+				$log.debug('>>> Cancelled ' + countCancelled + ' queryes');
+			
+			// set current report set
+			var location = getLocation();
+			if (location.isNew) {
+				$izendaCommonQuery.newDashboard().then(function () {
+					reportNameInfo = location;
+					$log.debug('Location changed: ', reportNameInfo);
+				});
+			} else {
+				$izendaCommonQuery.setCurrentReportSet(location.fullName).then(function () {
+					reportNameInfo = location;
+					$log.debug('Location changed: ', reportNameInfo);
+				});
+			}
+		};
 
-      return {
-        settings: urlSettings,
-        extractReportName: extractReportName,
-        extractReportCategory: extractReportCategory,
-        extractReportPartNames: extractReportPartNames,
-        setReportFullName: setReportFullName,
-        getReportInfo: getReportInfo
-      };
-    }]);
+		// initialize service:
+
+		// subscribe on $location change:
+		$rootScope.$on('$locationChangeSuccess', function () {
+			locationChangedHandler();
+		});
+		locationChangedHandler();
+
+		// start ping
+		$izendaPing.startPing(10000);
+
+		return {
+			settings: urlSettings,
+			extractReportName: extractName,
+			extractReportCategory: extractCategory,
+			extractReportPartNames: extractReportPart,
+			setReportFullName: setReportFullName,
+			setIsNew: setIsNew,
+			getReportInfo: function () {
+				return reportNameInfo;
+			}
+		};
+	}]);
+

@@ -12,6 +12,7 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.skinHTML5.css"/>
 <!-- old styles -->
 <link rel="stylesheet" type="text/css" href="./Resources/css/shrinkable-grid.css" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <!-- new styles -->
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css"/>
 <link rel="stylesheet" type="text/css" href="Resources/components/filter/css/filters.css"/>
@@ -143,10 +144,10 @@
     margin-left: 0px;
   }
 
-    .Filter div input[type="checkbox"] {
-      margin-left: 5px;
-      width: auto;
-    }
+  .Filter div input[type="checkbox"] {
+    margin-left: 5px;
+    width: auto;
+  }
 
   .filterValue {
     padding-left: 0px;
@@ -191,12 +192,6 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     position: relative;
-  }
-
-  .f-button .blue {
-  }
-
-  .f-button .gray {
   }
 
   .f-button.left {
@@ -317,6 +312,7 @@
 <script type="text/javascript" src="Resources/components/dashboard/services/background-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/dashboard-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/toolbar-query-service.js"></script>
+<script type="text/javascript" src="Resources/components/dashboard/services/dashboard-state-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-links-panel.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/dashboard-background.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/tile-top-slider.js"></script>

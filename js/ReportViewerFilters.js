@@ -551,7 +551,7 @@ function FiltersDataSet(returnObj, id) {
 		GetDatasourcesList();
 }
 
-function HidePopupDialog(updateState) {
+function HideEqualsPopupDialog(updateState) {
 	if (updateState) {
 		var filterIndex = document.getElementById('popupDlgFilterIndex').value;
 		var newVal = '';
@@ -569,18 +569,22 @@ function HidePopupDialog(updateState) {
 		var popupDlgValuesContainer = document.getElementById('ndbfc' + filterIndex);
 		popupDlgValuesContainer.value = newVal;
 	}
-	var popupEsDialog = document.getElementById('popupEsDialog');
-	popupEsDialog.style.display = 'none';
+	var epd = document.getElementById('IzendaEqualsPopupDialog');
+	if (epd) {
+		HideDialog(epd, true);
+	}
 	if (updateState) {
 		CommitFiltersData(false);
 	}
 }
 
 function ShowEqualsPopupDialog(filterInd) {
+	var width = '500px';
 	var filter = filtersData[filterInd];
 	var valueInput = document.getElementById('ndbfc' + filterInd);
 	var valuesSet6 = valueInput.value.split(',');
-	var epdHtml = '<table width="100%"><tr>';
+
+	var epdHtml = '<div id="IzendaEqualsPopupDialog" class="izenda-dialog-container"><div class="izenda-dialog-body"><table width="100%"><tr>';
 	var inLine = 0;
 	var rowsNum = 1;
 	var ecbCnt = 0;
@@ -594,7 +598,7 @@ function ShowEqualsPopupDialog(filterInd) {
 				checked = 'checked = "checked"';
 			}
 		}
-		epdHtml += '<td width="33%" align="left"><input type="checkbox" id="ndbfc' + filterInd + '_cb' + ecbCnt + '" ' + checked + ' value="' + filter.ExistingValues[evCnt] + '" />&nbsp;' + filter.ExistingLabels[evCnt] + '</td>';
+		epdHtml += '<td width="33%" align="left"><div class="izenda-checkbox"><label><input type="checkbox" id="ndbfc' + filterInd + '_cb' + ecbCnt + '" ' + checked + ' value="' + filter.ExistingValues[evCnt] + '" />' + filter.ExistingLabels[evCnt] + '</label></div></td>';
 		ecbCnt++;
 		inLine++;
 		if (inLine >= 3) {
@@ -605,19 +609,13 @@ function ShowEqualsPopupDialog(filterInd) {
 			}
 		}
 	}
-	epdHtml += '<input type="hidden" id="popupDlgFilterIndex" value="' + filterInd + '" />';
-	var epdContent = document.getElementById('epdContent');
-	epdContent.innerHTML = epdHtml;
-	var popupEsDialog = document.getElementById('popupEsDialog');
-	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
-	popupEsDialog.style.height = windowHeight + 'px';
-	var epdHeight = rowsNum * 28 + 110;
-	var padTop = ((windowHeight - epdHeight) / 2);
-	if (padTop < 140) {
-		padTop = 140;
-	}
-	popupEsDialog.style.paddingTop = padTop + 'px';
-	popupEsDialog.style.display = '';
+	epdHtml += '</tr></table><input type="hidden" id="popupDlgFilterIndex" value="' + filterInd + '" /></div>';
+	epdHtml += '<div class="izenda-dialog-footer">' +
+		'<button type="button" class="izenda-btn izenda-dialog-btn-primary izenda-width-100" onclick="javascript:HideEqualsPopupDialog(true);" lang-text="js_Ok">OK</button>' +
+		'<button type="button" class="izenda-btn izenda-dialog-btn-default izenda-width-100" onclick="javascript:HideEqualsPopupDialog(false);" lang-text="js_Cancel">Cancel</button>' +
+		'</div></div>';
+
+	ShowDialog(epdHtml, width, null, null, null, null, false, 'izenda izenda-dialog');
 }
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {

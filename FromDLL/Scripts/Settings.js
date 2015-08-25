@@ -1,10 +1,10 @@
-/* Copyright (c) 2005-2010 Izenda, L.L.C.
+/* Copyright (c) 2005 Izenda, Inc.
 
  ____________________________________________________________________
 |                                                                   |
 |   Izenda .NET Component Library                                   |
 |                                                                   |
-|   Copyright (c) 2005-2010 Izenda, L.L.C.                          |
+|   Copyright (c) 2005 Izenda, Inc.                                 |
 |   ALL RIGHTS RESERVED                                             |
 |                                                                   |
 |   The entire contents of this file is protected by U.S. and       |
@@ -33,10 +33,6 @@
 |                                                                   |
 |___________________________________________________________________|
 */
-
-var S_ResultItemInfo;
-var S_KeyTestResultItemInfo;
-var s_ConnectionStringInfo;
 
 function TriggerMvcSave() {
     var mvcHack = document.getElementsByName("AdHoc_SaveButtonPressed")[0];
@@ -70,98 +66,6 @@ function getElementByIdPart(value, root) {
       return element;
   }
   return null;
-}
-
-function S_CallServer(id)
-{
-    var ResultItem;
-	var serverType = "";
-	var idItem= id + "_ServerType";
-	var Item = document.getElementById(idItem);
-	try {
-		serverType = Item.value;
-	} catch (e) {}
-	
-	var serverConnectioString = "";
-	idItem = id + "_ConnectionString";
-	Item = document.getElementById(idItem);
-	try {
-		serverConnectioString = Item.value;
-	} catch (e) {}
-	
-	idItem = id + "_TestResult";
-	ResultItem = document.getElementById(idItem);
-	idItem = id + "_TestResultInfo";
-	S_ResultItemInfo = document.getElementById(idItem);
-	
-	
-	ResultItem.style.color = "Black";
-	ResultItem.value = "  Testing ...";
-	S_ResultItemInfo.value = "";
-	responseServer.ExecuteCommand("testConnectioString", "ServerType=" + serverType + "&" + "ConnectionString=" + serverConnectioString, true, S_OnServerResponse, ResultItem);
-}
-
-function S_TestLicenseKey(id)
-{
-	var licenseKey = document.getElementById(id+"_LicenseKey").value; 
-	var ResultItem = document.getElementById(id+"_KeyTestResult");
-	S_KeyTestResultItemInfo = document.getElementById(id+"_KeyTestResultInfo");
-	ResultItem.style.color = "Black";
-	ResultItem.value = "  Testing ...";
-	S_KeyTestResultItemInfo.value = "";
-	responseServer.ExecuteCommand("testLicenseKey", "lk=" + encodeURIComponent(licenseKey), true, S_OnServerResponseKeyTest, ResultItem);
-}
-
-function S_OnServerResponse(url, httpRequest, resultItem)
-{
-  var result = httpRequest.responseText;
-  var sf = getElementByIdPart('cssuccess', null);
-  var button = getElementByAttribute('buttonid', 'SaveIzendaConfig', null);
-  if (sf != null && button != null) {
-    if (result != "ok")
-      sf.value = 'connection0' + result;
-    else
-      sf.value = 'connection1';
-    button.click();
-    return;
-  }
-  else {
-	  if (result != "ok") {
-      resultItem.style.color = "DarkRed";
-      resultItem.value = "  Failure";
-      S_ResultItemInfo.value = "(" + result + ")";
-	  }
-	  else {
-      resultItem.style.color = "DarkGreen";
-      resultItem.value = "  Success";
-      S_ResultItemInfo.value = "";
-	  }
-	}
-}
-
-function S_OnServerResponseKeyTest(url, httpRequest, resultItem) {
-  var result = httpRequest.responseText;
-  var sf = getElementByIdPart('keysuccess', null);
-  var button = getElementByAttribute('buttonid', 'SaveIzendaConfig', null);
-  if (sf != null && button != null) {
-    if (result != "ok")
-      sf.value = 'license0';
-    else
-      sf.value = 'license1';
-    button.click();
-  }  
-  else {
-	  if (result != "ok") {
-      resultItem.style.color = "DarkRed";
-      resultItem.value = "  Failure";
-      S_KeyTestResultItemInfo.value = "(" + result + ")";
-	  }
-	  else {
-      resultItem.style.color = "DarkGreen";
-      resultItem.value = "  Success";
-      S_KeyTestResultItemInfo.value = "";
-	  }
-	}
 }
 
 function S_GenerateExampleCode(propertyName, pageID, vb)

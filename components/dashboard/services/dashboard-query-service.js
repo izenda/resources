@@ -38,7 +38,7 @@ angular
        */
       function loadTileReport(updateFromSourceReport, dashboardFullName, reportFullName, reportPreviousFullName,
             top, contentWidth, contentHeight, forPrint) {
-        var result = $izendaRsQuery.query(updateFromSourceReport ? 'updateandgetcrsreportpartpreview' : 'getcrsreportpartpreview',
+      	var result = $izendaRsQuery.query(updateFromSourceReport ? 'updateandgetcrsreportpartpreview' : 'getcrsreportpartpreview',
           [reportFullName, reportPreviousFullName, 1, top, contentWidth, contentHeight, forPrint],
           {
             dataType: 'text',

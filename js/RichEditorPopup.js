@@ -35,12 +35,7 @@ jq$(document).on('focusin', function (e) {
 });
 
 function CreateTextareaPopup(baseId, width, height) {
-	var textArea = jq$('<textarea>');
-	textArea.prop('id', baseId + '__textarea');
-	var outerPopupDiv = jq$('<div>');
-	outerPopupDiv.append(textArea);
-	outerPopupDiv.prop('id', baseId + '_iz-richeditor-container');
-	jq$(outerPopupDiv).dialog({
+	jq$('<div id="' + baseId + '_iz-richeditor-container"><textarea id="' + baseId + '__textarea"></textarea></div>').dialog({
 		width: width,
 		height: height + 50,
 		minWidth: 600,
@@ -60,8 +55,9 @@ function CreateTextareaPopup(baseId, width, height) {
 }
 
 function DisposeTextareaPopup(baseId) {
-	var dialog = jq$('#' + baseId + '_iz-richeditor-container');
-	dialog.dialog('destroy').remove();
+	jq$('#' + baseId + '_iz-richeditor-container')
+		.dialog('destroy')
+		.remove();
 }
 
 function RE_TerminateRichEditor(editor) {

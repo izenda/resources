@@ -1,10 +1,10 @@
-/* Copyright (c) 2005-2010 Izenda, L.L.C.
+/* Copyright (c) 2005 Izenda, Inc.
 
 _____________________________________________________________________
 |                                                                   |
 |   Izenda .NET Component Library                                   |
 |                                                                   |
-|   Copyright (c) 2005-2010 Izenda, L.L.C.                          |
+|   Copyright (c) 2005 Izenda, Inc.                                 |
 |   ALL RIGHTS RESERVED                                             |
 |                                                                   |
 |   The entire contents of this file is protected by U.S. and       |
@@ -595,7 +595,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 }
 
 /// optimize work with EBC_Humanize
-function EBC_SetDescription(row) {
+function EBC_SetDescription(row, force) {
 	// Find controls in a row
 	var funcSelect = EBC_GetSelectByName(row, 'Function');
 	var formatSel = EBC_GetSelectByName(row, 'Format');
@@ -603,6 +603,9 @@ function EBC_SetDescription(row) {
 	var columnSel = EBC_GetSelectByName(row, 'Column');
 
 	if (descriptionEdit == null)
+		return;
+
+	if (descriptionEdit.UserModified && descriptionEdit.value != '' && !force)
 		return;
 
 	descriptionEdit.ChangedAutomatically = true;

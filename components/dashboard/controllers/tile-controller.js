@@ -35,6 +35,7 @@ angular
     '$izendaSettings',
     '$izendaDashboardQuery',
     '$izendaEvent',
+		'$izendaDashboardState',
     izendaTileController]);
 
 /**
@@ -53,12 +54,14 @@ function izendaTileController(
   $izendaCommonQuery,
   $izendaSettings,
   $izendaDashboardQuery,
-  $izendaEvent) {
+  $izendaEvent,
+	$izendaDashboardState) {
 
   'use strict';
   var _ = angular.element;
   var vm = this;
   vm.izendaUrl = $izendaUrl;
+	vm.izendaDashboardState = $izendaDashboardState;
 
   vm.isIE8 = $izendaCompatibility.checkIsIe8();
   vm.printMode = 'Html2PdfAndHtml';
@@ -224,7 +227,7 @@ function izendaTileController(
      * Tile light effect
      */
     $scope.$on('tileLedStartEvent', function (event, args) {
-      if (args.length != 1 || typeof (args[0]) !== 'string')
+      if (args.length !== 1 || typeof (args[0]) !== 'string')
         return;
       var reportFullName = args[0];
       if (reportFullName !== vm.reportFullName)
@@ -236,27 +239,12 @@ function izendaTileController(
      * Turn off tile led effect
      */
     $scope.$on('tileLedEndEvent', function (event, args) {
-      if (args.length != 1 || typeof (args[0]) !== 'string')
+      if (args.length !== 1 || typeof (args[0]) !== 'string')
         return;
       var reportFullName = args[0];
       if (reportFullName !== vm.reportFullName)
         return;
       $element.find('.flippy-front, .flippy-back').css('background-color', '#fff');
-    });
-
-    /**
-     * Update tile after completing window resize
-     */
-    $scope.$on('dashboardResizeEvent', function () {
-      var $tile = $scope.dashboardController.getTile$ById(vm.id);
-      updateDashboardHandlers($tile);
-      if (vm.isOneColumnView()) {
-        $tile.addClass('mobile');
-      } else {
-        $tile.removeClass('mobile');
-      }
-
-      vm.refreshTile(false);
     });
 
     /**
@@ -278,7 +266,7 @@ function izendaTileController(
 
       var tileIdArray = angular.isArray(eventOptions.tileId) ? eventOptions.tileId : [eventOptions.tileId];
       if (tileIdArray.indexOf(vm.id) >= 0) {
-        vm.updateTileParameters();
+	      vm.updateTileParameters();
         updateParentTile();
         if (eventOptions.refresh)
           vm.refreshTile(false);
@@ -326,9 +314,22 @@ function izendaTileController(
     initializeResizable();
     updateDashboardHandlers($element);
 
-    changeTileSizeHandler();
-    $scope.dashboardController.updateDashboardSize();
     vm.initializeEventHandlers();
+
+		// watch for window width chage
+		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+			if (angular.isUndefined(newWidth))
+				return;
+			var $tile = $scope.dashboardController.getTile$ById(vm.id);
+			updateDashboardHandlers($tile);
+			if (vm.isOneColumnView()) {
+				$tile.addClass('mobile');
+			} else {
+				$tile.removeClass('mobile');
+			}
+			vm.refreshTile(false);
+		});
+	  refreshTile(false);
   };
 
   /**
@@ -484,7 +485,10 @@ function izendaTileController(
    * Export to excel
    */
   vm.exportToExcel = function () {
-    var url = vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)';
+  	var addParam = '';
+  	if (typeof (window.izendaPageId$) !== 'undefined')
+  		addParam = '&izpid=' + window.izendaPageId$;
+  	var url = vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)' + addParam;
     $window.open(url, '_self');
     vm.flipFront(true, false);
   };
@@ -701,7 +705,6 @@ function izendaTileController(
             if (tileSizeChanged) {
               var id1 = $scope.dashboardController.getTile$Id($swappedTile1),
                   id2 = $scope.dashboardController.getTile$Id($swappedTile2);
-              vm.updateTileParameters();
               $rootScope.$broadcast('stopEditTileEvent', [{
                 tileId: [id1, id2],
                 refresh: true,
@@ -908,82 +911,99 @@ function izendaTileController(
     $body.empty();
   }
 
-  /**
-   * Refresh tile content
-   */
+	/**
+	 * Refresh tile content
+	 */
   function refreshTile(updateFromSourceReport) {
-    if (vm.reportFullName == null || vm.reportFullName == '') {
-      return;
-    }
-    var loadingHtml = '<div class="iz-dash-tile-vcentered-container">' +
-      '<div class="iz-dash-tile-vcentered-item">' +
-      '<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
-      '</div>' +
-      '</div>';
-    var $body = _($element).find('.report');
-    $body.html(loadingHtml);
+	  if (vm.reportFullName == null || vm.reportFullName === '') {
+			return;
+		}
+		var previousReportName = vm.previousReportFullName;
+		vm.previousReportFullName = null;
 
-    var previousReportName = vm.previousReportFullName;
-    vm.previousReportFullName = null;
-    if (vm.preloadStarted && vm.preloadDataHandler != null) {
-      vm.preloadDataHandler.then(function (htmlData) {
-        vm.preloadStarted = false;
-        applyTileHtml(htmlData);
-      });
-    } else {
-      if (!angular.isUndefined(vm.preloadData) && vm.preloadData !== null) {
-        applyTileHtml(vm.preloadData);
-        vm.preloadData = null;
-      } else {
-        var heightDelta = vm.description != null && vm.description != '' ? 120 : 90;
-        $izendaDashboardQuery.loadTileReport(updateFromSourceReport, vm.izendaUrl.getReportInfo().fullName, vm.reportFullName,
-              previousReportName, vm.top, (vm.getWidth() * $scope.dashboardController.tileWidth) - 40,
-              (vm.getHeight() * $scope.dashboardController.tileHeight) - heightDelta)
-        .then(function (htmlData) {
-          applyTileHtml(htmlData);
-          if (updateFromSourceReport)
-            $izendaEvent.queueEvent('refreshFilters', [], true);
-        });
-      }
-    }
-  }
+		if (!angular.isUndefined(vm.preloadData) && vm.preloadData !== null) {
+			applyTileHtml(vm.preloadData);
+			vm.preloadData = null;
+		} else {
+			// splash screen
+			var loadingHtml = '<div class="iz-dash-tile-vcentered-container">' +
+				'<div class="iz-dash-tile-vcentered-item">' +
+				'<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+				'</div>' +
+				'</div>';
+			var $body = _($element).find('.report');
+			$body.html(loadingHtml);
 
-  /**
-   * Set tile inner html
-   */
+			// load from handler:
+			if (vm.preloadDataHandler != null) {
+				vm.preloadDataHandler.then(function (htmlData) {
+					applyTileHtml(htmlData);
+				});
+			} else {
+				var heightDelta = vm.description != null && vm.description !== '' ? 120 : 90;
+				$izendaDashboardQuery.loadTileReport(updateFromSourceReport, vm.izendaUrl.getReportInfo().fullName, vm.reportFullName,
+							previousReportName, vm.top, (vm.getWidth() * $scope.dashboardController.tileWidth) - 40,
+							(vm.getHeight() * $scope.dashboardController.tileHeight) - heightDelta)
+				.then(function (htmlData) {
+					applyTileHtml(htmlData);
+					/*if (updateFromSourceReport)
+						$izendaEvent.queueEvent('refreshFilters', [], true);*/
+				});
+			}
+		}		
+	}
+
+	/**
+	 * Set tile inner html
+	 */
   function applyTileHtml(htmlData) {
-    clearTileContent();
-    var $b = _($element).find('.report');
-    if (!angular.isUndefined(ReportScripting))
-      ReportScripting.loadReportResponse(htmlData, $b);
-    if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.InitGaugeAnimations == 'function') {
-      AdHoc.Utility.InitGaugeAnimations(null, null, false);
-    }
-    var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
-    divs$.css('height', 'auto');
-    divs$.find('span').each(function (iSpan, span) {
-      var $span = _(span);
-      if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
-        $span.css('display', 'inline');
-      }
-    });
+	  vm.preloadDataHandler = null;
+	  vm.preloadData = null;
+		clearTileContent();
 
-    var $zerochartResults = divs$.find('.iz-zero-chart-results');
-    if ($zerochartResults.length > 0) {
-      $zerochartResults.closest('table').css('height', '100%');
-      divs$.css('height', '100%');
-    }
+		var $tile = _($element);
 
-    if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
-      AdHoc.Utility.InitGaugeAnimations(null, null, false);
-    }
-    divs$.on('click.dashboard.tile.content', function () {
-      vm.setScroll();
-    });
-    if (!vm.isOneColumnView())
-      vm.setScroll();
+		var $b = _($element).find('.report');
+		var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+		try {
+			// prepare
+			if (!angular.isUndefined(ReportScripting))
+				ReportScripting.loadReportResponse(htmlData, $b);
+			if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.InitGaugeAnimations == 'function') {
+				AdHoc.Utility.InitGaugeAnimations(null, null, false);
+			}
+			if (divs$.length > 0) {
+				divs$.css('height', 'auto');
+				divs$.find('span').each(function(iSpan, span) {
+					var $span = _(span);
+					if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
+						$span.css('display', 'inline');
+					}
+				});
 
-    vm.state.empty = false;
+				var $zerochartResults = divs$.find('.iz-zero-chart-results');
+				if ($zerochartResults.length > 0) {
+					$zerochartResults.closest('table').css('height', '100%');
+					divs$.css('height', '100%');
+				}
+			}
+
+			if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
+				AdHoc.Utility.InitGaugeAnimations(null, null, false);
+			}
+		} catch (e) {
+			clearTileContent();
+			var $body = _($element).find('.report');
+			$body.append('<b>Failed to load report: ' + e + '</b>');
+			$log.error('Failed to load report: ' + e);
+		}
+		divs$.on('click.dashboard.tile.content', function () {
+			vm.setScroll();
+		});
+		if (!vm.isOneColumnView())
+			vm.setScroll();
+
+		vm.state.empty = false;
   }
 }
 

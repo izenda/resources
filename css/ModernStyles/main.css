@@ -959,6 +959,8 @@ tr.ReportFooter td {
 .top-nav .btn-group.open .btn.dropdown-toggle, 
 .top-nav .btn:hover, .top-nav .dropdown-menu a:hover {
   background-color: #004d94 !important;
+  text-decoration: none;
+  color: white;
 }
 .top-nav .btn-group .divider {
   background-color: transparent;

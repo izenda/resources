@@ -5,7 +5,7 @@
   'use strict';
 
   // implementation
-  function izendaToolbarFolderMenuAccordion($timeout, $location, $izendaUrl) {
+  function izendaToolbarFolderMenuAccordion($timeout, $izendaUrl) {
     'use strict';
     var _ = angular.element;
     return {
@@ -32,8 +32,8 @@
         };
 
         // navigate to dashboard
-        $scope.goToDashboard = function(dashboard) {
-          $location.path(dashboard);
+        $scope.goToDashboard = function (dashboard) {
+	        $izendaUrl.setReportFullName(dashboard);
         };
 
         // toggle accordion handler
@@ -54,7 +54,6 @@
     .module('izendaDashboard')
     .directive('izendaToolbarFolderMenuAccordion', [
       '$timeout',
-      '$location',
       '$izendaUrl',
       izendaToolbarFolderMenuAccordion
     ]);

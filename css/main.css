@@ -656,16 +656,16 @@ tr.ReportFooter td {
   width:  170px;
   height: 220px;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover):not(.no-hover) img,
+.iz-ui-tabs-panel div.thumb:hover img,
 .iz-ui-tabs-panel div.thumb.no-hover img{
   opacity: .85;
   outline: none;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-container,
+.iz-ui-tabs-panel div.thumb:hover .thumb-container,
 .iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-container  {
    outline: none;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) {
+.iz-ui-tabs-panel div.thumb:hover {
   outline: 8px solid #cddbf6;
   background-color: #cddbf6;
 }
@@ -684,7 +684,7 @@ tr.ReportFooter td {
   bottom: 0;
   left: 0;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-buttons,
+.iz-ui-tabs-panel div.thumb:hover .thumb-buttons,
 .iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-buttons {
   display: block;
 }
@@ -720,10 +720,10 @@ tr.ReportFooter td {
   bottom: 0px;
 }
 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove:hover, 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit:hover, 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template:hover, 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print:hover,
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove:hover, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-edit:hover, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-template:hover, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-print:hover,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-remove, 
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
@@ -813,10 +813,10 @@ tr.ReportFooter td {
 .iz-ui-tabs-panel div.thumb .thumb-remove {
   display: none;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit, 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template, 
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print,
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-edit, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-template, 
+.iz-ui-tabs-panel div.thumb:hover .thumb-print,
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove, 
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-print,
@@ -832,23 +832,23 @@ tr.ReportFooter td {
   right: 0;
   opacity: .75;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-remove,
+.iz-ui-tabs-panel div.thumb:hover .thumb-remove,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
   background-image: url(../../rs.aspx?image=ModernImages.remove-icon.png);
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-edit,
+.iz-ui-tabs-panel div.thumb:hover .thumb-edit,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-edit {
   background-image: url(../../rs.aspx?image=ModernImages.edit-icon.png);
   right: 0px;
   top: auto;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-print,
+.iz-ui-tabs-panel div.thumb:hover .thumb-print,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-print {
   background-image: url(../../rs.aspx?image=ModernImages.print-icon.png);
   right: 28px;
   top: auto;
 }
-.iz-ui-tabs-panel div.thumb:hover:not(.no-hover) .thumb-template,
+.iz-ui-tabs-panel div.thumb:hover .thumb-template,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-template {
   background-image: url(../../rs.aspx?image=ModernImages.template-icon.png);
   right: 56px;
@@ -966,6 +966,8 @@ tr.ReportFooter td {
 .top-nav .btn-group.open .btn.dropdown-toggle, 
 .top-nav .btn:hover, .top-nav .dropdown-menu a:hover {
   background-color: #264456 !important;
+  text-decoration: none;
+  color: white;
 }
 .top-nav .btn-group .divider {
   background-color: transparent;
@@ -1117,4 +1119,139 @@ a.button.default:active, a.button.default:active:hover {
 
 .subjects-row {
   margin-bottom: 10px;
+}
+
+.izenda,
+.izenda * {
+	line-height: 1.42857143;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.izenda label {
+	display: inline-block;
+	font-weight: normal;
+	margin: 0;
+}
+
+.izenda table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+.izenda-checkbox label {
+	font-size: 16px;
+	font-weight: normal;
+	font-family: SourceSansProRegular, 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	cursor: pointer;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.izenda input[type=checkbox] {
+	cursor: pointer;
+	margin: 2px;
+	padding: 0;
+	vertical-align: middle;
+}
+
+.izenda-checkbox label > input[type=checkbox] {
+	margin-right: 5px !important;
+}
+
+.izenda-btn {
+	display: inline-block;
+	margin: 0;
+	padding: 6px 12px;
+	cursor: pointer;
+	color: #333333;
+	background-color: #ffffff;
+	border: 1px solid #cccccc;
+	border-radius: 0;
+	font-size: 16px;
+	font-weight: normal;
+	font-family: SourceSansProRegular, 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	text-align: center;
+	vertical-align: middle;
+	white-space: nowrap;
+	-ms-touch-action: manipulation;
+	touch-action: manipulation;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.izenda-btn:hover {
+	background-color: #e6e6e6;
+	border-color: #adadad;
+	text-decoration: none;
+}
+
+.izenda-width-100 {
+	width: 100px !important;
+}
+
+.izenda-width-150 {
+	width: 150px !important;
+}
+
+.izenda-width-200 {
+	width: 200px !important;
+}
+
+/* Izenda Dialog */
+.izenda-dialog {
+	background-color: #ffffff !important;
+	border: 1px solid #d5d5d5 !important;
+}
+
+.izenda-dialog-container {
+}
+
+.izenda-dialog-body {
+	padding: 7px 7px 15px 7px;
+}
+
+.izenda-dialog-body th,
+.izenda-dialog-body td {
+	padding: 6px;
+}
+
+.izenda-dialog-footer {
+	padding: 15px 7px 7px 7px;
+	text-align: right;
+	border-top: 1px solid #d5d5d5;
+}
+
+.izenda-dialog-footer .izenda-btn+.izenda-btn {
+	margin-left: 5px;
+	margin-bottom: 0;
+}
+
+.izenda-dialog-btn-primary {
+	color: #ffffff;
+	background-color: #1c4e89;
+	border-color: #184274;
+}
+
+.izenda-dialog-btn-primary:hover {
+	color: #ffffff;
+	background-color: #13365f;
+	border-color: #0d2541;
+}
+
+.izenda-dialog-btn-default {
+	color: #333333;
+	background-color: #ffffff;
+	border-color: #cccccc;
+}
+
+.izenda-dialog-btn-default:hover {
+	color: #333333;
+	background-color: #e6e6e6;
+	border-color: #adadad;
 }

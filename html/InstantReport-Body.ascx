@@ -62,10 +62,10 @@ is_ie9_or_newer = false;
                     <a id="appendChartBtn" href="#add_chart" title="Add Chart" onclick="javascript:AppendChart();">
                         <img style="margin-bottom: -9px;" src="rs.aspx?image=chartplusW.png" />
                     </a>
-                    <a class="button" href="#design_report" title="Design Report" onclick="DesignReportRequest(CollectReportData());" lang-text="js_DesignReport">
+                    <a class="button" href="#design_report" title="Design Report" onclick="DesignReportRequest(CollectReportData());">
                         <img style="margin-bottom: -9px;" src="rs.aspx?image=ModernImages.pencilwhite.png" />
                     </a>
-                    <a class="button default" href="#view_report" title="View Report" onclick="ViewReportRequest(CollectReportData());" lang-text="js_ViewReport">
+                    <a class="button default" href="#view_report" title="View Report" onclick="ViewReportRequest(CollectReportData());">
                         <img style="margin-bottom: -9px;" src="rs.aspx?image=ModernImages.magwhite.png" />
                     </a>
                 </h2>

@@ -42,20 +42,6 @@
     </div>
 </div>
 
-<div id="popupEsDialog" style="z-index: 515; top: 0px; left: 0px; width: 100%; position: absolute; display: none; text-align: center; vertical-align: middle;">
-    <div style="padding: 20px; background-color: #FFFFFF; border-style: solid; border-width: 1px; display: table; margin: 0 auto; width: 500px;">
-    <div id="epdContent"></div>
-        <div style="margin-top: 5px;">
-            <div class="f-button" style="margin-bottom: 4px;">
-                <a class="blue" onclick="javascript:HidePopupDialog(true);" href="javascript:void(0);" style="width: 50px;"><span class="text" lang-text="js_Ok">OK</span></a>
-            </div>
-                <div class="f-button">
-                <a class="gray" onclick="javascript:HidePopupDialog(false);" href="javascript:void(0);" style="width: 120px;"><span class="text" lang-text="js_Cancel">Cancel</span></a>
-                </div>
-    </div>
-    </div>
-</div>
-
 <div id="loadingDiv" style="width: 100%; text-align: center; display: none;">
     <div id="loadingWord" style="font-size: 20px; color: #1D5987; font-family: Verdana,Arial,Helvetica,sans-serif; font-weight: normal !important; font-size: 20px; font-style: normal;" lang-text="js_Loading">Loading...</div>
     <img style="padding-top: 40px;" id="loadingImg" alt="" src="rs.aspx?image=loading.gif" />

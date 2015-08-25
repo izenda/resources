@@ -3,229 +3,125 @@
 var initComplete = false;
 var isNetscape = window.navigator.appName == 'Netscape' || window.navigator.appName == 'Opera';
 
-function is_ie6() {
-    return ((window.XMLHttpRequest == undefined) && (ActiveXObject != undefined));
-}
-
-function getElementsByName_iefix(tag, name) {
-    var elem = document.getElementsByTagName(tag);
-    var arr = new Array();
-    for (i = 0, iarr = 0; i < elem.length; i++) {
-        att = elem[i].getAttribute("name");
-        if (att == name) {
-            arr[iarr] = elem[i];
-            iarr++;
-        }
-    }
-    return arr;
-}
-
 function SetHiddableControlsVisibility(isVisible) {
-    divs = getElementsByName_iefix('div', 'showHideMeInIE6');
-    for (var i = 0; i < divs.length; i++) {
-        if (isVisible) {
-            divs[i].style.position = '';
-            divs[i].style.left = '';
-        }
-        else {
-            divs[i].style.position = 'absolute';
-            divs[i].style.left = '-5000px';
-        }
-    }
-}
-
-function pageWidth() {
-    return document.body != null ?
-          document.body.offsetWidth : window.innerWidth != null ? window.innerWidth : document.documentElement
-          && document.documentElement.offsetWidth ?
-          document.documentElement.offsetWidth : null;
-}
-
-function pageHeight() {
-    return document.body != null ? document.body.offsetHeight : window.innerHeight != null ? window.innerHeight : document.documentElement && document.documentElement.offsetHeight ?
-          document.documentElement.offsetHeight : null;
-}
-
-function posLeft() {
-    return typeof window.pageXOffset != 'undefined' ?
-		window.pageXOffset : document.documentElement && document.documentElement.scrollLeft ? document.documentElement.scrollLeft : document.body.scrollLeft ? document.body.scrollLeft : 0;
-}
-
-function posTop() {
-    return typeof window.pageYOffset != 'undefined' ? window.pageYOffset : document.documentElement && document.documentElement.scrollTop ? document.documentElement.scrollTop : document.body.scrollTop ? document.body.scrollTop : 0;
-}
-
-function ElementById(x) {
-    return document.getElementById(x);
+	jq$("div[name=showHideMeInIE6]")
+		.css({
+			position: isVisible ? '' : 'absolute',
+			left: isVisible ? '' : '-5000px'
+		});
 }
 
 function scrollFix() {
-    var backDiv = ElementById('ol');
-    backDiv.style.top = (posTop() - (isNetscape ? 17 : 20)) + 'px';
-    backDiv.style.left = (posLeft() - (isNetscape ? 17 : 20)) + 'px';
+	jq$('#ol').css({
+		top: (jq$(window).scrollTop() - (isNetscape ? 17 : 20)) + 'px',
+		left: (jq$(window).scrollLeft() - (isNetscape ? 17 : 20)) + 'px'
+	});
 }
-
 function sizeFix() {
-    var backDiv = ElementById('ol');
-    backDiv.style.height = pageHeight() + 'px';
-    backDiv.style.width = pageWidth() + 'px';
+	jq$('#ol').css({
+		height: jq$(window).height() + 'px',
+		width: jq$(window).width() + 'px'
+	});
 }
+function positionFix(top, left) {
+	var offHeight = window.innerHeight ? window.innerHeight : jq$(window).height();
+	var offWidth = window.innerWidth ? window.innerWidth : jq$(window).width();
 
-function kp(e) {
-    ky = e ? e.which : event.keyCode;
-    if (ky == 88 || ky == 120) hm();
-    return false;
-}
-
-function inf(h) {
-    return;
-    tag = document.getElementsByTagName('select');
-    for (i = tag.length - 1; i >= 0; i--)
-        tag[i].style.visibility = h;
-    tag = document.getElementsByTagName('iframe');
-    for (i = tag.length - 1; i >= 0; i--)
-        tag[i].style.visibility = h;
-    tag = document.getElementsByTagName('object');
-    for (i = tag.length - 1; i >= 0; i--)
-        tag[i].style.visibility = h;
+	var $mbox = jq$('#mbox');
+	$mbox.css({
+		top: Math.max(0, top != null ? top : jq$(window).scrollTop() + ((offHeight - $mbox.outerHeight()) / 2) + 12) + 'px',
+		left: Math.max(0, left != null ? left : jq$(window).scrollLeft() + ((offWidth - $mbox.outerWidth()) / 2) - 12) + 'px'
+	});
 }
 
 //Init Variables
 function initmb(autoResize) {
-    if ((initComplete) || (ElementById('mbox') != null))
-        return;
-    var ab = 'absolute';
-    var n = 'none';
-    var obody = document.getElementsByTagName('body')[0];
-    var frag = document.createDocumentFragment();
-    var backDiv = document.createElement('div');
-    backDiv.setAttribute('id', 'ol');
-    backDiv.style.display = n;
-    backDiv.style.position = ab;
-    backDiv.style.top = posTop() + 'px';
-    backDiv.style.left = posLeft() + 'px';
-    backDiv.style.zIndex = 998;
-    if (isNetscape) {
-        backDiv.style.width = '100%';
-        backDiv.style.height = '100%';
-    }
-    else {
-        backDiv.style.width = '50%';
-        backDiv.style.height = '50%';
-    }
+	if (initComplete || jq$('#mbox').length > 0)
+		return;
 
-    frag.appendChild(backDiv);
+	var wrap = jq$('<div id="wrap"><div id="ol" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 998; width: {factor}; height: {factor};"></div>\
+<div id="mbox" style="display: none; position: absolute; z-index: 999;" autoResize="{autoResize}">\
+	<span><div id="mbd"></div></span>\
+</div></div>'.format({ factor: isNetscape ? '100%' : '50%', autoResize: autoResize + '' }));
 
-    var centralDiv = document.createElement('div');
-    centralDiv.setAttribute('id', 'mbox');
-    if (autoResize == false)
-        centralDiv.setAttribute('autoResize', 'false');
-    centralDiv.style.display = n;
-    centralDiv.style.position = ab;
-    centralDiv.style.zIndex = 999;
+	if (document.addEventListener)
+		document.addEventListener('load', modal_resized, true);
+	else if (window.attachEvent)
+		wrap.children("#ol")[0].attachEvent('onresize', modal_resized);
 
-    if (document.addEventListener)
-        document.addEventListener('load', modal_resized, true);
-    else if (window.attachEvent) {
-        centralDiv.attachEvent('onresize', modal_resized);
-    }
+	jq$("body").append(wrap.children());
+	window.onscroll = scrollFix;
+	window.onresize = sizeFix;
+}
+function finmb() {
+	initComplete = false;
 
-    obl = document.createElement('span');
-    centralDiv.appendChild(obl);
-    var contentDiv = document.createElement('div');
-    contentDiv.setAttribute('id', 'mbd');
+	jq$("#ol,#mbox").remove();
 
-    obl.appendChild(contentDiv);
-    frag.insertBefore(centralDiv, backDiv.nextSibling);
-    obody.appendChild(frag);
-    window.onscroll = scrollFix;
-    window.onresize = sizeFix;
+	if (document.addEventListener)
+		document.removeEventListener('load', modal_resized);
+	else if (window.attachEvent)
+		wrap.children("#ol")[0].detachEvent('onresize', modal_resized);
+
+	window.onscroll = scrollFix;
+	window.onresize = sizeFix;
 }
 
 //Hide Dialog 
 function hm() {
-    if (is_ie6()) {
-        SetHiddableControlsVisibility(true);
-    }
-    var v = 'visible';
-    var n = 'none';
-    try {
-        ElementById('ol').style.display = n;
-        ElementById('mbox').style.display = n;
-        inf(v);
-        document.onkeypress = '';
-    }
-    catch (e) {
-    }
-}
+	if (utility.ie() == 6)
+		SetHiddableControlsVisibility(true);
 
+	jq$("#ol,#mbox").css({ "display": "none" });
+	finmb();
+}
 
 var currentDialogObject;
 var lastDialogObject;
 
-function HideDialog(obj, removeChild) {
-    if (removeChild == null)
-        removeChild = true;
+function HideDialog(obj, removeChild) { // todo
+	if (removeChild == null)
+		removeChild = true;
 
-    currentDialogObject = null;
+	currentDialogObject = null;
 
-    var container = obj.popUpContainer;
+	var container = obj.popUpContainer;
 
-    //var checkBoxesState = AdHoc.Utility.GetCheckboxesState(obj);
+	if (obj.parentNode != null && removeChild)
+		obj.parentNode.removeChild(obj);
+	obj.style["display"] = "none";
 
-    if (removeChild)
-        obj.parentNode.removeChild(obj);
-    obj.style["display"] = "none";
+	if (container != null)
+		container.appendChild(obj);
 
-    if (container != null)
-        container.appendChild(obj);
-
-    //AdHoc.Utility.SetCheckboxesState(obj, checkBoxesState);
-
-    hm();
-    if (lastDialogObject != null) {
-        ShowDialog(document.getElementById(lastDialogObject));
-        lastDialogObject = null;
-    }
+	hm();
+	if (lastDialogObject != null) {
+		ShowDialog(document.getElementById(lastDialogObject));
+		lastDialogObject = null;
+	}
 }
 
 function modal_resized() {
-    var centralDiv = ElementById('mbox');
+	var $mbox = jq$('#mbox');
+	if ($mbox.length < 1 || $mbox.attr('autoResize') == "false")
+		return;
 
-    if (centralDiv.getAttribute('autoResize') == "false")
-        return;
-
-    var p = 'px';
-    var tp = posTop() + ((pageHeight() - centralDiv.offsetHeight) / 2) + 12;
-    var lt = posLeft() + ((pageWidth() - centralDiv.offsetWidth) / 2) - 12;
-    centralDiv.style.top = (tp < 0 ? 0 : tp) + p;
-    centralDiv.style.left = (lt < 0 ? 0 : lt) + p;
+	positionFix();
 }
 
 // obj - Html text with Dialog Window
 // wd - Window width
 // ht - Window heigth
-function ShowDialog(obj, wd, ht, top, left, autoResize, showClose) {
+function ShowDialog(obj, wd, ht, top, left, autoResize, showClose, extraClass) {
 	if (!initComplete)
 		initmb(autoResize);
 
-	if (is_ie6()) {
+	if (utility.ie() == 6)
 		SetHiddableControlsVisibility(false);
-	}
 
 	//find elements 
-	var backDiv = ElementById('ol');
-	var contentDiv = ElementById('mbd');
-	var centralDiv = ElementById('mbox');
-
-	var obody = document.getElementsByTagName('body')[0];
-	obody.appendChild(backDiv);
-	obody.appendChild(centralDiv);
-
-	//place controls
-	var h = 'hidden';
-	var b = 'block';
-	var p = 'px';
+	var $mbd = jq$('#mbd'),
+		$obj = jq$(obj);
 
 	//fill content div
 	if (obj.style != null) {
@@ -239,81 +135,54 @@ function ShowDialog(obj, wd, ht, top, left, autoResize, showClose) {
 
 		obj.popUpContainer = obj.parentNode;
 
-		contentDiv.innerHTML = "";
+		$mbd.empty();
 
 		var checkBoxesState = AdHoc.Utility.GetCheckboxesState(obj);
-
-		if (obj.parentNode != null)
-			obj.parentNode.removeChild(obj);
-		inf(h);
-		contentDiv.appendChild(obj);
-
+		$obj.appendTo($mbd);
 		AdHoc.Utility.SetCheckboxesState(obj, checkBoxesState);
-		contentDiv.style.width = obj.style.width;
-		obj.style["display"] = "block";
 
+		$mbd.css({ width: obj.style.width });
+		$obj.css({display: "block"});
 	}
 	else {
-		inf(h);
-		contentDiv.innerHTML = obj;
+		$mbd.html(obj);
 	}
 
-	if (showClose) {
-		var closeElem = '<div style="width: 100%; text-align: right;"><a href="#" onclick="hm();" style="padding:2px;background-color:#1C4E89; display: inline-block;" role="button"><span class="iz-ui-icon iz-ui-icon-light iz-ui-icon-closethick"></span></a></div>';
-		contentDiv.innerHTML = closeElem + contentDiv.innerHTML;
-	}
+	if (showClose)
+		$mbd.prepend('<div style="width: 100%; text-align: right;"><a href="#" onclick="hm();" style="padding:2px;background-color:#1C4E89; display: inline-block;" role="button"><span class="iz-ui-icon iz-ui-icon-light iz-ui-icon-closethick"></span></a></div>');
 
-	if (wd != null && wd != 0)
-		contentDiv.style.width = wd;
-	else
-		contentDiv.style.width = "";
+	$mbd.width((wd != null && wd != 0) ? wd : "");
 
-	//show all
-	backDiv.style.display = b;
-	centralDiv.style.display = b;
+	jq$('#ol').css({
+		display: 'block',
+		height: jq$(window).height() + 'px',
+		width: jq$(window).width() + 'px',
+		top: jq$(window).scrollTop() + 'px',
+		left: jq$(window).scrollLeft() + 'px'
+	});
 
-	//place back div
-	backDiv.style.height = pageHeight() + p;
-	backDiv.style.width = pageWidth() + p;
-	backDiv.style.top = posTop() + p;
-	backDiv.style.left = posLeft() + p;
-	var tp, lt;
+	jq$('#mbox').addClass(extraClass)
+		.css({ display: 'block' });
 
-	var offsetHeightGlobal = pageHeight();
-	var offsetWidthGlobal = pageWidth();
-	if (window.innerHeight)
-		offsetHeightGlobal = window.innerHeight;
-	if (window.innerWidth)
-		offsetWidthGlobal = window.innerWidth;
-
-	if (top != null)
-		tp = top;
-	else
-		tp = posTop() + ((offsetHeightGlobal - centralDiv.offsetHeight) / 2) + 12;
-	if (left != null)
-		lt = left;
-	else
-		lt = posLeft() + ((offsetWidthGlobal - centralDiv.offsetWidth) / 2) - 12;
-
-	centralDiv.style.top = (tp < 0 ? 0 : tp) + p;
-	centralDiv.style.left = (lt < 0 ? 0 : lt) + p;
+	positionFix(top, left);
 
 	return obj.style == null ? false : obj;
 }
 
-ShowLoading = function (rsUrl) {
-    ShowDialog(jsResources.Loading + "...<br><div style=\"font-size:1px;height:10px;width:70px;background-Image:url("
-	+ (rsUrl ? rsUrl : responseServerWithDelimeter) +
-	"image=loading.gif);\">&nbsp;</div>");
+ShowLoading = function(rsUrl) {
+	ShowDialog("{notification}...<br><div style=\"font-size:1px;height:10px;width:70px;background-Image:url({rs}image=loading.gif);\">&nbsp;</div>".format({
+		notification: jsResources.Loading,
+		rs: rsUrl ? rsUrl : responseServerWithDelimeter
+	}));
 }
 ///--------------------------------------END COMMON PART
 
 
 //--------------------------------------OK
 function modal_ok_hide() {
-    hm();
-    if (CallBackFunctionName != null)
-        window.CallBackFunctionName(window.UserDataObject);
+	hm();
+	if (CallBackFunctionName != null)
+		window.CallBackFunctionName(window.UserDataObject);
 }
 
 // Call back function must have arguments like myFunction(UserData,Value,IsOk)
@@ -321,26 +190,27 @@ function modal_ok_hide() {
 // UserDataObject - User Data to pass callBackFunction
 // CallBackFunctionName - function name to call then Dialog Closes
 function modal_ok(text, UserDataObject, CallBackFunctionName) {
-    if (UseDefaultDialogs) {
-        alert(text);
-        if (CallBackFunctionName != null)
-            CallBackFunctionName(UserDataObject);
-        return;
-    }
-    window.UserDataObject = UserDataObject;
-    window.CallBackFunctionName = CallBackFunctionName;
+	if (UseDefaultDialogs) {
+		alert(text);
+		if (CallBackFunctionName != null)
+			CallBackFunctionName(UserDataObject);
+		return;
+	}
+	window.UserDataObject = UserDataObject;
+	window.CallBackFunctionName = CallBackFunctionName;
 
-    var genHtml = "<span>" + text + "</span><br>";
-    genHtml += "<input type='button' value='" + jsResources.OK + "' onclick='modal_ok_hide()'>";
-    ShowDialog(genHtml);
+	ShowDialog("<span>{text}</span><br>\
+		<input type='button' value='{ok}' onclick='modal_ok_hide()'>"
+		.format({ text: text, ok: jsResources.OK })
+	);
 }
 //--------------------------------------END CONFIRM
 
 
 //--------------------------------------CONFIRM MODAL DIALOG
 function modal_confirm_hide(res) {
-    hm();
-    window.CallBackFunctionName(window.UserDataObject, res);
+	hm();
+	window.CallBackFunctionName(window.UserDataObject, res);
 }
 
 // Call back function must have arguments like myFunction(UserData,IsOk)
@@ -348,34 +218,32 @@ function modal_confirm_hide(res) {
 // UserDataObject - User Data to pass callBackFunction
 // CallBackFunctionName - function name to call then Dialog Closes
 function modal_confirm(text, UserDataObject, CallBackFunctionName) {
-    window.UserDataObject = UserDataObject;
-    window.CallBackFunctionName = CallBackFunctionName;
+	window.UserDataObject = UserDataObject;
+	window.CallBackFunctionName = CallBackFunctionName;
 
-    if (UseDefaultDialogs) {
-        if (CallBackFunctionName != null)
-            CallBackFunctionName(UserDataObject, confirm(text));
-        return;
-    }
+	if (UseDefaultDialogs) {
+		if (CallBackFunctionName != null)
+			CallBackFunctionName(UserDataObject, confirm(text));
+		return;
+	}
 
-    var genHtml = "<span>" + text + "</span><br>";
-    genHtml += "<input type='button' value='" + jsResources.OK + "' onclick='modal_confirm_hide(true)'>&nbsp;";
-    genHtml += "<input type='button' value='" + jsResources.Cancel + "' onclick='modal_confirm_hide(false)'>";
-    ShowDialog(genHtml);
+	ShowDialog("<span>{text}</span><br>\
+		<input type='button' value='{ok}' onclick='modal_confirm_hide(true)'>&nbsp;\
+		<input type='button' value='{cancel}' onclick='modal_confirm_hide(false)'>"
+		.format({ text: text, ok: jsResources.OK, cancel: jsResources.Cancel })
+	);
 }
 //--------------------------------------END CONFIRM
 
 
 ///--------------------------------------PROMPT MODAL DIALOG
 function modal_prompt_hide(res) {
-    hm();
-    var InputValue = document.getElementById('promt_input').value;
-    if (isNetscape)
-        document.removeEventListener('keydown', modal_promt_keydown, true);
-    else
-        document.detachEvent('onkeydown', modal_promt_keydown);
+	var value = jq$('#promt_input').val();
+	hm();
+	jq$(document).unbind('keydown.modal_prompt');
 
-    if (CallBackFunctionName != null)
-        window.CallBackFunctionName(window.UserDataObject, InputValue, res);
+	if (CallBackFunctionName != null)
+		window.CallBackFunctionName(window.UserDataObject, value, res);
 }
 
 
@@ -384,66 +252,57 @@ function modal_prompt_hide(res) {
 // UserDataObject - User Data to pass callBackFunction
 // CallBackFunctionName - function name to call then Dialog Closes
 function modal_prompt(text, UserDataObject, CallBackFunctionName, ForceDefaultDialog, defaultValue) {
-    if (UseDefaultDialogs || ForceDefaultDialog) {
-        var result = prompt(text, defaultValue);
+	if (UseDefaultDialogs || ForceDefaultDialog) {
+		var result = prompt(text, defaultValue);
 
-        CallBackFunctionName(UserDataObject, result, result != null);
-        return;
-    }
-    window.UserDataObject = UserDataObject;
-    window.CallBackFunctionName = CallBackFunctionName;
+		CallBackFunctionName(UserDataObject, result, result != null);
+		return;
+	}
+	window.UserDataObject = UserDataObject;
+	window.CallBackFunctionName = CallBackFunctionName;
 
-    if (defaultValue == null)
-        defaultValue = "";
+	jq$(document).bind('keydown.modal_prompt', modal_promt_keydown);
 
-    var genHtml = "<span>" + text + "</span><br><input type='text' value='" + defaultValue + "' id='promt_input'><br>";
-    genHtml += "<input class='iz-button' type='button' value='" + jsResources.OK + "' onclick='modal_prompt_hide(true)'>&nbsp;";
-    genHtml += "<input class='iz-button' type='button' value='" + jsResources.Cancel + "' onclick='modal_prompt_hide(false)'>";
-    if (isNetscape)
-        document.addEventListener('keydown', modal_promt_keydown, true);
-    else
-        document.attachEvent('onkeydown', modal_promt_keydown);
+	if (defaultValue == null)
+		defaultValue = "";
 
-    ShowDialog(genHtml);
-    document.getElementById("promt_input").focus();
+	ShowDialog("<span>{text}</span><br><input type='text' value='{value}' id='promt_input'><br>\
+		<input class='iz-button' type='button' value='{ok}' onclick='modal_prompt_hide(true)'>&nbsp;\
+		<input class='iz-button' type='button' value='{cancel}' onclick='modal_prompt_hide(false)'>"
+		.format({ text: text, value: defaultValue, ok: jsResources.OK, cancel: jsResources.Cancel })
+	);
+	jq$('#promt_input').focus();
 }
 
-function modal_promt_keydown(evt) {
-    var evt = (evt) ? evt : window.event;
-    if (evt.keyCode == 10 || evt.keyCode == 13)
-        modal_prompt_hide(true);
-    if (evt.keyCode == 27)
-        modal_prompt_hide(false);
+function modal_promt_keydown(e) {
+	e = e ? e : window.event;
+	if (e.which == 10 || e.which == 13)
+		modal_prompt_hide(true);
+	if (e.which == 27)
+		modal_prompt_hide(false);
 }
 
 function Modal_ShowPopupDiv(url) {
-    if (url == '')
-        return;
-    var content = responseServer.RequestData(url, null, false);
+	if (url == '')
+		return;
+	var content = responseServer.RequestData(url, null, false);
 
-    if (content != "") {
-      ShowDialog("<div onmouseover = 'Modal_OnMouseOver(this, true)' onmouseout = 'Modal_OnMouseOver(this, false)' style ='border:lightgrey 0px solid; width:auto; height:auto'><div id=\"popupDiv\"></div></div>", 0, 0, null, null, null, true);
-      ReportScripting.loadReportResponse(content, "#popupDiv");
-      modal_resized();
-      AdHoc.Utility.InitGaugeAnimations(null, null, true);
-      jq$('.highcharts-container').click(function () {
-        hm();
-      });
-    }
-    else {
-    	ShowDialog("<iframe src='" + url + "'></iframe>", 1000, 800, null, null, null, true);
-    }
+	if (content != "") {
+		ShowDialog("<div onmouseover = 'Modal_OnMouseOver(this, true)' onmouseout = 'Modal_OnMouseOver(this, false)' style ='border:lightgrey 0px solid; width:auto; height:auto'><div id=\"popupDiv\"></div></div>", 0, 0, null, null, null, true);
+		ReportScripting.loadReportResponse(content, "#popupDiv");
+		modal_resized();
+		AdHoc.Utility.InitGaugeAnimations(null, null, true);
+		jq$('.highcharts-container').click(function() {
+			hm();
+		});
+	}
+	else {
+		ShowDialog("<iframe src='" + url + "'></iframe>", 1000, 800, null, null, null, true);
+	}
 }
 
 function Modal_OnMouseOver(obj, over) {
-    if (obj != null && obj.style != null) {
-        if (over) {
-            obj.style.border = 'lightgrey 0px solid';
-        }
-        else {
-            obj.style.border = 'lightgrey 0px solid';
-        }
-    }
+	jq$(obj).css({ border: over ? 'lightgrey 0px solid' : 'black 0px solid' });
 }
 
 ///--------------------------------------END PROMPT MODAL DIALOG
@@ -452,5 +311,3 @@ function Modal_OnMouseOver(obj, over) {
 //common variables
 window.UserDataObject = null;
 window.CallBackFunctionName = null;
-if (!initComplete)
-    window.onload = initmb;

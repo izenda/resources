@@ -1,10 +1,10 @@
-/* Copyright (c) 2005-2010 Izenda, L.L.C.
+/* Copyright (c) 2005 Izenda, Inc.
 
  ____________________________________________________________________
 |                                                                   |
 |   Izenda .NET Component Library                                   |
 |                                                                   |
-|   Copyright (c) 2005-2010 Izenda, L.L.C.                          |
+|   Copyright (c) 2005 Izenda, Inc.                                 |
 |   ALL RIGHTS RESERVED                                             |
 |                                                                   |
 |   The entire contents of this file is protected by U.S. and       |
@@ -178,7 +178,6 @@ function TB_PropmtReportName(
 				autoSelectedValue = category;
 			var categories = reportCategories.split(",");
 			var categoriesHtml = "<select onchange='TB_OnCategoryChanged(this)' id='promt_input2' style='min-width:136px;'>";
-			var subcatcount = 1;
 			var indent = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
 			var currentCategory = new Array();
 			var selectedAnything = false;
@@ -244,7 +243,6 @@ function TB_PropmtReportName(
 			}
 			categoriesHtml += "</select>";
 			genHtml += "<span>" + jsResources.Category + "</span><br>" + categoriesHtml + "<br>";
-			//<input type='text' value=\"" + category + "\" id='promt_input2'>
 		}
 		else
 			genHtml += "<input style='display:none' type='text' value=\"" + category + "\" id='promt_input2'>";
@@ -373,34 +371,28 @@ function TB_OnCategoryChangedCallBack(userData, inputValue, res)
 
 
 function TB_ModalDialogHide(res) {
+	var input = document.getElementById('promt_input');
+	var input2 = document.getElementById('promt_input2');
 	hm();
-	var inpt = document.getElementById('promt_input');
-	var inpt2 = document.getElementById('promt_input2');
-	if (inpt != null && inpt2 != null)
-	{
-		var InputValue = inpt.value;
-		var InputValue2 = inpt2.value;
-		if (isNetscape)
-			document.removeEventListener('keydown', modal_promt_keydown, true);
-		else
-			document.detachEvent('onkeydown', modal_promt_keydown);
+	if (input == null || input2 == null)
+		return;
 
-		if (CallBackFunctionName!=null)
-		window.CallBackFunctionName(
-				window.UserDataObject,
-				InputValue,
-				InputValue2,
-				res);
-	}
+	if (isNetscape)
+		document.removeEventListener('keydown', modal_promt_keydown, true);
+	else
+		document.detachEvent('onkeydown', modal_promt_keydown);
+
+	if (CallBackFunctionName != null)
+		window.CallBackFunctionName(window.UserDataObject, input.value, input2.value, res);
 }
 
 function TB_ModalDialogKeydown(evt)
 {
-	var evt = (evt) ? evt : window.event;
-	if(evt.keyCode==10 || evt.keyCode==13)
-	TB_ModalDialogHide(true);
-	if(evt.keyCode==27)
-	TB_ModalDialogHide(false);
+	evt = (evt) ? evt : window.event;
+	if (evt.keyCode == 10 || evt.keyCode == 13)
+		TB_ModalDialogHide(true);
+	if (evt.keyCode == 27)
+		TB_ModalDialogHide(false);
 }
 
 function TB_PromptCallback(UserData, reportName, folderName, isOk) {
@@ -448,7 +440,7 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 			theForm.hidden = true;
 			theForm.onsubmit = function () {
 				for (i = 0; i < theForm.length; i++) {
-					if (theForm[i].name.search("miscControls") != -1 || theForm[i].name.search("Description") != -1)
+					if (theForm[i].getAttribute('htmlallowed') == 'true')
 						if (theForm[i].value)
 							theForm[i].value = theForm[i].value.EscapeHTML();
 				}
