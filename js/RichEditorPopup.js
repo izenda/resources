@@ -132,30 +132,33 @@ function RE_InstantiateRichEditor(paramsObj) {
 			selector: paramsObj.TargetSelector,
 			height: paramsObj.Height,
 			mode: "exact",
-			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image importcss insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace spellchecker tabfocus table template textcolor textpattern visualchars wordcount",
-			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic",
+			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace spellchecker tabfocus table template textcolor textpattern visualchars wordcount repeater",
+			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
 			skin_url: './rs.aspx?wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
 			resize: false,
 			init_instance_callback: RE_InitializeEditorInstance,
-			setup: function (editor) {
-			    editor.on('BeforeSetContent', function (e) {
-			        if (e.content.length > 0) {
-			            RE_ContentSections = AdHoc.Utility.ExtractSpecialFormSections(e.content);
-			            e.content = RE_ContentSections.htmlSource;
-			        }
-			        else
-			            e.content = e.content;
-			    });
-			    editor.on('SaveContent', function (e) {
-			        e.content = e.content;
-			    });
-			    editor.on('SetContent', function (e) {
-			        if (RE_ContentSections !== null && e.wasProcessed)
-			            e.content = RE_ContentSections.formScriptSection + RE_ContentSections.visualizationSection + e.content;
-			        else
-			            e.content = e.content;
-			    });
-			}
+			setup: function(editor) {
+				editor.on('BeforeSetContent', function(e) {
+					if (e.content.length > 0) {
+						RE_ContentSections = AdHoc.Utility.ExtractSpecialFormSections(e.content);
+						e.content = RE_ContentSections.htmlSource;
+					}
+					else
+						e.content = e.content;
+				});
+				editor.on('SaveContent', function(e) {
+					e.content = e.content;
+				});
+				editor.on('SetContent', function(e) {
+					if (RE_ContentSections !== null && e.wasProcessed)
+						e.content = RE_ContentSections.formScriptSection + RE_ContentSections.visualizationSection + e.content;
+					else
+						e.content = e.content;
+				});
+				RE_InitToolbarItems(editor);
+			},
+			extended_valid_elements: "repeater[id],repeaterstart,repeaterend",
+			custom_elements: "~repeater,repeaterstart,repeaterend"
 		});
 	}
 	else {
@@ -167,6 +170,90 @@ function RE_InstantiateRichEditor(paramsObj) {
 		editorParamsObj.ContentSaveRequestCallback = paramsObj.ContentSaveRequestCallback;
 		RE_InitializeEditorInstance(editor);
 	}
+}
+
+function RE_InitToolbarItems(editor) {
+	if (editor == null || editor.type != "setupeditor")
+		return;
+
+	// Fields descriptions
+	var fieldsItems = [];
+	try {
+		var fields = SC_GetFieldsList(fieldsId);
+		if (fields != null)
+			for (var i = 0; i < fields.length; i++)
+				fieldsItems.push({ text: fields[i].description, onclick: function () { editor.insertContent('[' + this._text + ']'); } });
+	} catch (e) { }
+
+	editor.addButton('iz-fields', {
+		type: 'splitbutton',
+		text: 'Field',
+		icon: false,
+		onclick : function() {
+			editor.insertContent('[]');
+		},
+		menu: fieldsItems
+	});
+
+	// Columns
+	var columnItems = [];
+	try {
+		var tempSelect = jq$(jq$('#' + fieldsId + ' select[name$="Column"]')[0]);
+		var currentGroup = "";
+		tempSelect.find('option').each(function (idx, e) {
+			if (e.text != null && e.text != '' && e.text != '...') {
+				if (currentGroup != e.getAttribute('optgroup')) {
+					columnItems.push({ text: e.getAttribute('optgroup'), disabled: true });
+					currentGroup = e.getAttribute('optgroup');
+				}
+				columnItems.push({ text: e.text, onclick: function () { editor.insertContent('[' + this._text + ']'); } });
+			}
+		});
+	} catch (e) { }
+
+	editor.addButton('iz-columns', {
+		type: 'splitbutton',
+		text: 'Column',
+		icon: false,
+		onclick: function () {
+			editor.insertContent('[]');
+		},
+		menu: columnItems
+	});
+
+	// Subreports
+	var subreportsItems = []
+	try {
+		var tempSelect = jq$(jq$('#' + fieldsId + ' select[name$="Subreport"]')[0]);
+		tempSelect.find('option').each(function (idx, e) {
+			if (e.text != null && e.text != '' && e.text != '...' && e.value != null && e.value != "(AUTO)")
+				subreportsItems.push({ text: e.text, onclick: function () { editor.insertContent('[[' + this._text + ']]'); } });
+		});
+	} catch (e) { }
+
+	editor.addButton('iz-subreports', {
+		type: 'splitbutton',
+		text: 'Subreport',
+		icon: false,
+		onclick: function () {
+			editor.insertContent('[[]]');
+		},
+		menu: subreportsItems
+	});
+
+	// Smart tags
+	editor.addButton('iz-tags', {
+		type: 'splitbutton',
+		text: 'Smart Tag',
+		icon: false,
+		menu: [
+			{ text: 'Filters', onclick: function () { editor.insertContent('[Filters]'); } },
+			{ text: 'Date', onclick: function () { editor.insertContent('[Date]'); } },
+			{ text: 'Subtotal', onclick: function () { editor.insertContent('[@Subtotal]'); } },
+			{ text: 'Grand Total', onclick: function () { editor.insertContent('[@Total]'); } },
+			{ text: 'Repeater', onclick: function () { editor.insertContent('[Repeater][/Repeater]'); } }
+		]
+	});
 }
 
 function RE_AcceptEditorContent(returnObj, id, paramsObj) {
@@ -204,7 +291,7 @@ function RE_ShowRichEditor(targetSelector, width, height, contentData, contentRe
 	paramsObj.ContentSaveCallback = contentSaveCallback;
 	paramsObj.ContentSaveRequestCallback = contentSaveRequestCallback;
 	if (!RE_EditorScriptsLoaded) {
-	    var requestString = 'wscmd=tinymceresource&wsarg0=editorcorejs&wsarg1=advlist,anchor,autolink,charmap,codemagic,colorpicker,contextmenu,directionality,fullscreen,hr,image,importcss,insertdatetime,layer,legacyoutput,link,lists,nonbreaking,noneditable,pagebreak,paste,preview,save,searchreplace,spellchecker,tabfocus,table,template,textcolor,textpattern,visualchars,wordcount';
+		var requestString = 'wscmd=tinymceresource&wsarg0=editorcorejs&wsarg1=advlist,anchor,autolink,charmap,codemagic,colorpicker,contextmenu,directionality,fullscreen,hr,image,importcss,insertdatetime,layer,legacyoutput,link,lists,nonbreaking,noneditable,pagebreak,paste,preview,save,searchreplace,spellchecker,tabfocus,table,template,textcolor,textpattern,visualchars,wordcount,repeater';
 	    RE_AjaxRequest('./rs.aspx', requestString, RE_InjectEditorScripts, null, 'tinymceresource_editorcorejs', paramsObj);
 	}
 	else

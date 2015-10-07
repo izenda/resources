@@ -1140,7 +1140,6 @@ function CC_ShowPopupFilterResponse(data) {
 }
 
 function CC_PopupFiltersConfirm(act) {
-	hm();
 	if (act) {
 		var row = EBC_GetRow(wasEqualsPopupEvent);
 		if (row == null)
@@ -1174,6 +1173,7 @@ function CC_PopupFiltersConfirm(act) {
 		edit1.value = values;
 		CC_ValueChanged(row);
 	}
+	hm();
 }
 
 function CC_GetDateByString(val) {

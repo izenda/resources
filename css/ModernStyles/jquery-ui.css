@@ -696,7 +696,7 @@ html, body{background-color:#ffffff;}
 .iz-ui-dialog-buttonpane{border-color:#3399ff !important;background-color:#ffffff;}
 .iz-ui-dialog-content{background-color:#ffffff !important;}
 .iz-ui-dialog-titlebar .iz-ui-icon{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);}
-.iz-ui-dialog-titlebar .iz-ui-state-hover .iz-ui-icon{background-image:url(images/ui-icons_3399ff_0.png) !important;}
+.iz-ui-dialog-titlebar .iz-ui-state-hover .iz-ui-icon{background-image:url(###RS###image=ModernImages.iz-ui-icons_3399ff_0.png) !important;}
 .iz-ui-dialog-titlebar-close{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png) !important;background-position: -232px -216px !important;}
 .iz-ui-dialog-titlebar-close.iz-ui-state-hover{background:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png) !important;background-position: -232px -168px !important;}
 
@@ -733,7 +733,7 @@ html, body{background-color:#ffffff;}
 .iz-ui-datepicker-calendar .iz-ui-state-active{background-color:#3399ff;border-color:#3399ff;color:#ffffff;}
 .iz-ui-datepicker .iz-ui-icon {background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);}
 
-.iz-ui-datepicker .iz-ui-state-hover .iz-ui-icon {background-image:url(images/ui-icons_3399ff_0.png)}
+.iz-ui-datepicker .iz-ui-state-hover .iz-ui-icon {background-image:url(###RS###image=ModernImages.iz-ui-icons_3399ff_0.png)}
 .iz-ui-datepicker-next, .iz-ui-datepicker-prev{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);background-position: -232px -216px;}
 .iz-ui-datepicker-next-hover, .iz-ui-datepicker-prev-hover{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png) !important;background-position: -232px -168px !important;opacity:1;}
 .iz-ui-datepicker-next.iz-ui-state-disabled, .iz-ui-datepicker-prev.iz-ui-state-disabled{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);background-position: -232px -216px;}

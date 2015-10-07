@@ -770,25 +770,19 @@
 				}
 			});
 
-			var metricsLength = vis.metrics.length;
 			var aggregatesByMetrics = (function () {
-				var aggregate = {},
-					recordCountAggregate = {
-						func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
-						type: "SUM"
-					};
-				for (i = 0; i < metricsLength; i++) {
+				var aggregate = {};
+				for (i = 0; i < vis.metrics.length; i++) {
 					var metric = vis.metrics[i];
 					for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
-						if (VIS_COLUMNS[j].name === metric) {
-							var isRecordCount = metric == "Record Count";
-							aggregate[metric] = !isRecordCount ? {
-								func: VIS_COLUMNS[j].aggregatefunction,
-								type: VIS_COLUMNS[j].aggregatefunctiontype,
-								subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
-							} : recordCountAggregate;
-							break;
-						}
+						if (VIS_COLUMNS[j].name !== metric)
+							continue;
+
+						aggregate[metric] = {
+							type: VIS_COLUMNS[j].aggregation,
+							subType: VIS_COLUMNS[j].subtotal
+						};
+						break;
 					}
 				}
 				return aggregate;
@@ -796,28 +790,23 @@
 
 			function initNodes(node, metric) {
 				var values = [],
-					nodeValue, subtotalValue,
 					aggregate = aggregatesByMetrics[metric];
 				if (node.hasOwnProperty("children")) {
-					for (var i = 0, length = node.children.length; i < length; ++i) {
-						var tmp = initNodes(node.children[i], metric);
-						values = values.concat(tmp);
-					}
-					nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
-					vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
-				} else {
+					for (var i = 0, length = node.children.length; i < length; i++)
+						values = values.concat(initNodes(node.children[i], metric));
+
+					vis.unitValue(node, metric, { sf: vis.fields.origin, value: util.aggregation.getsub(aggregate.type)(values) });
+				}
+				else {
 					values.push(vis.unitValue(node, metric));
 				}
 
-				subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
-				vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
-
+				vis.unitValue(node, metric, { sf: vis.fields.subtotal, value: util.aggregation.getsub(aggregate.subType)(values) });
 				return values;
 			}
 
-			for (i = 0; i < metricsLength; i++) {
+			for (i = 0; i < vis.metrics.length; i++)
 				initNodes(totals, vis.metrics[i]);
-			}
 
 			var totalSize = 0;
 			for (var i = 0; i < vis.items.length; i++)
@@ -871,9 +860,9 @@
 					var scrollable = util.fitScollableContainer($gallery.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND"), { maxWidth: width, maxHeight: 300 }, bounds);
 
 					if (scrollable) {
-						if (isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
+						if (utility.isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
 							$galleryBackground.width(bounds.width);
-						if (isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
+						if (utility.isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
 							$galleryContainer.height(bounds.height - 17);
 					}
 
@@ -1164,15 +1153,16 @@
 								}), function (i, item) {
 									code = code.replace(item, '');
 								});
-								code = jq$('<div>' + code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1] + '</div>');
-								code.find("input[type=hidden]").remove();
-								return code.html();
+								return jq$('<div>' + code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1] + '</div>')
+									.find("input[type=hidden]").remove().end()
+									.find("div.aspNetHidden").remove().end()
+									.html();
 							}
 
 							var hoderIndex = egOptions.hoverIndex, // IE8 event handling workaround
 								loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
 								reportLink = s.chartOptions.usedData[index].subreportlink,
-								reportLinkFixed = reportLink.replace("ReportViewer.aspx", "rs.aspx");
+								reportLinkFixed = reportLink.replace(utility.server.config.ReportViewerUrl, utility.server.config.ResponseServerUrl);
 
 							switch (style) {
 								case "DetailLink":
@@ -1560,7 +1550,7 @@
 					itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
 
 				execBreadcrumb(o.data);
-				vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height())));
+				vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())));
 				try {
 					new Highcharts.Chart(s.options, function (chart) {
 						s.chart = chart;

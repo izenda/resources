@@ -53,8 +53,7 @@ function SavedRule(filter,cssText)
 	this.filter = filter;
 	this.cssText = cssText;
 }
-function STC_ColorItemChanged()
-{
+function STC_ColorItemChanged() {
 	borderColorList = document.getElementById(borderColorListId);
 	headerColorList = document.getElementById(headerColorListId);
 	headerForegroundColorList = document.getElementById(headerForegroundColorListId);
@@ -70,116 +69,36 @@ function STC_ColorItemChanged()
 		var itemColorListValue = TrimDefault(itemColorList.value);
 		var itemForegroundColorListValue = TrimDefault(itemForegroundColorList.value);
 		var alternatingItemColorListValue = TrimDefault(alternatingItemColorList.value);
-		var colorStyleFormat = "color:{0};";
-		if (isNetscape) {
-			var styleSheet = style.sheet;
-			for (var i = 0; i < styleSheet.cssRules.length; i++) {
-				if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('reportstyle') == -1) {
-					if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('reportitem') != -1) {
-						styleSheet.cssRules[i].style.color = itemForegroundColorListValue;
-						styleSheet.cssRules[i].style.backgroundColor = itemColorListValue;
-					}
-					else if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('alternatingitem') != -1) {
-						styleSheet.cssRules[i].style.color = itemForegroundColorListValue;
-						styleSheet.cssRules[i].style.backgroundColor = alternatingItemColorListValue;
-					}
-					else if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('reportfooter') != -1) {
-						styleSheet.cssRules[i].style.color = itemForegroundColorListValue;
-						styleSheet.cssRules[i].style.backgroundColor = itemColorListValue;
-					}
-					else if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('reportheader') != -1) {
-						styleSheet.cssRules[i].style.cssText = GetBackgroundGradientCSS(headerColorListValue, styleSheet.cssRules[i].selectorText.indexOf('tr td') != -1) + colorStyleFormat.replace(/\{0\}/g, headerForegroundColorListValue);
-					}
-					else if (styleSheet.cssRules[i].selectorText.toLowerCase().indexOf('reporttable') != -1)
-						styleSheet.cssRules[i].style.borderColor = borderColorListValue;
+
+		var rules = isNetscape ? style.sheet.cssRules : style.styleSheet.rules;
+
+		for (var i = 0; i < rules.length; i++) {
+			if (rules[i].selectorText.toLowerCase().indexOf('reportstyle') == -1) {
+				if (rules[i].selectorText.toLowerCase().indexOf('reportitem') != -1) {
+					rules[i].style.color = itemForegroundColorListValue;
+					rules[i].style.backgroundColor = itemColorListValue;
 				}
+				else if (rules[i].selectorText.toLowerCase().indexOf('alternatingitem') != -1) {
+					rules[i].style.color = itemForegroundColorListValue;
+					rules[i].style.backgroundColor = alternatingItemColorListValue;
+				}
+				else if (rules[i].selectorText.toLowerCase().indexOf('reportfooter') != -1) {
+					rules[i].style.color = itemForegroundColorListValue;
+					rules[i].style.backgroundColor = itemColorListValue;
+				}
+				else if (rules[i].selectorText.toLowerCase().indexOf('reportheader') != -1) {
+					rules[i].style.color = headerForegroundColorListValue;
+					rules[i].style.backgroundColor = headerColorListValue;
+				}
+				else if (rules[i].selectorText.toLowerCase().indexOf('reporttable') != -1)
+					rules[i].style.borderColor = borderColorListValue;
 			}
 		}
-		else {
-			var styleSheet = style.styleSheet;
-			for (var i = 0; i < styleSheet.rules.length; i++) {
-				if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('reportstyle') == -1) {
-					if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('reportitem') != -1) {
-						styleSheet.rules[i].style.color = itemForegroundColorListValue;
-						styleSheet.rules[i].style.backgroundColor = itemColorListValue;
-					}
-					else if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('alternatingitem') != -1) {
-						styleSheet.rules[i].style.color = itemForegroundColorListValue;
-						styleSheet.rules[i].style.backgroundColor = alternatingItemColorListValue;
-					}
-					else if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('reportfooter') != -1) {
-						styleSheet.rules[i].style.color = itemForegroundColorListValue;
-						styleSheet.rules[i].style.backgroundColor = itemColorListValue;
-					}
-					else if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('reportheader') != -1) {
-						styleSheet.rules[i].style.cssText = GetBackgroundGradientCSS(headerColorListValue, styleSheet.rules[i].selectorText.toLowerCase().indexOf('td') != -1) + colorStyleFormat.replace(/\{0\}/g, headerForegroundColorListValue);
-					}
-					else if (styleSheet.rules[i].selectorText.toLowerCase().indexOf('reporttable') != -1)
-						styleSheet.rules[i].style.borderColor = borderColorListValue;
-				}
-			}
-		}
+
 		asCnt += 1;
 		style = document.getElementById('additionalStyle_' + asCnt);
 	}
 	jq$(STC_Table).hide().show(0);
-}
-
-function GetBackgroundGradientCSS(color, enableIE) 
-{
-	var ieStyleFormat = "background: -ms-linear-gradient(top, {0}, {1});"
-						+ "filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0, startColorstr='{0}', endColorstr='{1}');"
-						+ "-ms-filter: \"progid:DXImageTransform.Microsoft.gradient (GradientType=0, startColorstr={0}, endColorstr={1})\";";
-	var styleFormat = "background: -moz-linear-gradient(top, {0}, {1});"
-						+ "background: -webkit-gradient(linear, left top, left 50%, from({0}), to({1}));"
-						+ "background: -o-linear-gradient(top, {0}, {1});"
-						+ "background: linear-gradient({0}, {1});";
-
-	var hexColor = colourNameToHex(color);
-	if (!hexColor)
-		return false;
-
-	var coef = 1.3;
-	var colorR = hexToR(hexColor) > 0 ? hexToR(hexColor) : 1;
-	var colorG = hexToG(hexColor) > 0 ? hexToG(hexColor) : 1;
-	var colorB = hexToB(hexColor) > 0 ? hexToB(hexColor) : 1;
-	var colorSum = colorR + colorG + colorB;
-	var isVeryDark = colorSum < 300;
-
-	var sR = parseInt(coef * (colorR < 100 && isVeryDark ? (colorR + 100 * colorR / colorSum) : colorR));
-	var sG = parseInt(coef * (colorG < 100 && isVeryDark ? (colorG + 100 * colorG / colorSum) : colorG));
-	var sB = parseInt(coef * (colorB < 100 && isVeryDark ? (colorB + 100 * colorB / colorSum) : colorB));
-
-	var startR = 0;
-	var startG = 0;
-	var startB = 0;
-
-	if (sR > 255)
-	{
-		startG += sR - 255;
-		startB += sR - 255;
-	}
-	if (sG > 255)
-	{
-		startR += sG - 255;
-		startB += sG - 255;
-	}
-	if (sB > 255)
-	{
-		startG += sB - 255;
-		startR += sB - 255;
-	}
-
-	startR = sR + startR > 255 ? 255 : sR + startR;
-	startG = sG + startG > 255 ? 255 : sG + startG;
-	startB = sB + startB > 255 ? 255 : sB + startB;
-
-	var startColor = rgbToHex(startR, startG, startB);
-	
-	if (enableIE)
-		return (styleFormat + ieStyleFormat).replace( /\{0\}/g , "#" + startColor).replace(/\{1\}/g, hexColor);
-	else
-		return styleFormat.replace( /\{0\}/g , "#" + startColor).replace(/\{1\}/g, hexColor);
 }
 
 function colourNameToHex(colour)

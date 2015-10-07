@@ -442,7 +442,7 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 				for (i = 0; i < theForm.length; i++) {
 					if (theForm[i].getAttribute('htmlallowed') == 'true')
 						if (theForm[i].value)
-							theForm[i].value = theForm[i].value.EscapeHTML();
+							theForm[i].value = theForm[i].value.escapeHtml();
 				}
 				return true;
 			}

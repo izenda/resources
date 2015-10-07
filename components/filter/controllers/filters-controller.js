@@ -547,7 +547,7 @@ function IzendaFiltersController(
     $izendaFiltersQuery
       .setFiltersData(preparedFilters)
       .then(function (data) {
-        $izendaEvent.queueEvent('dashboardRefreshEvent', [false]);
+        $izendaEvent.queueEvent('dashboardRefreshEvent', [false, false]);
       });
   };
 

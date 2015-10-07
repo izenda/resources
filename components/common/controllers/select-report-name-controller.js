@@ -26,12 +26,12 @@ function izendaSelectReportNameController(
 
   vm.CREATE_NEW_TEXT = 'Create New';
   vm.UNCATEGORIZED_TEXT = 'Uncategorized';
-  vm.ERROR_REPORT_NAME_EMPTY = 'Report name can\'t be empty.';
+  vm.ERROR_REPORT_NAME_EMPTY = 'Dashboard name can\'t be empty.';
   vm.ERROR_CATEGORY_EXIST = function(categoryName) {
     return 'Category with name "' + categoryName + '" already exist.';
   };
   vm.ERROR_REPORT_EXIST = function (fullReportName) {
-    return 'Report "' + fullReportName + '" already exist.';
+    return 'Dashboard or Report "' + fullReportName + '" already exist.';
   };
 
   vm.modalOpened = false;

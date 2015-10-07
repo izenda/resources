@@ -59,7 +59,10 @@ function izendaTileController(
 
   'use strict';
   var _ = angular.element;
-  var vm = this;
+
+	$scope.animationCompleted = false;
+
+	var vm = this;
   vm.izendaUrl = $izendaUrl;
 	vm.izendaDashboardState = $izendaDashboardState;
 
@@ -160,7 +163,7 @@ function izendaTileController(
    * Return class for '.iz-dash-tile'
    */
   vm.getTileClass = function () {
-    var baseClass = 'iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint';
+  	var baseClass = 'iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint';
     return baseClass;
   };
 
@@ -216,7 +219,7 @@ function izendaTileController(
     /**
      * Tile refresh event handler
      */
-    $scope.$on('tileRefreshEvent', function (event, args) {
+  	$scope.$on('tileRefreshEvent', function (event, args) {
       if (args.length > 0 && typeof (args[0]) == 'boolean')
         vm.refreshTile(args[0]);
       else
@@ -279,17 +282,36 @@ function izendaTileController(
      */
     $scope.$on('selectedReportPartEvent', function (event, args) {
       var tileId = args[0];
-      if (tileId != vm.id)
+      if (tileId !== vm.id)
         return;
       var rpInfo = args[1];
       var fName = rpInfo.Name;
-      if (rpInfo.Category != null && rpInfo.Category != '')
+      if (rpInfo.Category != null && rpInfo.Category !== '' && rpInfo.Category.toLowerCase() !== 'uncategorized')
         fName = rpInfo.Category + '\\' + fName;
+
+      var nameparts = rpInfo.Name.split('@');
+      var name = nameparts[0];
+      var part = nameparts[1];
+
+      // check if tile already exist
+      var found = false;
+      var tiles = $scope.dashboardController.tiles;
+      for (var i = 0; i < tiles.length; i++) {
+        var tile = tiles[i];
+        if (tile.reportCategory === rpInfo.Category && tile.reportPartName === part && tile.reportName === name)
+          found = true;
+      }
+      
+      if (found) {
+        $scope.$parent.$emit('showNotificationEvent', ['Can\'t select "' + fName + '" because dashboard already contains tile with that report.']);
+        return;
+      }
+
       // update report parameters
       vm.previousReportFullName = vm.reportFullName;
       angular.extend(vm, vm.izendaUrl.extractReportPartNames(fName, true));
       vm.reportNameWithCategory = vm.reportName;
-      if (vm.reportCategory != null)
+      if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== 'uncategorized')
         vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
       vm.top = 100;
       vm.endTop = 100;
@@ -317,19 +339,19 @@ function izendaTileController(
     vm.initializeEventHandlers();
 
 		// watch for window width chage
-		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-			if (angular.isUndefined(newWidth))
+    $scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+	    if (angular.isUndefined(newWidth))
 				return;
 			var $tile = $scope.dashboardController.getTile$ById(vm.id);
-			updateDashboardHandlers($tile);
 			if (vm.isOneColumnView()) {
 				$tile.addClass('mobile');
 			} else {
 				$tile.removeClass('mobile');
 			}
+			updateDashboardHandlers($tile);
 			vm.refreshTile(false);
 		});
-	  refreshTile(false);
+	  //refreshTile(false);
   };
 
   /**
@@ -534,7 +556,9 @@ function izendaTileController(
     var $front = $tile.find('.flippy-front .frame');
     if (vm.top !== -999) {
       if ($front.hasClass('ps-container')) {
-        $front.perfectScrollbar('update');
+      	$front.perfectScrollbar('destroy');
+      	$front.perfectScrollbar();
+      	//$front.perfectScrollbar('update');
       } else {
         $front.perfectScrollbar();
       }
@@ -546,7 +570,9 @@ function izendaTileController(
     // add back scroll
     var $back = $tile.find('.flippy-back .frame');
     if ($back.hasClass('ps-container')) {
-      $back.perfectScrollbar('update');
+    	$front.perfectScrollbar('destroy');
+    	$front.perfectScrollbar();
+      //$back.perfectScrollbar('update');
     } else {
       $back.perfectScrollbar();
     }
@@ -933,21 +959,28 @@ function izendaTileController(
 				'</div>';
 			var $body = _($element).find('.report');
 			$body.html(loadingHtml);
-
 			// load from handler:
 			if (vm.preloadDataHandler != null) {
 				vm.preloadDataHandler.then(function (htmlData) {
 					applyTileHtml(htmlData);
 				});
 			} else {
-				var heightDelta = vm.description != null && vm.description !== '' ? 120 : 90;
-				$izendaDashboardQuery.loadTileReport(updateFromSourceReport, vm.izendaUrl.getReportInfo().fullName, vm.reportFullName,
-							previousReportName, vm.top, (vm.getWidth() * $scope.dashboardController.tileWidth) - 40,
-							(vm.getHeight() * $scope.dashboardController.tileHeight) - heightDelta)
-				.then(function (htmlData) {
+				var tileWidth = vm.getWidth() * $scope.dashboardController.tileWidth - 20;
+				var tileHeight = vm.getHeight() * $scope.dashboardController.tileHeight - 55;
+				if (vm.description !== null && vm.description !== '') {
+					tileHeight -= 30;
+				}
+				$izendaDashboardQuery.loadTileReport({
+					updateFromSourceReport: updateFromSourceReport,
+					dashboardFullName: vm.izendaUrl.getReportInfo().fullName,
+					reportFullName: vm.reportFullName,
+					reportPreviousFullName: previousReportName,
+					top: vm.top,
+					contentWidth: tileWidth,
+					contentHeight: tileHeight,
+					forPrint: false
+				}).then(function (htmlData) {
 					applyTileHtml(htmlData);
-					/*if (updateFromSourceReport)
-						$izendaEvent.queueEvent('refreshFilters', [], true);*/
 				});
 			}
 		}		

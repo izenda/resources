@@ -1,7 +1,24 @@
 ﻿<!-- dashboard body -->
 <div ng-controller="IzendaDashboardController as dashboardController"
   ng-init="dashboardController.initialize()" ng-cloak>
-  <div id="dashboardsDiv">
+
+  <div izenda-bootstrap-modal opened="dashboardController.licenseInitialized && !dashboardController.dashboardsAllowedByLicense">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b>License check failed</b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">Dashboard Extension Required. Please contact <a href="mailto:sales@izenda.com">sales@izenda.com</a> for details.</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal">Close</button>
+    </div>
+  </div>
+
+  <div id="dashboardsDiv" ng-show="dashboardController.dashboardsAllowedByLicense">
     <!-- message box -->
     <div izenda-bootstrap-modal opened="dashboardController.isMessageDialogOpened">
       <div class="modal-header">
@@ -62,6 +79,7 @@
         ng-style="tileController.getTileStyle()"
         ng-controller="IzendaTileController as tileController"
         ng-init="tileController.initialize(tile)"
+        tile-animation-completed
         ng-cloak>
 
         <div class="animate-flip">

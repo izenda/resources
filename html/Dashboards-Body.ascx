@@ -1,9 +1,12 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Body.ascx.cs" Inherits="Resources_Html_Dashboards_Body" %>
 
 <%@ Import Namespace="Izenda.AdHoc" %>
+
+<% if (AdHocContext.DashboardsAllowed)
+   { %>
+
 <%@ Register TagPrefix="cc1" Namespace="Izenda.Web.UI" Assembly="Izenda.AdHoc" %>
 <%@ Register TagPrefix="ss1" Namespace="Izenda.Web.UI.Slider" Assembly="Izenda.AdHoc" %>
-
 <div id="loadingrv2" style="z-index: 500; top: 0px; left: 0px; width: 100%; background-color: #FFFFFF; position: fixed; display: none; text-align: center; vertical-align: middle;" lang-text="js_Loading">
     Loading...<br />
     <img alt="" src="rs.aspx?image=loading.gif" />
@@ -148,3 +151,12 @@
 
 </div>
 
+<% }
+   else
+   { %>
+
+<div style="padding: 100px; text-align: center;">
+<p>Dashboard Extension Required. Please contact <a href="mailto:sales@izenda.com">sales@izenda.com</a> for details.</p>
+  
+  </div>
+<% } %>

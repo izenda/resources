@@ -36,10 +36,9 @@ angular
       /**
        * Load tile report html
        */
-      function loadTileReport(updateFromSourceReport, dashboardFullName, reportFullName, reportPreviousFullName,
-            top, contentWidth, contentHeight, forPrint) {
-      	var result = $izendaRsQuery.query(updateFromSourceReport ? 'updateandgetcrsreportpartpreview' : 'getcrsreportpartpreview',
-          [reportFullName, reportPreviousFullName, 1, top, contentWidth, contentHeight, forPrint],
+      function loadTileReport(options) {
+      	var result = $izendaRsQuery.query(options.updateFromSourceReport ? 'updateandgetcrsreportpartpreview' : 'getcrsreportpartpreview',
+          [options.reportFullName, options.reportPreviousFullName, 1, options.top, options.contentWidth, options.contentHeight, options.forPrint],
           {
             dataType: 'text',
             headers: {
@@ -51,7 +50,7 @@ angular
             handler: function (name) {
               return 'Failed to load tile "' + name + '"';
             },
-            params: [reportFullName]
+            params: [options.reportFullName]
           });
         return result;
       }

@@ -144,6 +144,7 @@
 			height = vis.getHeight();
 
 			var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+			var showPanelInImage = true; // Panel with breadcrumbs and metrics had been enabled in to_image rendering
 
 			function store() {
 				jq$.extend(s.props = (s.props || {}), {
@@ -238,8 +239,7 @@
 			}
 
 			var heightOffset = 4,
-				heghtOffsetFromBreadcrumbs = 30,
-				heightWithOffset = ((!isImageRender) ? height - heghtOffsetFromBreadcrumbs : height) - heightOffset;
+				heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
 
 			var radius = Math.min(width, heightWithOffset) / 2,
 				breadcrumbWidthOffset = 10,
@@ -280,6 +280,8 @@
 				showLabel: true,
 				total: 1
 			});
+
+			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())) - heightOffset;
 
 			vis.container
 				.unbind("mouseenter")

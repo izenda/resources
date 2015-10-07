@@ -357,7 +357,7 @@
 						if (!alreadySummed && !node.hasOwnProperty("children")) {
 							var p = node, sum = vis.unitValue(node, sumField);
 							while (p.parent) {
-								vis.unitValue(p.parent, sumField, { sf: "o", value: (isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) }); p = p.parent;
+								vis.unitValue(p.parent, sumField, { sf: "o", value: (utility.isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) }); p = p.parent;
 							}
 						}
 

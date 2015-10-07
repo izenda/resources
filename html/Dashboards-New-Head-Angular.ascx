@@ -18,12 +18,6 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/filter/css/filters.css"/>
 <link rel="stylesheet" type="text/css" href="Resources/components/dashboard/css/dashboard.css"/>
 
-<!-- url settings -->
-<script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.purl"></script>
-<script type="text/javascript" src="./rs.aspx?js=ModernScripts.url-settings"></script>
-<script type="text/javascript">
-  window.urlSettings$ = UrlSettings();
-</script>
 <script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.nicescroll.min"></script>
 <script type="text/javascript">
   window.jQueryTemp = null;
@@ -75,6 +69,9 @@
 <script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
+<script type="text/javascript">
+	window.urlSettings$ = UrlSettings();
+</script>
 <script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>

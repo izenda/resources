@@ -1,6 +1,10 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Head.ascx.cs" Inherits="Resources_Html_Dashboards_Head" %>
+<%@ Import Namespace="Izenda.AdHoc" %>
 
 <title>Dashboards</title>
+
+<% if (AdHocContext.DashboardsAllowed)
+   { %>
 
 <!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="./Resources/css/report-list-modal.css" />
@@ -16,7 +20,6 @@
 <!-- jQuery Core -->
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
-
 <!-- Utils Internal -->
 <script type="text/javascript" src="./rs.aspx?js=jQuery.jq_db"></script>
 <script type="text/javascript" src="./rs.aspx?js=jQuery.jqui_db"></script>
@@ -635,3 +638,4 @@
 	});
 </script>
 
+<% } %>

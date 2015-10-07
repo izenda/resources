@@ -84,6 +84,8 @@ public partial class Resources_Html_Dashboards_Body : UserControl
 
   protected void Page_Load(object sender, EventArgs e)
   {
+	  if (!AdHocContext.DashboardsAllowed)
+		  return;
     ReportInfo[] cachedInfos = AdHocSettings.AdHocConfig.FilteredListReports();
     string rn = Request.Params["rn"];
 		crv.NoToolbar = true;
@@ -213,6 +215,8 @@ public partial class Resources_Html_Dashboards_Body : UserControl
 
   protected override void OnPreRender(EventArgs e)
   {
+	  if (!AdHocContext.DashboardsAllowed)
+		  return;
     object rs = Session["ReloadScriptDBS"];
     if (rs == null)
       return;

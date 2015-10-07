@@ -64,6 +64,7 @@ function izendaToolbarController(
     return result;
   };
 
+	vm.dashboardsAllowedByLicense = false;
   vm.isIE8 = $izendaCompatibility.checkIsIe8();
   vm.isStorageAvailable = $izendaBackground.isStorageAvailable();
   vm.isPresentationModeEnable = !$izendaCompatibility.checkIsLteIe10();
@@ -227,7 +228,7 @@ function izendaToolbarController(
    */
   vm.refreshDashboardHandler = function (index, skipFirst) {
     if (!skipFirst) {
-    	$izendaEvent.queueEvent('dashboardRefreshEvent', [true]);
+    	$izendaEvent.queueEvent('dashboardRefreshEvent', [true, true]);
     }
     if (typeof index != 'undefined') {
       var interval = vm.autoRefreshIntervals[index].value;
@@ -239,7 +240,7 @@ function izendaToolbarController(
       if (interval >= 1) {
         interval *= 1000;
         vm.refreshInterval = setInterval(function () {
-        	$izendaEvent.queueEvent('dashboardRefreshEvent', [true]);
+        	$izendaEvent.queueEvent('dashboardRefreshEvent', [true, true]);
         }, interval);
       }
     }
@@ -640,37 +641,41 @@ function izendaToolbarController(
     });
   };
 
-  /**
-   * Initialize dashboard navigation
-   */
-  vm.initialize = function () {
-		
-    vm.initializeAdHocSettings();
+	/**
+	* Initialize dashboard navigation
+	*/
+	vm.initialize = function () {
+		$izendaSettings.getDashboardAllowed().then(function (allowed) {
+			vm.dashboardsAllowedByLicense = allowed;
+			if (allowed) {
+				vm.initializeAdHocSettings();
 
-    vm.initializeEventHandlers();
+				vm.initializeEventHandlers();
 
-    vm.updateDashboardBackgroundImage();
+				vm.updateDashboardBackgroundImage();
 
-    // load dashboard navigation
-    $izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
-      vm.dashboardNavigationLoaded(data);
-    });
+				// load dashboard navigation
+				$izendaDashboardToolbarQuery.loadDashboardNavigation().then(function(data) {
+					vm.dashboardNavigationLoaded(data);
+				});
 
-    // initialize color picker
-    vm.initializeColorPicker();
+				// initialize color picker
+				vm.initializeColorPicker();
 
-		// watch for window width chage
-		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-			if (angular.isUndefined(newWidth))
-				return;
-			vm.updateToolbarItems();
+				// watch for window width chage
+				$scope.$watch('izendaDashboardState.getWindowWidth()', function(newWidth) {
+					if (angular.isUndefined(newWidth))
+						return;
+					vm.updateToolbarItems();
+				});
+
+				// watch for location change
+				$scope.$watch('izendaUrl.getReportInfo()', function(reportInfo) {
+					if (reportInfo.fullName === null && !reportInfo.isNew)
+						return;
+					vm.dashboardLocationChangedHandler(reportInfo);
+				});
+			}
 		});
-
-		// watch for location change
-		$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-			if (reportInfo.fullName === null && !reportInfo.isNew)
-				return;
-			vm.dashboardLocationChangedHandler(reportInfo);
-		});
-  };
+	};
 }

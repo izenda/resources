@@ -66,6 +66,8 @@
 
 		var width = 720, height = 500;
 
+		var metricValue;
+
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
@@ -132,7 +134,13 @@
 			d3.select("#VIS_ID").append("div")
 				.attr("id", "VIS_ID_LABEL");
 
+			function validateControls() {
+				metricValue = metricSelect.val();
+			}
+
 			function store() {
+				validateControls();
+
 				jq$.extend(s.props = (s.props || {}), {
 					"metric": metricSelect.val()
 				});
@@ -141,12 +149,10 @@
 			}
 
 			function restore() {
-				if (typeof s.props != "object") {
+				if (typeof s.props != "object")
 					return;
-				}
-				if (s.props.metric) {
-					metricSelect.val(s.props.metric);
-				}
+
+				metricSelect.val(s.props.metric);
 			}
 
 			var items = [], i, j, item, stopped = false;
@@ -169,6 +175,8 @@
 				metricSelect.append("<option>" + el + "</option>");
 			});
 
+			restore();
+
 			metricSelect
 				.unbind("change")
 				.bind("change", function () {
@@ -176,10 +184,7 @@
 					store();
 					ExecuteVIS_ID();
 				});
-
-			restore();
-
-			var spendField = s.props.metric || vis.metrics[0];
+			validateControls();
 
 			var margin = { top: 5, right: 5, bottom: 5, left: 5 },
 				minDimension = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom),
@@ -266,7 +271,7 @@
 
 			var land, grid, countries, borders, index, min, max;
 			function gc(i) { return countries[i % countries.length]; }
-			function gi(d) { return items.filter(function(i) { return shortName(d.name) == vis.unitValue(i, 0); }); }
+			function gi(d) { return items.filter(function(i) { return shortName(d.name).toUpperCase() == vis.unitValue(i, 0).toUpperCase(); }); }
 
 			function draw() {
 				context.clearRect(0, 0, width, height);
@@ -307,7 +312,7 @@
 					path(countries[i]);
 
 					var d = gc(i), i2 = gi(d);
-					var v = vis.unitValue(i2[0], spendField);
+					var v = vis.unitValue(i2[0], metricValue);
 					var c = util.getMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
 					context.fillStyle = util.getRgb(c);
 					context.fill();
@@ -352,9 +357,9 @@
 					.duration(1000)
 					.each("start", function () {
 						var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
-								fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == spendField; }).formatter,
-								val = vis.unitValue(i2[0], spendField);
-						title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, spendField) : val) + ")");
+								fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter,
+								val = vis.unitValue(i2[0], metricValue);
+						title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, metricValue) : val) + ")");
 					})
 					.tween("rotate", function() {
 						var p = d3.geo.centroid(countries[index]),
@@ -372,24 +377,19 @@
 			}
 
 			function startTransition(world, names) {
-				land = topojson.feature(world, world.objects.land),
-					grid = graticule(),
-					countries = topojson.feature(world, world.objects.countries).features
-						.filter(function(d) {
-							var result = names.some(function(n) {
-								return d.id == n.id
-									? (d.name = n.name)
-									: undefined;
-							});
-							return result
-								? items.some(function(it) { return shortName(d.name) == vis.unitValue(it, 0); })
-								: result;
-						})
-						.sort(function(a, b) { return a.name.localeCompare(b.name); }),
-					borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; }),
-					index = -1,
-					min = d3.min(items, function (item) { return item.support[spendField].o; });
-					max = d3.max(items, function (item) { return item.support[spendField].o; });
+				land = topojson.feature(world, world.objects.land);
+				grid = graticule();
+				countries = topojson.feature(world, world.objects.countries).features
+					.filter(function(d) {
+						var result = names.some(function(n) { return d.id == n.id ? (d.name = n.name) : undefined; });
+						return !result ? result
+							: items.some(function(it) { return shortName(d.name).toUpperCase() == vis.unitValue(it, 0).toUpperCase(); });
+					})
+					.sort(function(a, b) { return a.name.localeCompare(b.name); });
+				borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
+				index = -1;
+				min = d3.min(items, function(item) { return item.support[metricValue].o; });
+				max = d3.max(items, function(item) { return item.support[metricValue].o; });
 				transition();
 			}
 

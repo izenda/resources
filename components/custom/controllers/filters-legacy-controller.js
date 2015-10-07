@@ -104,15 +104,15 @@ function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $iz
       	vm.initializeFilters();
       });
 
-      $izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (updateFromSource) {
-      	if (updateFromSource)
+      $izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
+      	if (reloadDashboardLayout || updateFromSource)
       		vm.initializeFilters();
       });
 
       _('#updateBtnP > a').click(function (event) {
         event.preventDefault();
         CommitFiltersData(true);
-        $izendaEvent.queueEvent('dashboardRefreshEvent', [], false);
+        $izendaEvent.queueEvent('dashboardRefreshEvent', [false, false,], false);
       });
 
 			// watch for location change: we can set dashboard when location is changing

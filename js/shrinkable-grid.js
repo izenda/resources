@@ -86,11 +86,12 @@ function ToggleReportGrids() {
 		if (this$.find('tr.ReportItem:not(.hiddable), tr.AlternatingItem:not(.hiddable)').length > 5001)
 			return;
 		var columnsToHide = 0;
-		jq$(this$.find('.ReportHeader td').get().reverse()).each(function () {
-			if (NeedHideColumn(this))
+		var headers = this$.find('.ReportHeader td');
+		for (var i = 1; i < headers.length; i++) {
+			if (NeedHideColumn(headers[i]))
 				columnsToHide++;
-		});
-		
+		}
+	
 		var oldColumnsToHide = this$.data('columns-to-hide');
 		if (oldColumnsToHide == null || oldColumnsToHide != columnsToHide)
 			ToggleReportGrid(this$, columnsToHide);

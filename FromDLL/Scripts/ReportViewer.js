@@ -1055,7 +1055,10 @@ function GetReportViewerConfig() {
     var rnParam = '';
     if (reportName)
     	rnParam = reportName;
-    var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam + window.innerHeight;
+    else if (typeof UrlSettings == 'function')
+
+	    rnParam = UrlSettings().reportInfo.fullName;
+    var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam;
 	AjaxRequest('./rs.aspx', requestString, GotReportViewerConfig, null, 'reportviewerconfig');
 }
 
@@ -1203,8 +1206,6 @@ function AppendReportNameTitle(forcedReportName){
 		rnVal = fieldWithRn.value;
 	else if (reportName == undefined || reportName == null)
 		rnVal = '';
-	else
-		rnVal = reportName;
 
 	while (rnVal.indexOf('+') >= 0) {
 		rnVal = rnVal.replace('+', ' ');

@@ -387,7 +387,7 @@ function SC_OnExtraColumnChangedHandler(e, el, columnName)
 			var mustGroup = SC_mustGroupOrFunction[id];
 			if (SC_mustGroupOrFunction[id] == undefined && EBC_GetSelectByName(EBC_GetParentTable(row).rows[0], 'ExtraFunction').value != 'None')
 			    mustGroup = true;
-			EBC_SetFunctions(row, true, true, null, false, 'ExtraValueFunction', null, null, cName, null, null, true);
+			EBC_SetFunctions(row, true, false, null, false, 'ExtraValueFunction', null, null, cName, null, null, true);
 		
 			EBC_SetFormat(row, null, cName, 'ExtraFormat');
 			
@@ -1686,8 +1686,8 @@ function SC_ClearRowSelects(row)
 function SC_ChangeAllTablesSel(id, tables)
 {
 	var allTablesSel = document.getElementById(id + '_AllTables');
-	if(allTablesSel!=null)
-		EBC_ChangeAllTablesSel(tables, allTablesSel);
+	if (allTablesSel != null && tables != null && tables.join)
+		EBC_LoadData("UsedTableList", "tables=" + tables.join('\''), allTablesSel);
 }
 
 function SC_RemoveAllFields(id)

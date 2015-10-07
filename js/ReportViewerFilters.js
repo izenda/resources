@@ -101,6 +101,8 @@ function GetFilterValues(index, filters, id) {
 		default:
 			break;
 	}
+	for (var i = 0; i < result.length; i++)
+		result[i] = result[i].NormalizeLineBreaks();
 	return result;
 }
 
@@ -108,9 +110,11 @@ function GetFilterValues(index, filters, id) {
 * Save filters stored in 'filtersData' variable.
 */
 function CommitChangedFilter(field) {
-	if (field.FilterGUID) {
+	if (field.FilterGUID) {	
 		for (var i = 0; i < filtersData.length; i++)
 			if (filtersData[i].GUID == field.FilterGUID) {
+				if (filtersData[i].OperatorValue.endsWith('Field') && !field.FilterOperator.endsWith('Field'))
+					filtersData[i].ClearValue = true;
 				filtersData[i].OperatorValue = field.FilterOperator;
 				break;
 			}
@@ -182,8 +186,10 @@ function GetFiltersDataToCommit() {
 		filterObj.FieldFilter = filtersData[index].FieldFilter;
 		filterObj.OperatorValue = filtersData[index].OperatorValue;
 		filterObj.AliasTable = filtersData[index].AliasTable;
-		if (!filtersData[index].Removed)
+		if (!filtersData[index].Removed && !filtersData[index].ClearValue)
 			filterObj.Values = GetFilterValues(index, filtersData).slice(1);
+		else
+			filterObj.Values = [null];
 		dataToCommit[index] = filterObj;
 	}
 	return dataToCommit;
@@ -581,6 +587,18 @@ function HideEqualsPopupDialog(updateState) {
 function ShowEqualsPopupDialog(filterInd) {
 	var width = '500px';
 	var filter = filtersData[filterInd];
+	if (filter == null && subreportsFiltersData != null && subreportsFiltersData.length > 0)
+		for (var i = 0; i < subreportsFiltersData.length; i++) {
+			if (filter != null)
+				break;
+			if (subreportsFiltersData[i].FiltersData != null && subreportsFiltersData[i].FiltersData.Filters != null)
+				for (var j = 0; j < subreportsFiltersData[i].FiltersData.Filters.length; j++)
+					if (subreportsFiltersData[i].FiltersData.Filters[j].GUID == filterInd) {
+						filter = subreportsFiltersData[i].FiltersData.Filters[j];
+						break;
+					}
+		}
+
 	var valueInput = document.getElementById('ndbfc' + filterInd);
 	var valuesSet6 = valueInput.value.split(',');
 
@@ -626,9 +644,12 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 	var result = '';
 	switch (cType) {
 		case 1:
+			if (value == '...') value = '';
 			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
 		case 2:
+			if (values[0] == '...') values[0] = '';
+			if (values[1] == '...') values[1] = '';
 			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
@@ -637,7 +658,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			var groupOpened = false;
 			for (var cnt3 = 0; cnt3 < existingValues.length; cnt3++) {
 				var selected3 = '';
-				if (existingValues[cnt3] == value)
+				if (existingValues[cnt3].LinelessEquals(value))
 					selected3 = 'selected="selected"';
 				if (existingValues[cnt3] == null) {
 					if (groupOpened)
@@ -662,6 +683,8 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</select>';
 			break;
 		case 5:
+			if (values[0] == '...') values[0] = '';
+			if (values[1] == '...') values[1] = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
@@ -672,10 +695,11 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_2\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			break;
 		case 6:
-			result += '<input type="button" style="height:30px;width:300px;background-color:LightGray;border:1px solid DarkGray" onclick="ShowEqualsPopupDialog(' + index + ');" value="...">';
+			result += '<input type="button" style="height:30px;width:300px;background-color:LightGray;border:1px solid DarkGray" onclick="ShowEqualsPopupDialog(\'' + index + '\');" value="...">';
 			result += '<input type="hidden" id="ndbfc' + index + '" value="' + value + '" />';
 			break;
 		case 7:
+			if (value == '...') value = '';
 			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
@@ -694,6 +718,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</div>';
 			break;
 		case 9:
+			if (value == '...') value = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
@@ -715,10 +740,12 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</select>';
 			break;
 		case 11:
+			if (value == '...') value = '';
 			result += '<div style="display: none;" visibilitymode="1"><input type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '"/></div>';
 			result += '<div class="comboboxTreeMultyselect" index=' + index + '></div>';
 			break;
 		case 100:
+			if (value == '...') value = '';
 			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
 			break;
 		default:

@@ -1,4 +1,22 @@
 ﻿angular
+	.module('izendaDashboard')
+	.directive('tileAnimationCompleted', function() {
+		function link(scope) {
+			scope.$on('fade-down:enter', function () {
+				var $parentScope = scope.$parent;
+				if (!$parentScope.animationCompleted) {
+					$parentScope.$broadcast('tileRefreshEvent', [false]);
+					$parentScope.animationCompleted = true;
+				}
+			});
+		}
+		return {
+			restrict: 'A',
+			link: link
+		};
+	});
+
+angular
   .module('izendaDashboard')
   .controller('IzendaDashboardController', [
     '$rootScope',
@@ -15,6 +33,7 @@
     '$izendaDashboardQuery',
     '$izendaRsQuery',
     '$izendaEvent',
+		'$izendaSettings',
 		'$izendaDashboardState',
     izendaDashboardController]);
 
@@ -36,6 +55,7 @@ function izendaDashboardController(
   $izendaDashboardQuery,
   $izendaRsQuery,
 	$izendaEvent,
+	$izendaSettings,
 	$izendaDashboardState) {
 
 	'use strict';
@@ -47,6 +67,9 @@ function izendaDashboardController(
 	vm.reportInfo = null;
 
 	var newTileIndex = 1;
+
+	vm.licenseInitialized = false;
+	vm.dashboardsAllowedByLicense = false;
 
 	vm.tilesAnimationCompleted = false;
 
@@ -683,8 +706,13 @@ function izendaDashboardController(
 				throw 'Unknown print type "' + printType + '"';
 		});
 
-		$izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (updateFromSource) {
-			refreshAllTiles(updateFromSource);
+		$izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
+			if (reloadDashboardLayout) {
+				var reportInfo = $izendaUrl.getReportInfo();
+				vm.initializeDashboard(reportInfo, updateFromSource);
+			} else {
+				refreshAllTiles(updateFromSource);
+			}
 		});
 
 		$izendaEvent.handleQueuedEvent('dashboardSaveEvent', $scope, vm, function (showNameDialog) {
@@ -699,53 +727,13 @@ function izendaDashboardController(
 	};
 
 	/**
-   * Initialize dashboard controller (set event listeners and so on)
-   */
-	vm.initialize = function () {
-		// remove content from all tiles to speed up "bounce up" animation
-		if (!vm.isIE8) {
-			document.addEventListener("fullscreenchange", fullscreenChangeHandler);
-			document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler);
-			document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
-			document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
-		}
-
-		vm.initializeEventHandlers();
-
-		// all tiles added:
-		$scope.$watch(angular.bind(vm, function (name) {
-			return this.tilesAnimationCompleted;
-		}), function (newVal) {
-			if (newVal) {
-				$izendaEvent.queueEvent('refreshFilters', [], true);
-			}
-		});
-
-		// watch for dashboard resize:
-		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-			if (angular.isUndefined(newWidth))
-				return;
-			vm.updateDashboardSize();
-			updateGalleryContainer();
-			vm.updateDashboardHandlers();
-		});
-
-		// watch for location change: we can set dashboard when location is changing
-		$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-			if (reportInfo.fullName === null && !reportInfo.isNew)
-				return;
-			vm.initializeDashboard(reportInfo);
-		});
-	};
-
-	/**
    * Load and initialize dashboard
    */
-	vm.initializeDashboard = function (reportInfo) {
+	vm.initializeDashboard = function (reportInfo, updateFromSource) {
 		vm.reportInfo = reportInfo;
 		_('.report').empty();
 		deactivateGallery(false);
-		loadDashboardLayout();
+		loadDashboardLayout(updateFromSource);
 		$scope.$evalAsync();
 	};
 
@@ -1041,7 +1029,7 @@ function izendaDashboardController(
 	/**
 	 * Start preloading report
 	 */
-	function loadTileReport(tileObj) {
+	function loadTileReport(tileObj, updateFromSource) {
 		tileObj.preloadData = null;
 		tileObj.preloadDataHandler = null;
 		tileObj.preloadStarted = false;
@@ -1052,16 +1040,22 @@ function izendaDashboardController(
 		tileObj.preloadStarted = true;
 		tileObj.preloadDataHandler = (function () {
 			var deferred = $q.defer();
-			var heightDelta = tileObj.description != null && tileObj.description !== '' ? 120 : 90;
-			$izendaDashboardQuery.loadTileReport(
-						false,
-						$izendaUrl.getReportInfo().fullName,
-						tileObj.reportFullName,
-						null,
-						tileObj.top,
-						((vm.isOneColumnView() ? 12 : tileObj.width) * vm.tileWidth) - 40,
-						((vm.isOneColumnView() ? 4 : tileObj.height) * vm.tileHeight) - heightDelta)
-			.then(function (htmlData) {
+
+			var tileWidth = (vm.isOneColumnView() ? 12 : tileObj.width) * vm.tileWidth - 20;
+			var tileHeight = (vm.isOneColumnView() ? 4 : tileObj.height) * vm.tileHeight - 55;
+			if (tileObj.description !== null && tileObj.description !== '') {
+				tileHeight -= 30;
+			}
+			$izendaDashboardQuery.loadTileReport({
+					updateFromSourceReport: updateFromSource,
+					dashboardFullName: $izendaUrl.getReportInfo().fullName,
+					reportFullName: tileObj.reportFullName,
+					reportPreviousFullName: null,
+					top: tileObj.top,
+					contentWidth: tileWidth,
+					contentHeight: tileHeight,
+					forPrint: false
+			}).then(function (htmlData) {
 				tileObj.preloadStarted = false;
 				tileObj.preloadData = htmlData;
 				tileObj.preloadCompleted = true;
@@ -1076,7 +1070,7 @@ function izendaDashboardController(
 	/**
 	 * Load dashboard layout
 	 */
-	function loadDashboardLayout() {
+	function loadDashboardLayout(updateFromSource) {
 		// interrupt previous animations
 		clearInterval(vm.refreshIntervalId);
 		vm.refreshIntervalId = null;
@@ -1125,8 +1119,13 @@ function izendaDashboardController(
 						maxHeight = cell.Y + cell.Height;
 					tilesToAdd.push(obj);
 				}
+				if (vm.isOneColumnView()) {
+					maxHeight = cells.length * 4;
+				}
 			}
 			tilesToAdd = sortTilesByPosition(tilesToAdd);
+
+			updateTileSize();
 
 			// start loading tiles:
 			updateTileContainerSize({
@@ -1140,7 +1139,7 @@ function izendaDashboardController(
 
 			// start loading tile reports
 			for (var ii = 0; ii < tilesToAdd.length; ii++) {
-				loadTileReport(tilesToAdd[ii]);
+				loadTileReport(tilesToAdd[ii], updateFromSource);
 			}
 
 			// start adding tiles
@@ -1178,24 +1177,26 @@ function izendaDashboardController(
 	// tile container functions:
 	////////////////////////////////////////////////////////
 
-	/**
-   * Tile container style
-   */
-	function updateTileContainerSize(additionalBox) {
+	function updateTileSize() {
 		var $tileContainer = vm.getTileContainer();
-
-		// update width
 		var parentWidth = vm.getRoot().width();
 		var width = Math.floor(parentWidth / 12) * 12;
 		$tileContainer.width(width);
 		vm.tileWidth = width / 12;
 		vm.tileHeight = vm.tileWidth > 100 ? vm.tileWidth : 100;
-		$scope.$evalAsync();
+	}
+
+	/**
+   * Tile container style
+   */
+	function updateTileContainerSize(additionalBox) {
+		// update width
+		updateTileSize();
 
 		// update height
 		var maxHeight = 0;
 		if (vm.isOneColumnView()) {
-			maxHeight = vm.tiles.length * 4 - 1;
+			maxHeight = vm.tiles.length !== 0 ? vm.tiles.length * 4 - 1 : 0;
 		} else {
 			_.each(vm.tiles, function () {
 				if (this.y + this.height > maxHeight) {
@@ -1203,7 +1204,7 @@ function izendaDashboardController(
 				}
 			});
 		}
-
+		
 		maxHeight = maxHeight * vm.tileHeight;
 
 		// update height of union of tiles and additional box it is set
@@ -1258,12 +1259,16 @@ function izendaDashboardController(
 			if (firstTile === null) {
 				firstTile = tileObj;
 			}
-			$izendaDashboardQuery.loadTileReport(false,
-        $izendaUrl.getReportInfo().fullName,
-        tileObj.reportFullName,
-        null,
-        tileObj.top,
-        $tile.width() - 50, $tile.height() - 50)
+			$izendaDashboardQuery.loadTileReport({
+				updateFromSourceReport: false,
+				dashboardFullName: $izendaUrl.getReportInfo().fullName,
+				reportFullName: tileObj.reportFullName,
+				reportPreviousFullName: null,
+				top: tileObj.top,
+				contentWidth: $tile.width() - 50,
+				contentHeight: $tile.height() - 50,
+				forPrint: false
+			})
       .then(function (htmlData) {
       	applyGalleryTileHtml($tile, htmlData);
       	$scope.$evalAsync();
@@ -1323,4 +1328,50 @@ function izendaDashboardController(
       AdHoc.Utility.InitGaugeAnimations(null, null, false);
     }
   }
+
+	/**
+   * Initialize dashboard controller (set event listeners and so on)
+   */
+  vm.initialize = function () {
+		$izendaSettings.getDashboardAllowed().then(function(allowed) {
+			vm.dashboardsAllowedByLicense = allowed;
+			vm.licenseInitialized = true;
+			if (allowed) {
+				// remove content from all tiles to speed up "bounce up" animation
+				if (!vm.isIE8) {
+					document.addEventListener("fullscreenchange", fullscreenChangeHandler);
+					document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler);
+					document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
+					document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
+				}
+
+				vm.initializeEventHandlers();
+
+				// all tiles added:
+				$scope.$watch(angular.bind(vm, function (name) {
+					return this.tilesAnimationCompleted;
+				}), function (newVal) {
+					if (newVal) {
+						$izendaEvent.queueEvent('refreshFilters', [], true);
+					}
+				});
+
+				// watch for dashboard resize:
+				$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+					if (angular.isUndefined(newWidth))
+						return;
+					vm.updateDashboardSize();
+					updateGalleryContainer();
+					vm.updateDashboardHandlers();
+				});
+
+				// watch for location change: we can set dashboard when location is changing
+				$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+					if (reportInfo.fullName === null && !reportInfo.isNew)
+						return;
+					vm.initializeDashboard(reportInfo);
+				});
+			}
+		});
+	};
 }

@@ -15,8 +15,9 @@
 		while (propFilterOperators.options.hasChildNodes())
 			propFilterOperators.options.removeChild(propFilterOperators.options.firstChild);
 	}
-	else if (typeof propFilterOperators.options.length != 'undefined')
-		propFilterOperators.options.length = 0;
+	else if (typeof propFilterOperators.options.length != 'undefined') {
+		jq$(propFilterOperators).html('');
+	}
 	var currentOptGroup = null;
 	for (var filterOperatorCnt = 0; filterOperatorCnt < filter.FilterOperatorValues.length; filterOperatorCnt++) {
 		if (filter.FilterOperatorValues[filterOperatorCnt] == '###OPTGROUP###') {

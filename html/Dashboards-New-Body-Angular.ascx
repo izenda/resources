@@ -20,7 +20,7 @@
 
   <!-- filters panel -->
   <div ng-include="'Resources/components/custom/templates/filters-legacy.html'"></div>
-  <%--<div ng-include="'Resources/components/filter/templates/filters.html'"></div>--%>
+  <!--<div ng-include="'Resources/components/filter/templates/filters.html'"></div>-->
   <!-- HERE IS EXAMPLE FOR CONTROL CUSTOMIZATION: -->
   <!--<div ng-include="'Resources/components/custom/filters-custom-template.html'"></div>-->
 

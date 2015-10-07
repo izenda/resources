@@ -411,7 +411,7 @@ function EBC_RemoveAllUnusedRows()
 	}
 }
 
-function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, expressionTypeName)
+function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, expressionTypeName, whatFor)
 {
 	if (columnName == null)
 		columnName = 'Column';
@@ -429,10 +429,10 @@ function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, express
 	if (columnSel == null)
 		columnSel = EBC_GetSelectByName(row, 'ExtraColumn');
 
-	return EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName);
+	return EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName, whatFor);
 }
 
-function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName) {
+function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName, whatFor) {
     if (!expressionTypeName)
         expressionTypeName = "ExpressionType";
 
@@ -446,10 +446,10 @@ function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelec
 
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
-	var typeGroup = formatSelect==null ? "" : formatSelect.getAttribute("TypeGroup");
+	var typeGroup = (formatSelect == null || whatFor == 'format') ? "" : formatSelect.getAttribute("TypeGroup");
 	
 	if ((!typeGroup || typeGroup == "None") && functionSel != null && functionSel.selectedIndex > -1)
-		typeGroup = functionSel==null ? "" : functionSel.options[functionSel.selectedIndex].getAttribute("dataTypeGroup");
+		typeGroup = (functionSel == null || whatFor == 'function' || whatFor == 'format') ? "" : functionSel.options[functionSel.selectedIndex].getAttribute("dataTypeGroup");
 		
 	if((!typeGroup || typeGroup=="None") && columnSel != null && columnSel.selectedIndex > -1)
 		typeGroup = columnSel==null ? "" : columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
@@ -469,7 +469,7 @@ function EBC_SetFormat(row, onlySimple, columnName, functionName, formatName) {
 		return;
 
 	var newValue = formatSelect.value;
-	var dataTypeGroup = EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect);
+	var dataTypeGroup = EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, null, 'format');
 	if (dataTypeGroup == null)
 		dataTypeGroup = "";
 	if (row.getAttribute("userChanged") != "true") {
@@ -515,7 +515,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 		isOperation = true;
 	if (columnSel.selectedIndex >= 0) {
 		var option_ = columnSel.options[columnSel.selectedIndex];
-		var typeGroup = EBC_GetDataTypeGroup(row);
+		var typeGroup = EBC_GetDataTypeGroup(row, null, null, null, null, 'function');
 		var type = option_.getAttribute("dataType");
 		if (funcSelectName == "SubtotalFunction" && mainFuncSelect != null) {
 			var mainFuncOption = mainFuncSelect.options[mainFuncSelect.selectedIndex];
