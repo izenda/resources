@@ -3,14 +3,14 @@
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+		src: local('Open Sans'), local('OpenSans'), url(###RS###font=Fonts.OpenSans.woff) format('woff');
 	}
 
 	@font-face {
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(###RS###font=Fonts.OpenSans-Semibold.woff) format('woff');
 	}
 
 	#VIS_ID_CONTAINER text {
@@ -123,474 +123,449 @@
 <script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	var visState;
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
-
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		visState = visState || {};
+		window.visState = window.visState || {};
 
-		function toggleHeaderVisibility(visible) {
-			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
-			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+			return;
+
+		var visRoot = {},
+			b = { w: 75, h: 30, s: 3, t: 10 };
+
+		var vs = util.container("VIS_ID"),
+			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
+
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		if (!s.props) {
+			try {
+				s.props = JSON.parse(VIS_CONTEXT.props);
+			} catch (e) {
+				s.props = {};
+				util.logger.error(e);
+			}
 		}
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		vis.collectTree();
+		visRoot = vis.traverseTree();
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
-				return;
-			}
-
-			var visRoot = {},
-				b = { w: 75, h: 30, s: 3, t: 10 };
-
-			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
-
-			var s = visState.VIS_ID || (visState.VIS_ID = {});
-			if (!s.props) {
-				try {
-					s.props = JSON.parse(VIS_CONTEXT.props);
-				} catch (e) {
-					s.props = {};
-					util.logger.error(e);
-				}
-			}
-
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-			vis.collectTree();
-			visRoot = vis.traverseTree();
-
-			var metricsLength = vis.metrics.length;
-			var aggregatesByMetrics = (function () {
-				var aggregate = {},
-					recordCountAggregate = {
-						func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
-						type: "SUM"
-					};
-				for (i = 0; i < metricsLength; i++) {
-					var metric = vis.metrics[i];
-					for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
-						if (VIS_COLUMNS[j].name === metric) {
-							var isRecordCount = metric == "Record Count";
-							aggregate[metric] = !isRecordCount ? {
-								func: VIS_COLUMNS[j].aggregatefunction,
-								type: VIS_COLUMNS[j].aggregatefunctiontype,
-								subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
-							} : recordCountAggregate;
-							break;
-						}
-					}
-				}
-				return aggregate;
-			})();
-
-			function initNodes(node, metric) {
-				var values = [],
-					nodeValue, subtotalValue,
-					aggregate = aggregatesByMetrics[metric];
-				if (node.hasOwnProperty("children")) {
-					for (var i = 0, length = node.children.length; i < length; ++i) {
-						var tmp = initNodes(node.children[i], metric);
-						values = values.concat(tmp);
-					}
-					nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
-					vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
-				} else {
-					values.push(vis.unitValue(node, metric));
-				}
-
-				subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
-				vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
-
-				return values;
-			}
-
+		var metricsLength = vis.metrics.length;
+		var aggregatesByMetrics = (function () {
+			var aggregate = {},
+				recordCountAggregate = {
+					func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
+					type: "SUM"
+				};
 			for (i = 0; i < metricsLength; i++) {
-				initNodes(visRoot, vis.metrics[i]);
-			}
-
-			width = vis.getWidth();
-			height = vis.getHeight();
-
-			var defaultColorScheme = d3.scale.category20c();
-
-			function color(d) {
-				return defaultColorScheme(d.parent.name);
-			}
-
-			jq$("#VIS_ID_HOLDER").width(width);
-
-			var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-			function getPath(d) {
-				return d && d.parent ? getPath(d.parent) + '/' + d.name : "";
-			}
-
-			function store() {
-				jq$.extend(s.props = (s.props || {}), {
-					"metric": metricSelect.val()
-				});
-				vis.setProps(s.props);
-			}
-
-			function restore() {
-				if (typeof s.props != "object") {
-					return;
-				}
-
-				if (s.props.metric) {
-					metricSelect.val(s.props.metric);
-				}
-			}
-
-			metricSelect.find("option").remove();
-			jq$.each(vis.metrics, function (i, el) {
-				metricSelect.append("<option>" + el + "</option>");
-			});
-
-			metricSelect
-				.unbind("change")
-				.bind("change", function () {
-					var value = this.value;
-					store();
-					treemap.value(function (d) { return vis.unitValue(d, value); }).nodes(root);
-					zoom(node);
-				});
-
-			var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
-				breadcrumbWidthOffset = 10,
-				breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
-			vis.createBreadcrumb({
-				selector: "#VIS_ID_BREADCRUMBS_PANEL",
-				width: breadcrumbWidth,
-				bounds: b,
-				colors: defaultColorScheme,
-				showRoot: true,
-				onclick: function (d) { zoom(d); },
-				root: null,
-				showLabel: false,
-				isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
-			});
-
-			vis.container
-				.unbind("mouseenter")
-				.bind("mouseenter", function () {
-					vis.breadcrumb.show();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
-				})
-				.unbind("mouseleave")
-				.bind("mouseleave", function () {
-					vis.breadcrumb.hide();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
-				});
-
-			var heightWithOffset = height - (isImageRender ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight()));
-
-			var root, node,
-				x = d3.scale.linear().range([0, width]),
-				y = d3.scale.linear().range([0, heightWithOffset]),
-				totalSize = 0;
-
-			var treemap = d3.layout.treemap()
-				.round(false)
-				.size([width, heightWithOffset])
-				.sticky(true)
-				.sort(function (a, b) { return a.value - b.value; })
-				.value(function (d) { return vis.unitValue(d, vis.metrics[0]); });
-
-			var g = d3.select("#VIS_ID")
-				.append("div")
-					.attr("class", "chart")
-					.style("width", width + "px")
-					.style("height", heightWithOffset + "px")
-					.style("overflow", "hidden")
-				.append("svg:svg")
-					.attr("width", width)
-					.attr("height", heightWithOffset)
-				.append("svg:g")
-					.on("mouseout", function () { util.hideTooltip(); });
-
-			vs.height(height);
-
-			var labelBox = util.labelBBox(d3.select("#VIS_ID div.chart svg"), "X",
-				function (pane) {
-					return pane.append("g").attr("class", "cell parent")
-						.append("svg").attr("class", "clip")
-						.append("text").attr("class", "label");
-				});
-
-			var headerHeight = labelBox.height,
-				headerOffset = -labelBox.y,
-				headerColor = "#555";
-
-			function getDuration() {
-				return d3.event && d3.event.altKey ? 7500 : 750;
-			}
-
-			function idealTextColor(bgColor) {
-				function getRgbComponents(c) {
-					return {
-						R: parseInt(c.substring(1, 3), 16),
-						G: parseInt(c.substring(3, 5), 16),
-						B: parseInt(c.substring(5, 7), 16)
-					};
-				}
-
-				var nThreshold = 105;
-				var components = getRgbComponents(bgColor);
-				var bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
-				return ((255 - bgDelta) < nThreshold) ? "#000000" : "#ffffff";
-			}
-
-			function isParent(droot, d) {
-				return d == droot
-					|| d.parent == droot
-					|| (d.parent && d.parent.parent == droot);
-			}
-
-			function isParent2(droot, d) {
-				return isParent(droot, d)
-					|| (d.parent && d.parent.parent == droot && d.parent.parent.parent == droot);
-			}
-
-			function isLeaf(d) {
-				return !d.children;
-			}
-
-			function execBreadcrumb(d, total) {
-				var percentage = (100 * d.value / total).toPrecision(3),
-					percentageString = percentage < 0.1 ? "< 0.1%" : percentage + "%";
-
-				if (!isImageRender) {
-					vis.updateBreadcrumb(d, { label: percentageString });
-					store();
-				}
-			}
-
-			function zoom(d, init) {
-				(treemap || this.treemap)
-					.padding(function (d2, i) { return [((0 < i && d.depth - 1 < i && i < d.depth + 3) ? headerHeight / (heightWithOffset / d.dy) : 0), 0, 0, 0]; })
-					.nodes(d);
-
-				execBreadcrumb(d, totalSize);
-
-				// moving the next two lines above treemap layout messes up padding of zoom result
-				var kx = width / d.dx;
-				var ky = heightWithOffset / d.dy;
-				var level = d;
-
-				x.domain([d.x, d.x + d.dx]);
-				y.domain([d.y, d.y + d.dy]);
-
-				var tran = g.selectAll("g.cell")
-					.transition().duration(init ? 0 : getDuration())
-					.attr("transform", function (d2) { return "translate(" + x(d2.x) + "," + y(d2.y) + ")"; })
-					.each("start", function () {
-						d3.select(this).select("label")
-							.style("display", "none");
-					})
-					.each("end", function (d2, i2) {
-						if (!i2 && (level !== root)) {
-							g.selectAll(".cell.child")
-								.filter(function (d3) { return d3.parent === node; })  // only get the children for selected group
-								.select(".label")
-								.style("display", "")
-								.style("fill", function (d3) { return idealTextColor(color(d3)); });
-						}
-					})
-					.call(util.endAll, function () {
-						vis.onReady(100);
-					});
-
-				tran.select(".clip")
-					.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-					.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); });
-
-				tran.select(".label")
-					.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-					.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
-					.text(function (d2) {
-						var actualHeight = isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy));
-						if (actualHeight < 15)
-							return '';
-						var textWidth = kx * d2.dx - 15.0;
-						var textString = d2.name;
-						this.textContent = textString;
-						if (textWidth <= this.getBBox().width) {
-							for (var x = textString.length - 3; x > 0; x -= 3) {
-								if (this.getSubStringLength(0, x) <= textWidth) {
-									this.textContent = textString.substring(0, x) + "...";
-									return this.textContent;
-								}
-							}
-							if (this.getBBox().width < 15)
-								return '';
-							return "...";
-						}
-						return d2.name;
-					});
-
-				tran.select(".child .label")
-					.attr("x", function (d2) { return kx * d2.dx / 2; })
-					.attr("y", function (d2) { return ky * d2.dy / 2; });
-
-				tran.select("rect")
-					.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-					.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
-					.style("fill", function (d2) { return isParent2(d, d2) && d2.children ? headerColor : d2.parent ? color(d2) : ""; });
-
-				totalSize = d3.select(tran.node()).datum().value;
-				node = d;
-
-				if (d3.event)
-					d3.event.stopPropagation();
-
-				util.hideTooltip();
-			}
-
-			function processData(data) {
-				function trace(node, i) {
-					if (node && node.children) {
-						var index = node.children.findIndex(function (e) {
-							return e.name == s.props.nodePath[vis.indeces[i]];
-						});
-						if (index > -1)
-							return trace(node.children[index], i + 1);
+				var metric = vis.metrics[i];
+				for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
+					if (VIS_COLUMNS[j].name === metric) {
+						var isRecordCount = metric == "Record Count";
+						aggregate[metric] = !isRecordCount ? {
+							func: VIS_COLUMNS[j].aggregatefunction,
+							type: VIS_COLUMNS[j].aggregatefunctiontype,
+							subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
+						} : recordCountAggregate;
+						break;
 					}
-
-					return node;
-				}
-
-				function parentSetup(parents) {
-					// create parent cells
-					var cells = g.selectAll("g.cell.parent")
-						.data(parents, function (d) { return "p-" + getPath(d); });
-
-					var clips = cells.enter().append("g")
-						.attr("class", "cell parent")
-						.on("click", function (d) { zoom(d); })
-						.append("svg")
-						.attr("class", "clip")
-						.attr("width", function (d) { return Math.max(0.01, d.dx); })
-						.attr("height", headerHeight);
-					clips.append("rect")
-						.attr("width", function (d) { return Math.max(0.01, d.dx); })
-						.attr("height", headerHeight);
-					clips.append('text')
-						.attr("class", "label")
-						.attr("transform", "translate(3, " + (headerOffset) + ")")
-						.attr("width", function (d) { return Math.max(0.01, d.dx); })
-						.attr("height", headerHeight)
-						.text(function (d) { return d.name; });
-
-					// update transition
-					var tran = cells.transition().duration(getDuration());
-					tran.select(".cell")
-						.attr("transform", function (d) { return "translate(" + d.dx + "," + d.y + ")"; });
-					tran.select("rect")
-						.attr("width", function (d) { return Math.max(0.01, d.dx); })
-						.attr("height", headerHeight);
-					tran.select(".label")
-						.attr("transform", "translate(3, 13)")
-						.attr("width", function (d) { return Math.max(0.01, d.dx); })
-						.attr("height", headerHeight)
-						.text(function (d) { return d.name; });
-					cells.exit().remove();
-				}
-
-				function chindrenSetup(chindren) {
-					var cells = g.selectAll("g.cell.child")
-						.data(chindren, function (d) { return "c-" + getPath(d); });
-
-					var clips = cells.enter().append("g")
-						.attr("class", "cell child")
-						.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
-						.on("click", function (d) { return zoom(node == d.parent ? root : d.parent); })
-						.append("svg")
-						.attr("class", "clip");
-					clips.append("rect")
-						.style("fill", function (d) { return d.parent ? color(d) : ""; })
-						.on("mouseover", function (d) { util.showTooltip(d, { nested: true, exclusion: ["link"] }); })
-						.on("mouseout", function () { util.hideTooltip(); });
-					clips.append("text")
-						.attr("class", "label")
-						.attr("x", function (d) { return d.dx / 2; })
-						.attr("y", function (d) { return d.dy / 2; })
-						.attr("dy", ".35em")
-						.attr("text-anchor", "middle")
-						.text(function (d) { return d.name; });
-					// update transition
-					var tran = cells.transition().duration(getDuration());
-					tran.select(".cell")
-						.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
-					tran.select("rect")
-						.attr("width", function(d) { return Math.max(0.01, d.dx); })
-						.attr("height", function (d) { return d.dy; })
-						.style("fill", function (d) { return d.parent ? color(d) : ""; });
-					tran.select(".label")
-						.attr('x', function (d) { return d.dx / 2; })
-						.attr('y', function (d) { return d.dy / 2; })
-						.attr("dy", ".35em")
-						.attr("text-anchor", "middle")
-						.text(function (d) { return d.name; });
-					cells.exit().remove();
-				}
-
-				node = root = data;
-
-				var nodes = treemap.nodes(root);
-				parentSetup(nodes.filter(function (d) { return d.children; }));
-				chindrenSetup(nodes.filter(function (d) { return isLeaf(d); }));
-
-				var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
-				existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0), bcNode = null;
-				if (isBackRender && existNodePath) {
-					bcNode = trace(data, 0);
-				}
-
-				vis.updateBreadcrumbContext({ root: root });
-				zoom(node, true);
-
-				restore();
-
-				treemap.value(function (d) { return vis.unitValue(d, metricSelect[0].value); }).nodes(root);
-
-				zoom(node, true);
-
-				if (isBackRender && existNodePath) {
-					zoom(bcNode, true);
-				}
-
-				if (!isImageRender) {
-					s.props.nodePath = undefined;
-					store();
 				}
 			}
+			return aggregate;
+		})();
 
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				jq$("#VIS_ID").empty();
+		function initNodes(node, metric) {
+			var values = [],
+				nodeValue, subtotalValue,
+				aggregate = aggregatesByMetrics[metric];
+			if (node.hasOwnProperty("children")) {
+				for (var i = 0, length = node.children.length; i < length; ++i) {
+					var tmp = initNodes(node.children[i], metric);
+					values = values.concat(tmp);
+				}
+				nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
+				vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
+			} else {
+				values.push(vis.unitValue(node, metric));
+			}
+
+			subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
+			vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
+
+			return values;
+		}
+
+		for (i = 0; i < metricsLength; i++) {
+			initNodes(visRoot, vis.metrics[i]);
+		}
+
+		width = vis.getWidth();
+		height = vis.getHeight();
+
+		var defaultColorScheme = d3.scale.category20c();
+
+		function color(d) {
+			return defaultColorScheme(d.parent.name);
+		}
+
+		jq$("#VIS_ID_HOLDER").width(width);
+
+		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+
+		function getPath(d) {
+			return d && d.parent ? getPath(d.parent) + '/' + d.name : "";
+		}
+
+		function store() {
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
+			});
+			vis.setProps(s.props);
+		}
+
+		function restore() {
+			if (typeof s.props != "object") {
+				return;
+			}
+
+			if (s.props.metric) {
+				metricSelect.val(s.props.metric);
+			}
+		}
+
+		metricSelect.find("option").remove();
+		jq$.each(vis.metrics, function (i, el) {
+			metricSelect.append("<option>" + el + "</option>");
+		});
+
+		metricSelect
+			.unbind("change")
+			.bind("change", function () {
+				var value = this.value;
+				store();
+				treemap.value(function (d) { return vis.unitValue(d, value); }).nodes(root);
+				zoom(node);
 			});
 
-			processData(visRoot);
+		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+			breadcrumbWidthOffset = 10,
+			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
+		vis.createBreadcrumb({
+			selector: "#VIS_ID_BREADCRUMBS_PANEL",
+			width: breadcrumbWidth,
+			bounds: b,
+			colors: defaultColorScheme,
+			showRoot: true,
+			onclick: function (d) { zoom(d); },
+			root: null,
+			showLabel: false,
+			isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
+		});
+
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				vis.breadcrumb.show();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				vis.breadcrumb.hide();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
+			});
+
+		var heightWithOffset = height - (isImageRender ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight()));
+
+		var root, node,
+			x = d3.scale.linear().range([0, width]),
+			y = d3.scale.linear().range([0, heightWithOffset]),
+			totalSize = 0;
+
+		var treemap = d3.layout.treemap()
+			.round(false)
+			.size([width, heightWithOffset])
+			.sticky(true)
+			.sort(function (a, b) { return a.value - b.value; })
+			.value(function (d) { return vis.unitValue(d, vis.metrics[0]); });
+
+		var g = d3.select("#VIS_ID")
+			.append("div")
+				.attr("class", "chart")
+				.style("width", width + "px")
+				.style("height", heightWithOffset + "px")
+				.style("overflow", "hidden")
+			.append("svg:svg")
+				.attr("width", width)
+				.attr("height", heightWithOffset)
+			.append("svg:g")
+				.on("mouseout", function () { util.hideTooltip(); });
+
+		vs.height(height);
+
+		var labelBox = util.labelBBox(d3.select("#VIS_ID div.chart svg"), "X",
+			function (pane) {
+				return pane.append("g").attr("class", "cell parent")
+					.append("svg").attr("class", "clip")
+					.append("text").attr("class", "label");
+			});
+
+		var headerHeight = labelBox.height,
+			headerOffset = -labelBox.y,
+			headerColor = "#555";
+
+		function getDuration() {
+			return d3.event && d3.event.altKey ? 7500 : 750;
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
-			toggleHeaderVisibility(false);
+
+		function idealTextColor(bgColor) {
+			function getRgbComponents(c) {
+				return {
+					R: parseInt(c.substring(1, 3), 16),
+					G: parseInt(c.substring(3, 5), 16),
+					B: parseInt(c.substring(5, 7), 16)
+				};
+			}
+
+			var nThreshold = 105;
+			var components = getRgbComponents(bgColor);
+			var bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
+			return ((255 - bgDelta) < nThreshold) ? "#000000" : "#ffffff";
 		}
+
+		function isParent(droot, d) {
+			return d == droot
+				|| d.parent == droot
+				|| (d.parent && d.parent.parent == droot);
+		}
+
+		function isParent2(droot, d) {
+			return isParent(droot, d)
+				|| (d.parent && d.parent.parent == droot && d.parent.parent.parent == droot);
+		}
+
+		function isLeaf(d) {
+			return !d.children;
+		}
+
+		function execBreadcrumb(d, total) {
+			var percentage = (100 * d.value / total).toPrecision(3),
+				percentageString = percentage < 0.1 ? "< 0.1%" : percentage + "%";
+
+			if (!isImageRender) {
+				vis.updateBreadcrumb(d, { label: percentageString });
+				store();
+			}
+		}
+
+		function zoom(d, init) {
+			(treemap || this.treemap)
+				.padding(function (d2, i) { return [((0 < i && d.depth - 1 < i && i < d.depth + 3) ? headerHeight / (heightWithOffset / d.dy) : 0), 0, 0, 0]; })
+				.nodes(d);
+
+			execBreadcrumb(d, totalSize);
+
+			// moving the next two lines above treemap layout messes up padding of zoom result
+			var kx = width / d.dx;
+			var ky = heightWithOffset / d.dy;
+			var level = d;
+
+			x.domain([d.x, d.x + d.dx]);
+			y.domain([d.y, d.y + d.dy]);
+
+			var tran = g.selectAll("g.cell")
+				.transition().duration(init ? 0 : getDuration())
+				.attr("transform", function (d2) { return "translate(" + x(d2.x) + "," + y(d2.y) + ")"; })
+				.each("start", function () {
+					d3.select(this).select("label")
+						.style("display", "none");
+				})
+				.each("end", function (d2, i2) {
+					if (!i2 && (level !== root)) {
+						g.selectAll(".cell.child")
+							.filter(function (d3) { return d3.parent === node; })  // only get the children for selected group
+							.select(".label")
+							.style("display", "")
+							.style("fill", function (d3) { return idealTextColor(color(d3)); });
+					}
+				})
+				.call(util.endAll, function () {
+					vis.onReady(100);
+				});
+
+			tran.select(".clip")
+				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); });
+
+			tran.select(".label")
+				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
+				.text(function (d2) {
+					var actualHeight = isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy));
+					if (actualHeight < 15)
+						return '';
+					var textWidth = kx * d2.dx - 15.0;
+					var textString = d2.name;
+					this.textContent = textString;
+					if (textWidth <= this.getBBox().width) {
+						for (var x = textString.length - 3; x > 0; x -= 3) {
+							if (this.getSubStringLength(0, x) <= textWidth) {
+								this.textContent = textString.substring(0, x) + "...";
+								return this.textContent;
+							}
+						}
+						if (this.getBBox().width < 15)
+							return '';
+						return "...";
+					}
+					return d2.name;
+				});
+
+			tran.select(".child .label")
+				.attr("x", function (d2) { return kx * d2.dx / 2; })
+				.attr("y", function (d2) { return ky * d2.dy / 2; });
+
+			tran.select("rect")
+				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
+				.style("fill", function (d2) { return isParent2(d, d2) && d2.children ? headerColor : d2.parent ? color(d2) : ""; });
+
+			totalSize = d3.select(tran.node()).datum().value;
+			node = d;
+
+			if (d3.event)
+				d3.event.stopPropagation();
+
+			util.hideTooltip();
+		}
+
+		function processData(data) {
+			function trace(node, i) {
+				if (node && node.children) {
+					var index = node.children.findIndex(function (e) {
+						return e.name == s.props.nodePath[vis.indexes[i]];
+					});
+					if (index > -1)
+						return trace(node.children[index], i + 1);
+				}
+
+				return node;
+			}
+
+			function parentSetup(parents) {
+				// create parent cells
+				var cells = g.selectAll("g.cell.parent")
+					.data(parents, function (d) { return "p-" + getPath(d); });
+
+				var clips = cells.enter().append("g")
+					.attr("class", "cell parent")
+					.on("click", function (d) { zoom(d); })
+					.append("svg")
+					.attr("class", "clip")
+					.attr("width", function (d) { return Math.max(0.01, d.dx); })
+					.attr("height", headerHeight);
+				clips.append("rect")
+					.attr("width", function (d) { return Math.max(0.01, d.dx); })
+					.attr("height", headerHeight);
+				clips.append('text')
+					.attr("class", "label")
+					.attr("transform", "translate(3, " + (headerOffset) + ")")
+					.attr("width", function (d) { return Math.max(0.01, d.dx); })
+					.attr("height", headerHeight)
+					.text(function (d) { return d.name; });
+
+				// update transition
+				var tran = cells.transition().duration(getDuration());
+				tran.select(".cell")
+					.attr("transform", function (d) { return "translate(" + d.dx + "," + d.y + ")"; });
+				tran.select("rect")
+					.attr("width", function (d) { return Math.max(0.01, d.dx); })
+					.attr("height", headerHeight);
+				tran.select(".label")
+					.attr("transform", "translate(3, 13)")
+					.attr("width", function (d) { return Math.max(0.01, d.dx); })
+					.attr("height", headerHeight)
+					.text(function (d) { return d.name; });
+				cells.exit().remove();
+			}
+
+			function chindrenSetup(chindren) {
+				var cells = g.selectAll("g.cell.child")
+					.data(chindren, function (d) { return "c-" + getPath(d); });
+
+				var clips = cells.enter().append("g")
+					.attr("class", "cell child")
+					.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
+					.on("click", function (d) { return zoom(node == d.parent ? root : d.parent); })
+					.append("svg")
+					.attr("class", "clip");
+				clips.append("rect")
+					.style("fill", function (d) { return d.parent ? color(d) : ""; })
+					.on("mouseover", function (d) { util.showTooltip(d, { nested: true, exclusion: ["link"] }); })
+					.on("mouseout", function () { util.hideTooltip(); });
+				clips.append("text")
+					.attr("class", "label")
+					.attr("x", function (d) { return d.dx / 2; })
+					.attr("y", function (d) { return d.dy / 2; })
+					.attr("dy", ".35em")
+					.attr("text-anchor", "middle")
+					.text(function (d) { return d.name; });
+				// update transition
+				var tran = cells.transition().duration(getDuration());
+				tran.select(".cell")
+					.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
+				tran.select("rect")
+					.attr("width", function(d) { return Math.max(0.01, d.dx); })
+					.attr("height", function (d) { return d.dy; })
+					.style("fill", function (d) { return d.parent ? color(d) : ""; });
+				tran.select(".label")
+					.attr('x', function (d) { return d.dx / 2; })
+					.attr('y', function (d) { return d.dy / 2; })
+					.attr("dy", ".35em")
+					.attr("text-anchor", "middle")
+					.text(function (d) { return d.name; });
+				cells.exit().remove();
+			}
+
+			node = root = data;
+
+			var nodes = treemap.nodes(root);
+			parentSetup(nodes.filter(function (d) { return d.children; }));
+			chindrenSetup(nodes.filter(function (d) { return isLeaf(d); }));
+
+			var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
+			existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0), bcNode = null;
+			if (isBackRender && existNodePath) {
+				bcNode = trace(data, 0);
+			}
+
+			vis.updateBreadcrumbContext({ root: root });
+			zoom(node, true);
+
+			restore();
+
+			treemap.value(function (d) { return vis.unitValue(d, metricSelect[0].value); }).nodes(root);
+
+			zoom(node, true);
+
+			if (isBackRender && existNodePath) {
+				zoom(bcNode, true);
+			}
+
+			if (!isImageRender) {
+				s.props.nodePath = undefined;
+				store();
+			}
+		}
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			jq$("#VIS_ID").empty();
+		});
+
+		processData(visRoot);
 	})();
 </script>

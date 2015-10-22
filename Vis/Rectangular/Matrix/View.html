@@ -31,176 +31,156 @@
 
 <script type="text/javascript">
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
+		function validate() {
+			return VIS_COLUMNS.length > 2
+				&& VIS_COLUMNS[1].type == 'DateTime'
+				&& /\d{4}\s+-\s+\d{2}/.test(VIS_ROWS[0][1].f)
+				&& util.isMetric(VIS_COLUMNS[2]);
+		}
 
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
-			}
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
+			return;
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		var i, t, rotate = true, rotateBox, buckets = 9, left = 14, top;
+		var colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
-				return;
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			(function () {
-				var fieldCount = VIS_COLUMNS.length;
-				var testCondition = fieldCount > 2 && VIS_COLUMNS[1].type == 'DateTime' && /\d{4}\s+-\s+\d{2}/.test(VIS_ROWS[0][1].f)
-					&& util.isMetric(VIS_COLUMNS[2]);
-				if (!testCondition) {
-					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
-				}
-			})();
+		vis.collectMonthlyData();
+		vis.signWithData();
 
-			var i, t, rotate = true, rotateBox, buckets = 9, left = 14, top;
-			var colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
+		width = vis.getWidth();
+		height = vis.getHeight();
 
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-			vis.collectMonthlyData();
-			vis.signWithData();
-
-			width = vis.getWidth();
-			height = vis.getHeight();
-
-			// Returns a array that contains all the different dates. The items already sorted by date (vis.collectMonthlyData).
-			function getUniqueDateOffsets(items) {
-				var u = {}, a = [];
-				for (var i = 0, li = items.length; i < li; ++i) {
-					var itemValues = vis.unitValue(items[i], 2);
-					for (var j = 0, lj = itemValues.length; j < lj; ++j) {
-						var value = itemValues[j][0];
-						if (u.hasOwnProperty(value)) {
-							continue;
-						}
-						a.push(value);
-						u[value] = 1;
+		// Returns a array that contains all the different dates. The items already sorted by date (vis.collectMonthlyData).
+		function getUniqueDateOffsets(items) {
+			var u = {}, a = [];
+			for (var i = 0, li = items.length; i < li; ++i) {
+				var itemValues = vis.unitValue(items[i], 2);
+				for (var j = 0, lj = itemValues.length; j < lj; ++j) {
+					var value = itemValues[j][0];
+					if (u.hasOwnProperty(value)) {
+						continue;
 					}
+					a.push(value);
+					u[value] = 1;
 				}
-				return a;
+			}
+			return a;
+		}
+
+		function processData() {
+			var uniqueDateOffsets = getUniqueDateOffsets(vis.items),
+				hc = uniqueDateOffsets.length;
+
+			var colorScale = d3.scale.quantile()
+				.domain([0, buckets - 1, vis.unitValue(vis.max, 2)])
+				.range(colors);
+
+			var svg = d3.select("#VIS_ID").append("svg");
+
+			for (i = 0; i < vis.items.length; i++) {
+				t = util.labelBBox(svg, vis.unitValue(vis.items[i], 0)).width;
+				left = t > left ? t : left;
 			}
 
-			function processData() {
-				var uniqueDateOffsets = getUniqueDateOffsets(vis.items),
-					hc = uniqueDateOffsets.length;
+			rotateBox = rotate ? util.labelBBox(svg, "XXX XXXX") : util.labelBBox(svg, "XX/XX");
+			top = rotate ? rotateBox.width : rotateBox.height;
 
-				var colorScale = d3.scale.quantile()
-					.domain([0, buckets - 1, vis.unitValue(vis.max, 2)])
-					.range(colors);
+			var margin = { top: top + 6, right: 0, bottom: 30, left: left + 16 },
+				widthWithMargins = width - margin.left - margin.right,
+				gridSize = Math.floor(widthWithMargins / hc),
 
-				var svg = d3.select("#VIS_ID").append("svg");
+			height = (vis.items.length + 1) * gridSize + top + rotateBox.height;
 
-				for (i = 0; i < vis.items.length; i++) {
-					t = util.labelBBox(svg, vis.unitValue(vis.items[i], 0)).width;
-					left = t > left ? t : left;
-				}
+			svg.attr("width", width).attr("height", height);
 
-				rotateBox = rotate ? util.labelBBox(svg, "XXX XXXX") : util.labelBBox(svg, "XX/XX");
-				top = rotate ? rotateBox.width : rotateBox.height;
+			var g = svg.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-				var margin = { top: top + 6, right: 0, bottom: 30, left: left + 16 },
-					widthWithMargins = width - margin.left - margin.right,
-					gridSize = Math.floor(widthWithMargins / hc),
+			g.selectAll(".dayLabel")
+				.data(vis.items)
+				.enter().append("text")
+					.text(function(d) { return vis.unitValue(d, 0); })
+					.attr("x", 0)
+					.attr("y", function(d, i2) { return i2 * gridSize; })
+					.style("text-anchor", "end")
+					.attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+					.attr("class", "dayLabel mono axis axis-workweek");
 
-				height = (vis.items.length + 1) * gridSize + top + rotateBox.height;
+			// Fills a time scale (top of the chart).
+			g.selectAll(".timeLabel")
+				.data(uniqueDateOffsets)
+				.enter().append("text")
+					.text(function(d) { return util.renderDate(util.getDateByOffset(vis.unitValue(vis.min, 1), d)); })
+					.attr("x", rotate ? 0 : function(d, i2) { return i2 * gridSize; })
+					.attr("y", rotate ? function(d, i2) { return i2 * gridSize; } : 0)
+					.style("text-anchor", rotate ? "end" : "middle")
+					.attr("transform", rotate ? "rotate(-90) translate(" + (rotateBox.width + 6) + ", " + ((gridSize + rotateBox.height - 4) / 2) + ")" : "translate(" + gridSize / 2 + ", -6)")
+					.attr("class", "timeLabel mono axis axis-worktime");
 
-				svg.attr("width", width).attr("height", height);
-
-				var g = svg.append("g")
-					.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-				g.selectAll(".dayLabel")
-					.data(vis.items)
-					.enter().append("text")
-						.text(function(d) { return vis.unitValue(d, 0); })
-						.attr("x", 0)
-						.attr("y", function(d, i2) { return i2 * gridSize; })
-						.style("text-anchor", "end")
-						.attr("transform", "translate(-6," + gridSize / 1.5 + ")")
-						.attr("class", "dayLabel mono axis axis-workweek");
-
-				// Fills a time scale (top of the chart).
-				g.selectAll(".timeLabel")
-					.data(uniqueDateOffsets)
-					.enter().append("text")
-						.text(function(d) { return util.renderDate(util.getDateByOffset(vis.unitValue(vis.min, 1), d)); })
-						.attr("x", rotate ? 0 : function(d, i2) { return i2 * gridSize; })
-						.attr("y", rotate ? function(d, i2) { return i2 * gridSize; } : 0)
-						.style("text-anchor", rotate ? "end" : "middle")
-						.attr("transform", rotate ? "rotate(-90) translate(" + (rotateBox.width + 6) + ", " + ((gridSize + rotateBox.height - 4) / 2) + ")" : "translate(" + gridSize / 2 + ", -6)")
-						.attr("class", "timeLabel mono axis axis-worktime");
-
-				// Adds items to the chart.
-				for (i = 0; i < vis.items.length; i++) {
-					g.append("g").selectAll(".hour")
-						.data(vis.unitValue(vis.items[i], 2))
-						.enter().append("rect")
-						.attr("x", function (d) {
-							// Calculates an item position by date.
-							var position = jq$.inArray(d[0], uniqueDateOffsets);
-							return (position * gridSize);
-						})
-						.attr("y", function(d) { return (i * gridSize); })
-						.attr("rx", 4)
-						.attr("ry", 4)
-						.attr("class", "hour bordered")
-						.attr("width", gridSize)
-						.attr("height", gridSize)
-						.style("fill", colors[0])
-						.on("mouseover", function (d) {
-							var data = {};
-							jq$.each(d.data, function (key, value) {
-								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
-								data[key] = fieldFormatter ? fieldFormatter(value, d.data, vis, key) : value + '';
-							});
-							util.showTooltip(data);
-						})
-						.on("mouseout", function() { util.hideTooltip(); });
-				}
-
-				g.selectAll(".hour").transition().duration(1000)
-					.style("fill", function(d) { return colorScale(d[1]); });
-
-				var quantiles, legend = g.selectAll(".legend")
-					.data(quantiles = [0].concat(colorScale.quantiles()), function(d) { return d; })
-					.enter().append("g")
-					.attr("class", "legend");
-
-				var legendItemWidth = (gridSize * hc) / quantiles.length,
-					legendItemHeight = gridSize / 3;
-
-				legend.append("rect")
-					.attr("x", function(d, i2) { return legendItemWidth * i2; })
-					.attr("y", (vis.items.length + 1/3) * gridSize)
-					.attr("width", legendItemWidth)
-					.attr("height", legendItemHeight)
-					.style("fill", function(d, i2) { return colors[i2]; });
-
-				legend.append("text")
-					.attr("class", "mono")
-					.text(function(d) { return "≥ " + Math.round(d); })
-					.attr("x", function(d, i2) { return legendItemWidth * i2; })
-					.attr("y", ((vis.items.length + 2/3) * gridSize) + rotateBox.height);
+			// Adds items to the chart.
+			for (i = 0; i < vis.items.length; i++) {
+				g.append("g").selectAll(".hour")
+					.data(vis.unitValue(vis.items[i], 2))
+					.enter().append("rect")
+					.attr("x", function (d) {
+						// Calculates an item position by date.
+						var position = jq$.inArray(d[0], uniqueDateOffsets);
+						return (position * gridSize);
+					})
+					.attr("y", function(d) { return (i * gridSize); })
+					.attr("rx", 4)
+					.attr("ry", 4)
+					.attr("class", "hour bordered")
+					.attr("width", gridSize)
+					.attr("height", gridSize)
+					.style("fill", colors[0])
+					.on("mouseover", function (d) {
+						var data = {};
+						jq$.each(d.data, function (key, value) {
+							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+							data[key] = fieldFormatter ? fieldFormatter(value, d.data, vis, key) : value + '';
+						});
+						util.showTooltip(data);
+					})
+					.on("mouseout", function() { util.hideTooltip(); });
 			}
 
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				jq$("#VIS_ID").empty();
-			});
+			g.selectAll(".hour").transition().duration(1000)
+				.style("fill", function(d) { return colorScale(d[1]); });
 
-			processData();
+			var quantiles, legend = g.selectAll(".legend")
+				.data(quantiles = [0].concat(colorScale.quantiles()), function(d) { return d; })
+				.enter().append("g")
+				.attr("class", "legend");
+
+			var legendItemWidth = (gridSize * hc) / quantiles.length,
+				legendItemHeight = gridSize / 3;
+
+			legend.append("rect")
+				.attr("x", function(d, i2) { return legendItemWidth * i2; })
+				.attr("y", (vis.items.length + 1/3) * gridSize)
+				.attr("width", legendItemWidth)
+				.attr("height", legendItemHeight)
+				.style("fill", function(d, i2) { return colors[i2]; });
+
+			legend.append("text")
+				.attr("class", "mono")
+				.text(function(d) { return "≥ " + Math.round(d); })
+				.attr("x", function(d, i2) { return legendItemWidth * i2; })
+				.attr("y", ((vis.items.length + 2/3) * gridSize) + rotateBox.height);
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
-		}
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			jq$("#VIS_ID").empty();
+		});
+
+		processData();
 	})();
 </script>

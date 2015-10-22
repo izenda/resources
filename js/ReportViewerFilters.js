@@ -440,14 +440,14 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.show();
 	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
 
-	var mouseOverScript = 'if(this.children[1]) { this.children[1].style.opacity=0.5; this.children[1].style.backgroundImage= \'url(\\\'\' + this.children[1].getAttribute("data-img") + \'\\\')\'; } if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage=\'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
+	var mouseOverScript = 'if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage= \'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } if(this.children[3]) { this.children[2].style.opacity=0.5; this.children[3].style.backgroundImage=\'url(\\\'\' + this.children[3].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
 						+ filter.Description
 						+ ' - '
 						+ filter.OperatorFriendlyName
 						+ '\';';
-	var mouseOutScript = 'for(var index = 1; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
+	var mouseOutScript = 'for(var index = 2; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
 						+ filter.Description
@@ -470,6 +470,8 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.find('.filterTitle').html(filter.Description + ' - ' + filter.OperatorFriendlyName);
 	var filterInnerContent = GenerateFilterControl(isSimpleFilter ? filter.GUID : index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == filters.length - 1 && !hasFilterLogic);
 	filterContent.find('.filterInnerContent').append(filterInnerContent);
+	if (filter.Required)
+		filterContent.find('.filterRequiredFlag').show();
 
 	if (filter.Parameter != false && filter.AgainstHiddenField)
 		filterContent.hide();
@@ -585,7 +587,7 @@ function HideEqualsPopupDialog(updateState) {
 }
 
 function ShowEqualsPopupDialog(filterInd) {
-	var width = '500px';
+	var width = '800px';
 	var filter = filtersData[filterInd];
 	if (filter == null && subreportsFiltersData != null && subreportsFiltersData.length > 0)
 		for (var i = 0; i < subreportsFiltersData.length; i++) {

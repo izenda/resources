@@ -27,7 +27,6 @@ var izenda = izenda || {};
 		this.duration = 1000;
 		this.minValue = 0;
 		this.maxValue = 100;
-		this.circle = this.data.items[0].value;
 		
 		this.fontSize = this.width * 0.25;
 
@@ -68,17 +67,13 @@ var izenda = izenda || {};
 		this.regionY = halfWidth;
 
 		if (typeof this.data.max != "undefined") {
-			this.circle = 1;
 			this.maxValue = this.data.max.value;
 		} else if (this.data.items.length > 1) {
-			this.circle = 1;
 			this.maxValue = this.data.items[1].value;
 		} else {
 			if (this.data.items[0].format.isPercentage) {
-				this.circle = 100;
 				this.maxValue = 100;
 			} else {
-				this.circle = this.data.items[0].value;
 				this.maxValue = this.data.items[0].value;
 			}
 		}
@@ -155,12 +150,12 @@ var izenda = izenda || {};
 				.outerRadius(self.regionOuterRadius)
 				.innerRadius(self.regionInnerRadius);
 
-			var point = ((region.value > self.circle) ? self.circle : region.value) * self.degree / self.circle;
+			var point = ((region.value > self.maxValue) ? self.maxValue : region.value) * self.degree / self.maxValue;
 
 			if (self.degree != 360) {
 				if (point == 0) {
 					point += self.regionFactor;
-				} else if (region.value > self.circle || point == self.degree) {
+				} else if (region.value > self.maxValue || point == self.degree) {
 					point -= self.regionFactor;
 				}
 			}
@@ -203,20 +198,10 @@ var izenda = izenda || {};
 
 			numerator.format.significant = null;
 			denominator.format.significant = null;
-			var formatedFirst = ns.format.formatBigNumber(numerator.value, numerator.format),
-				formatedSecond = ns.format.formatBigNumber(denominator.value, denominator.format),
-				isExistFractPart = (formatedFirst != "0") && (formatedSecond != "1") && formatedFirst !== formatedSecond;
-				//&& (parseInt(formatedSecond) != 1 || formatedFirst[formatedFirst.length - 1] !== formatedSecond[formatedSecond.length - 1]);
 
-			if (isExistFractPart) {
-				formatTypeText = "/" + formatedSecond;
-			} else {
-				if (formatedFirst === formatedSecond) {
-					numerator.value = 1;
-				}
-				self.circle = numerator.value;
-				self.maxValue = numerator.value;
-			}
+			var formatedSecond = ns.format.formatBigNumber(denominator.value, denominator.format);
+
+			formatTypeText = "/" + formatedSecond;
 		} else if (self.data.items[0].format.isPercentage) {
 			formatTypeText = "%";
 		} else if (self.data.items[0].format.isCurrency) {

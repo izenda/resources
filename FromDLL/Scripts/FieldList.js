@@ -401,14 +401,34 @@ function SC_OnExtraColumnChangedHandler(e, el, columnName)
 					descriptionEdit.value = colName;
 			}
 			
-			/*if (columnSel.value != '' && columnSel.value != '...')
-			{
-				var multiPivot = row.getAttribute("multyPivots");
-				if (multiPivot == "1")
-					EBC_AddEmptyRow(row, 1);
-			}*/
+			SC_ColumnChangeContext = {};
+			SC_ColumnChangeContext.row = row;
+			SC_ColumnChangeContext.strColumn = cName;
+			SC_ColumnChangeContext.columnSel = columnSel;
+			SC_ResetRowToDefault(true);
 		}
 	}
+}
+
+function SC_InsertExtraColumnBelow(id)
+{
+    EBC_InsertBelowHandler(event, 1);
+    if (jq$('#' + id + '_ExtraColumn').children().children().length > 1){
+        jq$('.' + id + '_ExtraDescription_Label1').show();
+        jq$('.' + id + '_ExtraDescription').show();
+        jq$(this).parents('tr').next().find('.' + id + '_ExtraDescription').val('');
+        jq$('.' + id + '_ExtraDescription_Label2').show();
+    }
+}
+
+function SC_RemoveExtraColumn(id)
+{
+    EBC_RemoveNotLastRowHandler('ExtraValue', event);
+    if (jq$('#' + id + '_ExtraColumn').children().children().length < 3) {
+        jq$('.' + id + '_ExtraDescription_Label1').hide();
+        jq$('.' + id + '_ExtraDescription').hide();
+        jq$('.' + id + '_ExtraDescription_Label2').hide();
+    }
 }
 
 var SC_ColumnChangeContext = {};
@@ -501,12 +521,14 @@ function SC_OnColumnChangedHandler(e, el) {
 	}
 }
 
-function SC_ResetRowToDefault() {
+function SC_ResetRowToDefault(isExtraColumn) {
 	var row = SC_ColumnChangeContext.row,
 		columnSel = SC_ColumnChangeContext.columnSel,
 		strColumn = SC_ColumnChangeContext.strColumn,
 		strFunction = SC_ColumnChangeContext.strFunction,
 		isNotSelectedColumnSel = SC_ColumnChangeContext.isNotSelectedColumnSel;
+
+	var prefix = isExtraColumn ? 'exv' : '';
 
 	if (row && columnSel) {
 		if (EBC_IsRealChangedSelValue(columnSel)) {
@@ -531,7 +553,7 @@ function SC_ResetRowToDefault() {
 		 */
 
 		/* Description */
-		var descriptionEdit = EBC_GetInputByName(row, "Description");
+		var descriptionEdit = EBC_GetInputByName(row, prefix + "Description");
 		if (descriptionEdit) {
 			descriptionEdit.value = "";
 			descriptionEdit.disabled = false;
@@ -553,7 +575,7 @@ function SC_ResetRowToDefault() {
 		var count = rows.length;
 		while (!mustGroupOrFunction && i < count) {
 			var funcTemp = EBC_GetSelectByName(rows[i], strFunction);
-			var groupCheckboxTemp = EBC_GetElementByName(rows[i], "Group", "INPUT");
+			var groupCheckboxTemp = EBC_GetElementByName(rows[i], prefix + "Group", "INPUT");
 			var isGruopChecked = groupCheckboxTemp && groupCheckboxTemp.checked;
 			var isScalar = funcTemp == null ? null : funcTemp.options[funcTemp.selectedIndex].getAttribute("isScalar");
 			isScalar = isScalar == null || isScalar.length == 0 ? "0" : isScalar;
@@ -562,7 +584,7 @@ function SC_ResetRowToDefault() {
 		}
 
 		/* Group */
-		var groupCheckbox = EBC_GetElementByName(row, "Group", "INPUT");
+		var groupCheckbox = EBC_GetElementByName(row, prefix + "Group", "INPUT");
 		if (groupCheckbox) {
 			groupCheckbox.checked = mustGroupOrFunction && !isNotSelectedColumnSel;
 			groupCheckbox.disabled = false;
@@ -570,21 +592,21 @@ function SC_ResetRowToDefault() {
 		}
 
 		/* Sort */
-		var orderCheckbox = EBC_GetElementByName(row, "Order", "INPUT");
+		var orderCheckbox = EBC_GetElementByName(row, prefix + "Order", "INPUT");
 		if (orderCheckbox) {
 			orderCheckbox.checked = false;
 			orderCheckbox.disabled = disabledSort;
 		}
 
 		/* VG */
-		var masterCheckbox = EBC_GetElementByName(row, "Master", "INPUT");
+		var masterCheckbox = EBC_GetElementByName(row, prefix + "Master", "INPUT");
 		if (masterCheckbox) {
 			masterCheckbox.checked = false;
 			masterCheckbox.disabled = false;
 		}
 
 		/* A */
-		var arithmeticOperationElem = new AdHoc.MultivaluedCheckBox("ArithmeticOperation", row);
+		var arithmeticOperationElem = new AdHoc.MultivaluedCheckBox(prefix + "ArithmeticOperation", row);
 		if (arithmeticOperationElem.ElementExists()) {
 			if (isNotSelectedColumnSel || isBinaryDataTypeGroup) {
 				arithmeticOperationElem.disable();
@@ -600,161 +622,161 @@ function SC_ResetRowToDefault() {
 		 */
 
 		/* Column Group */
-		var columnGroupEdit = EBC_GetInputByName(row, "ColumnGroup");
+		var columnGroupEdit = EBC_GetInputByName(row, prefix + "ColumnGroup");
 		if (columnGroupEdit) {
 			columnGroupEdit.value = columnGroupEdit.getAttribute("data-default") || "";;
 			columnGroupEdit.disabled = false;
 		}
 
 		/* Break Page After VG (PDF) */
-		var breakPageCheckbox = EBC_GetElementByName(row, "BreakPage", "INPUT");
+		var breakPageCheckbox = EBC_GetElementByName(row, prefix + "BreakPage", "INPUT");
 		if (breakPageCheckbox) {
 			breakPageCheckbox.checked = false;
 			breakPageCheckbox.disabled = true;
 		}
 
 		/* Multiline Header */
-		var multilineHeaderCheckbox = EBC_GetElementByName(row, "IsMultilineHeader", "INPUT");
+		var multilineHeaderCheckbox = EBC_GetElementByName(row, prefix + "IsMultilineHeader", "INPUT");
 		if (multilineHeaderCheckbox) {
 			multilineHeaderCheckbox.checked = false;
 			multilineHeaderCheckbox.disabled = false;
 		}
 
 		/* Hide this field */
-		var invisibleCheckbox = EBC_GetElementByName(row, "Invisible", "INPUT");
+		var invisibleCheckbox = EBC_GetElementByName(row, prefix + "Invisible", "INPUT");
 		if (invisibleCheckbox) {
 			invisibleCheckbox.checked = false;
 			invisibleCheckbox.disabled = false;
 		}
 
 		/* Separator */
-		var separatorCheckbox = EBC_GetElementByName(row, "Separator", "INPUT");
+		var separatorCheckbox = EBC_GetElementByName(row, prefix + "Separator", "INPUT");
 		if (separatorCheckbox) {
 			separatorCheckbox.checked = false;
 			separatorCheckbox.disabled = false;
 		}
 
 		/* Sort (z-a) */
-		var orderDescCheckbox = EBC_GetElementByName(row, "OrderDesc", "INPUT");
+		var orderDescCheckbox = EBC_GetElementByName(row, prefix + "OrderDesc", "INPUT");
 		if (orderDescCheckbox) {
 			orderDescCheckbox.checked = false;
 			orderDescCheckbox.disabled = disabledSort;
 		}
 
 		/* Italic */
-		var italicCheckbox = EBC_GetElementByName(row, "Italic", "INPUT");
+		var italicCheckbox = EBC_GetElementByName(row, prefix + "Italic", "INPUT");
 		if (italicCheckbox) {
 			italicCheckbox.checked = false;
 			italicCheckbox.disabled = false;
 		}
 
 		/* Bold */
-		var boldCheckbox = EBC_GetElementByName(row, "Bold", "INPUT");
+		var boldCheckbox = EBC_GetElementByName(row, prefix + "Bold", "INPUT");
 		if (boldCheckbox) {
 			boldCheckbox.checked = false;
 			boldCheckbox.disabled = false;
 		}
 
 		/* Width */
-		var widthEdit = EBC_GetInputByName(row, "Width");
+		var widthEdit = EBC_GetInputByName(row, prefix + "Width");
 		if (widthEdit) {
 			widthEdit.value = widthEdit.getAttribute("data-default") || "";
 			widthEdit.disabled = false;
 		}
 
 		/* Label Justification */
-		var labelJustificationElem = new AdHoc.MultivaluedCheckBox("LabelJustification", row);
+		var labelJustificationElem = new AdHoc.MultivaluedCheckBox(prefix + "LabelJustification", row);
 		if (labelJustificationElem.ElementExists()) {
 			labelJustificationElem.enable();
 			labelJustificationElem.setValueInternal("M");
 		}
 
 		/* Value Justification */
-		var justificationElem = new AdHoc.MultivaluedCheckBox("Justification", row);
+		var justificationElem = new AdHoc.MultivaluedCheckBox(prefix + "Justification", row);
 		if (justificationElem.ElementExists()) {
 			justificationElem.enable();
 			justificationElem.setValueInternal(" ");
 		}
 
 		/* Subreport */
-		var subreportSelect = EBC_GetSelectByName(row, "Subreport");
+		var subreportSelect = EBC_GetSelectByName(row, prefix + "Subreport");
 		if (subreportSelect) {
 			subreportSelect.selectedIndex = 0;
 			subreportSelect.disabled = false;
 		}
 
 		/* Drill-Down Style */
-		var drillDownStyleSelect = EBC_GetSelectByName(row, "DrillDownStyle");
+		var drillDownStyleSelect = EBC_GetSelectByName(row, prefix + "DrillDownStyle");
 		if (drillDownStyleSelect) {
 			drillDownStyleSelect.selectedIndex = 0;
 			drillDownStyleSelect.disabled = true;
 		}
 
 		/* Url */
-		var urlEdit = EBC_GetInputByName(row, "Url");
+		var urlEdit = EBC_GetInputByName(row, prefix + "Url");
 		if (urlEdit) {
 			urlEdit.value = urlEdit.getAttribute("data-default") || "";
 			urlEdit.disabled = false;
 		}
 
 		/* Subtotal Function */
-		var subtotalFunctionSelect = EBC_GetSelectByName(row, "SubtotalFunction");
+		var subtotalFunctionSelect = EBC_GetSelectByName(row, prefix + "SubtotalFunction");
 		if (subtotalFunctionSelect) {
 			subtotalFunctionSelect.selectedIndex = 0;
 			subtotalFunctionSelect.disabled = false;
 		}
 
 		/* Subtotal Expression */
-		var subtotalExpressionEdit = EBC_GetElementByName(row, "SubtotalExpression", "TEXTAREA");
+		var subtotalExpressionEdit = EBC_GetElementByName(row, prefix + "SubtotalExpression", "TEXTAREA");
 		if (subtotalExpressionEdit) {
 			subtotalExpressionEdit.value = subtotalExpressionEdit.getAttribute("data-default") || "";
 			subtotalExpressionEdit.disabled = false;
 		}
 
 		/* Gradient Cells Shading */
-		var gradientCheckbox = EBC_GetElementByName(row, "Gradient", "INPUT");
+		var gradientCheckbox = EBC_GetElementByName(row, prefix + "Gradient", "INPUT");
 		if (gradientCheckbox) {
 			gradientCheckbox.checked = false;
 			gradientCheckbox.disabled = false;
 		}
 
 		/* Text Highlight */
-		var textHighlightEdit = EBC_GetInputByName(row, "TextHighlight");
+		var textHighlightEdit = EBC_GetInputByName(row, prefix + "TextHighlight");
 		if (textHighlightEdit) {
 			textHighlightEdit.value = textHighlightEdit.getAttribute("data-default") || "";
 			textHighlightEdit.disabled = false;
 		}
 
 		/* Cell Highlight */
-		var cellHighlightEdit = EBC_GetInputByName(row, "CellHighlight");
+		var cellHighlightEdit = EBC_GetInputByName(row, prefix + "CellHighlight");
 		if (cellHighlightEdit) {
 			cellHighlightEdit.value = cellHighlightEdit.getAttribute("data-default") || "";
 			cellHighlightEdit.disabled = false;
 		}
 
 		/* Value Ranges */
-		var valueRangesEdit = EBC_GetInputByName(row, "ValueRanges");
+		var valueRangesEdit = EBC_GetInputByName(row, prefix + "ValueRanges");
 		if (valueRangesEdit) {
 			valueRangesEdit.value = valueRangesEdit.getAttribute("data-default") || "";
 			valueRangesEdit.disabled = false;
 		}
 
 		/* Expression */
-		var coefficientEdit = EBC_GetElementByName(row, "Coefficient", "TEXTAREA");
+		var coefficientEdit = EBC_GetElementByName(row, prefix + "Coefficient", "TEXTAREA");
 		if (coefficientEdit) {
 			coefficientEdit.value = coefficientEdit.getAttribute("data-default") || "";
 			coefficientEdit.disabled = false;
 		}
 
-			/* Expression type */
-		var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");
+		/* Expression type */
+		var expressionTypeSelect = EBC_GetSelectByName(row, prefix + "ExpressionType");
 		if (expressionTypeSelect) {
 			expressionTypeSelect.selectedIndex = 0;
 			expressionTypeSelect.disabled = false;
 		}
 
 		/* Group By Expression */
-		var groupByExpressionCheckbox = EBC_GetElementByName(row, "GroupByExpression", "INPUT");
+		var groupByExpressionCheckbox = EBC_GetElementByName(row, prefix + "GroupByExpression", "INPUT");
 		if (groupByExpressionCheckbox) {
 			groupByExpressionCheckbox.checked = false;
 			groupByExpressionCheckbox.disabled = false;
@@ -765,9 +787,9 @@ function SC_ResetRowToDefault() {
 		 */
 
 		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, strFunction, null, null, strColumn);
-		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, "SubtotalFunction", false, true, strColumn);
+		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, prefix + "SubtotalFunction", false, true, strColumn);
 
-		if (!isNotSelectedColumnSel && strColumn == "Column") {
+		if (!isNotSelectedColumnSel && strColumn == (prefix + "Column")) {
 			SC_CheckPropertiesModified(row);
 		}
 
@@ -1908,7 +1930,6 @@ function SC_CheckPropertiesModified(dialogRow) {
 						element = element.rows[0].cells[0].firstChild;
 						tagName = element.nodeName;
 						elType = element.getAttribute("type");
-						
 					}
 					switch (tagName) {
 						case "INPUT":
@@ -1938,9 +1959,9 @@ function SC_CheckPropertiesModified(dialogRow) {
 								var childNode = element.firstChild;
 								if (childNode.nodeName == "INPUT") {
 									var cnName = childNode.getAttribute("name");
-									if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0) {
+									if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0 || cnName.indexOf('_exvLabelJustificationCurrentValue') >= 0) {
 										result = (childNode.value != 'M');
-									} else if (cnName.indexOf('_JustificationCurrentValue') >= 0) {
+									} else if (cnName.indexOf('_JustificationCurrentValue') >= 0 || cnName.indexOf('_exvJustificationCurrentValue') >= 0) {
 										result = (childNode.value != ' ' && childNode.value != String.fromCharCode(160));
 									}
 								}

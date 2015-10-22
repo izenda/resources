@@ -3,13 +3,13 @@
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+		src: local('Open Sans'), local('OpenSans'), url(###RS###font=Fonts.OpenSans.woff) format('woff');
 	}
 	@font-face {
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(###RS###font=Fonts.OpenSans-Semibold.woff) format('woff');
 	}
 	#VIS_ID_CONTAINER #VIS_ID {
 		position: relative;
@@ -91,526 +91,501 @@
 <script src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	var visState;
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
-
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		visState = visState || {};
+		window.visState = window.visState || {};
 
-		function toggleHeaderVisibility(visible) {
-			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
-			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+			return;
+
+		var root, spendField, expText = "of value";
+		var colors = d3.scale.category20();
+		var b = { w: 75, h: 30, s: 3, t: 10 }; // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
+
+		var vs = util.container("VIS_ID"),
+			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
+
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		if (!s.props) {
+			try {
+				s.props = JSON.parse(VIS_CONTEXT.props);
+			} catch (e) {
+				s.props = {};
+				util.logger.error(e);
+			}
 		}
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		width = vis.getWidth();
+		height = vis.getHeight();
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
-				return;
-			}
+		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+		var showPanelInImage = true; // Panel with breadcrumbs and metrics had been enabled in to_image rendering
 
-			var root, spendField, expText = "of value";
-			var colors = d3.scale.category20();
-			var b = { w: 75, h: 30, s: 3, t: 10 }; // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
-
-			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
-
-			var s = visState.VIS_ID || (visState.VIS_ID = {});
-			if (!s.props) {
-				try {
-					s.props = JSON.parse(VIS_CONTEXT.props);
-				} catch (e) {
-					s.props = {};
-					util.logger.error(e);
-				}
-			}
-
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-			width = vis.getWidth();
-			height = vis.getHeight();
-
-			var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-			var showPanelInImage = true; // Panel with breadcrumbs and metrics had been enabled in to_image rendering
-
-			function store() {
-				jq$.extend(s.props = (s.props || {}), {
-					"metric": metricSelect.val()
-				});
-				vis.setProps(s.props);
-			}
-
-			function restore() {
-				if (typeof s.props != "object") {
-					return;
-				}
-
-				if (s.props.metric) {
-					metricSelect.val(s.props.metric);
-				}
-			}
-
-			vis.collectTree();
-
-			if (!vis.metrics.length) {
-				jq$("#VIS_ID").text("No metric found");
-				return;
-			}
-
-			vis.metrics = vis.metrics.reverse();
-
-			metricSelect.find("option").remove();
-			jq$.each(vis.metrics, function (i, el) {
-				metricSelect.append("<option>" + el + "</option>");
+		function store() {
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
 			});
+			vis.setProps(s.props);
+		}
 
-			restore();
-
-			spendField = metricSelect.val();
-
-			expText = "of " + spendField + " value";
-
-			root = vis.traverseTree(function (context) {
-				if (context.isLeaf) {
-					context.node["size"] = vis.unitValue(context.node, spendField);
-				}
-			});
-
-			var metricsLength = vis.metrics.length;
-			var aggregatesByMetrics = (function () {
-				var aggregate = {},
-					recordCountAggregate = {
-						func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
-						type: "SUM"
-					};
-				for (i = 0; i < metricsLength; i++) {
-					var metric = vis.metrics[i];
-					for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
-						if (VIS_COLUMNS[j].name === metric) {
-							var isRecordCount = metric == "Record Count";
-							aggregate[metric] = !isRecordCount ? {
-								func: VIS_COLUMNS[j].aggregatefunction,
-								type: VIS_COLUMNS[j].aggregatefunctiontype,
-								subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
-							} : recordCountAggregate;
-							break;
-						}
-					}
-				}
-				return aggregate;
-			})();
-
-			function initNodes(node, metric) {
-				var values = [],
-					nodeValue, subtotalValue,
-					aggregate = aggregatesByMetrics[metric];
-				if (node.hasOwnProperty("children")) {
-					for (var i = 0, length = node.children.length; i < length; ++i) {
-						var tmp = initNodes(node.children[i], metric);
-						values = values.concat(tmp);
-					}
-					nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
-					vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
-				} else {
-					values.push(vis.unitValue(node, metric));
-				}
-
-				subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
-				vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
-
-				return values;
+		function restore() {
+			if (typeof s.props != "object") {
+				return;
 			}
 
+			if (s.props.metric) {
+				metricSelect.val(s.props.metric);
+			}
+		}
+
+		vis.collectTree();
+
+		if (!vis.metrics.length) {
+			jq$("#VIS_ID").text("No metric found");
+			return;
+		}
+
+		vis.metrics = vis.metrics.reverse();
+
+		metricSelect.find("option").remove();
+		jq$.each(vis.metrics, function (i, el) {
+			metricSelect.append("<option>" + el + "</option>");
+		});
+
+		restore();
+
+		spendField = metricSelect.val();
+
+		expText = "of " + spendField + " value";
+
+		root = vis.traverseTree(function (context) {
+			if (context.isLeaf) {
+				context.node["size"] = vis.unitValue(context.node, spendField);
+			}
+		});
+
+		var metricsLength = vis.metrics.length;
+		var aggregatesByMetrics = (function () {
+			var aggregate = {},
+				recordCountAggregate = {
+					func: function (values) { var sum = 0; for (var i = 0, length = values.length; i < length; ++i) { sum += values[i]; } return sum; },
+					type: "SUM"
+				};
 			for (i = 0; i < metricsLength; i++) {
-				initNodes(root, vis.metrics[i]);
+				var metric = vis.metrics[i];
+				for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
+					if (VIS_COLUMNS[j].name === metric) {
+						var isRecordCount = metric == "Record Count";
+						aggregate[metric] = !isRecordCount ? {
+							func: VIS_COLUMNS[j].aggregatefunction,
+							type: VIS_COLUMNS[j].aggregatefunctiontype,
+							subtotalFunc: VIS_COLUMNS[j].subtotalfunction,
+						} : recordCountAggregate;
+						break;
+					}
+				}
+			}
+			return aggregate;
+		})();
+
+		function initNodes(node, metric) {
+			var values = [],
+				nodeValue, subtotalValue,
+				aggregate = aggregatesByMetrics[metric];
+			if (node.hasOwnProperty("children")) {
+				for (var i = 0, length = node.children.length; i < length; ++i) {
+					var tmp = initNodes(node.children[i], metric);
+					values = values.concat(tmp);
+				}
+				nodeValue = (typeof aggregate.func == "function") ? aggregate.func(values) : 0;
+				vis.unitValue(node, metric, { sf: vis.fields.origin, value: nodeValue });
+			} else {
+				values.push(vis.unitValue(node, metric));
 			}
 
-			var heightOffset = 4,
-				heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
+			subtotalValue = (typeof aggregate.subtotalFunc == "function") ? aggregate.subtotalFunc(values) : 0;
+			vis.unitValue(node, metric, { sf: "s", value: subtotalValue });
 
-			var radius = Math.min(width, heightWithOffset) / 2,
-				breadcrumbWidthOffset = 10,
-				breadcrumbMarginLeft = Math.max(0, width / 2 - radius),
-				duration = 750,
-				totalSize = 0,
-				cx = 0.003, cy = 0.88,
-				zoomEnabled = false;
-			var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
-				breadcrumbWidth = (width - (breadcrumbMarginLeft + breadcrumbWidthOffset + propertiesPanelWidth));
-			vis.createBreadcrumb({
-				selector: "#VIS_ID_BREADCRUMBS_PANEL",
-				width: breadcrumbWidth,
-				bounds: b,
-				getColor: function(d, i) {
+			return values;
+		}
+
+		for (i = 0; i < metricsLength; i++) {
+			initNodes(root, vis.metrics[i]);
+		}
+
+		var heightOffset = 4,
+			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
+
+		var radius = Math.min(width, heightWithOffset) / 2,
+			breadcrumbWidthOffset = 10,
+			breadcrumbMarginLeft = Math.max(0, width / 2 - radius),
+			duration = 750,
+			totalSize = 0,
+			cx = 0.003, cy = 0.88,
+			zoomEnabled = false;
+		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+			breadcrumbWidth = (width - (breadcrumbMarginLeft + breadcrumbWidthOffset + propertiesPanelWidth));
+		vis.createBreadcrumb({
+			selector: "#VIS_ID_BREADCRUMBS_PANEL",
+			width: breadcrumbWidth,
+			bounds: b,
+			getColor: function(d, i) {
+				var path = vis.getPath(d);
+				if (path.length > 0) {
+					var topmost = path[0];
+					var index = names.indexOf(topmost.name);
+					return util.getColor(i ? colors(index + 1) : "#fff", { min: 0, max: topmost.value, factor: 0.7, value: d.value, scale: d3.scale.sqrt() });
+				}
+				return colors(0);
+			},
+			showRoot: true,
+			onclick: function (d) {
+				zoom(d);
+				if (d.depth != 0) {
+					g.selectAll("path")
+						.each(function (d2) {
+							d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
+							d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
+						});
+				} else {
+					collapseShares();
+				}
+			},
+			root: null,
+			showLabel: true,
+			total: 1
+		});
+
+		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())) - heightOffset;
+
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				vis.breadcrumb.show();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				vis.breadcrumb.hide();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
+			});
+
+		vs.find("#VIS_ID_BREADCRUMBS_PANEL").css("margin-left", breadcrumbMarginLeft + "px");
+
+		// set zoomEnabled = true => remove border collapsing
+		// set zoomEnabled = false => enable collapsing border and then collapse
+		// on mouseover && !zoomEnabled - collapse/expand border
+
+		var mouseleaveOpacityLock = { }, zoomLock = { };
+
+		var g1 = d3.select("#VIS_ID")
+			.append("svg:svg")
+				.attr("width", width)
+				.attr("height", heightWithOffset);
+		var g = g1.append("svg:g")
+			.attr("class", "container")
+			.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")");
+		g1.append("svg:circle")
+			.attr("r", radius * 0.47)
+			.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")")
+			.style("fill", "#ffffff");
+		var g2 = g1.append("svg:g");
+		var explanation = g2.append("svg:text")
+			.attr("x", "0")
+			.attr("y", "0")
+			.attr("style", "fill: #666; color: #666; font-size: 2.5em; align: center; pointer-events: none");
+		var percentage = explanation.append("tspan")
+			.attr("x", "0")
+			.attr("dy", "0")
+			.attr("text-anchor", "middle")
+			.attr("style", "fill: #666; color: #666; font-size: 30px; align: center; font-family: 'Open Sans', sans-serif;")
+			.text("100%");
+		explanation.append("tspan")
+			.attr("x", "0")
+			.attr("dy", "2.5em")
+			.attr("text-anchor", "middle")
+			.attr("style", "fill: #666; color: #666; font-size: 12px; align: center; font-family: 'Open Sans', sans-serif;")
+			.text(expText);
+
+		var tw = g2.node().getBBox().width, th = g2.node().getBBox().height,
+			actualRadius = Math.sqrt((tw * tw + th * th) / 4),
+			textScaleFactor = (actualRadius > 0) ? (radius * 0.3 / actualRadius) : 1;
+		g2.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ") scale(" + textScaleFactor + ")");
+
+		vs.css({
+			"font-family": "'Open Sans', sans-serif",
+			"font-size": "12px",
+			"font-weight": "400",
+			"background-color": "#fff"
+		}).height(height);
+
+		var partition = d3.layout.partition()
+			.value(function(d) { return d.size; });
+
+		var x = d3.scale.linear().range([0, 2 * Math.PI]);
+		var y = d3.scale.sqrt().range([radius * 0.47, radius]);
+
+		var arc = d3.svg.arc()
+			.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
+			.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
+			.innerRadius(function(d) { return Math.max(0, y(d.y)); })
+			.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
+		function trace(node, i) {
+			if (node && node.children) {
+				var index = node.children.findIndex(function (e) {
+					return e.name == s.props.nodePath[vis.indexes[i]];
+				});
+				if (index > -1)
+					return trace(node.children[index], i + 1);
+			}
+
+			return node;
+		}
+
+		var names, path, minY = 0;
+		function createVisualization(json) {
+			// Bounding circle underneath the sunburst, to make it easier to detect
+			// when the mouse leaves the parent g.
+			g.append("svg:circle")
+				.attr("r", radius)
+				.style("opacity", 0);
+
+			// For efficiency, filter nodes to keep only those large enough to see.
+			var nodes = partition.nodes(json)
+				.filter(function(d) { return (d.dx > cx /*0.001*/); /*0.005 radians = 0.29 degrees*/ });
+
+			minY = d3.min(jq$.grep(nodes, function(n) { return n.y > 0; }), function(n) {
+				return n.y;
+			});
+
+			y.domain([minY, 1]);
+
+			names = root.children
+				.sort(function(a, b) { return b.name - a.name; })
+				.map(function(item) { return item.name; });
+
+			path = g.data([json]).selectAll("path")
+				.data(nodes)
+				.enter().append("svg:path")
+				.attr("d", arc)
+				.attr("fill-rule", "evenodd")
+				.style("fill", function(d, i) {
 					var path = vis.getPath(d);
 					if (path.length > 0) {
 						var topmost = path[0];
 						var index = names.indexOf(topmost.name);
 						return util.getColor(i ? colors(index + 1) : "#fff", { min: 0, max: topmost.value, factor: 0.7, value: d.value, scale: d3.scale.sqrt() });
 					}
-					return colors(0);
-				},
-				showRoot: true,
-				onclick: function (d) {
-					zoom(d);
-					if (d.depth != 0) {
-						g.selectAll("path")
-							.each(function (d2) {
-								d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
-								d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
-							});
-					} else {
-						collapseShares();
-					}
-				},
-				root: null,
-				showLabel: true,
-				total: 1
-			});
-
-			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())) - heightOffset;
-
-			vis.container
-				.unbind("mouseenter")
-				.bind("mouseenter", function () {
-					vis.breadcrumb.show();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+					return "#fff";
 				})
-				.unbind("mouseleave")
-				.bind("mouseleave", function () {
-					vis.breadcrumb.hide();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
-				});
+				.style("opacity", 1)
+				.on("mouseover", mouseover)
+				.on("mouseout", mouseout)
+				.on("click", zoom);
 
-			vs.find("#VIS_ID_BREADCRUMBS_PANEL").css("margin-left", breadcrumbMarginLeft + "px");
+			d3.select("#VIS_ID .container")
+				.on("mouseleave", mouseleave);
 
-			// set zoomEnabled = true => remove border collapsing
-			// set zoomEnabled = false => enable collapsing border and then collapse
-			// on mouseover && !zoomEnabled - collapse/expand border
-
-			var mouseleaveOpacityLock = { }, zoomLock = { };
-
-			var g1 = d3.select("#VIS_ID")
-				.append("svg:svg")
-					.attr("width", width)
-					.attr("height", heightWithOffset);
-			var g = g1.append("svg:g")
-				.attr("class", "container")
-				.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")");
-			g1.append("svg:circle")
-				.attr("r", radius * 0.47)
-				.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")")
-				.style("fill", "#ffffff");
-			var g2 = g1.append("svg:g");
-			var explanation = g2.append("svg:text")
-				.attr("x", "0")
-				.attr("y", "0")
-				.attr("style", "fill: #666; color: #666; font-size: 2.5em; align: center; pointer-events: none");
-			var percentage = explanation.append("tspan")
-				.attr("x", "0")
-				.attr("dy", "0")
-				.attr("text-anchor", "middle")
-				.attr("style", "fill: #666; color: #666; font-size: 30px; align: center; font-family: 'Open Sans', sans-serif;")
-				.text("100%");
-			explanation.append("tspan")
-				.attr("x", "0")
-				.attr("dy", "2.5em")
-				.attr("text-anchor", "middle")
-				.attr("style", "fill: #666; color: #666; font-size: 12px; align: center; font-family: 'Open Sans', sans-serif;")
-				.text(expText);
-
-			var tw = g2.node().getBBox().width, th = g2.node().getBBox().height,
-				actualRadius = Math.sqrt((tw * tw + th * th) / 4),
-				textScaleFactor = (actualRadius > 0) ? (radius * 0.3 / actualRadius) : 1;
-			g2.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ") scale(" + textScaleFactor + ")");
-
-			vs.css({
-				"font-family": "'Open Sans', sans-serif",
-				"font-size": "12px",
-				"font-weight": "400",
-				"background-color": "#fff"
-			}).height(height);
-
-			var partition = d3.layout.partition()
-				.value(function(d) { return d.size; });
-
-			var x = d3.scale.linear().range([0, 2 * Math.PI]);
-			var y = d3.scale.sqrt().range([radius * 0.47, radius]);
-
-			var arc = d3.svg.arc()
-				.startAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-				.endAngle(function(d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-				.innerRadius(function(d) { return Math.max(0, y(d.y)); })
-				.outerRadius(function(d) { return Math.max(0, y(d.y + d.dy)); });
-			function trace(node, i) {
-				if (node && node.children) {
-					var index = node.children.findIndex(function (e) {
-						return e.name == s.props.nodePath[vis.indeces[i]];
-					});
-					if (index > -1)
-						return trace(node.children[index], i + 1);
-				}
-
-				return node;
+			var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
+				existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0);
+			if (isBackRender && existNodePath) {
+				cx = 0; cy = 1;
+			} else {
+				cx = 0.003; cy = 0.88;
 			}
 
-			var names, path, minY = 0;
-			function createVisualization(json) {
-				// Bounding circle underneath the sunburst, to make it easier to detect
-				// when the mouse leaves the parent g.
-				g.append("svg:circle")
-					.attr("r", radius)
-					.style("opacity", 0);
-
-				// For efficiency, filter nodes to keep only those large enough to see.
-				var nodes = partition.nodes(json)
-					.filter(function(d) { return (d.dx > cx /*0.001*/); /*0.005 radians = 0.29 degrees*/ });
-
-				minY = d3.min(jq$.grep(nodes, function(n) { return n.y > 0; }), function(n) {
-					return n.y;
+			g.selectAll("path").transition().duration(750)
+				.call(function(transition) {
+					transition.attrTween("d", function(d) {
+						d.edx = d.dx, d.edy = d.dy;
+						d.cdx = d.edx - cx, d.cdy = d.edy * cy;
+						return function(t) {
+							d.dx = d3.interpolate(d.edx, d.cdx)(t);
+							d.dy = d3.interpolate(d.edy, d.cdy)(t);
+							return arc(d);
+						};
+					});
 				});
 
-				y.domain([minY, 1]);
+			totalSize = path.datum().value;
 
-				names = root.children
-					.sort(function(a, b) { return b.name - a.name; })
-					.map(function(item) { return item.name; });
-
-				path = g.data([json]).selectAll("path")
-					.data(nodes)
-					.enter().append("svg:path")
-					.attr("d", arc)
-					.attr("fill-rule", "evenodd")
-					.style("fill", function(d, i) {
-						var path = vis.getPath(d);
-						if (path.length > 0) {
-							var topmost = path[0];
-							var index = names.indexOf(topmost.name);
-							return util.getColor(i ? colors(index + 1) : "#fff", { min: 0, max: topmost.value, factor: 0.7, value: d.value, scale: d3.scale.sqrt() });
-						}
-						return "#fff";
-					})
-					.style("opacity", 1)
-					.on("mouseover", mouseover)
-					.on("mouseout", mouseout)
-					.on("click", zoom);
-
-				d3.select("#VIS_ID .container")
-					.on("mouseleave", mouseleave);
-
-				var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
-					existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0);
-				if (isBackRender && existNodePath) {
-					cx = 0; cy = 1;
-				} else {
-					cx = 0.003; cy = 0.88;
-				}
-
-				g.selectAll("path").transition().duration(750)
-					.call(function(transition) {
-						transition.attrTween("d", function(d) {
-							d.edx = d.dx, d.edy = d.dy;
-							d.cdx = d.edx - cx, d.cdy = d.edy * cy;
-							return function(t) {
-								d.dx = d3.interpolate(d.edx, d.cdx)(t);
-								d.dy = d3.interpolate(d.edy, d.cdy)(t);
-								return arc(d);
-							};
-						});
-					});
-
-				totalSize = path.datum().value;
-
-				metricSelect
-					.unbind("change")
-					.bind("change", function () {
-						vs.find("svg").remove();
-						store();
-						ExecuteVIS_ID();
-						setZoom(false);
-					});
-
-				vis.updateBreadcrumbContext({ root: json, total: totalSize });
-				vis.hideBreadcrumb();
-				vis.onReady(100);
-
-				if (isBackRender && existNodePath) {
-					var d = trace(json, 0);
-					var pathLocks = new Array(path.size());
-					path.each(function (d2, i2) { pathLocks[i2] = this; });
-					x.domain([d.x, d.x + d.dx]);
-					y.domain([(d.depth > 0) ? d.y : minY, 1]);
-					d3.selectAll(pathLocks).each(function (d2, i2) {
-						d3.select(pathLocks[i2]).attr("d", function () {
-							return arc(d2);
-						});
-					});
-				}
-
-				if (!isImageRender) {
-					s.props.nodePath = undefined;
+			metricSelect
+				.unbind("change")
+				.bind("change", function () {
+					vs.find("svg").remove();
 					store();
-				}
+					ExecuteVIS_ID();
+					setZoom(false);
+				});
+
+			vis.updateBreadcrumbContext({ root: json, total: totalSize });
+			vis.hideBreadcrumb();
+			vis.onReady(100);
+
+			if (isBackRender && existNodePath) {
+				var d = trace(json, 0);
+				var pathLocks = new Array(path.size());
+				path.each(function (d2, i2) { pathLocks[i2] = this; });
+				x.domain([d.x, d.x + d.dx]);
+				y.domain([(d.depth > 0) ? d.y : minY, 1]);
+				d3.selectAll(pathLocks).each(function (d2, i2) {
+					d3.select(pathLocks[i2]).attr("d", function () {
+						return arc(d2);
+					});
+				});
 			}
 
-			function getChildren(node) {
-				var path = [node], children = node["children"];
-				if (!children) {
-					return path;
-				}
+			if (!isImageRender) {
+				s.props.nodePath = undefined;
+				store();
+			}
+		}
 
-				for (var i = 0; i < children.length; i++) {
-					path.push.apply(path, getChildren(children[i]));
-				}
+		function getChildren(node) {
+			var path = [node], children = node["children"];
+			if (!children) {
 				return path;
 			}
 
-			function getPercentageString(d) {
-				var percentage = (100 * d.value / totalSize).toPrecision(3);
-				return percentage < 0.1 ? "< 0.1%" : percentage + "%";
+			for (var i = 0; i < children.length; i++) {
+				path.push.apply(path, getChildren(children[i]));
 			}
+			return path;
+		}
 
-			function updateBreadcrumb(d, filter) {
-				vis.updateBreadcrumb(d, { label: getPercentageString(d), preventFilter: !filter });
-			}
+		function getPercentageString(d) {
+			var percentage = (100 * d.value / totalSize).toPrecision(3);
+			return percentage < 0.1 ? "< 0.1%" : percentage + "%";
+		}
 
-			function collapseShares() {
-				g.selectAll("path")
-					.transition()
-					.duration(1000)
-					.call(function(tran) {
-						if (zoomEnabled)
-							return;
-						tran.attrTween("d", function(d2) {
-							return function(t) {
-								d2.dx = d3.interpolate(d2.dx, d2.cdx)(t);
-								d2.dy = d3.interpolate(d2.dy, d2.cdy)(t);
-								return arc(d2);
-							};
-						});
+		function updateBreadcrumb(d, filter) {
+			vis.updateBreadcrumb(d, { label: getPercentageString(d), preventFilter: !filter });
+		}
+
+		function collapseShares() {
+			g.selectAll("path")
+				.transition()
+				.duration(1000)
+				.call(function(tran) {
+					if (zoomEnabled)
+						return;
+					tran.attrTween("d", function(d2) {
+						return function(t) {
+							d2.dx = d3.interpolate(d2.dx, d2.cdx)(t);
+							d2.dy = d3.interpolate(d2.dy, d2.cdy)(t);
+							return arc(d2);
+						};
 					});
-			}
+				});
+		}
 
-			function mouseover(d) {
-				percentage.text(getPercentageString(d));
+		function mouseover(d) {
+			percentage.text(getPercentageString(d));
 
-				var ancestors = vis.getPath(d), children = getChildren(d);
+			var ancestors = vis.getPath(d), children = getChildren(d);
 
+			g.selectAll("path")
+				.style("opacity", 0.5)
+				.filter(function(node) { return (ancestors.indexOf(node) >= 0); })
+				.style("opacity", 1);
+
+			g.selectAll("path")
+				.transition().duration(150)
+				.call(function(transition) {
+					transition.attrTween("d", function(d2) {
+						return function(t) {
+							d2.dx = d3.interpolate(d2.dx, !zoomEnabled ? d2.cdx : d2.edx)(t);
+							d2.dy = d3.interpolate(d2.dy, !zoomEnabled ? d2.cdy : d2.edy)(t);
+							return arc(d2);
+						};
+					});
+				});
+
+			if (!zoomEnabled) {
 				g.selectAll("path")
-					.style("opacity", 0.5)
-					.filter(function(node) { return (ancestors.indexOf(node) >= 0); })
-					.style("opacity", 1);
-
-				g.selectAll("path")
-					.transition().duration(150)
+					.filter(function(node) { return (children.indexOf(node) >= 0); })
+					.sort(function(a2, b2) { return a2.size - b2.size; })
+					.transition().duration(250)
+					.delay(function(d2, i) { return i / children.length * 250; })
 					.call(function(transition) {
 						transition.attrTween("d", function(d2) {
 							return function(t) {
-								d2.dx = d3.interpolate(d2.dx, !zoomEnabled ? d2.cdx : d2.edx)(t);
-								d2.dy = d3.interpolate(d2.dy, !zoomEnabled ? d2.cdy : d2.edy)(t);
+								d2.dx = d3.interpolate(d2.dx, d2.edx)(t);
+								d2.dy = d3.interpolate(d2.dy, d2.edy)(t);
 								return arc(d2);
 							};
 						});
 					});
+			}
+			util.showTooltip(d, { nested: true, exclusion: ["edx", "edy", "cdx", "cdy", "link"] });
+		}
 
-				if (!zoomEnabled) {
-					g.selectAll("path")
-						.filter(function(node) { return (children.indexOf(node) >= 0); })
-						.sort(function(a2, b2) { return a2.size - b2.size; })
-						.transition().duration(250)
-						.delay(function(d2, i) { return i / children.length * 250; })
-						.call(function(transition) {
-							transition.attrTween("d", function(d2) {
-								return function(t) {
-									d2.dx = d3.interpolate(d2.dx, d2.edx)(t);
-									d2.dy = d3.interpolate(d2.dy, d2.edy)(t);
-									return arc(d2);
-								};
+		function mouseout() {
+			util.hideTooltip();
+			collapseShares();
+		}
+
+		function mouseleave() {
+			collapseShares();
+			d3.select(mouseleaveOpacityLock)
+				.transition().duration(1000)
+				.tween("style:opacity", function() {
+					var i = d3.interpolateString("0.5", "1");
+					return function(t) { path.style("opacity", i(t)); };
+				});
+			percentage.text("100%");
+		}
+
+		function setZoom(value) {
+			zoomEnabled = value;
+		}
+
+		function zoom(d) {
+			updateBreadcrumb(d, true);
+			store();
+			setZoom(d.depth != 0);
+			vis.setBreadcrumbDefaultNode(zoomEnabled ? d : null);
+
+			var pathLocks = new Array(path.size());
+			path.each(function(d2, i2) { pathLocks[i2] = this; });
+
+			d3.select(zoomLock)
+				.transition().duration(duration)
+				.tween("text", function() {
+					var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
+						yd = d3.interpolate(y.domain(), [(d.depth > 0) ? d.y : minY, 1]);
+
+					return function(t) {
+						d3.selectAll(pathLocks).each(function(d2, i2) {
+							d3.select(pathLocks[i2]).attr("d", function() {
+								if (!i2) {
+									x.domain(xd(t));
+									y.domain(yd(t));
+								}
+								return arc(d2);
 							});
 						});
-				}
-				util.showTooltip(d, { nested: true, exclusion: ["edx", "edy", "cdx", "cdy", "link"] });
-			}
+					};
+				});
 
-			function mouseout() {
-				util.hideTooltip();
-				collapseShares();
-			}
-
-			function mouseleave() {
-				collapseShares();
-				d3.select(mouseleaveOpacityLock)
-					.transition().duration(1000)
-					.tween("style:opacity", function() {
-						var i = d3.interpolateString("0.5", "1");
-						return function(t) { path.style("opacity", i(t)); };
-					});
-				percentage.text("100%");
-			}
-
-			function setZoom(value) {
-				zoomEnabled = value;
-			}
-
-			function zoom(d) {
-				updateBreadcrumb(d, true);
-				store();
-				setZoom(d.depth != 0);
-				vis.setBreadcrumbDefaultNode(zoomEnabled ? d : null);
-
-				var pathLocks = new Array(path.size());
-				path.each(function(d2, i2) { pathLocks[i2] = this; });
-
-				d3.select(zoomLock)
-					.transition().duration(duration)
-					.tween("text", function() {
-						var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-							yd = d3.interpolate(y.domain(), [(d.depth > 0) ? d.y : minY, 1]);
-
-						return function(t) {
-							d3.selectAll(pathLocks).each(function(d2, i2) {
-								d3.select(pathLocks[i2]).attr("d", function() {
-									if (!i2) {
-										x.domain(xd(t));
-										y.domain(yd(t));
-									}
-									return arc(d2);
-								});
-							});
-						};
-					});
-
-				g.selectAll("path")
-					.each(function (d2) {
-						d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
-						d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
-				   });
-			}
-
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				jq$("#VIS_ID").empty();
-				setZoom(false);
-			});
-
-			createVisualization(root);
+			g.selectAll("path")
+				.each(function (d2) {
+					d2.dx = !zoomEnabled ? d2.cdx : d2.edx;
+					d2.dy = !zoomEnabled ? d2.cdy : d2.edy;
+				  });
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
-			toggleHeaderVisibility(false);
-		}
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			jq$("#VIS_ID").empty();
+			setZoom(false);
+		});
+
+		createVisualization(root);
 	})();
 </script>

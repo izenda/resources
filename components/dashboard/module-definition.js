@@ -15,7 +15,6 @@ var modules = [
 ];
 
 if (angular.version.major >= 1 && angular.version.minor >= 3) {
-    modules.push('ngFx');
     if (!(jq$.browser.msie && jq$.browser.version <= 10)) {
         modules.push('impressjs');
     }

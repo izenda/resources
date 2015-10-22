@@ -55,7 +55,10 @@
 		});
 	}(Highcharts));
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
+		function validate() {
+			return VIS_COLUMNS.length > 1
+				&& !VIS_COLUMNS.slice(1).some(function(o) { return !util.isMetric(o); });
+		}
 
 		var width = 720, height = 500;
 
@@ -66,95 +69,73 @@
 			return list[index % list.length];
 		}
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
-			}
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
+			return;
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		var colors = ['#2f7ed8', '#8bbc21', '#0d233a', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'];
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT)) {
-				return;
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			(function () {
-				var fieldCount = VIS_COLUMNS.length;
-				var testCondition = fieldCount > 1
-					&& jq$.grep(VIS_COLUMNS.slice(1), function (o) { return !util.isMetric(o); }).length == 0;
-				if (!testCondition) {
-					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
-				}
-			})();
+		var rows = vis.getRows(true),
+			columns = util.exchangeAxes(rows),
+			items = vis.getItems();
 
-			var colors = ['#2f7ed8', '#8bbc21', '#0d233a', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'];
+		width = vis.getWidth();
+		height = vis.getHeight();
 
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+		jq$('#VIS_ID').width(width).height(height);
 
-			var rows = vis.getRows(true),
-				columns = util.exchangeAxes(rows),
-				items = vis.getItems();
-
-			width = vis.getWidth();
-			height = vis.getHeight();
-
-			jq$('#VIS_ID').width(width).height(height);
-
-			var yaxis = [], series = [];
-			for (var i = 1; i < VIS_COLUMNS.length; i++) {
-				yaxis.push({
-					labels: { style: { color: getItem(colors, i-1) } },
-					title: {
-						text: null,
-						style: { color: getItem(colors, i-1) }
-					},
-					opposite: i % 2 == 1
-				});
-				series.push({
-					name: VIS_COLUMNS[i].name,
-					type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline',
-					color: getItem(colors, i-1),
-					yAxis: i - 1,
-					data: columns[i]
-				});
-			}
-
-			jq$('#VIS_ID').highcharts({
-				//chart: { zoomType: 'xy' },
-				title: { text: VIS_CONTEXT.title },
-				xAxis: [{ categories: columns[0] }],
-				yAxis: yaxis,
-				legend: {
-					enabled: true
+		var yaxis = [], series = [];
+		for (var i = 1; i < VIS_COLUMNS.length; i++) {
+			yaxis.push({
+				labels: { style: { color: getItem(colors, i-1) } },
+				title: {
+					text: null,
+					style: { color: getItem(colors, i-1) }
 				},
-				series: series,
-				credits: { enabled: false },
-				tooltip: {
-					shared: true,
-					formatter: function () {
-						var html = [];
-						html.push('<span style="font-size: 10px;">' + this.x + '</span>');
-						jq$.each(this.points, function (i, point) {
-							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
-							html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
-					});
-						return html.join("<br/>");
-					}
-				}
+				opposite: i % 2 == 1
 			});
-
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				var highchart = jq$('#VIS_ID').highcharts();
-				if (highchart) {
-					highchart.destroy();
-				}
-				jq$("#VIS_ID").empty();
+			series.push({
+				name: VIS_COLUMNS[i].name,
+				type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline',
+				color: getItem(colors, i-1),
+				yAxis: i - 1,
+				data: columns[i]
 			});
-		} catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
 		}
+
+		var options = {
+			//chart: { zoomType: 'xy' },
+			title: { text: VIS_CONTEXT.title },
+			xAxis: [{ categories:jq$.map(vis.getRows(false), function(row) { return row[0]; }) }],
+			yAxis: yaxis,
+			legend: {
+				enabled: true
+			},
+			series: series,
+			credits: { enabled: false },
+			tooltip: {
+				shared: true,
+				formatter: function () {
+					var html = [];
+					html.push('<span style="font-size: 10px;">' + this.x + '</span>');
+					jq$.each(this.points, function (i, point) {
+						var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+						html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
+					});
+					return html.join("<br/>");
+				}
+			}
+		};
+		vis.subscribeImageRenderer(options);
+		jq$('#VIS_ID').highcharts(options);
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			var highchart = jq$('#VIS_ID').highcharts();
+			if (highchart) {
+				highchart.destroy();
+			}
+			jq$("#VIS_ID").empty();
+		});
 	})();
 </script>

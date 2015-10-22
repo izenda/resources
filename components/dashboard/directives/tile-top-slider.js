@@ -1,71 +1,83 @@
-﻿(function() {
-  'use strict';
+﻿(function () {
+	'use strict';
 
-  /**
- * Slider component
- */
-  function izendaTileTopSlider() {
-    return {
-      restrict: 'A',
-      require: ['ngModel'],
-      scope: {
-        ngModel: '=',
-        endValue: '=',
-        onChangeEnd: '&'
-      },
-      template: '<input></input>',
-      link: function ($scope, elem, attrs) {
-        var $input = elem.children('input');
-        // set ng-model value
-        var setModelValue = function (value) {
-          $scope.ngModel = parseInt(value);
-          $scope.$parent.$applyAsync();
-        };
-        // set end-value value
-        var setEndValue = function(value) {
-          $scope.endValue = parseInt(value);
-          $scope.$parent.$applyAsync();
-        }
-        // set value to slider widget
-        var setSliderValue = function (value) {
-          $input.data("ionRangeSlider").update({
-            from: value
-          });
-        };
+	// definition
+	angular
+	.module('izendaDashboard')
+	.directive('izendaTileTopSlider', [
+	function () {
+		return {
+			restrict: 'A',
+			require: ['ngModel'],
+			scope: {
+				ngModel: '=',
+				endValue: '=',
+				onChangeEnd: '&'
+			},
+			template: '<input></input>',
+			link: function ($scope, elem) {
+				// initialize values array
+				var valuesArray = [];
+				for (var i = 1; i <= 10; i++)
+					valuesArray.push(i);
+				for (var j = 20; j <= 100; j = j + 10)
+					valuesArray.push(j);
+				valuesArray.push(250);
+				valuesArray.push(500);
+				valuesArray.push(1000);
+				valuesArray.push(5000);
+				valuesArray.push(10000);
+				valuesArray.push('ALL');
 
-        // initialize slider
-        $input.ionRangeSlider({
-          hide_min_max: true,
-          hide_from_to: true,
-          from: $scope.ngModel,
-          min: 1,
-          max: 101,
-          onChange: function (data) {
-            var value = data.from;
-            setModelValue(value);
-          },
-          onFinish: function (data) {
-            var value = data.from;
-            setEndValue(value);
-            $scope.onChangeEnd({});
-            $scope.$parent.$applyAsync();
-          }
-        });
+				var convertFromToValue = function (from) {
+					var val = valuesArray[from];
+					if (val === 'ALL')
+						val = -1;
+					return val;
+				};
+				var convertValueToFrom = function (value) {
+					var index = value > 0 ? valuesArray.indexOf(value) : valuesArray.indexOf('ALL');
+					if (index < 0)
+						index = valuesArray.indexOf('ALL');
+					return index;
+				}
+				var setModelValue = function (value) {
+					$scope.ngModel = value;
+					$scope.$parent.$applyAsync();
+				};
+				var setEndValue = function (value) {
+					$scope.endValue = value;
+					$scope.$parent.$applyAsync();
+				}
 
-        // slider outer listeners
-        setSliderValue($scope.ngModel);
-        $scope.$watch('endValue', function () {
-          setSliderValue($scope.ngModel);
-        });
-      }
-    };
-  }
+				// initialize slider
+				var $input = elem.children('input');
+				$input.ionRangeSlider({
+					grid: true,
+					hide_min_max: true,
+					from: convertValueToFrom($scope.ngModel),
+					values: valuesArray,
+					onChange: function (data) {
+						var value = convertFromToValue(data.from);
+						setModelValue(value);
+					},
+					onFinish: function (data) {
+						var value = convertFromToValue(data.from);
+						setEndValue(value);
+						$scope.onChangeEnd({});
+						$scope.$parent.$applyAsync();
+					}
+				});
 
-  // definition
-  angular
-    .module('izendaDashboard')
-    .directive('izendaTileTopSlider', [
-      izendaTileTopSlider
-    ]);
-
+				/*var slider = $input.data("ionRangeSlider");
+				var setSliderValue = function (value) {
+				var from = convertValueToFrom(value);
+				slider.update({
+				from: from
+				});
+				};*/
+			}
+		};
+	}
+	]);
 })();

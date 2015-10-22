@@ -37,13 +37,13 @@ jq$(document).on('focusin', function (e) {
 function CreateTextareaPopup(baseId, width, height) {
 	jq$('<div id="' + baseId + '_iz-richeditor-container"><textarea id="' + baseId + '__textarea"></textarea></div>').dialog({
 		width: width,
-		height: height + 50,
+		height: height + 80,
 		minWidth: 600,
 		minHeight: 300,
 		modal: true,
 		dialogClass: 'iz-richeditor-dialog',
 		resize: function (event, ui) {
-			jq$('#re_popup_win_01__textarea_ifr').css('height', (ui.size.height - 200) + 'px');
+			jq$('#re_popup_win_01__textarea_ifr').css('height', (ui.size.height - 230) + 'px');
 		},
 		close: function (event, ui) {
 			if (typeof tinymce != 'undefined' && tinymce != null && tinymce.editors != null && tinymce.editors.length > 0)
@@ -126,15 +126,19 @@ function RE_InstantiateRichEditor(paramsObj) {
 		editor = tinymce.get(RE_EditorsParamsList[paramsObj.TargetSelector].EditorId);
 	if (editor == null) {
 		RE_EditorsParamsList[paramsObj.TargetSelector] = paramsObj;
+		var lang = '';
+		if (typeof serverCulture != 'undefined' && serverCulture != null && serverCulture != '' && serverCulture != 'en-US')
+			lang = './rs.aspx?wscmd=tinymceresource&wsarg0=langjs&wsarg1=' + serverCulture;
 		tinymce.init({
 			forced_root_block: false,
 			force_p_newlines: false,
 			selector: paramsObj.TargetSelector,
 			height: paramsObj.Height,
 			mode: "exact",
-			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace spellchecker tabfocus table template textcolor textpattern visualchars wordcount repeater",
-			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
+			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace tabfocus table template textcolor textpattern visualchars wordcount repeater jqueryspellchecker",
+			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | jqueryspellchecker | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
 			skin_url: './rs.aspx?wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
+			language_url : lang,
 			resize: false,
 			init_instance_callback: RE_InitializeEditorInstance,
 			setup: function(editor) {
@@ -187,7 +191,7 @@ function RE_InitToolbarItems(editor) {
 
 	editor.addButton('iz-fields', {
 		type: 'splitbutton',
-		text: 'Field',
+		text: fdtField,
 		icon: false,
 		onclick : function() {
 			editor.insertContent('[]');
@@ -213,7 +217,7 @@ function RE_InitToolbarItems(editor) {
 
 	editor.addButton('iz-columns', {
 		type: 'splitbutton',
-		text: 'Column',
+		text: fdtColumn,
 		icon: false,
 		onclick: function () {
 			editor.insertContent('[]');
@@ -233,7 +237,7 @@ function RE_InitToolbarItems(editor) {
 
 	editor.addButton('iz-subreports', {
 		type: 'splitbutton',
-		text: 'Subreport',
+		text: fdtSubreport,
 		icon: false,
 		onclick: function () {
 			editor.insertContent('[[]]');
@@ -244,14 +248,14 @@ function RE_InitToolbarItems(editor) {
 	// Smart tags
 	editor.addButton('iz-tags', {
 		type: 'splitbutton',
-		text: 'Smart Tag',
+		text: fdtSmartTag,
 		icon: false,
 		menu: [
-			{ text: 'Filters', onclick: function () { editor.insertContent('[Filters]'); } },
-			{ text: 'Date', onclick: function () { editor.insertContent('[Date]'); } },
-			{ text: 'Subtotal', onclick: function () { editor.insertContent('[@Subtotal]'); } },
-			{ text: 'Grand Total', onclick: function () { editor.insertContent('[@Total]'); } },
-			{ text: 'Repeater', onclick: function () { editor.insertContent('[Repeater][/Repeater]'); } }
+			{ text: fdtFilters, onclick: function () { editor.insertContent('[Filters]'); } },
+			{ text: fdtDate, onclick: function () { editor.insertContent('[Date]'); } },
+			{ text: fdtSubtotal, onclick: function () { editor.insertContent('[@Subtotal]'); } },
+			{ text: fdtGrandTotal, onclick: function () { editor.insertContent('[@Total]'); } },
+			{ text: fdtRepeater, onclick: function () { editor.insertContent('[Repeater][/Repeater]'); } }
 		]
 	});
 }
@@ -291,7 +295,7 @@ function RE_ShowRichEditor(targetSelector, width, height, contentData, contentRe
 	paramsObj.ContentSaveCallback = contentSaveCallback;
 	paramsObj.ContentSaveRequestCallback = contentSaveRequestCallback;
 	if (!RE_EditorScriptsLoaded) {
-		var requestString = 'wscmd=tinymceresource&wsarg0=editorcorejs&wsarg1=advlist,anchor,autolink,charmap,codemagic,colorpicker,contextmenu,directionality,fullscreen,hr,image,importcss,insertdatetime,layer,legacyoutput,link,lists,nonbreaking,noneditable,pagebreak,paste,preview,save,searchreplace,spellchecker,tabfocus,table,template,textcolor,textpattern,visualchars,wordcount,repeater';
+	  var requestString = 'wscmd=tinymceresource&wsarg0=editorcorejs&wsarg1=advlist,anchor,autolink,charmap,codemagic,colorpicker,contextmenu,directionality,fullscreen,hr,image,importcss,insertdatetime,layer,legacyoutput,link,lists,nonbreaking,noneditable,pagebreak,paste,preview,save,searchreplace,jqueryspellchecker,tabfocus,table,template,textcolor,textpattern,visualchars,wordcount,repeater';
 	    RE_AjaxRequest('./rs.aspx', requestString, RE_InjectEditorScripts, null, 'tinymceresource_editorcorejs', paramsObj);
 	}
 	else

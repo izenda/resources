@@ -540,36 +540,31 @@ function EBC_PrepareNewRow(row)
 {
 	var selElems = row.getElementsByTagName('SELECT');
 	var selCount = selElems.length;
-	for (var i = 0; i < selCount; i++)
-	{
+	var prefix = row.id != null && row.id.indexOf('_ExtraColumn') > 1 ? 'exv' : '';
+	for (var i = 0; i < selCount; i++) {
 		var sel = selElems[i];
 		var name = sel.name;
-		if (name != null)
-		{
-			if (sel.name.lastIndexOf("_Subreport") > 1)
-			{
+		if (name != null) {
+		    if (sel.name.lastIndexOf('_' + prefix + 'Subreport') > 1) {
 				sel.selectedIndex = 0;
 			}
-			else if (sel.name.lastIndexOf("_DrillDownStyle") > 1)
-			{
+		    else if (sel.name.lastIndexOf('_' + prefix + 'DrillDownStyle') > 1) {
 				sel.selectedIndex = 0;
 				sel.disabled = true;
 			}
-			else if (sel.name.lastIndexOf("_Extra") > 1)
-			{
+		    else if (sel.name.lastIndexOf('_Extra') > 1) {
 				sel.selectedIndex = 0;
 			}
-			else if (sel.name.lastIndexOf("_ExpressionType") > 1) {
+		    else if (sel.name.lastIndexOf('_' + prefix + 'ExpressionType') > 1) {
 				sel.selectedIndex = 0;
 			}
-			else if (sel.name.lastIndexOf("_ConditionOperator") > 1) {
+		    else if (sel.name.lastIndexOf('_' + prefix + 'ConditionOperator') > 1) {
 				sel.selectedIndex = 0;
 			}
 			else
 				EBC_SetSelectContent(sel, '<option value=\'...\'>Loading ...</option>');
 		}
-		else
-		{
+		else {
 			EBC_SetSelectContent(sel, '<option value=\'...\'>Loading ...</option>');
 		}
 	}

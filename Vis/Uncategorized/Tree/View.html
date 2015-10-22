@@ -60,358 +60,335 @@
 <script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	var visState;
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
-
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		visState = visState || {};
+		window.visState = window.visState || {};
 
-		function toggleHeaderVisibility(visible) {
-			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
+			return;
 		}
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
+		var root, colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
+
+		var vs = util.container("VIS_ID"),
+			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
+
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		if (!s.props) {
+			try {
+				s.props = JSON.parse(VIS_CONTEXT.props);
+			} catch (e) {
+				s.props = {};
+				util.logger.error(e);
 			}
+		}
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
-				return;
-			}
+		width = vis.getWidth();
+		height = vis.getHeight();
 
-			var root, colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
+		var heightWithOffset = height - (VIS_CONTEXT.toImage ? 0 : jq$("#VIS_ID_PROPERTIES_PANEL").outerHeight());
 
-			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
+		jq$('#VIS_ID').width(width).height(heightWithOffset);
 
-			var s = visState.VIS_ID || (visState.VIS_ID = {});
-			if (!s.props) {
-				try {
-					s.props = JSON.parse(VIS_CONTEXT.props);
-				} catch (e) {
-					s.props = {};
-					util.logger.error(e);
-				}
-			}
-
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-			width = vis.getWidth();
-			height = vis.getHeight();
-
-			var heightWithOffset = height - (VIS_CONTEXT.toImage ? 0 : jq$("#VIS_ID_PROPERTIES_PANEL").outerHeight());
-
-			jq$('#VIS_ID').width(width).height(heightWithOffset);
-
-			function store() {
-				jq$.extend(s.props = (s.props || {}), {
-					"metric": metricSelect.val()
-				});
-
-				vis.setProps(s.props);
-			}
-
-			function restore() {
-				if (typeof s.props != "object") {
-					return;
-				}
-
-				if (s.props.metric) {
-					metricSelect.val(s.props.metric);
-				}
-			}
-
-			vis.collectTree();
-			root = vis.traverseTree();
-
-			vis.metrics = vis.metrics.reverse();
-
-			if (!vis.metrics.length) {
-				jq$("#VIS_ID").text("No metric found");
-				return;
-			}
-
-			metricSelect.find("option").remove();
-			jq$.each(vis.metrics, function (i, el) {
-				metricSelect.append("<option>" + el + "</option>");
+		function store() {
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
 			});
 
-			restore();
+			vis.setProps(s.props);
+		}
 
-			s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
-
-			var maxradius = 20,
-				m = [maxradius, maxradius, maxradius, maxradius],
-				w = width - m[1] - m[3],
-				h = heightWithOffset - m[0] - m[2],
-				nodeId = 0;
-			var levels, alreadySummed = false;
-
-			var tree = d3.layout.tree()
-				.size([h, w]);
-
-			var diagonal = d3.svg.diagonal()
-				.projection(function (d) { return [d.y, d.x]; });
-
-			var g = d3.select("#VIS_ID")
-				.append("svg:svg")
-					.attr("width", width)
-					.attr("height", heightWithOffset)
-				.append("svg:g")
-					.attr("transform", "translate(" + m[3] + ", " + m[0] + ")");
-
-			jq$("#VIS_ID_CONTAINER").height(height);
-
-			function update(source) {
-				function getStrokeWidth(d) {
-					var result = levels[d.source.depth].radius(vis.unitValue(d.target, s.spendField)) * 2;
-					return isNaN(result) ? 4 : result;
-				}
-
-				function getStrokeOpacity(d) {
-					return vis.unitValue(d.target, s.spendField) <= 0 ? 0 : (d.source.depth + 2) / (levels.length * 4);
-				}
-
-				var levelWidth = width / (levels.length + 1);
-				var duration = d3.event && d3.event.altKey ? 5000 : 500;
-				var nodes = tree.nodes(root).reverse();
-				var depthCounter = 0;
-
-				nodes.forEach(function(d) {
-					d.y = d.depth * levelWidth;
-					d.numChildren = (d.children) ? d.children.length : 0;
-
-					if (d.depth == 1) {
-						d.linkColor = colors[(depthCounter % (colors.length - 1))];
-						depthCounter++;
-					}
-					if (d.numChildren == 0 && d._children)
-						d.numChildren = d._children.length;
-				});
-
-				nodes.forEach(function(d) {
-					var obj = d;
-					while ((obj.source && obj.source.depth > 1) || obj.depth > 1)
-						obj = (obj.source) ? obj.source.parent : obj.parent;
-					d.linkColor = (obj.source) ? obj.source.linkColor : obj.linkColor;
-				});
-
-				var node = g.selectAll("g.node")
-					.data(nodes, function(d) { return d.id || (d.id = ++nodeId); });
-
-				var nodeEnter = node.enter().append("svg:g")
-					.attr("class", "node")
-					.attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-					.on("click", function(d) {
-						toggle(d);
-						update(d);
-					})
-					.on("mouseover", function(d) {
-						var exclusion = [];
-						for (var j = 0; j < vis.metrics.length; j++) {
-							if (vis.metrics[j] != s.spendField)
-								exclusion.push(vis.metrics[j]);
-						}
-						util.showTooltip(d, {
-							nested: true,
-							exclusion: ["id", "x0", "y0", "_children", "children", "link", "numChildren", "linkColor"],
-							pass: function(obj, v) { return !obj.children && !obj._children || exclusion.indexOf(v) < 0; }
-						});
-					})
-					.on("mouseout", function() { util.hideTooltip(); });
-
-				nodeEnter.append("svg:circle")
-					.attr("r", 1e-6)
-					.style("fill", function(d) { return d.source ? d.source.linkColor : d.linkColor; })
-					.style("fill-opacity", ".8")
-					.style("stroke", function(d) { return d.source ? d.source.linkColor : d.linkColor; });
-
-				nodeEnter.append("svg:text")
-					.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-					.attr("dy", ".35em")
-					.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-					.text(function(d) { return d.name; })
-					.style("fill-opacity", 1e-6);
-
-				var nodeUpdate = node.transition()
-					.duration(duration)
-					.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
-
-				nodeUpdate.select("circle")
-					.attr("r", function(d) {
-						if (d.depth > 0) {
-							var result = levels[d.depth - 1].radius(vis.unitValue(d, s.spendField));
-							return isNaN(result) ? 2 : result;
-						}
-						return 10;
-					})
-					.style("fill", function(d) { return d.source ? d.source.linkColor : d.linkColor; })
-					.style("fill-opacity", function(d) { return ((d.depth + 2) / (levels.length * 3)); });
-
-				nodeUpdate.select("text").style("fill-opacity", 1);
-
-				var nodeExit = node.exit().transition()
-					.duration(duration)
-					.attr("transform", function() { return "translate(" + source.y + "," + source.x + ")"; })
-					.remove();
-
-				nodeExit.select("circle").attr("r", 1e-6);
-				nodeExit.select("text").style("fill-opacity", 1e-6);
-
-				var link = g.selectAll("path.link")
-					.data(tree.links(nodes), function(d) { return d.target.id; });
-
-				var rootCounter = 0;
-				link.enter().insert("svg:path", "g")
-					.attr("class", "link")
-					.attr("d", function(d) {
-						if (vis.unitValue(d.target, s.spendField) <= 0)
-							return null;
-
-						var o = { x: source.x0, y: source.y0 };
-						return diagonal({ source: o, target: o });
-					})
-					.style("stroke", function(d) {
-						if (d.source.depth != 0)
-							return d.source ? d.source.linkColor : d.linkColor;
-
-						rootCounter++;
-						return (d.source.children[rootCounter - 1].linkColor);
-					})
-					.style("stroke-width", getStrokeWidth)
-					.style("stroke-opacity", getStrokeOpacity)
-					.style("stroke-linecap", "round")
-					.transition()
-					.duration(duration)
-					.attr("d", diagonal);
-
-				var linkUpdate = link.transition()
-					.duration(duration)
-					.attr("d", diagonal);
-
-				linkUpdate
-					.style("stroke-width", getStrokeWidth)
-					.style("stroke-opacity", getStrokeOpacity);
-
-				link.exit().transition()
-					.duration(duration)
-					.attr("d", function() {
-						var o = { x: source.x, y: source.y };
-						return diagonal({ source: o, target: o });
-					})
-					.remove();
-
-				nodes.forEach(function(d) { d.x0 = d.x; d.y0 = d.y; });
+		function restore() {
+			if (typeof s.props != "object") {
+				return;
 			}
 
-			function toggle(d) {
-				if (d.children) {
-					d._children = d.children;
-					d.children = null;
-				}
-				else {
-					d.children = d._children;
-					d._children = null;
-				}
+			if (s.props.metric) {
+				metricSelect.val(s.props.metric);
+			}
+		}
+
+		vis.collectTree();
+		root = vis.traverseTree();
+
+		vis.metrics = vis.metrics.reverse();
+
+		if (!vis.metrics.length) {
+			jq$("#VIS_ID").text("No metric found");
+			return;
+		}
+
+		metricSelect.find("option").remove();
+		jq$.each(vis.metrics, function (i, el) {
+			metricSelect.append("<option>" + el + "</option>");
+		});
+
+		restore();
+
+		s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
+
+		var maxradius = 20,
+			m = [maxradius, maxradius, maxradius, maxradius],
+			w = width - m[1] - m[3],
+			h = heightWithOffset - m[0] - m[2],
+			nodeId = 0;
+		var levels, alreadySummed = false;
+
+		var tree = d3.layout.tree()
+			.size([h, w]);
+
+		var diagonal = d3.svg.diagonal()
+			.projection(function (d) { return [d.y, d.x]; });
+
+		var g = d3.select("#VIS_ID")
+			.append("svg:svg")
+				.attr("width", width)
+				.attr("height", heightWithOffset)
+			.append("svg:g")
+				.attr("transform", "translate(" + m[3] + ", " + m[0] + ")");
+
+		jq$("#VIS_ID_CONTAINER").height(height);
+
+		function update(source) {
+			function getStrokeWidth(d) {
+				var result = levels[d.source.depth].radius(vis.unitValue(d.target, s.spendField)) * 2;
+				return isNaN(result) ? 4 : result;
 			}
 
-			function processData() {
-				function setup() {
-					var levelLength = 0;
-					for (var i = 0; i < nodes.length; i++)
-						levelLength = Math.max(levelLength, nodes[i].depth);
-					levels = new Array(levelLength);
+			function getStrokeOpacity(d) {
+				return vis.unitValue(d.target, s.spendField) <= 0 ? 0 : (d.source.depth + 2) / (levels.length * 4);
+			}
 
-					for (i = 0; i < levels.length; i++)
-						levels[i] = { max: 0, sum: 0, radius: 0 };
+			var levelWidth = width / (levels.length + 1);
+			var duration = d3.event && d3.event.altKey ? 5000 : 500;
+			var nodes = tree.nodes(root).reverse();
+			var depthCounter = 0;
 
-					for (i = 0; i < nodes.length; i++)
-						rollup(nodes[i]);
+			nodes.forEach(function(d) {
+				d.y = d.depth * levelWidth;
+				d.numChildren = (d.children) ? d.children.length : 0;
 
-					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == s.spendField; }).formatter;
-					for (i = 0; i < nodes.length; i++) {
-						vis.unitLabel(nodes[i], s.spendField, {
-							value: (fieldFormatter ? fieldFormatter(vis.unitValue(nodes[i], s.spendField), nodes[i], vis, s.spendField)
-								: Math.round(vis.unitValue(nodes[i], s.spendField) * 100) / 100)
-						});
-					}
-
-					for (i = 0; i < levels.length; i++)
-						levels[i].radius = d3.scale.sqrt().domain([0, levels[i].max]).range([2, maxradius]);
+				if (d.depth == 1) {
+					d.linkColor = colors[(depthCounter % (colors.length - 1))];
+					depthCounter++;
 				}
+				if (d.numChildren == 0 && d._children)
+					d.numChildren = d._children.length;
+			});
 
-				function rollup(node) {
-					for (var i = 0; i < vis.metrics.length; i++) {
-						var sumField = vis.metrics[i];
+			nodes.forEach(function(d) {
+				var obj = d;
+				while ((obj.source && obj.source.depth > 1) || obj.depth > 1)
+					obj = (obj.source) ? obj.source.parent : obj.parent;
+				d.linkColor = (obj.source) ? obj.source.linkColor : obj.linkColor;
+			});
 
-						if (!alreadySummed && !node.hasOwnProperty("children")) {
-							var p = node, sum = vis.unitValue(node, sumField);
-							while (p.parent) {
-								vis.unitValue(p.parent, sumField, { sf: "o", value: (utility.isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) }); p = p.parent;
-							}
-						}
+			var node = g.selectAll("g.node")
+				.data(nodes, function(d) { return d.id || (d.id = ++nodeId); });
 
-						if ((node.parent) && (s.spendField == sumField)) {
-							levels[node.depth - 1].max = Math.max(levels[node.depth - 1].max, vis.unitValue(node, sumField));
-							levels[node.depth - 1].sum += vis.unitValue(node, sumField);
-						}
+			var nodeEnter = node.enter().append("svg:g")
+				.attr("class", "node")
+				.attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+				.on("click", function(d) {
+					toggle(d);
+					update(d);
+				})
+				.on("mouseover", function(d) {
+					var exclusion = [];
+					for (var j = 0; j < vis.metrics.length; j++) {
+						if (vis.metrics[j] != s.spendField)
+							exclusion.push(vis.metrics[j]);
 					}
-
-					if (node.parent)
-						rollup(node.parent);
-				}
-
-				function toggleAll(d) {
-					if (d.children) {
-						d.children.forEach(toggleAll);
-						toggle(d);
-					}
-				}
-
-				root.x0 = h / 2;
-				root.y0 = 0;
-
-				var nodes = tree.nodes(root).reverse();
-				tree.children(function (d) { return d.children; });
-
-				setup();
-
-				alreadySummed = true;
-
-				root.children.forEach(toggleAll);
-
-				metricSelect
-					.unbind("change")
-					.bind("change", function () {
-						s.spendField = this.value;
-
-						store();
-						setup();
-						update(root);
+					util.showTooltip(d, {
+						nested: true,
+						exclusion: ["id", "x0", "y0", "_children", "children", "link", "numChildren", "linkColor"],
+						pass: function(obj, v) { return !obj.children && !obj._children || exclusion.indexOf(v) < 0; }
 					});
-				update(root);
+				})
+				.on("mouseout", function() { util.hideTooltip(); });
+
+			nodeEnter.append("svg:circle")
+				.attr("r", 1e-6)
+				.style("fill", function(d) { return d.source ? d.source.linkColor : d.linkColor; })
+				.style("fill-opacity", ".8")
+				.style("stroke", function(d) { return d.source ? d.source.linkColor : d.linkColor; });
+
+			nodeEnter.append("svg:text")
+				.attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+				.attr("dy", ".35em")
+				.attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+				.text(function(d) { return d.name; })
+				.style("fill-opacity", 1e-6);
+
+			var nodeUpdate = node.transition()
+				.duration(duration)
+				.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+
+			nodeUpdate.select("circle")
+				.attr("r", function(d) {
+					if (d.depth > 0) {
+						var result = levels[d.depth - 1].radius(vis.unitValue(d, s.spendField));
+						return isNaN(result) ? 2 : result;
+					}
+					return 10;
+				})
+				.style("fill", function(d) { return d.source ? d.source.linkColor : d.linkColor; })
+				.style("fill-opacity", function(d) { return ((d.depth + 2) / (levels.length * 3)); });
+
+			nodeUpdate.select("text").style("fill-opacity", 1);
+
+			var nodeExit = node.exit().transition()
+				.duration(duration)
+				.attr("transform", function() { return "translate(" + source.y + "," + source.x + ")"; })
+				.remove();
+
+			nodeExit.select("circle").attr("r", 1e-6);
+			nodeExit.select("text").style("fill-opacity", 1e-6);
+
+			var link = g.selectAll("path.link")
+				.data(tree.links(nodes), function(d) { return d.target.id; });
+
+			var rootCounter = 0;
+			link.enter().insert("svg:path", "g")
+				.attr("class", "link")
+				.attr("d", function(d) {
+					if (vis.unitValue(d.target, s.spendField) <= 0)
+						return null;
+
+					var o = { x: source.x0, y: source.y0 };
+					return diagonal({ source: o, target: o });
+				})
+				.style("stroke", function(d) {
+					if (d.source.depth != 0)
+						return d.source ? d.source.linkColor : d.linkColor;
+
+					rootCounter++;
+					return (d.source.children[rootCounter - 1].linkColor);
+				})
+				.style("stroke-width", getStrokeWidth)
+				.style("stroke-opacity", getStrokeOpacity)
+				.style("stroke-linecap", "round")
+				.transition()
+				.duration(duration)
+				.attr("d", diagonal);
+
+			var linkUpdate = link.transition()
+				.duration(duration)
+				.attr("d", diagonal);
+
+			linkUpdate
+				.style("stroke-width", getStrokeWidth)
+				.style("stroke-opacity", getStrokeOpacity);
+
+			link.exit().transition()
+				.duration(duration)
+				.attr("d", function() {
+					var o = { x: source.x, y: source.y };
+					return diagonal({ source: o, target: o });
+				})
+				.remove();
+
+			nodes.forEach(function(d) { d.x0 = d.x; d.y0 = d.y; });
+		}
+
+		function toggle(d) {
+			if (d.children) {
+				d._children = d.children;
+				d.children = null;
+			}
+			else {
+				d.children = d._children;
+				d._children = null;
+			}
+		}
+
+		function processData() {
+			function setup() {
+				var levelLength = 0;
+				for (var i = 0; i < nodes.length; i++)
+					levelLength = Math.max(levelLength, nodes[i].depth);
+				levels = new Array(levelLength);
+
+				for (i = 0; i < levels.length; i++)
+					levels[i] = { max: 0, sum: 0, radius: 0 };
+
+				for (i = 0; i < nodes.length; i++)
+					rollup(nodes[i]);
+
+				var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == s.spendField; }).formatter;
+				for (i = 0; i < nodes.length; i++) {
+					vis.unitLabel(nodes[i], s.spendField, {
+						value: (fieldFormatter ? fieldFormatter(vis.unitValue(nodes[i], s.spendField), nodes[i], vis, s.spendField)
+							: Math.round(vis.unitValue(nodes[i], s.spendField) * 100) / 100)
+					});
+				}
+
+				for (i = 0; i < levels.length; i++)
+					levels[i].radius = d3.scale.sqrt().domain([0, levels[i].max]).range([2, maxradius]);
 			}
 
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				jq$("#VIS_ID").empty();
-			});
+			function rollup(node) {
+				for (var i = 0; i < vis.metrics.length; i++) {
+					var sumField = vis.metrics[i];
 
-			processData();
+					if (!alreadySummed && !node.hasOwnProperty("children")) {
+						var p = node, sum = vis.unitValue(node, sumField);
+						while (p.parent) {
+							vis.unitValue(p.parent, sumField, { sf: "o", value: (utility.isNumber(vis.unitValue(p.parent, sumField)) ? vis.unitValue(p.parent, sumField) + sum : sum) }); p = p.parent;
+						}
+					}
+
+					if ((node.parent) && (s.spendField == sumField)) {
+						levels[node.depth - 1].max = Math.max(levels[node.depth - 1].max, vis.unitValue(node, sumField));
+						levels[node.depth - 1].sum += vis.unitValue(node, sumField);
+					}
+				}
+
+				if (node.parent)
+					rollup(node.parent);
+			}
+
+			function toggleAll(d) {
+				if (d.children) {
+					d.children.forEach(toggleAll);
+					toggle(d);
+				}
+			}
+
+			root.x0 = h / 2;
+			root.y0 = 0;
+
+			var nodes = tree.nodes(root).reverse();
+			tree.children(function (d) { return d.children; });
+
+			setup();
+
+			alreadySummed = true;
+
+			root.children.forEach(toggleAll);
+
+			metricSelect
+				.unbind("change")
+				.bind("change", function () {
+					s.spendField = this.value;
+
+					store();
+					setup();
+					update(root);
+				});
+			update(root);
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
-			toggleHeaderVisibility(false);
-		}
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			jq$("#VIS_ID").empty();
+		});
+
+		processData();
 	})();
 </script>

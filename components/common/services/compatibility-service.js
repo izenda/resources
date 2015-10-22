@@ -85,7 +85,7 @@
        * Check is tile editing allowed
        */
       var isEditAllowed = function () {
-        var rights = getRights();
+      	var rights = getRights();
         var allowed = [rightFullAccess, rightReadOnly].indexOf(rights) >= 0;
         allowed = allowed && !isOneColumnView();
         allowed = allowed && !checkIsIe8();

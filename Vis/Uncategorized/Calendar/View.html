@@ -1105,9 +1105,10 @@ be a descendant of the grid when it is being dragged.
 <script type="text/javascript" src="fullcalendar.min.js"></script>
 
 <script type="text/javascript">
-	var visState;
 	(function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
+		function validate() {
+			return VIS_COLUMNS.length > 2 && VIS_COLUMNS[2].type == 'DateTime';
+		}
 
 		var width = 720, height = 500;
 
@@ -1121,130 +1122,104 @@ be a descendant of the grid when it is being dragged.
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		visState = visState || {};
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
+			return;
 
-		try {
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
-			}
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		width = vis.getWidth();
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { })) {
-				return;
-			}
+		var events = [];
 
-			(function () {
-				var fieldCount = VIS_COLUMNS.length;
-				var testCondition = fieldCount > 2 && VIS_COLUMNS[2].type == 'DateTime';
-				if (!testCondition) {
-					throw new izenda.error.ChartSetUpError(VIS_CONTEXT.resources.chartsetupincorrectly);
-				}
-			})();
-
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-			width = vis.getWidth();
-
-			var events = [];
-
-			function ISOString(date) {
-				return new Date(date.getTime() - timezoneOffset).toISOString();
-			}
-
-			function ISODateString(date) {
-				var isoString = ISOString(date);
-				return isoString.substr(0, 10);
-			}
-
-			var defaultDate = null,
-				items = vis.getItems(),
-				now = new Date(),
-				timezoneOffset = now.getTimezoneOffset() * 60000,
-				twoDateFields = VIS_COLUMNS.length > 3 && VIS_COLUMNS[3].type == 'DateTime';
-
-			for (var i = 0; i < items.length; ++i) {
-				var item = items[i],
-					startDate = vis.unitValue(item, VIS_COLUMNS[2].name),
-					endDate = twoDateFields ? vis.unitValue(item, VIS_COLUMNS[3].name) : null,
-					title = item[VIS_COLUMNS[0].name],
-					value = vis.unitValue(item, VIS_COLUMNS[1].name),
-					formattedValue = item[VIS_COLUMNS[1].name];
-
-				if (startDate == null || isNaN(startDate.valueOf())) {
-					continue;
-				}
-
-				if (endDate == null || isNaN(endDate.valueOf())) {
-					endDate = null;
-				}
-
-				if (defaultDate == null || startDate.getTime() < defaultDate.getTime()) {
-					defaultDate = startDate;
-				}
-
-				var event = {
-					item: item,
-					title: title,
-					value: value,
-					formattedValue: formattedValue
-				};
-
-				if (!twoDateFields || endDate == null) {
-					event.start = ISODateString(startDate);
-				} else {
-					event.start = ISOString(startDate);
-					event.end = ISOString(endDate);
-				}
-
-				events.push(event);
-			}
-
-			util.createTootip();
-
-			jq$(document).ready(function () {
-				jq$("#VIS_ID").empty();
-				jq$('#VIS_ID').append("<div id='VIS_ID_CALENDAR'></div>");
-				jq$('#VIS_ID_CALENDAR').width(width - 20);
-				jq$('#VIS_ID_CALENDAR').fullCalendar({
-					header: {
-						left: 'prev,next today',
-						center: 'title',
-						right: 'month,agendaWeek,agendaDay'
-					},
-					defaultDate: ISODateString(defaultDate),
-					editable: false,
-					slotEventOverlap: false,
-					eventLimit: true,
-					events: events,
-					eventRender: function (event, element) {
-						var eventColor = color(event.item);
-						element.context.style.borderColor = eventColor;
-						element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value">' + event.formattedValue + '</div></div>';
-					},
-					eventAfterRender: function (event, element) {
-						// TODO dynamic decrease font-size
-					},
-					eventMouseover: function (event, e) {
-						var html = '<span style="color:' + color(event.item) + ';">\u25CF</span><span> ' + event.title + ': </span><span>' + event.formattedValue + '</span>';
-						util.showTooltip(html, { event: e });
-					},
-					eventMouseout: function () {
-						util.hideTooltip();
-					}
-				});
-			});
-
-			util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-				jq$("#VIS_ID").empty();
-			});
+		function ISOString(date) {
+			return new Date(date.getTime() - timezoneOffset).toISOString();
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
+
+		function ISODateString(date) {
+			var isoString = ISOString(date);
+			return isoString.substr(0, 10);
 		}
+
+		var defaultDate = null,
+			items = vis.getItems(),
+			now = new Date(),
+			timezoneOffset = now.getTimezoneOffset() * 60000,
+			twoDateFields = VIS_COLUMNS.length > 3 && VIS_COLUMNS[3].type == 'DateTime';
+
+		for (var i = 0; i < items.length; ++i) {
+			var item = items[i],
+				startDate = vis.unitValue(item, VIS_COLUMNS[2].name),
+				endDate = twoDateFields ? vis.unitValue(item, VIS_COLUMNS[3].name) : null,
+				title = item[VIS_COLUMNS[0].name],
+				value = vis.unitValue(item, VIS_COLUMNS[1].name),
+				formattedValue = item[VIS_COLUMNS[1].name];
+
+			if (startDate == null || isNaN(startDate.valueOf())) {
+				continue;
+			}
+
+			if (endDate == null || isNaN(endDate.valueOf())) {
+				endDate = null;
+			}
+
+			if (defaultDate == null || startDate.getTime() < defaultDate.getTime()) {
+				defaultDate = startDate;
+			}
+
+			var event = {
+				item: item,
+				title: title,
+				value: value,
+				formattedValue: formattedValue
+			};
+
+			if (!twoDateFields || endDate == null) {
+				event.start = ISODateString(startDate);
+			} else {
+				event.start = ISOString(startDate);
+				event.end = ISOString(endDate);
+			}
+
+			events.push(event);
+		}
+
+		util.createTootip();
+
+		jq$(document).ready(function () {
+			jq$("#VIS_ID").empty();
+			jq$('#VIS_ID').append("<div id='VIS_ID_CALENDAR'></div>");
+			jq$('#VIS_ID_CALENDAR').width(width - 20);
+			jq$('#VIS_ID_CALENDAR').fullCalendar({
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month,agendaWeek,agendaDay'
+				},
+				defaultDate: ISODateString(defaultDate),
+				editable: false,
+				slotEventOverlap: false,
+				eventLimit: true,
+				events: events,
+				eventRender: function (event, element) {
+					var eventColor = color(event.item);
+					element.context.style.borderColor = eventColor;
+					element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value">' + event.formattedValue + '</div></div>';
+				},
+				eventAfterRender: function (event, element) {
+					// TODO dynamic decrease font-size
+				},
+				eventMouseover: function (event, e) {
+					var html = '<span style="color:' + color(event.item) + ';">\u25CF</span><span> ' + event.title + ': </span><span>' + event.formattedValue + '</span>';
+					util.showTooltip(html, { event: e });
+				},
+				eventMouseout: function () {
+					util.hideTooltip();
+				}
+			});
+		});
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
+			jq$("#VIS_ID").empty();
+		});
 	})();
 </script>

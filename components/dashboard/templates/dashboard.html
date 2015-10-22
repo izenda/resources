@@ -219,7 +219,8 @@
                 </div>
               </div>
               <div class="iz-dash-tile-fb-toolbar">
-                <span class="iz-dash-tile-fb-rcount">{{tileController.getTopString()}}</span>
+                <span class="iz-dash-tile-fb-rcount" 
+                  ng-bind="tileController.topString"></span>
                 <span class="iz-dash-tile-fb-rcount-slider">
                   <div izenda-tile-top-slider ng-model="tileController.top"
                     end-value="tileController.endTop"

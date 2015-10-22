@@ -25,7 +25,7 @@
     window.jQueryTemp = window.jQuery;
   window.jQuery = jq$;
 </script>
-<![if !IE]>
+<!--[if !IE]>-->
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-animate.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-aria.js"></script>
@@ -36,9 +36,7 @@
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-resource.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-route.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-sanitize.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/ngFx.js"></script>
-
-<![endif]>
+<!--[endif]>-->
 <!--[if gt IE 8]>
 	<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular.js"></script>
   <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-animate.js"></script>
@@ -50,7 +48,6 @@
   <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-resource.js"></script>
   <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-route.js"></script>
   <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-sanitize.js"></script>
-  <script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/ngFx.js"></script>
 <![endif]-->
 <!--[if lte IE 8]>
 	<script type="text/javascript" src="Resources/components/vendor/angular-1.2.27/angular.js"></script>

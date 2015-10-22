@@ -98,6 +98,8 @@ function CC_GetTables(tableID) {
             var rightColumnSel = document.getElementsByName(id + '_RightColumn');
             var joinSel = document.getElementsByName(id + '_Join');
             var tableAliases = document.getElementsByName(id + '_TableAlias');
+            var additionalOperators = document.getElementsByName(id + '_ConditionOperator');
+
             for (var i = 0; i < tableSels.length; i++) {
                 var value = new Array();
                 value.table = tableSels[i].value;
@@ -107,6 +109,8 @@ function CC_GetTables(tableID) {
                         value.column = columnSels[i].value;
                         value.rightColumn = rightColumnSel[i].value;
                         value.join = joinSel[i].value;
+                        if (joinSel[i].getAttribute('additional') == 'true' && additionalOperators != null)
+                        	value.additionalOperator = additionalOperators[i].value;
                     }
                     tables.push(value);
                 }
@@ -311,6 +315,8 @@ function CC_GetFilterCMD(row) {
                 cmd = cmd + "&" + "lclm" + i + "=" + tables[i].column;
                 cmd = cmd + "&" + "rclm" + i + "=" + tables[i].rightColumn;
                 cmd = cmd + "&" + "jn" + i + "=" + tables[i].join;
+                if (tables[i].additionalOperator != null)
+                	cmd = cmd + "&" + "aop" + i + "=" + tables[i].additionalOperator;
             }
         }
         var filters = new Array();
@@ -644,6 +650,10 @@ function CC_OnColumnChangedHandler(e) {
 			}
 		}
 		CC_CheckShowReportParameters(EBC_GetParentTable(row));
+
+		var formatSel = EBC_GetSelectByName(row, 'DisplayFormat');
+		if (formatSel != null)
+			EBC_LoadData('FormatList', 'type=' + dataType + '&onlySimple=true&forceSimple=true', formatSel);
 	}
 }
 
@@ -1582,3 +1592,15 @@ CC_TreeUpdateValues = function (row, values) {
 	CC_CheckStatusWasChanged(selectedValuesControl, tree.find("> .node"), tree, row);
 	tree.find(".node .collapse").click();
 };
+
+function CC_ShowReportParametersChanged() {
+	var targetCheckbox = jq$('input[name$="_ShowReportParameters"]');
+	var showFormat = targetCheckbox != null && targetCheckbox.length > 0 && targetCheckbox[0].checked;
+	if (showFormat) {
+		jq$('select[name$="_DisplayFormat"]').parent().show();
+		jq$('th[name="filter-format-header"]').show();
+	} else {
+		jq$('select[name$="_DisplayFormat"]').parent().hide();
+		jq$('th[name="filter-format-header"]').hide();
+	}
+}

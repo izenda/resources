@@ -274,7 +274,7 @@ body {
 /* Toolbar */
 /**************************************************************************************/
 
-#izendaDashboardToolbar {
+.iz-dash-toolbar {
 	position: relative;
 	height: 50px !important;
 }
@@ -345,6 +345,7 @@ body {
   overflow: hidden; 
   white-space: nowrap; 
   margin: 0 40px;
+	height: 50px;
 }
 
 .iz-dash-linkspanel-navbar-3 {
@@ -376,7 +377,7 @@ body {
 
   .iz-dash-linkspanel-navbar-item > a {
     display: block;
-    padding: 14px 20px;
+	  padding: 13px 20px 14px 20px;
     width: 100%;
     height: 100%;
     text-decoration: none;
@@ -423,6 +424,12 @@ body {
 	top: 0;
 	bottom: 0;
 }	
+
+.iz-dash-dashboards-dropdown-container {
+	padding: 0;
+	background-color: #fff !important;
+	position: absolute !important;
+}
 
 .iz-dash-toolbtn-panel {
 	position: absolute;
@@ -586,12 +593,12 @@ body {
 
 .iz-dash-tile-fb-toolbar {
 	bottom: 0px;
-	height: 70px;
+	height: 100px;
 	padding-left: 10px;
 }
 
 .iz-dash-tile-fb-toolbar2 {
-	bottom: 70px;
+	bottom: 100px;
 	padding-left: 10px;
 }
 
@@ -609,10 +616,10 @@ body {
 .iz-dash-tile-fb-rcount {
 	position: absolute;
 	left: 5px;
-	top: 5px;
 	bottom: 5px;
-	width: 75px;
-	font-size: 40px;
+	width: 100px;
+	font-size: 32px;
+	line-height: 2em;
 	color: #1C4E89;
 	background-color: #DFDFE1;
 	text-align: center;
@@ -620,18 +627,17 @@ body {
 
 .iz-dash-tile-fb-rcount-label {
 	position: absolute;
-	left: 80px;
-	top: 5px;
+	left: 5px;
+	top: 0;
 	width: 200px;
 	font-size: 18px;
 	color: #DFDFE1;
-	background-color: #1C4E89;
 	padding-left: 10px;
 }
 
 .iz-dash-tile-fb-rcount-slider {
 	position: absolute;
-	left: 80px;
+	left: 110px;
 	/*top: 30px;*/
 	right: 15px;
 	bottom: 5px;
@@ -784,10 +790,10 @@ body {
 	}
 
 		.animate-flip .flippy-front:hover, .animate-flip .flippy-back:hover {
-			transition: box-shadow .2s, background-color 1s ease;
+			/*transition: box-shadow .2s, background-color 1s ease;
 			-moz-transition: -moz-box-shadow .2s, background-color 1s ease;
 			-webkit-transition: -webkit-box-shadow .2s, background-color 1s ease;
-			-o-transition: -o-box-shadow .2s, background-color 1s ease;
+			-o-transition: -o-box-shadow .2s, background-color 1s ease;*/
 			background-color: rgba(255,255,255,.3);
 			-moz-box-shadow: 0px 2px 8px rgba(0,0,0,.75);
 			-webkit-box-shadow: 0px 2px 8px rgba(0,0,0,.75);
@@ -806,10 +812,10 @@ body {
 .flippy-front,
 .flippy-back {
 	position: relative;
-	-moz-border-radius: 5px;
+	/*-moz-border-radius: 5px;
 	-webkit-border-radius: 5px;
 	-khtml-border-radius: 5px;
-	border-radius: 5px;
+	border-radius: 5px;*/
 	overflow: auto;
 }
 
@@ -821,10 +827,10 @@ body {
 	right: 5px;
 	margin: 0;
 	background-color: #fff;
-	-moz-border-radius: 0 0 3px 3px;
+	/*-moz-border-radius: 0 0 3px 3px;
 	-webkit-border-radius: 0 0 3px 3px;
 	-khtml-border-radius: 0 0 3px 3px;
-	border-radius: 0 0 3px 3px;
+	border-radius: 0 0 3px 3px;*/
 	overflow: auto;
 }
 
@@ -852,10 +858,10 @@ body {
 	line-height: 35px;
 	height: 35px;
 	white-space: nowrap;
-	-moz-border-radius: 3px 3px 0px 0px;
+	/*-moz-border-radius: 3px 3px 0px 0px;
 	-webkit-border-radius: 3px 3px 0px 0px;
 	-khtml-border-radius: 3px 3px 0px 0px;
-	border-radius: 3px 3px 0px 0px;
+	border-radius: 3px 3px 0px 0px;*/
 }
 
 	.animate-flip .title .title-text,
@@ -882,10 +888,10 @@ body {
 
 .flip-button {
 	opacity: 0;
-	-moz-transition: opacity 0.2s ease;
+/*	-moz-transition: opacity 0.2s ease;
 	-o-transition: opacity 0.2s ease;
 	-webkit-transition: opacity 0.2s ease;
-	transition: opacity 0.2s ease;
+	transition: opacity 0.2s ease;*/
 }
 
 .iz-dash-tile:hover .flip-button,

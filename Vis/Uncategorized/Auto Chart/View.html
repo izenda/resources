@@ -3,14 +3,14 @@
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/cJZKeOuBrn4kERxqtaUH3T8E0i7KZn-EPnyo3HZu7kw.woff) format('woff');
+		src: local('Open Sans'), local('OpenSans'), url(###RS###font=Fonts.OpenSans.woff) format('woff');
 	}
 
 	@font-face {
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(https://themes.googleusercontent.com/static/fonts/opensans/v6/MTP_ySUJH_bn48VBG8sNSnhCUOGz7vYGh680lGh-uXM.woff) format('woff');
+		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(###RS###font=Fonts.OpenSans-Semibold.woff) format('woff');
 	}
 
 	#VIS_ID_CONTAINER .clearfix:after {
@@ -308,7 +308,6 @@
 <script type="text/javascript" src="jquery.watch.min.js"></script>
 
 <script type="text/javascript">
-	var visState;
 	var virgin = true;
 
 	var types = (function () {
@@ -448,1354 +447,1346 @@
 	})();
 
 	function ExecuteVIS_ID() {
-		var VIS_EMBEDDED_DATA;
-
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		visState = visState || {};
+		window.visState = window.visState || {};
 
 		function toggleHeaderVisibility(visible) {
 			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
 			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
 		}
 
-		try {
-			var s = visState.VIS_ID || (visState.VIS_ID = {
-				options: undefined,
-				chartOptions: undefined,
-				visibility: undefined,
-				force: { type: true, metric: false },
-				props: undefined,
-				init: true,
-				hideTimeout: undefined,
-				combineBottom: 5
-			});
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			options: undefined,
+			chartOptions: undefined,
+			visibility: undefined,
+			force: { type: true, metric: false },
+			props: undefined,
+			init: true,
+			hideTimeout: undefined,
+			combineBottom: 5
+		});
 
-			if (typeof window.jq$ == "undefined") {
-				window.jq$ = jQuery.noConflict(true);
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT))
+			return;
+
+		function getItem(list, index) {
+			return list[index % list.length];
+		}
+
+		function initSelector(id, context) {
+			vs.find(id)
+				.unbind("click")
+				.bind("click", context.onClick);
+		}
+
+		function toggleSelectorVisibility(id, visible) {
+			var selector = vs.find(id);
+			if (visible) {
+				selector.show();
+			} else {
+				selector.hide();
 			}
+		}
 
-			if (jq$("#VIS_ID").size() < 1) {
-				util.unregisterResize("VIS_ID");
-				return;
-			}
+		var galleries = {};
 
-			if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT)) {
-				return;
-			}
+		function initGallery(id, context) {
+			galleries[id] = {
+				gallery: vs.find(id)
+					.width(width)
+					.css({ "z-index": 1 }),
+				context: context,
+				t: undefined
+			};
 
-			function getItem(list, index) {
-				return list[index % list.length];
-			}
-
-			function initSelector(id, context) {
-				vs.find(id)
-					.unbind("click")
-					.bind("click", context.onClick);
-			}
-
-			function toggleSelectorVisibility(id, visible) {
-				var selector = vs.find(id);
-				if (visible) {
-					selector.show();
-				} else {
-					selector.hide();
-				}
-			}
-
-			var galleries = {};
-
-			function initGallery(id, context) {
-				galleries[id] = {
-					gallery: vs.find(id)
-						.width(width)
-						.css({ "z-index": 1 }),
-					context: context,
-					t: undefined
-				};
-
-				jq$.extend(galleries[id].context, {
-					show: function () {
-						hideGalleries(id);
+			jq$.extend(galleries[id].context, {
+				show: function () {
+					hideGalleries(id);
+					dropGalleryTimeout(id);
+					showGallery(id);
+					galleries[id].gallery.bind("mouseenter", function () {
 						dropGalleryTimeout(id);
-						showGallery(id);
-						galleries[id].gallery.bind("mouseenter", function () {
-							dropGalleryTimeout(id);
-							galleries[id].gallery.bind("mouseleave", function () { setGalleryTimeout(id, context.hideTimeout); });
-						});
-					},
-					hide: function () {
-						dropGalleryTimeout(id);
-						hideGallery(id);
-					}
-				});
-
-				initSelector(id + "_SELECTOR", {
-					onClick: function () {
-						if (galleries[id].gallery.is(":visible"))
-							galleries[id].context.hide();
-						else
-							galleries[id].context.show();
-					}
-				});
-			}
-
-			function showGallery(id) {
-				var context = galleries[id].context;
-				if (context && typeof context.init == "function") {
-					context.init.call(vs.find(id)[0]);
-				}
-				if (context && typeof context.onShow == "function") {
-					context.onShow();
-				}
-				vs.find(id).slideDown({ duration: 300 });
-				vs.find(id + "_SELECTOR").addClass("ws_selthumb");
-			}
-
-			function hideGallery(id) {
-				var context = galleries[id].context;
-				vs.find(id).slideUp({ duration: 200 });
-				vs.find(id + "_SELECTOR").removeClass("ws_selthumb");
-				if (context && typeof context.onHide == "function") {
-					context.onHide();
-				}
-			}
-
-			function hideGalleries(id) {
-				util.enumerateFields(galleries, function (obj, galleryId) {
-					if (galleryId != id) {
-						dropGalleryTimeout(galleryId);
-						hideGallery(galleryId);
-					}
-				});
-			}
-
-			function setGalleryTimeout(id, timeout) {
-				dropGalleryTimeout(id);
-				if (!timeout) {
-					return;
-				}
-				galleries[id].t = setTimeout(function () {
-					galleries[id].gallery
-						.unbind("mouseenter")
-						.unbind("mouseleave");
-					hideGallery(id);
-				}, timeout);
-			}
-
-			function dropGalleryTimeout(id) {
-				if (galleries[id].t) {
-					clearTimeout(galleries[id].t);
-				}
-			}
-
-			function updateRefreshButton() {
-				var t = types[s.props.type].name,
-					m = metricSelect.val(),
-					zoom = s.props.zoom,
-					zoommed = typeof zoom != "undefined" && typeof zoom[t] != "undefined" && typeof zoom[t][m] != "undefined";
-				toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", zoommed);
-				return zoommed;
-			}
-
-			function initStrip(id, context) {
-				vs.find(id).find("li")
-					.unbind("click")
-					.bind("click", function () {
-						vs.find(id).find("li").removeClass("selected");
-						jq$(this).addClass("selected");
-
-						if (typeof context.onclick == "function")
-							context.onclick();
+						galleries[id].gallery.bind("mouseleave", function () { setGalleryTimeout(id, context.hideTimeout); });
 					});
-			}
-
-			function getStripValue(id) {
-				return vs.find(id).find("li.selected").attr("val");
-			}
-
-			function setStripValue(id, value) {
-				if (getStripValue(id) == value) {
-					return;
+				},
+				hide: function () {
+					dropGalleryTimeout(id);
+					hideGallery(id);
 				}
-				vs.find(id).find("li.selected").removeClass("selected");
-				vs.find(id).find("li[val=" + util.escape(value) + "]").addClass("selected");
-			}
+			});
 
-			function recreate() {
-				vs.find("#VIS_ID").empty();
-				vs.find("#VIS_ID_BREADCRUMBS_PANEL").empty();
-
-				store();
-				ExecuteVIS_ID();
-			}
-
-			function recall() {
-				s.chart.destroy();
-				recreate();
-			}
-
-			function validateControls() {
-				var safeMetric = metricSelect.find("option[value!=All]:eq(0)"),
-					allMetric = metricSelect.find("option[value=All]");
-
-				type = types[s.props.type].name;
-
-				if (type == "bubble" && metricSelect.val() == metricExtraSelect.val())
-					metricSelect.val(allMetric.val());
-
-				if (s.force.type) {
-					if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
-						metricSelect.val(safeMetric.val());
-				} else if (s.force.metric) {
-					if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
-						metricSelect.val(safeMetric.val());
+			initSelector(id + "_SELECTOR", {
+				onClick: function () {
+					if (galleries[id].gallery.is(":visible"))
+						galleries[id].context.hide();
+					else
+						galleries[id].context.show();
 				}
+			});
+		}
 
-				metricValue = metricSelect.val();
-				metricExtraValue = metricExtraSelect.val();
-
-				metricExtraSelect.parents("span:eq(0)").css("display", type == "bubble" ? "inline-block" : "none");
-				coloredSelect.parents(".property-control:eq(0)").css("display", metricValue != "All" ? "block" : "none");
-
-				s.force.metric = s.force.metric2 = s.force.type = false;
-
-				s.props.colored = coloredSelect.size() > 0 ? coloredSelect.prop("checked") : true;
-				s.props.fromZero = zeroCheckbox.size() > 0 ? zeroCheckbox.prop("checked") : false;
-				s.props.subreportMode = getStripValue("#VIS_ID_SUBREPORT_MODE");
-				s.props.combineBottom = combBottom.size() > 0 && combBottom.val() ? combBottom.val() : 5;
-
-				if (stacked = !!type.match(stackedRx))
-					type = type.replace(stackedRx, "");
-				if (percent = !!type.match(percentRx))
-					type = type.replace(percentRx, "");
-				if (donut = !!type.match(donutRx))
-					type = type.replace(donutRx, "");
-				if (polar = !!type.match(polarRx))
-					type = type.replace(polarRx, "");
+		function showGallery(id) {
+			var context = galleries[id].context;
+			if (context && typeof context.init == "function") {
+				context.init.call(vs.find(id)[0]);
 			}
+			if (context && typeof context.onShow == "function") {
+				context.onShow();
+			}
+			vs.find(id).slideDown({ duration: 300 });
+			vs.find(id + "_SELECTOR").addClass("ws_selthumb");
+		}
 
-			function store() {
-				validateControls();
+		function hideGallery(id) {
+			var context = galleries[id].context;
+			vs.find(id).slideUp({ duration: 200 });
+			vs.find(id + "_SELECTOR").removeClass("ws_selthumb");
+			if (context && typeof context.onHide == "function") {
+				context.onHide();
+			}
+		}
 
-				if (s.props.metric != "All")
-					delete s.props.visibility;
-				jq$.extend(s.props = (s.props || {}), {
-					"metric": metricSelect.val(),
-					"metric2": metricExtraSelect.val()
-				});
-				if (!isEmbedded) {
-					vis.setProps(s.props);
+		function hideGalleries(id) {
+			util.enumerateFields(galleries, function (obj, galleryId) {
+				if (galleryId != id) {
+					dropGalleryTimeout(galleryId);
+					hideGallery(galleryId);
 				}
-			}
+			});
+		}
 
-			function restore() {
-				if (typeof s.props != "object") {
-					return;
-				}
-
-				colors = palettes[s.props.palette].colors;
-
-				metricSelect.val(s.props.metric);
-				metricExtraSelect.val(s.props.metric2);
-
-				coloredSelect.prop("checked", !!s.props.colored);
-				zeroCheckbox.prop("checked", !!s.props.fromZero);
-				combBottom.prop("value", s.props.combineBottom || 5);
-
-				if (typeof s.props.subreportMode == "string")
-					setStripValue("#VIS_ID_SUBREPORT_MODE", s.props.subreportMode);
-				else
-					setStripValue("#VIS_ID_SUBREPORT_MODE", vs.find("#VIS_ID_SUBREPORT_MODE").find("li:eq(0)").attr("val"));
-			}
-
-			var metricValue,
-				metricExtraValue,
-				colors, type,
-				stacked, stackedRx = /-stacked/g,
-				percent, percentRx = /-percent/g,
-				donut, donutRx = /-donut/g,
-				polar, polarRx = /-polar/g,
-				pieRx = /^pie/g,
-				funnelRx = /^funnel/g,
-				animationComplete = false;
-
-			var subreported = VIS_COLUMNS.findIndex(function (el) { return typeof el.drilldownstyle == "string"; }) > -1,
-				isEmbedded = jq$('#VIS_ID').parents('[id*=_EXPAND_GALLERY_CONTAINER]').length > 0;
-
-			var vs = util.container("VIS_ID"),
-				metricSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_SELECT"),
-				metricExtraSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"),
-				coloredSelect = vs.find("input#VIS_ID_PROPERTY_MUTLICOLOR_CHECKBOX"),
-				zeroCheckbox = vs.find("input#VIS_ID_PROPERTY_ZERO_CHECKBOX"),
-				combBottom = vs.find("input#VIS_ID_PROPERTY_COMBINE_ITEMS");
-
-			if (VIS_COLUMNS.findIndex(function (el) { return el.drilldownstyle == "EmbeddedDetail"; }) > -1) {
-				vs.text("Embedded subreports not supported with Visualizations");
+		function setGalleryTimeout(id, timeout) {
+			dropGalleryTimeout(id);
+			if (!timeout) {
 				return;
 			}
+			galleries[id].t = setTimeout(function () {
+				galleries[id].gallery
+					.unbind("mouseenter")
+					.unbind("mouseleave");
+				hideGallery(id);
+			}, timeout);
+		}
 
-			if (!s.props) {
-				try {
-					s.props = JSON.parse(VIS_CONTEXT.props);
-					s.props.type = (s.props.type && typeof s.props.type != "undefined" && jq$.isNumeric(s.props.type)) ? s.props.type : types.findIndex(function (item) { return item.name === "column"; });
-					s.props.palette = (s.props.palette && typeof s.props.palette != "undefined" && jq$.isNumeric(s.props.palette)) ? s.props.palette : palettes.findIndex(function (item) { return item.name === "default"; });
-				} catch (e) {
-				}
+		function dropGalleryTimeout(id) {
+			if (galleries[id].t) {
+				clearTimeout(galleries[id].t);
+			}
+		}
+
+		function updateRefreshButton() {
+			var t = types[s.props.type].name,
+				m = metricSelect.val(),
+				zoom = s.props.zoom,
+				zoommed = typeof zoom != "undefined" && typeof zoom[t] != "undefined" && typeof zoom[t][m] != "undefined";
+			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", zoommed);
+			return zoommed;
+		}
+
+		function initStrip(id, context) {
+			vs.find(id).find("li")
+				.unbind("click")
+				.bind("click", function () {
+					vs.find(id).find("li").removeClass("selected");
+					jq$(this).addClass("selected");
+
+					if (typeof context.onclick == "function")
+						context.onclick();
+				});
+		}
+
+		function getStripValue(id) {
+			return vs.find(id).find("li.selected").attr("val");
+		}
+
+		function setStripValue(id, value) {
+			if (getStripValue(id) == value) {
+				return;
+			}
+			vs.find(id).find("li.selected").removeClass("selected");
+			vs.find(id).find("li[val=" + util.escape(value) + "]").addClass("selected");
+		}
+
+		function recreate() {
+			vs.find("#VIS_ID").empty();
+			vs.find("#VIS_ID_BREADCRUMBS_PANEL").empty();
+
+			store();
+			ExecuteVIS_ID();
+		}
+
+		function recall() {
+			s.chart.destroy();
+			recreate();
+		}
+
+		function validateControls() {
+			var safeMetric = metricSelect.find("option[value!=All]:eq(0)"),
+				allMetric = metricSelect.find("option[value=All]");
+
+			type = types[s.props.type].name;
+
+			if (type == "bubble" && metricSelect.val() == metricExtraSelect.val())
+				metricSelect.val(allMetric.val());
+
+			if (s.force.type) {
+				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
+					metricSelect.val(safeMetric.val());
+			} else if (s.force.metric) {
+				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
+					metricSelect.val(safeMetric.val());
 			}
 
-			vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+			metricValue = metricSelect.val();
+			metricExtraValue = metricExtraSelect.val();
 
-			width = vis.getWidth();
-			height = vis.getHeight();
+			metricExtraSelect.parents("span:eq(0)").css("display", type == "bubble" ? "inline-block" : "none");
+			coloredSelect.parents(".property-control:eq(0)").css("display", metricValue != "All" ? "block" : "none");
 
-			vs.find("#VIS_ID").width(width).height(height);
+			s.force.metric = s.force.metric2 = s.force.type = false;
 
-			jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
+			s.props.colored = coloredSelect.size() > 0 ? coloredSelect.prop("checked") : true;
+			s.props.fromZero = zeroCheckbox.size() > 0 ? zeroCheckbox.prop("checked") : false;
+			s.props.subreportMode = getStripValue("#VIS_ID_SUBREPORT_MODE");
+			s.props.combineBottom = combBottom.size() > 0 && combBottom.val() ? combBottom.val() : 5;
 
-			function showInsufficientWidth(width, height) {
-				var insufficientWidthMessage = '<div id="#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-				jq$('#VIS_ID').html(insufficientWidthMessage);
-			}
+			if (stacked = !!type.match(stackedRx))
+				type = type.replace(stackedRx, "");
+			if (percent = !!type.match(percentRx))
+				type = type.replace(percentRx, "");
+			if (donut = !!type.match(donutRx))
+				type = type.replace(donutRx, "");
+			if (polar = !!type.match(polarRx))
+				type = type.replace(polarRx, "");
+		}
 
-			vis.collectTree();
-
-			var totals = vis.traverseTree(function (context) {
-				if (!context.node.hasOwnProperty("id")) {
-					context.node["drilldown"] = context.node["id"] = context.node["name"];
-					context.node["label"] = VIS_COLUMNS[context.fi].name;
-				}
-			});
-
-			var aggregatesByMetrics = (function () {
-				var aggregate = {};
-				for (i = 0; i < vis.metrics.length; i++) {
-					var metric = vis.metrics[i];
-					for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
-						if (VIS_COLUMNS[j].name !== metric)
-							continue;
-
-						aggregate[metric] = {
-							type: VIS_COLUMNS[j].aggregation,
-							subType: VIS_COLUMNS[j].subtotal
-						};
-						break;
-					}
-				}
-				return aggregate;
-			})();
-
-			function initNodes(node, metric) {
-				var values = [],
-					aggregate = aggregatesByMetrics[metric];
-				if (node.hasOwnProperty("children")) {
-					for (var i = 0, length = node.children.length; i < length; i++)
-						values = values.concat(initNodes(node.children[i], metric));
-
-					vis.unitValue(node, metric, { sf: vis.fields.origin, value: util.aggregation.getsub(aggregate.type)(values) });
-				}
-				else {
-					values.push(vis.unitValue(node, metric));
-				}
-
-				vis.unitValue(node, metric, { sf: vis.fields.subtotal, value: util.aggregation.getsub(aggregate.subType)(values) });
-				return values;
-			}
-
-			for (i = 0; i < vis.metrics.length; i++)
-				initNodes(totals, vis.metrics[i]);
-
-			var totalSize = 0;
-			for (var i = 0; i < vis.items.length; i++)
-				totalSize += vis.items[i].y;
-
-			metricSelect.find("option").remove().end()
-				.append('<option value="All">All</option>');
-			metricExtraSelect.find("option").remove().end()
-				.append('<option value="empty"></option>');
-			jq$.each(vis.metrics, function (i, el) {
-				metricSelect.append("<option>" + el + "</option>");
-				metricExtraSelect.append("<option>" + el + "</option>");
-			});
-
-			restore();
-
-			coloredSelect
-				.unbind("change")
-				.bind("change", recall);
-			zeroCheckbox
-				.unbind("change")
-				.bind("change", recall);
-			metricSelect
-				.unbind("change")
-				.bind("change", function () {
-					s.force.metric = true;
-					recall();
-				});
-			metricExtraSelect
-				.unbind("change")
-				.bind("change", function () {
-					s.force.metric2 = true;
-					recall();
-				});
-			combBottom
-				.unbind("change")
-				.bind("change", function () {
-					s.props.combineBottom = combBottom.val();
-					recall();
-				});
+		function store() {
 			validateControls();
 
-			var egOptions;
-			initGallery("#VIS_ID_EXPAND_GALLERY", egOptions = {
-				onclick: function () { },
-				onShow: function () {
-					var $gallery = vs.find("#VIS_ID_EXPAND_GALLERY").css({ display: "table", width: "auto" }),
-						$galleryBackground = vs.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND").css({ "width": "" }),
-						$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").css({ "height": "" }),
-						bounds = {};
-					var scrollable = util.fitScollableContainer($gallery.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND"), { maxWidth: width, maxHeight: 300 }, bounds);
-
-					if (scrollable) {
-						if (utility.isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
-							$galleryBackground.width(bounds.width);
-						if (utility.isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
-							$galleryContainer.height(bounds.height - 17);
-					}
-
-					var xpos = egOptions.cx - $gallery.width() / 2;
-					if (xpos + $gallery.width() > width)
-						xpos = width - $gallery.width();
-
-					$gallery.css({
-						margin: "0 auto 0 " + (xpos < 0 ? 0 : xpos) + "px"
-					});
-				},
-				onHide: function () {
-					delete egOptions.shownIndex;
-					if (egOptions.style == "EmbeddedDetail") {
-						jq$(s.chart.renderer.box).find(".expandtools").remove();
-						vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html("");
-					}
-				}
+			if (s.props.metric != "All")
+				delete s.props.visibility;
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val(),
+				"metric2": metricExtraSelect.val()
 			});
-			initGallery("#VIS_ID_GEAR_GALLERY", {
-				onclick: function () {
-					recall();
-				},
-				hideTimeout: 1000
-			});
-			initGallery("#VIS_ID_TYPE_GALLERY", {
-				init: function () {
-					if (jq$(this).find(".gallery-item").size() > 0) {
-						return;
-					}
-					var typeControl = vs.find("#VIS_ID_TYPE_CONTROL"),
-						setTypeControlValue = function (index) {
-							typeControl.find(".ws_selthumb").removeClass("ws_selthumb");
-							typeControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
-						};
-					jq$.each(types, function (i, type) {
-						var item = jq$('<div></div>')
-							.attr("index", i)
-							.addClass("gallery-item")
-							.bind("click", function () {
-								s.force.type = true;
-								s.props.type = ~~jq$(this).attr("index");
-								setTypeControlValue(s.props.type);
-								recall();
-							});
-						var titlebox = jq$('<a></a>')
-							.attr("title", type.title)
-							.attr("href", "javascript:void(0)");
-						var placeholder = jq$('<div></div>')
-							.attr("class", "placeholder");
-						item.append(titlebox);
-						titlebox.append(placeholder);
-						placeholder.append(jq$('<img></img>')
-							.attr("src", type.thumbnail)
-						);
-						typeControl.append(item);
-						setTypeControlValue(s.props.type);
-					});
-				},
-				hideTimeout: 1000
-			});
+			if (!isEmbedded) {
+				vis.setProps(s.props);
+			}
+		}
 
-			initGallery("#VIS_ID_PALETTE_GALLERY", {
-				init: function () {
-					if (jq$(this).find(".gallery-item").size() > 0) {
-						return;
-					}
-					var paletteControl = vs.find("#VIS_ID_PALETTE_CONTROL"),
-						setPaletteControlValue = function (index) {
-							paletteControl.find(".ws_selthumb").removeClass("ws_selthumb");
-							paletteControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
-						};
-					jq$.each(palettes, function (i, palette) {
-						var item = jq$('<div></div>')
-							.attr("index", i)
-							.addClass("gallery-item")
-							.bind("click", function () {
-								s.props.palette = ~~jq$(this).attr("index");
-								setPaletteControlValue(s.props.palette);
-								recall();
-							});
-						var titlebox = jq$('<a></a>')
-							.attr("title", palette.title)
-							.attr("href", "javascript:void(0)");
-						var placeholder = jq$('<div></div>')
-							.attr("class", "placeholder");
-						item.append(titlebox);
-						titlebox.append(placeholder);
-						jq$.each(palette.colors, function (i, color) {
-							placeholder.append(jq$('<div></div>')
-								.attr("class", "left cell")
-								.css({
-									"background-color": color
-								})
-							);
-						});
-						paletteControl.append(item);
-						setPaletteControlValue(s.props.palette);
-					});
-				},
-				hideTimeout: 1000
-			});
-
-			initSelector("#VIS_ID_REFRESH_SELECTOR", {
-				onClick: function () {
-					if (typeof s.chart == "undefined") {
-						return;
-					}
-					s.chart.zoomOut();
-				}
-			});
-
-			initStrip("#VIS_ID_SUBREPORT_MODE", {
-				onclick: recall
-			});
-
-			if (vis.forInstantReports) {
-				s.init = false;
-				s.hideTimeout = 3000;
+		function restore() {
+			if (typeof s.props != "object") {
+				return;
 			}
 
-			var fromZero = (type != "pie" && !stacked && !percent);
-			vs.find("#VIS_ID_PROPERTY_ZERO_CHECKBOX").parents("div:eq(0)")
-				.css("display", fromZero ? "block" : "none");
-			vs.find("#VIS_ID_SUBREPORT_MODE").parents("div:eq(0)")
-				.css("display", subreported ? "block" : "none");
+			colors = palettes[s.props.palette].colors;
 
-			var rounded = (type == "pie" || type == "pie-donut");
+			metricSelect.val(s.props.metric);
+			metricExtraSelect.val(s.props.metric2);
 
-			vs.find("#VIS_ID_PROPERTY_COMBINE_ITEMS").parents("div:eq(0)")
-				.css("display", rounded ? "block" : "none");
+			coloredSelect.prop("checked", !!s.props.colored);
+			zeroCheckbox.prop("checked", !!s.props.fromZero);
+			combBottom.prop("value", s.props.combineBottom || 5);
 
-			toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", fromZero || subreported || rounded);
-			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
+			if (typeof s.props.subreportMode == "string")
+				setStripValue("#VIS_ID_SUBREPORT_MODE", s.props.subreportMode);
+			else
+				setStripValue("#VIS_ID_SUBREPORT_MODE", vs.find("#VIS_ID_SUBREPORT_MODE").find("li:eq(0)").attr("val"));
+		}
 
-			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", true);
-			var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
-				breadcrumbWidthOffset = 10,
-				breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
-			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
-			vis.createBreadcrumb({
-				selector: "#VIS_ID_BREADCRUMBS_PANEL",
-				width: breadcrumbWidth,
-				bounds: { w: 75, h: 30, s: 3, t: 10 },
-				getColor: function () { return getItem(colors, 0); },
-				showRoot: true,
-				onclick: function (d) {
-					if (typeof d.parent != "undefined")
-						clicked(d, d.label + ": " + d.name);
-					else
-						clicked();
-				},
-				root: totals,
-				showLabel: true,
-				total: totalSize,
-				hidden: !!s.init,
-				hideTimeout: s.hideTimeout
+		function adjustimages() {
+			var $gallery = vs.find("#VIS_ID_EXPAND_GALLERY").css({ display: "table", width: "auto" }),
+					$galleryBackground = vs.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND").css({ "width": "" }),
+					$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").css({ "height": "" }),
+					bounds = {};
+			var scrollable = util.fitScollableContainer($gallery.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND"), { maxWidth: width, maxHeight: 300 }, bounds);
+
+			if (scrollable) {
+				if (utility.isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
+					$galleryBackground.width(bounds.width);
+				if (utility.isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
+					$galleryContainer.height(bounds.height - 17);
+			}
+
+			var xpos = egOptions.cx - $gallery.width() / 2;
+			if (xpos + $gallery.width() > width)
+				xpos = width - $gallery.width();
+
+			$gallery.css({
+				margin: "0 auto 0 " + (xpos < 0 ? 0 : xpos) + "px"
+			});
+		}
+
+		var metricValue,
+			metricExtraValue,
+			colors, type,
+			stacked, stackedRx = /-stacked/g,
+			percent, percentRx = /-percent/g,
+			donut, donutRx = /-donut/g,
+			polar, polarRx = /-polar/g,
+			pieRx = /^pie/g,
+			funnelRx = /^funnel/g,
+			animationComplete = false;
+
+		var subreported = VIS_COLUMNS.findIndex(function (el) { return typeof el.drilldownstyle == "string"; }) > -1,
+			isEmbedded = jq$('#VIS_ID').parents('[id*=_EXPAND_GALLERY_CONTAINER]').length > 0;
+
+		var vs = util.container("VIS_ID"),
+			metricSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_SELECT"),
+			metricExtraSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"),
+			coloredSelect = vs.find("input#VIS_ID_PROPERTY_MUTLICOLOR_CHECKBOX"),
+			zeroCheckbox = vs.find("input#VIS_ID_PROPERTY_ZERO_CHECKBOX"),
+			combBottom = vs.find("input#VIS_ID_PROPERTY_COMBINE_ITEMS");
+
+		if (VIS_COLUMNS.findIndex(function (el) { return el.drilldownstyle == "EmbeddedDetail"; }) > -1) {
+			vs.text("Embedded subreports not supported with Visualizations");
+			return;
+		}
+
+		if (!s.props) {
+			try {
+				s.props = JSON.parse(VIS_CONTEXT.props);
+				s.props.type = (s.props.type && typeof s.props.type != "undefined" && jq$.isNumeric(s.props.type)) ? s.props.type : types.findIndex(function (item) { return item.name === "column"; });
+				s.props.palette = (s.props.palette && typeof s.props.palette != "undefined" && jq$.isNumeric(s.props.palette)) ? s.props.palette : palettes.findIndex(function (item) { return item.name === "default"; });
+			} catch (e) {
+			}
+		}
+
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+		width = vis.getWidth();
+		height = vis.getHeight();
+
+		vs.find("#VIS_ID").width(width).height(height);
+
+		jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
+
+		function showInsufficientWidth(width, height) {
+			var insufficientWidthMessage = '<div id="#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
+			jq$('#VIS_ID').html(insufficientWidthMessage);
+		}
+
+		vis.collectTree();
+
+		var totals = vis.traverseTree(function (context) {
+			if (!context.node.hasOwnProperty("id")) {
+				context.node["drilldown"] = context.node["id"] = context.node["name"];
+				context.node["label"] = VIS_COLUMNS[context.fi].name;
+			}
+		});
+
+		var aggregatesByMetrics = (function () {
+			var aggregate = {};
+			for (i = 0; i < vis.metrics.length; i++) {
+				var metric = vis.metrics[i];
+				for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
+					if (VIS_COLUMNS[j].name !== metric)
+						continue;
+
+					aggregate[metric] = {
+						type: VIS_COLUMNS[j].aggregation,
+						subType: VIS_COLUMNS[j].subtotal
+					};
+					break;
+				}
+			}
+			return aggregate;
+		})();
+
+		function initNodes(node, metric) {
+			var values = [],
+				aggregate = aggregatesByMetrics[metric];
+			if (node.hasOwnProperty("children")) {
+				for (var i = 0, length = node.children.length; i < length; i++)
+					values = values.concat(initNodes(node.children[i], metric));
+
+				vis.unitValue(node, metric, { sf: vis.fields.origin, value: util.aggregation.getsub(aggregate.type)(values) });
+			}
+			else {
+				values.push(vis.unitValue(node, metric));
+			}
+
+			vis.unitValue(node, metric, { sf: vis.fields.subtotal, value: util.aggregation.getsub(aggregate.subType)(values) });
+			return values;
+		}
+
+		for (i = 0; i < vis.metrics.length; i++)
+			initNodes(totals, vis.metrics[i]);
+
+		var totalSize = 0;
+		for (var i = 0; i < vis.items.length; i++)
+			totalSize += vis.items[i].y;
+
+		metricSelect.find("option").remove().end()
+			.append('<option value="All">All</option>');
+		metricExtraSelect.find("option").remove().end()
+			.append('<option value="empty"></option>');
+		jq$.each(vis.metrics, function (i, el) {
+			metricSelect.append("<option>" + el + "</option>");
+			metricExtraSelect.append("<option>" + el + "</option>");
+		});
+
+		restore();
+
+		coloredSelect
+			.unbind("change")
+			.bind("change", recall);
+		zeroCheckbox
+			.unbind("change")
+			.bind("change", recall);
+		metricSelect
+			.unbind("change")
+			.bind("change", function () {
+				s.force.metric = true;
+				recall();
+			});
+		metricExtraSelect
+			.unbind("change")
+			.bind("change", function () {
+				s.force.metric2 = true;
+				recall();
+			});
+		combBottom
+			.unbind("change")
+			.bind("change", function () {
+				s.props.combineBottom = combBottom.val();
+				recall();
+			});
+		validateControls();
+
+		var egOptions;
+		initGallery("#VIS_ID_EXPAND_GALLERY", egOptions = {
+			onclick: function () { },
+			onShow: adjustimages,
+			onHide: function () {
+				delete egOptions.shownIndex;
+				if (egOptions.style == "EmbeddedDetail") {
+					jq$(s.chart.renderer.box).find(".expandtools").remove();
+					vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html("");
+				}
+			}
+		});
+		initGallery("#VIS_ID_GEAR_GALLERY", {
+			onclick: function () {
+				recall();
+			},
+			hideTimeout: 1000
+		});
+		initGallery("#VIS_ID_TYPE_GALLERY", {
+			init: function () {
+				if (jq$(this).find(".gallery-item").size() > 0) {
+					return;
+				}
+				var typeControl = vs.find("#VIS_ID_TYPE_CONTROL"),
+					setTypeControlValue = function (index) {
+						typeControl.find(".ws_selthumb").removeClass("ws_selthumb");
+						typeControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
+					};
+				jq$.each(types, function (i, type) {
+					var item = jq$('<div></div>')
+						.attr("index", i)
+						.addClass("gallery-item")
+						.bind("click", function () {
+							s.force.type = true;
+							s.props.type = ~~jq$(this).attr("index");
+							setTypeControlValue(s.props.type);
+							recall();
+						});
+					var titlebox = jq$('<a></a>')
+						.attr("title", type.title)
+						.attr("href", "javascript:void(0)");
+					var placeholder = jq$('<div></div>')
+						.attr("class", "placeholder");
+					item.append(titlebox);
+					titlebox.append(placeholder);
+					placeholder.append(jq$('<img></img>')
+						.attr("src", type.thumbnail)
+					);
+					typeControl.append(item);
+					setTypeControlValue(s.props.type);
+				});
+			},
+			hideTimeout: 1000
+		});
+
+		initGallery("#VIS_ID_PALETTE_GALLERY", {
+			init: function () {
+				if (jq$(this).find(".gallery-item").size() > 0) {
+					return;
+				}
+				var paletteControl = vs.find("#VIS_ID_PALETTE_CONTROL"),
+					setPaletteControlValue = function (index) {
+						paletteControl.find(".ws_selthumb").removeClass("ws_selthumb");
+						paletteControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
+					};
+				jq$.each(palettes, function (i, palette) {
+					var item = jq$('<div></div>')
+						.attr("index", i)
+						.addClass("gallery-item")
+						.bind("click", function () {
+							s.props.palette = ~~jq$(this).attr("index");
+							setPaletteControlValue(s.props.palette);
+							recall();
+						});
+					var titlebox = jq$('<a></a>')
+						.attr("title", palette.title)
+						.attr("href", "javascript:void(0)");
+					var placeholder = jq$('<div></div>')
+						.attr("class", "placeholder");
+					item.append(titlebox);
+					titlebox.append(placeholder);
+					jq$.each(palette.colors, function (i, color) {
+						placeholder.append(jq$('<div></div>')
+							.attr("class", "left cell")
+							.css({
+								"background-color": color
+							})
+						);
+					});
+					paletteControl.append(item);
+					setPaletteControlValue(s.props.palette);
+				});
+			},
+			hideTimeout: 1000
+		});
+
+		initSelector("#VIS_ID_REFRESH_SELECTOR", {
+			onClick: function () {
+				if (typeof s.chart == "undefined") {
+					return;
+				}
+				s.chart.zoomOut();
+			}
+		});
+
+		initStrip("#VIS_ID_SUBREPORT_MODE", {
+			onclick: recall
+		});
+
+		if (vis.forInstantReports) {
+			s.init = false;
+			s.hideTimeout = 3000;
+		}
+
+		var fromZero = (type != "pie" && !stacked && !percent);
+		vs.find("#VIS_ID_PROPERTY_ZERO_CHECKBOX").parents("div:eq(0)")
+			.css("display", fromZero ? "block" : "none");
+		vs.find("#VIS_ID_SUBREPORT_MODE").parents("div:eq(0)")
+			.css("display", subreported ? "block" : "none");
+
+		var rounded = (type == "pie" || type == "pie-donut");
+
+		vs.find("#VIS_ID_PROPERTY_COMBINE_ITEMS").parents("div:eq(0)")
+			.css("display", rounded ? "block" : "none");
+
+		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", fromZero || subreported || rounded);
+		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
+
+		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", true);
+		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+			breadcrumbWidthOffset = 10,
+			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
+		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
+		vis.createBreadcrumb({
+			selector: "#VIS_ID_BREADCRUMBS_PANEL",
+			width: breadcrumbWidth,
+			bounds: { w: 75, h: 30, s: 3, t: 10 },
+			getColor: function () { return getItem(colors, 0); },
+			showRoot: true,
+			onclick: function (d) {
+				if (typeof d.parent != "undefined")
+					clicked(d, d.label + ": " + d.name);
+				else
+					clicked();
+			},
+			root: totals,
+			showLabel: true,
+			total: totalSize,
+			hidden: !!s.init,
+			hideTimeout: s.hideTimeout
+		});
+
+		jq$("#VIS_ID_PROPERTIES_PANEL").css({ opacity: !s.init ? 1 : 0 });
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				vis.breadcrumb.show();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				vis.breadcrumb.hide();
+				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
 			});
 
-			jq$("#VIS_ID_PROPERTIES_PANEL").css({ opacity: !s.init ? 1 : 0 });
-			vis.container
-				.unbind("mouseenter")
-				.bind("mouseenter", function () {
-					vis.breadcrumb.show();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
-				})
-				.unbind("mouseleave")
-				.bind("mouseleave", function () {
-					vis.breadcrumb.hide();
-					jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
-				});
+		s.init = false;
 
-			s.init = false;
+		vis.hideBreadcrumb();
+		util.createTootip();
 
-			vis.hideBreadcrumb();
-			util.createTootip();
+		function execBreadcrumb(d) {
+			if (isThumbnails) {
+				return;
+			}
 
-			function execBreadcrumb(d) {
-				if (isThumbnails) {
+			if (metricValue == "All") {
+				vis.updateBreadcrumb(d, { label: "" });
+			} else {
+				var percentage = (100 * vis.unitValue(d, metricValue) / vis.unitValue(totals, metricValue)).toPrecision(3);
+				vis.updateBreadcrumb(d, { label: percentage < 0.1 ? "< 0.1%" : percentage + "%" });
+			}
+		}
+
+		function registerLabelEvents() {
+			function fixPosition(pos, fix) {
+				pos.left += fix.left;
+				pos.top += fix.top;
+			}
+
+			function rotate(index, onCoplite) {
+				function normalize(angle) {
+					if (angle < 0)
+						angle = (angle % 360) + 360;
+					else if (angle >= 360)
+						angle = angle % 360;
+					return angle;
+				}
+
+				function fixDelta(angle) {
+					if (angle > 180)
+						angle = angle - 360;
+					else if (angle < -180)
+						angle = angle + 360;
+					return angle;
+				}
+
+				var vf = 0, v1 = 0, vc = 0;
+				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
+					var v = vis.unitValue(s.chartOptions.usedData[i], metricValue);
+					if (i < index)
+						v1 += v;
+					else if (i == index)
+						vc = v;
+					vf += v;
+				}
+
+				var angle = normalize(180 - (360 / vf) * (vc / 2 + v1)),
+					delta = fixDelta(angle - s.angle),
+					time = Math.abs(delta),
+					tick = 0,
+					tickCount = (time / 5) | 0;
+
+				if (angle == s.angle) {
+					onCoplite();
 					return;
 				}
 
-				if (metricValue == "All") {
-					vis.updateBreadcrumb(d, { label: "" });
-				} else {
-					var percentage = (100 * vis.unitValue(d, metricValue) / vis.unitValue(totals, metricValue)).toPrecision(3);
-					vis.updateBreadcrumb(d, { label: percentage < 0.1 ? "< 0.1%" : percentage + "%" });
-				}
-			}
+				var timer = setInterval(function () {
+					tick++;
+					s.chart.series[0].update({ startAngle: normalize(s.angle + delta * (tick / tickCount)) });
 
-			function registerLabelEvents() {
-				function fixPosition(pos, fix) {
-					pos.left += fix.left;
-					pos.top += fix.top;
-				}
+					claimLabels();
+					registerLabels();
 
-				function rotate(index, onCoplite) {
-					function normalize(angle) {
-						if (angle < 0)
-							angle = (angle % 360) + 360;
-						else if (angle >= 360)
-							angle = angle % 360;
-						return angle;
-					}
-
-					function fixDelta(angle) {
-						if (angle > 180)
-							angle = angle - 360;
-						else if (angle < -180)
-							angle = angle + 360;
-						return angle;
-					}
-
-					var vf = 0, v1 = 0, vc = 0;
-					for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-						var v = vis.unitValue(s.chartOptions.usedData[i], metricValue);
-						if (i < index)
-							v1 += v;
-						else if (i == index)
-							vc = v;
-						vf += v;
-					}
-
-					var angle = normalize(180 - (360 / vf) * (vc / 2 + v1)),
-						delta = fixDelta(angle - s.angle),
-						time = Math.abs(delta),
-						tick = 0,
-						tickCount = (time / 5) | 0;
-
-					if (angle == s.angle) {
+					if (tick >= tickCount) {
+						clearInterval(timer);
+						s.angle = normalize(angle);
 						onCoplite();
 						return;
 					}
+				}, time / tickCount);
+			}
 
-					var timer = setInterval(function () {
-						tick++;
-						s.chart.series[0].update({ startAngle: normalize(s.angle + delta * (tick / tickCount)) });
-
-						claimLabels();
-						registerLabels();
-
-						if (tick >= tickCount) {
-							clearInterval(timer);
-							s.angle = normalize(angle);
-							onCoplite();
-							return;
-						}
-					}, time / tickCount);
-				}
-
-				function registerLink(index) {
-					jq$(elements[index])
-						.bind("click", function (e) {
-							window.open(s.chartOptions.usedData[index].link, '_blank');
-						})
-						.on("mouseover", function (e) {
-							egOptions.hoverIndex = index;
-							var name = s.chartOptions.usedData[index].name;
-							util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
-						})
-						.on("mouseleave", function () {
-							if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
-								delete egOptions.hoverIndex;
-							if (typeof egOptions.clickIndex == "undefined")
-								util.hideTooltip();
-						});
-
-					jq$(s.chart.renderer.box)
-						.unbind("mouseleave")
-						.bind("mouseleave", function () {
-							if (typeof egOptions.clickIndex != "undefined")
-								return;
-
+			function registerLink(index) {
+				jq$(elements[index])
+					.bind("click", function (e) {
+						window.open(s.chartOptions.usedData[index].link, '_blank');
+					})
+					.on("mouseover", function (e) {
+						egOptions.hoverIndex = index;
+						var name = s.chartOptions.usedData[index].name;
+						util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
+					})
+					.on("mouseleave", function () {
+						if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
 							delete egOptions.hoverIndex;
+						if (typeof egOptions.clickIndex == "undefined")
 							util.hideTooltip();
-						});
-				}
-				function register(index) {
-					var style = s.props.subreportMode;
-					if (style == "EmbeddedDetail" && (vis.isDashboards || s.isVml))
-						style = "DetailLinkPopup";
+					});
 
-					jq$(elements[index])
-						.bind("click", function (e) {
-							function filterReport(code) {
-								jq$.each(jq$.grep(code.match(/<script[\s\S]+?>([\s\S]+?)<\/script>/g), function (item) {
-									return item.indexOf("ReportScripting.globalEval") < 0;
-								}), function (i, item) {
-									code = code.replace(item, '');
-								});
-								return jq$('<div>' + code.match(/<form[\s\S]+?>([\s\S]+)<\/form>/)[1] + '</div>')
-									.find("input[type=hidden]").remove().end()
-									.find("div.aspNetHidden").remove().end()
-									.html();
-							}
+				jq$(s.chart.renderer.box)
+					.unbind("mouseleave")
+					.bind("mouseleave", function () {
+						if (typeof egOptions.clickIndex != "undefined")
+							return;
 
-							var hoderIndex = egOptions.hoverIndex, // IE8 event handling workaround
-								loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
-								reportLink = s.chartOptions.usedData[index].subreportlink,
-								reportLinkFixed = reportLink.replace(utility.server.config.ReportViewerUrl, utility.server.config.ResponseServerUrl);
+						delete egOptions.hoverIndex;
+						util.hideTooltip();
+					});
+			}
+			function register(index) {
+				var style = s.props.subreportMode;
+				if (style == "EmbeddedDetail" && (vis.isDashboards || s.isVml))
+					style = "DetailLinkPopup";
 
-							switch (style) {
-								case "DetailLink":
-									window.location.href = reportLink;
-									break;
-								case "DetailLinkNewWindow":
-									window.open(reportLink, '_blank');
-									break;
-								case "EmbeddedDetail":
-									if (egOptions.shownIndex == index) {
-										egOptions.hide();
-										return;
-									}
-									delete egOptions.shownIndex;
-									jq$(s.chart.renderer.box).find(".expandtools").remove();
+				jq$(elements[index])
+					.bind("click", function (e) {
+						function filterReport(code, container, context) {
+							jq$.each(jq$.grep(code.match(/<script[\s\S]+?>([\s\S]+?)<\/script>/g), function (item) {
+								return item.indexOf("ReportScripting.globalEval") < 0;
+							}), function (i, item) {
+								code = code.replace(item, '');
+							});
+							var result = /<form[\s\S]+?>([\s\S]+)<\/form>/.exec(code);
+							var html = jq$('<div>' + (result ? result[1] : code) + '</div>')
+								.find("input[type=hidden]").remove().end()
+								.find("div.aspNetHidden").remove().end()
+								.html();
+							if (typeof container != "undefined" && typeof context != "undefined")
+								util.adjustImages(html, container, context, adjustimages);
+							return html;
+						}
 
-									util.showTooltip(loadImage, { event: e });
-									jq$.get(reportLinkFixed, function (html) {
-										function finish() {
-											s.chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
+						var hoderIndex = egOptions.hoverIndex, // IE8 event handling workaround
+							loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
+							reportLink = s.chartOptions.usedData[index].subreportlink,
+							reportLinkFixed = reportLink.replace(utility.server.config.ReportViewerUrl, utility.server.config.ResponseServerUrl);
+
+						switch (style) {
+							case "DetailLink":
+								window.location.href = reportLink;
+								break;
+							case "DetailLinkNewWindow":
+								window.open(reportLink, '_blank');
+								break;
+							case "EmbeddedDetail":
+								if (egOptions.shownIndex == index) {
+									egOptions.hide();
+									return;
+								}
+								delete egOptions.shownIndex;
+								jq$(s.chart.renderer.box).find(".expandtools").remove();
+
+								util.showTooltip(loadImage, { event: e });
+								jq$.get(reportLinkFixed, function (html) {
+									function finish() {
+										s.chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
+											.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
+											.add();
+										if (y < s.chart.chartHeight - 20)
+											s.chart.renderer.path(['M', egOptions.cx, y, 'L', egOptions.cx, s.chart.chartHeight - 20])
 												.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
 												.add();
-											if (y < s.chart.chartHeight - 20)
-												s.chart.renderer.path(['M', egOptions.cx, y, 'L', egOptions.cx, s.chart.chartHeight - 20])
-													.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
-													.add();
-											s.chart.renderer.path(['M', egOptions.cx - 10, s.chart.chartHeight, egOptions.cx + 10, s.chart.chartHeight, egOptions.cx, s.chart.chartHeight - 10, 'Z'])
-												.attr({ 'fill': uc, 'class': 'expandtools' })
-												.add();
+										s.chart.renderer.path(['M', egOptions.cx - 10, s.chart.chartHeight, egOptions.cx + 10, s.chart.chartHeight, egOptions.cx, s.chart.chartHeight - 10, 'Z'])
+											.attr({ 'fill': uc, 'class': 'expandtools' })
+											.add();
 
-											util.hideTooltip();
-											vs.find("#VIS_ID_EXPAND_GALLERY")
-												.css("border-color", uc)
-												.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(filterReport(html))
-											.end()
-												.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND")
-												.css("background-color", uc)
-											.end()
-												.find("#VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON")
-												/*.width(util.scrollSize().width)*/
-												.unbind("click")
-												.bind("click", function () {
-													egOptions.hide();
+										util.hideTooltip();
+										vs.find("#VIS_ID_EXPAND_GALLERY")
+											.css("border-color", uc)
+											.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(
+												filterReport(html, vs.find("#VIS_ID_EXPAND_GALLERY"), {
+													maxWidth: vs.find("#VIS_ID").width(),
+													maxHeight: 500
 												})
-												.find("#VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE")
-													.css("padding-left", ((util.scrollSize().width - 15) / 2) | 0)
-												.end()
+											)
+										.end()
+											.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND")
+											.css("background-color", uc)
+										.end()
+											.find("#VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON")
+											/*.width(util.scrollSize().width)*/
+											.unbind("click")
+											.bind("click", function () {
+												egOptions.hide();
+											})
+											.find("#VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE")
+												.css("padding-left", ((util.scrollSize().width - 15) / 2) | 0)
 											.end()
-												.find("#VIS_ID_EXPAND_GALLERY_LABEL")
-												.css("margin-right", util.scrollSize().width + "px")
-												.text(s.chartOptions.usedData[index].name);
+										.end()
+											.find("#VIS_ID_EXPAND_GALLERY_LABEL")
+											.css("margin-right", util.scrollSize().width + "px")
+											.text(s.chartOptions.usedData[index].name);
 
-											egOptions.shownIndex = index;
-											egOptions.show();
-											egOptions.style = style;
-										}
-
-										var x, y, w,
-											pos = { left: 0, top: 0 };
-										egOptions.cx = -1;
-
-										var uc = s.chartOptions.usedColors[index];
-
-										if (isPie) {
-											rotate(index, function () {
-												var le = elements[index],
-													$le = jq$(le);
-												fixPosition(pos, $le.position());
-												fixPosition(pos, $le.parents().eq(0).position());
-												fixPosition(pos, $le.parents().eq(1).position());
-
-												x = pos.left;
-												y = pos.top + le.clientHeight;
-												w = le.clientWidth;
-												egOptions.cx = x + w / 2;
-
-												finish();
-											});
-										} else {
-											var le = elements[index];
-											x = le.offsetLeft;
-											y = le.offsetTop + le.offsetHeight;
-											w = le.offsetWidth;
-											egOptions.cx = x + w / 2;
-											finish();
-										}
-									});
-									break;
-								case "DetailLinkPopup":
-									{
-										if (hoderIndex != index)
-											return;
-										util.showTooltip(loadImage, { event: e });
-										if (type != "pie")
-											egOptions.clickFlag = true;
-										jq$.get(reportLinkFixed, function (html) {
-											egOptions.clickIndex = index;
-											util.showTooltip(filterReport(html), { event: e, maxWidth: 500, maxHeight: 300, offset: { x: 0, y: 10 } });
-										});
+										egOptions.shownIndex = index;
+										egOptions.show();
+										egOptions.style = style;
 									}
-									break;
-								default:
-									return;
-							}
-						})
-						.on("mouseover", function (e) {
-							egOptions.hoverIndex = index;
-							var name = s.chartOptions.usedData[index].name;
-							if (style == "DetailLink")
-								util.showTooltip("Navigate to '" + name + "'", { event: e });
-							else if (style == "DetailLinkNewWindow")
-								util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
-							else if (style == "DetailLinkPopup")
-								util.showTooltip("Open '" + name + "' in popup", { event: e });
-							else if (style == "EmbeddedDetail")
-								util.showTooltip("Open '" + name + "' in expand panel", { event: e });
-						})
-						.on("mouseleave", function () {
-							if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
-								delete egOptions.hoverIndex;
-							if (typeof egOptions.clickIndex == "undefined")
-								util.hideTooltip();
-						});
 
-					jq$(s.chart.renderer.box)
-						.unbind("mouseleave")
-						.bind("mouseleave", function () {
-							if (typeof egOptions.clickIndex != "undefined")
+									var x, y, w,
+										pos = { left: 0, top: 0 };
+									egOptions.cx = -1;
+
+									var uc = s.chartOptions.usedColors[index];
+
+									if (isPie) {
+										rotate(index, function () {
+											var le = elements[index],
+												$le = jq$(le);
+											fixPosition(pos, $le.position());
+											fixPosition(pos, $le.parents().eq(0).position());
+											fixPosition(pos, $le.parents().eq(1).position());
+
+											x = pos.left;
+											y = pos.top + le.clientHeight;
+											w = le.clientWidth;
+											egOptions.cx = x + w / 2;
+
+											finish();
+										});
+									} else {
+										var le = elements[index];
+										x = le.offsetLeft;
+										y = le.offsetTop + le.offsetHeight;
+										w = le.offsetWidth;
+										egOptions.cx = x + w / 2;
+										finish();
+									}
+								});
+								break;
+							case "DetailLinkPopup":
+								{
+									if (hoderIndex != index)
+										return;
+									util.showTooltip(loadImage, { event: e });
+									if (type != "pie")
+										egOptions.clickFlag = true;
+									jq$.get(reportLinkFixed, function (html) {
+										egOptions.clickIndex = index;
+										util.showTooltip(filterReport(html), { event: e, maxWidth: Math.max(1000, jq$(window).width()), maxHeight: 500, offset: { x: 0, y: 10 } });
+									});
+								}
+								break;
+							default:
 								return;
-
-							delete egOptions.hoverIndex;
-							util.hideTooltip();
-						});
-				}
-
-				function claimLabels() {
-					elements = [];
-					if (isPie) {
-						vs.find('div.highcharts-data-labels span').each(function () {
-							elements.push(this);
-						});
-					} else {
-						for (var f in s.chart.xAxis[0].ticks) {
-							if (s.chart.xAxis[0].ticks[f].label)
-								elements.push(s.chart.xAxis[0].ticks[f].label.element);
 						}
-					}
-					if (typeof s.chartOptions.usedData[0].subreportlink == "string" || typeof s.chartOptions.usedData[0].link == "string")
-						jq$(elements)
-							.css({
-								"cursor": "pointer",
-								"text-decoration": "underline"
-							});
-				}
-
-				function registerLabels() {
-					for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-						if (typeof s.chartOptions.usedData[i].subreportlink == "string")
-							register(i);
-						if (typeof s.chartOptions.usedData[i].link == "string")
-							registerLink(i);
-					}
-
-					jq$([document, s.chart.renderer.box])
-						.unbind("click.VIS_ID")
-						.bind("click.VIS_ID", function (e) {
-							for (var i = 0; i < s.chartOptions.usedData.length; i++)
-								if (elements[i] == e.target)
-									return;
-
-							if (type != "pie" && typeof egOptions.clickFlag != "undefined") {
-								delete egOptions.clickFlag;
-								return;
-							}
-
+					})
+					.on("mouseover", function (e) {
+						egOptions.hoverIndex = index;
+						var name = s.chartOptions.usedData[index].name;
+						if (style == "DetailLink")
+							util.showTooltip("Navigate to '" + name + "'", { event: e });
+						else if (style == "DetailLinkNewWindow")
+							util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
+						else if (style == "DetailLinkPopup")
+							util.showTooltip("Open '" + name + "' in popup", { event: e });
+						else if (style == "EmbeddedDetail")
+							util.showTooltip("Open '" + name + "' in expand panel", { event: e });
+					})
+					.on("mouseleave", function () {
+						if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
 							delete egOptions.hoverIndex;
-							delete egOptions.clickIndex;
+						if (typeof egOptions.clickIndex == "undefined")
 							util.hideTooltip();
-						});
-				}
+					});
 
-				var elements, isPie = type == "pie";
-				claimLabels();
-				registerLabels();
+				jq$(s.chart.renderer.box)
+					.unbind("mouseleave")
+					.bind("mouseleave", function () {
+						if (typeof egOptions.clickIndex != "undefined")
+							return;
+
+						delete egOptions.hoverIndex;
+						util.hideTooltip();
+					});
 			}
 
-			function clicked(data, name, index) {
-				var d, subtitle;
-				if (typeof index != "undefined") {
-					if (!data[index].children)
-						return;
-
-					d = data[index];
-					subtitle = data[index].children ? name : "";
-				} else if (typeof data != "undefined") {
-					d = data;
-					subtitle = name;
+			function claimLabels() {
+				elements = [];
+				if (isPie) {
+					vs.find('div.highcharts-data-labels span').each(function () {
+						elements.push(this);
+					});
 				} else {
-					d = totals;
-					subtitle = "";
-				}
-
-				recreateChart({ data: d, title: metricValue, subtitle: subtitle });
-				store();
-			}
-
-			var yAxisMins, yAxisMaxs;
-			function getSeries(data, yaxis, series) {
-				yAxisMins = new Array(vis.metrics.length);
-				yAxisMaxs = new Array(vis.metrics.length);
-				var value;
-				for (var i = 0; i < data.length; i++) {
-					for (var j = 0; j < vis.metrics.length; j++) {
-						value = vis.unitValue(data[i], vis.metrics[j]);
-						var visibility = !s.props.visibility || (j < s.props.visibility.length && s.props.visibility[j]);
-
-						if (typeof yAxisMaxs[j] == "undefined" || yAxisMaxs[j] < value)
-							yAxisMaxs[j] = value;
-						if (visibility && (typeof yAxisMaxs.All == "undefined" || yAxisMaxs.All < value))
-							yAxisMaxs.All = value;
-
-						if (typeof yAxisMins[j] == "undefined" || yAxisMins[j] > value)
-							yAxisMins[j] = value;
-						if (visibility && (typeof yAxisMins.All == "undefined" || yAxisMins.All > value))
-							yAxisMins.All = value;
+					for (var f in s.chart.xAxis[0].ticks) {
+						if (s.chart.xAxis[0].ticks[f].label)
+							elements.push(s.chart.xAxis[0].ticks[f].label.element);
 					}
 				}
+				if (typeof s.chartOptions.usedData[0].subreportlink == "string" || typeof s.chartOptions.usedData[0].link == "string")
+					jq$(elements)
+						.css({
+							"cursor": "pointer",
+							"text-decoration": "underline"
+						});
+			}
 
-				var zero = !!s.props.fromZero || (type == "pie" || stacked || percent);
-				if (metricValue != "All") {
+			function registerLabels() {
+				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
+					if (typeof s.chartOptions.usedData[i].subreportlink == "string")
+						register(i);
+					if (typeof s.chartOptions.usedData[i].link == "string")
+						registerLink(i);
+				}
+
+				jq$([document, s.chart.renderer.box])
+					.unbind("click.VIS_ID")
+					.bind("click.VIS_ID", function (e) {
+						for (var i = 0; i < s.chartOptions.usedData.length; i++)
+							if (elements[i] == e.target)
+								return;
+
+						if (type != "pie" && typeof egOptions.clickFlag != "undefined") {
+							delete egOptions.clickFlag;
+							return;
+						}
+
+						delete egOptions.hoverIndex;
+						delete egOptions.clickIndex;
+						util.hideTooltip();
+					});
+			}
+
+			var elements, isPie = type == "pie";
+			claimLabels();
+			registerLabels();
+		}
+
+		function clicked(data, name, index) {
+			var d, subtitle;
+			if (typeof index != "undefined") {
+				if (!data[index].children)
+					return;
+
+				d = data[index];
+				subtitle = data[index].children ? name : "";
+			} else if (typeof data != "undefined") {
+				d = data;
+				subtitle = name;
+			} else {
+				d = totals;
+				subtitle = "";
+			}
+
+			recreateChart({ data: d, title: metricValue, subtitle: subtitle });
+			store();
+		}
+
+		var yAxisMins, yAxisMaxs;
+		function getSeries(data, yaxis, series) {
+			yAxisMins = new Array(vis.metrics.length);
+			yAxisMaxs = new Array(vis.metrics.length);
+			var value;
+			for (var i = 0; i < data.length; i++) {
+				for (var j = 0; j < vis.metrics.length; j++) {
+					value = vis.unitValue(data[i], vis.metrics[j]);
+					var visibility = !s.props.visibility || (j < s.props.visibility.length && s.props.visibility[j]);
+
+					if (typeof yAxisMaxs[j] == "undefined" || yAxisMaxs[j] < value)
+						yAxisMaxs[j] = value;
+					if (visibility && (typeof yAxisMaxs.All == "undefined" || yAxisMaxs.All < value))
+						yAxisMaxs.All = value;
+
+					if (typeof yAxisMins[j] == "undefined" || yAxisMins[j] > value)
+						yAxisMins[j] = value;
+					if (visibility && (typeof yAxisMins.All == "undefined" || yAxisMins.All > value))
+						yAxisMins.All = value;
+				}
+			}
+
+			var zero = !!s.props.fromZero || (type == "pie" || stacked || percent);
+			if (metricValue != "All") {
+				yaxis.push({
+					labels: { style: { color: getItem(colors, 0) } },
+					title: { text: null },
+					min: zero ? 0 : yAxisMins[vis.metrics.indexOf(metricValue)],
+					max: zero ? null : yAxisMaxs[vis.metrics.indexOf(metricValue)],
+					gridLineInterpolation: polar ? 'polygon' : null
+				});
+				series.push(getSerie(data, vis.metrics.indexOf(metricValue)));
+			} else {
+				for (var i = 0; i < vis.metrics.length; i++) {
 					yaxis.push({
 						labels: { style: { color: getItem(colors, 0) } },
 						title: { text: null },
-						min: zero ? 0 : yAxisMins[vis.metrics.indexOf(metricValue)],
-						max: zero ? null : yAxisMaxs[vis.metrics.indexOf(metricValue)],
+						min: zero ? 0 : yAxisMins.All,
+						max: zero ? null : yAxisMaxs.All,
 						gridLineInterpolation: polar ? 'polygon' : null
 					});
-					series.push(getSerie(data, vis.metrics.indexOf(metricValue)));
-				} else {
-					for (var i = 0; i < vis.metrics.length; i++) {
-						yaxis.push({
-							labels: { style: { color: getItem(colors, 0) } },
-							title: { text: null },
-							min: zero ? 0 : yAxisMins.All,
-							max: zero ? null : yAxisMaxs.All,
-							gridLineInterpolation: polar ? 'polygon' : null
-						});
-						series.push(getSerie(data, i));
-					}
+					series.push(getSerie(data, i));
+				}
+			}
+		}
+
+		function getSerie(data, index) {
+			var pieFamily = (type == "pie" || type == "pie-donut");
+			if (pieFamily) {
+				data = data.slice(0);
+				data.quickSort(function (a, b) { return vis.unitValue(b, vis.metrics[index]) < vis.unitValue(a, vis.metrics[index]); });
+			}
+			s.chartOptions.usedData = data;
+			s.chartOptions.usedColors = new Array(data.length);
+
+			var single = metricValue != "All",
+				items = [];
+			var sum = 0, total = 0;
+
+			jq$.each(data, function (i, d) { total += vis.unitValue(d, vis.metrics[index]); });
+
+			var bottom = total * s.props.combineBottom / 100.;
+
+			var bIndex = data.length;
+			if (pieFamily) {
+				while (bIndex > 0) {
+					var cv = vis.unitValue(data[bIndex - 1], vis.metrics[index]);
+					if (sum + cv <= bottom) {
+						sum += cv;
+						bIndex--;
+					} else
+						break;
 				}
 			}
 
-			function getSerie(data, index) {
-				var pieFamily = (type == "pie" || type == "pie-donut");
-				if (pieFamily) {
-					data = data.slice(0);
-					data.quickSort(function (a, b) { return vis.unitValue(b, vis.metrics[index]) < vis.unitValue(a, vis.metrics[index]); });
-				}
-				s.chartOptions.usedData = data;
-				s.chartOptions.usedColors = new Array(data.length);
+			for (var i = 0; (i < data.length && !pieFamily) || i < bIndex; i++) {
+				var val = vis.unitValue(data[i], vis.metrics[index]);
 
-				var single = metricValue != "All",
-					items = [];
-				var sum = 0, total = 0;
+				var pc = !single
+					? getItem(colors, index)
+					: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
 
-				jq$.each(data, function (i, d) { total += vis.unitValue(d, vis.metrics[index]); });
+				items.push({
+					name: data[i].name,
+					yAxis: i,
+					y: val,
+					data: data,
+					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: 0, max: yAxisMaxs[index], value: val, factor: single ? 0.7 : 0.15 }) : pc,
+					colorByPoint: false
+				});
 
-				var bottom = total * s.props.combineBottom / 100.;
-
-				var bIndex = data.length;
-				if (pieFamily) {
-					while (bIndex > 0) {
-						var cv = vis.unitValue(data[bIndex - 1], vis.metrics[index]);
-						if (sum + cv <= bottom) {
-							sum += cv;
-							bIndex--;
-						} else
-							break;
-					}
-				}
-
-				for (var i = 0; (i < data.length && !pieFamily) || i < bIndex; i++) {
-					var val = vis.unitValue(data[i], vis.metrics[index]);
-
-					var pc = !single
-						? getItem(colors, index)
-						: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
-
-					items.push({
-						name: data[i].name,
-						yAxis: i,
-						y: val,
-						data: data,
-						color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: 0, max: yAxisMaxs[index], value: val, factor: single ? 0.7 : 0.15 }) : pc,
-						colorByPoint: false
-					});
-
-					if (type == "bubble" && metricExtraValue != "empty")
-						items[i].z = vis.unitValue(data[i], vis.metrics[vis.metrics.indexOf(metricExtraValue)]);
-				}
-
-				if (sum > 0) {
-					var pc = !single
-						? getItem(colors, index)
-						: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
-
-					items.push({
-						name: 'Others',
-						yAxis: i,
-						y: sum,
-						data: data,
-						others: true,
-						color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
-							min: 0,
-							max: yAxisMaxs[index],
-							value: sum,
-							factor: single ? 0.7 : 0.15
-						}) : pc,
-						colorByPoint: false
-					});
-				}
-
-				return {
-					name: vis.metrics[index],
-					type: type,
-					data: items,
-					colorByPoint: false,
-					pointPlacement: polar ? 'on' : null
-				};
+				if (type == "bubble" && metricExtraValue != "empty")
+					items[i].z = vis.unitValue(data[i], vis.metrics[vis.metrics.indexOf(metricExtraValue)]);
 			}
 
-			function recreateChart(o) {
-				animationComplete = false;
-				if (egOptions && egOptions.hide)
-					egOptions.hide();
+			if (sum > 0) {
+				var pc = !single
+					? getItem(colors, index)
+					: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
 
-				var yaxis = [],
-					series = [],
-					t = types[s.props.type].name,
-					m = metricSelect.val(),
-					zoom = s.props.zoom;
-				getSeries((s.chartOptions = o).data.children, yaxis, series);
-
-				if (s.options.series && s.options.series.length) {
-					for (var i = 0; i < s.options.series.length; i++)
-						s.options.series[i] = series[i];
-				} else {
-					if (VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0) {
-						for (var i = Math.min(s.props.visibility.length, series.length) - 1; i > -1; i--) {
-							if (!s.props.visibility[i])
-								series.removeAt(i);
-						}
-					}
-
-					s.options.series = series;
-				}
-
-				if (!VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0)
-					for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
-						s.options.series[i].visible = s.props.visibility[i];
-
-				s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
-				s.options.plotOptions.pie.innerSize = donut ? '70%' : 0;
-				s.options.plotOptions[type].cursor = (vis.breadcrumb.isLast(s.chartOptions.data) || !util.supports.svg()) ? 'auto' : 'pointer';
-				s.options.title.text = "";
-				s.options.subtitle.text = "";
-				s.options.yAxis = yaxis[0];
-
-				s.options.yAxis.events = {
-					setExtremes: function (e) {
-						var z = s.props.zoom = s.props.zoom || {};
-						z[t] = z[t] || {};
-						if (typeof e.min == 'undefined' && typeof e.max == 'undefined')
-							delete z[t][m];
-						else
-							z[t][m] = { min: e.min, max: e.max };
-
-						store();
-						updateRefreshButton();
-					}
-				};
-
-				var seriesCount = s.options.series.length,
-					itemsInSeries = (seriesCount > 0) ? s.options.series[0].data.length : 0,
-					itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
-
-				execBreadcrumb(o.data);
-				vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())));
-				try {
-					new Highcharts.Chart(s.options, function (chart) {
-						s.chart = chart;
-						s.isVml = vs.find("shape").size() > 0;
-						s.isSvg = vs.find("svg").size() > 0;
-						registerLabelEvents();
-
-						if (updateRefreshButton())
-							s.chart.yAxis[0].setExtremes(zoom[t][m].min, zoom[t][m].max);
-
-						if (type != "pie" && !vs.find("div.highcharts-data-labels").prev().is("div.highcharts-tooltip"))
-							return;
-
-						var html;
-						vs.find("div.highcharts-data-labels").insertBefore(vs.find("div.highcharts-data-labels").prev());
-						vs.find("div.highcharts-tooltip")
-							.css({
-								"margin-top": "1px",
-								"margin-left": "1px",
-								"border-radius": "2px",
-								"background-color": "rgba(255,255,255,0.7)"
-							})
-							.watch('visibility', function () {
-								var $span = vs.find("div.highcharts-tooltip > span");
-								if (html != $span.html()) {
-									html = $span.html();
-									vs.find("div.highcharts-tooltip").width($span.width() + 15)
-										.height($span.height() + 15);
-								}
-							});
-						vs.find("#VIS_ID").css("height", "");
-					});
-				} catch (err) {
-					if (/Highcharts\serror\s#19/.test(err)) {
-						showInsufficientWidth(width, height);
-						toggleHeaderVisibility(false);
-					}
-				}
-			}
-
-			function processData() {
-				function itemClick() {
-					if (!util.supports.svg())
-						return undefined;
-					return clicked(this.data, this.data[this.x].label + ": " + this.name, this.x);
-				}
-
-				function legendItemClick(event) {
-					var that = this;
-					var min = null, max = null;
-					var zero = s.props.fromZero || (type == "pie" || stacked || percent);
-					s.props.visibility = s.chart.series.map(function (item) {
-						return item == that ? !item.visible : item.visible;
-					});
-					for (var i = 0; i < s.props.visibility.length; ++i) {
-						if (s.props.visibility[i]) {
-							if (min == null || min > yAxisMins[i]) {
-								min = yAxisMins[i];
-							}
-							if (max == null || max < yAxisMaxs[i]) {
-								max = yAxisMaxs[i];
-							}
-						}
-					}
-					that.yAxis.update({
-						min: zero ? 0 : min,
-						max: zero ? null : max,
-					});
-					store();
-				}
-
-				jq$(function () {
-					function trace(node, i, childIndex) {
-						if (node && node.children) {
-							var index = node.children.findIndex(function (e) {
-								return e.name == s.props.nodePath[vis.indeces[i]];
-							});
-							if (index > -1)
-								return trace(node.children[index], i + 1, index);
-						}
-
-						return node;
-					}
-
-					vs.find("#VIS_ID").width(width);
-					vs.find("#VIS_ID_HOLDER").width(width);
-
-					s.options = {
-						chart: {
-							polar: polar,
-							zoomType: "y",
-							renderTo: 'VIS_ID',
-							resetZoomButton: { theme: { display: 'none' } },
-							forceSize: true
-						},
-						colors: colors,
-						title: { text: metricValue },
-						subtitle: { text: null },
-						xAxis: {
-							type: 'category',
-							tickmarkPlacement: polar ? 'on' : 'between',
-							lineWidth: polar ? 0 : 1
-						},
-						legend: {
-							enabled: true
-						},
-						plotOptions: {
-							column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							line: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							spline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							scatter: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-							funnel: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: true } },
-							pie: {
-								cursor: 'pointer',
-								point: {
-									events: {
-										click: itemClick,
-										mouseOut: function () { if (animationComplete) this.slice(false); },
-										mouseOver: function () { if (animationComplete) this.slice(true); }
-									}
-								},
-								dataLabels: {
-									enabled: true,
-									useHTML: true,
-									formatter: function () { return this.point.name; }
-								},
-								slicedOffset: 20,
-								center: ["50%", "50%"],
-								startAngle: s.angle = 0,
-								states: {
-									hover: {
-										halo: false
-									}
-								}
-							},
-							bubble: {
-								cursor: 'pointer',
-								point: { events: { click: itemClick } },
-								dataLabels: { enabled: false },
-								minSize: 5,
-								maxSize: 40,
-								marker: { fillOpacity: 0.2, lineColor: "rgba(0, 0, 0, 0.1)" }
-							},
-							series: {
-								events: { legendItemClick: legendItemClick },
-								animation: { complete: function () { animationComplete = true; } }
-							}
-						},
-						tooltip: {
-							useHTML: true,
-							formatter: function () {
-								var html = [];
-								var d = this.point.data[this.point.x];
-								html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
-								if (metricValue == "All") {
-									for (var i = 0; i < vis.metrics.length; i++) {
-										var val = this.point.others ? this.point.y : vis.unitValue(d, vis.metrics[i]);
-										var current = val == this.point.y;
-
-										var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == vis.metrics[i]; }).formatter;
-										if (fieldFormatter) val = fieldFormatter(val, d, vis, vis.metrics[i]);
-										html.push('<span style="color:' + (current ? 'black' : getItem(colors, i)) + '; font-weight: ' + (current ? 'bold' : 'normal') + ';">' + vis.metrics[i] + '</span>' + ': <b>' + val + '</b>');
-									}
-								} else {
-									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
-									if (type == "pie") {
-										var total = 0;
-										for (var i = 0; i < this.point.data.length; i++)
-											total += vis.unitValue(this.point.data[i], metricValue);
-										var value = this.point.others ? this.point.y : vis.unitValue(d, metricValue);
-
-										var rawValue = value;
-										if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
-										html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + value + " (" + (Math.round(1000 * rawValue / total) / 10) + " %)</b>");
-									} else if (type == "bubble" && metricExtraValue != "empty") {
-										var val = vis.unitValue(d, metricValue);
-										var val2 = vis.unitValue(d, metricExtraValue);
-
-										if (fieldFormatter) {
-											val = fieldFormatter(val, d, vis, metricValue);
-											val2 = fieldFormatter(val2, d, vis, metricExtraValue);
-										}
-
-										html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
-										html.push('<span style="color:' + getItem(colors, 1) + '">' + metricExtraValue + '</span>' + ": <b>" + val2 + "</b>");
-									} else {
-										var val = vis.unitValue(d, metricValue);
-										if (fieldFormatter) val = fieldFormatter(val, d, vis, metricValue);
-										html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
-									}
-								}
-								return html.join("<br />\n");
-							},
-							backgroundColor: "rgba(255, 255, 255, 1)"
-						},
-						credits: { enabled: false }
-					};
-					vis.subscribeImageRenderer(s.options);
-
-					var node = undefined;
-					if ((VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) && s.props.nodePath && s.props.nodePath.length > 0) {
-						node = trace(totals, 0, undefined);
-						node = !node ? node : vis.breadcrumb.fixd(node);
-					}
-
-					recreateChart(s.chartOptions
-						? s.chartOptions
-						: typeof node != "undefined" ? { data: node, title: metricValue, subtitle: null } : { data: totals, title: metricValue, subtitle: null }
-					);
+				items.push({
+					name: 'Others',
+					yAxis: i,
+					y: sum,
+					data: data,
+					others: true,
+					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
+						min: 0,
+						max: yAxisMaxs[index],
+						value: sum,
+						factor: single ? 0.7 : 0.15
+					}) : pc,
+					colorByPoint: false
 				});
 			}
 
-			function checkRhd(initWidth, callCnt) {
-				if (callCnt >= 10)
-					return;
-				if (jq$('#rightHelpDiv').width() == initWidth)
-					setTimeout(function () { checkRhd(initWidth, callCnt + 1); }, 100);
-				else
-					recreate();
-			}
+			return {
+				name: vis.metrics[index],
+				type: type,
+				data: items,
+				colorByPoint: false,
+				pointPlacement: polar ? 'on' : null
+			};
+		}
 
-			var iw = jq$('#rightHelpDiv').width();
-			if (vis.forInstantReports && virgin) {
-				virgin = false;
-				setTimeout(function () { checkRhd(iw, 1); }, 100);
-			}
+		function recreateChart(o) {
+			animationComplete = false;
+			if (egOptions && egOptions.hide)
+				egOptions.hide();
 
-			processData();
+			var yaxis = [],
+				series = [],
+				t = types[s.props.type].name,
+				m = metricSelect.val(),
+				zoom = s.props.zoom;
+			getSeries((s.chartOptions = o).data.children, yaxis, series);
 
-			util.registerResize("VIS_ID", recreate, function () {
-				var highchart = jq$('#VIS_ID').highcharts();
-				if (highchart) {
-					highchart.destroy();
+			if (s.options.series && s.options.series.length) {
+				for (var i = 0; i < s.options.series.length; i++)
+					s.options.series[i] = series[i];
+			} else {
+				if (VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0) {
+					for (var i = Math.min(s.props.visibility.length, series.length) - 1; i > -1; i--) {
+						if (!s.props.visibility[i])
+							series.removeAt(i);
+					}
 				}
-				jq$("#VIS_ID").empty();
+
+				s.options.series = series;
+			}
+
+			if (!VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0)
+				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
+					s.options.series[i].visible = s.props.visibility[i];
+
+			s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
+			s.options.plotOptions.pie.innerSize = donut ? '70%' : 0;
+			s.options.plotOptions[type].cursor = (vis.breadcrumb.isLast(s.chartOptions.data) || !util.supports.svg()) ? 'auto' : 'pointer';
+			s.options.title.text = "";
+			s.options.subtitle.text = "";
+			s.options.yAxis = yaxis[0];
+
+			s.options.yAxis.events = {
+				setExtremes: function (e) {
+					var z = s.props.zoom = s.props.zoom || {};
+					z[t] = z[t] || {};
+					if (typeof e.min == 'undefined' && typeof e.max == 'undefined')
+						delete z[t][m];
+					else
+						z[t][m] = { min: e.min, max: e.max };
+
+					store();
+					updateRefreshButton();
+				}
+			};
+
+			var seriesCount = s.options.series.length,
+				itemsInSeries = (seriesCount > 0) ? s.options.series[0].data.length : 0,
+				itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
+
+			execBreadcrumb(o.data);
+			vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())));
+			try {
+				new Highcharts.Chart(s.options, function (chart) {
+					s.chart = chart;
+					s.isVml = vs.find("shape").size() > 0;
+					s.isSvg = vs.find("svg").size() > 0;
+					registerLabelEvents();
+
+					if (updateRefreshButton())
+						s.chart.yAxis[0].setExtremes(zoom[t][m].min, zoom[t][m].max);
+
+					if (type != "pie" && !vs.find("div.highcharts-data-labels").prev().is("div.highcharts-tooltip"))
+						return;
+
+					var html;
+					vs.find("div.highcharts-data-labels").insertBefore(vs.find("div.highcharts-data-labels").prev());
+					vs.find("div.highcharts-tooltip")
+						.css({
+							"margin-top": "1px",
+							"margin-left": "1px",
+							"border-radius": "2px",
+							"background-color": "rgba(255,255,255,0.7)"
+						})
+						.watch('visibility', function () {
+							var $span = vs.find("div.highcharts-tooltip > span");
+							if (html != $span.html()) {
+								html = $span.html();
+								vs.find("div.highcharts-tooltip").width($span.width() + 15)
+									.height($span.height() + 15);
+							}
+						});
+					vs.find("#VIS_ID").css("height", "");
+				});
+			} catch (err) {
+				if (/Highcharts\serror\s#19/.test(err)) {
+					showInsufficientWidth(width, height);
+					toggleHeaderVisibility(false);
+				}
+			}
+		}
+
+		function processData() {
+			function itemClick() {
+				if (!util.supports.svg())
+					return undefined;
+				return clicked(this.data, this.data[this.x].label + ": " + this.name, this.x);
+			}
+
+			function legendItemClick(event) {
+				var that = this;
+				var min = null, max = null;
+				var zero = s.props.fromZero || (type == "pie" || stacked || percent);
+				s.props.visibility = s.chart.series.map(function (item) {
+					return item == that ? !item.visible : item.visible;
+				});
+				for (var i = 0; i < s.props.visibility.length; ++i) {
+					if (s.props.visibility[i]) {
+						if (min == null || min > yAxisMins[i]) {
+							min = yAxisMins[i];
+						}
+						if (max == null || max < yAxisMaxs[i]) {
+							max = yAxisMaxs[i];
+						}
+					}
+				}
+				that.yAxis.update({
+					min: zero ? 0 : min,
+					max: zero ? null : max,
+				});
+				store();
+			}
+
+			jq$(function () {
+				function trace(node, i, childIndex) {
+					if (node && node.children) {
+						var index = node.children.findIndex(function (e) {
+							return e.name == s.props.nodePath[vis.indexes[i]];
+						});
+						if (index > -1)
+							return trace(node.children[index], i + 1, index);
+					}
+
+					return node;
+				}
+
+				vs.find("#VIS_ID").width(width);
+				vs.find("#VIS_ID_HOLDER").width(width);
+
+				s.options = {
+					chart: {
+						polar: polar,
+						zoomType: "y",
+						renderTo: 'VIS_ID',
+						resetZoomButton: { theme: { display: 'none' } },
+						forceSize: true
+					},
+					colors: colors,
+					title: { text: metricValue },
+					subtitle: { text: null },
+					xAxis: {
+						type: 'category',
+						tickmarkPlacement: polar ? 'on' : 'between',
+						lineWidth: polar ? 0 : 1
+					},
+					legend: {
+						enabled: true
+					},
+					plotOptions: {
+						column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						line: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						spline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						scatter: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						funnel: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: true } },
+						pie: {
+							cursor: 'pointer',
+							point: {
+								events: {
+									click: itemClick,
+									mouseOut: function () { if (animationComplete) this.slice(false); },
+									mouseOver: function () { if (animationComplete) this.slice(true); }
+								}
+							},
+							dataLabels: {
+								enabled: true,
+								useHTML: true,
+								formatter: function () { return this.point.name; }
+							},
+							slicedOffset: 20,
+							center: ["50%", "50%"],
+							startAngle: s.angle = 0,
+							states: {
+								hover: {
+									halo: false
+								}
+							}
+						},
+						bubble: {
+							cursor: 'pointer',
+							point: { events: { click: itemClick } },
+							dataLabels: { enabled: false },
+							minSize: 5,
+							maxSize: 40,
+							marker: { fillOpacity: 0.2, lineColor: "rgba(0, 0, 0, 0.1)" }
+						},
+						series: {
+							events: { legendItemClick: legendItemClick },
+							animation: { complete: function () { animationComplete = true; } }
+						}
+					},
+					tooltip: {
+						useHTML: true,
+						formatter: function () {
+							var html = [];
+							var d = this.point.data[this.point.x];
+							html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
+							if (metricValue == "All") {
+								for (var i = 0; i < vis.metrics.length; i++) {
+									var val = this.point.others ? this.point.y : vis.unitValue(d, vis.metrics[i]);
+									var current = val == this.point.y;
+
+									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == vis.metrics[i]; }).formatter;
+									if (fieldFormatter) val = fieldFormatter(val, d, vis, vis.metrics[i]);
+									html.push('<span style="color:' + (current ? 'black' : getItem(colors, i)) + '; font-weight: ' + (current ? 'bold' : 'normal') + ';">' + vis.metrics[i] + '</span>' + ': <b>' + val + '</b>');
+								}
+							} else {
+								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
+								if (type == "pie") {
+									var total = 0;
+									for (var i = 0; i < this.point.data.length; i++)
+										total += vis.unitValue(this.point.data[i], metricValue);
+									var value = this.point.others ? this.point.y : vis.unitValue(d, metricValue);
+
+									var rawValue = value;
+									if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
+									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + value + " (" + (Math.round(1000 * rawValue / total) / 10) + " %)</b>");
+								} else if (type == "bubble" && metricExtraValue != "empty") {
+									var val = vis.unitValue(d, metricValue);
+									var val2 = vis.unitValue(d, metricExtraValue);
+
+									if (fieldFormatter) {
+										val = fieldFormatter(val, d, vis, metricValue);
+										val2 = fieldFormatter(val2, d, vis, metricExtraValue);
+									}
+
+									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
+									html.push('<span style="color:' + getItem(colors, 1) + '">' + metricExtraValue + '</span>' + ": <b>" + val2 + "</b>");
+								} else {
+									var val = vis.unitValue(d, metricValue);
+									if (fieldFormatter) val = fieldFormatter(val, d, vis, metricValue);
+									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
+								}
+							}
+							return html.join("<br />\n");
+						},
+						backgroundColor: "rgba(255, 255, 255, 1)"
+					},
+					credits: { enabled: false }
+				};
+				vis.subscribeImageRenderer(s.options);
+
+				var node = undefined;
+				if ((VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) && s.props.nodePath && s.props.nodePath.length > 0) {
+					node = trace(totals, 0, undefined);
+					node = !node ? node : vis.breadcrumb.fixd(node);
+				}
+
+				recreateChart(s.chartOptions
+					? s.chartOptions
+					: typeof node != "undefined" ? { data: node, title: metricValue, subtitle: null } : { data: totals, title: metricValue, subtitle: null }
+				);
 			});
 		}
-		catch (e) {
-			util.logger.error(e);
-			util.showVisualizationErrorMessage('VIS_ID', VIS_CONTEXT, e);
-			toggleHeaderVisibility(false);
+
+		function checkRhd(initWidth, callCnt) {
+			if (callCnt >= 10)
+				return;
+			if (jq$('#rightHelpDiv').width() == initWidth)
+				setTimeout(function () { checkRhd(initWidth, callCnt + 1); }, 100);
+			else
+				recreate();
 		}
+
+		var iw = jq$('#rightHelpDiv').width();
+		if (vis.forInstantReports && virgin) {
+			virgin = false;
+			setTimeout(function () { checkRhd(iw, 1); }, 100);
+		}
+
+		processData();
+
+		util.registerResize("VIS_ID", recreate, function () {
+			var highchart = jq$('#VIS_ID').highcharts();
+			if (highchart) {
+				highchart.destroy();
+			}
+			jq$("#VIS_ID").empty();
+		});
 	}
 
 	// Wait for CSS to be applied when dynamically adding CSS rules to HTML

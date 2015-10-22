@@ -77,6 +77,7 @@ is_ie9_or_newer = false;
                         <div class="filterViewerTemplate" style="float: left; margin-right: 8px; margin-bottom: 16px; min-width: 300px; width: auto; display: none;">
                             <div class="filterInnerContent" style="float: left; margin-right: 8px; min-width: 300px;">
                                 <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
+                                  <span style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;">&nbsp;</span>
                                     <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
                                     <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px;"></div>
                                 </nobr>
