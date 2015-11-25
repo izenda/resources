@@ -6,15 +6,21 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b>License check failed</b>
+          <b ng-bind="'js_LicenseCheckFailed' | izendaLocale: 'License Check Failed'"></b>
         </div>
       </div>
     </div>
     <div class="modal-body">
-      <div class="container-fluid">Dashboard Extension Required. Please contact <a href="mailto:sales@izenda.com">sales@izenda.com</a> for details.</div>
+      <div class="container-fluid">
+        <span ng-bind="'js_DashboardExtnesionsRequiredPage' | izendaLocale: 'This page requires Dashboard Extensions'"></span>
+        <br />
+        <span ng-bind="'js_PleaseContact' | izendaLocale: 'Please contact sales@izenda.com for details.'"></span>
+      </div>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal">Close</button>
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+        ng-bind="'js_close' | izendaLocale: 'Close'">
+      </button>
     </div>
   </div>
 
@@ -24,19 +30,18 @@
       <div class="modal-header">
         <div class="row">
           <div class="col-md-12">
-            <b>{{dashboardController.messageDialogTitle}}</b>
+            <b ng-bind="dashboardController.messageDialogTitle"></b>
           </div>
         </div>
       </div>
       <div class="modal-body">
-        <div class="container-fluid">
-          {{dashboardController.messageDialogText}}
-        </div>
+        <div class="container-fluid" ng-bind="dashboardController.messageDialogText"></div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
-          ng-click="dashboardController.closeMessageBox()">
-          Close</button>
+          ng-click="dashboardController.closeMessageBox()"
+          ng-bind="'js_close' | izendaLocale: 'Close'">
+        </button>
       </div>
     </div>
 
@@ -61,7 +66,8 @@
         ng-style="dashboardController.gridShadowStyle">
         <div class="iz-dash-select-report-front-container"
           ng-show="dashboardController.isGridShadowPlusButtonVisible">
-          <button type="button" class="iz-dash-select-report-front-btn2 btn" title="Select Report">
+          <button type="button" class="iz-dash-select-report-front-btn2 btn"
+            ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}">
             <span class="glyphicon glyphicon-plus"></span>
           </button>
         </div>
@@ -86,10 +92,10 @@
           <div class="flippy-front animated fast">
             <div class="frame">
               <div ng-show="tileController.description != null && tileController.description != ''"
-                class="iz-dash-tile-description">
-                {{tileController.description}}
+                class="iz-dash-tile-description" ng-bind="tileController.description">
               </div>
-              <div style="cursor: pointer;" class="iz-dash-select-report-front-container" title="Select report part"
+              <div style="cursor: pointer;" class="iz-dash-select-report-front-container"
+                ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
                 ng-hide="tileController.reportFullName != null"
                 ng-click="tileController.selectReportPart()">
                 <a class="btn btn-default iz-dash-select-report-front-btn">
@@ -100,60 +106,61 @@
                 ng-hide="tileController.isReportDivHidden()">
               </div>
             </div>
-            <div class="title-container-background glyphicon" title="Tile actions">
-              <span class="bar"></span>
-              <span class="bar"></span>
-              <span class="bar"></span>
-            </div>
             <div class="title-container" style="height: 35px; overflow: hidden;">
               <div class="title">
                 <span class="title-text">
                   <a ng-if="tileController.isTitleSet()"
                     class="db-title-repname" title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.title}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.title"></a>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}">{{tileController.getConvertedReportCategory()}}
-                  </a>
+                    href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}"
+                    ng-bind="tileController.getConvertedReportCategory()"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null && tileController.reportName != null">/</span>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.reportName != null"
                     class="db-title-repname"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.reportName}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.reportName"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet() && tileController.reportPartName != null"
                     class="db-title-repname"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.reportPartName}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.reportPartName"></a>
                 </span>
-                <a title="Show tile options" class="title-button button2"
-                  ng-click="tileController.flipBack()">
+                <a class="title-button button2"
+                  ng-attr-title="{{'js_ShowTileOptions' | izendaLocale: 'Show tile options'}}"
+                   ng-click="tileController.flipBack()"
+                   ng-if="tileController.isEditAllowed()">
                   <span class="bar"></span>
                   <span class="bar"></span>
                   <span class="bar"></span>
                 </a>
-                <a title="Delete tile" class="title-button title-button-remove button1"
-                  ng-click="tileController.showConfirmDelete()">
+                <a class="title-button title-button-remove button1"
+                  ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
+                   ng-click="tileController.showConfirmDelete()"
+                   ng-if="tileController.isEditAllowed()">
                   <img src="Resources/images/remove-18.png" class="img-responsive" />
                 </a>
-                <a title="Confirm delete"
-                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
-                  ng-click="tileController.deleteTile()">
+                <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
+                  ng-click="tileController.deleteTile()"
+                  ng-if="tileController.isEditAllowed()">
                   <img src="Resources/images/tile/confirm-delete.png" />
-                  <span ng-if="tileController.getWidth() > 1">remove tile</span>
+                  <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'"></span>
                 </a>
-                <a title="Cancel delete"
-                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
-                  ng-click="tileController.hideConfirmDelete()">
+                <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
+                  ng-click="tileController.hideConfirmDelete()"
+                  ng-if="tileController.isEditAllowed()">
                   <img src="Resources/images/tile/turn-back.png" />
-                  <span ng-if="tileController.getWidth() > 1">undo request</span>
+                  <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_Undo' | izendaLocale: 'Undo'"></span>
                 </a>
               </div>
             </div>
@@ -163,7 +170,7 @@
               <div class="container-fluid iz-dash-tile-fb-main">
                 <div class="row">
                   <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
-                    <label>Title</label>
+                    <label ng-bind="'js_Title' | izendaLocale: 'Title'"></label>
                   </div>
                   <div class="col-md-9 col-xs-12">
                     <input type="text" class="form-control"
@@ -172,7 +179,7 @@
                 </div>
                 <div class="row">
                   <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
-                    <label>Description</label>
+                    <label ng-bind="'js_Description' | izendaLocale: 'Description'"></label>
                   </div>
                   <div class="col-md-9 col-xs-12">
                     <input type="text" class="form-control"
@@ -183,57 +190,55 @@
               <div class="iz-dash-tile-fb-toolbar2">
                 <div class="iz-dash-tile-fb-toolbtn"
                   ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible() && !tileController.isTileEmpty()">
-                  <a title="Print tile report"
+                  <a ng-attr-title="{{'js_PrintTileReport' | izendaLocale: 'Print tile report'}}"
                     ng-click="tileController.printTile()">
                     <img class="img-responsive" src="Resources/images/back-tile/print.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn"
                   ng-show="!tileController.isOneColumnView() && !tileController.isTileEmpty()">
-                  <a title="Export tile report to excel"
+                  <a ng-attr-title="{{'js_ExportTileToExcel' | izendaLocale: 'Export tile report to Excel'}}"
                     ng-click="tileController.exportToExcel()">
                     <img class="img-responsive" src="Resources/images/back-tile/excel.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
-                  <a title="Open tile report in designer" ng-click="tileController.fireReportEditorLink()">
+                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty() || !tileController.isDesignLinksAllowed">
+                  <a ng-attr-title="{{'js_OpenTileInDesigner' | izendaLocale: 'Open tile report in designer'}}"
+                     ng-click="tileController.fireReportEditorLink()">
                     <img class="img-responsive" src="Resources/images/back-tile/edit.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
-                  <a title="Open tile report in viewer"
-                    ng-click="tileController.fireReportViewerLink()">
+                  <a ng-attr-title="{{'js_OpenTileInViewer' | izendaLocale: 'Open tile report in viewer'}}"
+                     ng-click="tileController.fireReportViewerLink()">
                     <img class="img-responsive" src="Resources/images/back-tile/view.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
-                  <a title="Reload tile from it's source" ng-click="tileController.flipFront(true, true)">
+                  <a ng-attr-title="{{'js_ReloadTile' | izendaLocale: 'Reload tile from it\'s source'}}"
+                     ng-click="tileController.flipFront(true, true)">
                     <img class="img-responsive" src="Resources/images/back-tile/reload.png">
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn"
                   ng-hide="tileController.isOneColumnView()">
-                  <a title="Add new report part to tile" ng-click="tileController.selectReportPart()">
+                  <a ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
+                     ng-click="tileController.selectReportPart()">
                     <img class="img-responsive" src="Resources/images/back-tile/add.png">
                   </a>
                 </div>
               </div>
               <div class="iz-dash-tile-fb-toolbar">
-                <span class="iz-dash-tile-fb-rcount" 
-                  ng-bind="tileController.topString"></span>
+                <span class="iz-dash-tile-fb-rcount" ng-bind="tileController.getTopString()"></span>
                 <span class="iz-dash-tile-fb-rcount-slider">
                   <div izenda-tile-top-slider ng-model="tileController.top"
                     end-value="tileController.endTop"
                     on-change-end="tileController.topSelected()">
                   </div>
                 </span>
-                <span class="iz-dash-tile-fb-rcount-label">RECORDS COUNT</span>
+                <span class="iz-dash-tile-fb-rcount-label text-uppercase"
+                  ng-bind="'js_RecordsCount' | izendaLocale: 'Records count'"></span>
               </div>
-            </div>
-            <div class="title-container-background glyphicon" title="Tile actions">
-              <span class="bar"></span>
-              <span class="bar"></span>
-              <span class="bar"></span>
             </div>
             <div class="title-container" style="height: 35px; overflow: hidden;">
               <div class="title">
@@ -241,46 +246,49 @@
                   <a ng-if="tileController.isTitleSet()"
                     class="db-title-repname"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.title}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.title"></a>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}">{{tileController.getConvertedReportCategory()}}
-                  </a>
+                    href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}"
+                    ng-bind="tileController.getConvertedReportCategory()"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null && tileController.reportName != ''">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                     class="db-title-repname"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.reportName}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.reportName"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                     class="db-title-repname"
                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
-                    ng-click="tileController.fireReportViewerLink()">{{tileController.reportPartName}}
-                  </a>
+                    ng-click="tileController.fireReportViewerLink()"
+                    ng-bind="tileController.reportPartName"></a>
                 </span>
-                <a title="Show tile" class="title-button title-button-remove button2"
-                  ng-click="tileController.flipFront(false)">
+                <a class="title-button title-button-remove button2"
+                   ng-attr-title="{{'js_ShowTile' | izendaLocale: 'Show tile'}}"
+                   ng-click="tileController.flipFront(false)">
                   <img src="Resources/images/turn-18.png" class="img-responsive" />
                 </a>
-                <a title="Delete tile" class="title-button title-button-remove button1"
+                <a class="title-button title-button-remove button1"
+                  ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
                   ng-click="tileController.showConfirmDelete()">
                   <img src="Resources/images/remove-18.png" class="img-responsive" />
                 </a>
-                <a title="Confirm delete"
-                  ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
+                <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
                   ng-click="tileController.deleteTile()">
                   <img src="Resources/images/tile/confirm-delete.png" />
-                  <span ng-if="tileController.getWidth() > 1">remove tile</span>
+                  <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'"></span>
                 </a>
-                <a title="Cancel delete" ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
+                <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
                   ng-click="tileController.hideConfirmDelete()">
                   <img src="Resources/images/tile/turn-back.png" />
-                  <span ng-if="tileController.getWidth() > 1">undo request</span>
+                  <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_Undo' | izendaLocale: 'Undo'"></span>
                 </a>
               </div>
             </div>

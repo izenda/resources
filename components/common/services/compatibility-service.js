@@ -6,7 +6,7 @@
     function ($window, $log) {
       'use strict';
       var currentRights;
-      var rightNone = "None",
+    	var rightNone = "None",
           rightReadOnly = "Read Only",
           rightViewOnly = "View Only",
           rightLocked = "Locked",

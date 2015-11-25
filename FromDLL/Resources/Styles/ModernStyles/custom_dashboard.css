@@ -1,10 +1,10 @@
 /* Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED */
 
-select{
+#izendaDashboardMainContainer select{
 font-size:8pt;
 font-family:Verdana,sans-serif;
 }
-hr{
+#izendaDashboardMainContainer hr{
 color:#003399;
 height:2px;
 }
@@ -20,23 +20,20 @@ padding-right:10px;
 input[type="checkbox"],input[type="radio"]{
 vertical-align:middle;
 }
-html{
+html #izendaDashboardMainContainer{
 min-height:100%;
 }
-body{
+body #izendaDashboardMainContainer{
 font-family:Verdana,Arial,sans-serif;
 color:#676767;
 background-color:#fff;
 }
-body #aspnetForm{
+body #izendaDashboardMainContainer #aspnetForm{
 height:100%;
 }
-a:link{
+#izendaDashboardMainContainer a:link{
 color:#0072BC;
 text-decoration:none;
-}
-a:visited{
-color:#b10069;
 }
 span#TurnOffAccessibility a.ms-acclink{
 width:auto;
@@ -74,7 +71,7 @@ right:2px;
 	
 	
 }
-a:visited{
+#izendaDashboardMainContainer a:visited{
 	color:#0081C6;
 }
 #footer{
@@ -86,17 +83,12 @@ a:visited{
 	color:#808080;
 	left:5px;
 }
-p{
+#izendaDashboardMainContainer p{
 	line-height:19px;
 	font-size:12px;
 }
-a:link{
-	color:#0000ff;
-}
-a:visited{
-	color:#0081C6
-}
-h3{
+
+#izendaDashboardMainContainer h3{
 	font-size:24px;
 	color:#0081C6;
 	font-family:Verdana;
@@ -104,7 +96,7 @@ h3{
 	margin-bottom:0px;
 	padding-bottom:5px;
 }
-h4{
+#izendaDashboardMainContainer h4{
 	color:#0081C6;
 	font-family:Verdana;
 	font-size:large;
@@ -115,7 +107,7 @@ h4{
 	margin:0px;
 	top:14px;
 }
-h5{
+#izendaDashboardMainContainer h5{
 	color:#0081C6;
 	font-family:Verdana;
 	font-size:12px;
@@ -126,7 +118,7 @@ h5{
 	border-bottom:1px #a7a9ac solid;
 	padding-bottom:5px;
 }
-h6{
+#izendaDashboardMainContainer h6{
 	color:#0081C6;
 	font-family:Verdana;
 	font-size:12px;
@@ -134,7 +126,7 @@ h6{
 	margin-top:0px;
 	font-weight:lighter;
 }
-h2{
+#izendaDashboardMainContainer h2{
 	color:#0081C6;
 	font-family:Verdana;
 	font-size:14px;
@@ -246,7 +238,7 @@ iframe{
 	background: none;
 }
 
-#cdTabs.iz-db-ui-widget-content {
+#cdTabs.ui-widget-content {
 	border: none;
 }
 
@@ -366,7 +358,6 @@ table.dashboard-part-table > tbody > tr > td{
 .refresh-button{
 	float: right;
 }
-
 
 .iz-db-ui-tabs, .iz-db-ui-tabs .iz-db-ui-tabs-panel {
   background-color: transparent !important;

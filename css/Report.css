@@ -336,19 +336,56 @@ span.Footer
 {
 	white-space: nowrap;
 }*/
+
+tr.VisualGroup
+{
+	border-width: 0px;
+	border-style: none;
+	border: none;
+	cursor: pointer;
+	height: 30px;
+	vertical-align: bottom;
+}
+
 tr.VisualGroup tr
 {
 	border-width:3px;
 	cursor:pointer;
 	border-style:solid;
 }
-tr.VisualGroup td
+
+tr.VisualGroupCollapsed
 {
-  text-align:left;
+	border-width: 0px;
+	border-style: none;
+	border: none;
+	cursor: pointer;
+	height: 30px;
+	vertical-align: bottom;
+	border-top: 1px solid #D4D4D4;
+}
+
+table.ReportTable:not(.fvTable) tr.VisualGroup td
+{
+	text-align:left;
 	padding-top:10px;
 	border-right-style:solid;
 	border-right-width:0px;
+	padding-left: 16px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAESSURBVChTfY9NTgJBEIXnFMbgTNh6BpZuPYOJF+oeXBoSNqwUt5zAuHIHTA/EmAkLFkBQE38iMF3Fq+pRMCG+9HRedX31pjvq9t9O7Cg2WZKOazaDQZlYd2TzOHV1MzxrF8XyK2Lim8ESRzUjDVkmi20fJmm6885z7+nDM0XErOgLRmOTh2wsZF90p9ls9V16IOA8e4GRepyOQAuausb1+L54RwSjTeBIPJKx3Q5fwwUu76YPk08PKSd5+NRJgcnW4+L0KnfzlQAQ8VodOMkqq0NIysqEC0FUhrzQEInBV6FqqcQOboM5zdv8EHtJKiKK9AVyHhoY0j/+qhr4+w7RPrSTvAOxocBV/uFESkCHIWbeAkF+vuxobxzWAAAAAElFTkSuQmCC);
+	background-repeat: no-repeat;
+	background-position: 0px 15px;
+	padding-bottom: 4px;
 }
+
+table.ReportTable:not(.fvTable)  tr.VisualGroupCollapsed td {
+	padding-left: 16px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEESURBVChTfZA9bsJAEIXnGIhABAV34AIpcogoJ/KilKSgoAqhzgFSpEsDjo0RkUCUIFkoUX4UszN5OwOOFMk82bOz+56/3TW95t8sIuzZY6gUXQwWD/P3wu8lxCtFrWh6OVwmm09MkNTwH/k49dR0adNlV6PV4/IjbO1hAX6whbVlCbkzlzWipNtfPK1yXRZmhheqhpj3dO6SWi+tu6TRS6/H69nmi+XHsCZrqB7NAAMSDQ7QuclggKS2HRS7C7VdDBKi7SgF+/Z5Gwj2HKQ57Ggw1PHkDctloAwz7msw3Ob+JbdPUW1QhRYvAYPQKEbohPT/IaSUkvFfcOgu3mlfaK2QFL9Y878B1uRkcwAAAABJRU5ErkJggg==);
+	background-repeat: no-repeat;
+	background-position: 0px 12px;
+	padding-bottom: 4px;
+}
+
 div.autoWide 
 {
 	display:inline-table;

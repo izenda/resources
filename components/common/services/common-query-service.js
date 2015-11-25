@@ -6,7 +6,8 @@ angular.module('izendaQuery')
 	.factory('$izendaCommonQuery', [
 	'$log',
 	'$izendaRsQuery',
-	function ($log, $izendaRsQuery) {
+	'$izendaLocale',
+	function ($log, $izendaRsQuery, $izendaLocale) {
 		'use strict';
 
 		/**
@@ -28,7 +29,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function () {
-					return 'Failed to create new dashboard';
+					return $izendaLocale.localeText('js_DashboardCreateError', 'Failed to create new dashboard');
 				},
 				params: []
 			});
@@ -41,7 +42,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function (name) {
-					return 'Failed to set current report set "' + name + '"';
+					return $izendaLocale.localeText('js_DashboardCrsError', 'Failed to set current report set') + ': ' + name;
 				},
 				params: [reportSetFullName]
 			});
@@ -60,7 +61,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function (name) {
-					return 'Failed to check dashboard "' + name + '" exist';
+					return $izendaLocale.localeText('js_DashboardCheckExistError', 'Failed to check dashboard exist') + ': ' + name;
 				},
 				params: [reportSetFullName]
 			});
@@ -76,7 +77,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function (name) {
-					return 'Failed to set current report set "' + name + '"';
+					return $izendaLocale.localeText('js_SetCrsError', 'Failed to set current report set') + ': ' + name;
 				},
 				params: [reportSetFullName]
 			});
@@ -95,7 +96,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function (name) {
-					return 'Failed to get reports for category "' + name + '"';
+					return $izendaLocale.localeText('js_GetCategoryError', 'Failed to get reports for category') + ': ' + name;
 				},
 				params: [category]
 			});
@@ -111,7 +112,7 @@ angular.module('izendaQuery')
 			// custom error handler:
 			{
 				handler: function (name) {
-					return 'Failed to get report parts for report "' + name + '"';
+					return $izendaLocale.localeText('js_ReportPartsError', 'Failed to get report parts for report') + ': ' + name;
 				},
 				params: [reportFullName]
 			});

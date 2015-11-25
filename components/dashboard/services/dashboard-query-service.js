@@ -6,8 +6,8 @@ angular
   .module('izendaQuery')
   .factory('$izendaDashboardQuery', [
     '$izendaRsQuery',
-    '$log',
-    function ($izendaRsQuery, $log) {
+		'$izendaLocale',
+    function ($izendaRsQuery, $izendaLocale) {
       'use strict';
 
       /**
@@ -20,7 +20,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to load dashboard layout';
+          	return $izendaLocale.localeText('js_LayoutLoadError', 'Failed to load dashboard layout');
           }
         });
       }
@@ -48,7 +48,7 @@ angular
           // custom error handler:
           {
             handler: function (name) {
-              return 'Failed to load tile "' + name + '"';
+            	return $izendaLocale.localeText('js_TileLoadError', 'Failed to load tile') + ': ' + name;
             },
             params: [options.reportFullName]
           });
@@ -66,7 +66,7 @@ angular
         // custom error handler:
         {
           handler: function (name) {
-            return 'Failed to save dashboard "' + name + '"';
+          	return $izendaLocale.localeText('js_DashboardSaveError', 'Failed to save dashboard') + ': ' + name;
           },
           params: [dashboardName]
         });
@@ -83,7 +83,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to sync dashboard';
+          	return $izendaLocale.localeText('js_DashboardSyncError', 'Failed to sync dashboard');
           },
           params: []
         });
@@ -99,7 +99,7 @@ angular
         // custom error handler:
         {
           handler: function (name) {
-            return 'Failed to load tile "' + name + '" for print';
+          	return $izendaLocale.localeText('js_DashboardPrintTileError', 'Failed to load tile for print') + ': ' + name;
           },
           params: [reportPartName]
         });
@@ -118,7 +118,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to load dashboard for print';
+	          return $izendaLocale.localeText('js_DashboardPrintError', 'Failed to load dashboard for print');
           },
           params: []
         });

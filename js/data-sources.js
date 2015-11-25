@@ -537,7 +537,7 @@ function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 function DS_GetFullField(fieldSqlName, friendlyName) {
 	var field = new Object();
 	field.FriendlyName = friendlyName;
-	field.Description = friendlyName;
+	field.Description = EBC_Humanize("", friendlyName, "");
 	field.Total = 0;
 	field.VG = 0;
 	field.LabelJ = 1;

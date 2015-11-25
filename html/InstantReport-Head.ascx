@@ -32,6 +32,7 @@
 <script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
 
 <!-- Utils Resources -->
 <script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>

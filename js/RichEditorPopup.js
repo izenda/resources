@@ -74,9 +74,9 @@ function RE_EditorContentSent(returnObj, id, editorParamsObj) {
 	RE_TerminateRichEditor(tinymce.get(editorParamsObj.EditorId));
 }
 
-function RE_SaveRichEditorContent(editor) {
+function RE_SaveRichEditorContent(editor, deleteForm) {
 	var editorParamsObj = RE_EditorsParamsList[editor.settings.selector];
-	var content = editor.getContent({ format: 'raw' });
+	var content = deleteForm ? '' : editor.getContent({ format: 'raw' });
 	if (typeof editorParamsObj.ContentSaveCallback != 'undefined' && editorParamsObj.ContentSaveCallback != null)
 		editorParamsObj.ContentSaveCallback(content);
 	if (typeof editorParamsObj.ContentRequestMsg != 'undefined' && editorParamsObj.ContentRequestMsg != null && editorParamsObj.ContentRequestMsg != '') {
@@ -95,7 +95,7 @@ function RE_RichEditorBeforeExecCommandEvent(e) {
 		RE_TerminateRichEditor(editor);
 	}
 	else if (e.command == 'mceSave') {
-		RE_SaveRichEditorContent(editor);
+		RE_SaveRichEditorContent(editor, false);
 	}
 	else
 		return;
@@ -136,7 +136,7 @@ function RE_InstantiateRichEditor(paramsObj) {
 			height: paramsObj.Height,
 			mode: "exact",
 			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace tabfocus table template textcolor textpattern visualchars wordcount repeater jqueryspellchecker",
-			toolbar: "save cancel insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | jqueryspellchecker | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
+			toolbar: "save cancel delete insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | jqueryspellchecker | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
 			skin_url: './rs.aspx?wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
 			language_url : lang,
 			resize: false,
@@ -197,6 +197,13 @@ function RE_InitToolbarItems(editor) {
 			editor.insertContent('[]');
 		},
 		menu: fieldsItems
+	});
+
+	editor.addButton('delete', {
+	  type: 'button',
+	  text: fdtDelete,
+	  icon: false,
+	  onclick: function () { RE_SaveRichEditorContent(editor, true); }
 	});
 
 	// Columns

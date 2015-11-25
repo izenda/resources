@@ -6,22 +6,27 @@
       <form class="form-horizontal" role="form">
         <div class="form-group" ng-if="selectReportNameController.errorMessages.length > 0">
           <div class="alert alert-danger" role="alert">
-            <div ng-repeat="errorMessage in selectReportNameController.errorMessages">
-              {{errorMessage}}
+            <div ng-repeat="errorMessage in selectReportNameController.errorMessages"
+              ng-bind="errorMessage">
             </div>
           </div>
         </div>
         <div class="form-group">
-          <label for="izendaDashboardNameModalName" class="col-sm-2 control-label">Name</label>
+          <label for="izendaDashboardNameModalName" class="col-sm-2 control-label"
+            ng-bind="'js_Name' | izendaLocale: 'Name'">
+          </label>
           <div class="col-sm-10">
             <input type="text" class="form-control" id="izendaDashboardNameModalName"
-              ng-model="selectReportNameController.reportName" placeholder="Dashboard Name">
+              ng-model="selectReportNameController.reportName" ng-attr-placeholder="{{'js_DashboardName' | izendaLocale: 'Dashboard name'}}">
           </div>
         </div>
         <div class="form-group">
-          <label for="izendaDashboardNameModalCategory" class="col-sm-2 control-label">Category</label>
+          <label for="izendaDashboardNameModalCategory" class="col-sm-2 control-label"
+            ng-bind="'js_Category' | izendaLocale: 'Category'">
+          </label>
           <div class="col-sm-10" ng-hide="!selectReportNameController.isCreatingNewCategory">
-            <input id="izendaDashboardNameModalCategoryName" type="text" class="form-control" placeholder="Category Name"
+            <input id="izendaDashboardNameModalCategoryName" type="text" class="form-control"
+              ng-attr-placeholder="{{'js_Category' | izendaLocale: 'Category'}}"
               ng-model="selectReportNameController.newCategoryName" />
           </div>
           <div class="col-sm-10" ng-hide="selectReportNameController.isCreatingNewCategory">
@@ -37,9 +42,11 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal"
-        ng-click="selectReportNameController.closeModal()">Close</button>
+              ng-click="selectReportNameController.closeModal()"
+              ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       <button type="button" class="btn btn-primary"
-        ng-click="selectReportNameController.completeHandler()">OK</button>
+              ng-click="selectReportNameController.completeHandler()"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 </div>

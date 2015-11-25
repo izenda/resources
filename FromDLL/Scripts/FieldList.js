@@ -421,9 +421,9 @@ function SC_InsertExtraColumnBelow(id)
     }
 }
 
-function SC_RemoveExtraColumn(id)
+function SC_RemoveExtraColumn(id, force)
 {
-    EBC_RemoveNotLastRowHandler('ExtraValue', event);
+	EBC_RemoveNotLastRowHandler('ExtraValue', event, force);
     if (jq$('#' + id + '_ExtraColumn').children().children().length < 3) {
         jq$('.' + id + '_ExtraDescription_Label1').hide();
         jq$('.' + id + '_ExtraDescription').hide();

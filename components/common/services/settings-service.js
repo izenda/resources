@@ -4,13 +4,14 @@
 '$log',
 '$q',
 '$izendaRsQuery',
-function ($log, $q, $izendaRsQuery) {
+'$izendaLocale',
+function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	'use strict';
 
-	var settingsCached = {};
+	var dashboardSettingsCached = {};
 
 	/**
-	* Get print mode setting
+	* Get all dashboard settings
 	*/
 	var getDashboardSettings = function () {
 		return $izendaRsQuery.query('getDashboardSettings', [], {
@@ -19,7 +20,24 @@ function ($log, $q, $izendaRsQuery) {
 		// custom error handler:
 		{
 			handler: function () {
-				return 'Failed to get Dashboard settings';
+				return $izendaLocale.localeText('js_DashboardSettingsError', 'Failed to get Dashboard settings');
+			},
+			params: []
+		});
+	}
+
+	/**
+	* Get common settings
+	*/
+	var getCommonSettings = function () {
+		return $izendaRsQuery.query('getCommonSettings', [], {
+			dataType: 'json',
+			cache: true
+		},
+		// custom error handler:
+		{
+			handler: function () {
+				return 'Failed to get settings';
 			},
 			params: []
 		});
@@ -30,16 +48,14 @@ function ($log, $q, $izendaRsQuery) {
 	 */
 	var getDashboardSetting = function (name) {
 		var defer = $q.defer();
-		if (!(name in settingsCached)) {
-			// initialize print mode
+		if (!(name in dashboardSettingsCached)) {
 			getDashboardSettings().then(function (data) {
-				settingsCached = data;
-				$log.debug('Dashboard settings loaded: ', settingsCached);
-				defer.resolve(settingsCached[name]);
+				dashboardSettingsCached = data;
+				defer.resolve(dashboardSettingsCached[name]);
 			});
 		} else {
 			// get cached value
-			defer.resolve(settingsCached[name]);
+			defer.resolve(dashboardSettingsCached[name]);
 		}
 		return defer.promise;
 	};
@@ -62,7 +78,8 @@ function ($log, $q, $izendaRsQuery) {
 
 	return {
 		getPrintMode: getPrintMode,
-		getDashboardAllowed: getDashboardAllowed
+		getDashboardAllowed: getDashboardAllowed,
+		getCommonSettings: getCommonSettings
 	}
 }
 ]);

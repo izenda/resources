@@ -367,14 +367,14 @@ function EBC_RemoveRow_Internal(row, table)
 }
 
 
-function EBC_RemoveNotLastRowHandler(selectName, e)
+function EBC_RemoveNotLastRowHandler(selectName, e, force)
 {
 	if(e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	var table = EBC_GetParentTable(row);
 	var rowCount = table.rows.length;
 	var columnSelect = EBC_GetSelectByName(row, selectName);
-	if (columnSelect.value != '...')
+	if (columnSelect.value != '...' || force)
 		return EBC_RemoveRow_Internal(row, table);
 	var prevRow = (rowCount>2) ? table.rows[rowCount-2] : null;
 	var prevColumnSelect = prevRow == null ? null : EBC_GetSelectByName(prevRow, selectName);

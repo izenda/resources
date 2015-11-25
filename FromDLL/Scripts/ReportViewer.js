@@ -829,6 +829,18 @@ function ShowSaveAsDialog() {
 function SaveReportAs() {
 	var newRepName = document.getElementById('newReportName').value;
 	var newCatName = document.getElementById('newCategoryName').value;
+
+	newRepName = CheckNameValidity(newRepName);
+	if (newRepName == null) {
+		alert(IzLocal.Res('jsInvalidReportName', 'Invalid Report Name'));
+		return false;
+	}
+	newCatName = CheckNameValidity(newCatName);
+	if (newCatName == null) {
+		alert(IzLocal.Res('InvalidCategoryName', 'Invalid Category Name'));
+		return false;
+	}
+
 	var newFullName = newRepName;
 	if (newCatName != null && newCatName != '' && newCatName != IzLocal.Res('js_Uncategorized', 'Uncategorized')) {
 		newFullName = newCatName + nrvConfig.CategoryCharacter + newFullName;
@@ -836,7 +848,21 @@ function SaveReportAs() {
 	while (newFullName.indexOf(' ') >= 0) {
 		newFullName = newFullName.replace(' ', '+');
 	}
+
 	CheckIfReportExists(newFullName);
+}
+
+function CheckNameValidity(name) {
+	var invalidCharsRegex = new RegExp("[^A-Za-z0-9_\\\-'' ]+", 'g');
+	if (nrvConfig.AllowInvalidCharacters)
+		return name;
+	if (nrvConfig.StripInvalidCharacters)
+		name = name.replace(invalidCharsRegex, '');
+
+	if (name.match(invalidCharsRegex))
+		return null;
+
+	return name;
 }
 
 function CheckIfReportExists(reportFullName) {

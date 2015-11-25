@@ -1,5 +1,4 @@
 ﻿<%@ Control AutoEventWireup="true" Language="C#" %>
-<%@ Import Namespace="Izenda.AdHoc" %>
 
 <iframe style="display: none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
 <div id="loadingrv2" style="z-index: 500; top: 0px; left: 0px; width: 100%; background-color: #FFFFFF; position: fixed; display: none; text-align: center; vertical-align: middle;" lang-text="js_Loading">
@@ -267,7 +266,7 @@
                         <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
                             <span class="filterRequiredFlag" style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;" title="Required">*</span>
                             <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
-                                <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px;"></div>
+                                <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
                             </nobr>
                             <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
                             <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>

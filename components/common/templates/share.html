@@ -4,7 +4,7 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b>Share</b>
+          <b ng-bind="'js_Share' | izendaLocale: 'Share'"></b>
         </div>
       </div>
     </div>
@@ -16,9 +16,11 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
-        ng-click="shareController.closeModal(false)">Close</button>
+              ng-click="shareController.closeModal(false)"
+              ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       <button id="shareSaveButton" type="button" class="btn btn-primary izenda-width-100"
-        ng-click="shareController.closeModal(true)">OK</button>
+              ng-click="shareController.closeModal(true)"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 </div>

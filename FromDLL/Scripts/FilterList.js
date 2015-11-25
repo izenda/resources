@@ -48,7 +48,6 @@ function CC_LoadColumns(id, path, options, selectName, row) {
         selectName = "Column";
     cc_paths[id] = { path: path, options: options };
     var table = document.getElementById(id);
-    var body = table.tBodies[0];
     var additionalData = null;
     if (descriptions != null && descriptions.length > 0) {
         additionalData = "<option disabled=''>------</option>";
@@ -64,8 +63,7 @@ function CC_LoadColumns(id, path, options, selectName, row) {
         CC_oldData = null;
     }
     else
-        rows = body.rows;
-
+        rows = jq$(table.tBodies[0]).find("tr");
 
     var cc_newData = path + options + "&" + "filterList=true";
     if (additionalData != null)
@@ -143,6 +141,10 @@ function CC_GetAllowNulls(tableID) {
     return allowNulls;
 }
 
+function CC_GetSectionRowIndex(row) {
+	return jq$(row).prevAll().length;
+}
+
 function CC_CaCalDateChanged(elem) {
     var parent = jq$("#" + elem);
     if (!parent)
@@ -150,9 +152,9 @@ function CC_CaCalDateChanged(elem) {
 
     var row = EBC_GetRow(parent[0]);
     var table = EBC_GetParentTable(row);
-    var rows = table.tBodies[0].rows;
+    var rows = jq$(table.tBodies[0]).find("tr");
 
-    for (var i = row["sectionRowIndex"] + 1; i < rows.length; i++) {
+    for (var i = CC_GetSectionRowIndex(row) + 1; i < rows.length; i++) {
         var showEditForRow = CC_GetShowEditForRow(rows[i]);
         if (showEditForRow[2] || showEditForRow[7] || showEditForRow[11])
             CC_LoadValues(rows[i]);
@@ -170,7 +172,7 @@ function CC_GetFiltersInRange(row, startIndex, endIndex) {
 		endIndex = parentTable.rows.length - 1;
 
 	for (var i = startIndex; i < endIndex; i++) {
-		var prevRow = parentTable.tBodies[0].rows[i];
+		var prevRow = jq$(parentTable.tBodies[0]).find("tr")[i];
 		var value = new Array();
 		value.Column = columns[i].value;
 		if (value.Column != null && value.Column != '...') {
@@ -238,12 +240,12 @@ function CC_GetFiltersInRange(row, startIndex, endIndex) {
 
 function CC_GetAllFilters(row) {
 	var prevFilters = CC_GetPrewRows(row);
-	var nextFilters = CC_GetFiltersInRange(row, row.sectionRowIndex, null);
+	var nextFilters = CC_GetFiltersInRange(row, CC_GetSectionRowIndex(row), null);
 	return prevFilters.concat(nextFilters);
 }
 
 function CC_GetPrewRows(row) {
-	return CC_GetFiltersInRange(row, 0, row.sectionRowIndex);
+	return CC_GetFiltersInRange(row, 0, CC_GetSectionRowIndex(row));
 }
 
 function CC_CropDate(s) {
@@ -433,9 +435,10 @@ function CC_UpdateFiltersFromLogic(){
 
 function CC_UpdateFilterRows(row) {
 	var table = EBC_GetParentTable(row);
-	var rows = table.tBodies[0].rows;
+	var rows = jq$(table.tBodies[0]).find("tr");
 
-	var startRow = row["sectionRowIndex"] + 1;
+	var startRow = CC_GetSectionRowIndex(row) + 1;
+
 	if (CC_IsFilterLogicValid())
 		startRow = 0;
 
@@ -456,7 +459,7 @@ function CC_RemoveRow(id) {
 	var table = document.getElementById(id);
 	CC_RenumFilters(table);
 	if (table != null) {
-		var rows = table.tBodies[0].rows;
+		var rows = jq$(table.tBodies[0]).find("tr");
 		for (var i = 0; i < rows.length; i++) {
 			var showEditForRow = CC_GetShowEditForRow(rows[i]);
 			if (showEditForRow[2])
@@ -607,10 +610,10 @@ function CC_InitRow(row) {
 }
 
 function CC_RenumFilters(table) {
-	var body = table.tBodies[0];
-	var count = body.rows.length;
+	var rows = jq$(table.tBodies[0]).find("tr");
+	var count = rows.length;
 	for (var i = 0; i < count; i++) {
-		var filterNumber = EBC_GetInputByName(body.rows[i], 'FilterNumber');
+		var filterNumber = EBC_GetInputByName(rows[i], 'FilterNumber');
 		if (filterNumber != null)
 			filterNumber.value = i + 1;
 	}
@@ -663,12 +666,12 @@ function CC_CheckShowReportParameters(filteTable) {
 	var showReportParamTable = document.getElementById(filteTable.id + '_ShowReportParametersTable');
 	if (showReportParamTable == null)
 		return;
-	var body = filteTable.tBodies[0];
-	var rowCount = body.rows.length;
+	var rows = jq$(filteTable.tBodies[0]).find("tr");
+	var rowCount = rows.length;
 	var showParams = false;
 	if (rowCount > 0) {
 		for (var i = 0; i < rowCount && !showParams; i++) {
-			var row = body.rows[i];
+			var row = rows[i];
 			var columnSelect = EBC_GetSelectByName(row, 'Column');
 			if (columnSelect == null)
 				continue;
@@ -1003,12 +1006,12 @@ function CC_Init(id, s, allowNewFilters, dateFormatString) {
 	table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, CC_InitNewRow);
 	EBC_RegisterRowRemoveHandler(table, CC_RemoveRow);
-	var body = table.tBodies[0];
-	var count = body.rows.length;
+	var rows = jq$(table.tBodies[0]).find("tr");
+	var count = rows.length;
 	for (var i = 0; i < count; i++) {
-		CC_InitAutoComplite(body.rows[i]);
-		CC_InitTreeView(body.rows[i]);
-		CC_InitRowWidthAutoComplite(body.rows[i]);
+		CC_InitAutoComplite(rows[i]);
+		CC_InitTreeView(rows[i]);
+		CC_InitRowWidthAutoComplite(rows[i]);
 	}
 	EBC_RegiserForUnusedRowsRemoving(table);
 	CC_Initialized = true;
@@ -1169,10 +1172,10 @@ function CC_PopupFiltersConfirm(act) {
 				var checkbox = rows[i].cells[j].firstChild;
 				if (checkbox.checked) {
 					var nextNode = checkbox.nextSibling != null ? checkbox.nextSibling.nodeValue : "";
-					var nextNodeWithReplaced = nextNode.replace(',', '||');
+					var nextNodeWithReplaced = nextNode.replace(',', '#||#');
 					while (nextNode != nextNodeWithReplaced) {
 						nextNode = nextNodeWithReplaced;
-						nextNodeWithReplaced = nextNode.replace(',', '||');
+						nextNodeWithReplaced = nextNode.replace(',', '#||#');
 					}
 					values += nextNode + ',';
 				}

@@ -3,14 +3,14 @@
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(###RS###font=Fonts.OpenSans.woff) format('woff');
+		src: local('Open Sans'), local('OpenSans'), url(rs.aspx?font=Fonts.OpenSans.woff) format('woff');
 	}
 
 	@font-face {
 		font-family: 'Open Sans';
 		font-style: normal;
 		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(###RS###font=Fonts.OpenSans-Semibold.woff) format('woff');
+		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(rs.aspx?font=Fonts.OpenSans-Semibold.woff) format('woff');
 	}
 
 	#VIS_ID_CONTAINER .clearfix:after {
@@ -779,44 +779,6 @@
 			}
 		});
 
-		var aggregatesByMetrics = (function () {
-			var aggregate = {};
-			for (i = 0; i < vis.metrics.length; i++) {
-				var metric = vis.metrics[i];
-				for (var j = 0, columnLength = VIS_COLUMNS.length; j < columnLength; ++j) {
-					if (VIS_COLUMNS[j].name !== metric)
-						continue;
-
-					aggregate[metric] = {
-						type: VIS_COLUMNS[j].aggregation,
-						subType: VIS_COLUMNS[j].subtotal
-					};
-					break;
-				}
-			}
-			return aggregate;
-		})();
-
-		function initNodes(node, metric) {
-			var values = [],
-				aggregate = aggregatesByMetrics[metric];
-			if (node.hasOwnProperty("children")) {
-				for (var i = 0, length = node.children.length; i < length; i++)
-					values = values.concat(initNodes(node.children[i], metric));
-
-				vis.unitValue(node, metric, { sf: vis.fields.origin, value: util.aggregation.getsub(aggregate.type)(values) });
-			}
-			else {
-				values.push(vis.unitValue(node, metric));
-			}
-
-			vis.unitValue(node, metric, { sf: vis.fields.subtotal, value: util.aggregation.getsub(aggregate.subType)(values) });
-			return values;
-		}
-
-		for (i = 0; i < vis.metrics.length; i++)
-			initNodes(totals, vis.metrics[i]);
-
 		var totalSize = 0;
 		for (var i = 0; i < vis.items.length; i++)
 			totalSize += vis.items[i].y;
@@ -1522,7 +1484,7 @@
 					s.options.series[i].visible = s.props.visibility[i];
 
 			s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
-			s.options.plotOptions.pie.innerSize = donut ? '70%' : 0;
+			s.options.plotOptions.pie.innerSize = donut ? "55%" : 0;
 			s.options.plotOptions[type].cursor = (vis.breadcrumb.isLast(s.chartOptions.data) || !util.supports.svg()) ? 'auto' : 'pointer';
 			s.options.title.text = "";
 			s.options.subtitle.text = "";
@@ -1664,6 +1626,7 @@
 						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						funnel: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: true } },
 						pie: {
+							size: "75%",
 							cursor: 'pointer',
 							point: {
 								events: {
@@ -1760,6 +1723,32 @@
 					? s.chartOptions
 					: typeof node != "undefined" ? { data: node, title: metricValue, subtitle: null } : { data: totals, title: metricValue, subtitle: null }
 				);
+
+				var $container = jq$("#VIS_ID div.highcharts-container"),
+				containerWidth = $container.width(),
+				containerOffsetLeft = $container.offset().left;
+				$container.find('div.highcharts-data-labels span').each(function () {
+					var label = jq$(this),
+					leftDx = 7,
+					labelWidth = label.width(),
+					labelOffsetLeft = label.offset().left;
+					if (labelOffsetLeft < containerOffsetLeft) {
+						var dx = containerOffsetLeft - labelOffsetLeft;
+						label.css({
+							'left': dx + leftDx,
+							'width': (labelWidth - dx) + 'px',
+							'overflow': 'hidden',
+							'text-overflow': 'ellipsis'
+						});
+					} else if (containerOffsetLeft + containerWidth < labelOffsetLeft + labelWidth) {
+						var dx = (labelOffsetLeft + labelWidth) - (containerOffsetLeft + containerWidth);
+						label.css({
+							'width': (labelWidth - dx) + 'px',
+							'overflow': 'hidden',
+							'text-overflow': 'ellipsis'
+						});
+					}
+				});
 			});
 		}
 

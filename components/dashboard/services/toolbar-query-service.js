@@ -6,8 +6,8 @@ angular
   .module('izendaQuery')
   .factory('$izendaDashboardToolbarQuery', [
     '$izendaRsQuery',
-    '$log',
-    function ($izendaRsQuery, $log) {
+		'$izendaLocale',
+    function ($izendaRsQuery, $izendaLocale) {
       'use strict';
 
       function loadDashboardNavigation() {
@@ -17,7 +17,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to get dashboard categories';
+	          return $izendaLocale.localeText('js_DashboardLoadCatsError', 'Failed to get dashboard categories');
           }
         });
       }
@@ -32,7 +32,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to send report to email';
+          	return $izendaLocale.localeText('js_DashboardSendEmailError', 'Failed to send report to email');
           },
           params: []
         });
@@ -45,7 +45,7 @@ angular
         // custom error handler:
         {
           handler: function () {
-            return 'Failed to get auto refresh intervals';
+          	return $izendaLocale.localeText('js_DashboardAutoRefreshError', 'Failed to get auto refresh intervals');
           },
           params: []
         });

@@ -84,6 +84,30 @@
 		}
 
 		/**
+		* Set report name and category to location
+		*/
+		var setLocation = function (reportNameObject) {
+			var path = '';
+			if (reportNameObject.isNew) {
+				$location.path('');
+				$location.search('new');
+				return;
+			}
+			var category = reportNameObject['category'];
+			if (angular.isString(category) && category !== UNCATEGORIZED) {
+				var reportCategoryFixed = reportNameObject['category'].split('\\').join('/');
+				if (reportCategoryFixed.indexOf('/') !== 0) {
+					reportCategoryFixed = '/' + reportCategoryFixed;
+				}
+				path = reportCategoryFixed;
+			}
+			path += '/' + reportNameObject['name'];
+
+			$location.search('new', null);
+			$location.path(path);
+		};
+
+		/**
 		* Returns report full name (category delimiter: '/')
 		*/
 		var getLocation = function () {
@@ -107,34 +131,12 @@
 				if (angular.isDefined(newParameter)) {
 					result['isNew'] = true;
 				} else {
-					throw 'Location should contain report full name or "?new" parameter';
+					setLocation({
+						isNew: true
+					});
 				}
 			}
 			return result;
-		};
-
-		/**
-		* Set report name and category to location
-		*/
-		var setLocation = function (reportNameObject) {
-			var path = '';
-			if (reportNameObject.isNew) {
-				$location.path('');
-				$location.search('new');
-				return;
-			}
-			var category = reportNameObject['category'];
-			if (angular.isString(category) && category !== UNCATEGORIZED) {
-				var reportCategoryFixed = reportNameObject['category'].split('\\').join('/');
-				if (reportCategoryFixed.indexOf('/') !== 0) {
-					reportCategoryFixed = '/' + reportCategoryFixed;
-				}
-				path = reportCategoryFixed;
-			}
-			path += '/' + reportNameObject['name'];
-
-			$location.search('new', null);
-			$location.path(path);
 		};
 
 		/**

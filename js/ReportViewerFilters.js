@@ -1,4 +1,8 @@
-﻿var filtersData = new Array();
+﻿String.prototype.endsWith = function (suffix) {
+  return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+var filtersData = new Array();
 var subreportsFiltersData;
 var showingC = false;
 var calendars;
@@ -312,12 +316,23 @@ function GenerateNewFilterDropDown() {
 	var result = '<select style="width:100%;" id="newFilterFieldDropDown" onchange="AddNewFilterField();">';
 	var optionsAdded = false;
 	result += '<option value="..." selected="selected">...</option>';
+
+	var existingParamFilters = new Array();
+	if (filtersData != null) {
+		for (var i = 0; i < filtersData.length; i++) {
+			var column = filtersData[i].ColumnName;
+			var isParam = column.substr(column.lastIndexOf('[') + 1).indexOf('PARAM') == 0;
+			if (isParam)
+				existingParamFilters.push(column);
+		}
+	}
+
 	for (var dsCnt = 0; dsCnt < dataSources.length; dsCnt++) {
 		if (dataSources.length > 1)
 			result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
 
 		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
-			if (!dataSources[dsCnt].Columns[fCnt].FilterHidden) {
+			if (!dataSources[dsCnt].Columns[fCnt].FilterHidden && existingParamFilters.indexOf(dataSources[dsCnt].Columns[fCnt].DbName) < 0) {
 				result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + dataSources[dsCnt].Columns[fCnt].FriendlyName + '</option>';
 				optionsAdded = true;
 			}
@@ -446,7 +461,14 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 						+ filter.Description
 						+ ' - '
 						+ filter.OperatorFriendlyName
-						+ '\';';
+						+ '\';'
+						+ 'document.getElementById(\''
+						+ divsId
+						+ '\').setAttribute("title", "'
+						+ filter.Description
+						+ ' - '
+						+ filter.OperatorFriendlyName
+						+ '");';
 	var mouseOutScript = 'for(var index = 2; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
@@ -641,26 +663,25 @@ function ShowEqualsPopupDialog(filterInd) {
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
 	var notRefreshFilters = isLastFilter || nrvConfig && nrvConfig.CascadeFilterValues == false;
 	var onChangeCmd = notRefreshFilters ? '' : 'onchange="CommitFiltersData(false);"';
-	//var onKeyUpCmd = 'onkeyup="CommitFiltersData(false);"';
-	var onKeyUpCmd = '';
+	var onKeyUpDownCmd = notRefreshFilters ? '' : 'onkeyup="TextFilterInputKeyUp();" onkeydown="TextFilterInputKeyDown();"';
 	var result = '';
 	switch (cType) {
 		case 1:
 			if (value == '...') value = '';
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
 			break;
 		case 2:
 			if (values[0] == '...') values[0] = '';
 			if (values[1] == '...') values[1] = '';
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
-			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
+			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
 			break;
 		case 3:
 			result += '<select style="width:100%;" id="ndbfc' + index + '" ' + onChangeCmd + '>';
 			var groupOpened = false;
 			for (var cnt3 = 0; cnt3 < existingValues.length; cnt3++) {
 				var selected3 = '';
-				if (existingValues[cnt3].LinelessEquals(value))
+				if (existingValues[cnt3] != null && existingValues[cnt3].LinelessEquals(value))
 					selected3 = 'selected="selected"';
 				if (existingValues[cnt3] == null) {
 					if (groupOpened)
@@ -702,7 +723,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			break;
 		case 7:
 			if (value == '...') value = '';
-			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpCmd + '>' + value + '</textarea>';
+			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpDownCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
 			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';
@@ -748,12 +769,23 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			break;
 		case 100:
 			if (value == '...') value = '';
-			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpCmd + ' />';
+			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + (notRefreshFilters ? '' : 'refresh="true"') + ' />';
 			break;
 		default:
 			result = '';
 	}
 	return result;
+}
+
+var textFilterInputTimer;
+function TextFilterInputKeyUp() {
+	if (textFilterInputTimer != null)
+		clearTimeout(textFilterInputTimer);
+	textFilterInputTimer = setTimeout(function () { CommitFiltersData(false); }, 1000);
+}
+function TextFilterInputKeyDown() {
+	if (textFilterInputTimer != null)
+		clearTimeout(textFilterInputTimer);
 }
 
 /**
@@ -1055,7 +1087,21 @@ function InitAutoComplete() {
 				var filterIndex = jq$(this.element).attr('id').toString().replace('ndbfc', '');
 				var fullColumnName = filtersData[filterIndex].ColumnName;
 				var cmd = '&possibleValue=' + possibleText.replace('&', '%26');
-				EBC_LoadData('ExistentValuesList', 'columnName=' + fullColumnName + cmd, null, true, function (responseResult) {
+
+				// Make sure not to cache request if cascade filters were changed
+				var prevFiltersSignature = '';
+				if (window.utility.checksum != undefined) {
+					for (var f = 0; f < filtersData.length; f++) {
+						if (f == filterIndex)
+							continue;
+						prevFiltersSignature += JSON.stringify(filtersData[f]);
+					}
+					prevFiltersSignature = window.utility.checksum(prevFiltersSignature).toString();
+				}
+				else if (typeof (GenerateGuid) != 'undefined')
+					prevFiltersSignature = GenerateGuid();
+
+				EBC_LoadData('ExistentValuesList', 'columnName=' + fullColumnName + cmd + '&h=' + prevFiltersSignature, null, true, function (responseResult) {
 					var options = jq$(responseResult);
 					var cnt = options.length;
 					var result = new Array();
@@ -1081,6 +1127,8 @@ function InitAutoComplete() {
 				terms.pop();
 				terms.push(ui.item.value);
 				this.value = terms.join(", ");
+				if (jq$(this).attr('refresh'))
+					CommitFiltersData(false);
 				return false;
 			}
 		});

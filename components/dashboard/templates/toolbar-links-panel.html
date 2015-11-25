@@ -9,7 +9,7 @@
       <div id="{{'izDashToolbarItem' + toolbarItem.id}}" class="iz-dash-linkspanel-navbar-item"
            ng-repeat="toolbarItem in toolbarItems"
            ng-class="getLiClass(toolbarItem)">
-        <a>{{getTitle({arg0: toolbarItem})}}</a>
+        <a ng-bind="getTitle({arg0: toolbarItem})"></a>
       </div>
     </div>
   </div>

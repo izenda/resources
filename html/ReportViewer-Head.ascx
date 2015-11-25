@@ -33,6 +33,7 @@
 <script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 

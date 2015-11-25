@@ -280,10 +280,54 @@ function EBC_CallServer(path, params, async, callbackFunction, additionalData)
 	currentRequests++;
 }
 
+function UriEncodeParamValue(paramsStr, nameToEncode) {
+  var params = paramsStr;
+  var curInd = params.indexOf(nameToEncode + '=');
+  if (curInd >= 0 && (curInd == 0 || params[curInd - 1] == '&' || params[curInd - 1] == '?')) {
+    var startTbls = curInd + nameToEncode.length + 1;
+    curInd = startTbls;
+    while (curInd < params.length && params[curInd] != '=')
+      curInd++;
+    var finishTbls;
+    if (curInd >= params.length)
+      finishTbls = curInd - 1;
+    else {
+      while (curInd > startTbls && params[curInd] != '&')
+        curInd--;
+      finishTbls = curInd - 1;
+    }
+    if (finishTbls > startTbls) {
+      var encodedTables = encodeURIComponent(params.substr(startTbls, finishTbls - startTbls + 1));
+      var paramsHead = params.substr(0, startTbls);
+      var paramsTail = '';
+      if (finishTbls < params.length - 1)
+        paramsTail = params.substr(finishTbls + 1);
+      params = paramsHead + encodedTables + paramsTail;
+    }
+  }
+  return params;
+}
+
 function EBC_LoadData(path, params, sel, async, callbackFunction, additionalData)
 {
 	if (params == null)
-		params = "";
+	  params = "";
+	params = UriEncodeParamValue(params, 'tables');
+	params = UriEncodeParamValue(params, 'columnName');
+	var tblCnt = -1;
+	var paramsOld = '';
+	while (paramsOld != params) {
+	  paramsOld = params;
+	  tblCnt++;
+	  params = UriEncodeParamValue(params, 'tbl' + tblCnt);
+	}
+	var fcCnt = -1;
+	paramsOld = '';
+	while (paramsOld != params) {
+	  paramsOld = params;
+	  fcCnt++;
+	  params = UriEncodeParamValue(params, 'fc' + fcCnt);
+	}
 	var data = ebc_data[path + params];
 	if (data != null) {
 		if (additionalData != null)
@@ -538,35 +582,44 @@ function EBC_SetSelectedIndexByValue(sel, value)
 
 function EBC_PrepareNewRow(row)
 {
-	var selElems = row.getElementsByTagName('SELECT');
-	var selCount = selElems.length;
+	var elems = row.getElementsByTagName('SELECT');
 	var prefix = row.id != null && row.id.indexOf('_ExtraColumn') > 1 ? 'exv' : '';
-	for (var i = 0; i < selCount; i++) {
-		var sel = selElems[i];
-		var name = sel.name;
-		if (name != null) {
-		    if (sel.name.lastIndexOf('_' + prefix + 'Subreport') > 1) {
-				sel.selectedIndex = 0;
-			}
-		    else if (sel.name.lastIndexOf('_' + prefix + 'DrillDownStyle') > 1) {
-				sel.selectedIndex = 0;
-				sel.disabled = true;
-			}
-		    else if (sel.name.lastIndexOf('_Extra') > 1) {
-				sel.selectedIndex = 0;
-			}
-		    else if (sel.name.lastIndexOf('_' + prefix + 'ExpressionType') > 1) {
-				sel.selectedIndex = 0;
-			}
-		    else if (sel.name.lastIndexOf('_' + prefix + 'ConditionOperator') > 1) {
-				sel.selectedIndex = 0;
-			}
-			else
-				EBC_SetSelectContent(sel, '<option value=\'...\'>Loading ...</option>');
+	for (var i = 0; i < elems.length; i++) {
+		var el = elems[i];
+		if (el.name == null) {
+			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
+			break;
+		}
+
+		if (el.name.lastIndexOf('_' + prefix + 'Subreport') > 1) {
+			el.selectedIndex = 0;
+		}
+		else if (el.name.lastIndexOf('_' + prefix + 'DrillDownStyle') > 1) {
+			el.selectedIndex = 0;
+			el.disabled = true;
+		}
+		else if (el.name.lastIndexOf('_Extra') > 1) {
+			el.selectedIndex = 0;
+		}
+		else if (el.name.lastIndexOf('_' + prefix + 'ExpressionType') > 1) {
+			el.selectedIndex = 0;
+		}
+		else if (el.name.lastIndexOf('_' + prefix + 'ConditionOperator') > 1) {
+			el.selectedIndex = 0;
 		}
 		else {
-			EBC_SetSelectContent(sel, '<option value=\'...\'>Loading ...</option>');
+			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
 		}
+	}
+
+	elems = row.getElementsByTagName('INPUT');
+	for (i = 0; i < elems.length; i++) {
+		var el = elems[i];
+		if (el.name == null)
+			break;
+
+		if (el.name.lastIndexOf('_ExtraDescription') > 1)
+			el.value = '';
 	}
 }
 
@@ -752,58 +805,52 @@ function EBC_ExpandSubTable(row)
 	}
 }
 
-function EBC_ExpandGroupTable(row)
-{
+function EBC_ExpandGroupTable(row) {
 	var rowIndex = row.rowIndex;
 	var table = row.parentNode;
-	var visible = "none";
-	for(var i = rowIndex + 1; i < table.rows.length; i++)
-	{
+
+	var className = row.className;
+	var collapsePattern = "Collapsed";
+	var collapsed = className.indexOf(collapsePattern) == (className.length - collapsePattern.length);
+	row.className = collapsed ? "VisualGroupMulti" : "VisualGroupMultiCollapsed";
+
+	for (var i = rowIndex + 1; i < table.rows.length; i++) {
 		var currentRow = table.rows[i];
 		if (currentRow.getAttribute("header") == "true"
-		    && (currentRow.getAttribute("level") <= row.getAttribute("level")))
-		    break;
-			
-		var display = currentRow.style["display"];
-		
-		if (i == rowIndex + 1)
-		    visible = display;
-		else
-		    display = visible;
-		
-		if(display == "none")
-		{
-			 display = "";
-			 currentRow.style["visibility"] = "visible";
-		}
-		else
-		{
-			display = "none";
+			&& (currentRow.getAttribute("level") <= row.getAttribute("level")))
+			break;
+
+		if (collapsed) {
+			var isFiltered = currentRow.className.indexOf("Filtered") >= 0;
+			if (!isFiltered) {
+				currentRow.style["display"] = "";
+				currentRow.style["visibility"] = "visible";
+			}
+		} else {
+			currentRow.style["display"] = "none";
 			currentRow.style["visibility"] = "hidden";
 		}
-		currentRow.style["display"] = display;
 	}
 }
 
 
-function EBC_ExpandTable(row)
-{
+function EBC_ExpandTable(row) {
 	var rowIndex = row.rowIndex;
 	var table = row.parentNode;
-	for(var i = rowIndex + 1; i < table.rows.length; i++)
-	{
+	if (table.rows[rowIndex].className == "VisualGroup")
+		table.rows[rowIndex].className = "VisualGroupCollapsed";
+	else
+		table.rows[rowIndex].className = "VisualGroup";
+	for (var i = rowIndex + 1; i < table.rows.length; i++) {
 		var currentRow = table.rows[i];
 		if (currentRow.getAttribute("header") == "true")
-		    break;
-			
+			break;
 		var display = currentRow.style["display"];
-		if(display == "none")
-		{
-			 display = "";
-			 currentRow.style["visibility"] = "visible";
+		if (display == "none") {
+			display = "";
+			currentRow.style["visibility"] = "visible";
 		}
-		else
-		{
+		else {
 			display = "none";
 			currentRow.style["visibility"] = "hidden";
 		}
