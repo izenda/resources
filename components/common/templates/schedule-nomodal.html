@@ -1,0 +1,88 @@
+﻿<div ng-controller="IzendaScheduleController as scheduleController"
+  ng-init="scheduleController.initialize()">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div id="scheduleAlerts1" class="alert alert-danger hidden" role="alert"></div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-12">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="scheduleDatetimePicker1">Date</label>
+            <div class="input-group date" >
+              <input id="scheduleDatetimePicker1" class="form-control" type="text"/>
+              <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="scheduleTimePicker1">Time</label>
+            <div class="input-group bootstrap-timepicker">
+              <input id="scheduleTimePicker1" type="text" class="form-control">
+              <span class="input-group-addon izenda-cursor-pointer"><span class="glyphicon glyphicon-time"></span></span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="scheduleTzPicker1">Timezone</label>
+            <select id="scheduleTzPicker1" class="form-control" style="font-family:monospace;">
+              <option>UTC-12:00 &ndash; Baker Island, Howland Island (both uninhabited)</option>
+              <option>UTC-11:00 &ndash; American Samoa, Niue</option>
+              <option>UTC-10:00 &ndash; United States (Hawaii)</option>
+              <option>UTC-09:00 &ndash; Gambier Islands, United States (most of Alaska)</option>
+              <option>UTC-08:00 &ndash; Canada, Mexico, United States (California, Nevada, Oregon, Washington)</option>
+              <option>UTC-07:00 &ndash; Canada, Mexico, United States (Arizona, Colorado)</option>
+              <option>UTC-06:00 &ndash; Canada, Costa Rica, El Salvador, Ecuador, Guatemala, Mexico, Nicaragua, United States (Illinois, Texas)</option>
+              <option>UTC-05:00 &ndash; Colombia, Canada, United States (Florida, Georgia, Massachusetts, Michigan, Indiana, New York, North Carolina, Ohio, Washington, D.C.), Bahamas</option>
+              <option>UTC-04:00 &ndash; Bolivia, Brazil, Dominican Republic, Canada, Puerto Rico, Barbados, Trinidad and Tobago</option>
+              <option>UTC-03:00 &ndash; Argentina, Brazil, Chile</option>
+              <option>UTC-02:00 &ndash; Brazil, South Georgia and the South Sandwich Islands</option>
+              <option>UTC-01:00 &ndash; Cape Verde, Portugal</option>
+              <option selected="selected">UTC 00:00 &ndash; Iceland, Ireland, Portugal, United Kingdom, Western Sahara</option>
+              <option>UTC+01:00 &ndash; Austria, Belgium, Denmark, Germany, Hungary, Italy, France, Netherlands, Norway, Spain, Sweden, Switzerland</option>
+              <option>UTC+02:00 &ndash; Egypt, Russia, South Africa, Bulgaria, Finland, Greece, Turkey, Ukraine</option>
+              <option>UTC+03:00 &ndash; Belarus, Madagascar, Russia, Saudi Arabia</option>
+              <option>UTC+04:00 &ndash; Armenia, Georgia, Mauritius, Oman, Seychelles, United Arab Emirates, Azerbaijan</option>
+              <option>UTC+05:00 &ndash; Kazakhstan, Maldives, Pakistan, Uzbekistan</option>
+              <option>UTC+05:30 &ndash; India, Sri Lanka</option>
+              <option>UTC+06:00 &ndash; Kazakhstan, Bangladesh, Bhutan, Russia</option>
+              <option>UTC+07:00 &ndash; Western Indonesia, Russia, Thailand, Vietnam, Cambodia, Laos</option>
+              <option>UTC+08:00 &ndash; Hong Kong, Central Indonesia, China, Russia, Malaysia, Philippines, Singapore, Taiwan, Australia</option>
+              <option>UTC+09:00 &ndash; Eastern Indonesia, Russia, Japan, North Korea, South Korea</option>
+              <option>UTC+10:00 &ndash; Russia, Papua New Guinea, Australia</option>
+              <option>UTC+11:00 &ndash; New Caledonia, Russia, Solomon Islands, Vanuatu</option>
+              <option>UTC+12:00 &ndash; Kiribati, Fiji, Russia, New Zealand</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleRepeatPicker1">Repeat</label>
+            <select id="scheduleRepeatPicker1" class="form-control">
+              <option selected="selected">Once</option>
+              <option>Every Day</option>
+              <option>Every Weekday</option>
+              <option>Every Week</option>
+              <option>Every Two Weeks</option>
+              <option>Every Month</option>
+              <option>Every Quarter</option>
+              <option>Alert Hourly</option>
+              <option>Alert Daily</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleEmailPicker1">Send Email As</label>
+            <select id="scheduleEmailPicker1" class="form-control">
+              <option selected="selected">Link</option>
+              <option>Embedded</option>
+              <option>HTML2PDF</option>
+              <option>HTML</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleRecepientsPicker1">Recepients</label>
+            <textarea id="scheduleRecepientsPicker1" class="form-control"></textarea>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

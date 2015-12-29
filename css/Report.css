@@ -148,7 +148,8 @@ table.ReportTable td.GridCellHG3
 	font-weight:normal;
 }
 
-tr.ReportHeader td
+tr.ReportHeader td,
+tr.ReportHeader th
 {
 	font-size: 9pt;
 	font-weight:normal; 

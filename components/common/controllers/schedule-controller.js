@@ -1,58 +1,53 @@
-﻿angular
-  .module('izendaCommonControls')
-  .controller('IzendaScheduleController', [
-    '$rootScope',
-    '$scope',
-    '$q',
-    '$log',
-    '$izendaUrl',
-    '$izendaCommonQuery',
-    izendaScheduleController]);
+﻿angular.module('izenda.common.ui').controller('IzendaScheduleController', [
+	'$scope',
+	'$izendaLocale',
+	'$izendaSettings',
+	'$izendaScheduleService',
+	izendaScheduleController]);
 
 /**
  * Schedule controller
- * TODO: now used IzendaScheduleControl javascript object. But we have to move logic to this controller in future
  */
 function izendaScheduleController(
-  $rootScope,
-  $scope,
-  $q,
-  $log,
-  $izendaUrl,
-  $izendaCommonQuery) {
-  'use strict';
+	$scope,
+	$izendaLocale,
+	$izendaSettings,
+	$izendaScheduleService) {
+	'use strict';
+	$scope.$izendaSettings = $izendaSettings;
+	$scope.$izendaScheduleService = $izendaScheduleService;
+	var vm = this;
+	vm.scheduleConfig = $izendaScheduleService.getScheduleConfig();
+	vm.repeatTypes = $izendaScheduleService.getRepeatTypes();
+	vm.emailTypes = $izendaScheduleService.getEmailTypes();
+	vm.timezones = $izendaScheduleService.getTimezones();
+	vm.scheduleDateOpened = false;
+	vm.dateFormat = $izendaSettings.getDateFormat();
+	vm.culture = $izendaSettings.getCulture();
 
-  var vm = this;
-
-  vm.modalOpened = false;
-  vm.scheduleControl = null; // object IzendaScheduleControl
-
-  /**
-   * Open modal dialog
-   */
-  vm.openModal = function() {
-    vm.modalOpened = true;
-  };
-
-  /**
-   * Close modal dialog
-   */
-  vm.closeModal = function (result) {
-    vm.modalOpened = false;
-    if (result) {
-      $log.debug('Schedule done!');
-    } else {
-      $log.debug('Schedule cancelled!');
-    }
-  };
-
-  /**
+	/**
    * Initialize controller
    */
-  vm.initialize = function() {
-    $scope.$on('openScheduleModalEvent', function () {
-      vm.scheduleControl = new IzendaScheduleControl();
-      vm.openModal();
-    });
-  };
+	vm.initialize = function () {
+		$scope.$watch('$izendaSettings.getDateFormat()', function (dateFormat) {
+			vm.dateFormat = dateFormat;
+		}, true);
+
+		$scope.$watch('$izendaSettings.getCulture()', function (culture) {
+			vm.culture = culture;
+		});
+
+		$scope.$watch('$izendaScheduleService.getScheduleConfig()', function (scheduleConfig) {
+			vm.scheduleConfig = scheduleConfig;
+		});
+		$scope.$watch('$izendaScheduleService.getRepeatTypes()', function (repeatTypes) {
+			vm.repeatTypes = repeatTypes;
+		});
+		$scope.$watch('$izendaScheduleService.getEmailTypes()', function (emailTypes) {
+			vm.emailTypes = emailTypes;
+		});
+		$scope.$watch('$izendaScheduleService.getTimezones()', function (timezones) {
+			vm.timezones = timezones;
+		});
+	};
 }

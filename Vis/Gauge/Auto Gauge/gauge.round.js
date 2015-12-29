@@ -177,8 +177,11 @@ var izenda = izenda || {};
 			.style("opacity", 0)
 			.html((self.data.items.length > 1 || (typeof self.data.max != "undefined")) ? (self.data.items[0].value + " / " + ((typeof self.data.max != "undefined") ? self.data.max.value : self.data.items[1].value)) : ns.format.formatValue(self.data.items[0].value, self.data.items[0].format));
 
-		var labels = enter.append("g").attr("class", "labels")
-			.on("mouseover", function (d) {
+
+		var labels = enter.append("g").attr("class", "labels");
+
+		if (dynamic) {
+			labels.on("mouseover", function (d) {
 				tooltip.transition()
 					.duration(200)
 					.style("opacity", 1);
@@ -190,6 +193,7 @@ var izenda = izenda || {};
 					.duration(500)
 					.style("opacity", 0);
 			});
+		}
 
 		var formatTypeText = null;
 		if (self.data.items.length > 1 || (typeof this.data.max != "undefined")) {

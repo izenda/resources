@@ -1,0 +1,264 @@
+﻿<div ng-controller="InstantReportFormatController as irFormatController"
+  class="iz-inst-format-container"
+  ng-init="irFormatController.init()" ng-cloak>
+  <div class="container-fluid">
+    <div class="form-group">
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="irFormatController.options.distinct"/>
+          Distinct
+        </label>
+      </div>
+      <div class="checkbox">
+        <label>
+          <input type="checkbox" ng-model="irFormatController.options.isSubtotalsEnabled"/>
+          Subtotals
+        </label>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-inline">
+        <label for="izInstTop" class="nobold">Records count:&nbsp;</label>
+        <input type="number" class="form-control izenda-width-100" id="izInstTop"
+                ng-model="irFormatController.options.top"/>
+      </div>
+    </div>
+  </div>
+  <!-- HEADER AND FOOTER OPTIONS -->
+  <div class="ds-tree-item noselect">
+    <div class="ds-tree-item-header"
+      ng-click="irFormatController.optGroups['headerAndFooter'].opened = !irFormatController.optGroups['headerAndFooter'].opened">
+      <span class="glyphicon glyphicon-chevron-right with-label"
+        ng-class="irFormatController.optGroups['headerAndFooter'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+      <span class="ds-tree-item-header-text bold">Header and footer</span>
+    </div>
+    <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['headerAndFooter'].opened" izenda-bootstrap-collapse>
+      <div class="container-fluid">
+        <div class="form-group">
+          <label for="izInstFormatTitle" class="nobold">Title</label>
+          <span izenda-align-switcher ng-model="irFormatController.options.titleAlign" title="Select title align"></span>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatTitle" rows="2"
+            ng-model="irFormatController.options.title"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="izInstFormatDescription" class="nobold">Description</label>
+          <span izenda-align-switcher ng-model="irFormatController.options.descriptionAlign" title="Select description align"></span>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatDescription" rows="2"
+            ng-model="irFormatController.options.description"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="izInstFormatReportHeader" class="nobold">Report header</label>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatReportHeader" rows="2"
+            ng-model="irFormatController.options.headerAndFooter.reportHeader"></textarea>
+
+          <label for="izInstFormatPageHeader" class="nobold">Page header</label>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatPageHeader" rows="2"
+            ng-model="irFormatController.options.headerAndFooter.pageHeader"></textarea>
+
+          <label for="izInstFormatReportFooter" class="nobold">Report footer</label>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatReportFooter" rows="2"
+            ng-model="irFormatController.options.headerAndFooter.reportFooter"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLOR OPTIONS -->
+  <div class="ds-tree-item noselect">
+    <div class="ds-tree-item-header"
+      ng-click="irFormatController.optGroups['color'].opened = !irFormatController.optGroups['color'].opened">
+      <span class="glyphicon glyphicon-chevron-right with-label"
+        ng-class="irFormatController.optGroups['color'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+      <span class="ds-tree-item-header-text bold">Colors and styles</span>
+    </div>
+    <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['color'].opened" izenda-bootstrap-collapse>
+      <div class="form-group">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-6 default-bottom-margin">
+              Border <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.borderColor"></span>
+            </div>
+            <div class="col-xs-6 default-bottom-margin">
+              Header <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.headerColor"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6 default-bottom-margin">
+              Header foreground <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.headerForecolor"></span>
+            </div>
+            <div class="col-xs-6 default-bottom-margin">
+              Item <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.itemColor"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-6 default-bottom-margin">
+              Item foreground <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.itemForeColor"></span>
+            </div>
+            <div class="col-xs-6 default-bottom-margin">
+              Alternating item <span izenda-color-picker inline="false"
+                ng-model="irFormatController.options.style.itemAltColor"></span>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.style.isHeadersBold" />
+                  All field headers bold
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.style.isHeadersItalic">
+                  All field headers italic
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label for="izInstFormatCustomCss" class="nobold">Custom CSS</label>
+                <textarea class="form-control noresize multiline-input" id="izInstFormatCustomCss" rows="3"
+                  ng-model="irFormatController.options.style.customCss"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <a class="btn btn-izenda-dark">Restore default colors</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE OPTIONS -->
+  <div class="ds-tree-item noselect">
+    <div class="ds-tree-item-header"
+      ng-click="irFormatController.optGroups['page'].opened = !irFormatController.optGroups['page'].opened">
+      <span class="glyphicon glyphicon-chevron-right with-label"
+        ng-class="irFormatController.optGroups['page'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+      <span class="ds-tree-item-header-text bold">Page</span>
+    </div>
+    <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['page'].opened" izenda-bootstrap-collapse>
+      <div class="form-group">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.landscapePrinting" />
+                  Landscape printing
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.showPageNumber" />
+                  Show page number
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.showDateAndTime" />
+                  Show date and time
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.usePagination" />
+                  Use pagination
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.addBookmarkForVg" />
+                  Add bookmark for each visual group
+                </label>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.pageBreakAfterVg" />
+                  Page Break After Visual Groups (PDF)
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="izInstVgStyle" class="nobold">Visual group style</label>
+                <select class="form-control"
+                  ng-model="irFormatController.options.page.vgStyle"
+                  ng-options="vgStyle.value as vgStyle.text for vgStyle in irFormatController.vgStyles">
+                </select>
+              </div>
+              <div class="checkbox">
+                <label>
+                  <input type="checkbox" ng-model="irFormatController.options.page.minimizeGridWidth" />
+                  Minimize Grid Width
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="izInstItemsPerPage" class="nobold">Items per page</label>
+                <input type="number" class="form-control" id="izInstItemsPerPage"
+                  ng-model="irFormatController.options.page.itemsPerPage" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRILLDOWN KEYS -->
+  <div class="ds-tree-item noselect">
+    <div class="ds-tree-item-header"
+      ng-click="irFormatController.optGroups['drilldowns'].opened = !irFormatController.optGroups['drilldowns'].opened">
+      <span class="glyphicon glyphicon-chevron-right with-label"
+        ng-class="irFormatController.optGroups['drilldowns'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+      <span class="ds-tree-item-header-text bold">Drilldown keys</span>
+    </div>
+    <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['drilldowns'].opened" izenda-bootstrap-collapse>
+      <div class="form-group">
+        <div class="container-fluid">
+          <div class="row">
+            <div class="col-xs-12"
+                 ng-repeat="drillDownField in irFormatController.drillDownFields">
+              <div class="ds-tree-item noselect">
+                <div class="ds-tree-item-header">
+                  <span class="ds-tree-item-header-text"
+                    ng-bind="($index + 1) + '. ' + drillDownField.name"></span>
+                  <span class="ds-multiple-button" title="Remove field"
+                    ng-click="irFormatController.removeDrilldownField(drillDownField)"
+                    izenda-stop-propagation>
+                    <span class="glyphicon glyphicon glyphicon-remove-circle"></span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12"
+                 ng-show="irFormatController.drillDownFields.length >= irFormatController.ddkValuesMaxAmount">
+              <div class="alert alert-info" role="alert">
+                You have reached maximum amount of drilldown keys.
+              </div>
+            </div>
+            <div class="col-xs-12"
+                 ng-show="irFormatController.drillDownFields.length < irFormatController.ddkValuesMaxAmount">
+              <select class="form-control" ng-options="field as field.name group by field.tableSysname for field in irFormatController.allActiveFields track by field.sysname"
+                      ng-model="irFormatController.selectedDrilldownField">
+              </select>
+              <button class="btn btn-default" ng-click="irFormatController.addDrilldown()"
+                      ng-disabled="irFormatController.selectedDrilldownField === null">
+                Add drilldown field</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

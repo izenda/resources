@@ -1,0 +1,165 @@
+﻿<div ng-controller="InstantReportDataSourceController as irDataSourceController"
+  ng-init="irDataSourceController.init()" ng-cloak>
+  <form class="iz-inst-data-sources-search">
+    <div class="form-group">
+      <div class="iz-inst-inner-glyphicon-container">
+        <input class="form-control" type="text" placeholder="Search..."
+          title="Search Data Sources" value=""
+          ng-model="irDataSourceController.searchString" />
+        <span class="glyphicon glyphicon-search pull-right"></span>
+      </div>
+    </div>
+  </form>
+
+  <div class="iz-inst-data-sources-tree">
+    <!-- loading message -->
+    <div class="izenda-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
+      <div class="izenda-vcentered-item">
+        <img class="img-responsive" ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+      </div>
+    </div>
+
+    <!-- columns sort panel -->
+    <div class="ds-tree-item noselect"
+      ng-show="!irDataSourceController.isDataSourcesLoading">
+      <div class="ds-tree-item-header collapse-link iz-inst-show-sort-link"
+        ng-class="irDataSourceController.columnSortPanelButtonEnabled ? '' : 'disabled'"
+        ng-click="irDataSourceController.columnSortPanelOpened = !irDataSourceController.columnSortPanelOpened">
+        <span class="glyphicon glyphicon-chevron-right with-label"
+          ng-class="irDataSourceController.columnSortPanelOpened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+        <span class="ds-tree-item-header-text">Columns sort panel</span>
+      </div>
+      <div class="ds-tree-item-body" collapsed="!irDataSourceController.columnSortPanelOpened" izenda-bootstrap-collapse>
+        <div ng-include="'Resources/components/instant-report/templates/instant-report-columns-sort.html'"></div>
+      </div>
+    </div>
+
+    <!-- categories -->
+    <div class="ds-tree-item noselect"
+      ng-hide="irDataSourceController.isDataSourcesLoading"
+      ng-repeat="dsCategory in irDataSourceController.dataSources"
+      ng-show="dsCategory.enabled && dsCategory.visible && !irDataSourceController.isDataSourcesLoading">
+      <!-- categories header -->
+      <div class="ds-tree-item-header collapse-link"
+        ng-click="dsCategory.collapsed = !dsCategory.collapsed"
+        ng-class="irDataSourceController.getFolderLabelClass(dsCategory)">
+        <span class="svg-icon icon-16 folder with-label"
+          ng-class="irDataSourceController.getFolderClass(dsCategory)"></span>
+        <span class="ds-tree-item-header-text" ng-bind="dsCategory.name"></span>
+        <a class="collapse-link"
+          ng-hide="irDataSourceController.isTablesCollapsed(dsCategory) || dsCategory.collapsed"
+          ng-click="irDataSourceController.collapseCategoryTables(dsCategory)"
+          izenda-stop-propagation>collapse tables
+        </a>
+      </div>
+      <!-- categories body -->
+      <div class="ds-tree-item-body" collapsed="dsCategory.collapsed" izenda-bootstrap-collapse>
+
+        <!-- tables -->
+        <div class="ds-tree-item noselect"
+          ng-repeat="table in dsCategory.tables"
+          ng-show="(table.enabled || table.active) && table.visible">
+          <div class="ds-tree-item-header"
+            ng-click="table.collapsed = !table.collapsed"
+            ng-class="irDataSourceController.getFolderLabelClass(table)">
+            <span class="ds-check-button glyphicon with-label"
+              ng-class="table.active ? 'glyphicon-check' : 'glyphicon-unchecked'"
+              ng-click="irDataSourceController.activateTable(table)"
+              izenda-stop-propagation></span>
+            <span class="glyphicon glyphicon-list-alt"></span>
+            <span class="ds-tree-item-header-text"
+              ng-bind="table.name"></span>
+          </div>
+          <div class="ds-tree-item-body"
+            ng-if="!table.collapsed"
+            collapsed="table.collapsed"
+            izenda-bootstrap-collapse>
+
+            <!-- fields -->
+            <div class="ds-tree-item noselect" ng-repeat="field in table.fields"
+              ng-show="field.enabled">
+              <div class="ds-tree-item-header"
+                ng-class="irDataSourceController.getFolderLabelClass(field)"
+                ng-click="irDataSourceController.selectField(field)">
+
+                <span class="ds-check-button glyphicon with-label"
+                  ng-class="irDataSourceController.getFieldCheckClass(field)"
+                  ng-click="irDataSourceController.checkField(field)"
+                  title="Toggle report field"
+                  izenda-stop-propagation></span>
+                <span class="ds-tree-item-header-text datasource-field" ng-bind="field.name"
+                  draggable-data-id="{{field.sysname}}"
+                  draggable-enabled="!field.isMultipleColumns"
+                  izenda-instant-report-field-draggable></span>
+                <span class="ds-multiple-button" title="Add another field"
+                  ng-show="field.checked"
+                  ng-click="irDataSourceController.addAnotherField(field)"
+                  izenda-stop-propagation>
+                  <span class="glyphicon glyphicon-plus-sign"></span>
+                </span>
+
+                <span class="ds-tree-item-header-notify-icon-first"
+                  ng-show="field.checked && field.sort !== null"
+                  title="Sort function is applyed">
+                  <span class="glyphicon"
+                    ng-class="field.sort === 'asc' ? 'glyphicon-sort-by-alphabet' : 'glyphicon-sort-by-alphabet-alt'"></span>
+                </span>
+                <span class="ds-tree-item-header-notify-icon"
+                  ng-show="field.checked && field.isVgUsed"
+                  title="Visual group is applyed">
+                  <span class="glyphicon glyphicon-th-list"></span>
+                </span>
+                <span class="ds-tree-item-header-notify-icon"
+                  ng-show="field.checked && !field.visible"
+                  title="Field is hidden">
+                  <span class="glyphicon glyphicon-eye-close"></span>
+                </span>
+                <span class="ds-tree-item-header-notify-icon"
+                  ng-show="field.checked && field.subreport !== ''"
+                  title="Field have subreport">
+                  <span class="glyphicon glyphicon-link"></span>
+                </span>
+              </div>
+              <div class="ds-tree-item-body" collapsed="!field.isMultipleColumns || field.collapsed" izenda-bootstrap-collapse>
+                <!-- multiple fields -->
+                <div class="ds-tree-item noselect" ng-repeat="multiField in field.multipleColumns">
+                  <div class="ds-tree-item-header"
+                    ng-class="irDataSourceController.getFolderLabelClass(multiField)"
+                    ng-click="irDataSourceController.selectField(multiField)">
+
+                    <span class="ds-check-button glyphicon with-label"
+                      ng-class="irDataSourceController.getFieldCheckClass(multiField, true)"
+                      ng-click="irDataSourceController.checkField(multiField)"
+                      izenda-stop-propagation></span>
+                    <span class="ds-tree-item-header-text datasource-field"
+                      ng-bind="multiField.description !== '' ? multiField.description : multiField.name"
+                      draggable-data-id="{{multiField.sysname}}"
+                      draggable-enabled="true"
+                      izenda-instant-report-field-draggable></span>
+                    <span class="ds-multiple-button" title="Remove field"
+                      ng-click="irDataSourceController.removeAnotherField(field, multiField)"
+                      izenda-stop-propagation>
+                      <span class="glyphicon glyphicon-remove-circle"></span>
+                    </span>
+
+                    <span class="ds-tree-item-header-notify-icon-first"
+                      ng-show="multiField.checked && multiField.sort !== null"
+                      title="Sort function is applyed">
+                      <span class="glyphicon"
+                        ng-class="multiField.sort === 'asc' ? 'glyphicon-sort-by-alphabet' : 'glyphicon-sort-by-alphabet-alt'"></span>
+                    </span>
+                    <span class="ds-tree-item-header-notify-icon"
+                      ng-show="multiField.checked && multiField.isVgUsed"
+                      title="Visual group is applyed">
+                      <span class="glyphicon glyphicon-th-list"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+</div>

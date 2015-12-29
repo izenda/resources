@@ -9,6 +9,14 @@
 		width: auto;
 	}
 
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER .hint span {
 		vertical-align: middle;
 	}
@@ -27,14 +35,20 @@
 		display: inline-block;
 	}
 
-	.node rect {
+	#VIS_ID_CONTAINER .node rect {
 		stroke: #333;
 		fill: #fff;
 	}
-	.edgePath path {
+	#VIS_ID_CONTAINER .edgePath path {
 		stroke: #333;
 		fill: #333;
 		stroke-width: 1.5px;
+	}
+
+	#VIS_ID_CONTAINER .label {
+		color: #000000;
+		font-weight: normal;
+		font-size: 100%;
 	}
 </style>
 
@@ -100,9 +114,7 @@
 				return;
 			}
 
-			if (s.props.metric) {
-				metricSelect.val(s.props.metric);
-			}
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		vis.collectGraph();

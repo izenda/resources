@@ -298,26 +298,23 @@
 		            <div>
                                 <div style="float: left; width: 100%; max-width: 400px; margin-right: 50px;">
 				            <table cellpadding="0" cellspacing="0" style="width: 100%;">
-                                        <tr id="fieldPropRow1">
+                                        <tr class="field-prop-row filter-prop-row">
                                             <td style="padding-top: 10px;" lang-text="js_Description">Description</td>
                                         </tr>
-                                        <tr id="fieldPropRow2">
-                                            <td>
-                                                <input id="propDescription" type="text" value="" style="width: 100%; margin: 0px;" /></td>
+                                        <tr class="field-prop-row filter-prop-row">
+                                            <td><input id="propDescription" type="text" value="" style="width: 100%; margin: 0px;" /></td>
                                         </tr>
-                                        <tr id="fieldPropRow3">
+                                        <tr class="field-prop-row">
                                             <td style="padding-top: 10px;" lang-text="js_Format">Format</td>
                                         </tr>
-                                        <tr id="fieldPropRow4">
-                                            <td>
-                                                <select id="propFormats" style="margin: 0px; width: 100%;"></select></td>
+                                        <tr class="field-prop-row">
+                                            <td><select id="propFormats" style="margin: 0px; width: 100%;"></select></td>
                                         </tr>
-                                        <tr id="filterPropRow1">
+                                        <tr class="filter-prop-row">
                                             <td style="padding-top: 10px;" lang-text="js_FilterOperator">Filter Operator<span id="dupFilterNote" title="Several filters applied to this Field. Use Filters tab to modify specific filter." style="cursor: help; display: none;"> of 1st Filter ( ? )</span></td>
                                         </tr>
-                                        <tr id="filterPropRow2">
-                                            <td>
-                                                <select id="propFilterOperators" style="margin: 0px; width: 100%;"></select></td>
+                                        <tr class="filter-prop-row">
+                                            <td><select id="propFilterOperators" style="margin: 0px; width: 100%;"></select></td>
                                         </tr>
 				            </table>
                             <input type="hidden" id="propFilterGUID" value="" />

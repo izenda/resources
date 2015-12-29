@@ -411,8 +411,6 @@ function S_ShowDetails(e)
 	html += src.title;
 	html += "</div>";
 	var setting = src.attributes["setting"];
-	html += "<input type='button' style='margin-left:20px;float:left' value='Go To Online Documentation' ";
-	html += "onclick=\"S_Open('" + setting.value + "');hm();\">";
 	html += "<input type='button' style='margin-right:20px;float:right' value='Close' onclick='hm()'></div>";
 	ShowDialog(html);
 }

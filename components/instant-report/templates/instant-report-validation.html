@@ -1,0 +1,9 @@
+﻿<div ng-controller="InstantReportValidationController as validationController"
+     ng-init="validationController.init()" ng-cloak>
+  <div ng-hide="validationController.isValid">
+    <ul>
+      <li ng-repeat="message in validationController.messages"
+        ng-bind="message.text"></li>
+    </ul>
+  </div>
+</div>

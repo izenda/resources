@@ -21,24 +21,24 @@
     </div>
     <div class="row">
       <div data-uid="{{filter.Uid}}" class="col-md-3 col-sm-6 col-xs-12 iz-dash-filter-item"
-           ng-repeat="filter in izendaFiltersController.filtersData"
-           ng-show="izendaFiltersController.isFiltersVisible">
+        ng-repeat="filter in izendaFiltersController.filtersData"
+        ng-show="izendaFiltersController.isFiltersVisible">
 
         <div class="iz-dash-filter-item-header"
-             ng-style="izendaFiltersController.getFilterSetStyle(filter)">
+          ng-style="izendaFiltersController.getFilterSetStyle(filter)">
           {{filter.Description}}
           <span class="pull-right" ng-show="filter.showDisableButton">
             <izenda-toggle-button ng-model="filter.disabled"
-                                  true-value="false"
-                                  false-value="true"
-                                  title="Use filter value from 'All Filters' filter"
-                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)">
+              true-value="false"
+              false-value="true"
+              title="Use filter value from 'All Filters' filter"
+              ng-change="izendaFiltersController.notifyFilterUpdated(filter)">
               <span class="glyphicon glyphicon-link"></span>
             </izenda-toggle-button>
           </span>
         </div>
         <div class="iz-dash-filter-splash"
-             ng-show="filter.isLoading">
+          ng-show="filter.isLoading">
           <div class="iz-dash-filter-splash-inner">
             Loading...
           </div>
@@ -46,89 +46,89 @@
         <div ng-switch="filter.ControlType" class="form-group">
           <div ng-switch-when="1">
             <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Value"
-                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
-                   ng-disabled="filter.disabled" />
+              ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled" />
           </div>
           <div ng-switch-when="2">
             <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Values[0]"
-                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
-                   ng-disabled="filter.disabled" />
+              ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled" />
             <input type="text" class="iz-dash-filter-fullwidth" ng-model="filter.Values[1]"
-                   ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
-                   ng-disabled="filter.disabled" />
+              ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled" />
           </div>
           <div ng-switch-when="3">
             <select class="iz-dash-filter-fullwidth"
-                    ng-model="filter.Value"
-                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
-                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                    ng-disabled="filter.disabled">
+              ng-model="filter.Value"
+              ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+              ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled">
             </select>
           </div>
           <div ng-switch-when="4">
             <select class="iz-dash-filter-fullwidth"
-                    ng-model="filter.Value"
-                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
-                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                    ng-disabled="filter.disabled">
+              ng-model="filter.Value"
+              ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+              ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled">
             </select>
           </div>
           <div ng-switch-when="5">
-            <div>
-              <izenda-date-picker class="input-group date" ng-model="filter.Values[0]"
-                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                                  ng-disabled="filter.disabled"
-                                  value-format="filter.ValueFormat"/>
+            <div style="position: relative;">
+             <!-- <izenda-date-time-picker class="input-group date" ng-model="filter.Values[0]"
+                ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                ng-disabled="filter.disabled"
+                date-format="filter.ValueFormat" />-->
             </div>
             <div>
-              <izenda-date-picker class="input-group date" ng-model="filter.Values[1]"
-                                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                                  ng-disabled="filter.disabled"
-                                  value-format="filter.ValueFormat"/>
+              <!--<izenda-date-time-picker class="input-group date" ng-model="filter.Values[1]"
+                ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                ng-disabled="filter.disabled"
+                date-format="filter.ValueFormat" />-->
             </div>
           </div>
           <div ng-switch-when="6">
             <div class="btn btn-default"
-                 ng-click="izendaFiltersController.openPopupFilter(filter)"
-                 title="{{izendaFiltersController.getPopupLabelText(filter, false)}}">
+              ng-click="izendaFiltersController.openPopupFilter(filter)"
+              title="{{izendaFiltersController.getPopupLabelText(filter, false)}}">
               {{izendaFiltersController.getPopupLabelText(filter, true)}}
             </div>
           </div>
           <div ng-switch-when="7">
             <textarea rows="4" style="width: 100%;"
-                      ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
-                      ng-model="filter.Value"
-                      ng-disabled="filter.disabled">
+              ng-blur="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-model="filter.Value"
+              ng-disabled="filter.disabled">
                 {{filter.Value}}
             </textarea>
           </div>
           <div ng-switch-when="8">
             <izenda-select-checkboxes class="izenda-select-checkboxes"
-                                      data-labels="filter.ExistingLabels"
-                                      data-values="filter.ExistingValues"
-                                      ng-model="filter.Values"
-                                      ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                                      ng-disabled="filter.disabled" />
+              data-labels="filter.ExistingLabels"
+              data-values="filter.ExistingValues"
+              ng-model="filter.Values"
+              ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled" />
           </div>
           <div ng-switch-when="9">
             <div class="form-group">
               <div>
                 <izenda-date-picker class="input-group date"
-                                    ng-model="filter.Value"
-                                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                                    ng-disabled="filter.disabled"
-                                    value-format="filter.ValueFormat"/>
+                  ng-model="filter.Value"
+                  ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+                  ng-disabled="filter.disabled"
+                  value-format="filter.ValueFormat" />
               </div>
             </div>
           </div>
           <div ng-switch-when="10">
             <select style="width: 100%; height: 100px;" size="5"
-                    ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
-                    ng-model="filter.Values"
-                    ng-multiple="true"
-                    multiple
-                    ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
-                    ng-disabled="filter.disabled">
+              ng-options="item.value as item.label for item in filter.ExistingLabelsAndValues"
+              ng-model="filter.Values"
+              ng-multiple="true"
+              multiple
+              ng-change="izendaFiltersController.notifyFilterUpdated(filter)"
+              ng-disabled="filter.disabled">
             </select>
           </div>
           <div ng-switch-default>
@@ -139,7 +139,7 @@
     </div>
     <div class="row">
       <div class="col-xs-12">
-        <div class="btn btn-primary iz-dash-filter-update"
+        <div class="btn btn-izenda-dark iz-dash-filter-update"
           ng-hide="!izendaFiltersController.opened"
           ng-click="izendaFiltersController.applyFilters()">
           Update results

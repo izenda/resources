@@ -1,73 +1,63 @@
 ﻿<div ng-controller="IzendaScheduleController as scheduleController"
   ng-init="scheduleController.initialize()">
-  <div izenda-bootstrap-modal opened="scheduleController.modalOpened">
-    <div class="modal-header">
-      <div class="row">
-        <div class="col-md-12">
-          <b ng-bind="'js_schedule' | izendaLocale: 'Schedule'"></b>
-        </div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div class="container-fluid">
-        <div class="row">
-          <div class="col-md-12">
-            <div id="scheduleAlerts1" class="alert alert-danger hidden" role="alert"></div>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <form class="form-horizontal" role="form">
+          <div class="form-group">
+            <label for="scheduleDatetimePicker1" ng-bind="'js_date' | izendaLocale: 'Date'"></label>
+            <div class="input-group date">
+              <div id="scheduleDatetimePicker1" class="input-group date"
+                date-format="scheduleController.dateFormat.date"
+                locale="scheduleController.culture"
+                ng-model="scheduleController.scheduleConfig.date"
+                show-additional-buttons="true"
+                html-container-selector=".izenda-layout-middle"
+                izenda-date-time-picker>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <form class="form-horizontal" role="form">
-              <div class="form-group">
-                <label for="scheduleDatetimePicker1" ng-bind="'js_date' | izendaLocale: 'Date'"></label>
-                <div class="input-group date">
-                  <input id="scheduleDatetimePicker1" class="form-control" type="text" />
-                  <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
-                </div>
+          <div class="form-group">
+            <label for="scheduleTimePicker1" ng-bind="'js_time' | izendaLocale: 'Time'"></label>
+            <div class="input-group bootstrap-timepicker izenda-width-200">
+              <div id="scheduleTimePicker1" class="input-group date"
+                date-format="scheduleController.dateFormat.time"
+                locale="scheduleController.culture"
+                ng-model="scheduleController.scheduleConfig.date"
+                   show-additional-buttons="false"
+                html-container-selector=".izenda-layout-middle"
+                izenda-date-time-picker>
               </div>
-              <div class="form-group">
-                <label for="scheduleTimePicker1" ng-bind="'js_time' | izendaLocale: 'Time'"></label>
-                <div class="input-group bootstrap-timepicker">
-                  <input id="scheduleTimePicker1" type="text" class="form-control">
-                  <span class="input-group-addon izenda-cursor-pointer"><span class="glyphicon glyphicon-time"></span></span>
-                </div>
-              </div>
-              <div class="form-group">
-                <label for="scheduleTzPicker1" ng-bind="'js_timezone' | izendaLocale: 'Timezone'"></label>
-                <select id="scheduleTzPicker1" class="form-control" style="font-family: monospace;">
-                  <option selected="selected" ng-bind="'js_Loading' | izendaLocale: 'Loading...'"></option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="scheduleRepeatPicker1" ng-bind="'js_repeatType' | izendaLocale: 'Repeat Type'"></label>
-                <select id="scheduleRepeatPicker1" class="form-control">
-                  <option selected="selected" ng-bind="'js_Loading' | izendaLocale: 'Loading...'"></option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="scheduleEmailPicker1" ng-bind="'js_sendEmailAs' | izendaLocale: 'Send Email As'"></label>
-                <select id="scheduleEmailPicker1" class="form-control">
-                  <option selected="selected" ng-bind="'js_Loading' | izendaLocale: 'Loading...'"></option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="scheduleRecepientsPicker1" ng-bind="'js_recipients' | izendaLocale: 'Recipients'"></label>
-                <textarea id="scheduleRecepientsPicker1" class="form-control"></textarea>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
+          <div class="form-group">
+            <label for="scheduleTzPicker1" ng-bind="'js_timezone' | izendaLocale: 'Timezone'"></label>
+            <select id="scheduleTzPicker1" class="form-control"
+              ng-options="timezone.value as timezone.text disable when timezone.disabled for timezone in scheduleController.timezones"
+              ng-model="scheduleController.scheduleConfig.timezone">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleRepeatPicker1" ng-bind="'js_repeatType' | izendaLocale: 'Repeat Type'"></label>
+            <select id="scheduleRepeatPicker1" class="form-control"
+              ng-options="repeat.value as repeat.text disable when repeat.disabled for repeat in scheduleController.repeatTypes"
+              ng-model="scheduleController.scheduleConfig.repeat">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleEmailPicker1" ng-bind="'js_sendEmailAs' | izendaLocale: 'Send Email As'"></label>
+            <select id="scheduleEmailPicker1" class="form-control"
+              ng-options="email.value as email.text disable when email.disabled for email in scheduleController.emailTypes"
+              ng-model="scheduleController.scheduleConfig.email">
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="scheduleRecepientsPicker1" ng-bind="'js_recipients' | izendaLocale: 'Recipients'"></label>
+            <textarea id="scheduleRecepientsPicker1" class="form-control"
+              ng-model="scheduleController.scheduleConfig.recipients"></textarea>
+          </div>
+        </form>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
-        ng-click="scheduleController.closeModal(false)"
-        ng-bind="'js_Cancel' | izendaLocale: 'Cancel'">
-      </button>
-      <button id="scheduleSaveButton" type="button" class="btn btn-primary izenda-width-100"
-        ng-click="scheduleController.closeModal(true)"
-        ng-bind="'js_Ok' | izendaLocale: 'OK'">
-      </button>
     </div>
   </div>
 </div>

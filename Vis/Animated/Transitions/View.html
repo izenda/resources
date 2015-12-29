@@ -83,16 +83,12 @@
 			if (localMaxDate > maxDate) {
 				maxDate = localMaxDate;
 			}
-		}
-
-		for (var i = 0; i < itemsCount; ++i) {
-			var item = vis.items[i];
-			var values = vis.unitValue(item, 2);
 			for (var j = 0; j <= maxDate; ++j) {
 				var value = values[j];
-				if (!value || value[0] != j) {
+				if (!value || value[0] != j)
 					values.splice(j, 0, [j, 0, vis.unitValue(item, 0)]);
-				}
+				if (typeof value[1] == "undefined")
+					value[1] = 0;
 			}
 		}
 
@@ -266,9 +262,11 @@
 					r[array[i].i] = array[i].v;
 				return r;
 			}
+			function th(u, d) {
+				return (d - u + 1) * box.height;
+			}
 
-			var items = getData(), i, j, u, d, k,
-				limit = 500,
+			var items = getData(), i, j, u, d, u1, d1,
 				basisArray = new Array(items.length),
 				array = new Array(items.length);
 
@@ -292,23 +290,32 @@
 				return [basisArray, clean(array)];
 			}
 
-			for (i = 0; i < items.length && k < limit; i++, k++) {
-				var intersect = true;
-				while (intersect) {
-					for (u = i; u > 0 && ((array[u].v - array[u - 1].v) < box.height) ; u--) { }
-					for (d = i; d < items.length - 1 && ((array[d + 1].v - array[d].v) < box.height) ; d++) { }
+			for (i = 0; i < items.length; i++) {
+				for (u = i; u > 0 && ((array[u].v - array[u - 1].v) < box.height); u--) { }
+				for (d = i; d < items.length - 1 && ((array[d + 1].v - array[d].v) < box.height); d++) { }
 
-					if (intersect = u != d) {
-						var center = (array[u].v + array[d].v) / 2,
-							taken = (d - u) * box.height;
+				if (u != d) {
+					var center, taken;
+					u1 = u;
+					d1 = d;
+
+					do {
+						u = u1;
+						d = d1;
+
+						center = (array[u].v + array[d].v) / 2;
+						taken = th(u, d);
 
 						center = ((center + taken / 2) > bounds.bottom) ? bounds.bottom - taken / 2 : center;
 						center = ((center - taken / 2) < bounds.top) ? bounds.top + taken / 2 : center;
 
-						for (j = u; j < d + 1; j++)
-							array[j].v = center - taken / 2 + (j - u) * box.height;
+						for (u1 = u; u1 > 0 && array[u1 - 1].v > center - th(u1 - 1, d) / 2; u1--) { }
+						for (d1 = d; d1 < items.length - 1 && array[d1 + 1].v < center + th(u1 - 1, d) / 2; d1++) { }
 					}
-					i = u;
+					while (u1 != u || d1 != d)
+
+					for (j = u; j < d + 1; j++)
+						array[j].v = center - taken / 2 + (j - u + 1) * box.height;
 				}
 				i = d;
 			}
@@ -796,9 +803,8 @@
 				.remove();
 
 			function arcTween(d) {
-				if (!this.parentNode) {
+				if (!this.parentNode)
 					return function () { };
-				}
 
 				var path = d3.select(this),
 					text = d3.select(this.parentNode.appendChild(this.previousSibling)),
@@ -811,7 +817,7 @@
 						xx = (-r + (a) * (x0 + x1.rangeBand()) + (1 - a) * (w + h) / 2),
 						yy = ((a) * h + (1 - a) * h / 2),
 						f = {
-							innerRadius: r - x1.rangeBand() / (2 - a),
+							innerRadius: r - x1.rangeBand() - (h / 3 - x1.rangeBand()) * t,
 							outerRadius: r,
 							startAngle: a * (Math.PI / 2 - y0 / r) + (1 - a) * d.startAngle,
 							endAngle: a * (Math.PI / 2) + (1 - a) * d.endAngle
@@ -827,7 +833,7 @@
 		}
 
 		function donutExplode() {
-			var r0a = h / 2 - x.rangeBand() / 2,
+			var r0a = h / 2 - h / 3,
 					r1a = h / 2,
 					r0b = Math.sqrt(h * h + w * w) - x.rangeBand() / 2,
 					r1b = Math.sqrt(h * h + w * w),
@@ -839,7 +845,8 @@
 			function transitionExplode(d) {
 				d.innerRadius = r0a;
 				d.outerRadius = r1a;
-				d3.select(this).transition()
+				d3.select(this)
+					.transition()
 						.duration(duration / 2)
 						.tween("arc", tweenArc({
 							innerRadius: r0b,

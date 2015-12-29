@@ -33,6 +33,10 @@
 		user-select: none;
 	}
 
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		opacity: 0;
+	}
+
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
 		display: inline-block;
 	}
@@ -100,6 +104,7 @@
 	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY label {
 		font-size: 13px;
 		margin-right: 30px;
+		font-weight: normal;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .slider {
@@ -135,6 +140,7 @@
 		opacity: 0.7;
 		display: inline-block;
 		cursor: pointer;
+		box-sizing: content-box;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_TYPE_GALLERY div.style.ws_selthumb {
@@ -390,7 +396,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.SimpleGauge(gaugeDiv.get(0), name, s.props.gauge.simple.size, data);
 						gauges.push(gauge);
-						gauge.render(true);
+						gauge.render(!isImageRender);
 					},
 					postDrawAll: function () {
 						wrapGaugesInTable();
@@ -474,7 +480,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.LinearGauge(gaugeDiv.get(0), name, s.props.gauge.linear.mode, s.props.gauge.linear.size, data);
 						gauges.push(gauge);
-						gauge.render(true);
+						gauge.render(!isImageRender);
 					},
 					postDrawAll: function () {
 						wrapGaugesInTable();
@@ -561,7 +567,7 @@
 
 						var gauge = new izenda.gauges.RoundGauge(gaugeDiv.get(0), name, s.props.gauge.round.size, s.props.gauge.round.width, data);
 						gauges.push(gauge);
-						gauge.render(true);
+						gauge.render(!isImageRender);
 					},
 					postDrawAll: function () { },
 					destroy: function () {
@@ -613,7 +619,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.TrendingGauge(gaugeDiv.get(0), name, s.props.gauge.trending.size, data);
 						gauges.push(gauge);
-						gauge.render(true);
+						gauge.render(!isImageRender);
 					},
 					postDrawAll: function () {
 
@@ -798,21 +804,21 @@
 			}
 		}
 
-		var propertiesPanel = d3.select("#VIS_ID_PROPERTIES_PANEL");
-		d3.select("#VIS_ID_CONTAINER")
-			.on("mouseover", function (d) {
-				propertiesPanel.transition()
-					.duration(500)
-					.style("opacity", 1);
-			})
-			.on("mouseout", function (d) {
-				propertiesPanel.transition()
-					.duration(500)
-					.style("opacity", 0)
-					.each("end", hideGalleries);
-			});
-
 		if (!isImageRender) {
+			var propertiesPanel = d3.select("#VIS_ID_PROPERTIES_PANEL");
+			d3.select("#VIS_ID_CONTAINER")
+				.on("mouseover", function (d) {
+					propertiesPanel.transition()
+						.duration(500)
+						.style("opacity", 1);
+				})
+				.on("mouseout", function (d) {
+					propertiesPanel.transition()
+						.duration(500)
+						.style("opacity", 0)
+						.each("end", hideGalleries);
+				});
+
 			initGallery("#VIS_ID_TYPE_GALLERY", { hideTimeout: 1000 }, function () {
 				galleries["#VIS_ID_TYPE_GALLERY"].gallery.find("div.style")
 				.unbind("click")

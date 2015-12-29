@@ -1,0 +1,8 @@
+﻿<div ng-controller="InstantReportColumnsSortController as columnsSortController"
+  ng-init="columnsSortController.init()" ng-cloak>
+  <div class="iz-inst-column-sort-panel">
+    <span ng-items="columnsSortController.activeFields"
+      on-reorder="columnsSortController.columnReordered(arg0, arg1, arg2)"
+      instant-report-columns-reorder></span>
+  </div>
+</div>

@@ -1,0 +1,335 @@
+﻿<style type="text/css">
+	#VIS_ID #states path {
+		fill: #ccc;
+		stroke: #fff;
+	}
+	#VIS_ID path.arc {
+		pointer-events: none;
+		fill: none;
+		stroke: blue;
+		display: none;
+		stroke-width:5px;
+		stroke-opacity:.25;
+	}
+	#VIS_ID path.cell {
+		fill: none;
+		pointer-events: all;
+	}
+	#VIS_ID circle {
+		fill: steelblue;
+		fill-opacity: .8;
+		stroke: #fff;
+	}
+	#VIS_ID #cells.voronoi path.cell {
+		stroke: brown;
+	}
+	/*#VIS_ID #cells g:hover path.arc {
+		display: inherit;
+	}*/
+	#VIS_ID #countries path {
+		fill: #ccc;
+		stroke: #fff;
+		stroke-width: 0.5;
+		fill: none;
+	}
+	
+
+	#VIS_ID span.hint {
+		font-size: 12px;
+		color: #999;
+		width: auto;
+		display: inline-block;
+
+		position: absolute;
+		right: 0;
+	}
+	#VIS_ID span.hint select {
+		width: auto;
+	}
+</style>
+
+<div id="VIS_ID">
+	<span class="hint" style="float:right;">
+		<span style="display:inline-block">Metric:</span>
+		<select id="metricSelect"></select>
+	</span>
+</div>
+
+<script type="variable/json" accesskey="f1data" src="us-states.json"></script>
+<script type="variable/json" accesskey="f2data" src="us.json"></script>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>
+<script type="text/javascript" src="topojson.v1.min.js"></script>
+<script type="text/javascript" src="jquery-1.10.2.min.js" id="skip_within_izenda_1"></script>
+
+<script type="text/javascript">
+	(function ExecuteVIS_ID() {
+		window.visState = window.visState || {};
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			selectedMetric: -1,
+			props: undefined
+		});
+
+		function fixCity(label) {
+			var splitted = label.split(',');
+			return splitted.length == 2 ? (splitted[0].trim() + '#' + splitted[1].trim()).toLowerCase() : label;
+		}
+		function store() {
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
+			});
+			util.setProps(s.props);
+		}
+		function restore() {
+			if (typeof s.props != "object")
+				return;
+
+			metricSelect.val(s.props.metric);
+		}
+
+		debugger;
+		//var f1data = typeof f1data != "undefined" ? f1data : undefined;
+		//var f2data = typeof f2data != "undefined" ? f2data : undefined;
+
+		var width = 900, height = 600;
+		var f1, f2, f3, links = new Array();
+
+		var util = window.ReportScripting, vis = {},
+		    metrics = [];
+
+		var vs = util.container("VIS_ID"),
+		    metricSelect = vs.find("select#metricSelect");
+
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+			return;
+
+		if (!s.props) {
+			try { s.props = JSON.parse(VIS_CONTEXT.props); }
+			catch (e) { }
+		}
+
+		f1 = "Resources/Vis/Maps/Arc Map/us-states.json";
+		f2 = "Resources/Vis/Maps/Arc Map/geocities.json";
+		f3 = "Resources/Vis/Maps/Arc Map/us.json";
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+
+		var items = vis.getItems(), si = -1, di = -1;
+		if (items.length > 0) {
+			for (var j = 0; j < VIS_COLUMNS.length; j++)
+				if (typeof vis.unitValue(items[0], j) == "number")
+					metrics.push({ name: VIS_COLUMNS[j].name, max: 0, sum: 0, radius: 0, ci: j });
+
+			for (var j = 0; j < VIS_COLUMNS.length; j++) {
+				if (typeof vis.unitValue(items[0], j, { sf: vis.fields.geo }) == "undefined")
+					continue;
+
+				if (si < 0) {
+					si = j;
+				}
+				else if (di < 0) {
+					di = j;
+					break;
+				}
+			}
+		}
+
+		if (!metrics.length || si < 0 || di < 0) {
+			jq$("#VIS_ID").text("No metric, source or destination found");
+			return;
+		}
+
+		metricSelect
+			.find("option").remove();
+		jq$.each(metrics, function(i, el) {
+			metricSelect.append("<option>" + el.name + "</option>");
+		});
+
+		restore();
+
+		for (var i = 0; i < items.length; i++) {
+			links.push({
+				origin: fixCity(vis.unitLabel(items[i], si)),
+				originGeo: vis.unitValue(items[i], si, { sf: vis.fields.geo }),
+				destination: fixCity(vis.unitLabel(items[i], di)),
+				destinationGeo: vis.unitValue(items[i], di, { sf: vis.fields.geo }),
+				ri: i
+			});
+		}
+
+		width = vis.getWidth();
+		height = vis.getHeight();
+
+		metricSelect
+			.unbind("change")
+			.bind("change", function() {
+				store();
+				s.selectedMetric = jq$(this).find("option:selected").index();
+				ExecuteVIS_ID();
+			});
+		s.selectedMetric = metricSelect.find("option:selected").index();
+
+		var loc = {
+				max: 0,
+				links: {},
+				points: {}
+			};
+		var arc = d3.geo.greatArc()
+			.source(function(d) { return [d.sourceGeo[1], d.sourceGeo[2]]; })
+			.target(function(d) { return [d.targetGeo[1], d.targetGeo[2]]; });
+
+		var margin = { top: 0, right: 0, bottom: 0, left: 0 },
+			paneSize = { width: width - margin.left - margin.right, height: height - margin.top - margin.bottom };
+
+		links.forEach(function(link) {
+			loc.links[link.origin] = [];
+			loc.links[link.destination] = [];
+			loc.points[link.origin] = { coord: undefined, count: 0 };
+			loc.points[link.destination] = { coord: undefined, count: 0 };
+		});
+
+		links.forEach(function(link) {
+			var origin = link.origin,
+				destination = link.destination,
+				originGeo = link.originGeo,
+				destinationGeo = link.destinationGeo;
+
+			loc.links[origin].push({ sourceID: origin, targetID: destination, sourceGeo: originGeo, targetGeo: destinationGeo });
+			loc.links[destination].push({ sourceID: destination, targetID: origin, sourceGeo: destinationGeo, targetGeo: originGeo });
+
+			loc.points[origin].count += vis.unitValue(items[link.ri], metrics[s.selectedMetric].ci);
+			loc.points[destination].count += vis.unitValue(items[link.ri], metrics[s.selectedMetric].ci);
+
+			loc.points[origin].coord = [originGeo[1], originGeo[2]];
+			loc.points[destination].coord = [destinationGeo[1], destinationGeo[2]];
+
+			if (loc.points[origin].count > loc.max)
+				loc.max = loc.points[origin].count;
+			if (loc.points[destination].count > loc.max)
+				loc.max = loc.points[destination].count;
+		});
+
+		jq$("#VIS_ID").width(width)
+			.height(height);
+
+		var maxRadius = 25, minRadius = 5,
+			w = width, h = height;
+
+		var projection = d3.geo.azimuthalEquidistant()
+			.rotate([96, 0])
+			.center([-.6, 38.7])
+			.scale(Math.min(paneSize.height * 2, paneSize.width * 1.2))
+			.translate([width / 2, height / 2])
+			.precision(.1);
+		var path = d3.geo.path()
+			.projection(projection);
+
+		vs.find("svg").remove();
+		var svg = d3.select("#VIS_ID").insert("svg:svg", "h2")
+			.attr("width", w)
+			.attr("height", h);
+		var states = svg.append("svg:g")
+			.attr("id", "states");
+		var countries = svg.append("svg:g")
+			.attr("id", "countries");
+		var circles = svg.append("svg:g")
+			.attr("id", "circles");
+		var cells = svg.append("svg:g")
+			.attr("id", "cells");
+
+		processf1(JSON.parse(f1data));
+		processf2(JSON.parse(f2data));
+		processf3();
+
+		function processf1(collection) {
+			states.selectAll("path")
+				.data(collection.features)
+				.enter().append("svg:path")
+				.attr("d", path)
+				.attr("id", function(d) { return "span" + d.id; });
+		}
+		function processf2(us) {
+			countries.selectAll("path")
+				.data(topojson.feature(us, us.objects.counties).features)
+				.enter().append("svg:path")
+				.attr("d", path);
+		}
+		function processf3() {
+			var items = [];
+			for (var id in loc.points) {
+				if (!loc.points.hasOwnProperty(id))
+					continue;
+
+				items.push({
+					id: id,
+					coord: loc.points[id].coord,
+					projected: projection(loc.points[id].coord),
+					circle: undefined
+				});
+			}
+
+			var polygons = d3.geom.voronoi(items.map(function(e) { return [e.projected[0], e.projected[1], undefined]; })), clicked;
+			var g = cells.selectAll("g")
+				.data(items)
+				.enter().append("svg:g")
+				.on("mouseover", function() { d3.select(this).selectAll("path.arc").style("display", "inherit"); })
+				.on("mouseout", function(d, i) {
+					if (!clicked || d != clicked.d)
+						d3.select(this).selectAll("path.arc").style("display", "none");
+				})
+				.on("click", function(d, i) {
+					function getValue(name) {
+						return Number(d.circle.getAttribute(name));
+					}
+
+					var x = d3.event.offsetX == undefined ? (d3.event.pageX - vs.find("svg").parent().offset().left) : d3.event.offsetX,
+						y = d3.event.offsetY == undefined ? (d3.event.pageY - vs.find("svg").parent().offset().top) : d3.event.offsetY;
+
+					var contains = Math.pow(x - getValue("cx"), 2) + Math.pow(y - getValue("cy"), 2) <= Math.pow(getValue("r"), 2);
+					if (contains) {
+						if (clicked && clicked.d != d)
+							d3.select(clicked.g).selectAll("path.arc").style("display", "none");
+						clicked = { d: d, i: i, g: this, circle: d.circle };
+					}
+					else {
+						if (clicked)
+							d3.select(clicked.g).selectAll("path.arc").style("display", "none");
+						delete clicked;
+					}
+				});
+
+			g.append("svg:path")
+				.attr("class", "cell")
+				.attr("d", function(d, i) { return "M" + polygons[i].join("L") + "Z"; });
+
+			g.selectAll("path.arc")
+				.data(function(d) { return loc.links[d.id] || []; })
+				.enter().append("svg:path")
+				.attr("class", "arc")
+				.attr("d", function(d) {
+					if (typeof loc.points[d.sourceID] == 'undefined' || typeof loc.points[d.targetID] == 'undefined')
+						return null;
+					return path(arc(d));
+				});
+
+			circles.selectAll("circle")
+				.data(items)
+				.enter().append("svg:circle")
+				.attr("cx", function(d, i) { return d.projected[0]; })
+				.attr("cy", function(d, i) { return d.projected[1]; })
+				.attr("r", function(d, i) {
+					d.circle = this;
+					if (typeof loc.points[d.id].count == 'undefined')
+						return 0;
+					var radius = (loc.points[d.id].count / loc.max) * maxRadius;
+					return radius < minRadius ? minRadius : radius;
+				})
+				.sort(function(a, b) {
+					if (typeof loc.points[b.id].count == 'undefined' || typeof loc.points[a.id].count == 'undefined')
+						return 0;
+					return loc.points[b.id].count - loc.points[a.id].count;
+				});
+		}
+
+		util.registerResize("VIS_ID", ExecuteVIS_ID);
+	})();
+</script>

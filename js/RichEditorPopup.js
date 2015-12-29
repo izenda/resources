@@ -261,7 +261,6 @@ function RE_InitToolbarItems(editor) {
 			{ text: fdtFilters, onclick: function () { editor.insertContent('[Filters]'); } },
 			{ text: fdtDate, onclick: function () { editor.insertContent('[Date]'); } },
 			{ text: fdtSubtotal, onclick: function () { editor.insertContent('[@Subtotal]'); } },
-			{ text: fdtGrandTotal, onclick: function () { editor.insertContent('[@Total]'); } },
 			{ text: fdtRepeater, onclick: function () { editor.insertContent('[Repeater][/Repeater]'); } }
 		]
 	});

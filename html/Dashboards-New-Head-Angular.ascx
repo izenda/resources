@@ -5,8 +5,6 @@
   window.izendaPageId$ = (new Date()).getTime().toString();
 </script>
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
-<link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/bootstrap-datepicker3.min.css" />
-<link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/bootstrap-timepicker.min.css" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/perfect-scrollbar.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.skinHTML5.css" />
@@ -25,38 +23,18 @@
     window.jQueryTemp = window.jQuery;
   window.jQuery = jq$;
 </script>
-
-<!--[if !IE]>-->
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-animate.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-aria.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-cookies.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-impress.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-loader.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-messages.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-resource.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-route.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-sanitize.js"></script>
-<!--<![endif]-->
-<!--[if gte IE 9]>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-animate.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-aria.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-cookies.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-impress.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-loader.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-messages.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-resource.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-route.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.3.14/angular-sanitize.js"></script>
-<![endif]-->
-<!--[if IE 8]>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.2.27/angular.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.2.27/angular-route.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.2.27/angular-animate.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.2.27/angular-cookies.js"></script>
-<![endif]-->
-
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/TweenMax.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-animate.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-aria.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-cookies.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-impress.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-loader.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-messages.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-resource.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-route.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-sanitize.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap-angular/ui-bootstrap-tpls-0.13.3.min.js"></script>
 <script type="text/javascript">
   if (window.jQueryTemp)
     window.jQuery = window.jQueryTemp;
@@ -85,6 +63,12 @@
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+
+<!-- datetime -->
+<link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
+<script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+
 <script>
   // legacy code: needed for correct report old scripts work
   var urlSettings = window.urlSettings$;
@@ -104,9 +88,8 @@
 </script>
 
 <!-- Utils Resources -->
+<script type="text/javascript" src="./Resources/components/vendor/custom/msie-detect.js"></script>
 <script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>
-<script type="text/javascript" src="./Resources/js/Schedule.js"></script>
-<script type="text/javascript" src="./Resources/js/Share.js"></script>
 <script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
 <script type="text/javascript" src="./Resources/js/shrinkable-grid.js"></script>
 <style type="text/css">
@@ -268,8 +251,6 @@
 
 <script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/ionrangeslider/ion.rangeSlider.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datepicker.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-timepicker.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/perfect-scrollbar.js"></script>
 
 <!-- common -->
@@ -282,6 +263,8 @@
 <script type="text/javascript" src="Resources/components/common/services/common-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/settings-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/ping-service.js"></script>
+<script type="text/javascript" src="Resources/components/common/services/schedule-service.js"></script>
+<script type="text/javascript" src="Resources/components/common/services/share-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/utility.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/color-picker.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/toggle-button.js"></script>
@@ -293,6 +276,7 @@
 <script type="text/javascript" src="Resources/components/common/controllers/select-report-controller.js"></script>
 <script type="text/javascript" src="Resources/components/common/controllers/schedule-controller.js"></script>
 <script type="text/javascript" src="Resources/components/common/controllers/share-controller.js"></script>
+<script type="text/javascript" src="Resources/components/common/controllers/notification-controller.js"></script>
 
 <!-- filters -->
 <script type="text/javascript" src="Resources/components/filter/module-definition.js"></script>

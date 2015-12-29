@@ -1,7 +1,18 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" CodeFile="Dashboards-Head.ascx.cs" Inherits="Resources_Html_Dashboards_Head" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 
 <title>Dashboards</title>
+
+<script runat="server">
+    public string getDashboardViewer()
+    {
+        return AdHocSettings.DashboardViewer;
+    }
+    public string getDashboardDesignerUrl()
+    {
+        return AdHocSettings.DashboardDesignerUrl;
+    }
+</script>
 
 <% if (AdHocContext.DashboardsAllowed)
    { %>

@@ -15,23 +15,29 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.json2"></script>
 <script type="text/javascript" src="rs.aspx?js=Utility"></script>
 <script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
+<script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
+<script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
 <script type="text/javascript" src="rs.aspx?js=ModalDialog"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportViewer"></script>
 <script type="text/javascript" src="rs.aspx?js=AdHocToolbarNavigation"></script>
+<script type="text/javascript" src="rs.aspx?js=moment"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlOutputReportResults"></script>
 <script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
+<script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
+<script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.colResizable-1.3.source"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.scrollTo.min"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.dataTables.min"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.dataTables.colReorder"></script>
-<script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
-<script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
-<script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
-<script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
-<script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
 
 <!-- Utils Resources -->

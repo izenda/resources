@@ -7,6 +7,58 @@
     ng-show="toolbarController.dashboardsAllowedByLicense">
   </div>
 
+  <!-- notifications -->
+  <div ng-include="'Resources/components/common/templates/notification.html'"></div>
+
+  <!-- schedule dialog -->
+  <div izenda-bootstrap-modal opened="toolbarController.scheduleModalOpened">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b ng-bind="'js_schedule' | izendaLocale: 'Schedule'"></b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div ng-include="'Resources/components/common/templates/schedule.html'"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+        ng-click="toolbarController.closeScheduleDialog(false)"
+        ng-bind="'js_Cancel' | izendaLocale: 'Cancel'">
+      </button>
+      <button type="button" class="btn btn-izenda-dark izenda-width-100"
+        ng-click="toolbarController.closeScheduleDialog(true)"
+        ng-bind="'js_Ok' | izendaLocale: 'OK'">
+      </button>
+    </div>
+  </div>
+
+  <!-- share dialog -->
+  <div izenda-bootstrap-modal opened="toolbarController.shareModalOpened">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b ng-bind="'js_Share' | izendaLocale: 'Share'"></b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div ng-include="'Resources/components/common/templates/share.html'"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+        ng-click="toolbarController.closeShareDialog(false)"
+        ng-bind="'js_Cancel' | izendaLocale: 'Cancel'">
+      </button>
+      <button id="shareSaveButton" type="button" class="btn btn-izenda-dark izenda-width-100"
+        ng-click="toolbarController.closeShareDialog(true)"
+        ng-bind="'js_Ok' | izendaLocale: 'OK'">
+      </button>
+    </div>
+  </div>
+
+  <!-- send email -->
   <div izenda-bootstrap-modal opened="toolbarController.sendEmailState.opened"
     ng-show="toolbarController.dashboardsAllowedByLicense">
     <div class="modal-header">
@@ -37,8 +89,8 @@
       </form>
     </div>
     <div class="modal-body" ng-show="toolbarController.sendEmailState.isLoading">
-      <div class="iz-dash-tile-vcentered-container" style="height: 50px;">
-        <div class="iz-dash-tile-vcentered-item">
+      <div class="izenda-vcentered-container" style="height: 50px;">
+        <div class="izenda-vcentered-item">
           <img class="img-responsive" ng-src="{{izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif'}}" />
         </div>
       </div>
@@ -48,7 +100,7 @@
         ng-click="toolbarController.hideEmailModal(false)"
         ng-bind="'js_close' | izendaLocale: 'Close'">
       </button>
-      <button type="button" class="btn btn-primary"
+      <button type="button" class="btn btn-izenda-dark"
         ng-click="toolbarController.hideEmailModal(true)"
         ng-bind="'js_Ok' | izendaLocale: 'OK'">
       </button>
@@ -91,7 +143,7 @@
         ng-click="toolbarController.cancelBackgroundDialogHandler()"
         ng-bind="'js_close' | izendaLocale: 'Close'">
       </button>
-      <button type="button" class="btn btn-primary"
+      <button type="button" class="btn btn-izenda-dark"
         ng-click="toolbarController.okBackgroundDialogHandler()"
         ng-bind="'js_Ok' | izendaLocale: 'OK'">
       </button>
@@ -100,7 +152,8 @@
 
   <!-- toolbar -->
   <nav class="navbar navbar-default iz-dash-navbar" role="navigation"
-    ng-show="toolbarController.dashboardsAllowedByLicense">
+       ng-show="toolbarController.dashboardsAllowedByLicense"
+       ng-if="toolbarController.dashboardConfig.showDashboardToolbar">
     <div class="container-fluid">
       <!-- navbar header (visible: xs, sm) -->
       <div class="navbar-header hidden-sm hidden-md hidden-lg">
@@ -121,10 +174,10 @@
               </span>
             </a>
             <div class="dropdown-menu pull-right iz-dash-dashboards-dropdown-container" role="menu">
-                  <div izenda-toolbar-folder-menu-accordion categories="toolbarController.dashboardCategories"></div>
-                </div>
-              </li>
-            </ul>
+              <div izenda-toolbar-folder-menu-accordion categories="toolbarController.dashboardCategories"></div>
+            </div>
+          </li>
+        </ul>
         <div class="navbar-brand" ng-bind="izendaUrl.getReportInfo().name"></div>
       </div>
 
@@ -363,7 +416,7 @@
                 <span class="iz-dash-color-preview"
                   ng-bind="toolbarController.izendaBackgroundColor"></span>
               </div>
-              <div izenda-color-picker ng-model="toolbarController.izendaBackgroundColor"></div>
+              <div izenda-color-picker inline="true" ng-model="toolbarController.izendaBackgroundColor"></div>
               <div style="padding: 5px;">
                 <a class="small" ng-click="toolbarController.selectBackgroundDialogHandler()"
                   ng-bind="'js_SelectBackgroundImage' | izendaLocale: 'Select background image'"></a>
@@ -375,7 +428,7 @@
               <div style="padding: 5px;" ng-hide="!toolbarController.isToggleHueRotateEnabled()">
                 <hr style="margin-top: 5px; margin-bottom: 10px;" />
                 <div izenda-switcher ng-model="toolbarController.hueRotate"
-                     label="'js_ColorHue' | izendaLocale: 'Color hue rotate'"/>
+                  label="'js_ColorHue' | izendaLocale: 'Color hue rotate'" />
               </div>
             </div>
           </li>
@@ -384,8 +437,7 @@
         <ul class="nav navbar-nav iz-dash-dashboards-dropdown" ng-show="toolbarController.dashboardCategories.length">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown"
-               ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
-
+              ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
               ng-if="!toolbarController.isIE8">
               <span class="glyphicon glyphicon-folder-open">
                 <b class="caret"></b>

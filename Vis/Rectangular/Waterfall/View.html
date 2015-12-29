@@ -90,7 +90,7 @@
 			labels = jq$('.highcharts-data-labels text');
 
 		for (var i = 0; i < rects.length; ++i) {
-			if (labels[i].offsetWidth + sideOffset > ~~rects[i].getAttribute('width') || labels[i].offsetHeight > ~~rects[i].getAttribute('height')) {
+			if (labels[i].getBBox().width + sideOffset > ~~rects[i].getAttribute('width') || labels[i].getBBox().height > ~~rects[i].getAttribute('height')) {
 				labels[i].style.visibility = 'hidden';
 			}
 		}

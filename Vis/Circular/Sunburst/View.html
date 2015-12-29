@@ -63,6 +63,13 @@
 		width: auto;
 	}
 
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
 		float: right;
 		position: relative;
@@ -102,6 +109,8 @@
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
 			return;
 
+		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
+
 		var root, spendField, expText = "of value";
 		var colors = d3.scale.category20();
 		var b = { w: 75, h: 30, s: 3, t: 10 }; // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
@@ -124,7 +133,6 @@
 		width = vis.getWidth();
 		height = vis.getHeight();
 
-		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
 		var showPanelInImage = true; // Panel with breadcrumbs and metrics had been enabled in to_image rendering
 
 		function store() {
@@ -139,9 +147,7 @@
 				return;
 			}
 
-			if (s.props.metric) {
-				metricSelect.val(s.props.metric);
-			}
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		vis.collectTree();
@@ -174,7 +180,7 @@
 			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
 
 		var radius = Math.min(width, heightWithOffset) / 2,
-			breadcrumbWidthOffset = 10,
+			breadcrumbWidthOffset = isImageRender ? 55 : 10,
 			breadcrumbMarginLeft = Math.max(0, width / 2 - radius),
 			duration = 750,
 			totalSize = 0,
@@ -213,7 +219,7 @@
 			total: 1
 		});
 
-		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())) - heightOffset;
+		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight())) - heightOffset;
 
 		vis.container
 			.unbind("mouseenter")
@@ -373,6 +379,8 @@
 					store();
 					ExecuteVIS_ID();
 					setZoom(false);
+					zoom(root);
+					collapseShares();
 				});
 
 			vis.updateBreadcrumbContext({ root: json, total: totalSize });

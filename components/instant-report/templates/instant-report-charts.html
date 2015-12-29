@@ -1,0 +1,27 @@
+﻿<div ng-controller="InstantReportChartsController as chartsController"
+  ng-init="chartsController.init()" ng-cloak>
+
+  <div class="iz-inst-charts-container">
+
+    <div class="ds-tree-item noselect" ng-repeat="category in chartsController.visualizationConfig.categories">
+      <div class="ds-tree-item-header"
+           ng-click="category.opened = !category.opened">
+        <span class="glyphicon glyphicon-chevron-right with-label"
+          ng-class="category.opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+        <span class="ds-tree-item-header-text bold" ng-bind="category.title"></span>
+      </div>
+      <div class="ds-tree-item-body" collapsed="!category.opened" izenda-bootstrap-collapse>
+        <div>
+          <div ng-repeat="chart in category.charts" class="iz-inst-chart-item"
+            ng-class="chartsController.selectedChart === chart ? 'active' : ''"
+            ng-click="chartsController.selectChart(chart)">
+            <div class="img-container">
+              <img class="img-responsive" ng-src="{{angular.isString(chart.gifUrl) && chart.gifUrl !== '' ? chart.gifUrl : chart.imgUrl}}"/>
+            </div>
+            <div ng-bind="chart.title"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

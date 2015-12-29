@@ -1,0 +1,14 @@
+﻿<div ng-show="irChartsController.currentTables.length > 0">
+  <div name="Date" tables="irChartsController.currentTables"
+        izenda-instant-report-column-settings>
+  </div>
+  <div name="Value" tables="irChartsController.currentTables"
+        izenda-instant-report-column-settings>
+  </div>
+  <div name="Separator" tables="irChartsController.currentTables"
+       izenda-instant-report-column-settings>
+  </div>
+</div>
+<div ng-show="irChartsController.currentTables.length === 0">
+  Please select datasources first...
+</div>

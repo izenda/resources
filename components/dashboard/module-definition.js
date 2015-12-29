@@ -1,29 +1,24 @@
-﻿/**
- * Requirements: 
- *   common/izendaCompatibility
- *   common/izendaQuery
- *   common/izendaCommonControls
- *   filter/izendaFilters
- */
-var modules = [
-    'ngRoute',
-    'ngCookies',
-    'izendaCompatibility',
-    'izendaQuery',
-    'izendaCommonControls',
-    'izendaFilters'
+﻿var modules = [
+	'ngRoute',
+	'ngCookies',
+	'ui.bootstrap',
+	'izendaCompatibility',
+	'izendaQuery',
+	'izendaCommonControls',
+	'izenda.common.ui',
+	'izendaFilters',
+	'impressjs'
 ];
 
-if (angular.version.major >= 1 && angular.version.minor >= 3) {
-    if (!(jq$.browser.msie && jq$.browser.version <= 10)) {
-        modules.push('impressjs');
-    }
-}
+angular.module('izendaCommonControls').value('reportNameInputPlaceholderText', ['js_DashboardName', 'Dashboard Name']);
 
 angular.module('izendaDashboard', modules);
 
-angular.module('izendaDashboard').config([
-  '$logProvider', function($logProvider) {
-    $logProvider.debugEnabled(false);
-  }
-]);
+// dashboard config object:
+angular.module('izendaDashboard').constant('izendaDashboardConfig', {
+	showDashboardToolbar: true
+});
+
+angular.module('izendaDashboard').config(['$logProvider', function ($logProvider) {
+	$logProvider.debugEnabled(false);
+}]);

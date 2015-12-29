@@ -1,225 +1,253 @@
-﻿/**
- * Izenda query service which provides access to rs.aspx
- * this is singleton
- */
-angular
-  .module('izendaQuery')
-  .factory('$izendaRsQuery', [
-		'$window',
-    '$rootScope',
-    '$http',
-    '$q',
-    '$log',
-    function ($window, $rootScope, $http, $q, $log) {
-      'use strict';
+﻿angular
+	.module('izendaQuery')
+	.constant('izendaQueryCancellableQueries', [{
+		wscmd: 'getReportDashboardConfig'
+	}, {
+		wscmd: 'updateandgetcrsreportpartpreview'
+	}, {
+		wscmd: 'getcrsreportpartpreview'
+	}, {
+		wscmd: 'getdashboardfiltersdata'
+	}, {
+		wscmd: 'getallfiltersdata'
+	}, {
+		wscmd: 'refreshcascadingfilters2'
+	}]);
 
-      var urlSettings = $window.urlSettings$;
+/**
+* Izenda query service which provides access to rs.aspx
+* this is singleton
+*/
+angular.module('izendaQuery').factory('$izendaRsQuery', [
+'$window',
+'$rootScope',
+'$http',
+'$q',
+'$injector',
+'$log',
+function ($window, $rootScope, $http, $q, $injector, $log) {
+	'use strict';
 
-      var rsQueryBaseUrl = urlSettings.urlRsPage;
+	var urlSettings = $window.urlSettings$;
 
-      var rsQueryLog = {};
+	var rsQueryBaseUrl = urlSettings.urlRsPage;
 
-      var requestList = [];
+	var rsQueryLog = {};
 
-      /**
-       * Remove request from array
-       */
-      function removeRequest(url) {
-        var foundIndex = -1;
-        var i = 0;
-        while (foundIndex < 0 && i < requestList.length) {
-          if (requestList[i].url === url) {
-            foundIndex = i;
-          }
-          i++;
-        }
-        if (foundIndex >= 0) {
-          requestList.splice(foundIndex, 1);
-        }
-      }
+	var requestList = [];
 
-      /**
-       * Do query to custom url
-       */
-      function customQuery(baseUrl, queryParams, options, errorOptions) {
-        var isPost = angular.isObject(options) && options.method === 'POST';
-        
-        var postData = {};
-        var url = baseUrl;
-        if (!isPost) {
-          // GET request url:
-          url += '?';
-          for (var paramName in queryParams) {
-            if (queryParams.hasOwnProperty(paramName)) {
-              url += paramName + '=' + encodeURIComponent(queryParams[paramName]) + '&';
-            }
-          }
-          if (url.substring(url.length - 1) === '&') {
-            url = url.substring(0, url.length - 1);
-          }
-        } else {
-          // POST request params string:
-          var postParamsString = '';
-          for (var paramName2 in queryParams) {
-            if (queryParams.hasOwnProperty(paramName2)) {
-              postParamsString += paramName2 + '=' + queryParams[paramName2] + '&';
-            }
-            if (url.substring(url.length - 1) === '&') {
-              postParamsString = postParamsString.substring(0, postParamsString.length - 1);
-            }
-          }
-          postData = {
-            data: postParamsString
-          };
-        }
+	/**
+	* Remove request from array
+	*/
+	function removeRequest(url) {
+		var foundIndex = -1;
+		var i = 0;
+		while (foundIndex < 0 && i < requestList.length) {
+			if (requestList[i].url === url) {
+				foundIndex = i;
+			}
+			i++;
+		}
+		if (foundIndex >= 0) {
+			requestList.splice(foundIndex, 1);
+		}
+	}
 
-        // create promises
-        var canceler = $q.defer();
-        var resolver = $q.defer();
-        resolver.$izendaRsQueryCancelled = true;
+	/**
+	* Do query to custom url
+	*/
+	function customQuery(baseUrl, queryParams, options, errorOptions) {
+		var isPost = angular.isObject(options) && options.method === 'POST';
 
-        // apply query options
-        resolver.errorOptions = angular.isObject(errorOptions) ? errorOptions : null;
-        var dataType = angular.isDefined(options) && angular.isString(options.dataType)
-          ? options.dataType
-          : 'text';
-        var contentType = 'text/html';
-        if (dataType === 'json')
-          contentType = 'text/json';
-        var req = {
-          method: 'GET',
-          url: url,
-          timeout: canceler.promise,
-          headers: {
-            'Content-Type': contentType
-          }
-        };
-        if (angular.isObject(options)) {
-          angular.extend(req, options);
-        }
-        angular.extend(req, postData); // it is empty for http GET requests
+		var postData = {};
+		var url = baseUrl;
+		if (!isPost) {
+			// GET request url:
+			url += '?';
+			for (var paramName in queryParams) {
+				if (queryParams.hasOwnProperty(paramName)) {
+					url += paramName + '=' + encodeURIComponent(queryParams[paramName]) + '&';
+				}
+			}
+			if (url.substring(url.length - 1) === '&') {
+				url = url.substring(0, url.length - 1);
+			}
+		} else {
+			// POST request params string:
+			var postParamsString = 'urlencoded=true';
+			for (var paramName2 in queryParams) {
+				if (queryParams.hasOwnProperty(paramName2)) {
+					postParamsString += '&' + paramName2 + '=' + encodeURIComponent(queryParams[paramName2]);
+				}
+			}
+			postData = {
+				data: postParamsString
+			};
+		}
 
-        // add request to list
-        requestList.push({
-          url: url,
-          canceller: canceler,
-          resolver: resolver
-        });
-        rsQueryLog[url] = new Date();
-        // run query
-        $http(req).then(function (response) {
-          // handle success
-          var currentUrl = response.config.url;
-          $log.debug('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
-          removeRequest(currentUrl);
-          if (typeof (response) == 'string') {
-            resolver.resolve(response);
-          } else {
-            resolver.resolve(response.data);
-          }
-        }, function (response) {
-          // handle error
-          var config = response.config;
-          var errorText = '';
-          if (resolver.errorOptions != null) {
-            errorText = resolver.errorOptions.handler.apply(response, resolver.errorOptions.params);
-          } else if (response.message) {
-            errorText = response.message;
-          } else if (config) {
-            errorText = 'Query failed: ' + config;
-          } else {
-            errorText = 'An unknown error occurred.';
-          }
-          if (resolver.$izendaRsQueryCancelled) {
-            $rootScope.$broadcast('showNotificationEvent', [errorText, 'Error']);
-            resolver.reject(errorText);
-          }
-        });
-        return resolver.promise;
-      }
+		// create promises
+		var canceler = $q.defer();
+		var resolver = $q.defer();
+		resolver.$izendaRsQueryCancelled = true;
 
-      /**
-       * Do query to RespornceServer
-       */
-      function rsQuery(queryParams, options, errorOptions) {
-        return customQuery(rsQueryBaseUrl, queryParams, options, errorOptions);
-      }
+		// apply query options
+		resolver.errorOptions = angular.isObject(errorOptions) ? errorOptions : null;
+		var dataType = angular.isDefined(options) && angular.isString(options.dataType)
+		? options.dataType
+		: 'text';
+		var contentType = 'text/html';
+		if (dataType === 'json')
+			contentType = 'text/json';
+		var req = {
+			method: 'GET',
+			url: url,
+			timeout: canceler.promise,
+			headers: {
+				'Content-Type': contentType
+			}
+		};
+		if (angular.isObject(options)) {
+			angular.extend(req, options);
+		}
+		angular.extend(req, postData); // it is empty for http GET requests
 
-      /**
-       * Base query to RespornceServer with wscmd and wsargN parameters
-       */
-      function query(wsCmd, wsArgs, options, errorOptions) {
-        // prepare params:
-        var params = {
-          'wscmd': wsCmd
-        };
-        if (angular.isArray(wsArgs)) {
-          for (var i = 0; i < wsArgs.length; i++) {
-            var wsArg = wsArgs[i];
-            if (angular.isDefined(wsArg) && wsArg != null) {
-              params['wsarg' + i] = wsArg;
-            } else {
-              params['wsarg' + i] = '';
-            }
-          }
-        } else {
-          throw new Error('wsArgs: expected array, but got: ' + typeof (wsArgs));
-        }
+		// add request to list
+		requestList.push({
+			url: url,
+			canceller: canceler,
+			resolver: resolver
+		});
+		rsQueryLog[url] = new Date();
+		// run query
+		$http(req).then(function (response) {
+			// handle success
+			var currentUrl = response.config.url;
+			$log.debug('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
+			removeRequest(currentUrl);
+			if (typeof (response) == 'string') {
+				resolver.resolve(response);
+			} else {
+				resolver.resolve(response.data);
+			}
+		}, function (response) {
+			// handle error
+			var config = response.config;
+			var errorText;
+			if (resolver.errorOptions != null) {
+				errorText = resolver.errorOptions.handler.apply(response, resolver.errorOptions.params);
+			} else if (response.message) {
+				errorText = response.message;
+			} else if (config) {
+				errorText = 'Query failed: ' + config;
+			} else {
+				errorText = 'An unknown error occurred.';
+			}
+			if (resolver.$izendaRsQueryCancelled) {
+				$rootScope.$broadcast('showNotificationEvent', [errorText, 'Error']);
+				resolver.reject(errorText);
+			}
+		});
+		return resolver.promise;
+	}
 
-				// apply izendaPageId$
-				if (typeof(window.izendaPageId$) !== 'undefined')
-					params['izpid'] = window.izendaPageId$;
+	/**
+	* Do query to RespornceServer
+	*/
+	function rsQuery(queryParams, options, errorOptions) {
+		return customQuery(rsQueryBaseUrl, queryParams, options, errorOptions);
+	}
 
-        // set default error options if it is not defined:
-        var eOptions;
-        if (angular.isUndefined(errorOptions)) {
-          eOptions = {
-            handler: function (wsCmd, wsArgs) {
-              return 'Query: "' + wsCmd + '" [' + wsArgs + '] failed.';
-            },
-            params: [wsCmd, wsArgs]
-          };
-        } else {
-          eOptions = errorOptions;
-        }
-        return rsQuery(params, options, eOptions);
-      }
+	/**
+	* Base query to RespornceServer with wscmd and wsargN parameters
+	*/
+	function query(wsCmd, wsArgs, options, errorOptions) {
+		// prepare params:
+		var params = {
+			'wscmd': wsCmd
+		};
+		if (angular.isArray(wsArgs)) {
+			for (var i = 0; i < wsArgs.length; i++) {
+				var wsArg = wsArgs[i];
+				if (angular.isDefined(wsArg) && wsArg != null) {
+					params['wsarg' + i] = wsArg;
+				} else {
+					params['wsarg' + i] = '';
+				}
+			}
+		} else {
+			throw new Error('wsArgs: expected array, but got: ' + typeof (wsArgs));
+		}
 
-      /**
-       * Cancel all running queries
-       */
-      function cancelAllQueries(options) {
-        var opts = options || {};
-        var count = requestList.length;
-        var i = 0;
-        while (i < requestList.length) {
-          var request = requestList[0];
-          var cancel = true;
-          if (opts.hasOwnProperty('ignoreList')) {
-            var ignoreList = opts['ignoreList'];
-            for (var j = 0; j < ignoreList.length; j++) {
-              if (request.url.indexOf(ignoreList[j]) >= 0) {
-                cancel = false;
-              }
-            }
-          }
-          if (cancel) {
-            $log.debug('<<< (cancelled!) ' + ((new Date()).getTime() - rsQueryLog[request.url].getTime()) + 'ms: ' + request.url);
-            request.canceller.resolve();
-            request.resolver.$izendaRsQueryCancelled = false;
-            requestList.splice(0, 1);
-          } else {
-            i++;
-          }
-        }
-        return count - i;
-      }
-      
-      // PUBLIC API:
-      return {
-        cancelAllQueries: cancelAllQueries,
-        customQuery: customQuery,
-        rsQuery: rsQuery,
-        query: query
-      };
-    }]);
+		// apply izendaPageId$
+		if (typeof (window.izendaPageId$) !== 'undefined')
+			params['izpid'] = window.izendaPageId$;
+
+		// set default error options if it is not defined:
+		var eOptions;
+		if (angular.isUndefined(errorOptions)) {
+			eOptions = {
+				handler: function (wsCmd2, wsArgs2) {
+					return 'Query: "' + wsCmd2 + '" [' + wsArgs2 + '] failed.';
+				},
+				params: [wsCmd, wsArgs]
+			};
+		} else {
+			eOptions = errorOptions;
+		}
+		return rsQuery(params, options, eOptions);
+	}
+
+	/**
+	* Cancel all running queries
+	*/
+	function cancelAllQueries(options) {
+		var opts = options || {};
+
+		// queries which we can cancel
+		var cancellableQueries;
+		if (opts.hasOwnProperty('cancelList')) {
+			cancellableQueries = opts['cancelList'];
+		} else {
+			cancellableQueries = $injector.get('izendaQueryCancellableQueries');
+		}
+
+		var count = requestList.length;
+		var i = 0;
+		while (i < requestList.length) {
+			var request = requestList[0];
+			var cancel = false;
+			if (angular.isArray(cancellableQueries)) {
+				for (var j = 0; j < cancellableQueries.length; j++) {
+					var cancelRule = cancellableQueries[j];
+					if (angular.isString(cancelRule)) {
+						cancel |= request.url.indexOf(cancelRule) >= 0;
+					} else if (angular.isObject(cancelRule)) {
+						if ('wscmd' in cancelRule) {
+							cancel |= request.url.indexOf('wscmd=' + cancelRule['wscmd']) >= 0;
+						}
+					} else {
+						throw 'Unknown cancel rule: ' + cancelRule;
+					}
+				}
+			}
+
+			if (cancel) {
+				$log.debug('<<< (cancelled!) ' + ((new Date()).getTime() - rsQueryLog[request.url].getTime()) + 'ms: ' + request.url);
+				request.canceller.resolve();
+				request.resolver.$izendaRsQueryCancelled = false;
+				requestList.splice(0, 1);
+			} else {
+				i++;
+			}
+		}
+		return count - i;
+	}
+
+	// PUBLIC API:
+	return {
+		cancelAllQueries: cancelAllQueries,
+		customQuery: customQuery,
+		rsQuery: rsQuery,
+		query: query
+	};
+}]);

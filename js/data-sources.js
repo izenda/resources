@@ -1620,7 +1620,8 @@ function UpdateDataSources() {
 				var field = table.fields[fieldKey];
 				var column = {
 					FriendlyName: fieldKey,
-					DbName: field.sysname
+					DbName: field.sysname,
+					FilterFriendlyName: field.filterAlias
 				};
 				columns.push(column);
 			}

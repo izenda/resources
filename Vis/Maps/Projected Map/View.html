@@ -1,0 +1,407 @@
+﻿<style type="text/css">
+	#VIS_ID rect.overlay {
+		fill: none;
+		pointer-events: all;
+	}
+
+	#VIS_ID .country {
+		fill: #47a2f3;
+		stroke: #fff;
+		stroke-width: 1px;
+		stroke-linejoin: round;
+	}
+	#VIS_ID .country.hovered {
+		stroke-width: 1.5px;
+	}
+	#VIS_ID .country.active {
+		fill: #1C8BF0;
+	}
+
+	#VIS_ID .graticule {
+		fill: none;
+		stroke: #000;
+		stroke-opacity: .3;
+		stroke-width: .5px;
+		pointer-events: none;
+	}
+	#VIS_ID .graticule.outline {
+		stroke: #333;
+		stroke-opacity: 1;
+		stroke-width: 1.5px;
+	}
+
+	#VIS_ID span.hint {
+		font-size: 12px;
+		color: #999;
+		width: auto;
+		display: inline-block;
+	}
+	#VIS_ID span.hint select {
+		width: auto;
+	}
+</style>
+<div style="width: 100%;" id="VIS_ID">
+	<span class="hint" style="float:right;">
+		<span style="display:inline-block">Metric:</span>
+		<select id="metricSelect"></select>
+	</span>
+</div>
+
+<script type="text/javascript" src="d3.v3.min.js"></script>
+<script type="text/javascript" src="d3.geo.projection.v0.min.js"></script>
+<script type="text/javascript" src="queue.v1.min.js"></script>
+<script type="text/javascript" src="topojson.v1.min.js"></script>
+
+<script type="text/javascript">
+	var visState;
+	(function ExecuteVIS_ID() {
+		visState = visState || {};
+		var s = visState.VIS_ID || (visState.VIS_ID = {
+			selectedMetric: -1,
+			props: undefined
+		});
+
+		if (typeof window.jq$ == "undefined")
+			window.jq$ = jQuery.noConflict(true);
+
+		function setup() {
+			for (i = 0; i < metrics.length; i++) {
+				for (j = 0; j < items.length; j++) {
+					var value = vis.unitValue(items[j], metrics[i].name);
+					metrics[i].max = Math.max(metrics[i].max, value);
+					metrics[i].sum += value;
+				}
+			}
+
+			for (i = 0; i < metrics.length; i++)
+				metrics[i].radius = d3.scale.linear().domain([0, metrics[i].max]).range([1, maxradius]);
+		}
+		function store() {
+			jq$.extend(s.props = (s.props || {}), {
+				"metric": metricSelect.val()
+			});
+			util.setProps(s.props);
+		}
+		function restore() {
+			if (typeof s.props != "object")
+				return;
+
+			metricSelect.val(s.props.metric);
+		}
+
+		var VIS_EMBEDDED_DATA;
+
+		var width = 960, height = 500;
+		var f1, f2, f3, i, j, items = [], nodeId = 0,
+		    colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
+
+		var util = window.ReportScripting, vis,
+		    metrics = [];
+
+		var vs = util.container("VIS_ID"),
+		    metricSelect = vs.find("select#metricSelect");
+
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+			return;
+
+		if (!s.props) {
+			try { s.props = JSON.parse(VIS_CONTEXT.props); }
+			catch (e) { }
+		}
+
+		f1 = "Resources/Vis/Maps/Projected Map/World.json.txt";
+		f2 = "Resources/Vis/Maps/Projected Map/world-country-names.tsv";
+		f3 = "Resources/Vis/Maps/Projected Map/world-countries.json";
+
+		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+		items = vis.getItems();
+
+		if (!metrics.length && items.length > 0) {
+			for (j = 1; j < VIS_COLUMNS.length; j++)
+				if (typeof vis.unitValue(items[0], j) == "number")
+					metrics.push({ name: VIS_COLUMNS[j].name, max: 0, sum: 0, radius: 0 });
+		}
+
+		if (!metrics.length) {
+			jq$("#VIS_ID").text("No metric found");
+			return;
+		}
+
+		metricSelect
+			.find("option").remove();
+		jq$.each(metrics, function(i, el) {
+			metricSelect.append("<option>" + el.name + "</option>");
+		});
+
+		restore();
+
+		width = vis.getWidth();
+		height = vis.getHeight();
+
+		var maxradius = 10,
+			margin = { top: 0, right: 0, bottom: 0, left: 0 },
+			paneSize = { width: width - margin.left - margin.right, height: height - margin.top - margin.bottom },
+			scale = Math.min(paneSize.width, paneSize.height * 1.74) / 5.5,
+			center = [margin.left + paneSize.width / 2, margin.top + paneSize.height / 2],
+			active, zm = 1, countries;
+		var originx = 0;
+		var originy = 0;
+
+		jq$("#VIS_ID").width(width);
+
+		metricSelect
+			.unbind("change")
+			.bind("change", function() {
+				s.selectedMetric = jq$(this).find("option:selected").index();
+				store();
+				setup();
+				update();
+			});
+		s.selectedMetric = metricSelect.find("option:selected").index();
+		setup();
+
+		var projection = d3.geo.kavrayskiy7()
+			.scale(scale)
+			.translate(center);
+		var graticule = d3.geo.graticule();
+
+		var path = d3.geo.path()
+			.projection(projection);
+
+		var svg = d3.select("#VIS_ID")
+			.append("svg")
+				.attr("width", width)
+				.attr("height", height)
+				.on("mousewheel", zoomed)
+				.on("mousedown", onmousedown)
+				.on("mousemove", onmousemove)
+				.on("mouseup", onmouseup);
+
+		svg.append("rect")
+			.attr("class", "overlay")
+			.attr("width", width)
+			.attr("height", height)
+			.on("click", reset);
+		var g = svg.append("g");
+
+		g.append("path")
+			.datum(graticule)
+			.attr("class", "graticule")
+			.attr("d", path);
+		g.append("path")
+			.datum(graticule.outline)
+			.attr("class", "graticule outline")
+			.attr("d", path);
+
+		function zoomed() {
+			d3.event.preventDefault();
+			d3.event.stopPropagation();
+
+			var d = d3.event.wheelDelta / 100;
+			var z = d > 0 ? d : 1 / -d;
+			var mousex = d3.event.offsetX, mousey = d3.event.offsetY;
+
+			originx = (mousex / zm + originx - mousex / (zm * z));
+			originy = (mousey / zm + originy - mousey / (zm * z));
+
+			setZoom([-originx, -originy], zm *= z, 0);
+		}
+
+		var dragging = null, origin, moved = false;
+		function onmousedown() {
+			dragging = d3.mouse(this);
+			origin = [originx, originy];
+		}
+		function onmousemove() {
+			if (dragging == null)
+				return;
+
+
+			var dc = d3.mouse(this),
+				mousex = dragging[0] - dc[0],
+				mousey = dragging[1] - dc[1];
+
+			if (mousex == 0 && mousey == 0) {
+				return;
+			}
+
+			moved = true;
+			originx = origin[0] + mousex / zm;
+			originy = origin[1] + mousey / zm;
+			setZoom([-originx, -originy], zm, 0);
+		}
+		function onmouseup() {
+			dragging = null;
+		}
+
+		function update() {
+			function getColor(d2, i2) {
+				return colors[(i2 % (colors.length - 1))];
+			}
+
+			var duration = 500;
+			var node = g.selectAll("g.node")
+				.data(items, function(d) { return d.id || (d.id = ++nodeId); });
+
+			var nodeEnter = node.enter().append("svg:g")
+				.attr("class", "node")
+				.attr("transform", function(d2, i2) {
+					var d = vis.unitValue(d2, 0, { sf: vis.fields.geo }),
+						x = projection([d[1], d[2]])[0],
+						y = projection([d[1], d[2]])[1];
+					return "translate(" + x + "," + y + ")";
+				})
+				.on("mouseover", function(d) { util.showTooltip(d); })
+				.on("mouseout", function() { util.hideTooltip(); });
+
+			nodeEnter.append("svg:circle")
+				.attr("r", 1e-6)
+				.style("fill", getColor)
+				.style("fill-opacity", ".4")
+				.style("stroke", getColor);
+			nodeEnter.append("svg:text")
+				.attr("x", maxradius)
+				.attr("y", 1)
+				.text(function(d) { return vis.unitValue(d, 0); })
+				.style("font-size", 13);
+			nodeEnter.each(function() {
+				var el = d3.select(this),
+					text = el.select("text"),
+					box = text.node().getBBox(),
+					rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+
+				rect.setAttribute("bx", box.x);
+				rect.setAttribute("x", box.x);
+				rect.setAttribute("by", box.y);
+				rect.setAttribute("y", box.y);
+				rect.setAttribute("bwidth", box.width);
+				rect.setAttribute("width", box.width);
+				rect.setAttribute("bheight", box.height);
+				rect.setAttribute("height", box.height);
+				rect.setAttribute("fill", "white");
+				rect.setAttribute("class", "text-back");
+				rect.setAttribute("rx", 2);
+				rect.setAttribute("ry", 2);
+
+				el.node().insertBefore(rect, text.node());
+			});
+
+			node.transition()
+				.duration(duration)
+				.select("circle")
+				.attr("r", function(d2) {
+					var metric = metrics[s.selectedMetric];
+					var result = metric.radius(vis.unitValue(d2, metric.name));
+					return (isNaN(result) ? 2 : result) / zm;
+				})
+				.style("fill", getColor);
+		}
+
+		function clicked(d) {
+			if (moved) {
+				moved = false;
+				return;
+			}
+
+			if (active === d) {
+				reset();
+				return;
+			}
+
+			g.selectAll(".active").classed("active", false);
+			d3.select(this).classed("active", active = d);
+			var b = path.bounds(d);
+
+			var w = b[1][0] - b[0][0],
+				h = b[1][1] - b[0][1],
+				c = { x: (b[1][0] + b[0][0]) / 2, y: (b[1][1] + b[0][1]) / 2 };
+			var t = projection.translate();
+			var z = .95 / Math.max(w / width, h / height);
+			originx = c.x - t[0] / z;
+			originy = c.y - t[1] / z;
+
+			setZoom([-originx, -originy], zm = z, 750);
+		}
+		function reset() {
+			if (moved) {
+				moved = false;
+				return;
+			}
+
+			g.selectAll(".active").classed("active", active = false);
+			setZoom([originx = 0, originy = 0], zm = 1, 750);
+		}
+
+		function setZoom(t, z, duration) {
+			function na(el, name) {
+				return Number(el.getAttribute(name));
+			}
+
+			var tran = (duration ? g.transition().duration(duration) : g);
+			tran.attr("transform", "scale(" + z + ")"
+					+ "translate(" + t + ")");
+			tran.selectAll(".country").style("stroke-width", 1 / z);
+			tran.selectAll(".node circle")
+				.attr("r", function(d2, i2) {
+					var metric = metrics[s.selectedMetric];
+					var result = metric.radius(vis.unitValue(d2, metric.name));
+					return (isNaN(result) ? 2 : result) / z;
+				})
+				.attr("stroke-width", 1 / z);
+			tran.selectAll(".node text")
+				.attr("x", maxradius / z)
+				.attr("y", 1 / z)
+				.style("font-size", 13 / z);
+			tran.selectAll(".node rect")
+				.attr("x", function() { return na(this, "bx") / z; })
+				.attr("y", function() { return na(this, "by") / z; })
+				.attr("width", function() { return na(this, "bwidth") / z; })
+				.attr("height", function() { return na(this, "bheight") / z; })
+				.attr("rx", 2 / z)
+				.attr("ry", 2 / z);
+
+			util.hideTooltip();
+		}
+
+		(function() {
+			util.registerResize("VIS_ID", ExecuteVIS_ID);
+
+		queue()
+			.defer(d3.json, f1)
+			.defer(d3.tsv, f2)
+			.defer(d3.json, f3)
+			.await(function(error, world, names, collection) {
+				var feature = topojson.feature(world, world.objects.countries).features;
+				//var neighbors = topojson.neighbors(world.objects.countries.geometries);
+
+				feature.forEach(function(d) {
+					var tryit = names.filter(function(n) { return d.id == n.id; })[0];
+					d.name = typeof tryit === "undefined" ? "Undefined" : tryit.name;
+				});
+				countries = g.selectAll(".country")
+					.data(/*feature*/collection.features)
+					.enter()//.append("path", ".graticule")
+					.append("svg:path")
+					.each(function(d) { d.name = d.properties.name; })
+					.attr("class", "country")
+					.attr("d", path)
+					.on("mouseover", function(d) {
+						d3.select(this)
+							.classed("hovered", true)
+							.style("stroke-width", 1.5 / zm);
+
+						util.showTooltip({ "Name": d.name }, { showLabels: false });
+					})
+					.on("mouseout", function() {
+						d3.select(this)
+							.classed("hovered", false)
+							.style("stroke-width", 1 / zm);
+						util.hideTooltip();
+					})
+					.on("click", clicked);
+
+				update();
+			});
+		})();
+	})();
+</script>

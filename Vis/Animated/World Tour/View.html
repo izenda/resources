@@ -9,6 +9,14 @@
 		text-align: center;
 	}
 
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER .clearfix:after {
 		content: "";
 		clear: both;
@@ -131,7 +139,7 @@
 			if (typeof s.props != "object")
 				return;
 
-			metricSelect.val(s.props.metric);
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		var items = [], i, j, item, stopped = false;

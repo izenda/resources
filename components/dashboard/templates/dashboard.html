@@ -45,19 +45,6 @@
       </div>
     </div>
 
-    <!-- notifications -->
-    <div id="notificationDiv" ng-hide="dashboardController.notifications.length === 0">
-      <div class="iz-dash-notification fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
-        ng-repeat="notification in dashboardController.notifications">
-        <div class="close-button glyphicon glyphicon-remove"
-          ng-click="dashboardController.closeNotification(notification.id)"
-          ng-mouseover="dashboardController.cancelNotificationTimeout(notification.id)">
-        </div>
-        <div class="icon" ng-class="notification.iconClass" ng-show="notification.iconClass !== ''"></div>
-        <div class="title" ng-bind="notification.title"></div>
-        <div class="text" ng-bind="notification.text"></div>
-      </div>
-    </div>
     <div id="dashboardBodyContainer" class="iz-dash-body-container"
       ng-style="dashboardController.tileContainerStyle"
       ng-hide="dashboardController.isGalleryMode">

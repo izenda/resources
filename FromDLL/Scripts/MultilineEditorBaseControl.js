@@ -401,13 +401,14 @@ function EBC_RemoveUnusedRows(table, column)
 	}
 }
 
-function EBC_RemoveAllUnusedRows()
-{
-	for(var i=0; i < ebc_selTable.length; ++i)
-	{
+function EBC_RemoveAllUnusedRows() {
+	for (var i = 0; i < ebc_selTable.length; ++i) {
 		var table = ebc_selTable[i];
-		if(table != null)
-			EBC_RemoveUnusedRows(table, 'Column');
+		if (table != null) {
+			var pivotSuffix = 'ExtraColumn';
+			var isPivotTable = table.id.indexOf(pivotSuffix) == (table.id.length - pivotSuffix.length);
+			EBC_RemoveUnusedRows(table, isPivotTable ? 'ExtraValue' : 'Column');
+		}
 	}
 }
 

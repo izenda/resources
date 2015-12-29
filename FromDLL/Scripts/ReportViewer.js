@@ -593,6 +593,7 @@ function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
 				for (var i = 0; i < filtersData.length; i++) {
 					if (filtersData[i].GUID == GUID) {
 						newField.FilterOperator = filtersData[i].OperatorValue;
+						newField.Description = filtersData[i].Alias;
 						break;
 					}
 				}
@@ -1198,7 +1199,13 @@ function FirstLoadInit() {
 		if (reportName != undefined && reportName != null) {
 			reportParam = '?rn=' + reportName;
 		}
-		designerBtn.onclick = function () { window.location = nrvConfig.ReportDesignerUrl + reportParam; };
+		designerBtn.onclick = function () {
+			if (nrvConfig.DesignerType === 'InstantReport') {
+				window.location = nrvConfig.InstantReportUrl + reportParam;
+			} else {
+				window.location = nrvConfig.ReportDesignerUrl + reportParam;
+			}
+		};
 	}
 	jq$('#navdiv ul li a').click(function () {
 		var currentTab = jq$(this).attr('href');

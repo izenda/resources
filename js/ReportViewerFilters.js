@@ -120,6 +120,7 @@ function CommitChangedFilter(field) {
 				if (filtersData[i].OperatorValue.endsWith('Field') && !field.FilterOperator.endsWith('Field'))
 					filtersData[i].ClearValue = true;
 				filtersData[i].OperatorValue = field.FilterOperator;
+				filtersData[i].Alias = field.Alias;
 				break;
 			}
 	}
@@ -190,6 +191,7 @@ function GetFiltersDataToCommit() {
 		filterObj.FieldFilter = filtersData[index].FieldFilter;
 		filterObj.OperatorValue = filtersData[index].OperatorValue;
 		filterObj.AliasTable = filtersData[index].AliasTable;
+		filterObj.Alias = filtersData[index].Alias;
 		if (!filtersData[index].Removed && !filtersData[index].ClearValue)
 			filterObj.Values = GetFilterValues(index, filtersData).slice(1);
 		else
@@ -333,7 +335,7 @@ function GenerateNewFilterDropDown() {
 
 		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
 			if (!dataSources[dsCnt].Columns[fCnt].FilterHidden && existingParamFilters.indexOf(dataSources[dsCnt].Columns[fCnt].DbName) < 0) {
-				result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + dataSources[dsCnt].Columns[fCnt].FriendlyName + '</option>';
+				result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + (dataSources[dsCnt].Columns[fCnt].FilterFriendlyName ? dataSources[dsCnt].Columns[fCnt].FilterFriendlyName : dataSources[dsCnt].Columns[fCnt].FriendlyName) + '</option>';
 				optionsAdded = true;
 			}
 		}
@@ -589,7 +591,7 @@ function HideEqualsPopupDialog(updateState) {
 		var cb = document.getElementById('ndbfc' + filterIndex + '_cb' + cnt6);
 		while (cb != null) {
 			if (cb.checked) {
-				if (newVal.length > 1)
+				if (newVal.length > 0)
 					newVal += ',';
 				newVal += cb.value;
 			}

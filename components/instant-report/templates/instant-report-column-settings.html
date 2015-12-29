@@ -1,0 +1,35 @@
+﻿<div class="container-fluid iz-inst-column">
+  <div class="row">
+    <div class="col-md-6">
+      <label>{{name}}</label>
+      <select class="form-control iz-inst-column-select">
+        <option>...</option>
+        <optgroup ng-repeat="table in tables" label="{{table.name}}">
+          <option ng-repeat="field in table.fields">
+            {{field.name}}
+          </option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label>Function</label>
+      <select class="form-control">
+        <option>...</option>
+        <option>Count</option>
+        <option>Count Distinct</option>
+        <option>Group</option>
+        <option>Other functions will be here...</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label>Format</label>
+      <select class="form-control">
+        <option>...</option>
+        <option>0,000</option>
+        <option>0,000.00</option>
+        <option>$0.00</option>
+        <option>Other formats will be here...</option>
+      </select>
+    </div>
+  </div>
+</div>

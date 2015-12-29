@@ -1298,31 +1298,35 @@ function SC_InitRow(row)
 		SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
 }
 
-function SC_Init(id, checked, mustGroupOrFunction, a, g)
-{
+function SC_Init(id, checked, mustGroupOrFunction, a, g) {
 	groupByMonthName = g;
 	allowComparativeArithmetic = a;
 	fieldValueChecked[id] = checked;
 	SC_mustGroupOrFunction[id] = mustGroupOrFunction;
 	EBC_RegisterControl(id);
-	EBC_RegisterControl(id + '_ExtraColumn');
 	EBC_SetData('@SC/Empty', '<option value=\'...\'>...</option>');
-	table = document.getElementById(id);
+	var table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, SC_InitNewRow);
 	var body = table.tBodies[0];
-	var count = body.rows.length;	
-	for (var i = 0; i < count; i++)
-	{
+	var count = body.rows.length;
+	for (var i = 0; i < count; i++) {
 		SC_CheckPropertiesModified(body.rows[i]);
 		var columnSel = EBC_GetSelectByName(body.rows[i], 'Column');
-		if(columnSel.value!="..." && columnSel.value!="")
+		if (columnSel.value != "..." && columnSel.value != "")
 			body.rows[i].setAttribute("userChanged", "true");
-		//SC_InitRow(body.rows[i]);
 	}
-	var extraRows = jq$("[id$='ExtraColumn_valueTR']");
+	SC_CheckGroupingAndFunctions(id);
+	EBC_RegisterRowRemoveHandler(table, SC_OnRemoveTableRow);
+	EBC_RegiserForUnusedRowsRemoving(table);
+}
+
+function SC_InitPivotTable(id) {
+	EBC_RegisterControl(id);
+	var table = document.getElementById(id);
+	EBC_RegisterRowInsertHandler(table, SC_InitNewRow);
+	var extraRows = jq$(table).find("[id$='ExtraColumn_valueTR']");
 	for (var i = 0; i < extraRows.length; i++)
 		SC_CheckPropertiesModified(extraRows[i]);
-	SC_CheckGroupingAndFunctions(id);
 	EBC_RegisterRowRemoveHandler(table, SC_OnRemoveTableRow);
 	EBC_RegiserForUnusedRowsRemoving(table);
 }

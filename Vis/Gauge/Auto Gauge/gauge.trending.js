@@ -51,7 +51,7 @@ var izenda = izenda || {};
 		this.areaBullseyeInnerRadius = size * 0.006;
 	};
 
-	ns.gauges.TrendingGauge.prototype.render = function () {
+	ns.gauges.TrendingGauge.prototype.render = function (dynamic) {
 		var self = this, lastRecord = self.data[self.data.length - 1],
 			relativeValue = lastRecord.items[0].value * 100 / self.data[0].items[0].value - 100;
 

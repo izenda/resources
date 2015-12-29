@@ -1,0 +1,17 @@
+﻿<!-- message modal dialog -->
+<div ng-controller="IzendaMessageController as ctrl">
+  <div izenda-bootstrap-modal opened="ctrl.opened">
+    <div class="modal-header">
+      <span ng-bind="ctrl.title"></span>
+    </div>
+    <div class="modal-body">
+      <div class="alert" ng-class="'alert-' + ctrl.alertInfo" ng-bind="ctrl.message"></div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default"
+        ng-click="ctrl.closeModal()"
+        ng-bind="'js_close' | izendaLocale: 'Close'">
+      </button>
+    </div>
+  </div>
+</div>

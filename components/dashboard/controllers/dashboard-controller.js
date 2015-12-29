@@ -17,24 +17,27 @@
 	});
 
 angular
-  .module('izendaDashboard')
-  .controller('IzendaDashboardController', [
-    '$rootScope',
-    '$scope',
-    '$window',
-    '$timeout',
-    '$q',
-    '$log',
-    '$animate',
-    '$injector',
-    '$izendaBackground',
-    '$izendaUrl',
-    '$izendaCompatibility',
-    '$izendaDashboardQuery',
-    '$izendaRsQuery',
-    '$izendaEvent',
+	.module('izendaDashboard')
+	.controller('IzendaDashboardController', [
+		'$rootScope',
+		'$scope',
+		'$window',
+		'$timeout',
+		'$q',
+		'$log',
+		'$animate',
+		'$injector',
+		'$izendaBackground',
+		'$izendaUrl',
+		'$izendaCompatibility',
+		'$izendaDashboardQuery',
+		'$izendaCommonQuery',
+		'$izendaRsQuery',
+		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaSettings',
+		'$izendaScheduleService',
+		'$izendaShareService',
 		'$izendaDashboardState',
     izendaDashboardController]);
 
@@ -42,22 +45,25 @@ angular
    * Dashboard controller
    */
 function izendaDashboardController(
-  $rootScope,
-  $scope,
-  $window,
-  $timeout,
-  $q,
-  $log,
-  $animate,
-  $injector,
-  $izendaBackground,
-  $izendaUrl,
-  $izendaCompatibility,
-  $izendaDashboardQuery,
-  $izendaRsQuery,
+	$rootScope,
+	$scope,
+	$window,
+	$timeout,
+	$q,
+	$log,
+	$animate,
+	$injector,
+	$izendaBackground,
+	$izendaUrl,
+	$izendaCompatibility,
+	$izendaDashboardQuery,
+	$izendaCommonQuery,
+	$izendaRsQuery,
 	$izendaEvent,
 	$izendaLocale,
 	$izendaSettings,
+	$izendaScheduleService,
+	$izendaShareService,
 	$izendaDashboardState) {
 
 	'use strict';
@@ -102,9 +108,6 @@ function izendaDashboardController(
 
 	vm.rights = 'None'; // dashboard sharing rights for current user
 
-	// dashboard notifications:
-	vm.notificationsIdCounter = 1;
-	vm.notifications = [];
 	vm.isMessageDialogOpened = false;
 	vm.messageDialogText = '';
 	vm.messageDialogTitle = '';
@@ -250,17 +253,13 @@ function izendaDashboardController(
 		$window.open($izendaUrl.settings.urlRsPage + '?output=PDF' + addParam, '_self');
 	};
 
-	////////////////////////////////////////////////////////
-	// Notifications
-	////////////////////////////////////////////////////////
-
 	/**
    * Close modal box
    */
-	vm.closeMessageBox = function () {
+	vm.closeMessageBox = function() {
 		vm.isMessageDialogOpened = false;
 		$scope.$applyAsync();
-	}
+	};
 
 	/**
    * Open modal message
@@ -270,65 +269,6 @@ function izendaDashboardController(
 		vm.messageDialogText = text;
 		vm.messageDialogTitle = angular.isDefined(title) ? title : '';
 		$scope.$applyAsync();
-	};
-
-	/**
-   * Close notification
-   */
-	vm.closeNotification = function (id) {
-		var i = 0;
-		while (i < vm.notifications.length) {
-			if (vm.notifications[i].id === id) {
-				vm.cancelNotificationTimeout(id);
-				vm.notifications.splice(i, 1);
-				$scope.$evalAsync();
-				return;
-			}
-			i++;
-		}
-	};
-
-	/**
-   * Open notification
-   */
-	vm.showNotification = function (title, text, icon) {
-		var nextId = vm.notificationsIdCounter++;
-
-		var iconClass = '';
-		if (angular.isString(icon)) {
-			if (icon === 'error') {
-				iconClass = 'glyphicon glyphicon-exclamation-sign';
-			}
-		}
-		var objToShow = {
-			id: nextId,
-			title: title,
-			text: text,
-			iconClass: iconClass
-		};
-		objToShow.timeoutId = setTimeout(function () {
-			vm.closeNotification(objToShow.id);
-		}, 5000);
-		vm.notifications.push(objToShow);
-		$scope.$evalAsync();
-	};
-
-	/**
-   * Cancel notification item autohide
-   */
-	vm.cancelNotificationTimeout = function (id) {
-		var i = 0;
-		while (i < vm.notifications.length) {
-			var itm = vm.notifications[i];
-			if (itm.id == id) {
-				if (itm.timeoutId >= 0) {
-					clearTimeout(vm.notifications[i].timeoutId);
-					vm.notifications[i].timeoutId = -1;
-				}
-				return;
-			}
-			i++;
-		}
 	};
 
 	/**
@@ -588,14 +528,6 @@ function izendaDashboardController(
 	 * Fires when tiles added and animation is completed.
 	 */
 	vm.initializeEventHandlers = function () {
-		$scope.$on('showNotificationEvent', function (event, args) {
-			if (args.length > 0) {
-				var title = args.length > 1 ? args[1] : '';
-				var text = args[0];
-				vm.showNotification(title, text);
-			}
-		});
-
 		$scope.$on('selectedReportNameEvent', function (event, args) {
 			var dashboardName = args[0], dashboardCategory = args[1];
 			save(dashboardName, dashboardCategory);
@@ -1017,13 +949,11 @@ function izendaDashboardController(
 		$izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
 			if (data.Value !== 'OK') {
 				// handle save error:
-				vm.showNotification(null, $izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
-					' "' + dashboardName + '". '
-					+ $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value);
+				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
+					' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value]);
 			} else {
-				var n = $izendaUrl.getReportInfo().name,
-          c = $izendaUrl.getReportInfo().category;
-				vm.showNotification(null, $izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved'));
+				var n = $izendaUrl.getReportInfo().name, c = $izendaUrl.getReportInfo().category;
+				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved')]);
 				if (n !== dashboardName || c !== dashboardCategory) {
 					$rootScope.$broadcast('selectedNewReportNameEvent', [dashboardName, dashboardCategory]);
 				}
@@ -1075,6 +1005,7 @@ function izendaDashboardController(
 						width: cell.Width,
 						height: cell.Height,
 						title: cell.ReportTitle,
+						designerType: cell.DesignerType,
 						isSourceReportDeleted: cell.IsSourceReportDeleted,
 						description: cell.ReportDescription,
 						top: cell.RecordsCount
@@ -1312,9 +1243,28 @@ function izendaDashboardController(
 
 				// watch for location change: we can set dashboard when location is changing
 				$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-					if (reportInfo.fullName === null && !reportInfo.isNew)
+					var initDone = function () {
+						if (reportInfo.fullName === null && !reportInfo.isNew)
+							return;
+						$log.debug('Initialize dashboard after location change: ', reportInfo);
+						vm.initializeDashboard(reportInfo);
+						$izendaScheduleService.loadScheduleData();
+						$izendaShareService.loadShareData();
+					}
+
+					if (!angular.isDefined(reportInfo))
 						return;
-					vm.initializeDashboard(reportInfo);
+					if (reportInfo.isNew) {
+						// create new dashboard
+						$izendaCommonQuery.newDashboard().then(function () {
+							initDone();
+						});
+					} else {
+						// set existing dashboard as current
+						$izendaCommonQuery.setCurrentReportSet(reportInfo.fullName).then(function () {
+							initDone();
+						});
+					}
 				});
 			}
 		});

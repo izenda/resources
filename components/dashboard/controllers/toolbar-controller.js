@@ -1,39 +1,45 @@
 ﻿angular
-  .module('izendaDashboard')
-  .controller('IzendaToolbarController', [
-    '$scope',
-    '$rootScope',
-    '$log',
-    '$window',
-    '$timeout',
-    '$cookies',
-    '$izendaCompatibility',
-    '$izendaBackground',
-    '$izendaSettings',
-    '$izendaPing',
-    '$izendaDashboardToolbarQuery',
-    '$izendaUrl',
+	.module('izendaDashboard')
+	.controller('IzendaToolbarController', [
+		'$injector',
+		'$scope',
+		'$rootScope',
+		'$log',
+		'$window',
+		'$timeout',
+		'$cookies',
+		'$izendaCompatibility',
+		'$izendaBackground',
+		'$izendaSettings',
+		'$izendaPing',
+		'$izendaScheduleService',
+		'$izendaShareService',
+		'$izendaDashboardToolbarQuery',
+		'$izendaUrl',
 		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaDashboardState',
 		izendaToolbarController]);
 
 /**
-   * Toolbar controller
-   */
+ * Toolbar controller
+ */
 function izendaToolbarController(
-  $scope,
-  $rootScope,
-  $log,
-  $window,
-  $timeout,
-  $cookies,
-  $izendaCompatibility,
-  $izendaBackground,
-  $izendaSettings,
-  $izendaPing,
-  $izendaDashboardToolbarQuery,
-  $izendaUrl,
+	$injector,
+	$scope,
+	$rootScope,
+	$log,
+	$window,
+	$timeout,
+	$cookies,
+	$izendaCompatibility,
+	$izendaBackground,
+	$izendaSettings,
+	$izendaPing,
+	$izendaScheduleService,
+	$izendaShareService,
+	$izendaDashboardToolbarQuery,
+	$izendaUrl,
 	$izendaEvent,
 	$izendaLocale,
 	$izendaDashboardState) {
@@ -47,7 +53,7 @@ function izendaToolbarController(
   var vm = this;
   var _ = angular.element;
   $scope.izendaUrl = $izendaUrl;
-	$scope.izendaDashboardState = $izendaDashboardState;
+  $scope.izendaDashboardState = $izendaDashboardState;
   /**
    * Get cookie by name
    */
@@ -65,12 +71,13 @@ function izendaToolbarController(
     return result;
   };
 
-	vm.dashboardsAllowedByLicense = false;
+  vm.dashboardConfig = $injector.get('izendaDashboardConfig');
+  vm.dashboardsAllowedByLicense = false;
   vm.isIE8 = $izendaCompatibility.checkIsIe8();
   vm.isStorageAvailable = $izendaBackground.isStorageAvailable();
   vm.isPresentationModeEnable = !$izendaCompatibility.checkIsLteIe10();
   vm.synchronized = false;
-	vm.isDesignLinksAllowed = true;
+  vm.isDesignLinksAllowed = true;
 
   vm.refreshInterval = null;
   vm.autoRefreshIntervals = [];
@@ -94,64 +101,67 @@ function izendaToolbarController(
 	vm.reportInfo = null;
 
 	vm.sendEmailModalOpened = false;
-  vm.sendEmailState = {
-    errors: [],
-    isLoading: false,
-    errorOccured: false,
-    sendType: 'Link',
-    email: '',
-    opened: false
-  };
+	vm.sendEmailState = {
+		errors: [],
+		isLoading: false,
+		errorOccured: false,
+		sendType: 'Link',
+		email: '',
+		opened: false
+	};
 
-  // background options
-  var backColor = $izendaBackground.getBackgroundColor();
-  vm.izendaBackgroundColor = backColor ? backColor : '#1c8fd6';
-  vm.izendaBackgroundImageUrl = getCookie('izendaDashboardBackgroundImageUrl');
-  vm.hueRotate = false;
-  vm.selectBackgroundImageModalOpened = false; // background image dialog opened
+	vm.scheduleModalOpened = false;
+	vm.shareModalOpened = false;
 
-  vm.isGalleryMode = false; // gallery mode
-  vm.windowResizeOptions = {
-    timeout: false,
-    rtime: null,
-    previousWidth: null
-  };
+	// background options
+	var backColor = $izendaBackground.getBackgroundColor();
+	vm.izendaBackgroundColor = backColor ? backColor : '#1c8fd6';
+	vm.izendaBackgroundImageUrl = getCookie('izendaDashboardBackgroundImageUrl');
+	vm.hueRotate = false;
+	vm.selectBackgroundImageModalOpened = false; // background image dialog opened
 
-  // triple bar button styles:
-  vm.isButtonBarVisible = false;
-  vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
-  vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
-  vm.buttonbarIe8Class = 'nav navbar-nav iz-dash-toolbtn-panel-ie8';
-  vm.buttonbarCollapsedIe8Class = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8 opened';
-  vm.showButtonBar = function () {
-    vm.isButtonBarVisible = true;
-    if (vm.isIE8) {
-      vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel-ie8 opened';
-      vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8';
-    } else {
-      vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition opened';
-      vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition';
-    }
-  };
-  vm.hideButtonBar = function () {
-    vm.isButtonBarVisible = false;
-    if (vm.isIE8) {
-      vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel-ie8';
-      vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8 opened';
-    } else {
-      vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
-      vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
-    }
-    $timeout(function () {
-      vm.updateToolbarItems();
-    }, 200);
-  };
+	vm.isGalleryMode = false; // gallery mode
+	vm.windowResizeOptions = {
+		timeout: false,
+		rtime: null,
+		previousWidth: null
+	};
 
-  //////////////////////////////////////////////////////
-  // PUBLIC
-  //////////////////////////////////////////////////////
+	// triple bar button styles:
+	vm.isButtonBarVisible = false;
+	vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
+	vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+	vm.buttonbarIe8Class = 'nav navbar-nav iz-dash-toolbtn-panel-ie8';
+	vm.buttonbarCollapsedIe8Class = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8 opened';
+	vm.showButtonBar = function () {
+		vm.isButtonBarVisible = true;
+		if (vm.isIE8) {
+			vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel-ie8 opened';
+			vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8';
+		} else {
+			vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition opened';
+			vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition';
+		}
+	};
+	vm.hideButtonBar = function () {
+		vm.isButtonBarVisible = false;
+		if (vm.isIE8) {
+			vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel-ie8';
+			vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8 opened';
+		} else {
+			vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
+			vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+		}
+		$timeout(function () {
+			vm.updateToolbarItems();
+		}, 200);
+	};
 
-  /**
+	//////////////////////////////////////////////////////
+	// PUBLIC
+	//////////////////////////////////////////////////////
+
+	/**
    * Check if one column view required
    */
   vm.isOneColumnView = function () {
@@ -527,7 +537,7 @@ function izendaToolbarController(
 			window.top.location = redirectUrl;
 		}
 		else
-    vm.showEmailModal(type);
+			vm.showEmailModal(type);
   };
 
   /**
@@ -575,17 +585,37 @@ function izendaToolbarController(
    * Open schedule dialog
    */
 	vm.showScheduleDialog = function () {
-    $rootScope.$broadcast('openScheduleModalEvent');
+		vm.scheduleModalOpened = true;
   };
+
+	/**
+	 * Close schedule dialog
+	 */
+	vm.closeScheduleDialog = function (result) {
+		vm.scheduleModalOpened = false;
+		if (result) {
+			$izendaScheduleService.saveScheduleConfigToCrs();
+		}
+	}
 
   /**
    * Open share dialog
    */
 	vm.showShareDialog = function () {
-    $rootScope.$broadcast('openShareModalEvent');
-  };
+		vm.shareModalOpened = true;
+	};
 
-  /**
+	/**
+	 * Close share dialog
+	 */
+	vm.closeShareDialog = function (result) {
+		vm.shareModalOpened = false;
+		if (result) {
+			$izendaShareService.saveShareConfigToCrs();
+		}
+	}
+
+	/**
    * Turn off dashboard filters
    */
 	vm.closeDashboardFilters = function () {
@@ -684,6 +714,8 @@ function izendaToolbarController(
 
 				// watch for location change
 				$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+					if (!angular.isDefined(reportInfo))
+						return;
 					if (reportInfo.fullName === null && !reportInfo.isNew)
 						return;
 					vm.dashboardLocationChangedHandler(reportInfo);

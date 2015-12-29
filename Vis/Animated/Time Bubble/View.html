@@ -194,12 +194,16 @@
 			}
 
 			function interpolateData(year) {
-				return vis.items.map(function (d) {
+				return vis.items.map(function(d) {
+					function safeNumber(value) {
+						return (typeof value != "undefined" && !Number.isNaN(value)) ? value : 0;
+					}
+
 					var result = {};
-					vis.unitLabel(result, 0, { value: vis.unitValue(d, 0) });
-					vis.unitLabel(result, 2, { value: interpolateValues(vis.unitValue(d, 2), year) });
-					vis.unitLabel(result, 3, { value: interpolateValues(vis.unitValue(d, 3), year) });
-					vis.unitLabel(result, 4, { value: interpolateValues(vis.unitValue(d, 4), year) });
+					vis.unitLabel(result, 0, { value: safeNumber(vis.unitValue(d, 0)) });
+					vis.unitLabel(result, 2, { value: safeNumber(interpolateValues(vis.unitValue(d, 2), year)) });
+					vis.unitLabel(result, 3, { value: safeNumber(interpolateValues(vis.unitValue(d, 3), year)) });
+					vis.unitLabel(result, 4, { value: safeNumber(interpolateValues(vis.unitValue(d, 4), year)) });
 					return result;
 				});
 			}

@@ -15,12 +15,7 @@
 
 		var UNCATEGORIZED = 'Uncategorized';
 
-		var reportNameInfo = {
-			fullName: null,
-			name: null,
-			category: null,
-			isNew: false
-		};
+		var reportNameInfo;
 
 		/**
 		* Extract report name from category\report full name
@@ -36,7 +31,7 @@
 		/**
 		* Extract report category from "category\report full name
 		*/
-		var extractCategory = function (fullName) {
+		var extractCategory = function(fullName) {
 			if (angular.isString(fullName)) {
 				var reportFullNameParts = fullName.split('\\');
 				var category;
@@ -47,12 +42,12 @@
 				return category;
 			} else
 				throw 'Can\'t extract category from object ' + fullName + 'with type ' + typeof (fullName);
-		}
+		};
 
 		/**
 		* Extract report name, category, report set name for report part.
 		*/
-		var extractReportPart = function (reportFullName, isPartNameAtRight) {
+		var extractReportPart = function(reportFullName, isPartNameAtRight) {
 			if (reportFullName == null)
 				throw 'Full name is null';
 
@@ -81,7 +76,7 @@
 				result.reportNameWithCategory = result.reportCategory + '\\' + result.reportNameWithCategory;
 			result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
 			return result;
-		}
+		};
 
 		/**
 		* Set report name and category to location
@@ -165,25 +160,14 @@
 		*/
 		var locationChangedHandler = function () {
 			// cancel all current queries
-			var countCancelled = $izendaRsQuery.cancelAllQueries({
-				ignoreList: ['wscmd=getdashboardcategories', 'wscmd=getprintmodesetting', 'wscmd=ping']
-			});
+			var countCancelled = $izendaRsQuery.cancelAllQueries();
 			if (countCancelled > 0)
 				$log.debug('>>> Cancelled ' + countCancelled + ' queryes');
 			
 			// set current report set
-			var location = getLocation();
-			if (location.isNew) {
-				$izendaCommonQuery.newDashboard().then(function () {
-					reportNameInfo = location;
-					$log.debug('Location changed: ', reportNameInfo);
-				});
-			} else {
-				$izendaCommonQuery.setCurrentReportSet(location.fullName).then(function () {
-					reportNameInfo = location;
-					$log.debug('Location changed: ', reportNameInfo);
-				});
-			}
+			var newLocation2 = getLocation();
+			if (newLocation2.fullName !== reportNameInfo.fullName || newLocation2.isNew !== reportNameInfo.isNew)
+				reportNameInfo = newLocation2;
 		};
 
 		// initialize service:
@@ -192,7 +176,7 @@
 		$rootScope.$on('$locationChangeSuccess', function () {
 			locationChangedHandler();
 		});
-		locationChangedHandler();
+		reportNameInfo = getLocation();
 
 		// start ping
 		$izendaPing.startPing(10000);

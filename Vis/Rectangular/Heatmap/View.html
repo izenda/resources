@@ -30,6 +30,14 @@
 		stroke-width: 2px;
 	}
 
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER .chart {
 		display: block;
 		margin: auto;
@@ -43,6 +51,7 @@
 		margin: 2px;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		font-weight: normal;
 	}
 
 	#VIS_ID_CONTAINER .parent .label {
@@ -99,6 +108,7 @@
 		float: right;
 		position: relative;
 		right: 0;
+		opacity: 0;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
@@ -184,9 +194,7 @@
 				return;
 			}
 
-			if (s.props.metric) {
-				metricSelect.val(s.props.metric);
-			}
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		metricSelect.find("option").remove();
@@ -215,6 +223,7 @@
 			onclick: function (d) { zoom(d); },
 			root: null,
 			showLabel: false,
+			hidden: true,
 			isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
 		});
 

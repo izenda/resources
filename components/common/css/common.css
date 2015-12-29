@@ -1,9 +1,14 @@
 ﻿/* checkboxes directive */
 
+.no-side-paddings {
+	padding-left: 0;
+	padding-right: 0;
+}
+
 .izenda-select-checkboxes {
-	height: 100px; 
-	overflow: auto; 
-	display: block; 
+	height: 100px;
+	overflow: auto;
+	display: block;
 	border: 1px solid #ccc;
 	background-color: #fff;
 }
@@ -14,14 +19,14 @@
 	width: 100%;
 }
 
-.izenda-select-checkboxes-label:hover {
-	background-color: #f3f3f3;
-	background-color: rgba(0, 0, 0, 0.05);
-}
+	.izenda-select-checkboxes-label:hover {
+		background-color: #f3f3f3;
+		background-color: rgba(0, 0, 0, 0.05);
+	}
 
-.izenda-select-checkboxes-label > span {
-	margin-left: 5px;
-}
+	.izenda-select-checkboxes-label > span {
+		margin-left: 5px;
+	}
 
 /* toggle button directive */
 
@@ -30,15 +35,16 @@
 	height: 30px;
 	top: -5px;
 }
+
 	.izenda-toggle-button-btn:hover,
 	.izenda-toggle-button-btn:focus {
 		color: #fff;
 	}
 
 
-.izenda-toggle-button-btn.active {
-	background-color: rgba(255, 255, 255, 0.2);
-}
+	.izenda-toggle-button-btn.active {
+		background-color: rgba(255, 255, 255, 0.2);
+	}
 
 /* schedule */
 
@@ -54,12 +60,27 @@
 	width: 200px !important;
 }
 
+.izenda-width-250 {
+	width: 200px !important;
+}
+
+.izenda-width-400 {
+	width: 400px !important;
+}
+
 .izenda-cursor-pointer {
 	cursor: pointer;
 }
 
-.bootstrap-timepicker-widget {
-	z-index: 1041;
+.bootstrap-datetimepicker-widget {
+	z-index: 9999;
+}
+
+.bootstrap-datetimepicker-widget a,
+.bootstrap-datetimepicker-widget a:hover,
+.bootstrap-datetimepicker-widget a:visited,
+.bootstrap-datetimepicker-widget a:focus {
+	color: #4274af;
 }
 
 /* switcher */
@@ -153,4 +174,119 @@
 
 	.izenda-switcher.on > .izenda-switcher-item {
 		left: 2px;
+	}
+
+/* align switcher */
+
+.izenda-align-switcher {
+	padding: 0.2em;
+	display: inline-block;
+	color: #4274AF;
+	background-color: #fff;
+	width: 1.4em;
+	height: 1.4em;
+	line-height: 1em;
+	font-size: 1em;
+	text-align: center;
+	cursor: pointer;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.html-container {
+	min-width: 100%;
+}
+
+/***************** notifications **************/
+
+#notificationDiv {
+	position: fixed;
+	font-family: 'Open Sans', sans-serif;
+	right: 10px;
+	bottom: 10px;
+	z-index: 1005;
+}
+
+.iz-dash-notification {
+	min-width: 200px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	padding: 15px;
+	padding-right: 35px;
+	margin: 5px;
+	position: relative;
+}
+
+	.iz-dash-notification > .title {
+		font-weight: bold;
+		margin-left: 16px;
+	}
+
+	.iz-dash-notification > .text {
+	}
+
+	.iz-dash-notification > .icon {
+		color: red;
+		float: left;
+		position: absolute;
+		left: 8px;
+		top: 18px;
+	}
+
+	.iz-dash-notification > .close-button {
+		position: absolute;
+		width: 24px;
+		height: 24px;
+		line-height: 24px;
+		right: 5px;
+		top: 15px;
+		text-align: center;
+		cursor: pointer;
+	}
+
+/* COMMON */
+
+.izenda-vcentered-container {
+	height: 100%;
+}
+
+.izenda-vcentered-item {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin: -24px -24px;
+	width: 48px;
+}
+
+.btn-izenda-dark {
+	outline: transparent;
+	color: #fff;
+	background-color: #1c4389;
+}
+
+	.btn-izenda-dark:hover,
+	.btn-izenda-dark:focus {
+		outline: transparent;
+		color: #fff;
+		background-color: #3668A3;
+	}
+
+	.btn-izenda-dark.active {
+		outline: transparent;
+		color: #1c4389;
+		background-color: #b3cbda;
+	}
+
+	.btn-izenda-dark.active:hover,
+	.btn-izenda-dark.active:focus {
+		outline: transparent;
+		color: #1c4389;
+		background-color: #b3cbda;
 	}

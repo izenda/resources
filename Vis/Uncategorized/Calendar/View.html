@@ -1106,6 +1106,13 @@ be a descendant of the grid when it is being dragged.
 		vertical-align: middle;
 	}
 
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+		opacity: 0;
+	}
+
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .selector {
 		display: inline-block;
 		height: 27px;
@@ -1146,10 +1153,15 @@ be a descendant of the grid when it is being dragged.
 		height: 13px;
 	}
 
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control label {
 		font-size: 13px;
 		color: #000000;
 		display: inline-block;
+		font-weight: normal;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control input,
@@ -1207,7 +1219,7 @@ be a descendant of the grid when it is being dragged.
 
 <div id="VIS_ID_CONTAINER">
 	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint" style="float:right; position: relative; right: 0;">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
 			<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
 		</div>
 		<div class="clearfix"></div>
@@ -1238,6 +1250,8 @@ be a descendant of the grid when it is being dragged.
 
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
 			return;
+
+		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
@@ -1361,45 +1375,47 @@ be a descendant of the grid when it is being dragged.
 		var customDefaultDateInput = vs.find("#VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT"),
 			customDefaultDateControl = customDefaultDateInput.parent();
 
-		customDefaultDateInput.datepicker({
-			format: "mm/dd/yyyy",
-			clearBtn: true,
-			autoclose: true
-		});
+		if (!isImageRender) {
+			customDefaultDateInput.datepicker({
+				format: "mm/dd/yyyy",
+				clearBtn: true,
+				autoclose: true
+			});
 
-		defaultDateTypeSelect
-			.unbind("change")
-			.bind("change", function () {
-				if (this.value == "CustomDate") {
-					customDefaultDateControl.show();
-					var date = new Date(customDefaultDateInput.val());
+			defaultDateTypeSelect
+				.unbind("change")
+				.bind("change", function() {
+					if (this.value == "CustomDate") {
+						customDefaultDateControl.show();
+						var date = new Date(customDefaultDateInput.val());
+						if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
+							store();
+							ExecuteVIS_ID();
+						}
+					} else {
+						customDefaultDateControl.hide();
+						store();
+						ExecuteVIS_ID();
+					}
+				});
+
+			customDefaultDateInput
+				.unbind("change")
+				.bind("change", function(e) {
+					var date = new Date(this.value);
 					if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
 						store();
 						ExecuteVIS_ID();
 					}
-				} else {
-					customDefaultDateControl.hide();
-					store();
-					ExecuteVIS_ID();
-				}
-			});
+				});
 
-		customDefaultDateInput
-			.unbind("change")
-			.bind("change", function (e) {
-				var date = new Date(this.value);
-				if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
-					store();
-					ExecuteVIS_ID();
-				}
-			});
-
-		customDefaultDateControl.find("span.input-group-addon")
-			.unbind("click")
-			.bind("click", function () {
-			if ($("#iz-ui-datepicker-div").is(":hidden"))
-				customDefaultDateInput.datepicker("show");
-			});
+			customDefaultDateControl.find("span.input-group-addon")
+				.unbind("click")
+				.bind("click", function() {
+					if ($("#iz-ui-datepicker-div").is(":hidden"))
+						customDefaultDateInput.datepicker("show");
+				});
+		}
 
 		restore();
 

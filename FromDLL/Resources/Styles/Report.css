@@ -1,3 +1,5 @@
+﻿/* Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED */
+
 table.ReportTable
 {	
 	border-style:none;
@@ -35,7 +37,6 @@ table.ReportTable td.GridCellAGTotal
 	font-size: 10pt;
 	border-width:1px;
 	border-style:solid;
-	text-align:left;
 	font-weight:bold;
 	font-style:italic;
 	border-color: White;
@@ -48,7 +49,6 @@ table.ReportTable td.GridCellAG
 	font-size: 10pt;
 	border-width:1px;
 	border-style:solid;
-	text-align:left;
 	font-style:italic;
 	border-color: White;
 	border-right: none;
@@ -64,7 +64,7 @@ table.ReportTable td.EmptyCellAG-Line
 {
 	border-left: none;
 	border-right: none;
-    border-bottom: 0px;
+	border-top: 1px solid white;
 }
 
 table.ReportTable td.ValueCellAG
@@ -147,21 +147,23 @@ table.ReportTable td.GridCellHG3
 	font-style:normal;
 	font-weight:normal;
 }
-tr.ReportHeader td, table.ReportTable td.ReportHeader
+
+tr.ReportHeader td
 {
 	font-size: 9pt;
-	font-weight:bold; 
+	font-weight:normal; 
 	border-width:1px;
 	border-style:solid;
+	border-bottom: solid 1px #AFAFAF!important;
 }
-thead.ReportHeader td, thead.ReportHeader
+tr.ReportFooter, tr.ReportFooter td
 {
-	font-size: 9pt;
-	font-weight:bold; 
-	border-width:1px;
-	border-style:solid;
+	border-top-color: gainsboro !important;
+	border-top-width: 1px !important;
+	color: Black;
 }
-tr.ReportItem td, table.ReportTable td.ReportItem
+
+tr.ReportItem td
 {
 	vertical-align:top;
 	font-size: 8pt;
@@ -175,8 +177,7 @@ tr.ReportItemAGTotal td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	text-align:right;
+	border-right:none;
 	font-weight:bold;
 	font-style:italic;
 }
@@ -188,7 +189,6 @@ tr.ReportItemAG td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
 	font-style:italic;
 }
 tr.ReportItemAGLvl0 td,
@@ -200,7 +200,7 @@ tr.ReportItemAGLocalTotal td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
+	border-top-width:2px;
 	font-weight:bold;
 }
 tr.ReportItemHG0 td
@@ -211,7 +211,6 @@ tr.ReportItemHG0 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:italic;
 	font-weight:bold;
 }
@@ -223,7 +222,6 @@ tr.ReportItemHG1 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:normal;
 	font-weight:bold;
 }
@@ -235,7 +233,6 @@ tr.ReportItemHG2 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:italic;
 	font-weight:normal;
 }
@@ -247,11 +244,10 @@ tr.ReportItemHG3 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	/*text-align:right;*/
 	font-style:normal;
 	font-weight:normal;
 }
-tr.AlternatingItem td, table.ReportTable td.AlternatingItem
+tr.AlternatingItem td
 {
 	vertical-align:top;
 	font-size: 8pt;
@@ -266,7 +262,6 @@ tr.AlternatingItemAGTotal td
 	border-style:solid;
 	border-left:none;
 	border-right:none;
-	text-align:right;
 	font-weight:bold;
 	font-style:italic;
 }
@@ -277,8 +272,7 @@ tr.AlternatingItemAG td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	text-align:right;
+	border-right:none;
 	font-style:italic;
 }
 tr.AlternatingItemAGLvl0 td
@@ -289,7 +283,7 @@ tr.AlternatingItemAGLvl0 td
 	border-style:solid;
 	border-left:none;
 	border-right:none;	
-	text-align:right;
+	border-top-width:2px;	
 	font-weight:bold;
 }
 tr.AlternatingItemHG1 td
@@ -299,8 +293,7 @@ tr.AlternatingItemHG1 td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	/*text-align:right;*/
+	border-right:none;
 	font-style:normal;
 	font-weight:bold;
 }
@@ -311,8 +304,7 @@ tr.AlternatingItemHG0 td
 	border-width:1px;
 	border-style:solid;
 	border-left:none;
-	border-right:none;	
-	/*text-align:right;*/
+	border-right:none;
 	font-style:normal;
 	font-weight:normal;
 }
@@ -323,12 +315,14 @@ tr.ReportFooter td
 	font-weight:bold; 
 	border-width:1px;
 	border-style:solid;
+	border-top-style: double;
 }
 span.ReportTitle
 {
-	font-size: 20pt;
-	font-weight:bold;
-	white-space: nowrap;
+	font-size: 18pt;
+	font-weight: normal;
+	white-space: pre-wrap;
+	background-color: #F0F0F0;
 }
 /*span.Header
 {
@@ -342,177 +336,59 @@ span.Footer
 {
 	white-space: nowrap;
 }*/
+
+tr.VisualGroup
+{
+	border-width: 0px;
+	border-style: none;
+	border: none;
+	cursor: pointer;
+	height: 30px;
+	vertical-align: bottom;
+}
+
 tr.VisualGroup tr
 {
 	border-width:3px;
 	cursor:pointer;
 	border-style:solid;
 }
-tr.VisualGroup td
+
+tr.VisualGroupCollapsed
 {
-  text-align:left;
+	border-width: 0px;
+	border-style: none;
+	border: none;
+	cursor: pointer;
+	height: 30px;
+	vertical-align: bottom;
+	border-top: 1px solid #D4D4D4;
+}
+
+table.ReportTable:not(.fvTable) tr.VisualGroup td
+{
+	text-align:left;
 	padding-top:10px;
 	border-right-style:solid;
 	border-right-width:0px;
+	padding-left: 16px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAESSURBVChTfY9NTgJBEIXnFMbgTNh6BpZuPYOJF+oeXBoSNqwUt5zAuHIHTA/EmAkLFkBQE38iMF3Fq+pRMCG+9HRedX31pjvq9t9O7Cg2WZKOazaDQZlYd2TzOHV1MzxrF8XyK2Lim8ESRzUjDVkmi20fJmm6885z7+nDM0XErOgLRmOTh2wsZF90p9ls9V16IOA8e4GRepyOQAuausb1+L54RwSjTeBIPJKx3Q5fwwUu76YPk08PKSd5+NRJgcnW4+L0KnfzlQAQ8VodOMkqq0NIysqEC0FUhrzQEInBV6FqqcQOboM5zdv8EHtJKiKK9AVyHhoY0j/+qhr4+w7RPrSTvAOxocBV/uFESkCHIWbeAkF+vuxobxzWAAAAAElFTkSuQmCC);
+	background-repeat: no-repeat;
+	background-position: 0px 15px;
+	padding-bottom: 4px;
+}
+
+table.ReportTable:not(.fvTable)  tr.VisualGroupCollapsed td {
+	padding-left: 16px;
+	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEESURBVChTfZA9bsJAEIXnGIhABAV34AIpcogoJ/KilKSgoAqhzgFSpEsDjo0RkUCUIFkoUX4UszN5OwOOFMk82bOz+56/3TW95t8sIuzZY6gUXQwWD/P3wu8lxCtFrWh6OVwmm09MkNTwH/k49dR0adNlV6PV4/IjbO1hAX6whbVlCbkzlzWipNtfPK1yXRZmhheqhpj3dO6SWi+tu6TRS6/H69nmi+XHsCZrqB7NAAMSDQ7QuclggKS2HRS7C7VdDBKi7SgF+/Z5Gwj2HKQ57Ggw1PHkDctloAwz7msw3Ob+JbdPUW1QhRYvAYPQKEbohPT/IaSUkvFfcOgu3mlfaK2QFL9Y878B1uRkcwAAAABJRU5ErkJggg==);
+	background-repeat: no-repeat;
+	background-position: 0px 12px;
+	padding-bottom: 4px;
 }
 
 div.autoWide 
 {
 	display:inline-table;
-}
-
-.comboboxTreeMultyselect {
-	width: 300px;
-}
-
-.comboboxTreeMultyselect .textArea .showHide {
-	width: 13px;
-	height: 13px;
-	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
-	cursor: pointer;
-	float: right;
-	margin-top: 5px;
-}
-
-.comboboxTreeMultyselect .tree {
-	border: 1px solid #8FB3D4;
-	max-height: 300px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	width: 300px;
-	background: white;
-	position: absolute;
-	z-index: 30;
-	margin-top: 1px;
-}
-
-.comboboxTreeMultyselect .tree .node {
-	margin-left: 10px;
-}
-
-.comboboxTreeMultyselect .tree .collapsed div {
-	display: none;
-}
-
-.comboboxTreeMultyselect .tree .node >.collapse {
-	display: inline-block;
-	width: 13px;
-	height: 13px;
-	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -26px 0 transparent;
-}
-
-.comboboxTreeMultyselect .tree .haschild >.collapse {
-	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
-}
-
-.comboboxTreeMultyselect .tree .collapsed >.collapse {
-	background: url("rs.aspx?image=treeArrows.png") no-repeat scroll 0 0 transparent;}
-	
-.comboboxTreeMultyselect .textArea {
-	
-    border: 1px solid #8FB3D4;
-    cursor: text;
-    overflow: hidden;
-    padding-bottom: 2px;
-    padding-left: 2px;
-    padding-top: 0;
-    min-height: 18px;
-	width: 298px;
-   
-}
-
-.comboboxTreeMultyselect .cInput {
-	width: 300px;
-	border: 1px solid #FFFFFF;
-    height: 14px;
-    margin-right: -16px;
-    margin-top: 2px;
-    min-width: 4px;
-    overflow: hidden;
-    position: relative;
-    float: left;
-    cursor: text;
-}
-
-.comboboxTreeMultyselect .cInput input {
-	border: 0 none;
-    font-family: Verdana,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    min-width: 4px;
-    outline: medium none;
-    padding-left: 0;
-    position: relative;
-    width: 300px;
-    z-index: 0;
-    margin-top: 0;
-    padding-top: 0;
-    font-size: 11px;
-    padding-bottom: 3px;
-	margin-right: -4px;
-}
-
-.comboboxTreeMultyselect .cValid {
-	background-color: #E0E9F1;
-    border: 1px solid #BAC2CC;
-    color: #243241;
-    cursor: default;
-    font-size: 12px;
-    margin-top: 1px;
-    padding: 0 1px 1px 4px;
-    position: relative;
-    z-index: 1;
-    float: left;
-    margin-right: 3px;
-}
-
-.comboboxTreeMultyselect .chunkX {
-	cursor: pointer;
-    height: 10px;
-    padding: 0 2px;
-    position: relative;
-    top: 1px;
-    vertical-align: baseline;
-    width: 10px;
-    border: medium none;
-    font-size: 11px;
-}
-
-.comboboxTreeMultyselect .search {
-	width: 280px;
-	border: none;
-}
-
-.comboboxTreeMultyselect .tree .hiddenBySearch {
-	display: none;
-}
-
-.comboboxTreeMultyselect .tree .node .highlight {
-	background-color: yellow;
-}
-
-.comboboxTreeMultyselect .selectedValues {
-	display: inline-block;
-	border: 1px solid #BAC2CC;
-	min-width: 300px;
-	max-width: 300px;
-}
-
-.comboboxTreeMultyselect .hiddenTree {
-	display: none;
-}
-
-.MultivaluedCheckbox {
-	height: 0.8em;
-	padding-left: 2px;
-	padding-right: 2px;
-	width: 0.8em;
-}
-
-
-.MultivaluedCheckbox input{
-	height: 0.8em;
-	margin-top: -1px;
-	width: 0.8em;
-	cursor: pointer;
 }
 
 .funnel-border {

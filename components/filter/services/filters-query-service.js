@@ -28,7 +28,7 @@
 
         function loadAllFiltersData() {
           return $izendaRsQuery.query('getallfiltersdata', [], {
-            dataTyoe: 'json'
+            dataType: 'json'
           });
         }
 

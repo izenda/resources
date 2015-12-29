@@ -33,7 +33,7 @@ table {
 /*  border-spacing: 0;*/
 }
 caption, th, td {
-  font-weight: normal;
+  font-weight: inherit;
 }
 blockquote:before, blockquote:after,
 q:before, q:after {

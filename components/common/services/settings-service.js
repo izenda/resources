@@ -9,39 +9,79 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	'use strict';
 
 	var dashboardSettingsCached = {};
+	var dateFormat = {
+		date: 'MM/DD/YYYY',
+		time: 'hh:mm A'
+	};
+	var culture = 'en';
+
+	var convertDotNetTimeFormatToMoment = function(format) {
+		var result = format;
+		result = result.replaceAll('tt', 'A');
+		return result;
+	};
 
 	/**
 	* Get all dashboard settings
 	*/
-	var getDashboardSettings = function () {
+	var getDashboardSettings = function() {
 		return $izendaRsQuery.query('getDashboardSettings', [], {
-			dataType: 'json'
-		},
-		// custom error handler:
-		{
-			handler: function () {
-				return $izendaLocale.localeText('js_DashboardSettingsError', 'Failed to get Dashboard settings');
+				dataType: 'json'
 			},
-			params: []
-		});
-	}
+			// custom error handler:
+			{
+				handler: function() {
+					return $izendaLocale.localeText('js_DashboardSettingsError', 'Failed to get Dashboard settings');
+				},
+				params: []
+			});
+	};
 
 	/**
 	* Get common settings
 	*/
 	var getCommonSettings = function () {
-		return $izendaRsQuery.query('getCommonSettings', [], {
-			dataType: 'json',
-			cache: true
-		},
-		// custom error handler:
-		{
-			handler: function () {
-				return 'Failed to get settings';
+		return $q(function(resolve) {
+			$izendaRsQuery.query('getCommonSettings', [], {
+				dataType: 'json',
+				cache: true
 			},
-			params: []
+			// custom error handler:
+			{
+				handler: function () {
+					return 'Failed to get settings';
+				},
+				params: []
+			}).then(function (settings) {
+				dateFormat.date = settings.dateFormat;
+				dateFormat.time = convertDotNetTimeFormatToMoment(settings.timeFormat);
+				culture = settings.culture;
+				resolve(settings);
+			});
+		});
+	};
+
+	/**
+	 * Load date format
+	 */
+	var loadSettings = function() {
+		getCommonSettings().then(function(settings) {
+			dateFormat.date = settings.dateFormat;
+			dateFormat.time = convertDotNetTimeFormatToMoment(settings.timeFormat);
+			culture = settings.culture;
 		});
 	}
+
+	/**
+	 * Get date format
+	 */
+	var getDateFormat = function() {
+		return dateFormat;
+	};
+
+	var getCulture = function() {
+		return culture;
+	};
 
 	/**
 	 * Get dashboard setting from server or cache
@@ -76,10 +116,14 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 		return dashboardsAllowed;
 	};
 
+	loadSettings();
+
 	return {
 		getPrintMode: getPrintMode,
 		getDashboardAllowed: getDashboardAllowed,
-		getCommonSettings: getCommonSettings
-	}
+		getCommonSettings: getCommonSettings,
+		getDateFormat: getDateFormat,
+		getCulture: getCulture
+	};
 }
 ]);

@@ -151,6 +151,7 @@ body {
 
 #izendaDashboardMainContainer {
 	font-size: 16px;
+	position: relative;
 }
 
 #dashboardsDiv {
@@ -194,9 +195,6 @@ body {
 	-moz-background-size: cover;
 	-o-background-size: cover;
 	background-size: cover;
-}
-
-#mainContentDiv {
 }
 
 #dashboardBodyContainer {
@@ -298,6 +296,7 @@ body {
 	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
 	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
 	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	margin-bottom: 0;
 }
 
 .left-transition {
@@ -345,7 +344,7 @@ body {
   overflow: hidden; 
   white-space: nowrap; 
   margin: 0 40px;
-	height: 50px;
+	height: 49px;
 }
 
 .iz-dash-linkspanel-navbar-3 {
@@ -492,18 +491,6 @@ body {
 	font-size: 16px;
 	padding: 0 10px;
 	color: #999999;
-}
-
-.iz-dash-tile-vcentered-container {
-	height: 100%;
-}
-
-.iz-dash-tile-vcentered-item {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	margin: -24px -24px;
-	width: 48px;
 }
 
 .iz-dash-tile {
@@ -1215,57 +1202,6 @@ body {
 
 :fullscreen::backdrop {
 	/*background-color: #000 !important;*/
-}
-
-/***************** notifications **************/
-
-#notificationDiv {
-	position: fixed;
-	font-family: 'Open Sans', sans-serif;
-	right: 10px;
-	bottom: 10px;
-	z-index: 1005;
-}
-
-.iz-dash-notification {
-	min-width: 200px;
-	background-color: #fff;
-	border: 1px solid #ddd;
-	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
-	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
-	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
-	padding: 15px;
-	padding-right: 35px;
-	margin: 5px;
-	position: relative;
-}
-
-.iz-dash-notification > .title {
-	font-weight: bold;
-	margin-left: 16px;
-}
-
-.iz-dash-notification > .text {
-	
-}
-
-.iz-dash-notification > .icon {
-	color: red;
-  float: left;
-  position: absolute;
-  left: 8px;
-  top: 18px;
-}
-
-.iz-dash-notification > .close-button {
-	position: absolute;
-	width: 24px;
-	height: 24px;
-	line-height: 24px;
-	right: 5px;
-	top: 15px;
-	text-align: center;
-	cursor: pointer;
 }
 
 /*****************toolbar accordion***************/

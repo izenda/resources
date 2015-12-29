@@ -127,7 +127,7 @@
 			// Adds items to the chart.
 			for (i = 0; i < vis.items.length; i++) {
 				g.append("g").selectAll(".hour")
-					.data(vis.unitValue(vis.items[i], 2))
+					.data(vis.unitValue(vis.items[i], 2).filter(function(e) { return e[1] != undefined; }))
 					.enter().append("rect")
 					.attr("x", function (d) {
 						// Calculates an item position by date.

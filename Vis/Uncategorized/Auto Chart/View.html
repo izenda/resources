@@ -55,6 +55,14 @@
 		*overflow: hidden;
 	}
 
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER .property-control select {
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER .property-control .navigation {
 		margin: 0;
 		padding: 0;
@@ -108,7 +116,6 @@
 		display: inline-block;
 		height: 27px;
 		width: 24px;
-		padding-top: 7px;
 		cursor: pointer;
 		-webkit-touch-callout: none;
 		-webkit-user-select: none;
@@ -120,6 +127,10 @@
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
 		display: inline-block;
+	}
+	
+	#VIS_ID_CONTAINER .property-control label {
+		font-weight: normal;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR {
@@ -182,6 +193,7 @@
 		border: 1px solid #AAA;
 		opacity: 0.7;
 		display: inline-block;
+		box-sizing: content-box;
 		cursor: pointer;
 	}
 
@@ -259,15 +271,25 @@
 <div id="VIS_ID_CONTAINER">
 	<div id="VIS_ID_HOLDER">
 		<div id="VIS_ID_BREADCRUMBS_PANEL" style="float: left; display: inline-block;"></div>
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint" style="float:right; position: relative; right: 0;">
-			<div id="VIS_ID_REFRESH_SELECTOR" class="selector">&nbsp;</div>
-			<div id="VIS_ID_PALETTE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			<div id="VIS_ID_TYPE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			<div class="property-control">
-				<span>Metrics:</span>
-				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
-				<span><select id="VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"></select></span>
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint" style="float:right; position: relative; right: 0; display: table;">
+			<div style="display: table-cell; vertical-align: middle;">
+				<div id="VIS_ID_REFRESH_SELECTOR" class="selector">&nbsp;</div>
+			</div>
+			<div style="display: table-cell; vertical-align: middle;">
+				<div id="VIS_ID_PALETTE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
+			</div>
+			<div style="display: table-cell; vertical-align: middle;">
+				<div id="VIS_ID_TYPE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
+			</div>
+			<div style="display: table-cell; vertical-align: middle;">
+				<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
+			</div>
+			<div style="display: table-cell; vertical-align: top; padding-top: 2px;">
+				<div class="property-control">
+					<span>Metrics:</span>
+					<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+					<span><select id="VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"></select></span>
+				</div>
 			</div>
 		</div>
 		<div class="clearfix"></div>
@@ -685,8 +707,8 @@
 
 			colors = palettes[s.props.palette].colors;
 
-			metricSelect.val(s.props.metric);
-			metricExtraSelect.val(s.props.metric2);
+			util.setSelectValue(metricSelect, s.props.metric);
+			util.setSelectValue(metricExtraSelect, s.props.metric2);
 
 			coloredSelect.prop("checked", !!s.props.colored);
 			zeroCheckbox.prop("checked", !!s.props.fromZero);
@@ -929,7 +951,7 @@
 			onclick: recall
 		});
 
-		if (vis.forInstantReports) {
+		if (vis.isInstantReports) {
 			s.init = false;
 			s.hideTimeout = 3000;
 		}
@@ -1762,7 +1784,7 @@
 		}
 
 		var iw = jq$('#rightHelpDiv').width();
-		if (vis.forInstantReports && virgin) {
+		if (vis.isInstantReports && virgin) {
 			virgin = false;
 			setTimeout(function () { checkRhd(iw, 1); }, 100);
 		}

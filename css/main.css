@@ -9,13 +9,82 @@
 
 html, body {
   height: 100%;
+	margin: 0;
+	padding: 0;
 }
 
 body {
-  font-family: "SourceSansProRegular", "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
+  font-family: "Segoe UI", Tahoma, Verdana, Arial, Helvetica, sans-serif;
 	color: black;
 	background-color: #fff;
 }
+
+/* MASTER LAYOUT */
+
+.izenda-layout-wrapper {
+	width: 100%;
+	min-width: 320px;
+	min-height: 100%;
+	height: auto !important;
+	height: 100%;
+}
+
+.izenda-layout-header {
+	height: auto;
+}
+
+.izenda-layout-middle {
+	width: 100%;
+	padding: 0 0 50px;
+	position: relative;
+}
+.izenda-layout-middle:after {
+	display: table;
+	clear: both;
+	content: '';
+}
+.izenda-layout-container {
+	width: 100%;
+}
+
+.izenda-layout-main-navbar {
+	margin-bottom: 0;
+}
+
+.izenda-layout-footer {
+	margin: -50px auto 0;
+	min-width: 320px;
+	height: 50px;
+	color: #aaaaaa;
+	text-align: right;
+	position: relative;
+}
+
+.izenda-layout-footer .copyright {
+	display: inline-block;
+	padding-right: 16px;
+	margin-top: 16px;
+}
+
+.izenda-new-report-button {
+	border: 0;
+	padding-top: 14px;
+	padding-bottom: 14px;
+	background-color: #1862A4 !important;
+	color: #fff;
+}
+
+.izenda-new-report-button:hover,
+.izenda-new-report-button:focus {
+	color: #fff !important;
+	background-color: #1b70ba !important;
+}
+
+.izenda-new-report-button:visited {
+	color: #fff !important;
+}
+
+/* END OF MASTER LAYOUT */
 
 p {
   margin: .75em 0;
@@ -741,7 +810,7 @@ tr.ReportFooter td {
   line-height: 20px;
   padding: 2px 0 0 6px;
   position: relative; 
-  word-break: normal;
+  word-break: break-all;
 }
 
 
@@ -1115,10 +1184,6 @@ a.button.default:active, a.button.default:active:hover {
 .modal .modal-body {
     max-height: 600px;
     overflow-y: auto;
-}
-
-.subjects-row {
-  margin-bottom: 10px;
 }
 
 .izenda,

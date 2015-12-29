@@ -2,12 +2,6 @@
 
 <div id="izendaDashboardMainContainer" ng-app="izendaDashboard">
   
-  <!-- schedule dialog -->
-  <div ng-include="'Resources/components/common/templates/schedule.html'"></div>
-  
-  <!-- share dialog -->
-  <div ng-include="'Resources/components/common/templates/share.html'"></div>
-
   <!-- select report name and category dialog -->
   <div ng-include="'Resources/components/common/templates/select-report-name.html'"></div>
   

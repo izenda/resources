@@ -33,10 +33,9 @@
 .DashPartBodyNoScroll
 {
 	width:100%; 
-	padding:0px; 
+	padding:0; 
 	text-align:center; 
-	border:1px solid; 
-	border-color:#FFFFFF; 
+	border: none;
 	overflow:hidden;
 }
 
