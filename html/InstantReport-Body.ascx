@@ -79,7 +79,8 @@ is_ie9_or_newer = false;
                                 <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
                                   <span style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;">&nbsp;</span>
                                     <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
-                                    <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px;"></div>
+                                    <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}"
+                                      style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
                                 </nobr>
                                     <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
                                     <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
@@ -130,7 +131,9 @@ is_ie9_or_newer = false;
                                 </tr>
                             </table>
                             <input type="hidden" id="propFilterGUID" value="" />
-                          <input type="hidden" id="propDialogMode" value="" />
+                            <input type="hidden" id="propDialogMode" value="" />
+                            <input type="hidden" id="propFieldDbName" value="" />
+                            <input type="hidden" id="propFieldFriendlyName" value="" />
                         </div>
                         <div style="float: left; margin-top: 10px; margin-right: 20px;" id="fieldPropDiv">
                             <table>
@@ -227,7 +230,7 @@ is_ie9_or_newer = false;
             msgAboutBottom = null;
         if (window.innerWidth >= 768) {
             if (jq$(leftDiv).width() >= 790) {
-                rootRightDiv.style.width = (window.innerWidth - 895) + 'px';
+                rootRightDiv.style.width = (window.innerWidth - 950) + 'px';
             }
             else {
                 rootRightDiv.style.width = '41%';

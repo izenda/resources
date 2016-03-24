@@ -340,8 +340,6 @@
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		window.visState = window.visState || {};
-
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
 			return;
 
@@ -632,6 +630,7 @@
 			}
 		};
 
+		window.visState = window.visState || {};
 		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
 		if (!s.props) {
 			try {
@@ -691,6 +690,15 @@
 			vs.find(id)
 				.unbind("click")
 				.bind("click", context.onClick);
+		}
+
+		function toggleSelectorVisibility(id, visible) {
+			var selector = vs.find(id);
+			if (visible) {
+				selector.show();
+			} else {
+				selector.hide();
+			}
 		}
 
 		var galleries = {};
@@ -839,6 +847,9 @@
 			jq$("div.style[value=" + s.props.gauge.style + "]").addClass("ws_selthumb");
 
 			initGallery("#VIS_ID_GEAR_GALLERY", { hideTimeout: 1000 }, style.initGearGallery);
+
+			toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
+			toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
 		}
 
 		function wrapGaugesInTable() {

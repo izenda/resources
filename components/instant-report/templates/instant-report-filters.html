@@ -1,15 +1,21 @@
 ﻿<div ng-controller="InstantReportFiltersController as filtersController"
   ng-init="filtersController.init()" ng-cloak>
-  <div class="iz-inst-field-filters-panel" ng-show="$izendaCompatibility.isSmallResolution() || filtersController.panelOpened"
+  <div class="iz-inst-top-panel" ng-show="$izendaCompatibility.isSmallResolution() || filtersController.panelOpened"
     droppable-accept=".datasource-field"
     on-drop="filtersController.addFilter(arg0)"
     izenda-instant-report-field-droppable>
-    <div class="iz-inst-field-filters-panel-header">Filters</div>
-    <div class="iz-inst-field-filters-panel-body">
+    <div class="iz-inst-top-panel-header">
+      Filters
+      <a class="white pull-right close-btn" title="Close filters panel"
+        ng-click="irController.openFiltersPanel(false)">
+        <span class="glyphicon glyphicon-minus"></span>
+      </a>
+    </div>
+    <div class="iz-inst-top-panel-body">
       <div class="container-fluid" ng-show="filtersController.filters.length > 0 && filtersController.activeFields.length > 0">
         <div class="row">
           <div class="iz-inst-field-filters-toolbar">
-            <a class="btn btn-izenda-dark" ng-click="filtersController.addFilter()">
+            <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn" ng-click="filtersController.addFilter()">
               <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>&nbsp;Add Filter
             </a>
             <div class="iz-inst-field-filters-logic-container">
@@ -20,16 +26,15 @@
           </div>
         </div>
         <div class="row">
-          <div ng-repeat="filter in filtersController.filters" class="iz-inst-filter-container">
-            <div class="iz-inst-filter-panel"
+          <div ng-repeat="filter in filtersController.filters" class="iz-inst-small-panel-container">
+            <div class="iz-inst-small-panel"
               draggable-data-id="{{$index}}"
               draggable-enabled="true"
               izenda-instant-report-field-draggable
-              droppable-accept=".iz-inst-filter-panel"
+              droppable-accept=".iz-inst-small-panel"
               on-drop="filtersController.reorderFilters(arg0, $index)"
               izenda-instant-report-field-droppable>
-
-              <div class="iz-inst-filter-header form-inline"
+              <div class="iz-inst-small-panel-header form-inline"
                 ng-class="filter.isValid ? '' : 'not-valid'"
                 ng-attr-title="{{filter.validationMessageString}}">
                 <span class="index-container" ng-bind="$index + 1"></span>
@@ -53,35 +58,33 @@
                     izenda-stop-propagation>Required
                   </span>
                 </span>
-                <button class="btn btn-header-small-button pull-right" type="button" title="Remove filter"
+                <button class="btn btn-header-close pull-right" type="button" title="Remove filter"
                   ng-click="filtersController.removeFilter(filter)" izenda-stop-propagation>
                   <span class="glyphicon glyphicon-remove"></span>
                 </button>
               </div>
-              <div class="iz-inst-filter-body">
+              <div class="iz-inst-small-panel-body">
 
-                <div class="iz-inst-filter-line form-group-sm">
+                <div class="iz-inst-small-panel-line form-group-sm">
                   <input type="text" class="form-control" placeholder="Filter description"
-                    ng-model="filter.description"/>
+                    ng-model="filter.description" />
                 </div>
 
-                <div class="iz-inst-filter-line form-group-sm">
+                <div class="iz-inst-small-panel-line form-group-sm">
                   <select class="form-control iz-inst-filter-input"
                     ng-options="field as field.name group by field.tableName for field in filtersController.activeFields"
                     ng-model="filter.field"
                     ng-change="filtersController.updateFilterOperators(filter)">
                   </select>
                 </div>
-
-                <div class="iz-inst-filter-line form-group-sm" ng-show="filter.field !== null">
+                <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null">
                   <select class="iz-inst-filter-input"
                     ng-options="operator as operator.text group by operator.groupName for operator in filter.operators"
                     ng-model="filter.operator"
                     ng-change="filtersController.updateFilterValues(filter)">
                   </select>
                 </div>
-
-                <div class="iz-inst-filter-line form-group-sm" ng-show="filter.field !== null && filter.operator !== null && filter.operator !== ''">
+                <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null && filter.operator !== null && filter.operator !== ''">
                   <div ng-switch="filtersController.getFilterOperatorType(filter)">
                     <span ng-switch-when="hidden"></span>
 
@@ -220,17 +223,17 @@
                 </div>
               </div>
             </div>
-            <div class="iz-inst-filter-drop-placeholder left"
+            <div class="iz-inst-small-panel-drop-placeholder left"
               index="{{$index}}"
               ng-show="$index === 0 || $index % 4 === 0"
-              droppable-accept=".iz-inst-filter-panel"
+              droppable-accept=".iz-inst-small-panel"
               on-drop="filtersController.moveFilterTo(arg0, $index)"
               izenda-instant-report-field-droppable>
             </div>
-            <div class="iz-inst-filter-drop-placeholder right"
+            <div class="iz-inst-small-panel-drop-placeholder right"
               index="{{$index + 1}}"
               ng-class="$index % 4 === 3 ? 'half' : ''"
-              droppable-accept=".iz-inst-filter-panel"
+              droppable-accept=".iz-inst-small-panel"
               on-drop="filtersController.moveFilterTo(arg0, $index + 1)"
               izenda-instant-report-field-droppable>
             </div>
@@ -243,7 +246,7 @@
           <div class="col-xs-12">
             <div class="without-margins alert alert-warning" role="alert">
               Drag and drop fields from data sources here to add a new filter or 
-            <a href="#" ng-click="filtersController.addFilter()">add filter manually</a>.
+            <a ng-click="filtersController.addFilter()">add filter manually</a>.
             </div>
           </div>
         </div>

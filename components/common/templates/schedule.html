@@ -13,6 +13,7 @@
                    ng-model="scheduleController.scheduleConfig.date"
                    show-additional-buttons="true"
                    html-container-selector=".izenda-layout-middle"
+				   datepart="date"
                    izenda-date-time-picker>
               </div>
             </div>
@@ -24,8 +25,9 @@
                 date-format="scheduleController.dateFormat.time"
                 locale="scheduleController.culture"
                 ng-model="scheduleController.scheduleConfig.date"
-                   show-additional-buttons="false"
+                show-additional-buttons="false"
                 html-container-selector=".izenda-layout-middle"
+                datepart="time"
                 izenda-date-time-picker>
               </div>
             </div>

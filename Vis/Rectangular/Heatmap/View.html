@@ -143,8 +143,6 @@
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		window.visState = window.visState || {};
-
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
 			return;
 
@@ -154,7 +152,10 @@
 		var vs = util.container("VIS_ID"),
 			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		window.visState = window.visState || {};
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			init: true,
+		});
 		if (!s.props) {
 			try {
 				s.props = JSON.parse(VIS_CONTEXT.props);
@@ -225,7 +226,8 @@
 				zoom(node);
 			});
 
-		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL"),
+			propertiesPanelWidth = propertiesPanel[0].offsetWidth,
 			breadcrumbWidthOffset = 10,
 			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
 		vis.createBreadcrumb({
@@ -241,17 +243,21 @@
 			isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
 		});
 
+		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
+
 		vis.container
 			.unbind("mouseenter")
 			.bind("mouseenter", function () {
 				vis.breadcrumb.show();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+				propertiesPanel.stop().animate({ opacity: 1 });
 			})
 			.unbind("mouseleave")
 			.bind("mouseleave", function () {
 				vis.breadcrumb.hide();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
+				propertiesPanel.stop().animate({ opacity: 0 });
 			});
+
+		s.init = false;
 
 		var heightWithOffset = height - (isImageRender ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight()));
 

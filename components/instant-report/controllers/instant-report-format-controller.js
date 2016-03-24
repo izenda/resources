@@ -1,9 +1,7 @@
 ﻿/**
 * Instant report formatting controller definition
 */
-angular
-.module('izendaInstantReport')
-.controller('InstantReportFormatController', [
+angular.module('izendaInstantReport').controller('InstantReportFormatController', [
 			'$rootScope',
 			'$scope',
 			'$window',
@@ -52,6 +50,13 @@ function InstantReportFormatController(
 	vm.drillDownFields = $izendaInstantReportStorage.getDrillDownFields();
 	vm.selectedDrilldownField = null;
 	vm.ddkValuesMaxAmount = 2;
+
+	/**
+	 * Restore default color settings.
+	 */
+	vm.restoreDefaultColors = function() {
+		$izendaInstantReportStorage.restoreDefaultColors();
+	};
 
 	/**
 	 * Remove fields which are already in drilldown collection

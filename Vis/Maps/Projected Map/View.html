@@ -41,11 +41,15 @@
 	}
 </style>
 <div style="width: 100%;" id="VIS_ID">
-	<span class="hint" style="float:right;">
+	<span class="hint" style="position: absolute; right: 0;">
 		<span style="display:inline-block">Metric:</span>
 		<select id="metricSelect"></select>
 	</span>
 </div>
+
+<script type="variable/json" accesskey="f1data" src="World.json"></script>
+<script type="variable/json" accesskey="f2data" src="world-country-names.json"></script>
+<script type="variable/json" accesskey="f3data" src="world-countries.json"></script>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 <script type="text/javascript" src="d3.geo.projection.v0.min.js"></script>
@@ -55,6 +59,10 @@
 <script type="text/javascript">
 	var visState;
 	(function ExecuteVIS_ID() {
+		function validate() {
+			return VIS_COLUMNS.length > 0 && VIS_COLUMNS[0].geoavailable;
+		}
+
 		visState = visState || {};
 		var s = visState.VIS_ID || (visState.VIS_ID = {
 			selectedMetric: -1,
@@ -80,7 +88,7 @@
 			jq$.extend(s.props = (s.props || {}), {
 				"metric": metricSelect.val()
 			});
-			util.setProps(s.props);
+			vis.setProps(s.props);
 		}
 		function restore() {
 			if (typeof s.props != "object")
@@ -92,7 +100,7 @@
 		var VIS_EMBEDDED_DATA;
 
 		var width = 960, height = 500;
-		var f1, f2, f3, i, j, items = [], nodeId = 0,
+		var i, j, items = [], nodeId = 0,
 		    colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
 
 		var util = window.ReportScripting, vis,
@@ -101,17 +109,13 @@
 		var vs = util.container("VIS_ID"),
 		    metricSelect = vs.find("select#metricSelect");
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
 			return;
 
 		if (!s.props) {
 			try { s.props = JSON.parse(VIS_CONTEXT.props); }
 			catch (e) { }
 		}
-
-		f1 = "Resources/Vis/Maps/Projected Map/World.json.txt";
-		f2 = "Resources/Vis/Maps/Projected Map/world-country-names.tsv";
-		f3 = "Resources/Vis/Maps/Projected Map/world-countries.json";
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 		items = vis.getItems();
@@ -364,43 +368,41 @@
 		}
 
 		(function() {
-			util.registerResize("VIS_ID", ExecuteVIS_ID);
+			var world = JSON.parse(f1data),
+				names = JSON.parse(f2data),
+				collection = JSON.parse(f3data);
 
-		queue()
-			.defer(d3.json, f1)
-			.defer(d3.tsv, f2)
-			.defer(d3.json, f3)
-			.await(function(error, world, names, collection) {
-				var feature = topojson.feature(world, world.objects.countries).features;
-				//var neighbors = topojson.neighbors(world.objects.countries.geometries);
+			var feature = topojson.feature(world, world.objects.countries).features;
+			feature.forEach(function(d) {
+				var tryit = names.names.filter(function(n) { return d.id == n[0]; })[0];
+				d.name = typeof tryit === "undefined" ? "Undefined" : tryit.name;
+			});
+			countries = g.selectAll(".country")
+				.data(collection.features)
+				.enter()
+				.append("svg:path")
+				.each(function(d) { d.name = d.properties.name; })
+				.attr("class", "country")
+				.attr("d", path)
+				.on("mouseover", function(d) {
+					d3.select(this)
+						.classed("hovered", true)
+						.style("stroke-width", 1.5 / zm);
 
-				feature.forEach(function(d) {
-					var tryit = names.filter(function(n) { return d.id == n.id; })[0];
-					d.name = typeof tryit === "undefined" ? "Undefined" : tryit.name;
-				});
-				countries = g.selectAll(".country")
-					.data(/*feature*/collection.features)
-					.enter()//.append("path", ".graticule")
-					.append("svg:path")
-					.each(function(d) { d.name = d.properties.name; })
-					.attr("class", "country")
-					.attr("d", path)
-					.on("mouseover", function(d) {
-						d3.select(this)
-							.classed("hovered", true)
-							.style("stroke-width", 1.5 / zm);
+					util.showTooltip({ "Name": d.name }, { showLabels: false });
+				})
+				.on("mouseout", function() {
+					d3.select(this)
+						.classed("hovered", false)
+						.style("stroke-width", 1 / zm);
+					util.hideTooltip();
+				})
+				.on("click", clicked);
 
-						util.showTooltip({ "Name": d.name }, { showLabels: false });
-					})
-					.on("mouseout", function() {
-						d3.select(this)
-							.classed("hovered", false)
-							.style("stroke-width", 1 / zm);
-						util.hideTooltip();
-					})
-					.on("click", clicked);
+			update();
 
-				update();
+			util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
+				jq$("#VIS_ID svg").remove();
 			});
 		})();
 	})();

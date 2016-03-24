@@ -323,6 +323,15 @@ function RefreshFieldsList() {
 			dsHeaderRow.append(dsHeaderCell);
 			dsTable.append(dsHeaderRow);
 		}
+
+		var additionalFieldsWereRemoved = [];
+		for (var rfi = 0; rfi < fieldsWereRemoved.length; rfi++) {
+			var afs = fieldsWereRemoved[rfi].properties.AdditionalFields;
+			for (var afi = 0; afi < afs.length; afi++) {
+				additionalFieldsWereRemoved.push(afs[afi].DbName);
+			}
+		}
+
 		for (var col = 0; col < dataSources[i].Columns.length; col++) {
 			if (!dataSources[i].Columns[col].Hidden) {
 				var dsRow = null;
@@ -334,7 +343,8 @@ function RefreshFieldsList() {
 						globalColNum++;
 					}
 
-				if (dsRow == null && selectedColumns.indexOf(dataSources[i].Columns[col].DbName) < 0) {
+				if (dsRow == null && selectedColumns.indexOf(dataSources[i].Columns[col].DbName) < 0
+					&& additionalFieldsWereRemoved.indexOf(dataSources[i].Columns[col].DbName) < 0) {
 					dsRow = GetColumnControlRow(dataSources[i].Columns[col].DbName, dataSources[i].Columns[col].FriendlyName, globalColNum, col, i);
 					dsTable.append(dsRow);
 					globalColNum++;
@@ -460,19 +470,7 @@ function updateFields() {
 	var usageData = new Object();
 	usageData.Fields = new Array();
 	for (var i = 0; i < fieldsList.length; i++) {
-		var usedField = new Object();
-		usedField.FriendlyName = fieldsList[i].FriendlyName;
-		usedField.DbName = fieldsList[i].DbName;
-		usedField.Total = fieldsList[i].Total;
-		usedField.VG = fieldsList[i].VG;
-		usedField.IsMultilineHeader = fieldsList[i].IsMultilineHeader;
-		usedField.Description = fieldsList[i].Description;
-		usedField.Format = fieldsList[i].Format;
-		usedField.Width = fieldsList[i].Width;
-		usedField.LabelJ = fieldsList[i].LabelJ;
-		usedField.ValueJ = fieldsList[i].ValueJ;
-		usedField.GUID = fieldsList[i].GUID; // Empty for new fields
-		usedField.TableJoinAlias = fieldsList[i].TableJoinAlias;
+		var usedField = fieldsList[i];
 		usageData.Fields.push(usedField);
 	}
 
@@ -484,7 +482,9 @@ function updateFields() {
 
 function UpdateFieldsAndRefresh() {
 	updateFields();
-	GetRenderedReportSet(true);
+	// If possible try to stay on the same page
+	var currPage = jq$('.iz-pagelink[data-active-page]').data('active-page');
+	GetRenderedReportSet(true, currPage ? ('results=' + currPage) : null);
 }
 
 //------------------------------------------------------------------------------------------------------------------
@@ -631,14 +631,11 @@ function ShowFieldProperties() {
 }
 
 function updateFieldProperties(newField) {
-	fieldsList[curPropFInd].Description = newField.Description;
-	fieldsList[curPropFInd].Total = newField.Total;
-	fieldsList[curPropFInd].VG = newField.VG;
-	fieldsList[curPropFInd].IsMultilineHeader = newField.IsMultilineHeader;
-	fieldsList[curPropFInd].Format = newField.Format;
-	fieldsList[curPropFInd].Width = newField.Width;
-	fieldsList[curPropFInd].LabelJ = newField.LabelJ;
-	fieldsList[curPropFInd].ValueJ = newField.ValueJ;
+	for (var property in newField) {
+		if (newField.hasOwnProperty(property)) {
+			fieldsList[curPropFInd][property] = newField[property];
+		}
+	}
 	updateFields();
 }
 //------------------------------------------------------------------------------------------------------------------
@@ -652,16 +649,25 @@ function AddRemainingFields() {
 		var desc = jq$(selectedColumns[i]).attr('desc');
 
 		// Clone a Column and create a Field out of it
+		var isFieldWasRemoved = false;
 		var newField = jq$.extend({}, dataSources[dsIndex].Columns[fieldIndex]);
 		if (desc) {
 			for (var fwr = 0; fwr < fieldsWereRemoved.length; fwr++)
 				if (fieldsWereRemoved[fwr].description == desc) {
 					newField = fieldsWereRemoved[fwr].properties;
 					fieldsWereRemoved.splice(fwr, 1);
+					isFieldWasRemoved = true;
 					break;
 				}
 		}
 		fieldsList.push(newField);
+
+		if (isFieldWasRemoved) {
+			jq$.each(newField.AdditionalFields, function (i, field) {
+				fieldsList.push(field);
+			});
+		}
+
 	}
 	wereChecked.length = 0;
 	RefreshFieldsList();
@@ -681,9 +687,22 @@ function RemoveUsedFields() {
 			properties: fieldFullProperties
 		});
 
-	    fieldsList.splice(toRemoveIndex, 1);
+		fieldsList.splice(toRemoveIndex, 1);
+
+		if (fieldFullProperties.AdditionalFields.length > 0) {
+			fieldsList = jq$.grep(fieldsList, function (field) {
+				var isAdditional = false;
+				for (var i = 0; i < fieldFullProperties.AdditionalFields.length; i++) {
+					if (field.GUID == fieldFullProperties.AdditionalFields[i].GUID) {
+						isAdditional = true;
+						break;
+					}
+				}
+				return !isAdditional;
+			});
+		}
 	}
-    RefreshFieldsList();
+	RefreshFieldsList();
 }
 
 function MoveUp() {
@@ -700,28 +719,39 @@ function MoveFields(direction) {
 
 	for (var i = 0; i < fieldsList.length; i++)
 		fieldsList[i].ToMove = false;
-	for (var i = 0; i < selectedFields.length; i++)
-		fieldsList[jq$(selectedFields[i]).attr('find')].ToMove = true;
+	for (var i = 0; i < selectedFields.length; i++) {
+		var field = fieldsList[jq$(selectedFields[i]).attr('find')];
+		field.ToMove = true;
+	}
 
 	// true = Up, false = Down
+	var fieldCount = fieldsList.length;
 	if (direction)
-		for (var cnt = 1; cnt < fieldsList.length; cnt++) {
+		for (var cnt = 1; cnt < fieldCount; cnt++) {
 			if (fieldsList[cnt].ToMove && !fieldsList[cnt - 1].ToMove) {
-				var tmp = fieldsList[cnt - 1];
-				fieldsList[cnt - 1] = fieldsList[cnt];
-				fieldsList[cnt] = tmp;
+				var fieldsToMove = fieldsList.splice(cnt, fieldsList[cnt].AdditionalFields.length + 1);
+
+				var r = 1;
+				for (var j = cnt - 1; j >= 0 && fieldsList[j].Operator != 'None'; j--) r++;
+
+				for (var i = fieldsToMove.length - 1; i >= 0; i--)
+					fieldsList.splice(cnt - r, 0, fieldsToMove[i]);
 			}
 		}
 	else
-		for (var cnt = fieldsList.length - 2; cnt >= 0; cnt--) {
+		for (var cnt = fieldCount - 2; cnt >= 0; cnt--) {
 			if (fieldsList[cnt].ToMove && !fieldsList[cnt + 1].ToMove) {
-				var tmp = fieldsList[cnt + 1];
-				fieldsList[cnt + 1] = fieldsList[cnt];
-				fieldsList[cnt] = tmp;
+				if (cnt + fieldsList[cnt].AdditionalFields.length + 1 == fieldCount)
+					continue;
+
+				var fieldsToMove = fieldsList.splice(cnt, fieldsList[cnt].AdditionalFields.length + 1);
+				var r = fieldsList[cnt].AdditionalFields.length;
+				for (var i = 1; i <= fieldsToMove.length; i++)
+					fieldsList.splice(cnt + r + i, 0, fieldsToMove[i - 1]);
 			}
 		}
 
-	for (var i = 0; i < fieldsList.length; i++)
+	for (var i = 0; i < fieldCount; i++)
 		wereChecked[i] = fieldsList[i].ToMove;
 
 	RefreshFieldsList();
@@ -1111,19 +1141,18 @@ function GotReportViewerConfig(returnObj, id) {
 		if (csvExportBtn != null)
 			csvExportBtn.onclick = function () { responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=BULKCSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl); };
 	}
-	if (!nrvConfig.ShowHtmlPrint)
+	if (!nrvConfig.ShowHtmlPrint || nrvConfig.LimitOutputsToCsv)
 		document.getElementById('htmlPrintBtn').style.display = 'none';
-	if (!nrvConfig.ShowPdfPrint) {
-		document.getElementById('eoPrintBtn').style.display = 'none';
-		document.getElementById('testsharpPrintBtn').style.display = 'none';
-	}
-	else if (nrvConfig.UseDirectPdfPrint) {
-		document.getElementById('eoPrintBtn').style.display = 'none';
-		document.getElementById('testsharpPrintBtn').style.display = '';
+	if (!nrvConfig.ShowPdfPrint || nrvConfig.LimitOutputsToCsv)
+		document.getElementById('html2pdfPrintBtn').style.display = 'none';
+	if ((!nrvConfig.ShowHtmlPrint && !nrvConfig.ShowPdfPrint) || nrvConfig.LimitOutputsToCsv)
+		document.getElementById('printBtnContainer').style.display = 'none';
+	if (nrvConfig.LimitOutputsToCsv) {
+		document.getElementById('excelExportBtn').style.display = 'none';
+		document.getElementById('wordExportBtn').style.display = 'none';
+		document.getElementById('menuBtnExcelExport').onclick = '';
 	}
 
-	if (!nrvConfig.ShowHtmlPrint && !nrvConfig.ShowPdfPrint)
-		document.getElementById('printBtnContainer').style.display = 'none';
 	if (!nrvConfig.ShowSaveControls)
 	  document.getElementById('saveControls').style.display = 'none';
 	if (!nrvConfig.ShowSaveAsToolbarButton)

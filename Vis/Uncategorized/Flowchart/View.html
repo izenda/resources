@@ -74,8 +74,6 @@
 
 		var util = window.ReportScripting, vis;
 
-		window.visState = window.visState || {};
-
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
 			return;
 
@@ -85,7 +83,10 @@
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		window.visState = window.visState || {};
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			init: true,
+		});
 		if (!s.props) {
 			try {
 				s.props = JSON.parse(VIS_CONTEXT.props);
@@ -100,6 +101,20 @@
 
 		if (utility.ie() > 0)
 			util.updateStyle("izenda-VIS_ID-style", ".edgePath path { fill: none !important; }");
+
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
+		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				propertiesPanel.stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				propertiesPanel.stop().animate({ opacity: 0 });
+			});
+
+		s.init = false;
 
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {

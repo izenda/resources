@@ -110,8 +110,6 @@
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		window.visState = window.visState || {};
-
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
 			return;
 
@@ -124,7 +122,10 @@
 		var vs = util.container("VIS_ID"),
 			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		window.visState = window.visState || {};
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			init: true,
+		});
 		if (!s.props) {
 			try {
 				s.props = JSON.parse(VIS_CONTEXT.props);
@@ -229,7 +230,7 @@
 
 		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight())) - heightOffset;
 
-		propertiesPanel.css({ opacity: 0 });
+		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
 		vis.container
 			.unbind("mouseenter")
 			.bind("mouseenter", function () {
@@ -241,6 +242,8 @@
 				vis.breadcrumb.hide();
 				propertiesPanel.stop().animate({ opacity: 0 });
 			});
+
+		s.init = false;
 
 		vs.find("#VIS_ID_BREADCRUMBS_PANEL").css("margin-left", breadcrumbMarginLeft + "px");
 

@@ -19,21 +19,21 @@
             <div class="form-group">
               <label class="white nobold" ng-bind="fieldOptionsController.field.name + ' as'"></label>
               <input type="text" class="izenda-width-200"
-                     ng-model="fieldOptionsController.field.description"
-                     ng-change="fieldOptionsController.onDescriptionWasSet()">
+                ng-model="fieldOptionsController.field.description"
+                ng-change="fieldOptionsController.onDescriptionWasSet()">
             </div>
           </form>
           <!-- close panel -->
           <ul class="nav navbar-nav navbar-right" ng-if="!$izendaCompatibility.isSmallResolution()">
             <li><a class="white" ng-click="fieldOptionsController.closePanel()"
-              title="Close options panel">
-              <span class="glyphicon glyphicon-remove"></span>
+              title="Close options panel" style="padding-top: 20px; padding-bottom: 8px;">
+              <span class="glyphicon glyphicon-minus"></span>
             </a></li>
           </ul>
           <!-- buttons -->
           <div class="pull-left buttonbar">
             <!-- sort -->
-            <div class="btn-group">
+            <div class="btn-group" ng-hide="fieldOptionsController.field.isPivotCellValue">
               <button type="button" class="btn" title="Sort order"
                 ng-class="fieldOptionsController.getSortButtonClass()"
                 ng-click="fieldOptionsController.applyFieldSort()">
@@ -45,16 +45,22 @@
                 <span class="caret"></span>
               </button>
               <ul class="dropdown-menu">
-                <li><a href="#" ng-click="fieldOptionsController.applyFieldSort('asc')">
+                <li><a ng-click="fieldOptionsController.applyFieldSort('asc')">
                   <span class="glyphicon glyphicon-sort-by-alphabet"></span>&nbsp;Asc
                 </a></li>
-                <li><a href="#" ng-click="fieldOptionsController.applyFieldSort('desc')">
+                <li><a ng-click="fieldOptionsController.applyFieldSort('desc')">
                   <span class="glyphicon glyphicon-sort-by-alphabet-alt"></span>&nbsp;Desc
                 </a></li>
               </ul>
             </div>
 
-            <!-- visibility -->
+            <button class="btn" title="Visual group"
+              ng-class="fieldOptionsController.getVgButtonClass()"
+              ng-click="fieldOptionsController.applyVg()"
+              ng-hide="fieldOptionsController.field.isPivotCellValue">
+              <span class="glyphicon glyphicon-th-list"></span>
+            </button>
+
             <button class="btn" title="Toggle field visibility"
               ng-class="fieldOptionsController.getVisibleButtonClass()"
               ng-click="fieldOptionsController.applyFieldVisible()">
@@ -72,12 +78,6 @@
               ng-class="fieldOptionsController.getBoldButtonClass()"
               ng-click="fieldOptionsController.applyFieldBold()">
               <span class="glyphicon glyphicon-bold"></span>
-            </button>
-
-            <button class="btn" title="Visual group"
-              ng-class="fieldOptionsController.getVgButtonClass()"
-              ng-click="fieldOptionsController.applyVg()">
-              <span class="glyphicon glyphicon-th-list"></span>
             </button>
           </div>
         </div>
@@ -135,41 +135,45 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group form-group-sm">
-                <label for="izInstFieldExpression">Expression</label>
-                <textarea type="text" class="form-control" id="izInstFieldExpression"
-                  ng-model="fieldOptionsController.field.expression" rows="3"
-                  style="position: relative; z-index: 2;"></textarea>
-              </div>
+
+          <div class="row default-bottom-margin">
+            <div class="col-md-3">
+              <label>
+                <span izenda-align-switcher ng-model="fieldOptionsController.field.labelJustification"></span>
+                <span class="noselect" ng-click="fieldOptionsController.toggleLabelJustification()">Label Justification</span>
+              </label>
+              <br/>
+              <label>
+                <span izenda-align-switcher ng-model="fieldOptionsController.field.valueJustification"></span>
+                <span class="noselect" ng-click="fieldOptionsController.toggleValueJustification()">Value Justification</span>
+              </label>
             </div>
             <div class="col-md-3">
-              <div class="form-group form-group-sm">
-                <label for="izInstFieldExpressionType">Expression type</label>
-                <select class="form-control" id="izInstFieldExpressionType"
-                  ng-options="expType as expType.text for expType in fieldOptionsController.expressionTypes track by expType.value"
-                  ng-model="fieldOptionsController.field.expressionType"
-                  ng-change="fieldOptionsController.onTypeGroupSelected()"
-                  ng-disabled="fieldOptionsController.field.expression === ''">
-                </select>
-                <div class="checkbox">
-                  <label>
-                    <input type="checkbox" ng-model="fieldOptionsController.field.groupByExpression"
-                      ng-disabled="fieldOptionsController.field.expression === ''" />
-                    Group by expression
-                  </label>
-                </div>
-              </div>
+              <label>
+                <input type="checkbox" ng-model="fieldOptionsController.field.gradient">
+                Gradient cells shading
+              </label>
+              <br/>
+              <label ng-hide="fieldOptionsController.field.isPivotCellValue">
+                <input type="checkbox" ng-model="fieldOptionsController.field.separator">
+                Separator
+              </label>
             </div>
+
             <div class="col-md-3">
-              <div class="form-group form-group-sm">
-                <label for="izInstColumnGroup">Column group</label>
-                <input type="text" class="form-control" id="izInstColumnGroup"
-                  ng-model="fieldOptionsController.field.columnGroup">
-              </div>
+              <label for="izInstFieldWidth">Width</label>
+              <input type="text" class="form-control" id="izInstFieldWidth"
+                ng-model="fieldOptionsController.field.width" />
+            </div>
+
+            <div class="col-md-3" ng-hide="fieldOptionsController.field.isPivotCellValue">
+              <label for="izInstColumnGroup">Column group</label>
+              <input type="text" class="form-control" id="izInstColumnGroup"
+                ng-model="fieldOptionsController.field.columnGroup" />
             </div>
           </div>
+
+          <!-- show advanced properties button -->
           <div class="row">
             <div class="col-xs-12">
               <button class="btn"
@@ -179,145 +183,119 @@
               </button>
             </div>
           </div>
+
           <!-- advanced field properties -->
           <div class="row" ng-show="fieldOptionsController.expanded">
             <div class="col-xs-12">
               <hr />
             </div>
           </div>
+
           <div class="row" ng-show="fieldOptionsController.expanded">
             <div class="col-xs-12">
               <div class="container-fluid form-group-sm">
-                <div class="row">
-                  <div class="col-md-9 col-md-offset-3">
-                    <label>
-                      <input type="checkbox" ng-model="fieldOptionsController.field.gradient">
-                      Gradient cells shading
-                    </label>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-9 col-md-offset-3">
-                    <label>
-                      <input type="checkbox" ng-model="fieldOptionsController.field.separator">
-                      Separator
-                    </label>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-9 col-md-offset-3">
-                    <label>
-                      <span izenda-align-switcher ng-model="fieldOptionsController.field.labelJustification"></span>
-                      Label Justification
-                    </label>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-9 col-md-offset-3">
-                    <label>
-                      <span izenda-align-switcher ng-model="fieldOptionsController.field.valueJustification"></span>
-                      Value Justification
-                    </label>
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="col-md-9 col-md-offset-3">
-                    <label>
-                      <input type="checkbox" ng-model="fieldOptionsController.field.breakPageAfterVg"
-                        ng-disabled="!fieldOptionsContrller.field.isVgUsed">
-                      Break Page After VG (PDF)
-                    </label>
-                  </div>
-                </div>
-
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldWidth" style="margin-top: 6px;">Width</label>
-                  </div>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control izenda-width-150" id="izInstFieldWidth"
-                      ng-model="fieldOptionsController.field.width">
-                  </div>
-                </div>
                 <!-- drilldown -->
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldSubreport" style="margin-top: 6px;">Subreport</label>
+                <div class="row">
+                  <div class="col-md-6 col-md-offset-2">
+                    <div class="form-group form-group-sm">
+                      <label for="izInstFieldExpression">Expression</label>
+                      <textarea type="text" class="form-control" id="izInstFieldExpression"
+                        ng-model="fieldOptionsController.field.expression" rows="3"
+                        style="position: relative; z-index: 2;"></textarea>
+                    </div>
                   </div>
-                  <div class="col-md-9">
-                    <select class="form-control izenda-width-400" id="izInstFieldSubreport"
-                      ng-options="subreport.value as subreport.text for subreport in fieldOptionsController.subreports"
-                      ng-model="fieldOptionsController.field.subreport">
-                    </select>
-                  </div>
-                </div>
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldDdStyle" style="margin-top: 6px;">Drill-down style</label>
-                  </div>
-                  <div class="col-md-9">
-                    <select class="form-control izenda-width-400" id="izInstFieldDdStyle"
-                      ng-options="ddStyle.value as ddStyle.text for ddStyle in fieldOptionsController.drillDownStyles"
-                      ng-model="fieldOptionsController.field.drillDownStyle"
-                      ng-disabled="fieldOptionsController.field.subreport === ''">
-                    </select>
-                  </div>
-                </div>
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldDdUrl" style="margin-top: 6px;">Custom url</label>
-                  </div>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control izenda-width-400" id="izInstFieldDdUrl"
-                      placeholder="Page.aspx?id={0}&amp;value={1}"
-                      ng-model="fieldOptionsController.field.customUrl"
-                      ng-disabled="fieldOptionsController.field.subreport !== ''">
+                  <div class="col-md-4">
+                    <div class="form-group form-group-sm">
+                      <label for="izInstFieldExpressionType">Expression type</label>
+                      <select class="form-control" id="izInstFieldExpressionType"
+                        ng-options="expType as expType.text for expType in fieldOptionsController.expressionTypes track by expType.value"
+                        ng-model="fieldOptionsController.field.expressionType"
+                        ng-change="fieldOptionsController.onTypeGroupSelected()"
+                        ng-disabled="fieldOptionsController.field.expression === ''">
+                      </select>
+                      <div class="checkbox">
+                        <label>
+                          <input type="checkbox" ng-model="fieldOptionsController.field.groupByExpression"
+                            ng-disabled="fieldOptionsController.field.expression === ''" />
+                          Group by expression
+                        </label>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <!-- highlights -->
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldTextHighlight" style="margin-top: 6px;">Text highlight</label>
-                  </div>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control" id="izInstFieldTextHighlight"
-                      placeholder="example: 5 to 6:Blue;7 to 10:Red"
-                      ng-model="fieldOptionsController.field.textHighlight">
-                  </div>
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldSubreport" style="margin-top: 6px;">Subreport</label>
                 </div>
+                <div class="col-md-4">
+                  <select class="form-control" id="izInstFieldSubreport"
+                    ng-options="subreport.value as subreport.text for subreport in fieldOptionsController.subreports"
+                    ng-model="fieldOptionsController.field.subreport">
+                  </select>
+                </div>
+              </div>
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldDdStyle" style="margin-top: 6px;">Drill-down style</label>
+                </div>
+                <div class="col-md-4">
+                  <select class="form-control" id="izInstFieldDdStyle"
+                    ng-options="ddStyle.value as ddStyle.text for ddStyle in fieldOptionsController.drillDownStyles"
+                    ng-model="fieldOptionsController.field.drillDownStyle"
+                    ng-disabled="fieldOptionsController.field.subreport === ''">
+                  </select>
+                </div>
+              </div>
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldDdUrl" style="margin-top: 6px;">Custom url</label>
+                </div>
+                <div class="col-md-4">
+                  <input type="text" class="form-control" id="izInstFieldDdUrl"
+                    placeholder="Page.aspx?id={0}&amp;value={1}"
+                    ng-model="fieldOptionsController.field.customUrl"
+                    ng-disabled="fieldOptionsController.field.subreport !== ''">
+                </div>
+              </div>
+              <!-- highlights -->
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldTextHighlight" style="margin-top: 6px;">Text highlight</label>
+                </div>
+                <div class="col-md-10">
+                  <input type="text" class="form-control" id="izInstFieldTextHighlight"
+                    placeholder="example: 5 to 6:Blue;7 to 10:Red"
+                    ng-model="fieldOptionsController.field.textHighlight">
+                </div>
+              </div>
 
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldCellHighlight" style="margin-top: 6px;">Cell highlight</label>
-                  </div>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control" id="izInstFieldCellHighlight"
-                      placeholder="example: 5 to 6:Blue;7 to 10:Red"
-                      ng-model="fieldOptionsController.field.cellHighlight">
-                  </div>
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldCellHighlight" style="margin-top: 6px;">Cell highlight</label>
                 </div>
+                <div class="col-md-10">
+                  <input type="text" class="form-control" id="izInstFieldCellHighlight"
+                    placeholder="example: 5 to 6:Blue;7 to 10:Red"
+                    ng-model="fieldOptionsController.field.cellHighlight">
+                </div>
+              </div>
 
-                <div class="row default-bottom-margin">
-                  <div class="col-md-3"
-                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
-                    <label for="izInstFieldValueRanges" style="margin-top: 6px;">Value ranges</label>
-                  </div>
-                  <div class="col-md-9">
-                    <input type="text" class="form-control" id="izInstFieldValueRanges"
-                      placeholder="example: 0 to 10:Under 10;10 to 100:10-100;100 to 10000:100+"
-                      ng-model="fieldOptionsController.field.valueRange">
-                  </div>
+              <div class="row default-bottom-margin">
+                <div class="col-md-2"
+                  ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+                  <label for="izInstFieldValueRanges" style="margin-top: 6px;">Value ranges</label>
                 </div>
+                <div class="col-md-10">
+                  <input type="text" class="form-control" id="izInstFieldValueRanges"
+                    placeholder="example: 0 to 10:Under 10;10 to 100:10-100;100 to 10000:100+"
+                    ng-model="fieldOptionsController.field.valueRange">
+                </div>
+              </div>
               </div>
             </div>
           </div>

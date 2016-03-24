@@ -277,6 +277,7 @@ function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 		if (caProcessNeeded)
 			var pair = EBC_SecureCaControls(table.tBodies[0].rows[0]);
 		var newRow = table.tBodies[0].rows[rNumberForColne].cloneNode(true);
+		newRow.ThisRowIsBeingAddedAsNew = true;
 		if (caProcessNeeded) {
 			if (pair[3] == null)
 				pair[1].appendChild(pair[2]);
@@ -289,13 +290,9 @@ function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 		EBC_PrepareNewRow(newRow);
 		var handler = ebc_rowInsertHandlers[table.id];
 		if (handler != null)
-		{
 			handler(newRow);
-		}
 		newRow = EBC_InsertRow(table, index, newRow);
-
 		EBC_FixCAControlsC(newRow);
-		
 		table.skipAutogrouping = savedAutogrouping;
 		return newRow;
 	}
@@ -454,7 +451,7 @@ function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, express
 	if (columnName == null)
 		columnName = 'Column';
 	if (formatName == null)
-			formatName = 'Format';
+		formatName = 'Format';
 
 	var columnSel = EBC_GetSelectByName(row, columnName);
 	var formatSelect = EBC_GetSelectByName(row, formatName);
@@ -471,16 +468,16 @@ function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, express
 }
 
 function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName, whatFor) {
-		if (!expressionTypeName)
-				expressionTypeName = "ExpressionType";
+	if (!expressionTypeName)
+		expressionTypeName = "ExpressionType";
 
-		var expressionTypeSelect = EBC_GetSelectByName(row, expressionTypeName);
+	var expressionTypeSelect = EBC_GetSelectByName(row, expressionTypeName);
 
-		if (expressionTypeSelect && expressionTypeSelect.value != "...")
-				return expressionTypeSelect.value;
+	if (expressionTypeSelect && expressionTypeSelect.value != "...")
+		return expressionTypeSelect.value;
 
 	if (!functionName)
-			functionName = 'Function';
+		functionName = 'Function';
 
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
@@ -524,7 +521,7 @@ function EBC_SetFormat(row, onlySimple, columnName, functionName, formatName) {
 		function() { EBC_SetSelectedIndexByValue(EBC_GetSelectByName(row, formatName), newValue) });
 }
 
-function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultAggregateFunction, onlyGroup, funcSelectName, includeGroup, forSubtotals, columnName, isExtraFunction, setDefaultIfPossible) {
+function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultAggregateFunction, onlyGroup, funcSelectName, includeGroup, forSubtotals, columnName, isExtraFunction, setDefaultIfPossible, forceEmptySelector) {
 	if (columnName == null)
 		columnName = 'Column';
 	if (funcSelectName == null)
@@ -540,8 +537,9 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 	if (forSubtotals == null)
 		forSubtotals = false;
 	if (isExtraFunction == null)
-			isExtraFunction = false;
-	var forDundasMap = jq$(row).find("select[name*=map_]").length > 0; //Determines whether the row is on the dundas map editor by finding any dropdowns with names like "map_"
+		isExtraFunction = false;
+	if (forceEmptySelector == null)
+		forceEmptySelector = false;
 	var columnSel = EBC_GetSelectByName(row, columnName); //The control using the database column list
 	var funcSelect = EBC_GetSelectByName(row, funcSelectName); //The control using the SqlFunctionList
 	var mainFuncSelect = EBC_GetSelectByName(row, 'Function'); //Always "Function" because this is always an aggregate function of the column
@@ -553,7 +551,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 		isOperation = true;
 	if (columnSel.selectedIndex >= 0) {
 		var option_ = columnSel.options[columnSel.selectedIndex];
-		var typeGroup = EBC_GetDataTypeGroup(row, null, null, null, null, 'function');
+		var typeGroup = EBC_GetDataTypeGroup(row, columnName, funcSelectName, null, null, 'function');
 		var type = option_.getAttribute("dataType");
 		if (funcSelectName == "SubtotalFunction" && mainFuncSelect != null) {
 			var mainFuncOption = mainFuncSelect.options[mainFuncSelect.selectedIndex];
@@ -612,7 +610,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 				"&" + "includeGroupBy=" + includeGroup +
 				"&" + "forSubtotals=" + forSubtotals +
 				"&" + "extraFunction=" + isExtraFunction +
-				"&" + "forDundasMap=" + forDundasMap +
+				"&" + "forceEmptySelector=" + forceEmptySelector +
 				"&" + "onlyNumericResults=" + onlyNumericResults,
 			funcSelect,
 			true,

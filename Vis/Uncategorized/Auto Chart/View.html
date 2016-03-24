@@ -504,12 +504,6 @@
 			isThumbnails = (document.URL === 'about:blank');
 
 		window.visState = window.visState || {};
-
-		function toggleHeaderVisibility(visible) {
-			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
-			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
-		}
-
 		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
 			options: undefined,
 			chartOptions: undefined,
@@ -526,6 +520,11 @@
 
 		function getItem(list, index) {
 			return list[index % list.length];
+		}
+
+		function toggleHeaderVisibility(visible) {
+			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
+			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
 		}
 
 		function initSelector(id, context) {
@@ -801,8 +800,8 @@
 		if (!s.props) {
 			try {
 				s.props = JSON.parse(VIS_CONTEXT.props);
-				s.props.type = (s.props.type && typeof s.props.type != "undefined" && jq$.isNumeric(s.props.type)) ? s.props.type : types.findIndex(function (item) { return item.name === "column"; });
-				s.props.palette = (s.props.palette && typeof s.props.palette != "undefined" && jq$.isNumeric(s.props.palette)) ? s.props.palette : palettes.findIndex(function (item) { return item.name === "default"; });
+				s.props.type = (jq$.isNumeric(s.props.type)) ? Number(s.props.type) : types.findIndex(function (item) { return item.name === "column"; });
+				s.props.palette = (jq$.isNumeric(s.props.palette)) ? Number(s.props.palette) : palettes.findIndex(function (item) { return item.name === "default"; });
 			} catch (e) {
 			}
 		}
@@ -985,6 +984,8 @@
 			s.hideTimeout = 3000;
 		}
 
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
+
 		var fromZero = (type != "pie" && !stacked && !percent);
 		vs.find("#VIS_ID_PROPERTY_ZERO_CHECKBOX").parents("div:eq(0)")
 			.css("display", fromZero ? "block" : "none");
@@ -996,14 +997,14 @@
 		vs.find("#VIS_ID_PROPERTY_COMBINE_ITEMS").parents("div:eq(0)")
 			.css("display", rounded ? "block" : "none");
 
-		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", fromZero || subreported || rounded);
+		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard && (fromZero || subreported || rounded));
+		toggleSelectorVisibility("#VIS_ID_PALETTE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
+		toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
 		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
 
-		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", true);
-		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+		var propertiesPanelWidth = propertiesPanel[0].offsetWidth,
 			breadcrumbWidthOffset = 10,
 			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
-		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
 		vis.createBreadcrumb({
 			selector: "#VIS_ID_BREADCRUMBS_PANEL",
 			width: breadcrumbWidth,
@@ -1023,17 +1024,17 @@
 			hideTimeout: s.hideTimeout
 		});
 
-		jq$("#VIS_ID_PROPERTIES_PANEL").css({ opacity: !s.init ? 1 : 0 });
+		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
 		vis.container
 			.unbind("mouseenter")
 			.bind("mouseenter", function () {
 				vis.breadcrumb.show();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+				propertiesPanel.stop().animate({ opacity: 1 });
 			})
 			.unbind("mouseleave")
 			.bind("mouseleave", function () {
 				vis.breadcrumb.hide();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
+				propertiesPanel.stop().animate({ opacity: 0 });
 			});
 
 		s.init = false;

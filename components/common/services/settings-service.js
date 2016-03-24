@@ -1,6 +1,4 @@
-﻿angular
-.module('izendaQuery')
-.factory('$izendaSettings', [
+﻿angular.module('izendaQuery').factory('$izendaSettings', [
 '$log',
 '$q',
 '$izendaRsQuery',
@@ -15,7 +13,7 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	};
 	var culture = 'en';
 
-	var convertDotNetTimeFormatToMoment = function(format) {
+	var convertDotNetTimeFormatToMoment = function (format) {
 		var result = format;
 		result = result.replaceAll('tt', 'A');
 		return result;
@@ -24,13 +22,13 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	/**
 	* Get all dashboard settings
 	*/
-	var getDashboardSettings = function() {
+	var getDashboardSettings = function () {
 		return $izendaRsQuery.query('getDashboardSettings', [], {
-				dataType: 'json'
-			},
+			dataType: 'json'
+		},
 			// custom error handler:
 			{
-				handler: function() {
+				handler: function () {
 					return $izendaLocale.localeText('js_DashboardSettingsError', 'Failed to get Dashboard settings');
 				},
 				params: []
@@ -41,7 +39,7 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	* Get common settings
 	*/
 	var getCommonSettings = function () {
-		return $q(function(resolve) {
+		return $q(function (resolve) {
 			$izendaRsQuery.query('getCommonSettings', [], {
 				dataType: 'json',
 				cache: true
@@ -64,8 +62,8 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	/**
 	 * Load date format
 	 */
-	var loadSettings = function() {
-		getCommonSettings().then(function(settings) {
+	var loadSettings = function () {
+		getCommonSettings().then(function (settings) {
 			dateFormat.date = settings.dateFormat;
 			dateFormat.time = convertDotNetTimeFormatToMoment(settings.timeFormat);
 			culture = settings.culture;
@@ -75,11 +73,11 @@ function ($log, $q, $izendaRsQuery, $izendaLocale) {
 	/**
 	 * Get date format
 	 */
-	var getDateFormat = function() {
+	var getDateFormat = function () {
 		return dateFormat;
 	};
 
-	var getCulture = function() {
+	var getCulture = function () {
 		return culture;
 	};
 

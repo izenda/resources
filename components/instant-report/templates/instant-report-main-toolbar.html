@@ -166,6 +166,22 @@
             ng-bind="irController.filtersCount"></span>
         </a>
       </li>
+
+      <!-- pivots -->
+      <li ng-if="!$izendaCompatibility.isSmallResolution()"
+        ng-class="irController.pivotsPanelOpened ? 'active' : ''">
+        <a title="Edit Pivots"
+          ng-disabled="irController.activeFields.length === 0"
+          ng-click="irController.openPivotsPanel()"
+          droppable-accept=".datasource-field"
+          on-drop="irController.addPivotItem(arg0)"
+          izenda-instant-report-field-droppable>
+          <span class="glyphicon glyphicon-transfer"></span>
+          <span class="highlight-notification-round"
+            ng-show="irController.pivotCellsCount > 0"
+            ng-bind="irController.pivotCellsCount"></span>
+        </a>
+      </li>
     </ul>
   </div>
 </nav>

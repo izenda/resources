@@ -9,6 +9,7 @@
 				ngDisabled: '=',
 				dateFormat: '=',
 				locale: '=',
+				datepart: '@',
 				showAdditionalButtons: '@',
 				htmlContainerSelector: '@',
 				onChange: '&'
@@ -35,11 +36,26 @@
 					if (angular.isUndefined(newDate) || newDate === null)
 						getPicker().date(null);
 					else if (angular.isDate(newDate))
-						getPicker().date(newDate);
+						getPicker().date(getUpdatedDateValue($scope.ngModel, newDate, $scope.datepart));
 					else if (angular.isString(newDate))
-						getPicker().date(newDate);
+						getPicker().date(getUpdatedDateValue($scope.ngModel, new Date(newDate), $scope.datepart));
 					else
 						throw 'Unknown date type: ' + typeof (newDate);
+				}
+
+				function getUpdatedDateValue(baseDate, newDate, datepart) {
+					var currDate = baseDate;
+					if (datepart == 'date') {
+						currDate.setFullYear(newDate.getFullYear());
+						currDate.setMonth(newDate.getMonth());
+						currDate.setDate(newDate.getDate());
+					} else if (datepart == 'time') {
+						currDate.setHours(newDate.getHours());
+						currDate.setMinutes(newDate.getMinutes());
+						currDate.setSeconds(newDate.getSeconds());
+					} else
+						currDate = newDate;
+					return currDate;
 				}
 
 				/**
@@ -129,7 +145,7 @@
 
 				$input.on('dp.change', function (e) {
 					if (e.date)
-						ngModelCtrl.$setViewValue(e.date.toDate());
+						ngModelCtrl.$setViewValue(getUpdatedDateValue($scope.ngModel, e.date.toDate(), $scope.datepart));
 					else
 						ngModelCtrl.$setViewValue(null);
 				});

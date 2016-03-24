@@ -470,8 +470,11 @@ function EBC_SetSelectContent(sel, content)
 		if (fieldIndex != null && sel.value != value)
 			jq$(sel).val(jq$(sel).find('option[fieldIndex="' + fieldIndex + '"]').val());
 		var isFilterValueSelect = jq$(sel).attr('name') && jq$(sel).attr('name').indexOf('SelectValue', jq$(sel).attr('name').length - 'SelectValue'.length) != -1;
-		if (!isFilterValueSelect || jq$(sel).html() != jq$("<select>").html(content).html())
-			EBC_FireOnChange(sel);
+		if (!isFilterValueSelect || jq$(sel).html() != jq$("<select>").html(content).html()) {
+			if (!sel.PreparingNewRow) {
+				EBC_FireOnChange(sel);
+			}
+		}
 	}
 	sel.Loading = false;
 	return sel;
@@ -926,4 +929,15 @@ function EBC_PopulateDescriptions(fields) {
             descriptions.push(calcField);
         }
     }
+}
+
+function EBC_ValidateNumberInput(e){
+	if (jq$.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1 ||
+		(e.keyCode == 65 && (e.ctrlKey === true || e.metaKey === true)) ||
+		(e.keyCode >= 35 && e.keyCode <= 40)) {
+		return;
+	}
+	if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+		e.preventDefault();
+	}
 }

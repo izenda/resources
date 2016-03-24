@@ -102,7 +102,7 @@ var tInd = 0;
 var fieldsIndex;
 var csOrder = 0;
 var dsSelections = new Array();
-var fieldsOpts = new Array();
+var fieldsOpts = new Object();
 var curPropField = '';
 var curFieldIndexes = '';
 var previewFieldTimeout;
@@ -453,6 +453,11 @@ function CollectReportData() {
 		}
 		index++;
 	}
+
+	for (var i = 0; i < sortsList.length; i++)
+		if (sortsList[i] == 1 && fOptions[i])
+			fOptions[i].OrderType = "ASC";
+
 	var repObj = new Object();
 	repObj.DsList = dsList;
 	repObj.FldList = fieldsList;
@@ -538,31 +543,73 @@ function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 
 function DS_GetFullField(fieldSqlName, friendlyName) {
 	var field = new Object();
-	field.FriendlyName = friendlyName;
-	field.Description = EBC_Humanize("", friendlyName, "");
-	field.Total = 0;
-	field.VG = 0;
-	field.LabelJ = 1;
-	field.ValueJ = 0;
-	field.Width = '';
-	field.IsMultilineHeader = 0;
+
+	field.AdditionalFields = [];
+	field.AggregateFunction = "None";
+	field.AliasTable = "";
+	field.Bold = false;
+	field.CalcDescription = "";
+	field.CellHighlight = "";
+	field.ColumnGroup = "";
 	field.ColumnName = fieldSqlName;
+	field.ColumnSql = "";
+	field.Definition = "";
+	field.Description = EBC_Humanize("", friendlyName, "");
+	field.DrillDownStyle = "";
+	field.Expression = "";
+	field.ExpressionType = "...";
+	field.FormatString = "";
+	field.GUID = "";
+	field.GaugeColor = "";
+	field.GaugeMax = "";
+	field.GaugeMin = "";
+	field.GaugeStyle = "";
+	field.GaugeTargetEffect = "";
+	field.GaugeTargetReport = "";
+	field.GaugeValuesInCurrencyFormat = false;
+	field.Gradient = false;
+	field.GroupBy = false;
+	field.GroupByExpression = false;
+	field.Italic = false;
+	field.LabelJustification = "Center";
+	field.VG = false;
+	field.MultilineHeader = false;
+	field.Operator = "";
+	field.OrderType = "";
+	field.PageBreak = false;
+	field.Separator = false;
+	field.ShouldBeFormatted = true;
+	field.SubtotalExpression = "";
+	field.SubtotalFunction = "";
+	field.SubtotalTitle = "";
+	field.TargetReport = "";
+	field.TextHighlight = "";
+	field.Url = "";
+	field.ValueJustification = "";
+	field.ValueRanges = "";
+	field.ValueString = "";
+	field.Visible = true;
+	field.Width = "";
+	field.WidthSettedManually = false;
+
+	field.DbName = fieldSqlName;
+	field.FriendlyName = friendlyName;
+	field.Total = 0;
+
 	var opts = fieldsOpts[fieldSqlName];
 	if (opts != null) {
-		field.Description = opts.Description;
-		field.Total = opts.TotalChecked;
-		field.VG = opts.VgChecked;
-		field.LabelJ = opts.LabelJVal;
-		field.ValueJ = opts.ValueJVal;
-		field.Width = opts.Width;
-		field.IsMultilineHeader = opts.IsMultilineHeader;
+		for (var property in opts) {
+			if (opts.hasOwnProperty(property)) {
+				field[property] = opts[property];
+			}
+		}
 	}
 	return field;
 }
 
 function FilterPropFormatsGot(returnObj, id, field) {
-  if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
-  	return;
+	if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
+		return;
 	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
 		var operatorsData = returnObj.AdditionalData.slice(0, returnObj.Value);
 		field.FilterOperatorNames = new Array();
@@ -598,15 +645,15 @@ function FilterPropFormatsGot(returnObj, id, field) {
 }
 
 function FieldPropFormatsGot(returnObj, id, field) {
-  if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
-  	return;
+	if (id != 'fieldoperatorsandformatswithdefault' || returnObj == undefined || returnObj == null)
+		return;
 	if (returnObj.Value != "Field not set" && returnObj.AdditionalData != null && returnObj.AdditionalData.length > 1) {
 		var formatsData = returnObj.AdditionalData.slice(returnObj.Value);
-		field.Format = '...';
+		field.FormatString = '...';
 		if (fieldsOpts[curPropField] != null)
-	    field.Format = fieldsOpts[curPropField].Format;
+			field.FormatString = fieldsOpts[curPropField].FormatString.FormatString;
 		else
-	    field.Format = formatsData[formatsData.length - 1];
+			field.FormatString = formatsData[formatsData.length - 1];
 		field.FormatNames = new Array();
 		field.FormatValues = new Array();
 		var fCnt = 0;
@@ -625,16 +672,9 @@ function FieldPropFormatsGot(returnObj, id, field) {
 
 function StoreFieldProps(newField) {
 	var opts = new Object();
-	opts.Description = newField.Description;
-	opts.TotalChecked = newField.Total;
-	opts.VgChecked = newField.VG;
-	opts.Format = newField.Format;
-	opts.LabelJVal = newField.LabelJ;
-	opts.ValueJVal = newField.ValueJ;
-	opts.Width = newField.Width;
-	opts.IsMultilineHeader = newField.IsMultilineHeader;
+	opts = newField;
 	fieldsOpts[curPropField] = opts;
-	if (curFieldIndexes != null && curFieldIndexes != ''){
+	if (curFieldIndexes != null && curFieldIndexes != '') {
 		var s = curFieldIndexes.split('fcb');
 		if (s.length == 2 && s[0].length >= 4) {
 			var tcbInd = s[0].substr(3);
@@ -642,7 +682,7 @@ function StoreFieldProps(newField) {
 			FiClick(tcbInd, fcbInd, true, true);
 		}
 	}
-			}
+}
 
 function PreviewFieldManual() {
 	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rs.aspx?image=loading.gif"></img></tr></td></table>');
@@ -666,13 +706,8 @@ function PreviewFieldToDiv() {
 function PreviewField(field, container) {
 	var requestString = 'wscmd=getfieldpreview';
 	var fProps = FP_CollectFieldProperties();
-	var description = fProps.Description;
-	var totalChecked = fProps.Total;
-	var vgChecked = fProps.VG;
-	var format = fProps.Format;
-	var labelJVal = fProps.LabelJ;
-	var valueJVal = fProps.ValueJ;
-	var fieldOpts = ',\'Desc\':\'' + description + '\',\'Total\':\'' + totalChecked + '\',\'Vg\':\'' + vgChecked + '\',\'LabelJ\':\'' + labelJVal + '\',\'ValueJ\':\'' + valueJVal + '\',\'Format\':\'' + format + '\'';
+	var properties = JSON.stringify(fProps)
+	var fieldOpts = ',\'Total\':\'' + fProps.Total + '\',' + properties.substr(1, properties.length - 2);
 	requestString += "&wsarg0=" + encodeURIComponent("{'Na':'" + field + "','Cnt':'10'" + fieldOpts + "}");
 
 	var thisRequestObject;

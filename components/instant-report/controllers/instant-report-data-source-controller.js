@@ -13,6 +13,7 @@ angular
 			'$izendaUrl',
 			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
+			'$izendaInstantReportValidation',
 			'$izendaInstantReportStorage',
 			InstantReportDataSourceController
 ]);
@@ -27,6 +28,7 @@ function InstantReportDataSourceController(
 			$izendaUrl,
 			$izendaCompatibility,
 			$izendaInstantReportQuery,
+			$izendaInstantReportValidation,
 			$izendaInstantReportStorage) {
 	'use strict';
 	var vm = this;
@@ -137,9 +139,22 @@ function InstantReportDataSourceController(
 	/**
 	 * Check if field have group
 	 */
-	vm.isFieldGrouped = function (field) {
+	vm.isFieldGrouped = function(field) {
 		return field.checked && $izendaInstantReportStorage.isFieldGrouped(field);
-	}
+	};
+
+	/**
+	 * Update validation state and refresh if needed.
+	 */
+	vm.updateReportSetValidationAndRefresh = function () {
+		var validationResult = $izendaInstantReportValidation.validateReportSet();
+		if (validationResult) {
+			if (!$izendaCompatibility.isSmallResolution())
+				$izendaInstantReportStorage.getReportPreviewHtml();
+		} else {
+			$izendaInstantReportStorage.clearReportPreviewHtml();
+		}
+	};
 
 	/**
 	 * Check/uncheck field handler
@@ -149,10 +164,14 @@ function InstantReportDataSourceController(
 			field.collapsed = !field.collapsed;
 			return;
 		}
-		vm.selectField(field);
+		if (!field.checked)
+			vm.selectField(field);
 		if (!$izendaCompatibility.isSmallResolution()) {
 			// check field occurs in selectField function
-			$izendaInstantReportStorage.applyFieldChecked(field);
+			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+				vm.updateReportSetValidationAndRefresh();
+				$scope.$applyAsync();
+			});
 		}
 	};
 
@@ -168,7 +187,10 @@ function InstantReportDataSourceController(
 	 */
 	vm.selectField = function (field) {
 		if ($izendaCompatibility.isSmallResolution()) {
-			$izendaInstantReportStorage.applyFieldChecked(field);
+			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+				vm.updateReportSetValidationAndRefresh();
+				$scope.$applyAsync();
+			});
 		} else {
 			$izendaInstantReportStorage.applyFieldSelected(field, true);
 		}
@@ -210,7 +232,10 @@ function InstantReportDataSourceController(
 	 */
 	vm.addAnotherField = function(field) {
 		var anotherField = $izendaInstantReportStorage.addAnotherField(field, true);
-		$izendaInstantReportStorage.applyFieldChecked(anotherField);
+		$izendaInstantReportStorage.applyFieldChecked(anotherField).then(function () {
+			vm.updateReportSetValidationAndRefresh();
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -218,6 +243,8 @@ function InstantReportDataSourceController(
 	 */
 	vm.removeAnotherField = function(field, multiField) {
 		$izendaInstantReportStorage.removeAnotherField(field, multiField);
+		vm.updateReportSetValidationAndRefresh();
+		$scope.$applyAsync();
 	};
 
 	/**

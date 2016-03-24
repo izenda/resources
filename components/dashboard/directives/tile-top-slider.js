@@ -48,7 +48,7 @@
 				var setEndValue = function (value) {
 					$scope.endValue = value;
 					$scope.$parent.$applyAsync();
-				}
+				};
 
 				// initialize slider
 				var $input = elem.children('input');
@@ -69,13 +69,17 @@
 					}
 				});
 
-				/*var slider = $input.data("ionRangeSlider");
+				var slider = $input.data("ionRangeSlider");
 				var setSliderValue = function (value) {
-				var from = convertValueToFrom(value);
-				slider.update({
-				from: from
+					var from = convertValueToFrom(value);
+					slider.update({
+						from: from
+					});
+				};
+
+				$scope.$watch('ngModel', function (newValue) {
+					setSliderValue(newValue);
 				});
-				};*/
 			}
 		};
 	}

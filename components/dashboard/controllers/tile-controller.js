@@ -333,8 +333,8 @@ function izendaTileController(
 			vm.reportNameWithCategory = vm.reportName;
 			if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== 'uncategorized')
 				vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
-			vm.top = 100;
-			vm.endTop = 100;
+			vm.top = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
+			vm.endTop = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.flipFront(true, true);
 			updateParentTile();
 			$izendaEvent.queueEvent('refreshFilters', [], true);
@@ -700,20 +700,18 @@ function izendaTileController(
 				if ($target != null) {
 					$scope.dashboardController.swapTiles($source, $target).then(function (swappedTiles) {
 						var $swappedTile1 = swappedTiles[0],
-                $swappedTile2 = swappedTiles[1];
+						$swappedTile2 = swappedTiles[1];
 						$swappedTile1.find('.frame').show();
 						$swappedTile2.find('.frame').show();
 						var tileSizeChanged = Math.abs($swappedTile1.width() - $swappedTile2.width()) > 5
-                  || Math.abs($swappedTile1.height() - $swappedTile2.height()) > 5;
-						if (tileSizeChanged) {
-							var id1 = $scope.dashboardController.getTile$Id($swappedTile1),
-                  id2 = $scope.dashboardController.getTile$Id($swappedTile2);
-							$rootScope.$broadcast('stopEditTileEvent', [{
-								tileId: [id1, id2],
-								refresh: true,
-								actionName: 'drag'
-							}]);
-						}
+											|| Math.abs($swappedTile1.height() - $swappedTile2.height()) > 5;
+						var id1 = $scope.dashboardController.getTile$Id($swappedTile1),
+							id2 = $scope.dashboardController.getTile$Id($swappedTile2);
+						$rootScope.$broadcast('stopEditTileEvent', [{
+							tileId: [id1, id2],
+							refresh: tileSizeChanged,
+							actionName: 'drag'
+						}]);
 					});
 					return;
 				}

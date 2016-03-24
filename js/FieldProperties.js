@@ -49,13 +49,15 @@
 
 function FP_ShowFieldProperties(field, dialog) {
 	document.getElementById('propDialogMode').value = 'field';
+	document.getElementById('propFieldDbName').value = field.DbName;
+	document.getElementById('propFieldFriendlyName').value = field.FriendlyName;
 	jq$('.filter-prop-row').hide();
 	jq$('.field-prop-row').show();
 	document.getElementById('fieldPropDiv').style.display = '';
 	var titleDiv = document.getElementById('titleDiv');
 	var fieldFriendlyName = field.FriendlyName;
-	if (field.TableJoinAlias)
-		fieldFriendlyName += " (" + field.TableJoinAlias + ")";
+	if (field.AliasTable)
+		fieldFriendlyName += " (" + field.AliasTable + ")";
 	titleDiv.innerHTML = IzLocal.Res('js_FieldPropertyForField', 'Field Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
 	var propDescription = document.getElementById('propDescription');
 	propDescription.value = field.Description;
@@ -65,11 +67,11 @@ function FP_ShowFieldProperties(field, dialog) {
 		propTotal.checked = true;
 	var propVG = document.getElementById('propVG');
 	propVG.checked = false;
-	if (field.VG == 1)
+	if (field.VG)
 		propVG.checked = true;
 	var propMultilineHeader = document.getElementById('propMultilineHeader');
 	propMultilineHeader.checked = false;
-	if (field.IsMultilineHeader == 1)
+	if (field.MultilineHeader)
 		propMultilineHeader.checked = true;
 	var propFormats = document.getElementById('propFormats');
 	propFormats.options.length = 0;
@@ -77,19 +79,35 @@ function FP_ShowFieldProperties(field, dialog) {
 		var optFormat = new Option();
 		optFormat.value = field.FormatValues[formatCnt];
 		optFormat.text = field.FormatNames[formatCnt];
-		if (field.Format == field.FormatValues[formatCnt])
+		if (field.FormatString == field.FormatValues[formatCnt])
 			optFormat.selected = 'selected';
 		propFormats.add(optFormat);
 	}
 	jq$('#dupFilterNote').hide();
+
+	function getAlignNumber(str) {
+		var value = 0;
+		if (str == "Left")
+			value = 1;
+		else if (str == "Center")
+			value = 2;
+		else if (str == "Right")
+			value = 3;
+		return value;
+	}
+
 	var labelJ = document.getElementById('labelJ');
 	var msvs = labelJ.getAttribute('msvs').split(',');
-	labelJ.innerHTML = msvs[field.LabelJ - 1];
-	labelJ.setAttribute('msv', msvs[field.LabelJ - 1]);
+	var labelJNumber = getAlignNumber(field.LabelJustification);
+	labelJ.innerHTML = msvs[labelJNumber - 1];
+	labelJ.setAttribute('msv', msvs[labelJNumber - 1]);
+
 	var valueJ = document.getElementById('valueJ');
 	msvs = valueJ.getAttribute('msvs').split(',');
-	valueJ.innerHTML = msvs[field.ValueJ];
-	valueJ.setAttribute('msv', msvs[field.ValueJ]);
+	var valueJNumber = getAlignNumber(field.ValueJustification);
+	valueJ.innerHTML = msvs[valueJNumber];
+	valueJ.setAttribute('msv', msvs[valueJNumber]);
+
 	if (IsIE()) {
 		jq$('.multi-valued-check-advanced').css("margin-left", '3px');
 	}
@@ -110,47 +128,97 @@ function FP_CollectFilterProperties() {
 
 function FP_CollectFieldProperties() {
 	var field = new Object();
+
+	function getAlignString(value) {
+		var str = "NotSet";
+		if (value == "L")
+			str = "Left";
+		else if (value == "M")
+			str = "Center";
+		else if (value == "R")
+			str = "Right";
+		return str;
+	}
+	field.AdditionalFields = [],
+	field.AggregateFunction = "None";
+	field.AliasTable = "";
+	field.Bold = false;
+	field.CalcDescription = "";
+	field.CellHighlight = "";
+	field.ColumnGroup = "";
+	field.ColumnName = document.getElementById('propFieldDbName').value;
+	field.ColumnSql = "";
+	field.DbName = document.getElementById('propFieldDbName').value;
+	field.Definition = "";
 	field.Description = document.getElementById('propDescription').value;
+	field.DrillDownStyle = "";
+	field.Expression = "";
+	field.ExpressionType = "...";
+	field.FormatString = document.getElementById('propFormats').value;
+	field.FriendlyName = document.getElementById('propFieldFriendlyName').value;
+	field.GUID = "";
+	field.GaugeColor = "";
+	field.GaugeMax = "";
+	field.GaugeMin = "";
+	field.GaugeStyle = "";
+	field.GaugeTargetEffect = "";
+	field.GaugeTargetReport = "";
+	field.GaugeValuesInCurrencyFormat = false;
+	field.Gradient = false;
+	field.GroupBy = false;
+	field.GroupByExpression = false;
+	field.Italic = false;
+
+	var labelJ = document.getElementById('labelJ');
+	var msvs = labelJ.getAttribute('msvs').split(',');
+	var msv = labelJ.getAttribute('msv');
+	var curValue = "Center";
+	for (var ind = 0; ind < msvs.length; ind++) {
+		if (msvs[ind] == msv) {
+			curValue = getAlignString(msv);
+			break;
+		}
+	}
+	field.LabelJustification = curValue;
+
+	field.VG = document.getElementById('propVG').checked;
+	field.MultilineHeader = document.getElementById('propMultilineHeader').checked;
+	field.Operator = "";
+	field.OrderType = "";
+	field.PageBreak = false;
+	field.Separator = false;
+	field.ShouldBeFormatted = true;
+	field.SubtotalExpression = "";
+	field.SubtotalFunction = "";
+	field.SubtotalTitle = "";
+	field.TargetReport = "";
+	field.TextHighlight = "";
+	field.Url = "";
+
+	var valueJ = document.getElementById('valueJ');
+	var msvs = valueJ.getAttribute('msvs').split(',');
+	var msv = valueJ.getAttribute('msv');
+	var curValue = "NotSet";
+	for (var ind = 0; ind < msvs.length; ind++) {
+		if (msvs[ind] == msv) {
+			curValue = getAlignString(msv);
+			break;
+		}
+	}
+	field.ValueJustification = curValue;
+
+	field.ValueRanges = "";
+	field.ValueString = "";
+	field.Visible = true;
+	field.Width = document.getElementById('propWidth').value;
+	field.WidthSettedManually = false;
+
 	var propTotal = document.getElementById('propTotal');
 	if (propTotal.checked)
 		field.Total = 1;
 	else
 		field.Total = 0;
-	var propVG = document.getElementById('propVG');
-	if (propVG.checked)
-		field.VG = 1;
-	else
-		field.VG = 0;
-	var propMultilineHeader = document.getElementById('propMultilineHeader');
-	if (propMultilineHeader.checked)
-		field.IsMultilineHeader = 1;
-	else
-		field.IsMultilineHeader = 0;
-	var propFormats = document.getElementById('propFormats');
-	field.Format = propFormats.value;
-	var labelJ = document.getElementById('labelJ');
-	var msvs = labelJ.getAttribute('msvs').split(',');
-	var msv = labelJ.getAttribute('msv');
-	var curInd = 0;
-	for (var ind = 0; ind < msvs.length; ind++) {
-		if (msvs[ind] == msv) {
-			curInd = ind;
-			break;
-		}
-	}
-	field.LabelJ = curInd + 1;
-	var valueJ = document.getElementById('valueJ');
-	var msvs = valueJ.getAttribute('msvs').split(',');
-	var msv = valueJ.getAttribute('msv');
-	var curInd = 0;
-	for (var ind = 0; ind < msvs.length; ind++) {
-		if (msvs[ind] == msv) {
-			curInd = ind;
-			break;
-		}
-	}
-	field.ValueJ = curInd;
-	field.Width = document.getElementById('propWidth').value;
+
 	return field;
 }
 

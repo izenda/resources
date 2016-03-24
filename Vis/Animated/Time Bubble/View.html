@@ -200,7 +200,7 @@
 			function interpolateData(year) {
 				return vis.items.map(function(d) {
 					function safeNumber(value) {
-						return (typeof value != "undefined" && !Number.isNaN(value)) ? value : 0;
+						return (typeof value != "undefined" && !isNaN(value)) ? value : 0;
 					}
 
 					var result = {};

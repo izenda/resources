@@ -2,6 +2,9 @@
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
 
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui"/>
+<link rel="stylesheet" type="text/css" href="Resources/css/shrinkable-grid.css" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/instant-report/css/instant-report.css" />
@@ -74,6 +77,7 @@
 
 <!-- common -->
 <script type="text/javascript" src="Resources/components/common/module-definition.js"></script>
+<script type="text/javascript" src="Resources/components/common/services/util-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/url-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/compatibility-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/rs-query-service.js"></script>
@@ -85,6 +89,7 @@
 <script type="text/javascript" src="Resources/components/common/services/settings-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/bootstrap.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/bootstrap-modal.js"></script>
+<script type="text/javascript" src="Resources/components/common/directive/splashscreen.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/select-checkboxes.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/align-switcher.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/color-picker.js"></script>
@@ -99,9 +104,11 @@
 
 <!-- Instant Report -->
 <script type="text/javascript" src="Resources/components/instant-report/module-definition.js"></script>
+<script type="text/javascript" src="Resources/components/instant-report/services/instant-report-validation.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/services/instant-report-settings.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/services/instant-report-storage.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/services/instant-report-service.js"></script>
+<script type="text/javascript" src="Resources/components/instant-report/services/instant-report-pivot.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/directive/instant-report-field-draggable.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/directive/instant-report-left-panel-resize.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-controller.js"></script>
@@ -114,6 +121,7 @@
 <script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-schedule-controller.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-settings-controller.js"></script>
 <script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-field-options-controller.js"></script>
+<script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-pivot-controller.js"></script>
 
 <script runat="server">
   protected override void OnInit(EventArgs e)

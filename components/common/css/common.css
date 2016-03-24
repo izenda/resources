@@ -86,12 +86,12 @@
 	z-index: 9999;
 }
 
-.bootstrap-datetimepicker-widget a,
-.bootstrap-datetimepicker-widget a:hover,
-.bootstrap-datetimepicker-widget a:visited,
-.bootstrap-datetimepicker-widget a:focus {
-	color: #4274af;
-}
+	.bootstrap-datetimepicker-widget a,
+	.bootstrap-datetimepicker-widget a:hover,
+	.bootstrap-datetimepicker-widget a:visited,
+	.bootstrap-datetimepicker-widget a:focus {
+		color: #4274af;
+	}
 
 /* switcher */
 
@@ -211,6 +211,15 @@
 	min-width: 100%;
 }
 
+.html-container-placeholder {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background-color: #ee4823;
+}
+
 /***************** notifications **************/
 
 #notificationDiv {
@@ -282,7 +291,10 @@
 }
 
 	.btn-izenda-dark:hover,
-	.btn-izenda-dark:focus {
+	.btn-izenda-dark:focus,
+	.btn-izenda-dark:link:hover, 
+	.btn-izenda-dark:visited:hover, 
+	.btn-izenda-dark:active:hover {
 		outline: transparent;
 		color: #fff;
 		background-color: #3668A3;
@@ -294,9 +306,35 @@
 		background-color: #b3cbda;
 	}
 
-	.btn-izenda-dark.active:hover,
-	.btn-izenda-dark.active:focus {
-		outline: transparent;
-		color: #1c4389;
-		background-color: #b3cbda;
+		.btn-izenda-dark.active:hover,
+		.btn-izenda-dark.active:focus {
+			outline: transparent;
+			color: #1c4389;
+			background-color: #b3cbda;
+		}
+
+.izenda-splashscreen {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #fff;
+	text-align: center;
+	color: #000;
+}
+
+	.izenda-splashscreen > .izenda-splashscreen-inner {
+		position: absolute;
+		top: 50%;
+		margin-top: -12px;
+		left:0;
+		right: 0;
+		text-align: center;
+	}
+
+	.izenda-splashscreen .izenda-splashscreen-loading {
+		width: 24px;
+		height: 24px;
+		margin: 4px;
 	}

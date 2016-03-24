@@ -129,18 +129,21 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportStorage', [
 			'$log',
 			'$sce',
 			'$rootScope',
-			'izendaInstantReportConfig',
+			'$izendaUtil',
 			'$izendaUrl',
 			'$izendaSettings',
 			'$izendaCompatibility',
-			'$izendaInstantReportQuery',
 			'$izendaScheduleService',
 			'$izendaShareService',
-function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportConfig, $izendaUrl, $izendaSettings,
-	$izendaCompatibility, $izendaInstantReportQuery, $izendaScheduleService, $izendaShareService) {
+			'izendaInstantReportConfig',
+			'$izendaInstantReportQuery',
+			'$izendaInstantReportPivots',
+function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUrl, $izendaSettings, $izendaCompatibility,
+	$izendaScheduleService, $izendaShareService, izendaInstantReportConfig, $izendaInstantReportQuery,
+	$izendaInstantReportPivots) {
 	'use strict';
 	var angularJq$ = angular.element;
-
+	var _this = this;
 	// const:
 	var EMPTY_FIELD_GROUP_OPTION = $injector.get('izendaDefaultFunctionObject');
 	var EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS = $injector.get('izendaDefaultSubtotalFunctionObject');
@@ -155,7 +158,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	var isPageReady = false;
 	var existingReportLoadingSchedule = null;
 
-	var reportSet = angular.extend({}, $injector.get('izendaInstantReportObjectDefaults'));
+	var isPreviewSplashVisible = false;
+	var previewSplashText = 'Please wait while preview is loading...';
+
+	var reportSet = angular.merge({}, $injector.get('izendaInstantReportObjectDefaults'));
 	var activeTables = [];
 	var activeFields = [];
 	var activeCheckedFields = [];
@@ -174,29 +180,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	var orderCounter = 1;
 	var previewHtml = '';
 
-	var reportSetValidation = {
-		isValid: false,
-		messages: []
-	};
-
 	/////////////////////////////////////////
 	// common functions
 	/////////////////////////////////////////
-
-	function humanize(text) {
-		if (!angular.isString(text))
-			return text;
-		var result = text
-			// insert a space between lower & upper
-			.replace(/([a-z])([A-Z\d])/g, '$1 $2')
-			// space before last upper in a sequence followed by lower
-			.replace(/\b([A-Z\d]+)([A-Z\d])([a-z])/, '$1 $2$3')
-			// uppercase the first character
-			.replace(/^./, function (text) {
-				return text.toUpperCase();
-			});
-		return result;
-	}
 
 	/**
 	 * Get type group of field operator
@@ -439,8 +425,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		var activeTables = getActiveTables();
 		angularJq$.each(activeTables, function () {
 			var table = this;
-			var activeFields = getActiveFields(table);
-			angularJq$.each(activeFields, function () {
+			var aFields = getActiveFields(table);
+			angularJq$.each(aFields, function () {
 				var field = this;
 				fieldHandler.call(angular.isDefined(context) ? context : this, field, table);
 			});
@@ -487,24 +473,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 
 		return $q(function (resolve) {
 			var gotFieldFormats = function (returnObj) {
-				var formatToApply = EMPTY_FIELD_FORMAT_OPTION;
-				var groups = [];
-				angularJq$.each(returnObj, function () {
-					var group = this;
-					angularJq$.each(group.options, function () {
-						var option = this;
-						option.group = group.name;
-						if (option.value === formatValueToApply) {
-							formatToApply = option;
-						}
-						groups.push(option);
-					});
-				});
-				field.formatOptionGroups = groups;
-				field.format = formatToApply;
+				field.formatOptionGroups = $izendaUtil.convertOptionsByPath(returnObj);
+				field.format = $izendaUtil.getOptionByValue(field.formatOptionGroups, formatValueToApply);
 				resolve(field);
 			};
-			if (isFieldGrouped(field)) {
+
+			if (isFieldGrouped(field) && ['min', 'max', 'sum', 'sum_distinct', 'group'].indexOf(field.groupByFunction.value.toLowerCase()) < 0) {
 				$izendaInstantReportQuery.getFieldFormats(field, field.groupByFunction.dataTypeGroup).then(function (returnObj) {
 					gotFieldFormats(returnObj);
 				});
@@ -520,28 +494,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	 * Get group by given value
 	 */
 	var getGroupByValue = function (field, value) {
-		var i = 0;
-		while (i < field.groupByFunctionOptions.length) {
-			var option = field.groupByFunctionOptions[i];
-			if (option.value.toLowerCase() === value.toLowerCase())
-				return option;
-			i++;
-		}
-		return null;
+		return $izendaUtil.getOptionByValue(field.groupByFunctionOptions, value);
 	};
 
 	/**
 	 * Get Subtotal group by given value
 	 */
 	var getGroupBySubtotalValue = function (field, value) {
-		var i = 0;
-		while (i < field.groupBySubtotalFunctionOptions.length) {
-			var option = field.groupBySubtotalFunctionOptions[i];
-			if (option.value.toLowerCase() === value.toLowerCase())
-				return option;
-			i++;
-		}
-		return null;
+		return $izendaUtil.getOptionByValue(field.groupBySubtotalFunctionOptions, value);
 	};
 
 	/**
@@ -576,10 +536,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	/** 
 	 * Check if report has group and apply group by for other columns.
 	 */
-	var applyAutoGroups = function () {
-		var hasGroup = isReportUseGroup();
-		if (!hasGroup) {
-			return;
+	var applyAutoGroups = function (force) {
+		if (!force) {
+			var hasGroup = isReportUseGroup();
+			if (!hasGroup) {
+				return;
+			}
 		}
 		// check group function:
 		eachActiveFields(function (field) {
@@ -766,52 +728,6 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 			}
 		});
 		return validationFailed;
-	};
-
-	/**
-	 * Clear global validation
-	 */
-	var clearReportSetValidation = function () {
-		reportSetValidation.isValid = true;
-		reportSetValidation.messages = [];
-	};
-
-	/**
-	 * Do global validation. 
-	 */
-	var validateReportSet = function () {
-		clearReportSetValidation();
-		var rsv = reportSetValidation;
-
-		// validate active tables and fields
-		var activeFields = getAllFieldsInActiveTables();
-
-		var hasActiveFields = false;
-		angular.element.each(activeFields, function () {
-			hasActiveFields |= this.checked;
-		});
-		if (!hasActiveFields) {
-			rsv.isValid = false;
-			rsv.messages.push({
-				type: 'danger',
-				text: 'You should select at least one field to see preview.'
-			});
-		}
-		return rsv.isValid;
-	};
-
-	/**
-	 * Return report set validation state
-	 */
-	var isReportSetValid = function () {
-		return reportSetValidation.isValid;
-	};
-
-	/**
-	 * Return report set validation messages
-	 */
-	var getReportSetValidationMessages = function () {
-		return reportSetValidation.messages;
 	};
 
 	/////////////////////////////////////////
@@ -1144,6 +1060,50 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		});
 	};
 
+	var resetFieldObject = function(fieldObject) {
+		fieldObject.isInitialized = false;
+		fieldObject.isMultipleColumns = false;
+		fieldObject.multipleColumns = [];
+		fieldObject.highlight = false;
+		fieldObject.enabled = true;
+		fieldObject.checked = false;
+		fieldObject.selected = false;
+		fieldObject.collapsed = false;
+		fieldObject.isVgUsed = false;
+		fieldObject.breakPageAfterVg = false;
+		fieldObject.description = $izendaUtil.humanizeVariableName(fieldObject.name);
+		fieldObject.isDescriptionSetManually = false;
+		fieldObject.order = 0;
+		fieldObject.format = EMPTY_FIELD_FORMAT_OPTION;
+		fieldObject.formatOptionGroups = [];
+		fieldObject.groupByFunction = EMPTY_FIELD_GROUP_OPTION;
+		fieldObject.groupByFunctionOptions = [];
+		fieldObject.groupBySubtotalFunction = EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS;
+		fieldObject.groupBySubtotalFunctionOptions = [];
+		fieldObject.subtotalExpression = '';
+		fieldObject.sort = null;
+		fieldObject.italic = false;
+		fieldObject.columnGroup = '';
+		fieldObject.separator = false;
+		fieldObject.textHighlight = '';
+		fieldObject.cellHighlight = '';
+		fieldObject.valueRange = '';
+		fieldObject.width = '';
+		fieldObject.labelJustification = 'L';
+		fieldObject.valueJustification = 'L';
+		fieldObject.visible = true;
+		fieldObject.gradient = false;
+		fieldObject.bold = false;
+		fieldObject.drillDownStyle = 'DetailLink';
+		fieldObject.customUrl = '';
+		fieldObject.subreport = '';
+		fieldObject.expression = '';
+		fieldObject.expressionType = EMPTY_EXPRESSION_TYPE;
+		fieldObject.groupByExpression = false;
+		fieldObject.validateMessages = [];
+		fieldObject.validateMessageLevel = null;
+	};
+
 	var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup, fieldType, fieldSqlType) {
 		var fieldObject = {
 			id: getNextId(),
@@ -1165,7 +1125,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 			collapsed: false,
 			isVgUsed: false,
 			breakPageAfterVg: false,
-			description: humanize(fieldName),
+			description: $izendaUtil.humanizeVariableName(fieldName),
 			isDescriptionSetManually: false,
 			order: 0,
 			// formats
@@ -1206,10 +1166,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	/**
 	 * Copy field object state
 	 */
-	var copyFieldObject = function (from, to) {
+	var copyFieldObject = function (from, to, replaceName) {
 		to.isInitialized = from.isInitialized;
 		to.parentId = from.parentId;
 		to.tableSysname = from.tableSysname;
+		if (replaceName)
+			to.name = from.name;
 		to.sysname = from.sysname;
 		to.typeGroup = from.typeGroup;
 		to.type = from.type;
@@ -1379,6 +1341,39 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		return result;
 	};
 
+	var createFieldObjectForSend = function(field) {
+		return {
+			sysname: field.sysname,
+			description: field.description ? field.description : $izendaUtil.humanizeVariableName(field.name),
+			format: field.format,
+			groupByFunction: field.groupByFunction,
+			groupBySubtotalFunction: field.groupBySubtotalFunction,
+			subtotalExpression: field.subtotalExpression,
+			sort: field.sort,
+			order: field.order,
+			italic: field.italic,
+			columnGroup: field.columnGroup,
+			separator: field.separator,
+			valueRange: field.valueRange,
+			textHighlight: field.textHighlight,
+			cellHighlight: field.cellHighlight,
+			width: field.width,
+			labelJustification: field.labelJustification,
+			valueJustification: field.valueJustification,
+			gradient: field.gradient,
+			visible: field.visible,
+			isVgUsed: field.isVgUsed,
+			breakPageAfterVg: field.breakPageAfterVg,
+			bold: field.bold,
+			drillDownStyle: field.drillDownStyle,
+			customUrl: field.customUrl,
+			subreport: field.subreport,
+			expression: field.expression,
+			expressionType: field.expressionType.value,
+			groupByExpression: field.groupByExpression
+		}
+	};
+
 	/**
 	 * Create object with report data which will be send to server.
 	 */
@@ -1481,45 +1476,30 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 			reportSetConfig.filters.push(filterObj);
 		});
 
+		// pivot
+		var pivotConfig = $izendaInstantReportPivots.getPivotDataForSend();
+		if (!pivotConfig)
+			reportSetConfig.pivot = null;
+		else {
+			reportSetConfig.pivot = {
+				options: pivotConfig.options
+			};
+			reportSetConfig.pivot.pivotColumn = createFieldObjectForSend(pivotConfig.pivotColumn);
+			reportSetConfig.pivot.cellValues = [];
+			angular.element.each(pivotConfig.cellValues, function () {
+				reportSetConfig.pivot.cellValues.push(createFieldObjectForSend(this));
+			});
+		}
 		// create config
 		angularJq$.each(activeTables, function () {
 			var table = this;
 			var tableConfig = {
 				sysname: table.sysname
 			}
-			var activeFields = getActiveFields(table);
-			angularJq$.each(activeFields, function () {
+			var aFields = getActiveFields(table);
+			angularJq$.each(aFields, function () {
 				var field = this;
-				reportSetConfig.fields.push({
-					sysname: field.sysname,
-					description: field.description ? field.description : humanize(field.name),
-					format: field.format,
-					groupByFunction: field.groupByFunction,
-					groupBySubtotalFunction: field.groupBySubtotalFunction,
-					subtotalExpression: field.subtotalExpression,
-					sort: field.sort,
-					order: field.order,
-					italic: field.italic,
-					columnGroup: field.columnGroup,
-					separator: field.separator,
-					valueRange: field.valueRange,
-					textHighlight: field.textHighlight,
-					cellHighlight: field.cellHighlight,
-					width: field.width,
-					labelJustification: field.labelJustification,
-					valueJustification: field.valueJustification,
-					gradient: field.gradient,
-					visible: field.visible,
-					isVgUsed: field.isVgUsed,
-					breakPageAfterVg: field.breakPageAfterVg,
-					bold: field.bold,
-					drillDownStyle: field.drillDownStyle,
-					customUrl: field.customUrl,
-					subreport: field.subreport,
-					expression: field.expression,
-					expressionType: field.expressionType.value,
-					groupByExpression: field.groupByExpression
-				});
+				reportSetConfig.fields.push(createFieldObjectForSend(field));
 			});
 			reportSetConfig.joinedTables.push(tableConfig);
 		});
@@ -1538,11 +1518,18 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	 * Get and apply preview for current report set config.
 	 */
 	var getReportPreviewHtml = function () {
-		clearReportPreviewHtml();
-		var options = getOptions();
-		var reportSetToSend = createReportSetConfigForSend(options.previewTop);
-		$izendaInstantReportQuery.getNewReportSetPreview(reportSetToSend).then(function (data) {
-			previewHtml = data;
+		return $q(function(resolve) {
+			clearReportPreviewHtml();
+			isPreviewSplashVisible = true;
+			previewSplashText = 'Please wait while preview is loading...';
+			var options = getOptions();
+			var reportSetToSend = createReportSetConfigForSend(options.previewTop);
+			$izendaInstantReportQuery.getNewReportSetPreview(reportSetToSend).then(function (data) {
+				previewHtml = data;
+				isPreviewSplashVisible = false;
+				$rootScope.$applyAsync();
+				resolve();
+			});
 		});
 	};
 
@@ -1760,10 +1747,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 
 		// check: is filter refer to field which in active table.
 		if (filter.field !== null) {
-			var activeFields = getAllFieldsInActiveTables();
+			var aFields = getAllFieldsInActiveTables();
 			var found = false;
 			var filterField = filter.field;
-			angular.element.each(activeFields, function () {
+			angular.element.each(aFields, function () {
 				if (this.sysname === filterField.sysname)
 					found = true;
 			});
@@ -1999,7 +1986,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	 * Check current active tables and remove filters which connected to non-active fields
 	 */
 	var syncFilters = function () {
-		var activeFields = getAllFieldsInActiveTables();
+		var aFields = getAllFieldsInActiveTables();
 		var filters = getFilters();
 
 		// find filters to remove
@@ -2007,7 +1994,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		angularJq$.each(filters, function () {
 			var filter = this;
 			var isFilterActive = false;
-			angularJq$.each(activeFields, function () {
+			angularJq$.each(aFields, function () {
 				var activeField = this;
 				if (filter.field === null || activeField.sysname === filter.field.sysname) {
 					isFilterActive = true;
@@ -2028,31 +2015,21 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	/////////////////////////////////////////
 
 	/**
-	 * Covert [{ name: 'group name', options: [...]} }]
-	 * to array of options with additional parameter group: 'group name'
-	 */
-	var convertFieldFunctions = function (fieldFunctions) {
-		var groups = [];
-		angularJq$.each(fieldFunctions, function () {
-			var group = this;
-			angularJq$.each(group.options, function () {
-				var option = this;
-				option.group = group.name;
-				groups.push(option);
-			});
-		});
-		return groups;
-	};
-
-	/**
 	 * Load field function and apply group by function to field
 	 */
 	var loadFieldFunctions = function (field, defaultGroupString) {
 		return $q(function (resolve) {
 			var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'NONE';
-			$izendaInstantReportQuery.getFieldFunctions(field).then(function (returnObj) {
-				var groups = convertFieldFunctions(returnObj);
-				field.groupByFunctionOptions = groups;
+			$izendaInstantReportQuery.getFieldFunctions(field, field.isPivotColumn ? 'pivotField' : 'field').then(function (returnObj) {
+				field.groupByFunctionOptions = $izendaUtil.convertOptionsByPath(returnObj);
+
+				var isSimpleGroupFunction = field.groupByFunctionOptions.length === 2
+					&& field.groupByFunctionOptions[0].value.toLowerCase() === 'none'
+					&& field.groupByFunctionOptions[1].value.toLowerCase() === 'group';
+				if (isSimpleGroupFunction && groupToApply.toLowerCase() === 'none') {
+					groupToApply = 'GROUP';
+				}
+
 				field.groupByFunction = getGroupByValue(field, groupToApply);
 				// if group list was changed and current group function not in list
 				if (field.groupByFunction === null) {
@@ -2069,9 +2046,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	var loadSubtotalFieldFunctions = function (field, defaultGroupString) {
 		return $q(function (resolve) {
 			var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'DEFAULT';
-			$izendaInstantReportQuery.getFieldFunctions(field, true).then(function (returnObj) {
-				var groups = convertFieldFunctions(returnObj);
-				field.groupBySubtotalFunctionOptions = groups;
+			$izendaInstantReportQuery.getFieldFunctions(field, 'subtotal').then(function (returnObj) {
+				field.groupBySubtotalFunctionOptions = $izendaUtil.convertOptionsByPath(returnObj);
 				field.groupBySubtotalFunction = getGroupBySubtotalValue(field, groupToApply);
 				// if group list was changed and current group function not in list
 				if (field.groupBySubtotalFunction === null) {
@@ -2150,9 +2126,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	var autoUpdateFieldDescription = function (field) {
 		if (!field.isDescriptionSetManually) {
 			if (isFieldGrouped(field) && field.groupByFunction.value.toLowerCase() !== 'group')
-				field.description = field.groupByFunction.text + ' (' + humanize(field.name) + ')';
+				field.description = field.groupByFunction.text + ' (' + $izendaUtil.humanizeVariableName(field.name) + ')';
 			else
-				field.description = humanize(field.name);
+				field.description = $izendaUtil.humanizeVariableName(field.name);
 		}
 	};
 
@@ -2165,8 +2141,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 			applyAutoGroups();
 		} else {
 			resetAutoGroups();
-			updateFieldFormats(field);
 		}
+
+		updateFieldFormats(field);
 
 		// auto update description
 		autoUpdateFieldDescription(field);
@@ -2190,17 +2167,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		updateDrilldowns();
 		// update filters state
 		syncFilters();
+
+		// apply/reset autogroups
 		if (getActiveTables().length === 0) {
 			resetAutoGroups();
 		} else {
 			applyAutoGroups();
-		}
-		if (validateReportSet()) {
-			validateReport();
-			if (!$izendaCompatibility.isSmallResolution())
-				getReportPreviewHtml();
-		} else {
-			clearReportPreviewHtml();
 		}
 	};
 
@@ -2208,23 +2180,22 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	 * Fires when user check/uncheck field
 	 */
 	var applyFieldChecked = function (field, value) {
-		if (!field.enabled) {
-			validateReport();
-			return;
-		}
-		field.checked = angular.isDefined(value) ? value : !field.checked;
-		field.order = getNextOrder();
+		return $q(function(resolve) {
+			if (!field.enabled) {
+				validateReport();
+				resolve();
+				return;
+			}
+			field.checked = angular.isDefined(value) ? value : !field.checked;
+			field.order = getNextOrder();
 
-		// update state of datasources tree
-		updateParentFoldersAndTables(field);
+			// update state of datasources tree
+			updateParentFoldersAndTables(field);
 
-		// remove drilldowns which are not in active tables
-		//updateDrilldowns();
-		// update filters state
-		//syncFilters();
-
-		initializeField(field).then(function () {
-			updateUiStateAndRefreshPreview();
+			initializeField(field).then(function () {
+				updateUiStateAndRefreshPreview();
+				resolve();
+			});
 		});
 	};
 
@@ -2426,7 +2397,6 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 				}
 				resetDataSources();
 				reportSet = angular.extend(reportSet, reportSetConfig);
-
 				// update top
 				if (reportSet.options.top < 0) reportSet.options.top = '';
 				reportSet.options.previewTop = 10;
@@ -2435,6 +2405,19 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 				convertDrilldownFieldNamesToFields();
 				// convert chart names to chart objects collection
 				convertChartNamesToCharts();
+
+				// load pivot fields
+				if (angular.isObject(reportSet.pivot)) {
+					var pivotColumnConfig = angular.copy(reportSet.pivot.pivotColumn);
+					reportSet.pivot.pivotColumn = angular.copy(getFieldBySysName(pivotColumnConfig.sysname, true));
+					reportSet.pivot.pivotColumn.isPivotColumn = true;
+					loadReportField(reportSet.pivot.pivotColumn, pivotColumnConfig);
+					for (var i = 0; i < reportSet.pivot.cellValues.length; i++) {
+						var cellValueConfig = angular.copy(reportSet.pivot.cellValues[i]);
+						reportSet.pivot.cellValues[i] = angular.copy(getFieldBySysName(cellValueConfig.sysname, true));
+						loadReportField(reportSet.pivot.cellValues[i], cellValueConfig);
+					}
+				}
 
 				// convert fields
 				var addedFieldSysNames = [];
@@ -2458,23 +2441,31 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 					}
 				});
 
+				// initialization promises
+				var promises = [];
+
+				// pivots initialization
+				if (angular.isObject(reportSet.pivot)) {
+					var pivotData = reportSet.pivot;
+					promises.push($izendaInstantReportPivots.loadPivotData(pivotData));
+					reportSet.pivot = null;
+				}
+
 				// convert filters
-				var loadFiltersPromise = loadFilters();
+				promises.push(loadFilters());
 
 				// load schedule data for config
 				var scheduleConfigData = angular.extend({}, reportSetConfig.schedule);
-				var loadScheduleDataPromise = $izendaScheduleService.loadScheduleData(scheduleConfigData);
+				promises.push($izendaScheduleService.loadScheduleData(scheduleConfigData));
 
 				// load share data for config
 				var shareConfig = angular.extend([], reportSetConfig.share);
-				var loadShareDataPromise = $izendaShareService.loadShareData(shareConfig);
+				promises.push($izendaShareService.loadShareData(shareConfig));
 
 				// wait for all preparations completion
-				$q.all([loadFiltersPromise, loadScheduleDataPromise, loadShareDataPromise]).then(function () {
+				$q.all(promises).then(function () {
 					validateFilters();
 					$log.debug('loadReport end');
-					if (validateReportSet())
-						getReportPreviewHtml();
 					resolve(true, true);
 				});
 			});
@@ -2484,13 +2475,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	/**
 	 * Remove another field
 	 */
-	var removeAnotherField = function (field, anotherField) {
+	var removeAnotherField = function(field, anotherField) {
 		var idx = field.multipleColumns.indexOf(anotherField);
 		if (idx >= 0) {
 			if (getCurrentActiveField() === anotherField)
 				setCurrentActiveField(null);
 			field.multipleColumns.splice(idx, 1);
-			getReportPreviewHtml();
 		} else {
 			throw 'Can\'t find ' + anotherField.name + ' in multipleColumns collection.';
 		}
@@ -2502,7 +2492,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 			field.collapsed = false;
 			autoUpdateFieldDescription(field);
 		}
-	}
+	};
 
 	/**
 	 * Set sort value for field.
@@ -2555,6 +2545,21 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	};
 
 	/**
+	 * Restore default color settings.
+	 */
+	var restoreDefaultColors = function() {
+		var defaultReportSettings = $injector.get('izendaInstantReportObjectDefaults');
+		var defaultStyle = defaultReportSettings.options.style;
+		var style = reportSet.options.style;
+		style.borderColor = defaultStyle.borderColor;
+		style.headerColor = defaultStyle.headerColor;
+		style.headerForecolor = defaultStyle.headerForecolor;
+		style.itemColor = defaultStyle.itemColor;
+		style.itemForeColor = defaultStyle.itemForeColor;
+		style.itemAltColor = defaultStyle.itemAltColor;
+	};
+
+	/**
 	 * Column reorder. Indexes started from 1: 1,2,3,4,5,6
 	 */
 	var swapFields = function (fromIndex, toIndex) {
@@ -2574,13 +2579,16 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		field2.order = fieldOrder1;
 	};
 
-	var moveFieldToPosition = function (fromIndex, toIndex, isVisualGroup) {
+	/**
+	 * Change field order
+	 */
+	var moveFieldToPosition = function(fromIndex, toIndex, isVisualGroup) {
 		if (fromIndex === toIndex)
 			return;
-		var activeFieldsSorted = getAllActiveFields().sort(function (f1, f2) {
+		var activeFieldsSorted = getAllActiveFields().sort(function(f1, f2) {
 			return f1.order - f2.order;
 		});
-		activeFieldsSorted = angular.element.grep(activeFieldsSorted, function (field) {
+		activeFieldsSorted = angular.element.grep(activeFieldsSorted, function(field) {
 			return (isVisualGroup ^ field.isVgUsed) === 0;
 		});
 		var fromElement = activeFieldsSorted[fromIndex];
@@ -2601,7 +2609,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 				if (i !== fromIndex)
 					activeFieldsSorted[i].order = getNextOrder();
 		}
-	}
+	};
+
+	var getPreviewSplashVisible = function() {
+		return isPreviewSplashVisible;
+	};
+
+	var getPreviewSplashText = function() {
+		return previewSplashText;
+	};
 
 	// initialize:
 	$log.debug('Start instant report initialize');
@@ -2623,9 +2639,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 					$log.debug('Page ready: ', timeSpent + 'ms');
 				});
 			} else {
-				validateReportSet();
 				isPageReady = true;
-
 				var timeSpent = (new Date()).getTime() - startInitializingTimestamp;
 				$log.debug('Page ready: ', timeSpent + 'ms');
 				
@@ -2643,6 +2657,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		exportReport: exportReport,
 		sendReportLinkEmail: sendReportLinkEmail,
 		getReportPreviewHtml: getReportPreviewHtml,
+		clearReportPreviewHtml: clearReportPreviewHtml,
 		setPreviewTop: setPreviewTop,
 
 		getCategoryById: getCategoryById,
@@ -2671,6 +2686,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		setCurrentActiveField: setCurrentActiveField,
 		isFieldGrouped: isFieldGrouped,
 		applyAutoGroups: applyAutoGroups,
+		resetAutoGroups: resetAutoGroups,
+		initializeField: initializeField,
+		resetFieldObject: resetFieldObject,
+		createFieldObject: createFieldObject,
+		copyFieldObject: copyFieldObject,
 		applyFieldChecked: applyFieldChecked,
 		applyFieldSelected: applyFieldSelected,
 		applyTableActive: applyTableActive,
@@ -2685,6 +2705,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		applyVisualGroup: applyVisualGroup,
 		swapFields: swapFields,
 		moveFieldToPosition: moveFieldToPosition,
+		restoreDefaultColors: restoreDefaultColors,
 
 		getPreview: getPreview,
 
@@ -2707,9 +2728,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		refreshNextFiltersCascading: refreshNextFiltersCascading,
 		setFilterOperator: setFilterOperator,
 
-		// validation
-		getReportSetValidationMessages: getReportSetValidationMessages,
-		isReportSetValid: isReportSetValid,
+		getPreviewSplashVisible: getPreviewSplashVisible,
+		getPreviewSplashText: getPreviewSplashText,
 
 		// visualization
 		getVisualizationConfig: getVisualizationConfig

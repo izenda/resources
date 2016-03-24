@@ -93,7 +93,7 @@
         <b lang-text="js_PrintHTML">Print HTML</b><br>
         <span lang-text="js_PrintDirectlyMessage">Print directly from your browser, the fastest way for modern browsers</span>
       </a></li>
-      <li><a href="javascript:void(0)" title="" onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+      <li id="html2pdfPrintBtn"><a href="javascript:void(0)" title="" onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.html-to-pdf-32.png" alt="" />
         <b lang-text="js_HTML2PDF">HTML-powered PDF</b><br>
         <span lang-text="js_HTML2PDFMessage">One-file compilation of all the report's pages</span></a>
@@ -105,7 +105,7 @@
     </ul>
         </div>
   <div class="btn-group cool">
-            <button type="button" class="btn" title="Excel"
+            <button id="menuBtnExcelExport" type="button" class="btn" title="Excel"
       onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XLS(MIME)', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
       <img class="icon" src="rs.aspx?image=ModernImages.excel.png" alt="Get Excel file" />
       <span class="hide" lang-text="js_ExportToExcel">Export to Excel</span>
@@ -114,13 +114,13 @@
       <span class="caret"></span>
     </button>
     <ul class="dropdown-menu">
-      <li><a href="javascript:void(0)" title="" style="min-width: 18em;"
+      <li id="excelExportBtn"><a href="javascript:void(0)" title="" style="min-width: 18em;"
         onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XLS(MIME)', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.xls-32.png" alt="" />
         <b lang-text="js_ExportToExcel">Export to Excel</b><br>
         <span lang-text="js_ExportToExcelMessage">File for Microsoft's spreadsheet application</span>
       </a></li>
-                <li><a href="javascript:void(0)" title=""
+                <li id="wordExportBtn"><a href="javascript:void(0)" title=""
         onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=DOC', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.word-32.png" alt="" />
         <b lang-text="js_WordDocument">Word document</b><br>
@@ -266,7 +266,8 @@
                         <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
                             <span class="filterRequiredFlag" style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;" title="Required">*</span>
                             <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
-                                <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
+                                <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" 
+                                  style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
                             </nobr>
                             <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
                             <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="rs.aspx?image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
@@ -318,7 +319,9 @@
                                         </tr>
 				            </table>
                             <input type="hidden" id="propFilterGUID" value="" />
-                                  <input type="hidden" id="propDialogMode" value="" />
+                            <input type="hidden" id="propDialogMode" value="" />
+                            <input type="hidden" id="propFieldDbName" value="" />
+                            <input type="hidden" id="propFieldFriendlyName" value="" />
 			            </div>
                                 <div style="float: left; margin-top: 10px;" id="fieldPropDiv">
 				            <table>

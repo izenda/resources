@@ -227,7 +227,7 @@ function SC_SetAcceptableValues(row, operationElem, columnName, functionName)
 	if (operationElem.ElementExists()) 
 	{
 		var funcSelect = EBC_GetSelectByName(row, functionName == null ? 'Function': functionName);
-		var columnSel = EBC_GetSelectByName(row, columnName == null ? 'Column' : functionName);
+		var columnSel = EBC_GetSelectByName(row, columnName == null ? 'Column' : columnName);
 		if (columnSel.selectedIndex > -1)
 		{
 			var dataTypeGroup = columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
@@ -489,21 +489,22 @@ function SC_OnColumnChangedHandler(e, el) {
 					loadCalled[row.rowIndex - 1] = 0;
 				}
 
-				if (!isNotSelectedColumnSel && !fieldCannotBeSelected) {
-					var newRow = EBC_AddEmptyRow(row);
-					if (newRow) {
-						var newColumnSel = EBC_GetSelectByName(newRow, strColumn);
-						SC_ColumnChangeContext = {};
-						SC_ColumnChangeContext.row = newRow;
-						SC_ColumnChangeContext.strColumn = strColumn;
-						SC_ColumnChangeContext.columnSel = newColumnSel;
-						SC_ColumnChangeContext.strFunction = strFunction;
-						SC_ColumnChangeContext.oldValue = newColumnSel.getAttribute("oldValue");
-						SC_ColumnChangeContext.isNotSelectedColumnSel = true;
-
-						SC_ResetRowToDefault();
+					if (!isNotSelectedColumnSel && !fieldCannotBeSelected) {
+						var newRow = EBC_AddEmptyRow(row);
+						if (newRow) {
+							var newColumnSel = EBC_GetSelectByName(newRow, strColumn);
+							SC_ColumnChangeContext = {};
+							SC_ColumnChangeContext.row = newRow;
+							SC_ColumnChangeContext.strColumn = strColumn;
+							SC_ColumnChangeContext.columnSel = newColumnSel;
+							SC_ColumnChangeContext.strFunction = strFunction;
+							SC_ColumnChangeContext.oldValue = newColumnSel.getAttribute("oldValue");
+							SC_ColumnChangeContext.isNotSelectedColumnSel = true;
+							SC_ResetRowToDefault();
+							newRow.ThisRowIsBeingAddedAsNew = false;
+						}
 					}
-				}
+
 			}
 
 			SC_ColumnChangeContext = {};
@@ -792,9 +793,10 @@ function SC_ResetRowToDefault(isExtraColumn) {
 		/* 
 		 * Post-Actions
 		 */
-
-		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, strFunction, null, null, strColumn);
-		EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, prefix + "SubtotalFunction", false, true, strColumn);
+		if (!row.ThisRowIsBeingAddedAsNew) {
+			EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, strFunction, null, null, strColumn);
+			EBC_SetFunctions(row, mustGroupOrFunction, false, null, true, prefix + "SubtotalFunction", false, true, strColumn);
+		}
 
 		if (!isNotSelectedColumnSel && strColumn == (prefix + "Column")) {
 			SC_CheckPropertiesModified(row);
@@ -1315,7 +1317,7 @@ function SC_InitRow(row)
 	}
 	var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', row);
 	if(operationElem.ElementExists())
-		SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
+		SC_AfterArithmeticOperationChangedForRow(row);
 }
 
 function SC_Init(id, checked, mustGroupOrFunction, a, g) {
@@ -1769,8 +1771,12 @@ function SC_OnOrderCheckedHandle(e)
 
 function SC_AfterArithmeticOperationChanged(e)
 {
-	if(e) ebc_mozillaEvent = e;
-	var row = EBC_GetRow();
+	if (e) ebc_mozillaEvent = e;
+	SC_AfterArithmeticOperationChangedForRow(EBC_GetRow());
+}
+
+function SC_AfterArithmeticOperationChangedForRow(row)
+{
 	if (row==null)
 		return;
 	var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', row);
@@ -1867,9 +1873,11 @@ function SC_AfterArithmeticOperationChanged(e)
 		if (descriptionEdit && (descriptionEdit.value=="" || descriptionEdit.value==null))
 			EBC_SetDescription(row);
 	}
-	var id = EBC_GetParentTable(row).id;
-	SC_CheckGroupingAndFunctions(id);
-	SC_CallOnColumnFunctionChangeHandlers(id);
+	if (!row.ThisRowIsBeingAddedAsNew) {
+		var id = EBC_GetParentTable(row).id;
+		SC_CheckGroupingAndFunctions(id);
+		SC_CallOnColumnFunctionChangeHandlers(id);
+	}
 }
 
 function SC_OnVisualGroupsCheckedHandler(e) {

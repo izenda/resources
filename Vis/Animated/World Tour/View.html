@@ -90,8 +90,6 @@
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		window.visState = window.visState || {};
-
 		function shortName(name) {
 			switch (name) {
 				case "United Kingdom":
@@ -111,7 +109,10 @@
 		var vs = util.container("VIS_ID"),
 			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {});
+		window.visState = window.visState || {};
+		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
+			init: true,
+		});
 		if (!s.props) {
 			try {
 				s.props = JSON.parse(VIS_CONTEXT.props);
@@ -131,7 +132,7 @@
 
 		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
 		var heightWithOffset = height - propertiesPanel.outerHeight();
-		propertiesPanel.css({ opacity: 0 });
+		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
 		vis.container
 			.unbind("mouseenter")
 			.bind("mouseenter", function () {
@@ -141,6 +142,8 @@
 			.bind("mouseleave", function () {
 				propertiesPanel.stop().animate({ opacity: 0 });
 			});
+
+		s.init = false;
 
 		jq$("#VIS_ID").width(width).height(heightWithOffset);
 

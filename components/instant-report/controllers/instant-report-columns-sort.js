@@ -144,7 +144,7 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 					$vgListHeader.show();
 					$vgList.show();
 					$vgList.empty();
-					angular.element.each(vgList, function () {
+					angular.element.each(vgList, function (i) {
 						var table = $izendaInstantReportStorage.getTableById(this.parentId);
 						var $el = angular.element('<li class="izenda-reorder-item"></li>');
 						$el.attr('data-order', i);
@@ -187,7 +187,7 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 						$simpleListHeader.hide();
 					$simpleList.show();
 					$simpleList.empty();
-					angular.element.each(simpleList, function () {
+					angular.element.each(simpleList, function (i) {
 						var table = $izendaInstantReportStorage.getTableById(this.parentId);
 						var $el = angular.element('<li class="izenda-reorder-item"></li>');
 						$el.attr('data-order', i);

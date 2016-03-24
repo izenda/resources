@@ -49,7 +49,7 @@
 </style>
 
 <div id="VIS_ID">
-	<span class="hint" style="float:right;">
+	<span class="hint" style="position: absolute; right: 0;">
 		<span style="display:inline-block">Metric:</span>
 		<select id="metricSelect"></select>
 	</span>
@@ -64,6 +64,10 @@
 
 <script type="text/javascript">
 	(function ExecuteVIS_ID() {
+		function validate() {
+			return VIS_COLUMNS.length > 1 && VIS_COLUMNS[0].geoavailable && VIS_COLUMNS[1].geoavailable;
+		}
+
 		window.visState = window.visState || {};
 		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
 			selectedMetric: -1,
@@ -78,7 +82,7 @@
 			jq$.extend(s.props = (s.props || {}), {
 				"metric": metricSelect.val()
 			});
-			util.setProps(s.props);
+			vis.setProps(s.props);
 		}
 		function restore() {
 			if (typeof s.props != "object")
@@ -87,7 +91,6 @@
 			metricSelect.val(s.props.metric);
 		}
 
-		debugger;
 		//var f1data = typeof f1data != "undefined" ? f1data : undefined;
 		//var f2data = typeof f2data != "undefined" ? f2data : undefined;
 
@@ -100,7 +103,7 @@
 		var vs = util.container("VIS_ID"),
 		    metricSelect = vs.find("select#metricSelect");
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
 			return;
 
 		if (!s.props) {
@@ -330,6 +333,8 @@
 				});
 		}
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID);
+		util.registerResize("VIS_ID", ExecuteVIS_ID, function() {
+			jq$("#VIS_ID svg").remove();
+		});
 	})();
 </script>

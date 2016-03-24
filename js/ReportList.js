@@ -389,7 +389,9 @@ function AcceptReports(returnObj, id, parameters) {
 					if (!report.ReadOnly && !report.ViewOnly && !report.IsLocked && nrlConfigObj.AllowDeletingReports && nrlConfigObj.AllowDesignReports) {
 						content += '<div class="thumb-remove" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;' + deleteLink + '" title="' + IzLocal.Res('js_Remove', 'Remove') + '"></div>';
 					}
-					content += '<div class="thumb-print" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
+					if (!report.CsvOnly) {
+						content += '<div class="thumb-print" onclick="event.cancelBubble = true;(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;(event.preventDefault) ? event.preventDefault() : event.returnValue = false;window.open(' + printLink + ', \'_blank\');" title="' + IzLocal.Res('js_Print', 'Print') + '"></div>';
+					}
 					content += '</div>';
 					content += '</div>';
 					content += '<div class="thumb-title" style="max-width:' + nrlConfigObj.ThumbnailWidth + 'px;">' + report.Name + '</div>';

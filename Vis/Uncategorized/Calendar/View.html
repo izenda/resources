@@ -1348,7 +1348,14 @@ be a descendant of the grid when it is being dragged.
 			return manager;
 		})();
 
-		galleryManager.init("#VIS_ID_GEAR_GALLERY");
+		function toggleSelectorVisibility(id, visible) {
+			var selector = vs.find(id);
+			if (visible) {
+				selector.show();
+			} else {
+				selector.hide();
+			}
+		}
 
 		var vs = util.container("VIS_ID");
 		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
@@ -1368,6 +1375,10 @@ be a descendant of the grid when it is being dragged.
 					duration: 500,
 				});
 			});
+
+		if (!VIS_CONTEXT.isDashboard)
+			galleryManager.init("#VIS_ID_GEAR_GALLERY");
+		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
 
 		var defaultDateTypeSelect = vs.find("#VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT");
 		defaultDateTypeSelect.find("option").remove().end()

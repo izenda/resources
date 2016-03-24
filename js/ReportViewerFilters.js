@@ -471,13 +471,6 @@ function RefreshFilters(returnObj) {
 		CC_TreeUpdateValues(treeControl.parent(), possibleValues.split('", "'));
 	});
 
-	for (var index = 0; index < controlsIds.length; index++) {
-		var labelDiv = document.getElementById(controlsIds[index].Id);
-		if (labelDiv == null)
-			continue;
-		labelDiv.style.width = labelDiv.clientWidth + 'px';
-		labelDiv.innerHTML = controlsIds[index].filterDesc;
-	}
 	if (typeof (switchTabAfterRefreshCycle) === 'boolean' && switchTabAfterRefreshCycle) {
 		switchTabAfterRefreshCycle = false;
 		if (!jq$(document.getElementById('tab1')).hasClass('active'))
@@ -489,6 +482,13 @@ function RefreshFilters(returnObj) {
 
 	if (filtersDataObtained && fieldsDataObtained)
 		CheckShowAddFilterControls();
+
+	// update description
+	for (var idx = 0; idx < controlsIds.length; idx++) {
+		var labelDiv = document.getElementById(controlsIds[idx].Id);
+		if (labelDiv !== null)
+			labelDiv.innerHTML = controlsIds[idx].filterDesc;
+	}
 }
 
 function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter) {
@@ -553,12 +553,21 @@ function PopulateSubreportsFilters(returnObj) {
 	}
 	subreportFiltersControl.html('');
 	subreportFiltersControl.show();
-	for (var i = 0; i < returnObj.SubreportsFilters.length; i++)
+	var titlesPopulated = false;
+	for (var i = 0; i < returnObj.SubreportsFilters.length; i++) {
 		ProcessSubreportFilters(returnObj.SubreportsFilters[i], returnObj.SubreportsFilters.length > 1);
-	if (returnObj.SubreportsFilters.length == 1)
-		jq$('.subreportsFiltersContent .subreportsTitleText').text(returnObj.SubreportsFilters[0].SubreportFullName);
-
-	jq$('.subreportsFiltersContent').show();
+		if (!titlesPopulated) {
+			var numOfSubreportFilters = returnObj.SubreportsFilters[i].FiltersData.Filters.length;
+			if (numOfSubreportFilters >= 1) {
+				if (returnObj.SubreportsFilters.length > 1)
+					jq$('.subreportsFiltersContent .subreportsTitleText').text('Subreports');
+				else
+					jq$('.subreportsFiltersContent .subreportsTitleText').text(returnObj.SubreportsFilters[i].SubreportFullName);
+				jq$('.subreportsFiltersContent').show();
+				titlesPopulated = true;
+			}
+		}
+	}
 	subreportsFiltersData = returnObj.SubreportsFilters;
 }
 

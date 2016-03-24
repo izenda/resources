@@ -613,7 +613,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 		if (isTextSearch && !text) {
 			return;
 		}
-
+		var scriptToCheckField = null;
 		if (isTextSearch) {
 			var complexResult = getFieldSearchResult(text);
 			var complexSearch = complexResult["isComplexSearch"];
@@ -704,9 +704,8 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 								if (needToCheck) {
 									var locked = (field$.attr("locked") == "true");
 									var checkScript = field$.attr("onmouseup");
-									if (!locked && checkScript) {
-										eval(checkScript);
-									}
+									if (!locked && checkScript)
+									  scriptToCheckField = checkScript;
 								}
 							});
 						}
@@ -752,6 +751,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			table$.addClass("opened").removeClass("closed");
 			table$.closest("div.database").addClass("opened").removeClass("closed");
 		}
+		setTimeout(function () { DsDomChanged(); if (typeof scriptToCheckField != 'undefined' && scriptToCheckField != null && scriptToCheckField != '') { eval(scriptToCheckField); } }, animationTime + 100);
 	};
 
 	/**

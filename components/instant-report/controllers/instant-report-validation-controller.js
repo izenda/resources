@@ -6,23 +6,15 @@ angular
 .controller('InstantReportValidationController', [
 			'$rootScope',
 			'$scope',
-			'$window',
-			'$timeout',
-			'$q',
-			'$log',
+			'$izendaInstantReportValidation',
 			InstantReportValidationController
 ]);
 
-function InstantReportValidationController(
-			$rootScope,
-			$scope,
-			$window,
-			$timeout,
-			$q,
-			$log) {
+function InstantReportValidationController($rootScope, $scope, $izendaInstantReportValidation) {
 
 	'use strict';
 	var vm = this;
+	$scope.$izendaInstantReportValidation = $izendaInstantReportValidation;
 
 	vm.isValid = true;
 	vm.messages = [];
@@ -31,11 +23,9 @@ function InstantReportValidationController(
 	* Initialize controller
 	*/
 	vm.init = function () {
-		$scope.$watch('$izendaInstantReportStorage.isReportSetValid()', function (isValid) {
+		$scope.$watch('$izendaInstantReportValidation.isReportValid()', function (isValid) {
 			vm.isValid = isValid;
-		});
-		$scope.$watch('$izendaInstantReportStorage.getReportSetValidationMessages()', function (messages) {
-			vm.messages = messages;
+			vm.messages = $izendaInstantReportValidation.getValidation().messages;
 		});
 	};
 }

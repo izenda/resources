@@ -169,12 +169,12 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		});
 	}
 
-	function getFieldFunctions(field, forSubtotals) {
+	function getFieldFunctions(field, functionPurpose) {
 		if (!angular.isObject(field))
 			throw 'Field should be object';
 		var parameters;
 		var typeGroup = getCurrentTypeGroup(field);
-		if (forSubtotals) {
+		if (functionPurpose === 'subtotal') {
 			// available functions for subtotals
 			parameters = {
 				'cmd': 'GetOptionsByPath',
@@ -189,7 +189,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 				'onlyNumericResults': 'false',
 				'resultType': 'json'
 			};
-		} else {
+		} else if (functionPurpose === 'field') {
 			// available functions for column
 			parameters = {
 				'cmd': 'GetOptionsByPath',
@@ -200,6 +200,20 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 				'includeGroupBy': 'true',
 				'forSubtotals': 'false',
 				'extraFunction': 'false',
+				'forDundasMap': 'false',
+				'onlyNumericResults': 'false',
+				'resultType': 'json'
+			};
+		} else if (functionPurpose === 'pivotField') {
+			parameters = {
+				'cmd': 'GetOptionsByPath',
+				'p': 'FunctionList',
+				'type': field.sqlType,
+				'typeGroup': typeGroup,
+				'includeBlank': 'true',
+				'includeGroupBy': 'true',
+				'forSubtotals': 'false',
+				'extraFunction': 'true',
 				'forDundasMap': 'false',
 				'onlyNumericResults': 'false',
 				'resultType': 'json'

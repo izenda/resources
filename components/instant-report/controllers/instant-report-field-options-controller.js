@@ -95,6 +95,32 @@ function InstantReportFieldOptionsController(
 	};
 
 	/**
+	 * Toggle label justification
+	 */
+	vm.toggleLabelJustification = function() {
+		var itemsArray = ['L', 'M', 'R', 'J'];
+		var idx = itemsArray.indexOf(vm.field.labelJustification);
+		if (idx < itemsArray.length - 1)
+			idx++;
+		else
+			idx = 0;
+		vm.field.labelJustification = itemsArray[idx];
+	};
+
+	/**
+	 * Toggle value justification
+	 */
+	vm.toggleValueJustification = function() {
+		var itemsArray = ['L', 'M', 'R', 'J'];
+		var idx = itemsArray.indexOf(vm.field.valueJustification);
+		if (idx < itemsArray.length - 1)
+			idx++;
+		else
+			idx = 0;
+		vm.field.valueJustification = itemsArray[idx];
+	};
+
+	/**
 	 * Get sort button class
 	 */
 	vm.getSortButtonClass = function () {

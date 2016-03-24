@@ -367,7 +367,7 @@ function DMC_OnValueColumnChanged(e, columnID, functionID){
 		tryToSetDefaultFunction = true;
 	}
 
-	EBC_SetFunctions(row, true, false, defaultAggregateFunction, true, functionID, null, null, columnID, null, tryToSetDefaultFunction);
+	EBC_SetFunctions(row, false, true, defaultAggregateFunction, true, functionID, false, null, columnID, null, tryToSetDefaultFunction, true);
 }
 
 function DMC_PopulateDescriptions(fields) {
