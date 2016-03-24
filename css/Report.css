@@ -15,6 +15,7 @@ table.ReportTable td
 	font-family: tahoma; 
 	border-width:0px;
 	border-style:solid;
+	white-space: initial;
 }
 table.ReportTable td.EmptyCell
 {
@@ -346,13 +347,13 @@ tr.VisualGroup
 	cursor: pointer;
 	height: 30px;
 	vertical-align: bottom;
+	border-top: 1px solid #FFFFFF;
 }
 
 tr.VisualGroup tr
 {
 	border-width:3px;
 	cursor:pointer;
-	border-style:solid;
 }
 
 tr.VisualGroupCollapsed
@@ -366,7 +367,7 @@ tr.VisualGroupCollapsed
 	border-top: 1px solid #D4D4D4;
 }
 
-table.ReportTable:not(.fvTable) tr.VisualGroup td
+table.ReportTable:not(.fvTable) tr.VisualGroup > td
 {
 	text-align:left;
 	padding-top:10px;
@@ -379,8 +380,9 @@ table.ReportTable:not(.fvTable) tr.VisualGroup td
 	padding-bottom: 4px;
 }
 
-table.ReportTable:not(.fvTable)  tr.VisualGroupCollapsed td {
+table.ReportTable:not(.fvTable)  tr.VisualGroupCollapsed > td {
 	padding-left: 16px;
+	padding-top: 10px;
 	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAANCAIAAAD9iXMrAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAEESURBVChTfZA9bsJAEIXnGIhABAV34AIpcogoJ/KilKSgoAqhzgFSpEsDjo0RkUCUIFkoUX4UszN5OwOOFMk82bOz+56/3TW95t8sIuzZY6gUXQwWD/P3wu8lxCtFrWh6OVwmm09MkNTwH/k49dR0adNlV6PV4/IjbO1hAX6whbVlCbkzlzWipNtfPK1yXRZmhheqhpj3dO6SWi+tu6TRS6/H69nmi+XHsCZrqB7NAAMSDQ7QuclggKS2HRS7C7VdDBKi7SgF+/Z5Gwj2HKQ57Ggw1PHkDctloAwz7msw3Ob+JbdPUW1QhRYvAYPQKEbohPT/IaSUkvFfcOgu3mlfaK2QFL9Y878B1uRkcwAAAABJRU5ErkJggg==);
 	background-repeat: no-repeat;
 	background-position: 0px 12px;

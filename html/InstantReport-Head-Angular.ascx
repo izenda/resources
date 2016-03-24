@@ -75,6 +75,7 @@
 <!-- common -->
 <script type="text/javascript" src="Resources/components/common/module-definition.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/url-service.js"></script>
+<script type="text/javascript" src="Resources/components/common/services/compatibility-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/rs-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/common-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/localization-service.js"></script>

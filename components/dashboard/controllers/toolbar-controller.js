@@ -114,9 +114,9 @@ function izendaToolbarController(
 	vm.shareModalOpened = false;
 
 	// background options
-	var backColor = $izendaBackground.getBackgroundColor();
-	vm.izendaBackgroundColor = backColor ? backColor : '#1c8fd6';
+	vm.izendaBackgroundColor = $izendaBackground.getBackgroundColor();
 	vm.izendaBackgroundImageUrl = getCookie('izendaDashboardBackgroundImageUrl');
+	vm.izendaBackgroundImageRepeat = $izendaBackground.getBackgroundRepeat();
 	vm.hueRotate = false;
 	vm.selectBackgroundImageModalOpened = false; // background image dialog opened
 
@@ -187,6 +187,14 @@ function izendaToolbarController(
    */
   vm.isSaveAsAllowed = function () {
     return $izendaCompatibility.isSaveAsAllowed();
+  };
+
+  vm.isShowSaveControls = function () {
+    return $izendaCompatibility.isShowSaveControls();
+  };
+
+  vm.isShowSaveAsToolbarButton = function () {
+    return $izendaCompatibility.isShowSaveAsToolbarButton();
   };
 
   /**
@@ -279,7 +287,7 @@ function izendaToolbarController(
    */
   vm.selectBackgroundDialogHandler = function () {
     vm.izendaBackgroundImageUrl = null;
-    vm.backgroundModalRadio = 'url';
+    vm.izendaBackgroundImageRepeat = false;
     vm.selectBackgroundImageModalOpened = true;
   };
 
@@ -295,6 +303,7 @@ function izendaToolbarController(
    */
   vm.okBackgroundDialogHandler = function () {
     vm.selectBackgroundImageModalOpened = false;
+    $izendaBackground.setBackgroundRepeat(vm.izendaBackgroundImageRepeat);
     if (vm.backgroundModalRadio === 'file') {
       vm.setBackgroundImageFromLocalhost();
     } else {

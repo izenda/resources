@@ -8,10 +8,12 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
 
 <!-- jQuery Core -->
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
+<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
 
 <script type="text/javascript" src="./Resources/js/RichEditorPopup.js"></script>
 

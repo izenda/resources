@@ -11,7 +11,7 @@ angular.module('izendaQuery').value('$izendaLocalizedTexts', {
 	'schedule.timezone': 'Timezone',
 	'schedule.repeat': 'Repeat',
 	'schedule.email': 'Send Email As',
-	'schedule.recepients': 'Recepients'
+	'schedule.recipients': 'Recipients'
 });
 
 /**
@@ -34,7 +34,7 @@ angular.module('izendaQuery').service('$izendaLocale', [
  * Filter to apply locale in html templates
  */
 angular.module('izendaQuery').filter('izendaLocale', [
-	'$izendaLocale', function ($izendaLocale, defaultValue) {	
+	'$izendaLocale', function ($izendaLocale, defaultValue) {
 		return function (text, defaultValue) {
 			var defaultVal = angular.isString(defaultValue) ? defaultValue : '';
 			return $izendaLocale.localeText(text, defaultVal);

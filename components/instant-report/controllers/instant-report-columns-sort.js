@@ -10,6 +10,7 @@ angular.module('izendaInstantReport').controller('InstantReportColumnsSortContro
 			'$sce',
 			'$log',
 			'$modal',
+			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
 			InstantReportColumnsSortController
 ]);
@@ -23,6 +24,7 @@ function InstantReportColumnsSortController(
 			$sce,
 			$log,
 			$modal,
+			$izendaCompatibility,
 			$izendaInstantReportStorage) {
 	'use strict';
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
@@ -30,10 +32,12 @@ function InstantReportColumnsSortController(
 
 	//vm.panelOpened = false;
 	vm.activeFields = $izendaInstantReportStorage.getAllActiveFields();
-	
+
 	vm.columnReordered = function (fromIndex, toIndex, isVisualGroupColumn) {
 		$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn);
-		$izendaInstantReportStorage.getReportPreviewHtml();
+		if (!$izendaCompatibility.isSmallResolution())
+			$izendaInstantReportStorage.getReportPreviewHtml();
+		$scope.$applyAsync();
 	};
 
 	/**
@@ -62,23 +66,56 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 		restrict: 'EA',
 		scope: {
 			ngItems: '=',
+			showSortButtons: '@',
 			onReorder: '&'
 		},
 		template:
 			'<div class="izenda-reorder-header vg">Visual group columns</div>' +
 			'<ul class="izenda-reorder list-unstyled vg">' +
-				'<li class="izenda-reorder-item" ng-repeat="item in vgList" ng-bind="item.title"></li>' +
+				'<li class="izenda-reorder-item" ng-repeat="item in vgList" ng-bind="item.title">' +
+					'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
+					'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
+				'</li>' +
 			'</ul>' +
 			'<div class="izenda-reorder-header simple">Columns</div>' +
 			'<ul class="izenda-reorder list-unstyled simple">' +
-				'<li class="izenda-reorder-item" ng-repeat="item in simpleList" ng-bind="item.title"></li>' +
+				'<li class="izenda-reorder-item" ng-repeat="item in simpleList" ng-bind="item.title">' +
+					'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
+					'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
+				'</li>' +
 			'</ul>',
 		link: function (scope, element, attrs) {
 			var $vgList = element.find('.izenda-reorder.vg'),
 					$simpleList = element.find('.izenda-reorder.simple'),
 					$vgListHeader = element.find('.izenda-reorder-header.vg'),
 					$simpleListHeader = element.find('.izenda-reorder-header.simple');
-				
+
+			/**
+			 * Call reorder handler
+			 */
+			var doReorder = function(startPosition, endPosition, isVg) {
+				if (angular.isFunction(scope.onReorder))
+					scope.onReorder({
+						arg0: startPosition,
+						arg1: endPosition,
+						arg2: isVg
+					});
+			};
+
+			/**
+			 * Sort handler
+			 */
+			var sortUpdateHandler = function (event, ui) {
+				var $elem = ui.item,
+				    $parent = $elem.closest('.izenda-reorder');
+				var startPosition = parseInt($elem.attr('data-order'));
+				var endPosition = $elem.index();
+				// update indexes
+				$parent.children().each(function (i) {
+					angular.element(this).attr('data-order', i);
+				});
+				doReorder(startPosition, endPosition, $parent.hasClass('vg'));
+			};
 
 			/**
 			 * Prepare data and update sortable
@@ -95,7 +132,7 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 							simpleList.push(item);
 					}
 				}
-				vgList.sort(function(a, b) {
+				vgList.sort(function (a, b) {
 					return a.order - b.order;
 				});
 				simpleList.sort(function (a, b) {
@@ -107,12 +144,34 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 					$vgListHeader.show();
 					$vgList.show();
 					$vgList.empty();
-					angular.element.each(vgList, function (i) {
+					angular.element.each(vgList, function () {
 						var table = $izendaInstantReportStorage.getTableById(this.parentId);
 						var $el = angular.element('<li class="izenda-reorder-item"></li>');
-						$el.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
 						$el.attr('data-order', i);
 						$vgList.append($el);
+
+						var $span = angular.element('<span class="izenda-reorder-item-text"></span>');
+						$span.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
+						$el.append($span);
+
+						if (scope.showSortButtons) {
+							var $arrowUp = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn1" title="Move column up"><span class="glyphicon glyphicon-arrow-up"></span></span>');
+							$el.append($arrowUp);
+							$arrowUp.on('click', function() {
+								var index = angular.element(this).closest('.izenda-reorder-item').index();
+								if (index > 0) {
+									doReorder(index, index - 1, true);
+								}
+							});
+							var $arrowDown = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn2" title="Move column down"><span class="glyphicon glyphicon-arrow-down"></span></span>');
+							$el.append($arrowDown);
+							$arrowDown.on('click', function() {
+								var index = angular.element(this).closest('.izenda-reorder-item').index();
+								if (index < vgList.length - 1) {
+									doReorder(index, index + 1, true);
+								}
+							});
+						}
 					});
 					$vgList.sortable('refresh');
 				} else {
@@ -128,12 +187,34 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 						$simpleListHeader.hide();
 					$simpleList.show();
 					$simpleList.empty();
-					angular.element.each(simpleList, function (i) {
+					angular.element.each(simpleList, function () {
 						var table = $izendaInstantReportStorage.getTableById(this.parentId);
 						var $el = angular.element('<li class="izenda-reorder-item"></li>');
-						$el.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
 						$el.attr('data-order', i);
 						$simpleList.append($el);
+
+						var $span = angular.element('<span class="izenda-reorder-item-text"></span>');
+						$span.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
+						$el.append($span);
+
+						if (scope.showSortButtons) {
+							var $arrowUp = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn1" title="Move column up"><span class="glyphicon glyphicon-arrow-up"></span></span>');
+							$el.append($arrowUp);
+							$arrowUp.on('click', function () {
+								var index = angular.element(this).closest('.izenda-reorder-item').index();
+								if (index > 0) {
+									doReorder(index, index - 1, false);
+								}
+							});
+							var $arrowDown = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn2" title="Move column down"><span class="glyphicon glyphicon-arrow-down"></span></span>');
+							$el.append($arrowDown);
+							$arrowDown.on('click', function () {
+								var index = angular.element(this).closest('.izenda-reorder-item').index();
+								if (index < simpleList.length - 1) {
+									doReorder(index, index + 1, false);
+								}
+							});
+						}
 					});
 					$simpleList.sortable('refresh');
 				} else {
@@ -141,27 +222,6 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 					$simpleList.hide();
 					$simpleList.empty();
 				}
-			};
-
-			/**
-			 * Sort handler
-			 */
-			var sortUpdateHandler = function (event, ui) {
-				var $elem = ui.item,
-				    $parent = $elem.closest('.izenda-reorder');
-				var startPosition = parseInt($elem.attr('data-order'));
-				var endPosition = $elem.index();
-				// update indexes
-				$parent.children().each(function (i) {
-					angular.element(this).attr('data-order', i);
-				});
-
-				if (angular.isFunction(scope.onReorder))
-					scope.onReorder({
-						arg0: startPosition,
-						arg1: endPosition,
-						arg2: $parent.hasClass('vg')
-			});
 			};
 
 			// initialize

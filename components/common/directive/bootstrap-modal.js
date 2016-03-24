@@ -8,13 +8,13 @@
 
 	// template
 	var izendaBootstrapModalTemplate =
-  '<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">' +
-  '  <div class="modal-dialog" ng-class="getModalSizeClass()">' +
-  '    <div class="modal-content">' +
-  '      <div ng-transclude></div>' +
-  '    </div>' +
-  '  </div>' +
-  '</div>';
+	'<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">' +
+	'  <div class="modal-dialog" ng-class="getModalSizeClass()">' +
+	'    <div class="modal-content">' +
+	'      <div ng-transclude></div>' +
+	'    </div>' +
+	'  </div>' +
+	'</div>';
 
 	// implementation
 	function izendaBootstrapModal($timeout, $log) {
@@ -23,6 +23,8 @@
 			transclude: true,
 			scope: {
 				opened: '=',
+				keyboard: '=',
+				backdrop: '=',
 				modalSize: '@',
 				isModernBootstrapVersion: '@'
 			},
@@ -34,6 +36,10 @@
 						'overflow-y': 'scroll'
 					});
 				}
+				if (scope.keyboard != null)
+					element.children('.modal').attr('data-keyboard', scope.keyboard);
+				if (scope.backdrop != null)
+					element.children('.modal').attr('data-backdrop', scope.backdrop);
 				element.children('.modal').on('show.bs.modal', function (e) {
 					element.children('.modal').css('background-color', 'rgba(0,0,0,0.8)');
 					element.children('.modal').css('filter', 'alpha(opacity=80)');
@@ -71,9 +77,9 @@
 
 	// definition
 	angular
-    .module('izendaCommonControls')
-    .directive('izendaBootstrapModal', [
-      '$timeout', '$log',
-      izendaBootstrapModal
-    ]);
+	.module('izendaCommonControls')
+	.directive('izendaBootstrapModal', [
+		'$timeout', '$log',
+		izendaBootstrapModal
+	]);
 })();

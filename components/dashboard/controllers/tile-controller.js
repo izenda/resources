@@ -506,19 +506,23 @@ function izendaTileController(
    * Print tile
    */
 	vm.printTile = function () {
+		var windowPrint = $window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
 		$izendaDashboardQuery.loadTileReportForPrint(vm.reportFullName)
-      .then(function (htmlData) {
-      	$timeout(function () {
-      		var windowPrint = $window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
-      		windowPrint.document.write(htmlData);
-      		windowPrint.document.close();
-      		windowPrint.focus();
-      		$timeout(function () {
-      			windowPrint.print();
-      			windowPrint.close();
-      		}, 2000);
-      	}, 0);
-      });
+		.then(function (htmlData) {
+			$timeout(function () { 
+				windowPrint.document.write(htmlData);
+				windowPrint.document.close();
+				windowPrint.focus();
+				// Block UI in Chrome while printing is in progress
+				if ('WebkitAppearance' in document.documentElement.style)
+					$scope.dashboardController.printingInProgress = true;
+				$timeout(function () {
+					windowPrint.print();
+					$scope.dashboardController.printingInProgress = false;
+					windowPrint.close();
+				}, 2000);
+			}, 0);
+		});
 		vm.flipFront(true, false);
 	};
 
@@ -684,6 +688,11 @@ function izendaTileController(
 				var $flippies = $scope.dashboardController.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
 				var $helper = ui.helper;
 				var $source = _(event.target);
+
+				angular.forEach($scope.dashboardController.tiles, function (tile) {
+					$scope.dashboardController.getTile$ById(tile.id).css('z-index', 1);
+				});
+
 				var $target = $scope.dashboardController.getUnderlyingTile(event.pageX, event.pageY, vm);
 				$flippies.css('background-color', '#fff');
 
@@ -832,11 +841,11 @@ function izendaTileController(
 		var $back = $front.parent().find('.flippy-back');
 		$back.addClass(hideClass);
 		$front.removeClass(showClass);
-		setTimeout(function () {
-			$front.css('display', 'block').addClass(showClass);
-			$back.css('display', 'none').removeClass(hideClass);
-		}, 1);
-		setTimeout(function () {
+
+		$front.css('display', 'block').addClass(showClass);
+		$back.css('display', 'none').removeClass(hideClass);
+
+		$timeout(function () {
 			$front.removeClass('flipInY');
 			$back.removeClass('flipInY');
 		}, 200);
@@ -857,11 +866,11 @@ function izendaTileController(
 		var $back = $tile.find('.flippy-back');
 		$front.addClass(hideClass);
 		$back.removeClass(showClass);
-		setTimeout(function () {
-			$back.css('display', 'block').addClass(showClass);
-			$front.css('display', 'none').removeClass(hideClass);
-		}, 1);
-		setTimeout(function () {
+
+		$back.css('display', 'block').addClass(showClass);
+		$front.css('display', 'none').removeClass(hideClass);
+		
+		$timeout(function () {
 			$front.removeClass('flipInY');
 			$back.removeClass('flipInY');
 		}, 200);

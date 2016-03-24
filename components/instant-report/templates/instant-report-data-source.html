@@ -2,7 +2,18 @@
   ng-init="irDataSourceController.init()" ng-cloak>
   <form class="iz-inst-data-sources-search">
     <div class="form-group">
-      <div class="iz-inst-inner-glyphicon-container">
+      <!-- mobile view -->
+      <div class="input-group" ng-if="$izendaCompatibility.isSmallResolution()">
+        <input class="form-control" type="text" placeholder="Search..."
+          title="Search Data Sources" value=""
+          ng-model="irDataSourceController.searchString" />
+        <span class="input-group-addon izenda-cursor-pointer"
+          ng-click="irDataSourceController.performFiltering()">
+          <span class="glyphicon-search glyphicon"></span>
+        </span>
+      </div>
+      <!-- normal view -->
+      <div class="iz-inst-inner-glyphicon-container" ng-if="!$izendaCompatibility.isSmallResolution()">
         <input class="form-control" type="text" placeholder="Search..."
           title="Search Data Sources" value=""
           ng-model="irDataSourceController.searchString" />
@@ -97,6 +108,14 @@
                   izenda-stop-propagation>
                   <span class="glyphicon glyphicon-plus-sign"></span>
                 </span>
+                <!-- show field options button for mobile devices -->
+                <span class="ds-multiple-button"
+                  ng-show="field.checked"
+                  ng-if="$izendaCompatibility.isSmallResolution()"
+                  ng-click="irDataSourceController.showFieldOptions(field)"
+                  izenda-stop-propagation>
+                  <span class="glyphicon glyphicon-cog"></span>
+                </span>
 
                 <span class="ds-tree-item-header-notify-icon-first"
                   ng-show="field.checked && field.sort !== null"
@@ -161,5 +180,5 @@
         </div>
       </div>
     </div>
-</div>
+  </div>
 </div>

@@ -4,6 +4,8 @@
 	var refreshInterval = null;
 
 	function ajaxRequest(url, parameters, callbackSuccess, callbackError, id) {
+		if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
+			return;
 		var thisRequestObject = null;
 		if (window.XMLHttpRequest)
 			thisRequestObject = new XMLHttpRequest();

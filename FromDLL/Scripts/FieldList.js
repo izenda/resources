@@ -311,7 +311,7 @@ function SC_OnTableListInitializedWithExtraColumn(id, tables)
 function SC_OnTableListChangedHandlerWithExtraColumn(id, tables)
 {
 	SC_OnTableListChangedHandler(id, tables);
-	SC_OnTableListChangedHandler(id+"_ExtraColumn", tables, null, true);
+	SC_OnTableListChangedHandler(id + "_ExtraColumn", tables, null, true);
 }
 
 function SC_OnTableListChangedHandler(id, tables, loadFields, extraColumn)
@@ -346,7 +346,7 @@ function SC_OnTableListChangedHandler(id, tables, loadFields, extraColumn)
 		//	"CombinedColumnList", 
 		//	"tables=" + tables +
 		//	"&" + "ignoreSort=true",
-		//	null);
+	//	null);
 }
 
 function SC_OnExtraColumnChangedHandler(e, el, columnName)
@@ -434,6 +434,9 @@ function SC_RemoveExtraColumn(id, force)
 var SC_ColumnChangeContext = {};
 
 function SC_OnColumnChangedHandler(e, el) {
+	if (typeof el != 'undefined' && el != null && typeof el.PreparingNewRow != 'undefined' && el.PreparingNewRow)
+		return;
+
 	if (e) {
 		ebc_mozillaEvent = e;
 	}
@@ -564,8 +567,10 @@ function SC_ResetRowToDefault(isExtraColumn) {
 		/* Function */
 		var funcSelect = EBC_GetSelectByName(row, strFunction);
 		if (funcSelect) {
+			funcSelect.PreparingNewRow = true;
 			funcSelect.selectedIndex = 0;
 			funcSelect.disabled = false;
+			funcSelect.PreparingNewRow = false;
 		}
 
 		var mustGroupOrFunction = false;
@@ -612,9 +617,11 @@ function SC_ResetRowToDefault(isExtraColumn) {
 				arithmeticOperationElem.disable();
 			} else {
 				arithmeticOperationElem.enable();
+				var wasValue = arithmeticOperationElem.valueElement.value;
 				arithmeticOperationElem.setValueInternal(" ");
+				if (wasValue != " ")
+					SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
 			}
-			SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
 		}
 
 		/* 
@@ -1067,7 +1074,7 @@ function SC_CheckTotals(id)
 		id = id.substring(id.length-12,0);
 	var totalsSelect = document.getElementsByName(id + '_SubtotalsFunction')[0];
 	var totalsDiv = document.getElementById(id + '_TotalsDiv');
-	if(totalsSelect==null)
+	if (totalsSelect == null)
 		return;
 	
 	var table = document.getElementById(id);
@@ -1119,6 +1126,9 @@ function SC_CheckTotals(id)
 }
 
 function SC_OnFunctionChangeHandler(e, el, cName, fName, cFormat) {
+	if (typeof el != 'undefined' && el != null && typeof el.PreparingNewRow != 'undefined' && el.PreparingNewRow)
+		return;
+
 	if (cName == null)
 		cName = 'Column';
 	if (fName == null)
@@ -1128,9 +1138,9 @@ function SC_OnFunctionChangeHandler(e, el, cName, fName, cFormat) {
 	if(e)
 		ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
-	if(row._scFunctionChangeFired)
-			return;
-		row._scFunctionChangeFired = true;
+	if (row._scFunctionChangeFired)
+		return;
+	row._scFunctionChangeFired = true;
 	try
 	{
 		var columnSel = EBC_GetSelectByName(row, cName);
@@ -1175,10 +1185,13 @@ function SC_OnFunctionChangeHandler(e, el, cName, fName, cFormat) {
 
 function SC_OnFormatChangeHandler(e, el)
 {
+	if (typeof el != 'undefined' && el != null && typeof el.PreparingNewRow != 'undefined' && el.PreparingNewRow)
+		return;
+
 	if(e)
 		ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
-	if(row._scFormatChangeFired)
+	if (row._scFormatChangeFired)
 		return;
 	row._scFormatChangeFired = true;
 	try
@@ -1261,7 +1274,7 @@ function SC_ClearRowInputs(row)
 	var index = src.indexOf("advanced-settings");
 	src = src.substring(0,index);
 	src += "advanced-settings.png";
-	button.setAttribute("src", src);	
+	button.setAttribute("src", src);
 }
 
 function SC_InitNewRow(row)
@@ -1283,16 +1296,23 @@ function SC_InitRow(row)
 	var id = EBC_GetParentTable(row).id;
 	if (columnSel != null && sc_tables[id] != null)
 	{
-		var value = columnSel.value;
 		var url = sc_tables[id];
 		if(url.indexOf("&" + "addExpression=true") == -1)
-			url +="&" + "addExpression=true";
+			url += "&" + "addExpression=true";
+		columnSel.PreparingNewRow = true;
 		EBC_LoadData("CombinedColumnList", "tables=" + url, columnSel);
+		columnSel.PreparingNewRow = false;
 	}
-	if (functionSel != null)
+	if (functionSel != null) {
+		functionSel.PreparingNewRow = true;
 		EBC_LoadData('FunctionList', null, functionSel);
-	if (formatSel != null)
+		functionSel.PreparingNewRow = false;
+	}
+	if (formatSel != null) {
+		formatSel.PreparingNewRow = true;
 		EBC_LoadData('FormatList', null, formatSel);
+		formatSel.PreparingNewRow = false;
+	}
 	var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', row);
 	if(operationElem.ElementExists())
 		SC_AfterArithmeticOperationChanged(ebc_mozillaEvent);
@@ -1419,7 +1439,7 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth)
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];
 	var rowCount = body.rows.length;
-	if (rowCount<=0)
+	if (rowCount <= 0)
 		return;
 		
 	var values = {};
@@ -2008,6 +2028,10 @@ function SC_HideProperties(id)
 
 function SC_SubtotalFunctionChange(obj)
 {
+	var el = obj;
+	if (typeof el != 'undefined' && el != null && typeof el.PreparingNewRow != 'undefined' && el.PreparingNewRow)
+		return;
+
 	var table = jq$(obj).closest('table[name$="PropertiesTable"]');
 	if (table != null && table.length > 0) {
 		var expressionEdit = table.find('textarea[name$="SubtotalExpression"]');
@@ -2071,7 +2095,7 @@ function SC_ShowExtraColumns(id)
 function SC_OnTableListChangedHandlerShowAllTables(id, tables)
 {
 	SC_LoadColumns(id, "CombinedColumnList", "tables="+tables, 'GroupByColumn');
-	SC_LoadColumns(id, "CombinedColumnList", "tables="+tables, 'SortByColumn');
+	SC_LoadColumns(id, "CombinedColumnList", "tables=" + tables, 'SortByColumn');
 }
 
 function SC_OnShowAll(obj)

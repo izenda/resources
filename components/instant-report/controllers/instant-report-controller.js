@@ -12,6 +12,7 @@ angular
 		'$log',
 		'$modal',
 		'$izendaUrl',
+		'$izendaCompatibility',
 		'$izendaInstantReportSettings',
 		'$izendaInstantReportStorage',
 		'$izendaScheduleService',
@@ -27,6 +28,7 @@ function InstantReportController(
 		$log,
 		$modal,
 		$izendaUrl,
+		$izendaCompatibility,
 		$izendaInstantReportSettings,
 		$izendaInstantReportStorage,
 		$izendaScheduleService,
@@ -37,6 +39,9 @@ function InstantReportController(
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
 	$scope.$izendaUrl = $izendaUrl;
+
+	$scope.$izendaCompatibility = $izendaCompatibility;
+	vm.isSmallResolution = $izendaCompatibility.isSmallResolution();
 
 	vm.isLoading = true;
 	vm.previewHtml = $izendaInstantReportStorage.getPreview();
@@ -51,11 +56,12 @@ function InstantReportController(
 	vm.reportInfo = null;
 	vm.isExistingReport = false;
 	vm.allowedPrintEngine = 'None';
-	/**
-	 * Left panel state object
-	 */
+
+	// Left panel state object
+	var previewPanelId = 6;
 	vm.leftPanel = {
 		activeItem: 0,
+		previousPanelId: 0,
 		opened: true
 	};
 
@@ -64,6 +70,8 @@ function InstantReportController(
 	 */
 	vm.setLeftPanelActiveItem = function (id) {
 		vm.leftPanel.activeItem = id;
+		if (id !== previewPanelId)
+			vm.leftPanel.previousPanelId = id;
 		vm.leftPanel.opened = true;
 	};
 
@@ -80,6 +88,19 @@ function InstantReportController(
 	vm.applyChanges = function () {
 		$izendaInstantReportStorage.getReportPreviewHtml();
 	}
+
+	/**
+	 * Refresh preview for mobile devices
+	 */
+	vm.applyChangesMobile = function () {
+		if (vm.leftPanel.previousPanelId === vm.leftPanel.activeItem) {
+			vm.setLeftPanelActiveItem(6);
+			$izendaInstantReportStorage.getReportPreviewHtml();
+		} else {
+			vm.setLeftPanelActiveItem(vm.leftPanel.previousPanelId);
+			vm.leftPanel.previousPanelId = vm.leftPanel.activeItem;
+		}
+	};
 
 	/**
 	 * Set preview value
@@ -99,6 +120,13 @@ function InstantReportController(
 		return result.trim();
 	};
 
+	/**
+	 * Get class for mobile view
+	 */
+	vm.getMobileClass = function () {
+		return vm.isSmallResolution ? ' iz-inst-mobile ' : '';
+	};
+	
 	/**
 	 * returns true only for active panel in left panel
 	 */
@@ -212,13 +240,28 @@ function InstantReportController(
 			var rsReportCategory = reportSet.reportCategory;
 			if (angular.isString(rsReportCategory) && rsReportCategory !== '')
 				rsReportName = rsReportCategory + '\\' + rsReportName;
-			if (result === 'OK') {
-				$rootScope.$broadcast('showNotificationEvent', ['Report "' + rsReportName + '" was succesfully saved.']);
+
+			// show result message
+			var errorMessage = null;
+			if (angular.isString(result)) {
+				if (result === 'OK') {
+					$rootScope.$broadcast('showNotificationEvent', ['Report "' + rsReportName + '" was succesfully saved.']);
+				} else {
+					errorMessage = 'Can\'t save report "' + rsReportName + '". Error: ' + result;
+				}
+			} else if (angular.isObject(result)) {
+				if (result.hasOwnProperty('Value')) {
+					errorMessage = 'Can\'t save report "' + rsReportName + '". Error: ' + result.Value;
+				} else {
+					errorMessage = result;
+					$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
+				}
 			} else {
-				$rootScope.$broadcast('izendaShowMessageEvent', [
-					'Can\'t save report "' + rsReportName + '". Error: ' + result + '.',
-					'Report save error',
-					'danger']);
+				errorMessage = result;
+				$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
+			}
+			if (errorMessage !== null) {
+				$rootScope.$broadcast('izendaShowMessageEvent', [errorMessage, 'Report save error', 'danger']);
 			}
 		});
 	}
@@ -287,6 +330,11 @@ function InstantReportController(
 			}
 		};
 
+		$scope.$watch('$izendaCompatibility.isSmallResolution()', function(value) {
+			vm.isSmallResolution = value;
+		});
+
+		//
 		$scope.$on('changeVisualizationProperties', function(event, args) {
 			$izendaInstantReportStorage.getReportSet().charts[0].properties = args[0];
 		});
@@ -363,8 +411,10 @@ function InstantReportController(
 		// todo: move that javascript to special directive in future, because DOM manipulations in controller is bad practice:
 		var $root = jq$('.iz-inst-root');
 		jq$(window).resize(function () {
-			$root.height(jq$(window).height() - $root.offset().top - 50);
+			var delta = $izendaCompatibility.isSmallResolution() ? 30 : 73;
+			$root.height(jq$(window).height() - $root.offset().top - delta);
 		});
-		$root.height(jq$(window).height() - $root.offset().top - 50);
+		var delta = $izendaCompatibility.isSmallResolution() ? 30 : 73;
+		$root.height(jq$(window).height() - $root.offset().top - delta);
 	};
 }

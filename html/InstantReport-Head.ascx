@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.dataTables.css" />
 
 <!-- jQuery Core -->
@@ -32,6 +33,7 @@
 <script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.colResizable-1.3.source"></script>

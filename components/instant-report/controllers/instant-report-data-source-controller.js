@@ -11,6 +11,7 @@ angular
 			'$q',
 			'$log',
 			'$izendaUrl',
+			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportStorage',
 			InstantReportDataSourceController
@@ -24,12 +25,14 @@ function InstantReportDataSourceController(
 			$q,
 			$log,
 			$izendaUrl,
+			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportStorage) {
 	'use strict';
 	var vm = this;
 	var angularJq$ = angular.element;
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
+	$scope.$izendaCompatibility = $izendaCompatibility;
 	$scope.$izendaUrl = $izendaUrl;
 	
 	vm.searchString = '';
@@ -44,7 +47,7 @@ function InstantReportDataSourceController(
 		changing: false
 	};
 
-	var performFiltering = function () {
+	vm.performFiltering = function () {
 		$izendaInstantReportStorage.filterDataSources(vm.searchString);
 		$scope.$applyAsync();
 	};
@@ -53,9 +56,11 @@ function InstantReportDataSourceController(
 	 * Get filtered datasources
 	 */
 	vm.filterDataSources = function () {
+		if ($izendaCompatibility.isSmallResolution())
+			return;
 		if (searchState.timeoutId !== null)
 			clearTimeout(searchState.timeoutId);
-		searchState.timeoutId = setTimeout(performFiltering, 500);
+		searchState.timeoutId = setTimeout(vm.performFiltering, 500);
 	};
 
 	/**
@@ -145,7 +150,10 @@ function InstantReportDataSourceController(
 			return;
 		}
 		vm.selectField(field);
-		$izendaInstantReportStorage.applyFieldChecked(field);
+		if (!$izendaCompatibility.isSmallResolution()) {
+			// check field occurs in selectField function
+			$izendaInstantReportStorage.applyFieldChecked(field);
+		}
 	};
 
 	/**
@@ -159,8 +167,22 @@ function InstantReportDataSourceController(
 	 * Show field options
 	 */
 	vm.selectField = function (field) {
-		$izendaInstantReportStorage.applyFieldSelected(field, true);
+		if ($izendaCompatibility.isSmallResolution()) {
+			$izendaInstantReportStorage.applyFieldChecked(field);
+		} else {
+			$izendaInstantReportStorage.applyFieldSelected(field, true);
+		}
 	};
+
+	/**
+	 * Show field options button
+	 */
+	vm.showFieldOptions = function (field) {
+		$izendaInstantReportStorage.applyFieldSelected(field, true);
+		if ($izendaCompatibility.isSmallResolution()) {
+			$scope.irController.setLeftPanelActiveItem(7);
+		}
+	}
 
 	/**
 	 * Is all tables collapsed

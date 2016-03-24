@@ -6,6 +6,8 @@
     function ($window, $log) {
       'use strict';
       var currentRights;
+      var showSaveControls;
+      var showSaveAsToolbarButton;
     	var rightNone = "None",
           rightReadOnly = "Read Only",
           rightViewOnly = "View Only",
@@ -31,7 +33,7 @@
        * Check is dashboard window is too small to fit several columns of tiles.
        */
       var isSmallResolution = function () {
-        return $window.innerWidth <= 1024;
+        return $window.innerWidth <= 991;
       };
 
       /**
@@ -46,6 +48,28 @@
        */
       var setRights = function (rights) {
         currentRights = rights;
+      };
+
+      var setShowSaveControls = function (flagValue) {
+        showSaveControls = flagValue;
+      };
+
+      var getShowSaveControls = function () {
+        var result = true;
+        if (angular.isDefined(showSaveControls))
+          result = showSaveControls;
+        return result;
+      };
+
+      var setShowSaveAsToolbarButton = function (flagValue) {
+        showSaveAsToolbarButton = flagValue;
+      };
+
+      var getShowSaveAsToolbarButton = function () {
+        var result = true;
+        if (angular.isDefined(showSaveAsToolbarButton))
+          result = showSaveAsToolbarButton;
+        return result;
       };
 
       /**
@@ -79,6 +103,14 @@
         return allowed;
       };
 
+      var isShowSaveControls = function () {
+        return getShowSaveControls();
+      };
+
+      var isShowSaveAsToolbarButton = function () {
+        return getShowSaveAsToolbarButton();
+      };
+
       /**
        * Check is filters editing allowed
        */
@@ -106,11 +138,17 @@
         isMobile: isMobile,
         isSmallResolution: isSmallResolution,
         isOneColumnView: isOneColumnView,
+        isShowSaveControls: isShowSaveControls,
+        isShowSaveAsToolbarButton: isShowSaveAsToolbarButton,
         isEditAllowed: isEditAllowed,
         isFullAccess: isFullAccess,
         isSaveAsAllowed: isSaveAsAllowed,
         isFiltersEditAllowed: isFiltersEditAllowed,
         setRights: setRights,
-        getRights: getRights
+        setShowSaveControls: setShowSaveControls,
+        setShowSaveAsToolbarButton: setShowSaveAsToolbarButton,
+        getRights: getRights,
+        getShowSaveControls: getShowSaveControls,
+        getShowSaveAsToolbarButton: getShowSaveAsToolbarButton
       };
     }]);

@@ -149,7 +149,7 @@ function ShowDialog(obj, wd, ht, top, left, autoResize, showClose, extraClass) {
 	}
 
 	if (showClose)
-		$mbd.prepend('<div style="width: 100%; text-align: right;"><a href="#" onclick="hm();" style="padding:2px;background-color:#1C4E89; display: inline-block;" role="button"><span class="iz-ui-icon iz-ui-icon-light iz-ui-icon-closethick"></span></a></div>');
+		$mbd.prepend('<div style="width: 100%; text-align: right;"><div onclick="hm();" style="cursor:pointer; padding:2px;background-color:#1C4E89; display: inline-block;"><span class="iz-ui-icon iz-ui-icon-light iz-ui-icon-closethick"></span></div></div>');
 
 	$mbd.width((wd != null && wd != 0) ? wd : "");
 

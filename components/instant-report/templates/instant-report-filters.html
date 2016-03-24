@@ -1,6 +1,6 @@
 ﻿<div ng-controller="InstantReportFiltersController as filtersController"
   ng-init="filtersController.init()" ng-cloak>
-  <div class="iz-inst-field-filters-panel" ng-show="filtersController.panelOpened"
+  <div class="iz-inst-field-filters-panel" ng-show="$izendaCompatibility.isSmallResolution() || filtersController.panelOpened"
     droppable-accept=".datasource-field"
     on-drop="filtersController.addFilter(arg0)"
     izenda-instant-report-field-droppable>
@@ -12,18 +12,11 @@
             <a class="btn btn-izenda-dark" ng-click="filtersController.addFilter()">
               <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>&nbsp;Add Filter
             </a>
-            <span style="display: none;">Require:
-            <select ng-model="filtersController.filterOptions.require">
-              <option value="None">...</option>
-              <option value="All">All</option>
-              <option value="AtLeastOne">At Least One</option>
-              <option value="TheFirst">The First</option>
-              <option value="TheFirstTwo">The First Two</option>
-            </select>
-            </span>
-            Filter Logic:
-            <input type="text" class="iz-inst-field-filters-logic" placeholder="Example:(1 OR 2) AND (3 OR 4)"
-              ng-model="filtersController.filterOptions.filterLogic" />
+            <div class="iz-inst-field-filters-logic-container">
+              Filter Logic:
+              <input type="text" class="iz-inst-field-filters-logic" placeholder="Example:(1 OR 2) AND (3 OR 4)"
+                ng-model="filtersController.filterOptions.filterLogic" />
+            </div>
           </div>
         </div>
         <div class="row">
@@ -35,31 +28,51 @@
               droppable-accept=".iz-inst-filter-panel"
               on-drop="filtersController.reorderFilters(arg0, $index)"
               izenda-instant-report-field-droppable>
+
               <div class="iz-inst-filter-header form-inline"
                 ng-class="filter.isValid ? '' : 'not-valid'"
                 ng-attr-title="{{filter.validationMessageString}}">
                 <span class="index-container" ng-bind="$index + 1"></span>
-                <span class="izenda-cursor-pointer glyphicon with-label"
-                  ng-class="filter.required ? 'glyphicon-check' : 'glyphicon-unchecked'"
-                  ng-click="filter.required = !filter.required"
-                  izenda-stop-propagation></span>
-                <span class="izenda-cursor-pointer"
-                  ng-click="filter.required = !filter.required"
-                  izenda-stop-propagation>Required
+                <span class="text-nowrap" style="padding: 4px;">
+                  <span class="izenda-cursor-pointer glyphicon with-label"
+                    ng-class="filter.parameter ? 'glyphicon-check' : 'glyphicon-unchecked'"
+                    ng-click="filter.parameter = !filter.parameter"
+                    izenda-stop-propagation></span>
+                  <span class="izenda-cursor-pointer"
+                    ng-click="filter.parameter = !filter.parameter"
+                    izenda-stop-propagation>Param
+                  </span>
                 </span>
-                <button class="btn btn-default btn-header-close" type="button" title="Remove filter"
+                <span class="text-nowrap" style="padding: 4px;">
+                  <span class="izenda-cursor-pointer glyphicon with-label"
+                    ng-class="filter.required ? 'glyphicon-check' : 'glyphicon-unchecked'"
+                    ng-click="filter.required = !filter.required"
+                    izenda-stop-propagation></span>
+                  <span class="izenda-cursor-pointer"
+                    ng-click="filter.required = !filter.required"
+                    izenda-stop-propagation>Required
+                  </span>
+                </span>
+                <button class="btn btn-header-small-button pull-right" type="button" title="Remove filter"
                   ng-click="filtersController.removeFilter(filter)" izenda-stop-propagation>
                   <span class="glyphicon glyphicon-remove"></span>
                 </button>
               </div>
               <div class="iz-inst-filter-body">
+
                 <div class="iz-inst-filter-line form-group-sm">
-                  <select class="iz-inst-filter-input"
+                  <input type="text" class="form-control" placeholder="Filter description"
+                    ng-model="filter.description"/>
+                </div>
+
+                <div class="iz-inst-filter-line form-group-sm">
+                  <select class="form-control iz-inst-filter-input"
                     ng-options="field as field.name group by field.tableName for field in filtersController.activeFields"
                     ng-model="filter.field"
                     ng-change="filtersController.updateFilterOperators(filter)">
                   </select>
                 </div>
+
                 <div class="iz-inst-filter-line form-group-sm" ng-show="filter.field !== null">
                   <select class="iz-inst-filter-input"
                     ng-options="operator as operator.text group by operator.groupName for operator in filter.operators"
@@ -67,6 +80,7 @@
                     ng-change="filtersController.updateFilterValues(filter)">
                   </select>
                 </div>
+
                 <div class="iz-inst-filter-line form-group-sm" ng-show="filter.field !== null && filter.operator !== null && filter.operator !== ''">
                   <div ng-switch="filtersController.getFilterOperatorType(filter)">
                     <span ng-switch-when="hidden"></span>
@@ -168,7 +182,7 @@
                     </span>
                     <!-- one date -->
                     <span ng-switch-when="oneDate">
-                      <div class="input-group date"
+                      <div class="input-group date fullwidth"
                         date-format="filtersController.dateFormat.date"
                         locale="filtersController.culture"
                         ng-model="filter.values[0]"
@@ -180,7 +194,7 @@
                     </span>
                     <!-- two dates -->
                     <span ng-switch-when="twoDates">
-                      <div class="input-group date"
+                      <div class="input-group date fullwidth"
                         date-format="filtersController.dateFormat.date"
                         locale="filtersController.culture"
                         ng-model="filter.values[0]"
@@ -189,7 +203,7 @@
                         html-container-selector=".iz-inst-root"
                         izenda-date-time-picker>
                       </div>
-                      <div class="input-group date"
+                      <div class="input-group date fullwidth"
                         date-format="filtersController.dateFormat.date"
                         locale="filtersController.culture"
                         ng-model="filter.values[1]"
@@ -203,47 +217,47 @@
                       <span ng-repeat="value in filter.values" ng-bind="value + ' '"></span>
                     </span>
                   </div>
+                </div>
+              </div>
+            </div>
+            <div class="iz-inst-filter-drop-placeholder left"
+              index="{{$index}}"
+              ng-show="$index === 0 || $index % 4 === 0"
+              droppable-accept=".iz-inst-filter-panel"
+              on-drop="filtersController.moveFilterTo(arg0, $index)"
+              izenda-instant-report-field-droppable>
+            </div>
+            <div class="iz-inst-filter-drop-placeholder right"
+              index="{{$index + 1}}"
+              ng-class="$index % 4 === 3 ? 'half' : ''"
+              droppable-accept=".iz-inst-filter-panel"
+              on-drop="filtersController.moveFilterTo(arg0, $index + 1)"
+              izenda-instant-report-field-droppable>
             </div>
           </div>
         </div>
-        <div class="iz-inst-filter-drop-placeholder left"
-          index="{{$index}}"
-          ng-show="$index === 0 || $index % 4 === 0"
-          droppable-accept=".iz-inst-filter-panel"
-          on-drop="filtersController.moveFilterTo(arg0, $index)"
-          izenda-instant-report-field-droppable>
-        </div>
-        <div class="iz-inst-filter-drop-placeholder right"
-          index="{{$index + 1}}"
-          ng-class="$index % 4 === 3 ? 'half' : ''"
-          droppable-accept=".iz-inst-filter-panel"
-          on-drop="filtersController.moveFilterTo(arg0, $index + 1)"
-          izenda-instant-report-field-droppable>
-        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="container-fluid" ng-show="filtersController.filters.length === 0 && filtersController.activeFields.length > 0">
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="without-margins alert alert-warning" role="alert">
-          Drag and drop fields from data sources here to add a new filter or 
-              <a href="#" ng-click="filtersController.addFilter()">add filter manually</a>.
+      <div class="container-fluid" ng-show="filtersController.filters.length === 0 && filtersController.activeFields.length > 0">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="without-margins alert alert-warning" role="alert">
+              Drag and drop fields from data sources here to add a new filter or 
+            <a href="#" ng-click="filtersController.addFilter()">add filter manually</a>.
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="container-fluid" ng-show="filtersController.activeFields.length === 0">
-    <div class="row">
-      <div class="col-xs-12">
-        <div class="without-margins alert alert-warning" role="alert">
-          You need to select at least one field to add filters.
+      <div class="container-fluid" ng-show="filtersController.activeFields.length === 0">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="without-margins alert alert-warning" role="alert">
+              You need to select at least one field to add filters.
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-</div>
 </div>

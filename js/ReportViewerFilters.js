@@ -1,5 +1,5 @@
 ﻿String.prototype.endsWith = function (suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
+	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
 var filtersData = new Array();
@@ -71,18 +71,20 @@ function GetFilterValues(index, filters, id) {
 			break;
 		case 8:
 			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
-			var combinedRes8 = '';
+			var combinedRes8 = '...';
 			var cnt8 = 0;
 			var cb = document.getElementById('ndbfc' + id + '_cb' + cnt8);
 			while (cb != null) {
 				if (cb.checked) {
-					if (combinedRes8.length > 0)
-						combinedRes8 += ',';
-					combinedRes8 += cb.value;
+					if (combinedRes8 == '...')
+						combinedRes8 = '';
+					combinedRes8 += cb.value + ',';
 				}
 				cnt8++;
 				cb = document.getElementById('ndbfc' + id + '_cb' + cnt8);
 			}
+			if (combinedRes8 && combinedRes8 != '...')
+				combinedRes8 = combinedRes8.substring(0, combinedRes8.length - 1);
 			result[1] = combinedRes8;
 			break;
 		case 9:
@@ -91,15 +93,17 @@ function GetFilterValues(index, filters, id) {
 			break;
 		case 10:
 			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
-			var combinedRes = '';
+			var combinedRes = '...';
 			var selCtl = document.getElementById('ndbfc' + id);
 			for (var cnt10 = 0; cnt10 < selCtl.options.length; cnt10++) {
 				if (selCtl.options[cnt10].selected) {
-					if (combinedRes.length > 0)
-						combinedRes += ',';
-					combinedRes += selCtl.options[cnt10].value;
+					if (combinedRes == '...')
+						combinedRes = '';
+					combinedRes += selCtl.options[cnt10].value + ',';
 				}
 			}
+			if (combinedRes && combinedRes != '...')
+				combinedRes = combinedRes.substring(0, combinedRes.length - 1);
 			result[1] = combinedRes;
 			break;
 		default:
@@ -145,10 +149,10 @@ function CommitFiltersData(updateReportSet) {
 		if (!jq$(this).attr('id') || this.scrollTop == 0)
 			return;
 		positions.push(
-        {
+				{
         	id: jq$(this).attr('id'),
         	scroll: this.scrollTop
-        });
+				});
 	});
 	// Disable filters so they cannot be changed until they are in the relevant state
 	jq$('#htmlFilters :input').prop('disabled', true);
@@ -371,6 +375,7 @@ function CheckShowAddFilterControls() {
 }
 
 function RefreshFilters(returnObj) {
+	jq$.datepicker.markerClassName = "hasDateTimePickerJq";
 	var htmlFilters = jq$('#htmlFilters');
 	htmlFilters.find('.filtersContent').html('');
 
@@ -405,19 +410,55 @@ function RefreshFilters(returnObj) {
 
 	PopulateSubreportsFilters(returnObj);
 
-	var dateFormatString = '';
-	if (typeof nrvConfig != 'undefined' && nrvConfig != null && typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
-		dateFormatString = nrvConfig.DateFormat;
+	var dateFormatString = 'mm/dd/yy';
+	var showTimeInFilterPickers = false;
+	if (typeof nrvConfig != 'undefined' && nrvConfig != null)
+	{
+		if (typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
+			dateFormatString = nrvConfig.DateFormat;
+		if (typeof nrvConfig.ShowTimeInFilterPickers != 'undefined' && nrvConfig.ShowTimeInFilterPickers != null && nrvConfig.ShowTimeInFilterPickers != '')
+			showTimeInFilterPickers = nrvConfig.ShowTimeInFilterPickers;
+	}
+	if (typeof nirConfig != 'undefined' && nirConfig != null) {
+		if (typeof nirConfig.DateFormat != 'undefined' && nirConfig.DateFormat != null && nirConfig.DateFormat != '')
+			dateFormatString = nirConfig.DateFormat;
+		if (typeof nirConfig.ShowTimeInFilterPickers != 'undefined' && nirConfig.ShowTimeInFilterPickers != null && nirConfig.ShowTimeInFilterPickers != '')
+			showTimeInFilterPickers = nirConfig.ShowTimeInFilterPickers;
+	}
 	for (var cc = 0; cc < calendars.length; cc++) {
-		var showDatePicker = jq$('#iz-ui-datepicker-div').is(':visible');
-		jq$('#iz-ui-datepicker-div').hide();
-		jq$(document.getElementById(calendars[cc])).datepicker("destroy");
-		if (dateFormatString == '')
-			jq$(document.getElementById(calendars[cc])).datepicker();
-		else
-			jq$(document.getElementById(calendars[cc])).datepicker({ dateFormat: dateFormatString });
-		if (showDatePicker)
-			jq$(document.getElementById(calendars[cc])).datepicker("show");
+		if (showTimeInFilterPickers) {
+			jq$(document.getElementById(calendars[cc])).datetimepickerJq("destroy");
+			jq$(document.getElementById(calendars[cc])).datetimepickerJq({
+				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
+				showOn: "button",
+				buttonImageOnly: true,
+				altRedirectFocus: false,
+				showSecond: true,
+				timeInput: true,
+				dateFormat: dateFormatString,
+				onClose: function () {
+					if (this.getAttribute('autoSetEndDay') == '1') {
+						var enteredDate = jq$(this).datetimepickerJq("getDate");
+						if (typeof enteredDate != 'undefined' && enteredDate != null && enteredDate.getHours() + enteredDate.getMinutes() + enteredDate.getSeconds() <= 0) {
+							var fixedDate = new Date(enteredDate.getFullYear(), enteredDate.getMonth(), enteredDate.getDate(), 23, 59, 59, 0)
+							jq$(this).datetimepickerJq("setDate", fixedDate)
+						}
+					}
+					setTimeout(function () {
+						CommitFiltersData(false);
+					}, 401);
+				}
+			});
+		}
+		else {
+			jq$(document.getElementById(calendars[cc])).datepicker("destroy");
+			jq$(document.getElementById(calendars[cc])).datepicker({
+				dateFormat: dateFormatString,
+				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
+				showOn: "button",
+				buttonImageOnly: true
+			});
+		}
 	}
 
 	htmlFilters.find(".comboboxTreeMultyselect").each(function () {
@@ -586,18 +627,20 @@ function FiltersDataSet(returnObj, id) {
 function HideEqualsPopupDialog(updateState) {
 	if (updateState) {
 		var filterIndex = document.getElementById('popupDlgFilterIndex').value;
-		var newVal = '';
+		var newVal = '...';
 		var cnt6 = 0;
 		var cb = document.getElementById('ndbfc' + filterIndex + '_cb' + cnt6);
 		while (cb != null) {
 			if (cb.checked) {
-				if (newVal.length > 0)
-					newVal += ',';
-				newVal += cb.value;
+				if (newVal == '...')
+					newVal = '';
+				newVal += cb.value + ',';
 			}
 			cnt6++;
 			cb = document.getElementById('ndbfc' + filterIndex + '_cb' + cnt6);
 		}
+		if (newVal && newVal != '...')
+			newVal = newVal.substring(0, newVal.length - 1);
 		var popupDlgValuesContainer = document.getElementById('ndbfc' + filterIndex);
 		popupDlgValuesContainer.value = newVal;
 	}
@@ -711,13 +754,12 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			if (values[0] == '...') values[0] = '';
 			if (values[1] == '...') values[1] = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			onChangeCmd = '';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
-			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_1\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			result += '<br />';
-			result += '<input type="text" ' + onChangeCmd + ' value="' + values[1].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_2" />';
+			result += '<input autoSetEndDay="1" type="text" ' + onChangeCmd + ' value="' + values[1].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_2" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_2';
-			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '_2\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			break;
 		case 6:
 			result += '<input type="button" style="height:30px;width:300px;background-color:LightGray;border:1px solid DarkGray" onclick="ShowEqualsPopupDialog(\'' + index + '\');" value="...">';
@@ -728,7 +770,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpDownCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
-			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; width:96%; overflow: auto; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';
+			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; overflow-y:auto; overflow-x:hidden; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';
 			var valuesSet8 = value.split(',');
 			for (var cnt8 = 0; cnt8 < existingValues.length; cnt8++) {
 				var checked8 = '';
@@ -745,9 +787,9 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 		case 9:
 			if (value == '...') value = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			onChangeCmd = '';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
-			result += '<img onclick="javascript: if (showingC) {return;} showingC = true; setTimeout(function() {document.getElementById(\'ndbfc' + index + '\').focus(); setTimeout(function(){showingC = false;jq$(\'#iz-ui-datepicker-div\').css(\'z-index\', \'2000\');}, 500);}, 500); " style="cursor:pointer;position:relative;top:4px;" src="' + urlSettings.urlRsPage + '?image=calendar_icon.png">';
 			break;
 		case 10:
 			result += '<select class="saveScroll" style="width:100%" size="5" multiple="" id="ndbfc' + index + '" ' + onChangeCmd + '>';
@@ -1079,7 +1121,7 @@ CC_TreeUpdateValues = function (row, values) {
 
 function InitAutoComplete() {
 	var autocompleteElements = jq$('input[name="autocomplete-filter"]');
-	if (autocompleteElements.length == 0 || (jq$.browser.msie && 1 * jq$.browser.version < 9))
+	if (autocompleteElements.length === 0)
 		return;
 	for (var i = 0; i < autocompleteElements.length; i++) {
 		var currInput = autocompleteElements[i];

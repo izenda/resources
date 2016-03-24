@@ -10,6 +10,7 @@ angular
 			'$timeout',
 			'$q',
 			'$log',
+			'$izendaCompatibility',
 			'$izendaInstantReportSettings',
 			'$izendaInstantReportStorage',
 			InstantReportFormatController
@@ -22,10 +23,11 @@ function InstantReportFormatController(
 			$timeout,
 			$q,
 			$log,
+			$izendaCompatibility,
 			$izendaInstantReportSettings,
 			$izendaInstantReportStorage) {
 	'use strict';
-
+	$scope.$izendaCompatibility = $izendaCompatibility;
 	var vm = this;
 	vm.optGroups = {
 		'headerAndFooter': {

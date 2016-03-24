@@ -1,4 +1,14 @@
 ﻿<style type="text/css">
+	#VIS_ID_CONTAINER {
+		overflow: hidden;
+	}
+
+	 #VIS_ID_CONTAINER .clearfix:after {
+		 content: "";
+		 clear: both;
+		 display: table;
+	 }
+
 	#VIS_ID_CONTAINER .node circle {
 		cursor: pointer;
 		fill: #fff;
@@ -45,7 +55,11 @@
 		color: black;
 	}
 
-	#VIS_ID_CONTAINER .property-control select {
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
+	#VIS_ID_CONTAINER .select-control select {
 		font-family: Verdana, Arial, Geneva, sans-serif;
 	}
 
@@ -63,11 +77,12 @@
 <div id="VIS_ID_CONTAINER">
 	<div id="VIS_ID_HOLDER">
 		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control">
+			<div class="property-control select-control">
 				<span>Metrics:</span>
 				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
 			</div>
 		</div>
+		<div class="clearfix"></div>
 		<div id="VIS_ID"></div>
 	</div>
 </div>
@@ -109,7 +124,18 @@
 		width = vis.getWidth();
 		height = vis.getHeight();
 
-		var heightWithOffset = height - jq$("#VIS_ID_PROPERTIES_PANEL").outerHeight();
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
+		var heightWithOffset = height - propertiesPanel.outerHeight();
+		propertiesPanel.css({ opacity: 0 });
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				propertiesPanel.stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				propertiesPanel.stop().animate({ opacity: 0 });
+			});
 
 		jq$('#VIS_ID').width(width).height(heightWithOffset);
 

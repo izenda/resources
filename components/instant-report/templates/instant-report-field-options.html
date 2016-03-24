@@ -5,16 +5,31 @@
     <div class="panel">
       <!-- panel header -->
       <nav class="navbar navbar-default iz-inst-panel-header">
-        <div class="collapse navbar-collapse">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#izInstFieldOptionsNavbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+        </div>
+        <div id="izInstFieldOptionsNavbar" class="collapse navbar-collapse">
           <!-- name + description -->
           <form class="navbar-form navbar-left">
             <div class="form-group">
               <label class="white nobold" ng-bind="fieldOptionsController.field.name + ' as'"></label>
               <input type="text" class="izenda-width-200"
-                ng-model="fieldOptionsController.field.description"
-                ng-change="fieldOptionsController.onDescriptionWasSet()">
+                     ng-model="fieldOptionsController.field.description"
+                     ng-change="fieldOptionsController.onDescriptionWasSet()">
             </div>
           </form>
+          <!-- close panel -->
+          <ul class="nav navbar-nav navbar-right" ng-if="!$izendaCompatibility.isSmallResolution()">
+            <li><a class="white" ng-click="fieldOptionsController.closePanel()"
+              title="Close options panel">
+              <span class="glyphicon glyphicon-remove"></span>
+            </a></li>
+          </ul>
           <!-- buttons -->
           <div class="pull-left buttonbar">
             <!-- sort -->
@@ -65,13 +80,6 @@
               <span class="glyphicon glyphicon-th-list"></span>
             </button>
           </div>
-          <!-- close panel -->
-          <ul class="nav navbar-nav navbar-right">
-            <li><a class="white" ng-click="fieldOptionsController.closePanel()"
-              title="Close options panel">
-              <span class="glyphicon glyphicon-remove"></span>
-            </a></li>
-          </ul>
         </div>
       </nav>
       <!-- panel body -->
@@ -167,7 +175,8 @@
               <button class="btn"
                 ng-click="fieldOptionsController.expanded = !fieldOptionsController.expanded"
                 ng-bind="fieldOptionsController.expanded ? 'Hide advanced field properties' : 'Show advanced field properties'"
-                ng-class="!fieldOptionsController.expanded ? 'btn-default' : 'btn-izenda-dark'"></button>
+                ng-class="!fieldOptionsController.expanded ? 'btn-default' : 'btn-izenda-dark'">
+              </button>
             </div>
           </div>
           <!-- advanced field properties -->
@@ -178,9 +187,9 @@
           </div>
           <div class="row" ng-show="fieldOptionsController.expanded">
             <div class="col-xs-12">
-              <div class="container-fluid">
+              <div class="container-fluid form-group-sm">
                 <div class="row">
-                  <div class="col-xs-9 col-xs-offset-3">
+                  <div class="col-md-9 col-md-offset-3">
                     <label>
                       <input type="checkbox" ng-model="fieldOptionsController.field.gradient">
                       Gradient cells shading
@@ -189,7 +198,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-xs-9 col-xs-offset-3">
+                  <div class="col-md-9 col-md-offset-3">
                     <label>
                       <input type="checkbox" ng-model="fieldOptionsController.field.separator">
                       Separator
@@ -198,7 +207,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-xs-9 col-xs-offset-3">
+                  <div class="col-md-9 col-md-offset-3">
                     <label>
                       <span izenda-align-switcher ng-model="fieldOptionsController.field.labelJustification"></span>
                       Label Justification
@@ -207,7 +216,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-xs-9 col-xs-offset-3">
+                  <div class="col-md-9 col-md-offset-3">
                     <label>
                       <span izenda-align-switcher ng-model="fieldOptionsController.field.valueJustification"></span>
                       Value Justification
@@ -216,7 +225,7 @@
                 </div>
 
                 <div class="row">
-                  <div class="col-xs-9 col-xs-offset-3">
+                  <div class="col-md-9 col-md-offset-3">
                     <label>
                       <input type="checkbox" ng-model="fieldOptionsController.field.breakPageAfterVg"
                         ng-disabled="!fieldOptionsContrller.field.isVgUsed">
@@ -226,20 +235,22 @@
                 </div>
 
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldWidth" style="margin-top: 6px;">Width</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <input type="text" class="form-control izenda-width-150" id="izInstFieldWidth"
                       ng-model="fieldOptionsController.field.width">
                   </div>
                 </div>
                 <!-- drilldown -->
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldSubreport" style="margin-top: 6px;">Subreport</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <select class="form-control izenda-width-400" id="izInstFieldSubreport"
                       ng-options="subreport.value as subreport.text for subreport in fieldOptionsController.subreports"
                       ng-model="fieldOptionsController.field.subreport">
@@ -247,10 +258,11 @@
                   </div>
                 </div>
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldDdStyle" style="margin-top: 6px;">Drill-down style</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <select class="form-control izenda-width-400" id="izInstFieldDdStyle"
                       ng-options="ddStyle.value as ddStyle.text for ddStyle in fieldOptionsController.drillDownStyles"
                       ng-model="fieldOptionsController.field.drillDownStyle"
@@ -259,10 +271,11 @@
                   </div>
                 </div>
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldDdUrl" style="margin-top: 6px;">Custom url</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <input type="text" class="form-control izenda-width-400" id="izInstFieldDdUrl"
                       placeholder="Page.aspx?id={0}&amp;value={1}"
                       ng-model="fieldOptionsController.field.customUrl"
@@ -271,10 +284,11 @@
                 </div>
                 <!-- highlights -->
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldTextHighlight" style="margin-top: 6px;">Text highlight</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <input type="text" class="form-control" id="izInstFieldTextHighlight"
                       placeholder="example: 5 to 6:Blue;7 to 10:Red"
                       ng-model="fieldOptionsController.field.textHighlight">
@@ -282,10 +296,11 @@
                 </div>
 
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldCellHighlight" style="margin-top: 6px;">Cell highlight</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <input type="text" class="form-control" id="izInstFieldCellHighlight"
                       placeholder="example: 5 to 6:Blue;7 to 10:Red"
                       ng-model="fieldOptionsController.field.cellHighlight">
@@ -293,10 +308,11 @@
                 </div>
 
                 <div class="row default-bottom-margin">
-                  <div class="col-xs-3 text-right">
+                  <div class="col-md-3"
+                    ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
                     <label for="izInstFieldValueRanges" style="margin-top: 6px;">Value ranges</label>
                   </div>
-                  <div class="col-xs-9">
+                  <div class="col-md-9">
                     <input type="text" class="form-control" id="izInstFieldValueRanges"
                       placeholder="example: 0 to 10:Under 10;10 to 100:10-100;100 to 10000:100+"
                       ng-model="fieldOptionsController.field.valueRange">

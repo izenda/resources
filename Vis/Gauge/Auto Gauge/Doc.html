@@ -1,12 +1,101 @@
 ﻿<html>
 	<head>
-		<title>Auto gauge documentation</title>
+		<title>Auto Gauges documentation</title>
+		<style>
+			#vis-documentation h2,
+			.field-definitions {
+				margin-top: 20px;
+			}
+		</style>
 	</head>
 <body>
-	<table>
-		<tr><td><h1>Auto Gauge</h1></td></tr>
-		<tr><td><img src="Preview.png"></td></tr>
-		<tr><td style="width:200px; vertical-align:top; font-weight:bold;"><p>Sample text</p><p>Sample text2</p><td></tr>
+	<table id="vis-documentation">
+		<tr><td><h1>Auto Gauges</h1></td></tr>
+		<tr><td><p>Automatic Gauges have four different modes:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p>Round</p></li>
+					<li><p>Linear</p></li>
+					<li><p>Simple</p></li>
+					<li><p>Trending</p></li>
+				</ul>
+			</td>
+		</tr>
+		<tr><td><h2>Round Auto Gauge Style</h2></td></tr>
+		<tr><td><img src="images/styles/round-style.png"></td></tr>
+		<tr><td><p>Description:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p>Round style draws a round dial gauge for each value of Field 1. The literal value will be displayed in the center of the gauge, and the proportion of this value to some maximal value will be displayed in blue around the edge of the gauge, starting from the 12 o'clock position or straight up, filling clockwise or to the right. You may place arbitrary indicators on this gauge to serve as Key Performance Indicators (KPI).</p></li>
+					<li><p>Field 1 - <b>Group</b> - This field will determine what each gauge represents.</p></li>
+					<li><p>Field 2 - <b>Metric</b> - This field will determine the numeric value displayed in each gauge. Supplying only one metric means that the gauge will always be 100%, as it is equal to itself.</p></li>
+					<li><p>Field 3 - <b>Metric</b> - <b>OPTIONAL</b> - This field will establish a secondary metric in relation to the metric in Field 2. If Field 2 has a value of 50, and Field 3 has a value of 100, then the value displayed will be 50/100, and the gauge will be half full.</p></li>
+					<li><p>The following fields do not have to be in any particular order: They read text in the description box to determine how they should behave.</p></li>
+					<li><p>Field 4 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Max" in the description box. It will establish an upper limit for the gauge itself, and any values in the gauge will be rendered as a proportion of the Max metric.</p></li>
+					<li><p>Field 5 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Low" in the description box. It will establish a red KPI indicator at the specified value.</p></li>
+					<li><p>Field 6 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "High" in the description box. It will establish a green KPI indicator at the specified value.</p></li>
+					<li><p>Field 7 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Target" in the description box. It will establish a blue KPI indicator at the specified value.</p></li>
+				</ul>
+			</td>
+		</tr>
+		<tr><td><h2>Linear Auto Gauge Style</h2></td></tr>
+		<tr><td><img src="images/styles/linear-style.png"></td></tr>
+		<tr><td><p>Description:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p>Linear style displays a series of linear gauges which display a number from 0 to 100, from left to right. You may set KPI areas for this gauge.</p></li>
+					<li><p>Field 1 - <b>Group</b> - This field will determine what each gauge represents.</p></li>
+					<li><p>Field 2 - <b>Metric</b> - This field will determine the value in each gauge.</p></li>
+					<li><p>The following fields do not have to be in any particular order: They read text in the description box to determine how they should behave.</p></li>
+					<li><p>Field 3 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Low" in the description box. It will establish a green KPI region at and around the specified value.</p></li>
+					<li><p>Field 4 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "High" in the description box. It will establish a red KPI region at and around the specified value.</p></li>
+					<li><p>Field 5 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Target" in the description box. It will establish a blue KPI region at and around the specified value.</p></li>
+				</ul>
+			</td>
+		</tr>
+		<tr><td><h2>Simple Auto Gauge Style</h2></td></tr>
+		<tr><td><img src="images/styles/simple-style.png"></td></tr>
+		<tr><td><p>Description:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p>Simple style displays the name of each group value in Field 1, and then a numeric value as text from Field 2. You can establish a color gradient of this text value, as well as specify a Units value as a string to display beneath the gauge.</p></li>
+					<li><p>Field 1 - <b>Group</b> - This field will determine what each gauge represents.</p></li>
+					<li><p>Field 2 - <b>Metric</b> - This field will determine the value in each gauge.</p></li>
+					<li><p>The following fields do not have to be in any particular order: They read text in the description box to determine how they should behave.</p></li>
+					<li><p>Field 3 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Low" in the description box. It will establish the lower bound of a KPI region. Field 2's value will be shaded a bright green as it approaches but does drop below this value.</p></li>
+					<li><p>Field 4 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "High" in the description box. It will establish a upper bound of a KPI region. Field 2's value will be shaded a deep red as it approaches but does not exceed this value.</p></li>
+					<li><p>Field 5 - <b>Metric</b> - <b>OPTIONAL</b> - This field must have the text "Target" in the description box. It will establish a blue KPI region at and around the specified value. Field's 2's value will be shaded a bright blue as it approaches this value.</p></li>
+					<li><p>Field 6 - <b>Group</b> - <b>OPTIONAL</b> - This field must have the text "Units" in the description box. This field's value will be displayed as a string beneath each gauge as a subtext.</p></li>
+				</ul>
+			</td>
+		</tr>
+		<tr><td><h2>Trending Auto Gauge Style</h2></td></tr>
+		<tr><td><img src="images/styles/trending-style.png"></td></tr>
+		<tr><td><p>Description:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p>Trending style displays a series of data over time, as well as a proportional indicator showing the currently moused over time value in relation to the first time value of each gauge. You may also set a bulls-eye target indicator for a certain value.</p></li>
+					<li><p>Field 1 - <b>Group</b> - This field will determine what each gauge represents.</p></li>
+					<li><p>Field 2 - <b>Datetime</b> - This field will determine the time order of the values for each gauge. This field must be sorted chronologically from oldest to newest (default sort) and grouped by Year & Month.</p></li>
+					<li><p>Field 3 - <b>Metric</b> - This field determines the numerical value displayed for each time value.</p></li>
+					<li><p>Field 4 - ** Metric** - <b>OPTIONAL</b> - This field determines a target value superimposed atop the gauge, indicating if the current value of Field 2 is too low or too high.</p></li>
+				</ul>
+			</td>
+		</tr>
+		<tr><td><p class="field-definitions">General Field Definitions:</p></td></tr>
+		<tr>
+			<td>
+				<ul>
+					<li><p><b>Group</b> - This column can be any data type, aggregated or not aggregated. These columns are used to group data in other columns, and often serve as the axis or scale of a particular visualization.</p></li>
+					<li><p><b>Metric</b> - This column can be any data type. It is generally an aggregate, and most commonly a numeric, but does not have to be. These columns are the elements that are being charted, mapped, or displayed on your visualization.</p></li>
+				</ul>
+			</td>
+		</tr>
 	</table>
 </body>
 </html>

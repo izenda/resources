@@ -33,9 +33,13 @@ body {
 	height: auto;
 }
 
+.izenda-layout-header > .page {
+	margin: 0;
+}
+
 .izenda-layout-middle {
 	width: 100%;
-	padding: 0 0 50px;
+	padding: 0 0 30px;
 	position: relative;
 }
 .izenda-layout-middle:after {
@@ -52,9 +56,8 @@ body {
 }
 
 .izenda-layout-footer {
-	margin: -50px auto 0;
-	min-width: 320px;
-	height: 50px;
+	margin: -30px auto 0;
+	height: 30px;
 	color: #aaaaaa;
 	text-align: right;
 	position: relative;
@@ -63,7 +66,6 @@ body {
 .izenda-layout-footer .copyright {
 	display: inline-block;
 	padding-right: 16px;
-	margin-top: 16px;
 }
 
 .izenda-new-report-button {
@@ -301,20 +303,31 @@ a span.plus {
 	display: inline-block;
   position: relative;
   padding: 4px;
+	width: 50%;
 }
 .header .left-logo img {
-  position: relative;
-  top: 2px;
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 .header .right-logo {
 	display: inline-block;
+	padding: 4px;
 	float: right;
-  height: 65px;
+  max-height: 65px;
   overflow: hidden;
+	width: 40%;
 }
 
 .header .right-logo a:hover {
 	opacity: .75;
+}
+
+.header .right-logo img {
+	display: block;
+  max-width: 50%;
+  height: auto;
+	width: auto;
 }
 
 .top-nav, ul#topnav ul {
@@ -325,6 +338,11 @@ a span.plus {
   position: relative;
   z-index: 508;
 }
+
+.top-nav > .page {
+	margin: 0;
+}
+
 .top-nav ul#topnav {
   left: 0;
   list-style: none outside none;

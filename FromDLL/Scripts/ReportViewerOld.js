@@ -52,6 +52,8 @@ function IsIE() {
 
 //Ajax--------------------------------------------------------------------------------------------------------------
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
+	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
+		return;
     var thisRequestObject;
     if (window.XMLHttpRequest)
         thisRequestObject = new XMLHttpRequest();

@@ -69,6 +69,10 @@
 			return list[index % list.length];
 		}
 
+		function getFormatter(i) {
+		  return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, VIS_COLUMNS[i].name); };
+		}
+
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
 			return;
 
@@ -88,7 +92,10 @@
 		var yaxis = [], series = [];
 		for (var i = 1; i < VIS_COLUMNS.length; i++) {
 			yaxis.push({
-				labels: { style: { color: getItem(colors, i-1) } },
+			  labels: {
+			    style: { color: getItem(colors, i - 1) },
+			    formatter: getFormatter(i)
+			  },
 				title: {
 					text: null,
 					style: { color: getItem(colors, i-1) }

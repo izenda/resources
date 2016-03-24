@@ -4,7 +4,7 @@
 	this.$scheduleTzPicker = jq$('#scheduleTzPicker1');
 	this.$scheduleRepeatPicker = jq$('#scheduleRepeatPicker1');
 	this.$scheduleEmailPicker = jq$('#scheduleEmailPicker1');
-	this.$scheduleRecepientsPicker = jq$('#scheduleRecepientsPicker1');
+	this.$scheduleRecipientsPicker = jq$('#scheduleRecipientsPicker1');
 	this.$scheduleAlerts = jq$('#scheduleAlerts1');
 	if (initializeOnCreate)
 		this.initialize();
@@ -21,7 +21,7 @@ IzendaScheduleControl.prototype.loadScheduleState = function () {
       $scheduleRepeatPicker = this.$scheduleRepeatPicker,
       $scheduleTzPicker = this.$scheduleTzPicker,
       $scheduleEmailPicker = this.$scheduleEmailPicker,
-      $scheduleRecepientsPicker = this.$scheduleRecepientsPicker;
+      $scheduleRecipientsPicker = this.$scheduleRecipientsPicker;
 	AjaxRequest(urlSettings.urlRsPage, requestString, function (returnObj, id) {
 		var date = returnObj.Date;
 		if (date.getFullYear() > 1900) {
@@ -33,7 +33,7 @@ IzendaScheduleControl.prototype.loadScheduleState = function () {
 		}
 
 		// recipients
-		$scheduleRecepientsPicker.val(returnObj.Recipients);
+		$scheduleRecipientsPicker.val(returnObj.Recipients);
 
 		// send email type
 		$scheduleEmailPicker.empty();
@@ -84,7 +84,7 @@ IzendaScheduleControl.prototype.createScheduleResultObject = function () {
 		timezone: this.$scheduleTzPicker.val(),
 		repeat: this.$scheduleRepeatPicker.val(),
 		email: this.$scheduleEmailPicker.val(),
-		recipients: this.$scheduleRecepientsPicker.val()
+		recipients: this.$scheduleRecipientsPicker.val()
 	};
 	return objectToSend;
 };
@@ -110,7 +110,7 @@ IzendaScheduleControl.prototype.resetForm = function () {
 	this.$scheduleTzPicker.empty();
 	this.$scheduleRepeatPicker.empty();
 	this.$scheduleEmailPicker.empty();
-	this.$scheduleRecepientsPicker.val('');
+	this.$scheduleRecipientsPicker.val('');
 	this.$scheduleAlerts.empty();
 	this.$scheduleAlerts.addClass('hidden');
 };

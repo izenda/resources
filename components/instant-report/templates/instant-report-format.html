@@ -5,14 +5,21 @@
     <div class="form-group">
       <div class="checkbox">
         <label>
-          <input type="checkbox" ng-model="irFormatController.options.distinct"/>
+          <input type="checkbox" ng-model="irFormatController.options.distinct" />
           Distinct
         </label>
       </div>
       <div class="checkbox">
         <label>
-          <input type="checkbox" ng-model="irFormatController.options.isSubtotalsEnabled"/>
+          <input type="checkbox" ng-model="irFormatController.options.isSubtotalsEnabled" />
           Subtotals
+        </label>
+      </div>
+      <div class="checkbox"
+        ng-if="irFormatController.settings.allowVirtualDataSources">
+        <label>
+          <input type="checkbox" ng-model="irFormatController.options.exposeAsDatasource"/>
+          Expose as datasource
         </label>
       </div>
     </div>
@@ -20,7 +27,7 @@
       <div class="form-inline">
         <label for="izInstTop" class="nobold">Records count:&nbsp;</label>
         <input type="number" class="form-control izenda-width-100" id="izInstTop"
-                ng-model="irFormatController.options.top"/>
+          ng-model="irFormatController.options.top" />
       </div>
     </div>
   </div>
@@ -75,33 +82,69 @@
       <div class="form-group">
         <div class="container-fluid">
           <div class="row">
-            <div class="col-xs-6 default-bottom-margin">
-              Border <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Border</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.borderColor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.borderColor" />
             </div>
-            <div class="col-xs-6 default-bottom-margin">
-              Header <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Header</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.headerColor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.headerColor" />
             </div>
           </div>
           <div class="row">
-            <div class="col-xs-6 default-bottom-margin">
-              Header foreground <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Header foreground</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.headerForecolor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.headerForecolor" />
             </div>
-            <div class="col-xs-6 default-bottom-margin">
-              Item <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Item</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.itemColor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.itemColor" />
             </div>
           </div>
           <div class="row">
-            <div class="col-xs-6 default-bottom-margin">
-              Item foreground <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Item foreground</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.itemForeColor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.itemForeColor" />
             </div>
-            <div class="col-xs-6 default-bottom-margin">
-              Alternating item <span izenda-color-picker inline="false"
+            <div class="col-md-6 default-bottom-margin">
+              <label class="nobold">Alternating item</label>
+              <span ng-if="!$izendaCompatibility.isSmallResolution()"
+                izenda-color-picker inline="false"
                 ng-model="irFormatController.options.style.itemAltColor"></span>
+              <input ng-if="$izendaCompatibility.isSmallResolution()"
+                class="form-control"
+                ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
+                ng-model="irFormatController.options.style.itemAltColor" />
             </div>
           </div>
           <div class="row">
@@ -226,7 +269,7 @@
         <div class="container-fluid">
           <div class="row">
             <div class="col-xs-12"
-                 ng-repeat="drillDownField in irFormatController.drillDownFields">
+              ng-repeat="drillDownField in irFormatController.drillDownFields">
               <div class="ds-tree-item noselect">
                 <div class="ds-tree-item-header">
                   <span class="ds-tree-item-header-text"
@@ -242,18 +285,18 @@
           </div>
           <div class="row">
             <div class="col-xs-12"
-                 ng-show="irFormatController.drillDownFields.length >= irFormatController.ddkValuesMaxAmount">
+              ng-show="irFormatController.drillDownFields.length >= irFormatController.ddkValuesMaxAmount">
               <div class="alert alert-info" role="alert">
                 You have reached maximum amount of drilldown keys.
               </div>
             </div>
             <div class="col-xs-12"
-                 ng-show="irFormatController.drillDownFields.length < irFormatController.ddkValuesMaxAmount">
+              ng-show="irFormatController.drillDownFields.length < irFormatController.ddkValuesMaxAmount">
               <select class="form-control" ng-options="field as field.name group by field.tableSysname for field in irFormatController.allActiveFields track by field.sysname"
-                      ng-model="irFormatController.selectedDrilldownField">
+                ng-model="irFormatController.selectedDrilldownField">
               </select>
               <button class="btn btn-default" ng-click="irFormatController.addDrilldown()"
-                      ng-disabled="irFormatController.selectedDrilldownField === null">
+                ng-disabled="irFormatController.selectedDrilldownField === null">
                 Add drilldown field</button>
             </div>
           </div>

@@ -123,6 +123,8 @@ function izendaDashboardController(
 
 	};
 
+	vm.printingInProgress = false;
+
 	////////////////////////////////////////////////////////
 	// scope helper functions:
 	////////////////////////////////////////////////////////
@@ -304,10 +306,10 @@ function izendaDashboardController(
 		vm.isGridShadowVisible = true;
 		vm.isGridShadowPlusButtonVisible = showPlusButton;
 		vm.gridShadowStyle = {
-			'left': shadowBbox.left,
-			'top': shadowBbox.top,
-			'width': shadowBbox.width,
-			'height': shadowBbox.height
+			'left': shadowBbox.left + 1,
+			'top': shadowBbox.top + 1,
+			'width': shadowBbox.width - 1,
+			'height': shadowBbox.height - 1
 		};
 		$scope.$applyAsync();
 	};
@@ -766,11 +768,11 @@ function izendaDashboardController(
 				var $tContainer = vm.getTileContainer();
 				vm.mouseMoveCache = {
 					$tileContainer: $tContainer,
-					offset: $tContainer.offset()
+					offset: function() { return $tContainer.offset(); }
 				}
 			}
-			var relativeX = e.pageX - vm.mouseMoveCache.offset.left;
-			var relativeY = e.pageY - vm.mouseMoveCache.offset.top;
+			var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
+			var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
 			var x = Math.floor(relativeX / vm.tileWidth);
 			var y = Math.floor(relativeY / vm.tileHeight);
 
@@ -982,6 +984,8 @@ function izendaDashboardController(
 			// set dashboard rights:
 			$log.debug('Effective rights ', data.EffectiveRights);
 			$izendaCompatibility.setRights(data.EffectiveRights);
+			$izendaCompatibility.setShowSaveControls(data.ShowSaveControls);
+			$izendaCompatibility.setShowSaveAsToolbarButton(data.ShowSaveAsToolbarButton);
 			// collect tiles information:
 			var tilesToAdd = [];
 			var maxHeight = 0;

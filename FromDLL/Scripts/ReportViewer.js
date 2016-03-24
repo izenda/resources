@@ -72,6 +72,8 @@ function GetLoadingHtml() {
 
 //Ajax--------------------------------------------------------------------------------------------------------------
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
+	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
+		return;
 	var thisRequestObject;
 	if (window.XMLHttpRequest)
 		thisRequestObject = new XMLHttpRequest();
@@ -1122,7 +1124,10 @@ function GotReportViewerConfig(returnObj, id) {
 
 	if (!nrvConfig.ShowHtmlPrint && !nrvConfig.ShowPdfPrint)
 		document.getElementById('printBtnContainer').style.display = 'none';
-
+	if (!nrvConfig.ShowSaveControls)
+	  document.getElementById('saveControls').style.display = 'none';
+	if (!nrvConfig.ShowSaveAsToolbarButton)
+	  document.getElementById('saveAsBtn').style.display = 'none';
 	ChangeTopRecords(nrvConfig.InitialResults, false);
 	if (urlSettings.reportInfo.exportType != null) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);

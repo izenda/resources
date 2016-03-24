@@ -4,7 +4,8 @@
   <div izenda-dashboard-background background-color="toolbarController.izendaBackgroundColor"
     background-image="toolbarController.izendaBackgroundImageUrl"
     hue-rotate="toolbarController.hueRotate"
-    ng-show="toolbarController.dashboardsAllowedByLicense">
+    ng-show="toolbarController.dashboardsAllowedByLicense"
+    background-image-repeat="toolbarController.izendaBackgroundImageRepeat">
   </div>
 
   <!-- notifications -->
@@ -114,6 +115,12 @@
       <form>
         <div class="alert alert-info small" role="alert"
           ng-bind="'js_BackgroundVisibleWarning' | izendaLocale: 'Background will be visible only in this browser'">
+        </div>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="toolbarController.izendaBackgroundImageRepeat"
+              ng-true-value="false" ng-false-value="true"> stretch image
+          </label>
         </div>
         <div class="radio" ng-hide="!toolbarController.isStorageAvailable">
           <label>
@@ -356,7 +363,7 @@
           </li>
           <!-- save -->
           <li class="dropdown"
-            ng-show="!toolbarController.isGalleryMode && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
+            ng-show="toolbarController.isShowSaveControls() && !toolbarController.isGalleryMode && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
             <a class="dropdown-toggle" data-toggle="dropdown"
               ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
               ng-hide="toolbarController.isGalleryMode">
@@ -371,7 +378,7 @@
                   <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'"></span>
                 </a>
               </li>
-              <li>
+              <li ng-show="toolbarController.isShowSaveAsToolbarButton()">
                 <a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
                   ng-click="toolbarController.saveDashboardHandler(true)">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;

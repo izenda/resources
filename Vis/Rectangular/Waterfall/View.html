@@ -86,8 +86,8 @@
 		jq$('#VIS_ID').highcharts(options);
 
 		var sideOffset = 6,
-			rects = jq$('.highcharts-series rect'),
-			labels = jq$('.highcharts-data-labels text');
+			rects = jq$('#VIS_ID_CONTAINER .highcharts-series rect'),
+			labels = jq$('#VIS_ID_CONTAINER .highcharts-data-labels text');
 
 		for (var i = 0; i < rects.length; ++i) {
 			if (labels[i].getBBox().width + sideOffset > ~~rects[i].getAttribute('width') || labels[i].getBBox().height > ~~rects[i].getAttribute('height')) {

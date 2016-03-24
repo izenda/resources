@@ -16,6 +16,7 @@
 		options: {
 			distinct: true,
 			isSubtotalsEnabled: false,
+			exposeAsDatasource: false,
 			top: '',
 			previewTop: 10,
 			title: '',
@@ -60,6 +61,8 @@
 		initialized: false,
 		field: null,
 		required: false,
+		description: '',
+		parameter: true,
 		operatorString: '',
 		operator: null,
 		operators: [],
@@ -129,11 +132,12 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportStorage', [
 			'izendaInstantReportConfig',
 			'$izendaUrl',
 			'$izendaSettings',
+			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaScheduleService',
 			'$izendaShareService',
 function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportConfig, $izendaUrl, $izendaSettings,
-	$izendaInstantReportQuery, $izendaScheduleService, $izendaShareService) {
+	$izendaCompatibility, $izendaInstantReportQuery, $izendaScheduleService, $izendaShareService) {
 	'use strict';
 	var angularJq$ = angular.element;
 
@@ -1468,6 +1472,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 
 			var filterObj = {
 				required: filter.required,
+				description: filter.description,
+				parameter: filter.parameter,
 				sysname: filter.field.sysname,
 				operatorString: filter.operator.value,
 				values: preparedValues
@@ -1948,13 +1954,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 	/**
 	 * Create new filter object with default values
 	 */
-	var createNewFilter = function (fieldSysName, operatorName, values, required) {
+	var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter) {
 		var filterObject = angular.extend({}, $injector.get('izendaFilterObjectDefaults'));
 		// set field
 		var field = getFieldBySysName(fieldSysName);
 		filterObject.field = field;
 		filterObject.values = values;
-		filterObject.required = required === true;
+		filterObject.required = angular.isDefined(required) ? required : false;
+		filterObject.description = description;
+		filterObject.parameter = angular.isDefined(parameter) ? parameter : true;
 		filterObject.operatorString = operatorName;
 		return filterObject;
 	};
@@ -2189,7 +2197,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		}
 		if (validateReportSet()) {
 			validateReport();
-			getReportPreviewHtml();
+			if (!$izendaCompatibility.isSmallResolution())
+				getReportPreviewHtml();
 		} else {
 			clearReportPreviewHtml();
 		}
@@ -2298,6 +2307,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 		var subtotalFunctionValue = fieldConfig.groupBySubtotalFunction.value;
 		var formatValue = fieldConfig.format.value;
 		angular.extend(field, fieldConfig);
+		if (field.order > orderCounter)
+			orderCounter = field.order + 1;
 
 		angular.element.each(expressionTypes, function () {
 			if (this.value === fieldConfig.expressionType)
@@ -2352,9 +2363,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, izendaInstantReportCon
 					fieldSysName: filter.sysname,
 					operatorName: filter.operatorString,
 					values: filter.values,
-					required: filter.required
+					required: filter.required,
+					description: filter.description,
+					parameter: filter.parameter
 				};
-				var newFilter = createNewFilter(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values, filterConfig.required);
+				var newFilter = createNewFilter(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
+					filterConfig.required, filterConfig.description, filterConfig.parameter);
 				reportSet.filters[i] = newFilter;
 				// set operator
 				var operatorPromise;

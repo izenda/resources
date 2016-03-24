@@ -152,7 +152,7 @@
         };
 
 
-        var rootData = $element[0].dataset;
+        var rootData = $element[0].dataset || defaults;
         var config = {
           width: toNumber(rootData.width, defaults.width),
           height: toNumber(rootData.height, defaults.height),

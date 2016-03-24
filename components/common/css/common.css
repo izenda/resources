@@ -50,26 +50,36 @@
 
 .izenda-width-100 {
 	width: 100px !important;
+	max-width: 100%;
 }
 
 .izenda-width-150 {
 	width: 150px !important;
+	max-width: 100%;
 }
 
 .izenda-width-200 {
 	width: 200px !important;
+	max-width: 100%;
 }
 
 .izenda-width-250 {
 	width: 200px !important;
+	max-width: 100%;
 }
 
 .izenda-width-400 {
 	width: 400px !important;
+	max-width: 100%;
 }
 
 .izenda-cursor-pointer {
 	cursor: pointer;
+}
+
+.izenda-date-picker-inline {
+	width: 100%;
+	border: 1px solid #ddd;
 }
 
 .bootstrap-datetimepicker-widget {

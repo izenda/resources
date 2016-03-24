@@ -24,6 +24,7 @@
 					inline: $scope.inline === 'true',
 					theme: 'bootstrap',
 					color: $scope.color,
+					position: 'bottom right',
 					change: function (hex) {
 						$scope.ngModel = hex;
 						angular.element('.iz-dash-background').css('background-color', hex);

@@ -11,6 +11,7 @@ angular
 			'$q',
 			'$sce',
 			'$log',
+			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportStorage',
 			InstantReportFieldOptionsController
@@ -24,6 +25,7 @@ function InstantReportFieldOptionsController(
 			$q,
 			$sce,
 			$log,
+			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportStorage) {
 	'use strict';
@@ -46,6 +48,8 @@ function InstantReportFieldOptionsController(
 	 * Get class 
 	 */
 	vm.getPanelClass = function () {
+		if ($izendaCompatibility.isSmallResolution())
+			return 'expanded';
 		if (!angular.isObject(vm.field) || !$scope.irController.isLeftPanelBodyActive(0))
 			return 'collapsed';
 		if (vm.expanded)

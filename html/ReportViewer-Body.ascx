@@ -69,7 +69,7 @@
         <b lang-text="js_Save">Save</b><br>
         <span lang-text="js_SaveChangesMessage">Save changes to the report for everyone it is shared with</span>
       </a></li>
-      <li><a href="javascript:void(0)" style="min-width: 18em;"
+      <li id="saveAsBtn"><a href="javascript:void(0)" style="min-width: 18em;"
         onclick="javascript:ShowSaveAsDialog();">
         <img class="icon" src="rs.aspx?image=ModernImages.save-as-32.png" lang-alt="js_SaveACopy" alt="Save a copy" />
         <b lang-text="js_SaveAs">Save As</b><br>

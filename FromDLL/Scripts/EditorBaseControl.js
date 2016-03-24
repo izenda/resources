@@ -586,8 +586,10 @@ function EBC_PrepareNewRow(row)
 	var prefix = row.id != null && row.id.indexOf('_ExtraColumn') > 1 ? 'exv' : '';
 	for (var i = 0; i < elems.length; i++) {
 		var el = elems[i];
+		el.PreparingNewRow = true;
 		if (el.name == null) {
 			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
+			el.PreparingNewRow = false;
 			break;
 		}
 
@@ -610,6 +612,7 @@ function EBC_PrepareNewRow(row)
 		else {
 			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
 		}
+		el.PreparingNewRow = false;
 	}
 
 	elems = row.getElementsByTagName('INPUT');
@@ -618,8 +621,23 @@ function EBC_PrepareNewRow(row)
 		if (el.name == null)
 			break;
 
-		if (el.name.lastIndexOf('_ExtraDescription') > 1)
+		if (el.name.lastIndexOf('_ExtraDescription') > 1) {
+			el.PreparingNewRow = true;
 			el.value = '';
+			el.PreparingNewRow = false;
+		}
+	}
+
+	elems = row.getElementsByTagName('TEXTAREA');
+	for (i = 0; i < elems.length; i++) {
+	  var el = elems[i];
+	  if (el.name == null)
+	    break;
+
+	  if (el.name.lastIndexOf('Coefficient') > 1)
+	    el.value = el.getAttribute('data-default');
+	  else if (el.name.lastIndexOf('SubtotalExpression') > 1)
+	    el.value = '';
 	}
 }
 
@@ -837,24 +855,27 @@ function EBC_ExpandGroupTable(row) {
 function EBC_ExpandTable(row) {
 	var rowIndex = row.rowIndex;
 	var table = row.parentNode;
-	if (table.rows[rowIndex].className == "VisualGroup")
-		table.rows[rowIndex].className = "VisualGroupCollapsed";
-	else
-		table.rows[rowIndex].className = "VisualGroup";
+
+	var className = row.className;
+	var collapsePattern = "Collapsed";
+	var collapsed = className.indexOf(collapsePattern) == (className.length - collapsePattern.length);
+	row.className = collapsed ? "VisualGroup" : "VisualGroupCollapsed";
+
 	for (var i = rowIndex + 1; i < table.rows.length; i++) {
 		var currentRow = table.rows[i];
 		if (currentRow.getAttribute("header") == "true")
 			break;
-		var display = currentRow.style["display"];
-		if (display == "none") {
-			display = "";
-			currentRow.style["visibility"] = "visible";
-		}
-		else {
-			display = "none";
+
+		if (collapsed) {
+			var isFiltered = currentRow.className.indexOf("Filtered") >= 0;
+			if (!isFiltered) {
+				currentRow.style["display"] = "";
+				currentRow.style["visibility"] = "visible";
+			}
+		} else {
+			currentRow.style["display"] = "none";
 			currentRow.style["visibility"] = "hidden";
 		}
-		currentRow.style["display"] = display;
 	}
 }
 

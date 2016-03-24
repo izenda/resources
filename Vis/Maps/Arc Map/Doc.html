@@ -3,10 +3,35 @@
 		<title>Arc Map chart documentation</title>
 	</head>
 <body>
-	<table>
-		<tr><td><h1>Arc Map Chart</h1></td></tr>
-		<tr><td><img src="Preview.png"></td></tr>
-		<tr><td style="width:200px; vertical-align:top; font-weight:bold;"><p>Sample text</p><p>Sample text2</p><td></tr>
-	</table>
+	<table id="vis-documentation">
+	<tr><td><h1>Arc Map</h1></td></tr>
+	<tr><td><img src="Preview.png"></td></tr>
+	<tr><td><p>Arc Map Description:</p></td></tr>
+	<tr>
+		<td>
+			<ul>
+				<li><p>Field 1 - <b>Geographic Field</b> - This field will represent the source city on the map. A line will be drawn from it to the destination city.</p></li>
+				<li><p>Field 2 - <b>Geographic Field</b> - This field will represent the destination city on the map. A line will be drawn to the destination city from the source city.</p></li>
+				<li><p>Field 3+ - <b>Metric</b> - These values of one field at a time, selectable from a dropdown, will be displayed on the map.</p></li>
+				<li><p>Notes:</p>
+				<ul>
+					<li>Metric fields will not graphically display if they are negative.</li>
+					<li>Arc Map currently only supports the continental United States.</li>
+				</ul>
+				</li>
+			</ul>
+		</td>
+	</tr>
+	<tr><td><p>General Field Definitions:</p></td></tr>
+	<tr>
+		<td>
+			<ul>
+				<li><p><b>Metric</b> - This column can be any data type. It is generally an aggregate, and most commonly a numeric, but does not have to be. These columns are the elements that are being charted, mapped, or displayed on your visualization.</p></li>
+				<li><p><b>Geographic Field</b> - This column is a special case. It is used in map-style visualizations. It must be a list of geographic entities, such as a list of countries, regions, or states.</p></li>
+			</ul>
+		</td>
+	</tr>
+</table>
 </body>
 </html>
+

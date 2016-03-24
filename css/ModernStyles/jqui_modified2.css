@@ -469,7 +469,7 @@
  *
  * http://docs.jquery.com/UI/Datepicker#theming
  */
-.iz-db-ui-datepicker { width: 17em; padding: .2em .2em 0; display: none; }
+.iz-db-ui-datepicker { width: 17em; padding: .2em .2em 0; display: none; z-index: 2000 !important; }
 .iz-db-ui-datepicker .iz-db-ui-datepicker-header { position:relative; padding:.2em 0; }
 .iz-db-ui-datepicker .iz-db-ui-datepicker-prev, .iz-db-ui-datepicker .iz-db-ui-datepicker-next { position:absolute; top: 2px; width: 1.8em; height: 1.8em; }
 .iz-db-ui-datepicker .iz-db-ui-datepicker-prev-hover, .iz-db-ui-datepicker .iz-db-ui-datepicker-next-hover { top: 1px; }

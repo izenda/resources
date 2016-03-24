@@ -142,23 +142,6 @@ function RE_InstantiateRichEditor(paramsObj) {
 			resize: false,
 			init_instance_callback: RE_InitializeEditorInstance,
 			setup: function(editor) {
-				editor.on('BeforeSetContent', function(e) {
-					if (e.content.length > 0) {
-						RE_ContentSections = AdHoc.Utility.ExtractSpecialFormSections(e.content);
-						e.content = RE_ContentSections.htmlSource;
-					}
-					else
-						e.content = e.content;
-				});
-				editor.on('SaveContent', function(e) {
-					e.content = e.content;
-				});
-				editor.on('SetContent', function(e) {
-					if (RE_ContentSections !== null && e.wasProcessed)
-						e.content = RE_ContentSections.formScriptSection + RE_ContentSections.visualizationSection + e.content;
-					else
-						e.content = e.content;
-				});
 				RE_InitToolbarItems(editor);
 			},
 			extended_valid_elements: "repeater[id],repeaterstart,repeaterend",

@@ -1,8 +1,12 @@
 ﻿<style type="text/css">
-	#VIS_ID_CONTAINER svg {
-		font-family: "Helvetica Neue", Helvetica;
+	#VIS_ID_CONTAINER {
 		overflow: hidden;
 	}
+
+	 #VIS_ID_CONTAINER svg {
+		 font-family: "Helvetica Neue", Helvetica;
+		 overflow: hidden;
+	 }
 
 	#VIS_ID_CONTAINER .line {
 		fill: none;
@@ -255,72 +259,16 @@
 			}
 		}
 
-		function disperse(gety) {
-			function clean(list) {
-				var r = new Array(list.length);
-				for (i = 0; i < list.length; i++)
-					r[array[i].i] = array[i].v;
-				return r;
-			}
-			function th(u, d) {
-				return (d - u + 1) * box.height;
-			}
-
-			var items = getData(), i, j, u, d, u1, d1,
-				basisArray = new Array(items.length),
-				array = new Array(items.length);
-
-			var bounds = {
+		function getBasisArray() {
+			var gety = function(d, i) { return ys[i] + box.height / 3; };
+			return getData().map(function(item, i) { item = getDataValues(item); return gety(item[item.length - 1], i); });
+		}
+		function getBounds() {
+			return {
 				top: -box.y - m[0],
-				topReached: false,
 				bottom: height - m[0] - box.down,
-				bottomReached: false
+				labelHeight: box.height
 			};
-
-			for (i = 0; i < items.length; i++) {
-				var item = getDataValues(items[i]);
-				array[i] = {i: i, v : basisArray[i] = gety(item[item.length - 1], i)};
-			}
-
-			array.sort(function(a, b) { return a.v - b.v; });
-
-			if ((items.length * box.height) >= bounds.bottom - bounds.top) {
-				for (i = 0; i < items.length; i++)
-					array[i].v = bounds.top + i * box.height;
-				return [basisArray, clean(array)];
-			}
-
-			for (i = 0; i < items.length; i++) {
-				for (u = i; u > 0 && ((array[u].v - array[u - 1].v) < box.height); u--) { }
-				for (d = i; d < items.length - 1 && ((array[d + 1].v - array[d].v) < box.height); d++) { }
-
-				if (u != d) {
-					var center, taken;
-					u1 = u;
-					d1 = d;
-
-					do {
-						u = u1;
-						d = d1;
-
-						center = (array[u].v + array[d].v) / 2;
-						taken = th(u, d);
-
-						center = ((center + taken / 2) > bounds.bottom) ? bounds.bottom - taken / 2 : center;
-						center = ((center - taken / 2) < bounds.top) ? bounds.top + taken / 2 : center;
-
-						for (u1 = u; u1 > 0 && array[u1 - 1].v > center - th(u1 - 1, d) / 2; u1--) { }
-						for (d1 = d; d1 < items.length - 1 && array[d1 + 1].v < center + th(u1 - 1, d) / 2; d1++) { }
-					}
-					while (u1 != u || d1 != d)
-
-					for (j = u; j < d + 1; j++)
-						array[j].v = center - taken / 2 + (j - u + 1) * box.height;
-				}
-				i = d;
-			}
-
-			return [basisArray, clean(array)];
 		}
 
 		function processData() {
@@ -514,7 +462,7 @@
 					return line(getDataValues(d));
 				});
 
-			var arr = disperse(function(d, i) { return ys[i] + box.height / 3; });
+			var arr = util.disperse(getBasisArray(), getBounds());
 			tSymbols.select("text")
 				.attr("transform", function(d, i) { return "translate(" + (w - labelWidth) + "," + arr[1][i] + ")"; });
 			tSymbols.select("path.binding")
@@ -551,7 +499,7 @@
 					return line(getDataValues(d));
 				});
 
-			var arr = disperse(function(d, i) { return ys[i] + box.height / 3; });
+			var arr = util.disperse(getBasisArray(), getBounds());
 			tSymbols.select("text")
 				.attr("transform", function(d, i) { return "translate(" + (w - labelWidth) + "," + arr[1][i] + ")"; });
 			tSymbols.select("path.binding")
@@ -596,7 +544,7 @@
 				.style("fill-opacity", .5)
 				.attr("d", function(d) { return area(getDataValues(d)); });
 
-			var arr = disperse(function(d, i) { return ys[i] + box.height / 3; });
+			var arr = util.disperse(getBasisArray(), getBounds());
 			tSymbols.select("text")
 				.attr("dy", ".31em")
 				.attr("transform", function(d, i) { return "translate(" + (w - labelWidth) + "," + (arr[1][i] - box.height / 3) + ")"; });
@@ -691,7 +639,7 @@
 			var tSymbols = symbols.transition()
 				.duration(duration / 2);
 
-			var arr = disperse(function(d, i) { return ys[i] + box.height / 3; });
+			var arr = util.disperse(getBasisArray(), getBounds());
 			tSymbols.select("text")
 				.delay(getDataValues(getData()[0]).length * 10)
 				.attr("transform", function(d, i) { return "translate(" + (w - labelWidth) + "," + (arr[1][i] - box.height / 3) + ")"; });

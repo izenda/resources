@@ -51,11 +51,21 @@ function izendaSelectReportNameController(
 	vm.isCreatingNewCategory = false;
 	vm.newCategoryName = '';
 	vm.categories = [];
-	vm.selectedCategoryId = -1;
+	vm.selectedCategory = null;
 	vm.isSelectDisabled = true;
 	vm.reportSets = [];
 	vm.errorMessages = [];
 	vm.invalidCharsRegex = new RegExp("[^A-Za-z0-9_\\\-'' ]+", 'g');
+
+	var nextId = 0;
+	var getCategoryByName = function (name) {
+		var category = null;
+		angular.element.each(vm.categories, function () {
+			if (this.name === name)
+				category = this;
+		});
+		return category;
+	};
 
 	/**
 	 * Get report with given name from report list
@@ -79,7 +89,7 @@ function izendaSelectReportNameController(
 		vm.isCreatingNewCategory = false;
 		vm.newCategoryName = '';
 		vm.categories.length = 0;
-		vm.selectedCategoryId = -1;
+		vm.selectedCategory = null;
 		vm.isSelectDisabled = true;
 		vm.reportSets.length = 0;
 		if (vm.isNewReportDialog) {
@@ -99,69 +109,77 @@ function izendaSelectReportNameController(
 		var reportInfo = $izendaUrl.getReportInfo();
 
 		// show loading message inside select control
-		vm.categories.push($izendaLocale.localeText('js_Loading', 'Loading...'));
-		vm.selectedCategoryId = 0;
+		vm.categories = [];
+		vm.categories.push({
+			id: 1,
+			name: $izendaLocale.localeText('js_Loading', 'Loading...')
+		});
+		vm.selectedCategory = vm.categories[0];
 		vm.modalOpened = true;
 		vm.reportName = reportInfo.name;
+		$scope.$applyAsync();
 
-		$scope.$evalAsync();
+		$izendaSettings.getCommonSettings().then(function (settings) {
+			$izendaCommonQuery.getReportSetCategory(vm.UNCATEGORIZED_TEXT).then(function (data) {
+				vm.categories = [];
+				vm.selectedCategory = null;
 
-		$izendaCommonQuery.getReportSetCategory(vm.UNCATEGORIZED_TEXT).then(function (data) {
-			vm.categories.length = 0;
-			vm.selectedCategoryId = -1;
+				vm.reportSets = data.ReportSets;
 
-			vm.reportSets = data.ReportSets;
-
-			// add categories
-			vm.categories.push({
-				'id': 0,
-				'name': vm.CREATE_NEW_TEXT
-			}, {
-				'id': 1,
-				'name': vm.UNCATEGORIZED_TEXT
-			});
-			if (reportInfo.category === null || reportInfo.category === vm.UNCATEGORIZED_TEXT)
-				vm.selectedCategoryId = 1;
-			for (var i = 0; i < vm.reportSets.length; i++) {
-				var id = vm.categories.length;
-				var report = vm.reportSets[i];
-				var category = report.Category;
-				if (category == null || category === '')
-					category = vm.UNCATEGORIZED_TEXT;
-				var item = !report.Subcategory ? category : category + "\\" + report.Subcategory;
-				if (_.grep(vm.categories, function (a) {
-          return a['name'] === item;
-				}).length === 0) {
+				// add categories
+				if (settings.allowCreateNewCategory) {
 					vm.categories.push({
-						'id': id,
-						'name': item
+						'id': nextId++,
+						'name': vm.CREATE_NEW_TEXT
 					});
-					if (reportInfo.category === item) {
-						vm.selectedCategoryId = id;
-					}
-				};
-			}
-			vm.isSelectDisabled = false;
-			$scope.$evalAsync();
+				}
+				vm.categories.push({
+					'id': nextId++,
+					'name': vm.UNCATEGORIZED_TEXT
+				});
+				vm.selectedCategory = getCategoryByName(vm.UNCATEGORIZED_TEXT);
+
+				for (var i = 0; i < vm.reportSets.length; i++) {
+					var id = nextId++;
+					var report = vm.reportSets[i];
+					var category = report.Category;
+					if (category == null || category === '')
+						category = vm.UNCATEGORIZED_TEXT;
+					var item = !report.Subcategory ? category : category + "\\" + report.Subcategory;
+					if (_.grep(vm.categories, function (a) {
+						return a['name'] === item;
+					}).length === 0) {
+						var cat = {
+							'id': id,
+							'name': item
+						};
+						vm.categories.push(cat);
+						if (reportInfo.category === item) {
+							vm.selectedCategory = cat;
+						}
+					};
+				}
+				vm.isSelectDisabled = false;
+				$scope.$applyAsync();
+			});
 		});
 	};
 
-  /**
+	/**
    * Report category selected handler
    */
-  vm.categorySelectedHandler = function () {
-	  if (vm.selectedCategoryId !== null) {
-		  var selectedObj = vm.getCategoryObjectById(vm.selectedCategoryId);
-		  if (selectedObj['id'] === 0) {
-			  vm.isCreatingNewCategory = true;
-		  } else {
-			  vm.isCreatingNewCategory = false;
-		  }
-	  } else {
-	  	vm.isCreatingNewCategory = false;
-	  }
-	  $scope.$evalAsync();
-  };
+	vm.categorySelectedHandler = function () {
+		if (vm.selectedCategory !== null) {
+			if (vm.selectedCategory.name === vm.CREATE_NEW_TEXT) {
+				vm.isCreatingNewCategory = true;
+			} else {
+				vm.isCreatingNewCategory = false;
+			}
+		} else {
+			vm.isCreatingNewCategory = false;
+		}
+		$scope.$applyAsync();
+	};
 
 	/**
 	 * OK button pressed
@@ -169,9 +187,7 @@ function izendaSelectReportNameController(
 	vm.completeHandler = function () {
 		vm.validateForm().then(function () {
 			vm.closeModal();
-
-			var selectedObj = vm.getCategoryObjectById(vm.selectedCategoryId);
-			var categoryName = vm.isCreatingNewCategory ? vm.newCategoryName : selectedObj['name'];
+			var categoryName = vm.isCreatingNewCategory ? vm.newCategoryName : vm.selectedCategory.name;
 			$rootScope.$broadcast(vm.isNewReportDialog ? 'selectedNewReportNameEvent' : 'selectedReportNameEvent',
       [vm.reportName, categoryName]);
 		}, function () { });
@@ -231,8 +247,7 @@ function izendaSelectReportNameController(
 				}
 
 				// check report name
-				var selectedObj = vm.getCategoryObjectById(vm.selectedCategoryId);
-				var selectedCategoryName = selectedObj['name'];
+				var selectedCategoryName = vm.selectedCategory.name;
 
 				// resolve if it is same report
 				var reportInfo = $izendaUrl.getReportInfo();
@@ -296,7 +311,6 @@ function izendaSelectReportNameController(
 	 */
 	vm.initialize = function () {
 		// show dialog event handler
-		vm.resetForm();
 		$scope.$on('openSelectReportNameModalEvent', function (event, args) {
 			vm.isNewReportDialog = args.length > 0 ? args[0] : false;
 			vm.show();

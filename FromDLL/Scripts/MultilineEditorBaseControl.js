@@ -57,7 +57,7 @@ function EBC_RegisterRowRemoveHandler(table, handler)
 
 function EBC_InsertRow(table, n, newRow)
 {
-  var tb = table.tBodies[0], r = tb.rows;
+	var tb = table.tBodies[0], r = tb.rows;
 	if(newRow == null)
 		newRow = r[0].cloneNode(true);
 	if (newRow.style["display"] == "none")
@@ -110,75 +110,76 @@ function EBC_GetParentTable(row)
 }
 
 function EBC_SecureCaControls(parentControl) {
-  var r = null;
-  if (parentControl == null || parentControl.children == null)
-    return r;
-  for (var i = 0; i < parentControl.children.length; i++) {
-    var child = parentControl.children[i];
-    var ids = child.id;
-    if (ids.indexOf('CaCalContainer') >= 0) {
-      parentControl.removeChild(child);
-      var res = new Array();
-      res[1] = parentControl;
-      res[2] = child;
-      if (i >= parentControl.children.length - 1) {
-        res[3] = null;
-      }
-      else {
-        res[3] = parentControl.children[i + 1];
-      }
-      return res;
-    }
-    if (r == null)
-      r = EBC_SecureCaControls(child);
-  }
-  return r;
+	var r = null;
+	if (parentControl == null || parentControl.children == null)
+		return r;
+	for (var i = 0; i < parentControl.children.length; i++) {
+		var child = parentControl.children[i];
+		var ids = child.id;
+		if (ids.indexOf('CaCalContainer') >= 0) {
+			parentControl.removeChild(child);
+			var res = new Array();
+			res[1] = parentControl;
+			res[2] = child;
+			if (i >= parentControl.children.length - 1) {
+				res[3] = null;
+			}
+			else {
+				res[3] = parentControl.children[i + 1];
+			}
+			return res;
+		}
+		if (r == null)
+			r = EBC_SecureCaControls(child);
+	}
+	return r;
 }
 
 function EBC_CheckCAControlsNeeded(parentControl) {
-  var r = false;
-  if (parentControl == null || parentControl.children == null)
-    return r;
-  for (var i = 0; i < parentControl.children.length; i++) {
-    var child = parentControl.children[i];
-    var ids = child.id;
-    if (ids.indexOf('CaCalPlace') >= 0) {
-      return true;
-    }
-    if (r == false)
-      r = EBC_CheckCAControlsNeeded(child);
-  }
-  return r;
+	var r = false;
+	if (parentControl == null || parentControl.children == null)
+		return r;
+	for (var i = 0; i < parentControl.children.length; i++) {
+		var child = parentControl.children[i];
+		var ids = child.id;
+		if (ids.indexOf('CaCalPlace') >= 0) {
+			return true;
+		}
+		if (r == false)
+			r = EBC_CheckCAControlsNeeded(child);
+	}
+	return r;
 }
 
 function EBC_CheckCAControlsC(parentControl) {
-  var r = false;
-  if (parentControl == null || parentControl.children == null)
-    return r;
-  for (var i = 0; i < parentControl.children.length; i++) {
-    var child = parentControl.children[i];
-    var ids = child.id;
-    if (ids.indexOf('CaCalPlace') >= 0) {
-      if (child.children.length > 0)
-        return true;
-      else
-        return false;
-    }
-    if (r == false)
-      r = EBC_CheckCAControlsC(child);
-  }
-  return r;
+	var r = false;
+	if (parentControl == null || parentControl.children == null)
+		return r;
+	for (var i = 0; i < parentControl.children.length; i++) {
+		var child = parentControl.children[i];
+		var ids = child.id;
+		if (ids.indexOf('CaCalPlace') >= 0) {
+			if (child.children.length > 0)
+				return true;
+			else
+				return false;
+		}
+		if (r == false)
+			r = EBC_CheckCAControlsC(child);
+	}
+	return r;
 }
 
 function EBC_FixCAControlsC(parentControl) {
 	if (parentControl == null || parentControl.children == null)
 		return;
+	jq$.datepicker.markerClassName = "hasDateTimePickerJq";
 	var r = false;
 	for (var i = 0; i < parentControl.children.length; i++) {
 		var child = parentControl.children[i];
 		var ids = child.id;
 		if (ids.indexOf('bcStartDateJQ') >= 0 || ids.indexOf('bcEndDateJQ') >= 0 || ids.indexOf('equalsDateJQ') >= 0) {
-			jq$(child).removeClass('hasDatepicker');
+			jq$(child).removeClass('hasDateTimePickerJq');
 			var newId;
 			while (true) {
 				newId = ids + '_' + Math.floor(Math.random() * 10000001);
@@ -186,10 +187,46 @@ function EBC_FixCAControlsC(parentControl) {
 					break;
 			}
 			jq$(child).attr("id", newId);
-			if (typeof ebc_jqDateFormat != 'undefined' && ebc_jqDateFormat != null && ebc_jqDateFormat != '')
-				jq$(child).datepicker({ dateFormat: ebc_jqDateFormat });
-			else
-				jq$(child).datepicker();
+			var parentDiv = child.parentNode;
+			if (typeof parentDiv != 'undefined' && parentDiv != null) {
+				var indexToRemove = -1;
+				for (var index = 0; index < parentDiv.childNodes.length; index++) {
+					if (parentDiv.childNodes[index].className == 'iz-ui-datepicker-trigger') {
+						indexToRemove = index;
+						break;
+					}
+				}
+				if (indexToRemove >= 0)
+					parentDiv.removeChild(parentDiv.childNodes[indexToRemove]);
+			}
+			if (ebc_jqShowTimeInPicker) {
+				jq$(child).datetimepickerJq({
+					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+					showOn: "button",
+					buttonImageOnly: true,
+					altRedirectFocus: false,
+					showSecond: true,
+					timeInput: true,
+					dateFormat: ebc_jqDateFormat,
+					onClose: function () {
+						if (this.getAttribute('autoSetEndDay') == '1') {
+							var enteredDate = jq$(this).datetimepickerJq("getDate");
+							if (typeof enteredDate != 'undefined' && enteredDate != null && enteredDate.getHours() + enteredDate.getMinutes() + enteredDate.getSeconds() <= 0) {
+								var fixedDate = new Date(enteredDate.getFullYear(), enteredDate.getMonth(), enteredDate.getDate(), 23, 59, 59, 0)
+								jq$(this).datetimepickerJq("setDate", fixedDate)
+							}
+						}
+					}
+				});
+			}
+			else {
+				jq$(child).datepicker({
+					dateFormat: ebc_jqDateFormat,
+					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+					showOn: "button",
+					buttonImageOnly: true
+				});
+			}
 		}
 		if (ids.indexOf('CaCalPlace') >= 0) {
 			if (child.children.length == 0) {
@@ -230,7 +267,7 @@ function EBC_FixCAControlsC(parentControl) {
 function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 	var rNumberForColne = 0;
 	if (rowNumberForClone != null)
-	 rNumberForColne = rowNumberForClone ;
+		rNumberForColne = rowNumberForClone ;
 	var table = EBC_GetParentTable(row);
 	var max = table.getAttribute("max");
 	var body = table.tBodies[0];
@@ -257,7 +294,7 @@ function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 		}
 		newRow = EBC_InsertRow(table, index, newRow);
 
-    EBC_FixCAControlsC(newRow);
+		EBC_FixCAControlsC(newRow);
 		
 		table.skipAutogrouping = savedAutogrouping;
 		return newRow;
@@ -417,8 +454,8 @@ function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, express
 	if (columnName == null)
 		columnName = 'Column';
 	if (formatName == null)
-	    formatName = 'Format';
-    
+			formatName = 'Format';
+
 	var columnSel = EBC_GetSelectByName(row, columnName);
 	var formatSelect = EBC_GetSelectByName(row, formatName);
 
@@ -434,16 +471,16 @@ function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, express
 }
 
 function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelect, expressionTypeName, whatFor) {
-    if (!expressionTypeName)
-        expressionTypeName = "ExpressionType";
+		if (!expressionTypeName)
+				expressionTypeName = "ExpressionType";
 
-    var expressionTypeSelect = EBC_GetSelectByName(row, expressionTypeName);
+		var expressionTypeSelect = EBC_GetSelectByName(row, expressionTypeName);
 
-    if (expressionTypeSelect && expressionTypeSelect.value != "...")
-        return expressionTypeSelect.value;
+		if (expressionTypeSelect && expressionTypeSelect.value != "...")
+				return expressionTypeSelect.value;
 
 	if (!functionName)
-	    functionName = 'Function';
+			functionName = 'Function';
 
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
@@ -503,7 +540,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 	if (forSubtotals == null)
 		forSubtotals = false;
 	if (isExtraFunction == null)
-	    isExtraFunction = false;
+			isExtraFunction = false;
 	var forDundasMap = jq$(row).find("select[name*=map_]").length > 0; //Determines whether the row is on the dundas map editor by finding any dropdowns with names like "map_"
 	var columnSel = EBC_GetSelectByName(row, columnName); //The control using the database column list
 	var funcSelect = EBC_GetSelectByName(row, funcSelectName); //The control using the SqlFunctionList
@@ -583,11 +620,16 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 				var funcSelect = EBC_GetSelectByName(row, funcSelectName);
 				row._ignoreDescriptor--;
 				if ((funcSelect.value == "None" || (setDefaultIfPossible && baseValue != null)) && option_.text != "..." && !forSubtotals) {
-					EBC_SetSelectedIndexByValue(funcSelect, baseValue || value);
-					EBC_FireOnChange(funcSelect);
-					if (baseValue && funcSelect.value != baseValue) {
-						EBC_SetSelectedIndexByValue(funcSelect, value);
+					var wasValue = EBC_GetSelectValue(funcSelect);
+					var valueToSet = baseValue || value;
+					EBC_SetSelectedIndexByValue(funcSelect, valueToSet);
+					if (valueToSet != wasValue)
 						EBC_FireOnChange(funcSelect);
+					if (baseValue && funcSelect.value != baseValue) {
+						wasValue = EBC_GetSelectValue(funcSelect);
+						EBC_SetSelectedIndexByValue(funcSelect, value);
+						if (value != wasValue)
+							EBC_FireOnChange(funcSelect);
 					}
 				}
 			}

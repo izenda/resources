@@ -1,13 +1,17 @@
 ﻿<style type="text/css">
-	#VIS_ID_CONTAINER #VIS_ID_LABEL {
+	#VIS_ID_CONTAINER {
+		overflow: hidden;
+	}
+
+	 #VIS_ID_CONTAINER #VIS_ID_LABEL {
 		cursor: pointer;
-		margin-right: auto;
-		margin-left: auto;
-		position: relative;
+		position: absolute;
 		font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
 		font-size: 30px;
+		left: 0;
+		right: 0;
 		text-align: center;
-	}
+	 }
 
 	#VIS_ID_CONTAINER .property-control {
 		color: black;
@@ -44,6 +48,10 @@
 		right: 0;
 	}
 
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
 		display: inline-block;
 	}
@@ -52,7 +60,7 @@
 <div id="VIS_ID_CONTAINER">
 	<div id="VIS_ID_HOLDER">
 		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control">
+			<div class="property-control select-control">
 				<span>Metrics:</span>
 				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
 			</div>
@@ -121,6 +129,21 @@
 		d3.select("#VIS_ID").append("div")
 			.attr("id", "VIS_ID_LABEL");
 
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
+		var heightWithOffset = height - propertiesPanel.outerHeight();
+		propertiesPanel.css({ opacity: 0 });
+		vis.container
+			.unbind("mouseenter")
+			.bind("mouseenter", function () {
+				propertiesPanel.stop().animate({ opacity: 1 });
+			})
+			.unbind("mouseleave")
+			.bind("mouseleave", function () {
+				propertiesPanel.stop().animate({ opacity: 0 });
+			});
+
+		jq$("#VIS_ID").width(width).height(heightWithOffset);
+
 		function validateControls() {
 			metricValue = metricSelect.val();
 		}
@@ -174,8 +197,8 @@
 		validateControls();
 
 		var margin = { top: 5, right: 5, bottom: 5, left: 5 },
-			minDimension = Math.min(width - margin.left - margin.right, height - margin.top - margin.bottom),
-			center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (height - margin.top - margin.bottom) / 2];
+			minDimension = Math.min(width - margin.left - margin.right, heightWithOffset - margin.top - margin.bottom),
+			center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (heightWithOffset - margin.top - margin.bottom) / 2];
 
 		var projection = d3.geo.orthographic()
 			.scale(minDimension / 2)
@@ -218,7 +241,7 @@
 
 		var canvas = d3.select("#VIS_ID").append("canvas")
 			.attr("width", width)
-			.attr("height", height)
+			.attr("height", heightWithOffset)
 			.on("mousedown", mousedown)
 			.on("mousemove", mousemove)
 			.on("mouseup", mouseup)
@@ -261,7 +284,7 @@
 		function gi(d) { return items.filter(function(i) { return shortName(d.name).toUpperCase() == vis.unitValue(i, 0).toUpperCase(); }); }
 
 		function draw() {
-			context.clearRect(0, 0, width, height);
+			context.clearRect(0, 0, width, heightWithOffset);
 
 			context.beginPath();
 			path({ type: "Sphere" });

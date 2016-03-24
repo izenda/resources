@@ -11,6 +11,7 @@ angular.module('izendaInstantReport').controller('InstantReportFiltersController
 			'$log',
 			'$modal',
 			'$izendaSettings',
+			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportStorage',
 			InstantReportFiltersController
@@ -26,11 +27,13 @@ function InstantReportFiltersController(
 			$log,
 			$modal,
 			$izendaSettings,
+			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportStorage) {
 	'use strict';
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaSettings = $izendaSettings;
+	$scope.$izendaCompatibility = $izendaCompatibility;
 	var vm = this;
 
 	vm.panelOpened = false;

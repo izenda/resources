@@ -4,6 +4,8 @@ var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
 //Ajax request for JSON methods-----------------------------------------------------------
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
+	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
+		return;
 	var thisRequestObject = null;
 	if (window.XMLHttpRequest)
 		thisRequestObject = new XMLHttpRequest();

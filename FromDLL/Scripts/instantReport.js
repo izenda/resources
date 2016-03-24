@@ -18,6 +18,8 @@ a[0])&&":"==z()||k();c[a.slice(1)]=M(z())}return c}k()}return a},Q=function(a,b,
 A="object"==typeof global&&global;!A||A.global!==A&&A.window!==A||(n=A);if("object"!=typeof exports||!exports||exports.nodeType||J){var N=n.JSON,B=K(n,n.JSON3={noConflict:function(){n.JSON=N;return B}});n.JSON={parse:B.parse,stringify:B.stringify}}else K(n,exports);J&&define(function(){return B})})(this);
 
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
+	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
+		return;
   var thisRequestObject;
   if (window.XMLHttpRequest)
     thisRequestObject = new XMLHttpRequest();

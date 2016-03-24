@@ -44,101 +44,101 @@ var showingC = false;
 var CC_Initialized = false;
 
 function CC_LoadColumns(id, path, options, selectName, row) {
-    if (selectName == null)
-        selectName = "Column";
-    cc_paths[id] = { path: path, options: options };
-    var table = document.getElementById(id);
-    var additionalData = null;
-    if (descriptions != null && descriptions.length > 0) {
-        additionalData = "<option disabled=''>------</option>";
-        for (var i = 0; i < descriptions.length; i++) {
-            var calcField = descriptions[i];
-            additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
-        }
-    }
-    var rows = null;
-    if (row != null) {
-        rows = new Array();
-        rows.push(row);
-        CC_oldData = null;
-    }
-    else
-        rows = jq$(table.tBodies[0]).find("tr");
+		if (selectName == null)
+				selectName = "Column";
+		cc_paths[id] = { path: path, options: options };
+		var table = document.getElementById(id);
+		var additionalData = null;
+		if (descriptions != null && descriptions.length > 0) {
+				additionalData = "<option disabled=''>------</option>";
+				for (var i = 0; i < descriptions.length; i++) {
+						var calcField = descriptions[i];
+						additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+				}
+		}
+		var rows = null;
+		if (row != null) {
+				rows = new Array();
+				rows.push(row);
+				CC_oldData = null;
+		}
+		else
+				rows = jq$(table.tBodies[0]).find("tr");
 
-    var cc_newData = path + options + "&" + "filterList=true";
-    if (additionalData != null)
-        cc_newData = cc_newData + additionalData;
+		var cc_newData = path + options + "&" + "filterList=true";
+		if (additionalData != null)
+				cc_newData = cc_newData + additionalData;
 
-    if (CC_oldData == cc_newData)
-        return;
-    CC_oldData = cc_newData;
-    for (var i = 0; i < rows.length; i++) {
-        var row = rows[i];
-        var columnSel = EBC_GetSelectByName(row, selectName);
-        var value = columnSel.getAttribute("oldValue");
-        if (value == "" || value == null || value.indexOf('Desciption!') == 0)
-            value = EBC_GetSelectValue(columnSel);
-        columnSel.value = value;
-        //columnSel.setAttribute("oldValue", null);
-        // not async because response getting after the next column sending request
-        EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
-    }
+		if (CC_oldData == cc_newData)
+				return;
+		CC_oldData = cc_newData;
+		for (var i = 0; i < rows.length; i++) {
+				var row = rows[i];
+				var columnSel = EBC_GetSelectByName(row, selectName);
+				var value = columnSel.getAttribute("oldValue");
+				if (value == "" || value == null || value.indexOf('Desciption!') == 0)
+						value = EBC_GetSelectValue(columnSel);
+				columnSel.value = value;
+				//columnSel.setAttribute("oldValue", null);
+				// not async because response getting after the next column sending request
+				EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
+		}
 }
 
 function CC_GetTables(tableID) {
-    var tables = new Array();
-    var pos = tableID.lastIndexOf("_cc");
-    if (pos > 0) {
-        var id = tableID.substring(0, pos + 1) + "jtc";
-        if (document.getElementById(id) != null) {
-            var tableSels = document.getElementsByName(id + '_Table');
-            var columnSels = document.getElementsByName(id + '_Column');
-            var rightColumnSel = document.getElementsByName(id + '_RightColumn');
-            var joinSel = document.getElementsByName(id + '_Join');
-            var tableAliases = document.getElementsByName(id + '_TableAlias');
-            var additionalOperators = document.getElementsByName(id + '_ConditionOperator');
+		var tables = new Array();
+		var pos = tableID.lastIndexOf("_cc");
+		if (pos > 0) {
+				var id = tableID.substring(0, pos + 1) + "jtc";
+				if (document.getElementById(id) != null) {
+						var tableSels = document.getElementsByName(id + '_Table');
+						var columnSels = document.getElementsByName(id + '_Column');
+						var rightColumnSel = document.getElementsByName(id + '_RightColumn');
+						var joinSel = document.getElementsByName(id + '_Join');
+						var tableAliases = document.getElementsByName(id + '_TableAlias');
+						var additionalOperators = document.getElementsByName(id + '_ConditionOperator');
 
-            for (var i = 0; i < tableSels.length; i++) {
-                var value = new Array();
-                value.table = tableSels[i].value;
-                if (value.table != null && value.table != '...') {
-                	value.alias = tableAliases[i].value;
-                    if (i > 0) {
-                        value.column = columnSels[i].value;
-                        value.rightColumn = rightColumnSel[i].value;
-                        value.join = joinSel[i].value;
-                        if (joinSel[i].getAttribute('additional') == 'true' && additionalOperators != null)
-                        	value.additionalOperator = additionalOperators[i].value;
-                    }
-                    tables.push(value);
-                }
-            }
-        }
-        else {
-            id += "s";
-            if (document.getElementById(id) != null) {
-                var value = new Array();
-                var tableList = cc_paths[tableID].options;
-                value.table = tableList.substring(7, tableList.length);
-                tables.push(value);
-            }
-        }
-    }
-    return tables;
+						for (var i = 0; i < tableSels.length; i++) {
+								var value = new Array();
+								value.table = tableSels[i].value;
+								if (value.table != null && value.table != '...') {
+									value.alias = tableAliases[i].value;
+										if (i > 0) {
+												value.column = columnSels[i].value;
+												value.rightColumn = rightColumnSel[i].value;
+												value.join = joinSel[i].value;
+												if (joinSel[i].getAttribute('additional') == 'true' && additionalOperators != null)
+													value.additionalOperator = additionalOperators[i].value;
+										}
+										tables.push(value);
+								}
+						}
+				}
+				else {
+						id += "s";
+						if (document.getElementById(id) != null) {
+								var value = new Array();
+								var tableList = cc_paths[tableID].options;
+								value.table = tableList.substring(7, tableList.length);
+								tables.push(value);
+						}
+				}
+		}
+		return tables;
 }
 
 function CC_GetAllowNulls(tableID) {
-    var allowNulls = "0";
-    var pos = tableID.lastIndexOf("_cc");
-    if (pos > 0) {
-        var id = tableID.substring(0, pos + 1) + "jtc";
-        if (document.getElementById(id) == null)
-            id += "s";
-        var allowNullsInput = document.getElementsByName(id + "_AllowNulls");
-        if (allowNullsInput != null && allowNullsInput[0] != null && allowNullsInput[0].checked == true)
-            allowNulls = "1";
-    }
-    return allowNulls;
+		var allowNulls = "0";
+		var pos = tableID.lastIndexOf("_cc");
+		if (pos > 0) {
+				var id = tableID.substring(0, pos + 1) + "jtc";
+				if (document.getElementById(id) == null)
+						id += "s";
+				var allowNullsInput = document.getElementsByName(id + "_AllowNulls");
+				if (allowNullsInput != null && allowNullsInput[0] != null && allowNullsInput[0].checked == true)
+						allowNulls = "1";
+		}
+		return allowNulls;
 }
 
 function CC_GetSectionRowIndex(row) {
@@ -146,19 +146,19 @@ function CC_GetSectionRowIndex(row) {
 }
 
 function CC_CaCalDateChanged(elem) {
-    var parent = jq$("#" + elem);
-    if (!parent)
-        return;
+		var parent = jq$("#" + elem);
+		if (!parent)
+				return;
 
-    var row = EBC_GetRow(parent[0]);
-    var table = EBC_GetParentTable(row);
-    var rows = jq$(table.tBodies[0]).find("tr");
+		var row = EBC_GetRow(parent[0]);
+		var table = EBC_GetParentTable(row);
+		var rows = jq$(table.tBodies[0]).find("tr");
 
-    for (var i = CC_GetSectionRowIndex(row) + 1; i < rows.length; i++) {
-        var showEditForRow = CC_GetShowEditForRow(rows[i]);
-        if (showEditForRow[2] || showEditForRow[7] || showEditForRow[11])
-            CC_LoadValues(rows[i]);
-    }
+		for (var i = CC_GetSectionRowIndex(row) + 1; i < rows.length; i++) {
+				var showEditForRow = CC_GetShowEditForRow(rows[i]);
+				if (showEditForRow[2] || showEditForRow[7] || showEditForRow[11])
+						CC_LoadValues(rows[i]);
+		}
 }
 
 function CC_GetFiltersInRange(row, startIndex, endIndex) {
@@ -219,15 +219,19 @@ function CC_GetFiltersInRange(row, startIndex, endIndex) {
 						value.val1 = value.val1.substring(0, 10);
 				}
 				if (showEditForRow.length > 5 && showEditForRow[5]) {
-					value.val1 = EBC_GetInputByName(prevRow, "Edit1").value;
+					var popupVal = EBC_GetInputByName(prevRow, "popup_value_handler").value;
+					if (popupVal != '...')
+						value.val1 = popupVal;
 				}
 				if (showEditForRow.length > 7 && showEditForRow[7]) {
 					var checkBoxSelect = EBC_GetElementByName(prevRow, "CheckBoxSelectInner", "div");
-					value.val1 = "";
+					value.val1 = null;
 					if (checkBoxSelect)
 						jq$(checkBoxSelect).find(":checked").each(function (i) {
 							if (i > 0)
 								value.val1 += ",";
+							else
+								value.val1 = "";
 							value.val1 += jq$(this).val();
 						});
 				}
@@ -249,27 +253,27 @@ function CC_GetPrewRows(row) {
 }
 
 function CC_CropDate(s) {
-    var newS = "";
-    var stop = false;
-    var i = 0;
-    var dotNum = 0;
-    while (!stop) {
-        var c = s.charAt(i);
-        if (c == '.') {
-            dotNum++;
-        }
-        if (dotNum < 3) {
-            newS += c;
-        }
-        else {
-            stop = true;
-        }
-        i++;
-        if (i >= s.length) {
-            stop = true;
-        }
-    }
-    return newS;
+		var newS = "";
+		var stop = false;
+		var i = 0;
+		var dotNum = 0;
+		while (!stop) {
+				var c = s.charAt(i);
+				if (c == '.') {
+						dotNum++;
+				}
+				if (dotNum < 3) {
+						newS += c;
+				}
+				else {
+						stop = true;
+				}
+				i++;
+				if (i >= s.length) {
+						stop = true;
+				}
+		}
+		return newS;
 }
 
 function CC_GetCurrentFilterLogic() {
@@ -287,143 +291,143 @@ function CC_IsFilterLogicValid() {
 }
 
 function CC_GetFilterCMD(row) {
-    var cmd = "";
-    var parentTable = EBC_GetParentTable(row);
-    var id = parentTable.id;
-    var tables = CC_GetTables(id);
-    var allowNulls = CC_GetAllowNulls(id);
-    var filterLogic = CC_GetCurrentFilterLogic();
+		var cmd = "";
+		var parentTable = EBC_GetParentTable(row);
+		var id = parentTable.id;
+		var tables = CC_GetTables(id);
+		var allowNulls = CC_GetAllowNulls(id);
+		var filterLogic = CC_GetCurrentFilterLogic();
 
-    if (tables.length == 0) {
-        var els = jq$("[id$='_SavedReportName']");
-        var savedReportName = null;
-        if (els.length > 0)
-            savedReportName = els[0];
-        if (savedReportName != null) {
-            var rn = savedReportName.value;
-            if (rn != null && rn != "") {
-                var val = new Array();
-                val.table = "-1" + "&" + "rn=" + rn;
-                tables.push(val);
-            }
-        }
-    }
-    if (tables.length > 0) {
-        var i;
-        for (i = 0; i < tables.length; i++) {
-        	cmd = cmd + "&" + "tbl" + i + "=" + tables[i].table;
-        	cmd += "&ta" + i + "=" + (tables[i].alias == null ? '' : tables[i].alias);
-            if (i > 0) {
-                cmd = cmd + "&" + "lclm" + i + "=" + tables[i].column;
-                cmd = cmd + "&" + "rclm" + i + "=" + tables[i].rightColumn;
-                cmd = cmd + "&" + "jn" + i + "=" + tables[i].join;
-                if (tables[i].additionalOperator != null)
-                	cmd = cmd + "&" + "aop" + i + "=" + tables[i].additionalOperator;
-            }
-        }
-        var filters = new Array();
-        if (filterLogic != '')
-        	filters = CC_GetAllFilters(row);
-		else
-        	filters = CC_GetPrewRows(row);
-        for (i = 0; i < filters.length; i++) {
-            cmd = cmd + "&" + "fc" + i + "=" + filters[i].Column;
-            cmd = cmd + "&" + "fo" + i + "=" + filters[i].Operator;
-            if (filters[i].val1 != null) {
-                var v1 = filters[i].val1.replace('&', '%26');
-                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
-                    v1 = CC_CropDate(v1);
-                }
-                cmd = cmd + "&" + "fvl" + i + "=" + encodeURIComponent(v1);
-            }
-            if (filters[i].val2 != null) {
-                var v2 = filters[i].val2.replace('&', '%26');
-                if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
-                    v2 = CC_CropDate(v2);
-                }
-                cmd = cmd + "&" + "fvr" + i + "=" + encodeURIComponent(v2);
-            }
-        }
-    }
-    if (filterLogic != '')
-    	cmd += '&filterLogic=' + filterLogic;
+		if (tables.length == 0) {
+				var els = jq$("[id$='_SavedReportName']");
+				var savedReportName = null;
+				if (els.length > 0)
+						savedReportName = els[0];
+				if (savedReportName != null) {
+						var rn = savedReportName.value;
+						if (rn != null && rn != "") {
+								var val = new Array();
+								val.table = "-1" + "&" + "rn=" + rn;
+								tables.push(val);
+						}
+				}
+		}
+		if (tables.length > 0) {
+				var i;
+				for (i = 0; i < tables.length; i++) {
+					cmd = cmd + "&" + "tbl" + i + "=" + tables[i].table;
+					cmd += "&ta" + i + "=" + (tables[i].alias == null ? '' : tables[i].alias);
+						if (i > 0) {
+								cmd = cmd + "&" + "lclm" + i + "=" + tables[i].column;
+								cmd = cmd + "&" + "rclm" + i + "=" + tables[i].rightColumn;
+								cmd = cmd + "&" + "jn" + i + "=" + tables[i].join;
+								if (tables[i].additionalOperator != null)
+									cmd = cmd + "&" + "aop" + i + "=" + tables[i].additionalOperator;
+						}
+				}
+				var filters = new Array();
+				if (filterLogic != '')
+					filters = CC_GetAllFilters(row);
+				else
+					filters = CC_GetPrewRows(row);
+				for (i = 0; i < filters.length; i++) {
+						cmd = cmd + "&" + "fc" + i + "=" + filters[i].Column;
+						cmd = cmd + "&" + "fo" + i + "=" + filters[i].Operator;
+						if (filters[i].val1 != null) {
+								var v1 = filters[i].val1.replace('&', '%26');
+								if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
+										v1 = CC_CropDate(v1);
+								}
+								cmd = cmd + "&" + "fvl" + i + "=" + encodeURIComponent(v1);
+						}
+						if (filters[i].val2 != null) {
+								var v2 = filters[i].val2.replace('&', '%26');
+								if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
+										v2 = CC_CropDate(v2);
+								}
+								cmd = cmd + "&" + "fvr" + i + "=" + encodeURIComponent(v2);
+						}
+				}
+		}
+		if (filterLogic != '')
+			cmd += '&filterLogic=' + filterLogic;
 
-    if (allowNulls == "1")
-        cmd += "&nulls=1";
-    return cmd;
+		if (allowNulls == "1")
+				cmd += "&nulls=1";
+		return cmd;
 }
 
 
 function CC_LoadValues(row) {
-    var operatorName = EBC_GetSelectByName(row, 'Operator').value;
-    var isNotFieldOperator = true;
+		var operatorName = EBC_GetSelectByName(row, 'Operator').value;
+		var isNotFieldOperator = true;
 
-    if (operatorName != null) {
-        var len = operatorName.length;
-        if (len > 5) {
-            var str = operatorName.substring(len - 5, len);
-            isNotFieldOperator = (str != 'Field');
-        }
-    }
-    if (isNotFieldOperator) {
-        var fullColumnName = EBC_GetSelectByName(row, 'Column').value;
-        var valueSel = EBC_GetSelectByName(row, 'SelectValue');
-        //jq$(valueSel).html("<option>Loading ...</option>")
-        if (fullColumnName != '' && fullColumnName != '...') {
-            var cmd = CC_GetFilterCMD(row);
-            if (operatorName == "Equals_CheckBoxes")
-                EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
+		if (operatorName != null) {
+				var len = operatorName.length;
+				if (len > 5) {
+						var str = operatorName.substring(len - 5, len);
+						isNotFieldOperator = (str != 'Field');
+				}
+		}
+		if (isNotFieldOperator) {
+				var fullColumnName = EBC_GetSelectByName(row, 'Column').value;
+				var valueSel = EBC_GetSelectByName(row, 'SelectValue');
+				//jq$(valueSel).html("<option>Loading ...</option>")
+				if (fullColumnName != '' && fullColumnName != '...') {
+						var cmd = CC_GetFilterCMD(row);
+						if (operatorName == "Equals_CheckBoxes")
+								EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
 				function (responseResult) {
-				    var options = jq$(responseResult);
-				    var cnt = options.length;
-				    var result = "";
-				    var itemTemplate = "<input type=\"checkbox\" value=\"{1}\" onclick=\"CC_OnCheckBoxValueChangedHandler(this)\">{0}</input><br/>";
-				    for (var i = 0; i < cnt; i++) {
-				        var value = jq$(options[i]).val();
-				        var text = jq$(options[i]).text();
-				        if (value != null && value != "" && value != "...")
-				            result += itemTemplate.replace("{0}", text).replace("{1}", value);
-				    }
-				    var valueCheckBoxes = EBC_GetElementByName(row, 'CheckBoxSelectInner', 'div');
-				    if (valueCheckBoxes) {
-				        var preCheckedArray = new Array();
-				        if (jq$(valueCheckBoxes).html() != "")
-				            jq$(valueCheckBoxes).find("input:checked").each(function (i) {
-				                preCheckedArray.push(jq$(this).val());
-				            });
-				        else {
-				            if (jq$.isArray(jq$(valueSel).val()))
-				                preCheckedArray = jq$(valueSel).val()[0].split(',');
-				            else
-				                preCheckedArray = jq$(valueSel).val().split(',');
-				        }
+						var options = jq$(responseResult);
+						var cnt = options.length;
+						var result = "";
+						var itemTemplate = "<input type=\"checkbox\" value=\"{1}\" onclick=\"CC_OnCheckBoxValueChangedHandler(this)\">{0}</input><br/>";
+						for (var i = 0; i < cnt; i++) {
+								var value = jq$(options[i]).val();
+								var text = jq$(options[i]).text();
+								if (value != null && value != "...")
+										result += itemTemplate.replace("{0}", text).replace("{1}", value);
+						}
+						var valueCheckBoxes = EBC_GetElementByName(row, 'CheckBoxSelectInner', 'div');
+						if (valueCheckBoxes) {
+								var preCheckedArray = new Array();
+								if (jq$(valueCheckBoxes).html() != "")
+										jq$(valueCheckBoxes).find("input:checked").each(function (i) {
+												preCheckedArray.push(jq$(this).val());
+										});
+								else {
+										if (jq$.isArray(jq$(valueSel).val()))
+												preCheckedArray = jq$(valueSel).val()[0].split(',');
+										else
+												preCheckedArray = jq$(valueSel).val().split(',');
+								}
 
-				        jq$(valueCheckBoxes).html(result);
+								jq$(valueCheckBoxes).html(result);
 
-				        jq$(valueCheckBoxes).find("input:checkbox").each(function (i) {
-				            if (jq$.inArray(jq$(this).val(), preCheckedArray) > -1)
-				                jq$(this).prop("checked", true);
-				            else
-				                jq$(this).prop("checked", false);
-				        });
-				    }
+								jq$(valueCheckBoxes).find("input:checkbox").each(function (i) {
+										if (jq$.inArray(jq$(this).val(), preCheckedArray) > -1)
+												jq$(this).prop("checked", true);
+										else
+												jq$(this).prop("checked", false);
+								});
+						}
 				});
-            else if (operatorName == "Equals_TreeView") {
-                cmd += "&forTree=1";
-                EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
+						else if (operatorName == "Equals_TreeView") {
+								cmd += "&forTree=1";
+								EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
 					function (responseResult) {
-					    var result = responseResult.substr(2, responseResult.length - 4);
-					    CC_TreeUpdateValues(row, result.split('", "'));
+							var result = responseResult.substr(2, responseResult.length - 4);
+							CC_TreeUpdateValues(row, result.split('", "'));
 					});
-            }
-            else
-                EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, valueSel);
-        }
-        else
-            EBC_LoadData('@CC/Empty', null, valueSel);
-    }
-    else
-        CC_LoadFields(row);
+						}
+						else
+								EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, valueSel);
+				}
+				else
+						EBC_LoadData('@CC/Empty', null, valueSel);
+		}
+		else
+				CC_LoadFields(row);
 }
 
 function CC_UpdateFiltersFromLogic(){
@@ -451,7 +455,7 @@ function CC_UpdateFilterRows(row) {
 
 function CC_ValueChanged(e) {
 	if (e) ebc_mozillaEvent = e;
-	var row = EBC_GetRow();
+	var row = EBC_GetRow(e);
 	CC_UpdateFilterRows(row);
 }
 
@@ -642,7 +646,7 @@ function CC_OnColumnChangedHandler(e) {
 		if (dataType == null || dataType == "Unknown")
 			dataType = "";
 		if (colFullName == null)
-			colFullName = "";            
+			colFullName = "";
 		var id = EBC_GetParentTable(row).id;
 		var tables = "tables=" + tablesSave[id];
 		EBC_LoadData("OperatorList", "typeGroup=" + dataType + "&" + tables + "&colFullName=" + colFullName, operatorSel);
@@ -795,9 +799,12 @@ function CC_OnOperatorChangedHandler(e) {
 			}
 			else if (oldValue.length > 0 && (oldValue.charAt(0) == '['))
 				edit1.value = '';
+			else if (oldValue == '...')
+				edit1.value = '';
+			else if (oldValue == '' && operatorValue == 'EqualsPopup')
+				edit1.value = '...';
 
 			CC_InitRowWidthAutoComplite(row);
-
 		}
 		if (operatorValue == 'Equals_Select' || operatorValue == 'NotEquals_Select' ||
 			operatorValue == 'Equals_Multiple' || operatorValue == 'NotEquals_Multiple' ||
@@ -976,25 +983,72 @@ function CC_IsFirstTimeOperatorUpdated() {
 	return result;
 }
 
-function CC_Init(id, s, allowNewFilters, dateFormatString) {
+function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
+	jq$.datepicker.markerClassName = "hasDateTimePickerJq";
 	var eqInputs = document.getElementsByName(id + "_equalsDateJQ");
-	if (dateFormatString)
-		jq$(eqInputs).datepicker({ dateFormat: dateFormatString });
-	else
-		jq$(eqInputs).datepicker();
 	var startInputs = document.getElementsByName(id + "_bcStartDateJQ");
-	if (dateFormatString)
-		jq$(startInputs).datepicker({ dateFormat: dateFormatString });
-	else
-		jq$(startInputs).datepicker();
 	var endInputs = document.getElementsByName(id + "_bcEndDateJQ");
-	if (dateFormatString)
-		jq$(endInputs).datepicker({ dateFormat: dateFormatString });
-	else
-		jq$(endInputs).datepicker();
-    var izDiv = document.getElementById('iz-ui-datepicker-div');
-    if (typeof izDiv != 'undefined' && izDiv != null)
-	    izDiv.style.display = 'none';
+	if (showTimeInPicker) {
+		jq$(eqInputs).datetimepickerJq({
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true,
+			altRedirectFocus: false,
+			showSecond: true,
+			timeInput: true,
+			dateFormat: dateFormatString
+		});
+		jq$(startInputs).datetimepickerJq({
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true,
+			altRedirectFocus: false,
+			showSecond: true,
+			timeInput: true,
+			dateFormat: dateFormatString
+		});
+		jq$(endInputs).attr('autoSetEndDay', '1');
+		jq$(endInputs).datetimepickerJq({
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true,
+			altRedirectFocus: false,
+			showSecond: true,
+			timeInput: true,
+			dateFormat: dateFormatString,
+			onClose: function () {
+				var enteredDate = jq$(this).datetimepickerJq("getDate");
+				if (typeof enteredDate != 'undefined' && enteredDate != null && enteredDate.getHours() + enteredDate.getMinutes() + enteredDate.getSeconds() <= 0) {
+					var fixedDate = new Date(enteredDate.getFullYear(), enteredDate.getMonth(), enteredDate.getDate(), 23, 59, 59, 0)
+					jq$(this).datetimepickerJq("setDate", fixedDate)
+				}
+			}
+		});
+	}
+	else {
+		jq$(eqInputs).datepicker({
+			dateFormat: dateFormatString,
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true
+		});
+		jq$(startInputs).datepicker({
+			dateFormat: dateFormatString,
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true
+		});
+		jq$(endInputs).datepicker({
+			dateFormat: dateFormatString,
+			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			showOn: "button",
+			buttonImageOnly: true
+		});
+	}
+
+	var izDiv = document.getElementById('iz-ui-datepicker-div');
+	if (typeof izDiv != 'undefined' && izDiv != null)
+		izDiv.style.display = 'none';
 	showFieldAsValueDropDown = s;
 	CC_FirstTimeOperatorUpdated = true;
 	CC_allowNewFilters = allowNewFilters;
@@ -1106,7 +1160,7 @@ function CC_ShowPopupFilterResponse(data) {
 	}
 	else {
 		var row = EBC_GetRow(wasEqualsPopupEvent);
-		var value = EBC_GetInputByName(row, "Edit1").value;
+		var value = EBC_GetInputByName(row, "popup_value_handler").value;
 		var values = value.split(",");
 
 		var genHtml = "<table id='AdHocPopupFilerTable'><tr><td>" + data + "</td></tr>";
@@ -1158,19 +1212,21 @@ function CC_PopupFiltersConfirm(act) {
 		if (row == null)
 			return;
 		var edit1 = EBC_GetInputByName(row, "Edit1");
-		if (edit1 == null)
+		var valueHandler = EBC_GetInputByName(row, "popup_value_handler");
+		if (edit1 == null || valueHandler == null)
 			return;
-
 
 		var table = document.getElementById('AdHocPopupFilerTable');
 		var parentRow = table.rows[0];
 		var subtable = parentRow.firstChild.firstChild;
 		var rows = subtable.rows;
-		var values = '';
+		var values = '...';
 		for (var i = 0; i < rows.length; i++) {
 			for (var j = 0; j < rows[i].cells.length; j++) {
 				var checkbox = rows[i].cells[j].firstChild;
 				if (checkbox.checked) {
+					if (values == '...')
+						values = '';
 					var nextNode = checkbox.nextSibling != null ? checkbox.nextSibling.nodeValue : "";
 					var nextNodeWithReplaced = nextNode.replace(',', '#||#');
 					while (nextNode != nextNodeWithReplaced) {
@@ -1181,9 +1237,10 @@ function CC_PopupFiltersConfirm(act) {
 				}
 			}
 		}
-		if (values.length > 0)
+		if (values && values != '...')
 			values = values.substring(0, values.length - 1);
 		edit1.value = values;
+		valueHandler.value = values;
 		CC_ValueChanged(row);
 	}
 	hm();

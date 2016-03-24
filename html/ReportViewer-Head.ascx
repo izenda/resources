@@ -10,6 +10,7 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
 
 <!-- jQuery Core -->
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
@@ -34,6 +35,7 @@
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
+<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 

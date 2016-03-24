@@ -38,6 +38,7 @@
 		float: left;
 		display: inline-block;
 		padding-bottom: 2px;
+		width: 1px;
 	}
 
 	#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL text {
@@ -66,7 +67,12 @@
 	#VIS_ID_CONTAINER .property-control {
 		color: black;
 	}
-	#VIS_ID_CONTAINER .property-control select {
+
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
+	#VIS_ID_CONTAINER .select-control select {
 		font-family: Verdana, Arial, Geneva, sans-serif;
 	}
 
@@ -85,7 +91,7 @@
 	<div id="VIS_ID_HOLDER">
 		<div id="VIS_ID_BREADCRUMBS_PANEL"></div>
 		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control">
+			<div class="property-control select-control">
 				<span>Metrics:</span>
 				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
 			</div>
@@ -176,17 +182,19 @@
 			}
 		});
 
+		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
+
 		var heightOffset = 4,
 			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
 
-		var radius = Math.min(width, heightWithOffset) / 2,
+		var radius = Math.min(width, heightWithOffset) / 2 - 6,
 			breadcrumbWidthOffset = isImageRender ? 55 : 10,
 			breadcrumbMarginLeft = Math.max(0, width / 2 - radius),
 			duration = 750,
 			totalSize = 0,
 			cx = 0.003, cy = 0.88,
 			zoomEnabled = false;
-		var propertiesPanelWidth = jq$("#VIS_ID_PROPERTIES_PANEL")[0].offsetWidth,
+		var propertiesPanelWidth = propertiesPanel[0].offsetWidth,
 			breadcrumbWidth = (width - (breadcrumbMarginLeft + breadcrumbWidthOffset + propertiesPanelWidth));
 		vis.createBreadcrumb({
 			selector: "#VIS_ID_BREADCRUMBS_PANEL",
@@ -221,16 +229,17 @@
 
 		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight())) - heightOffset;
 
+		propertiesPanel.css({ opacity: 0 });
 		vis.container
 			.unbind("mouseenter")
 			.bind("mouseenter", function () {
 				vis.breadcrumb.show();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 1 });
+				propertiesPanel.stop().animate({ opacity: 1 });
 			})
 			.unbind("mouseleave")
 			.bind("mouseleave", function () {
 				vis.breadcrumb.hide();
-				jq$("#VIS_ID_PROPERTIES_PANEL").stop().animate({ opacity: 0 });
+				propertiesPanel.stop().animate({ opacity: 0 });
 			});
 
 		vs.find("#VIS_ID_BREADCRUMBS_PANEL").css("margin-left", breadcrumbMarginLeft + "px");

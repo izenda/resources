@@ -1,0 +1,30 @@
+.iz-ui-timepicker-div .iz-ui-widget-header { margin-bottom: 8px; }
+.iz-ui-timepicker-div dl { text-align: left; }
+.iz-ui-timepicker-div dl dt { float: left; clear:left; padding: 0 0 0 5px; }
+.iz-ui-timepicker-div dl dd { margin: 0 10px 10px 40%; }
+.iz-ui-timepicker-div td { font-size: 90%; }
+.iz-ui-tpicker-grid-label { background: none; border: none; margin: 0; padding: 0; }
+.iz-ui-timepicker-div .ui_tpicker_unit_hide{ display: none; }
+
+.iz-ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input { background: none; color: inherit; border: none; outline: none; border-bottom: solid 1px #555; width: 95%; }
+.iz-ui-timepicker-div .ui_tpicker_time .ui_tpicker_time_input:focus { border-bottom-color: #aaa; }
+
+.iz-ui-timepicker-rtl{ direction: rtl; }
+.iz-ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
+.iz-ui-timepicker-rtl dl dt{ float: right; clear: right; }
+.iz-ui-timepicker-rtl dl dd { margin: 0 40% 10px 10px; }
+
+/* Shortened version style */
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine { padding-right: 2px; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine .ui_tpicker_time, 
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dt { display: none; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine .ui_tpicker_time_label { display: block; padding-top: 2px; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl { text-align: right; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd, 
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd > div { display:inline-block; margin:0; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd.ui_tpicker_minute:before,
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd.ui_tpicker_second:before { content:':'; display:inline-block; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd.ui_tpicker_millisec:before,
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine dl dd.ui_tpicker_microsec:before { content:'.'; display:inline-block; }
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine .ui_tpicker_unit_hide,
+.iz-ui-timepicker-div.iz-ui-timepicker-oneLine .ui_tpicker_unit_hide:before{ display: none; }

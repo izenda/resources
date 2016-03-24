@@ -9,6 +9,7 @@ angular.module('izendaCommonControls').value('reportNameInputPlaceholderText', [
 // create module
 angular.module('izendaInstantReport', [
 	'ui.bootstrap',
+	'izendaCompatibility',
 	'izendaQuery',
 	'izendaCommonControls',
 	'izenda.common.ui'

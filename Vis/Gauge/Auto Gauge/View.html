@@ -667,8 +667,6 @@
 
 		width = vis.getWidth();
 
-		vs.find("#VIS_ID_HOLDER").width(width);
-
 		var style, gauges = [];
 
 		var isDateExist = false;
@@ -888,45 +886,51 @@
 			}
 
 			for (var key in node.support) {
+				var origin = node.support[key].o,
+					formatted = node.support[key].f;
+
+				if (VIS_COLUMNS.find(function (d) { return d.name == key; }).format == "MoneyDividedByHundred")
+					origin /= 100;
+
 				switch (key.toLowerCase()) {
 					case "low":
-						data.low = { name: "low", value: node.support[key].o, color: "#00C000" };
+						data.low = { name: "low", value: origin, color: "#00C000" };
 						break;
 					case "high":
-						data.high = { name: "high", value: node.support[key].o, color: "#C00000" };
+						data.high = { name: "high", value: origin, color: "#C00000" };
 						break;
 					case "target":
-						data.target = { name: "target", value: node.support[key].o, color: "#0034ff" };
+						data.target = { name: "target", value: origin, color: "#0034ff" };
 						break;
 					case "max":
 						data.max = {
-							value: node.support[key].o,
+							value: origin,
 							format: (function () {
-								var precisionMatch = node.support[key].f.match(/(\.)(\d+)/),
-									currencyMath = node.support[key].f.match(/\$|€|£/);
+								var precisionMatch = formatted.match(/(\.)(\d+)/),
+									currencyMath = formatted.match(/\$|€|£/);
 								return {
 									precision: (precisionMatch) ? precisionMatch[2].length : 0,
 									isCurrency: currencyMath != null,
 									currency: (currencyMath) ? currencyMath[0] : "",
-									isPercentage: /%/.test(node.support[key].f)
+									isPercentage: /%/.test(formatted)
 								};
 							})()
 						};
 						break;
 					default:
-						if (node.support[key].o instanceof Date) {
-							data.date = node.support[key].o;
-						} else if (typeof node.support[key].o === "number") {
+						if (origin instanceof Date) {
+							data.date = origin;
+						} else if (typeof origin === "number") {
 							data.items.push({
-								value: node.support[key].o,
+								value: origin,
 								format: (function () {
-									var precisionMatch = node.support[key].f.match(/(\.)(\d+)/),
-										currencyMath = node.support[key].f.match(/\$|€|£/);
+									var precisionMatch = formatted.match(/(\.)(\d+)/),
+										currencyMath = formatted.match(/\$|€|£/);
 									return {
 										precision: (precisionMatch) ? precisionMatch[2].length : 0,
 										isCurrency: currencyMath != null,
 										currency: (currencyMath) ? currencyMath[0] : "",
-										isPercentage: /%/.test(node.support[key].f)
+										isPercentage: /%/.test(formatted)
 									};
 								})()
 							});

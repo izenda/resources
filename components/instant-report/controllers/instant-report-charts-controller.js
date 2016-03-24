@@ -10,6 +10,7 @@ angular
 			'$timeout',
 			'$q',
 			'$izendaUrl',
+			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
 			'$log',
 			InstantReportChartsController
@@ -22,6 +23,7 @@ function InstantReportChartsController(
 			$timeout,
 			$q,
 			$izendaUrl,
+			$izendaCompatibility,
 			$izendaInstantReportStorage,
 			$log) {
 	'use strict';
@@ -38,11 +40,13 @@ function InstantReportChartsController(
 		if (vm.selectedChart === chart) {
 			vm.selectedChart = null;
 			$izendaInstantReportStorage.selectChart(null);
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			if (!$izendaCompatibility.isSmallResolution())
+				$izendaInstantReportStorage.getReportPreviewHtml();
 		} else {
 			vm.selectedChart = chart;
 			$izendaInstantReportStorage.selectChart(chart);
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			if (!$izendaCompatibility.isSmallResolution())
+				$izendaInstantReportStorage.getReportPreviewHtml();
 		}
 		
 	};

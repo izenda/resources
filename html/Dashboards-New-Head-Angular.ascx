@@ -61,13 +61,17 @@
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
-<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
-<script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <!-- datetime -->
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
 <script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
+<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
+
+<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
+<script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <script>
   // legacy code: needed for correct report old scripts work

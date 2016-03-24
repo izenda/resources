@@ -2,7 +2,6 @@
 <%@ Import Namespace="Izenda.AdHoc" %>
 
 <title>Dashboards</title>
-
 <script runat="server">
     public string getDashboardViewer()
     {
@@ -25,21 +24,23 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.custom_dashboard" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=DashboardViewer" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jqui_modified2" />
-  <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
-  <script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
-
+  
 <!-- jQuery Core -->
+
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
+
 <!-- Utils Internal -->
 <script type="text/javascript" src="./rs.aspx?js=jQuery.jq_db"></script>
 <script type="text/javascript" src="./rs.aspx?js=jQuery.jqui_db"></script>
+
 <script type="text/javascript" src="rs.aspx?js=jQuery.DashboardViewer"></script>	
 <script type="text/javascript" src="rs.aspx?js=jQuery.NewDashboardControls"></script>	
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.blockUI"></script>
 
 <!-- Utils Resources -->
 <script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>
+<script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <style type="text/css">
 	.izenda-toolbar {

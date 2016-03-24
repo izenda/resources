@@ -111,7 +111,11 @@
 		opacity: 0;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
+	#VIS_ID_CONTAINER .property-control {
 		display: inline-block;
 	}
 </style>
@@ -120,7 +124,7 @@
 	<div id="VIS_ID_HOLDER">
 		<div id="VIS_ID_BREADCRUMBS_PANEL"></div>
 		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control">
+			<div class="property-control select-control">
 				<span>Metrics:</span>
 				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
 			</div>
@@ -159,6 +163,16 @@
 				util.logger.error(e);
 			}
 		}
+
+		var css = "";
+		if (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) {
+			css += "body { margin: 0px; font-family: 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; }"
+				+ "#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL { opacity: 1 !important; display: none !important; }"
+				+ "#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL { display: none !important; }";
+		}
+		if (window.utility.ie() > -1)
+			css += "#VIS_ID_CONTAINER .label { overflow: auto !important; text-overflow: inherit !important; }";
+		util.updateStyle("iz-heatmap-fix", css);
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
@@ -366,7 +380,7 @@
 				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
 				.text(function (d2) {
 					var actualHeight = isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy));
-					if (actualHeight < 15)
+					if (actualHeight < 13)
 						return '';
 					var textWidth = kx * d2.dx - 15.0;
 					var textString = d2.name;

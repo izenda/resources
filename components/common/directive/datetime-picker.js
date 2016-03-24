@@ -1,6 +1,6 @@
 ﻿(function () {
 	'use strict';
-	angular.module('izenda.common.ui').directive('izendaDateTimePicker', ['$window', '$timeout', function ($window, $timeout) {
+	angular.module('izenda.common.ui').directive('izendaDateTimePicker', ['$window', '$timeout', '$izendaCompatibility', function ($window, $timeout, $izendaCompatibility) {
 		return {
 			restrict: 'EA',
 			require: 'ngModel',
@@ -13,14 +13,16 @@
 				htmlContainerSelector: '@',
 				onChange: '&'
 			},
-			template:
-				'<input type="text" class="form-control" />' +
-				'<span class="input-group-addon">' +
-					'<span class="glyphicon-calendar glyphicon"></span>' +
-				'</span>',
+			template: $izendaCompatibility.isSmallResolution() 
+				? '<div class="izenda-date-picker-inline"/>'
+				: '<input type="text" class="form-control" />' +
+					'<span class="input-group-addon">' +
+						'<span class="glyphicon-calendar glyphicon"></span>' +
+					'</span>',
 			link: function ($scope, elem, attrs, ngModelCtrl) {
-				var $input = elem.children('input');
+				var $input = elem.children('input,.izenda-date-picker-inline');
 				var $btn = elem.children('.input-group-addon');
+				var isSmallResolution = $izendaCompatibility.isSmallResolution();
 
 				function getPicker() {
 					return $input.data('DateTimePicker');
@@ -81,7 +83,8 @@
 				angular.extend(config, {
 					//debug: true,
 					locale: $scope.locale,
-					widgetParent: angular.element($scope.htmlContainerSelector),
+					inline: isSmallResolution,
+					widgetParent: isSmallResolution ? null : angular.element($scope.htmlContainerSelector),
 					toolbarPlacement: 'bottom',
 					widgetPositioning: {
 						vertical: 'bottom'
@@ -105,6 +108,8 @@
 				});
 				$scope.dateTimePicker = $input.datetimepicker(config);
 				$input.on('dp.show', function (e) {
+					if (isSmallResolution)
+						return;
 					var $widget = angular.element($scope.htmlContainerSelector + ' > .bootstrap-datetimepicker-widget');
 					$widget.show();
 					$widget.css({
@@ -113,6 +118,8 @@
 					});
 				});
 				angular.element($window).on('resize.dp', function (e) {
+					if (isSmallResolution)
+						return;
 					var $widget = angular.element($scope.htmlContainerSelector + ' > .bootstrap-datetimepicker-widget');
 					$widget.hide();
 					$timeout(function() {

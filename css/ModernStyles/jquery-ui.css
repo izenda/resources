@@ -497,7 +497,7 @@ button.iz-ui-button::-moz-focus-inner { border: 0; padding: 0; } /* reset extra 
  *
  * http://docs.jquery.com/UI/Datepicker#theming
  */
-.iz-ui-datepicker { width: 17em; padding: .2em .2em 0; display: none; }
+.iz-ui-datepicker { width: 17em; padding: .2em .2em 0; display: none; z-index: 2000 !important; }
 .iz-ui-datepicker .iz-ui-datepicker-header { position:relative; padding:.2em 0; }
 .iz-ui-datepicker .iz-ui-datepicker-prev, .iz-ui-datepicker .iz-ui-datepicker-next { position:absolute; top: 2px; width: 1.8em; height: 1.8em; }
 .iz-ui-datepicker .iz-ui-datepicker-prev-hover, .iz-ui-datepicker .iz-ui-datepicker-next-hover { top: 1px; }
@@ -749,3 +749,4 @@ html, body{background-color:#ffffff;}
 .iz-ui-state-error .iz-ui-icon{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);}
 
 
+.iz-ui-datepicker-trigger { vertical-align: middle; }

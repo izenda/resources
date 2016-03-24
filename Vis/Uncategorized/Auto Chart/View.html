@@ -13,6 +13,10 @@
 		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(rs.aspx?font=Fonts.OpenSans-Semibold.woff) format('woff');
 	}
 
+	#VIS_ID_CONTAINER {
+		overflow: hidden;
+	}
+
 	#VIS_ID_CONTAINER .clearfix:after {
 		content: "";
 		clear: both;
@@ -258,6 +262,31 @@
 		overflow: auto;
 		width: 100% /*auto*/;
 		background-color: white;
+	}
+
+	#VIS_ID_CONTAINER div.highcharts-tooltip {
+		background: none !important;
+	}
+
+	#VIS_ID_CONTAINER g.highcharts-tooltip {
+		display: none;
+	}
+
+	#VIS_ID_CONTAINER span.tooltip-wrapper {
+		background-color: #ffffff !important;
+		display: inline-block;
+		padding-top: 8px;
+		padding-left: 8px;
+		padding-right: 7px;
+		padding-bottom: 7px;
+		-ms-border-radius: 4px;
+		border-radius: 4px;
+		border-width: 1px;
+		border-style: solid;
+		-webkit-box-shadow: 0 0 4px 0 #565656;
+		-ms-box-shadow: 0 0 4px 0 #565656;
+		box-shadow: 0 0 4px 0 #565656;
+		border-collapse: separate;
 	}
 
 	.block {
@@ -783,7 +812,7 @@
 		width = vis.getWidth();
 		height = vis.getHeight();
 
-		vs.find("#VIS_ID").width(width).height(height);
+		vs.find("#VIS_ID").width(width);
 
 		jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
 
@@ -1285,18 +1314,19 @@
 					vs.find('div.highcharts-data-labels span').each(function () {
 						elements.push(this);
 					});
-				} else {
+				}
+				else if (isFunnel) {
+					util.disperseFunnelLabels(s.chart.renderer.box);
+				}
+				else {
 					for (var f in s.chart.xAxis[0].ticks) {
 						if (s.chart.xAxis[0].ticks[f].label)
 							elements.push(s.chart.xAxis[0].ticks[f].label.element);
 					}
 				}
+
 				if (typeof s.chartOptions.usedData[0].subreportlink == "string" || typeof s.chartOptions.usedData[0].link == "string")
-					jq$(elements)
-						.css({
-							"cursor": "pointer",
-							"text-decoration": "underline"
-						});
+					jq$(elements).css({ "cursor": "pointer", "text-decoration": "underline" });
 			}
 
 			function registerLabels() {
@@ -1325,7 +1355,7 @@
 					});
 			}
 
-			var elements, isPie = type == "pie";
+			var elements, isPie = type == "pie", isFunnel = type == "funnel";
 			claimLabels();
 			registerLabels();
 		}
@@ -1727,9 +1757,9 @@
 									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
 								}
 							}
-							return html.join("<br />\n");
+							return "<span style=\"border-color: " + this.point.color + ";\" class=\"tooltip-wrapper\">" + html.join("<br/>") + "</span>";
 						},
-						backgroundColor: "rgba(255, 255, 255, 1)"
+						backgroundColor: null,
 					},
 					credits: { enabled: false }
 				};
@@ -1797,6 +1827,7 @@
 				highchart.destroy();
 			}
 			jq$("#VIS_ID").empty();
+			s.init = true;
 		});
 	}
 
