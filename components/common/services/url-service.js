@@ -82,12 +82,15 @@
 		* Set report name and category to location
 		*/
 		var setLocation = function (reportNameObject) {
-			var path = '';
+			// if is new
 			if (reportNameObject.isNew) {
 				$location.path('');
 				$location.search('new');
 				return;
 			}
+
+			// set path
+			var path = '';
 			var category = reportNameObject['category'];
 			if (angular.isString(category) && category !== UNCATEGORIZED) {
 				var reportCategoryFixed = reportNameObject['category'].split('\\').join('/');
@@ -97,8 +100,7 @@
 				path = reportCategoryFixed;
 			}
 			path += '/' + reportNameObject['name'];
-
-			$location.search('new', null);
+			$location.search('new', null); // remove "new" url parameter
 			$location.path(path);
 		};
 
@@ -110,10 +112,13 @@
 				fullName: null,
 				category: null,
 				name: null,
-				isNew: false
+				isNew: false,
+				isDefault: false
 			};
+			// path
 			var path = $location.path();
 			if (path !== '' && path !== '/') {
+				// url contains report name:
 				if (path.indexOf('/') === 0) {
 					path = path.slice(1, path.length);
 				}
@@ -121,16 +126,17 @@
 				result['fullName'] = path;
 				result['category'] = extractCategory(path);
 				result['name'] = extractName(path);
-			} else {
-				var newParameter = $location.search()['new'];
-				if (angular.isDefined(newParameter)) {
-					result['isNew'] = true;
-				} else {
-					setLocation({
-						isNew: true
-					});
-				}
+				return result;
 			}
+			// isNew
+			var newParameter = $location.search()['new'];
+			if (angular.isDefined(newParameter)) {
+				// url contains 'new' parameter
+				result['isNew'] = true;
+				return result;
+			}
+			// isDefault
+			result['isDefault'] = true;
 			return result;
 		};
 
@@ -142,8 +148,9 @@
 				fullName: fullName,
 				name: extractName(fullName),
 				category: extractCategory(fullName),
-				isNew: false
-			});
+				isNew: false,
+				isDefault: false
+		});
 		};
 
 		var setIsNew = function () {
@@ -151,7 +158,8 @@
 				fullName: null,
 				name: null,
 				category: null,
-				isNew: true
+				isNew: true,
+				isDefault: false
 			});
 		};
 
@@ -187,9 +195,11 @@
 			extractReportCategory: extractCategory,
 			extractReportPartNames: extractReportPart,
 			setReportFullName: setReportFullName,
+			setLocation: setLocation,
 			setIsNew: setIsNew,
 			getReportInfo: function () {
 				return reportNameInfo;
 			}
 		};
 	}]);
+

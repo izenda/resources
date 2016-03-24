@@ -16,7 +16,9 @@ angular.module('izendaDashboard', modules);
 
 // dashboard config object:
 angular.module('izendaDashboard').constant('izendaDashboardConfig', {
-	showDashboardToolbar: true
+	showDashboardToolbar: true,
+	defaultDashboardCategory: null,
+	defaultDashboardName: null
 });
 
 angular.module('izendaDashboard').config(['$logProvider', function ($logProvider) {

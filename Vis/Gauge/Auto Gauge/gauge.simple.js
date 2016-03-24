@@ -125,46 +125,44 @@
 			formatedBigValue = ns.format.formatBigNumber(self.data.items[0].value, self.data.items[0].format);
 
 		var svg = d3.select(self.parent).append("svg");
-		var enter = svg.append("g").attr("class", "component");
+		var enter = svg.append("g");
 
 		enter.append("g")
-			.attr("class", "title");
-		enter.select(".title").append("text")
-			.text(self.title)
-			.attr("x", self.titleX)
-			.attr("y", self.titleY)
-			.style("font-size", self.titleFontSize + "px");
+			.attr("class", "izenda-vis-gauge-title")
+			.append("text")
+				.text(self.title)
+				.attr("x", self.titleX)
+				.attr("y", self.titleY)
+				.style("font-size", self.titleFontSize + "px");
 
-		enter.append("g")
-			.attr("class", "value")
-			.attr("cursor", "pointer");
-		var value = enter.select(".value").append("text")
-			.text(formatedValue)
-			.attr("x", self.valueX)
-			.attr("y", self.valueY)
-			.attr("fill", self._calcColorByRegions(self.data.items[0].value, jq$.grep([self.data.low, self.data.high, self.data.target], function (n, i) { return (typeof n != 'undefined'); })))
-			.style("font-size", self.valueFontSize + "px");
+		var value = enter.append("g")
+			.attr("class", "izenda-vis-gauge-value")
+			.attr("cursor", "pointer")
+			.append("text")
+				.text(formatedValue)
+				.attr("x", self.valueX)
+				.attr("y", self.valueY)
+				.attr("fill", self._calcColorByRegions(self.data.items[0].value, jq$.grep([self.data.low, self.data.high, self.data.target], function (n, i) { return (typeof n != 'undefined'); })))
+				.style("font-size", self.valueFontSize + "px");
 
-		if (dynamic) {
-			if (formatedValue !== formatedBigValue) {
-				value.on("mouseover", function(d) {
-					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
-						value.text(formatedValue);
-						value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
-					});
-				}).on("mouseout", function(d) {
-					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
-						value.text(formatedBigValue);
-						value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
-					});
+		if (formatedValue !== formatedBigValue) {
+			value.on("mouseover", function(d) {
+				value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
+					value.text(formatedValue);
+					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
 				});
-			}
+			}).on("mouseout", function(d) {
+				value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
+					value.text(formatedBigValue);
+					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
+				});
+			});
 		}
 
 		if (typeof self.data.units != 'undefined') {
 			enter.append("g")
-				.attr("class", "units");
-			enter.selectAll(".units").append("text")
+				.attr("class", "izenda-vis-gauge-units");
+			enter.selectAll(".izenda-vis-gauge-units").append("text")
 				.text(self.data.units.value)
 				.attr("x", self.unitsX)
 				.attr("y", self.unitsY)

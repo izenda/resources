@@ -9,7 +9,8 @@
 		return {
 			restrict: 'A',
 			scope: {
-				collapsed: '='
+				collapsed: '=',
+				useDelay: '='
 			},
 			link: function ($scope, element) {
 				var $element = angular.element(element);
@@ -19,9 +20,14 @@
 				}
 				$element.collapse();
 				$scope.$watch('collapsed', function () {
-					$element.collapse($scope.collapsed ? 'hide' : 'show');
+					if ($scope.useDelay) {
+						$timeout(function () {
+							$element.collapse($scope.collapsed ? 'hide' : 'show');
+						}, 1000);
+					} else {
+						$element.collapse($scope.collapsed ? 'hide' : 'show');
+					}
 				});
-				
 			}
 		}
 	}

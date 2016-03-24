@@ -95,8 +95,7 @@
 			var margin = { top: top + 6, right: 0, bottom: 30, left: left + 16 },
 				widthWithMargins = width - margin.left - margin.right,
 				gridSize = Math.floor(widthWithMargins / hc),
-
-			height = (vis.items.length + 1) * gridSize + top + rotateBox.height;
+				height = (vis.items.length + 1) * gridSize + margin.top + rotateBox.height;
 
 			svg.attr("width", width).attr("height", height);
 

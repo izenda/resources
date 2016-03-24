@@ -63,28 +63,29 @@
 				var isToggleHueRotateEnabled = function () {
 					var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
 					var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
-					return isChrome || isSafari;
+					var isFirefox = /Firefox/.test(navigator.userAgent);
+					return isChrome || isSafari || isFirefox;
 				}
 
 				// Turn off background hue rotate
 				var resetRotate = function () {
 					clearTimeout($window.hueRotateTimeOut);
-					$background.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
 					$background.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
 					$background.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
 					$background.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
 					$background.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
+					$background.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
 				};
 
 				// Run hue rotate
 				var rotate = function () {
 					if (!isToggleHueRotateEnabled())
 						return;
-					$background.css({ 'filter': 'hue-rotate(' + degree + 'deg)' });
 					$background.css({ '-webkit-filter': 'hue-rotate(' + degree + 'deg)' });
 					$background.css({ '-moz-filter': 'hue-rotate(' + degree + 'deg)' });
 					$background.css({ '-o-filter': 'hue-rotate(' + degree + 'deg)' });
 					$background.css({ '-ms-filter': 'hue-rotate(' + degree + 'deg)' });
+					$background.css({ 'filter': 'hue-rotate(' + degree + 'deg)' });
 					$window.hueRotateTimeOut = setTimeout(function () {
 						var addPath;
 						var dx = ($window.mouseX - oldMouseX);

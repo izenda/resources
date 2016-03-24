@@ -886,7 +886,7 @@ function SaveReportAs() {
 }
 
 function CheckNameValidity(name) {
-	var invalidCharsRegex = new RegExp("[^A-Za-z0-9_\\\-'' ]+", 'g');
+	var invalidCharsRegex = /[^A-Za-z0-9_\\\-' ]+/g;
 	if (nrvConfig.AllowInvalidCharacters)
 		return name;
 	if (nrvConfig.StripInvalidCharacters)
@@ -1222,7 +1222,8 @@ function GotRenderedReportSet(returnObj, id) {
 	}
 	else {
 		jq$('#htmlFilters :input').prop('disabled', true);
-		GetFiltersData();
+		if (typeof(GetFiltersData) === 'function')
+			GetFiltersData();
 	}
 }
 
@@ -1260,8 +1261,9 @@ function FirstLoadInit() {
 	});
 
 	InitializeFields();
-	RefreshPivots();   
-	GetFiltersData();
+	RefreshPivots();
+	if (typeof(GetFiltersData) === 'function')
+		GetFiltersData();
 }
 
 function AppendReportNameTitle(forcedReportName){
@@ -1321,22 +1323,24 @@ function GotDatasourcesList(returnObj, id) {
 	dataSources = returnObj.DataSources;
 	fieldsList = returnObj.SelectedFields;
 	var dsUlList = document.getElementById('dsUlList');
-	jq$(dsUlList).empty();
-	var allOpt = new Option();
-	allOpt.value = "###all###";
-	allOpt.text = IzLocal.Res('js_All', 'All');
-	dsUlList.add(allOpt);
+	if (dsUlList) {
+		jq$(dsUlList).empty();
+		var allOpt = new Option();
+		allOpt.value = "###all###";
+		allOpt.text = IzLocal.Res('js_All', 'All');
+		dsUlList.add(allOpt);
 
-	for (var i = 0; i < returnObj.DataSources.length; i++) {
-		var opt = new Option();
-		opt.value = returnObj.DataSources[i].DbName;
-		opt.text = returnObj.DataSources[i].FriendlyName;
-		dsUlList.add(opt);
-	}
+		for (var i = 0; i < returnObj.DataSources.length; i++) {
+			var opt = new Option();
+			opt.value = returnObj.DataSources[i].DbName;
+			opt.text = returnObj.DataSources[i].FriendlyName;
+			dsUlList.add(opt);
+		}
 
-	if (dataSources.length == 1) {
-		var dsUlList = document.getElementById('dsUlList');
-		dsUlList.style.display = 'none';
+		if (dataSources.length == 1) {
+			var dsUlList = document.getElementById('dsUlList');
+			dsUlList.style.display = 'none';
+		}
 	}
 	currentDatasource = -1;
 	wereChecked.length = 0;

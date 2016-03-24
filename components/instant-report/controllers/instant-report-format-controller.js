@@ -42,14 +42,15 @@ function InstantReportFormatController(
 		}
 	};
 
-	vm.$izendaInstantReportSettings = $izendaInstantReportSettings;
-	vm.$izendaInstantReportStorage = $izendaInstantReportStorage;
+	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
+	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	vm.options = $izendaInstantReportStorage.getOptions();
 	vm.vgStyles = [];
 	vm.allActiveFields = [];
 	vm.drillDownFields = $izendaInstantReportStorage.getDrillDownFields();
 	vm.selectedDrilldownField = null;
 	vm.ddkValuesMaxAmount = 2;
+	vm.allowVirtualDataSources = false;
 
 	/**
 	 * Restore default color settings.
@@ -139,6 +140,7 @@ function InstantReportFormatController(
 			if (!angular.isObject(vm.settings))
 				return;
 			vm.ddkValuesMaxAmount = settings.ddkValuesMaxAmount;
+			vm.allowVirtualDataSources = settings.allowVirtualDataSources;
 		});
 	};
 }

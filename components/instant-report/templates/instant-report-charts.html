@@ -5,7 +5,7 @@
 
     <div class="ds-tree-item noselect" ng-repeat="category in chartsController.visualizationConfig.categories">
       <div class="ds-tree-item-header"
-           ng-click="category.opened = !category.opened">
+        ng-click="category.opened = !category.opened">
         <span class="glyphicon glyphicon-chevron-right with-label"
           ng-class="category.opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
         <span class="ds-tree-item-header-text bold" ng-bind="category.title"></span>
@@ -16,8 +16,11 @@
             ng-class="chartsController.selectedChart === chart ? 'active' : ''"
             ng-click="chartsController.selectChart(chart)">
             <div class="img-container">
-              <img class="img-responsive" ng-src="{{angular.isString(chart.gifUrl) && chart.gifUrl !== '' ? chart.gifUrl : chart.imgUrl}}"/>
+              <img class="img-responsive" ng-src="{{angular.isString(chart.gifUrl) && chart.gifUrl !== '' ? chart.gifUrl : chart.imgUrl}}" />
             </div>
+            <a class="help-link" title="Show visualization help article"
+              ng-click="chartsController.showChartHelp(chart)"
+              izenda-stop-propagation>?</a>
             <div ng-bind="chart.title"></div>
           </div>
         </div>

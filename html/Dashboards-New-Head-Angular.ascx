@@ -4,6 +4,7 @@
 <script type="text/javascript">
   window.izendaPageId$ = (new Date()).getTime().toString();
 </script>
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui"/>
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/perfect-scrollbar.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.css" />

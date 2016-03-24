@@ -79,7 +79,7 @@ var izenda = izenda || {};
 			.attr("stop-color", "#c1e5f5")
 			.attr("stop-opacity", 1);
 
-		var enter = svg.append("g").attr("class", "component");
+		var enter = svg.append("g");
 
 		var x = d3.time.scale()
 			.domain(d3.extent(self.data, function (d) { return d.date; }))
@@ -98,17 +98,17 @@ var izenda = izenda || {};
 			.y0(self.height - self.areaOffset * 2)
 			.y1(function (d) { return y(d.items[0].value); });
 
-		var background = enter.append("g").attr("class", "backgrounbd");
+		var background = enter.append("g").attr("class", "izenda-vis-gauge-backgrounbd");
 		background.append("path")
 			.datum(self.data)
-			.attr("class", "area")
+			.attr("class", "izenda-vis-gauge-area")
 			.attr("d", area)
 			.attr("transform", "translate(" + self.areaOffset + "," + self.areaOffset + ")")
 			.attr("fill", "url(#backgroundAreaGradient)")
 			.style("stroke-width", self.areaBorderWidth + "px");
 
 		var areaPoint = background.append("circle")
-			.attr("class", "area-point")
+			.attr("class", "izenda-vis-gauge-area-point")
 			.attr("r", self.areaPointRadius);
 		var bisectDate = d3.bisector(function (d) { return d.date; }).left, currentItem;
 		function setTransformOfAreaPoint(point) {
@@ -126,10 +126,10 @@ var izenda = izenda || {};
 		setTransformOfAreaPoint(lastRecord);
 
 		svg.on("mouseover", function () {
-				currentBlock.select(".current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 1);
+			currentBlock.select(".izenda-vis-gauge-current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 1);
 			})
 			.on("mouseout", function () {
-				currentBlock.select(".current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 0);
+				currentBlock.select(".izenda-vis-gauge-current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 0);
 			})
 			.on("mousemove", function () {
 				var x0 = x.invert(d3.mouse(this)[0]),
@@ -166,23 +166,23 @@ var izenda = izenda || {};
 				yT = self.height - self.areaPointRadius - self.areaOffset - self.areaPointOffset;
 			}
 
-			background.select(".area-bullseye").attr("transform", "translate(" + xT + "," + yT + ")");
-			background.select(".area-bullseye-inner").attr("transform", "translate(" + xT + "," + yT + ")");
+			background.select(".izenda-vis-gauge-area-bullseye").attr("transform", "translate(" + xT + "," + yT + ")");
+			background.select(".izenda-vis-gauge-area-bullseye-inner").attr("transform", "translate(" + xT + "," + yT + ")");
 		}
 		if (typeof lastRecord.target !== "undefined") {
 			background.append("circle")
-				.attr("class", "area-bullseye")
+				.attr("class", "izenda-vis-gauge-area-bullseye")
 				.attr("r", self.areaBullseyeRadius)
 				.style("stroke-width", self.areaBullseyeTickness + "px"),
 			background.append("circle")
-				.attr("class", "area-bullseye-inner")
+				.attr("class", "izenda-vis-gauge-area-bullseye-inner")
 				.attr("r", self.areaBullseyeInnerRadius);
 
 			setTransformOfAreaBullseye(lastRecord);
 		}
 
 		enter.append("g")
-			.attr("class", "title")
+			.attr("class", "izenda-vis-gauge-title")
 			.append("text")
 				.attr("x", self.titleX)
 				.attr("y", self.titleY)
@@ -191,7 +191,7 @@ var izenda = izenda || {};
 
 		var relativeBlock = enter.append("g");
 		var relativeBlockText = relativeBlock.append("text")
-			.attr("class", "relative-value")
+			.attr("class", "izenda-vis-gauge-relative-value")
 			.attr("transform", "translate(" + self.relativeX + "," + self.relativeY + ")")
 			.style({
 				"text-anchor": "end",
@@ -204,15 +204,15 @@ var izenda = izenda || {};
 			}));
 
 			relativeBlock.attr("class", function (d, i) {
-				return "relative-block" + ((value > 0) ? " up-direction" : ((value < 0) ? " dn-direction" : ""));
+				return "izenda-vis-gauge-relative-block" + ((value > 0) ? " izenda-vis-gauge-up-direction" : ((value < 0) ? " izenda-vis-gauge-dn-direction" : ""));
 			});
 
 			relativeBlockText.text(formatedBigValue);
 
-			enter.selectAll(".relative-arrow").remove();
+			enter.selectAll(".izenda-vis-gauge-relative-arrow").remove();
 			if (value > 0) {
 				relativeBlock.append("path")
-					.attr("class", "relative-arrow")
+					.attr("class", "izenda-vis-gauge-relative-arrow")
 					//arrow1: M 100 25L 100 100L 25 100L 0 75L 55 75L 0 20L 20 0L 75 55L 75 0L 100 25z
 					//arrow2: m45 45l-45 -45l30 0l45 45l-45 45l-30 0l45 -45z
 					//arrow3: m0 20l20 -20l40 40l40 -40l20 20l-60 60l-60 -60z
@@ -220,7 +220,7 @@ var izenda = izenda || {};
 					.attr("transform", " translate(" + (self.width * 0.94 - relativeBlockText.node().getBBox().width) + "," + (self.height * 0.163) + "), rotate(-180), scale(" + self.relativeArrowScale + ")");
 			} else if (value < 0) {
 				relativeBlock.append("path")
-					.attr("class", "relative-arrow")
+					.attr("class", "izenda-vis-gauge-relative-arrow")
 					.attr("d", "m0 20l20 -20l40 40l40 -40l20 20l-60 60l-60 -60z")
 					.attr("transform", " translate(" + (self.width * 0.94 - self.relativeArrowScale * 120 - relativeBlockText.node().getBBox().width) + "," + (self.height * 0.097) + "), scale(" + self.relativeArrowScale + ")");
 			}
@@ -228,9 +228,9 @@ var izenda = izenda || {};
 		setRelativeValue(relativeValue);
 
 		var currentBlock = enter.append("g")
-			.attr("class", "current-block");
+			.attr("class", "izenda-vis-gauge-current-block");
 		currentBlock.append("text")
-			.attr("class", "current-value")
+			.attr("class", "izenda-vis-gauge-current-value")
 			.attr("x", self.currentX)
 			.attr("y", self.currentY)
 			.style({
@@ -238,7 +238,7 @@ var izenda = izenda || {};
 				"font-size": self.currentFontSize + "px"
 			});
 		currentBlock.append("text")
-			.attr("class", "current-date")
+			.attr("class", "izenda-vis-gauge-current-date")
 			.attr("x", self.currentDateX)
 			.attr("y", self.currentDateY)
 			.style({
@@ -247,14 +247,14 @@ var izenda = izenda || {};
 				"font-size": self.currentDateFontSize + "px"
 			});
 		function setCurrentValue(item) {
-			var currentBlockText = currentBlock.select(".current-value"),
+			var currentBlockText = currentBlock.select(".izenda-vis-gauge-current-value"),
 				formatedBigValue = ns.format.formatBigNumber(item.items[0].value, {
 				precision: item.items[0].format.precision,
 				degreeCase: "LOWER"
 			});
 
 			currentBlockText.text(formatedBigValue);
-			currentBlock.select(".current-date").text("on " + item.date.toLocaleDateString());
+			currentBlock.select(".izenda-vis-gauge-current-date").text("on " + item.date.toLocaleDateString());
 			
 			if (currentBlock.node().getBBox().width > self.correctedCurrentBlockWidth) {
 				currentBlockText.style("font-size", (self.currentFontSize * self.correctedCurrentBlockWidth / currentBlock.node().getBBox().width) + "px");
@@ -263,7 +263,7 @@ var izenda = izenda || {};
 		setCurrentValue(lastRecord);
 		
 		enter.append("rect")
-			.attr("class", "insetBorder")
+			.attr("class", "izenda-vis-gauge-insetBorder")
 			.attr("x", 0)
 			.attr("y", 0)
 			.attr("width", self.width)

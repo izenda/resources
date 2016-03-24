@@ -251,8 +251,8 @@
 				.attr("class", "node")
 				.attr("transform", function(d2, i2) {
 					var d = vis.unitValue(d2, 0, { sf: vis.fields.geo }),
-						x = projection([d[1], d[2]])[0],
-						y = projection([d[1], d[2]])[1];
+						x = projection([d[0], d[1]])[0],
+						y = projection([d[0], d[1]])[1];
 					return "translate(" + x + "," + y + ")";
 				})
 				.on("mouseover", function(d) { util.showTooltip(d); })

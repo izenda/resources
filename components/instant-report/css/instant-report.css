@@ -1083,6 +1083,26 @@ a.collapse-link {
 		overflow: hidden;
 	}
 
+	.iz-inst-chart-item > a.help-link {
+		color: #fff;
+		text-decoration: none;
+		border: 1px solid #4274AF;
+		background-color: #4274AF;
+		position: absolute;
+		width: 1.5em;
+		height: 1.5em;
+		right: 0;
+		top: 0;
+		line-height: 1.5em;
+		font-size: 1em;
+		font-weight: bold;
+	}
+
+	.iz-inst-chart-item > a.help-link:hover,
+	.iz-inst-chart-item > a.help-link:focus {
+		color: #fff;
+	}
+
 	.iz-inst-chart-item.active {
 		background-color: #ee4823;
 		border-color: #ee4823;

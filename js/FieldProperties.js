@@ -1,4 +1,6 @@
-﻿function FP_ShowFilterProperties(filter, dialog) {
+﻿var FP_CurrentlyBeingEditedField;
+
+function FP_ShowFilterProperties(filter, dialog) {
 	document.getElementById('propDialogMode').value = 'filter';
 	jq$('.field-prop-row').hide();
 	jq$('.filter-prop-row').show();
@@ -48,6 +50,7 @@
 }
 
 function FP_ShowFieldProperties(field, dialog) {
+	FP_CurrentlyBeingEditedField = field;
 	document.getElementById('propDialogMode').value = 'field';
 	document.getElementById('propFieldDbName').value = field.DbName;
 	document.getElementById('propFieldFriendlyName').value = field.FriendlyName;
@@ -139,35 +142,35 @@ function FP_CollectFieldProperties() {
 			str = "Right";
 		return str;
 	}
-	field.AdditionalFields = [],
-	field.AggregateFunction = "None";
-	field.AliasTable = "";
-	field.Bold = false;
-	field.CalcDescription = "";
-	field.CellHighlight = "";
-	field.ColumnGroup = "";
+	field.AdditionalFields = FP_CurrentlyBeingEditedField.AdditionalFields;
+	field.AggregateFunction = FP_CurrentlyBeingEditedField.AggregateFunction;
+	field.AliasTable = FP_CurrentlyBeingEditedField.AliasTable;
+	field.Bold = FP_CurrentlyBeingEditedField.Bold;
+	field.CalcDescription = FP_CurrentlyBeingEditedField.CalcDescription;
+	field.CellHighlight = FP_CurrentlyBeingEditedField.CellHighlight;
+	field.ColumnGroup = FP_CurrentlyBeingEditedField.ColumnGroup;
 	field.ColumnName = document.getElementById('propFieldDbName').value;
-	field.ColumnSql = "";
+	field.ColumnSql = FP_CurrentlyBeingEditedField.ColumnSql;
 	field.DbName = document.getElementById('propFieldDbName').value;
-	field.Definition = "";
+	field.Definition = FP_CurrentlyBeingEditedField.Definition;
 	field.Description = document.getElementById('propDescription').value;
-	field.DrillDownStyle = "";
-	field.Expression = "";
-	field.ExpressionType = "...";
+	field.DrillDownStyle = FP_CurrentlyBeingEditedField.DrillDownStyle;
+	field.Expression = FP_CurrentlyBeingEditedField.Expression;
+	field.ExpressionType = FP_CurrentlyBeingEditedField.ExpressionType;
 	field.FormatString = document.getElementById('propFormats').value;
 	field.FriendlyName = document.getElementById('propFieldFriendlyName').value;
-	field.GUID = "";
-	field.GaugeColor = "";
-	field.GaugeMax = "";
-	field.GaugeMin = "";
-	field.GaugeStyle = "";
-	field.GaugeTargetEffect = "";
-	field.GaugeTargetReport = "";
-	field.GaugeValuesInCurrencyFormat = false;
-	field.Gradient = false;
-	field.GroupBy = false;
-	field.GroupByExpression = false;
-	field.Italic = false;
+	field.GUID = FP_CurrentlyBeingEditedField.GUID;
+	field.GaugeColor = FP_CurrentlyBeingEditedField.GaugeColor;
+	field.GaugeMax = FP_CurrentlyBeingEditedField.GaugeMax;
+	field.GaugeMin = FP_CurrentlyBeingEditedField.GaugeMin;
+	field.GaugeStyle = FP_CurrentlyBeingEditedField.GaugeStyle;
+	field.GaugeTargetEffect = FP_CurrentlyBeingEditedField.GaugeTargetEffect;
+	field.GaugeTargetReport = FP_CurrentlyBeingEditedField.GaugeTargetReport;
+	field.GaugeValuesInCurrencyFormat = FP_CurrentlyBeingEditedField.GaugeValuesInCurrencyFormat;
+	field.Gradient = FP_CurrentlyBeingEditedField.Gradient;
+	field.GroupBy = FP_CurrentlyBeingEditedField.GroupBy;
+	field.GroupByExpression = FP_CurrentlyBeingEditedField.GroupByExpression;
+	field.Italic = FP_CurrentlyBeingEditedField.Italic;
 
 	var labelJ = document.getElementById('labelJ');
 	var msvs = labelJ.getAttribute('msvs').split(',');
@@ -183,17 +186,17 @@ function FP_CollectFieldProperties() {
 
 	field.VG = document.getElementById('propVG').checked;
 	field.MultilineHeader = document.getElementById('propMultilineHeader').checked;
-	field.Operator = "";
-	field.OrderType = "";
-	field.PageBreak = false;
-	field.Separator = false;
-	field.ShouldBeFormatted = true;
-	field.SubtotalExpression = "";
-	field.SubtotalFunction = "";
-	field.SubtotalTitle = "";
-	field.TargetReport = "";
-	field.TextHighlight = "";
-	field.Url = "";
+	field.Operator = FP_CurrentlyBeingEditedField.Operator;
+	field.OrderType = FP_CurrentlyBeingEditedField.OrderType;
+	field.PageBreak = FP_CurrentlyBeingEditedField.PageBreak;
+	field.Separator = FP_CurrentlyBeingEditedField.Separator;
+	field.ShouldBeFormatted = FP_CurrentlyBeingEditedField.ShouldBeFormatted;
+	field.SubtotalExpression = FP_CurrentlyBeingEditedField.SubtotalExpression;
+	field.SubtotalFunction = FP_CurrentlyBeingEditedField.SubtotalFunction;
+	field.SubtotalTitle = FP_CurrentlyBeingEditedField.SubtotalTitle;
+	field.TargetReport = FP_CurrentlyBeingEditedField.TargetReport;
+	field.TextHighlight = FP_CurrentlyBeingEditedField.TextHighlight;
+	field.Url = FP_CurrentlyBeingEditedField.Url;
 
 	var valueJ = document.getElementById('valueJ');
 	var msvs = valueJ.getAttribute('msvs').split(',');
@@ -207,11 +210,11 @@ function FP_CollectFieldProperties() {
 	}
 	field.ValueJustification = curValue;
 
-	field.ValueRanges = "";
-	field.ValueString = "";
-	field.Visible = true;
+	field.ValueRanges = FP_CurrentlyBeingEditedField.ValueRanges;
+	field.ValueString = FP_CurrentlyBeingEditedField.ValueString;
+	field.Visible = FP_CurrentlyBeingEditedField.Visible;
 	field.Width = document.getElementById('propWidth').value;
-	field.WidthSettedManually = false;
+	field.WidthSettedManually = FP_CurrentlyBeingEditedField.WidthSettedManually;
 
 	var propTotal = document.getElementById('propTotal');
 	if (propTotal.checked)

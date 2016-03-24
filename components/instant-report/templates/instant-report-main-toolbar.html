@@ -44,7 +44,7 @@
         </ul>
       </li>
       <!-- save -->
-      <li class="dropdown" ng-if="irController.showSaveControls"
+      <li class="dropdown" ng-if="irController.settings.showSaveControls"
         ng-class="irController.isValid ? '' : 'disabled'">
         <a title="Save report" class="dropdown-toggle"
           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
@@ -76,7 +76,7 @@
         </a>
       </li>
       <!-- print -->
-      <li ng-if="irController.allowedPrintEngine !== 'None'"
+      <li ng-if="irController.settings.allowedPrintEngine !== 'None'"
         ng-class="irController.isValid ? '' : 'disabled'">
         <a title="Print report" class="dropdown-toggle"
           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
@@ -87,15 +87,15 @@
         <ul class="dropdown-menu">
           <li ng-if="!$izendaCompatibility.isSmallResolution()">
             <a ng-click="irController.printReport('html')"
-              ng-show="irController.allowedPrintEngine === 'Html' || irController.allowedPrintEngine === 'Html2PdfAndHtml'">
+               ng-show="irController.settings.allowedPrintEngine === 'Html' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml'">
               <img class="icon-16" src="rs.aspx?image=ModernImages.print-32.png" alt="">
               &nbsp;<b>Print HTML</b>
-              <br />
+              <br/>
               <span class="menu-item-description">Print directly from your browser, the fastest way for modern browsers</span>
             </a>
           </li>
           <li><a ng-click="irController.printReport('pdf')"
-            ng-show="irController.allowedPrintEngine === 'Html2Pdf' || irController.allowedPrintEngine === 'Html2PdfAndHtml'">
+            ng-show="irController.settings.allowedPrintEngine === 'Html2Pdf' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml'">
             <img class="icon-16" src="rs.aspx?image=ModernImages.pdf-32.png" alt="">
             &nbsp;<b>HTML-powered PDF</b>
             <br />

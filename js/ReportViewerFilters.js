@@ -9,6 +9,7 @@ var calendars;
 var filtersDataObtained = false;
 var makeFiltersFloat;
 var refreshFiltersLastGUID = '';
+var useGetRenderedReportSetForFilters = true;
 
 function ToggleFilters() {
 	var filtersBodyDiv$ = jq$('#filtersBodyDiv');
@@ -430,7 +431,7 @@ function RefreshFilters(returnObj) {
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq("destroy");
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq({
 				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
-				showOn: "button",
+				showOn: "both",
 				buttonImageOnly: true,
 				altRedirectFocus: false,
 				showSecond: true,
@@ -455,7 +456,7 @@ function RefreshFilters(returnObj) {
 			jq$(document.getElementById(calendars[cc])).datepicker({
 				dateFormat: dateFormatString,
 				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
-				showOn: "button",
+				showOn: "both",
 				buttonImageOnly: true
 			});
 		}
@@ -464,11 +465,10 @@ function RefreshFilters(returnObj) {
 	htmlFilters.find(".comboboxTreeMultyselect").each(function () {
 		var treeControl = jq$(this);
 		var index = treeControl.attr("index");
-		var possibleValues = returnObj.Filters[index].ExistingValues[0];
+		var possibleLabels = returnObj.Filters[index].ExistingLabels;
+		var possibleValues = returnObj.Filters[index].ExistingValues;
 		CC_InitializeComboTreeView(treeControl);
-		if (possibleValues != null && possibleValues != "")
-			possibleValues = possibleValues.substr(2, possibleValues.length - 4);
-		CC_TreeUpdateValues(treeControl.parent(), possibleValues.split('", "'));
+		CC_TreeUpdateValues(treeControl.parent(), possibleLabels, possibleValues);
 	});
 
 	if (typeof (switchTabAfterRefreshCycle) === 'boolean' && switchTabAfterRefreshCycle) {
@@ -628,7 +628,8 @@ function FiltersDataSet(returnObj, id) {
 	if (returnObj.Value != 'OK')
 		return;
 	GetFiltersData();
-	GetRenderedReportSet(true);
+	if (useGetRenderedReportSetForFilters)
+		GetRenderedReportSet(true);
 	if (typeof GetDatasourcesList != 'undefined')
 		GetDatasourcesList();
 }
@@ -958,26 +959,39 @@ CC_InitializeComboTreeView = function (mainControl) {
 	});
 };
 
-var CC_appendItem = function (node, itemText, prevText, tree, selectedValues, row) {
-	var itemParts = itemText.split('"-"');
-	itemText = itemParts[0];
-	var itemValue = itemParts.length > 1 ? itemParts[1].substring(0, itemParts[1].length) : itemText;
-	var index = itemText.indexOf("|");
+var CC_appendItem = function (node, itemText, itemValue, prevText, prevValue, tree, selectedValues, row) {
+	var iti = itemText.indexOf("|");
 	var text = itemText;
-	var subNode = "";
-	if (index > -1) {
-		text = itemText.substr(0, index);
-		subNode = itemText.substr(index + 1);
+	if (iti > -1) {
+		text = itemText.substr(0, iti);
 	}
 
-	var value = text;
-	if (prevText != "")
-		value = prevText + "|" + value;
+	var ivi = itemValue.indexOf("|");
+	var value = itemValue;
+	if (ivi > -1) {
+		var pos = 0;
+		var commaSequence = -1;
+		while ((commaSequence = value.indexOf("#||#", pos)) > -1 && commaSequence == ivi - 1) {
+			pos = commaSequence + 4;
+			ivi = value.indexOf("|", pos);
+		}
+		if(ivi > -1)
+			value = value.substr(0, ivi);
+	}
+	if (prevValue != "")
+		value = prevValue + "|" + value;
+
+	var displayText = text;
+	if (prevText != "") {
+		displayText = prevText + "|" + text;
+	}
+
+	var subNodeExist = iti > -1 && ivi > -1;
 
 	var newNode = node.find("> .node[value='" + value.replace(/'/g, "''") + "']");
 	if (newNode.length == 0) {
-		newNode = jq$(document.createElement("div")).addClass("node").attr("value", value).attr("text", text).attr("text-value", itemValue);
-		if (subNode != "")
+		newNode = jq$(document.createElement("div")).addClass("node").attr("value", value).attr("text", text).attr("text-value", displayText);
+		if (subNodeExist)
 			newNode.addClass("haschild");
 		newNode.html('<div class="collapse" ></div><input type="checkbox" class="checkbox"/><span class="text">' + text + "</span>");
 		node.append(newNode);
@@ -1006,11 +1020,9 @@ var CC_appendItem = function (node, itemText, prevText, tree, selectedValues, ro
 		});
 
 	}
-
-	if (subNode != "") {
-		CC_appendItem(newNode, subNode + "\"-\"" + itemValue, value, tree, selectedValues, row);
+	if (subNodeExist) {
+		CC_appendItem(newNode, itemText.substr(iti + 1), itemValue.substr(ivi + 1), displayText, value, tree, selectedValues, row);
 	}
-
 };
 
 CC_CheckUnchekChild = function (element, check) {
@@ -1048,34 +1060,33 @@ CC_ClickShowHide = function (tree) {
 
 CC_FillCombobox = function (selectedValues, node, row) {
 	if (node.find("> .checkbox").is(':checked')) {
-
 		var hasChild = node.hasClass("haschild");
 
 		var text = node.attr("text");
 		var val = node.attr("value");
+		var textValue = node.attr("text-value");
 
 		if (text == null || text == "" || val == "" || val == null)
 			return;
 
-
 		var cValid = jq$(document.createElement("a"));
 
-		var displayTesxt = val.replace(/\|/g, "\\");
-		if (displayTesxt.length > 50) {
+		var displayText = textValue.replace(/\|/g, "\\");
+		if (displayText.length > 50) {
 			var newText = "...\\" + text;
 			var len = newText.length;
 			var i = 0;
 			var s = "";
 			while (len < 40) {
-				s += displayTesxt[i];
+				s += displayText[i];
 				i++;
 				len++;
 			}
-			displayTesxt = s + newText;
+			displayText = s + newText;
 		}
 
 		if (hasChild)
-			displayTesxt += "\\";
+			displayText += "\\";
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
@@ -1083,7 +1094,7 @@ CC_FillCombobox = function (selectedValues, node, row) {
 		// From ReportViewer.js
 		if (typeof nrvConfig != 'undefined')
 			responseServerUrl = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter;
-		cValid.html('<nobr>' + displayTesxt + '<img src="' + responseServerUrl + 'image=icon-blue-x.gif" class="chunkX"></nobr>');
+		cValid.html('<nobr>' + displayText + '<img src="' + responseServerUrl + 'image=icon-blue-x.gif" class="chunkX"></nobr>');
 		selectedValues.append(cValid);
 		cValid.find(".chunkX").click(function () {
 			cValid.remove();
@@ -1109,7 +1120,7 @@ CC_FillCombobox = function (selectedValues, node, row) {
 	}
 };
 
-CC_TreeUpdateValues = function (row, values) {
+CC_TreeUpdateValues = function (row, labels, values) {
 
 	var selectedValues = jq$(row).find("div[visibilitymode=1] input").attr("value");
 
@@ -1117,13 +1128,15 @@ CC_TreeUpdateValues = function (row, values) {
 	var selectedValuesControl = jq$(row).find(".comboboxTreeMultyselect .selectedValues");
 	tree.empty();
 	for (var i = 0; i < values.length; i++) {
-		CC_appendItem(tree, values[i], "", tree, selectedValuesControl, row);
+		CC_appendItem(tree, labels[i], values[i], "", "", tree, selectedValuesControl, row);
 	}
 
 	var valueList = selectedValues.split(", ");
 	for (var i = 0; i < valueList.length; i++)
-		tree.find('.node[value="' + valueList[i] + '"]').each(function () {
-			CC_CheckUnchekChild(jq$(this), true);
+		tree.find('.node[value]').each(function () {
+			var node = jq$(this);
+			if (node.attr("value") == valueList[i])
+				CC_CheckUnchekChild(jq$(this), true);
 		});
 	CC_CheckStatusWasChanged(selectedValuesControl, tree.find("> .node"), tree, row);
 };

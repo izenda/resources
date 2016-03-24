@@ -33,7 +33,6 @@ function InstantReportFieldOptionsController(
 	var primaryButtonClass = "btn-izenda-dark",
 			activeButtonClass = "btn-izenda-dark active";
 
-
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	vm.field = null;
 	vm.currentSortFunction = 'asc';
@@ -43,7 +42,6 @@ function InstantReportFieldOptionsController(
 	vm.subreports = $izendaInstantReportStorage.getSubreports();
 	vm.expanded = false;
 	vm.ddkValuesMaxAmount = -1;
-
 	/**
 	 * Get class 
 	 */

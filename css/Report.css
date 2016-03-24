@@ -17,7 +17,7 @@ table.ReportTable td
 	border-style:solid;
 	white-space: initial;
 }
-table.ReportTable td.EmptyCell
+table.ReportTable td.EmptyCell, table.ReportTable th.EmptyCell
 {
 	border-style:none !important;
 	background:none !important;
@@ -153,7 +153,6 @@ tr.ReportHeader td,
 tr.ReportHeader th
 {
 	font-size: 9pt;
-	font-weight:normal; 
 	border-width:1px;
 	border-style:solid;
 	border-bottom: solid 1px #AFAFAF!important;
@@ -325,6 +324,13 @@ span.ReportTitle
 	font-weight: normal;
 	white-space: pre-wrap;
 	background-color: #F0F0F0;
+}
+span.DashboardPrintTitle
+{
+	font-size: 18pt;
+	font-weight: bold;
+	white-space: pre-wrap;
+	color: #1c4e89;
 }
 /*span.Header
 {

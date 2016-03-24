@@ -140,8 +140,8 @@ angular.module('izenda.common.ui').factory('$izendaScheduleService', ['$injector
 				scheduleConfigFixed.dateString = null;
 				scheduleConfigFixed.timeString = null;
 			} else {
-				scheduleConfigFixed.dateString = moment(d).format($izendaSettings.getDateFormat().date);
-				scheduleConfigFixed.timeString = moment(d).format($izendaSettings.getDateFormat().time);
+				scheduleConfigFixed.dateString = moment(d).format('YYYY-MM-DD');
+				scheduleConfigFixed.timeString = moment(d).format('hh:mm:ss');
 			}
 			delete scheduleConfigFixed.date;
 			return scheduleConfigFixed;

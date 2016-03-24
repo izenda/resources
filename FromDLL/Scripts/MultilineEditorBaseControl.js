@@ -202,7 +202,7 @@ function EBC_FixCAControlsC(parentControl) {
 			if (ebc_jqShowTimeInPicker) {
 				jq$(child).datetimepickerJq({
 					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
-					showOn: "button",
+					showOn: "both",
 					buttonImageOnly: true,
 					altRedirectFocus: false,
 					showSecond: true,
@@ -223,7 +223,7 @@ function EBC_FixCAControlsC(parentControl) {
 				jq$(child).datepicker({
 					dateFormat: ebc_jqDateFormat,
 					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
-					showOn: "button",
+					showOn: "both",
 					buttonImageOnly: true
 				});
 			}
@@ -514,7 +514,7 @@ function EBC_SetFormat(row, onlySimple, columnName, functionName, formatName) {
 	}
 	EBC_LoadData(
 		"FormatList",
-		"type=" + dataTypeGroup +
+		"typeGroup=" + dataTypeGroup +
 			(onlySimple ? "&" + "onlySimple=true" : ""),
 		formatSelect,
 		true,
@@ -646,7 +646,7 @@ function EBC_SetDescription(row, force) {
 	if (descriptionEdit == null)
 		return;
 
-	if (descriptionEdit.UserModified && descriptionEdit.value != '' && !force)
+	if ((descriptionEdit.UserModified && descriptionEdit.value != '' && !force) || descriptionEdit.disabled)
 		return;
 
 	descriptionEdit.ChangedAutomatically = true;

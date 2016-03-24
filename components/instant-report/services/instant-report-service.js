@@ -302,7 +302,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		return $izendaRsQuery.rsQuery({
 			'cmd': 'GetOptionsByPath',
 			'p': 'FormatList',
-			'type': typeGroup,
+			'typeGroup': typeGroup,
 			'resultType': 'json'
 		}, {
 			dataType: 'json',
@@ -314,6 +314,28 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			params: [field]
 		});
 	}
+
+	function getFilterFormats(filter) {
+		if (!angular.isObject(filter) || !angular.isObject(filter.field))
+			throw 'filter and filter.field should be objects.';
+		var typeGroup = getCurrentTypeGroup(filter.field);
+		return $izendaRsQuery.rsQuery({
+			'cmd': 'GetOptionsByPath',
+			'p': 'FormatList',
+			'typeGroup': typeGroup,
+			'onlySimple': 'true',
+			'forceSimple': 'true',
+			'resultType': 'json'
+		}, {
+			dataType: 'json',
+			cache: true
+		}, {
+			handler: function (filterParam) {
+				return 'Failed to get format list info for filter ' + filterParam.field.sysname;
+			},
+			params: [filter]
+		});
+	};
 
 	function getFieldOperatorList(field, dataTypeGroup) {
 		if (!angular.isObject(field))
@@ -373,10 +395,10 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 					constraintParamPart['fvl' + counter] = constraintFilter.values[0];
 					constraintParamPart['fvr' + counter] = constraintFilter.values[1];
 				} else if (constraintOperatorType === 'twoDates') {
-					constraintParamPart['fvl' + counter] = moment(constraintFilter.values[0]).format($izendaSettings.getDateFormat().date);
-					constraintParamPart['fvr' + counter] = moment(constraintFilter.values[1]).format($izendaSettings.getDateFormat().date);
+					constraintParamPart['fvl' + counter] = moment(constraintFilter.values[0]).format($izendaSettings.getDateFormat().shortDate);
+					constraintParamPart['fvr' + counter] = moment(constraintFilter.values[1]).format($izendaSettings.getDateFormat().shortDate);
 				} else if (constraintOperatorType === 'oneDate') {
-					constraintParamPart['fvl' + counter] = moment(constraintFilter.values[0]).format($izendaSettings.getDateFormat().date);
+					constraintParamPart['fvl' + counter] = moment(constraintFilter.values[0]).format($izendaSettings.getDateFormat().shortDate);
 				} else if (constraintOperatorType === 'field') {
 					var val = angular.isObject(constraintFilter.values[0])
 						? constraintFilter.values[0].sysname
@@ -440,6 +462,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		getContraintsInfo: getContraintsInfo,
 		getFieldFunctions: getFieldFunctions,
 		getFieldFormats: getFieldFormats,
+		getFilterFormats: getFilterFormats,
 		getVgStyles: getVgStyles,
 		getExpressionTypes: getExpressionTypes,
 		getDrillDownStyles: getDrillDownStyles,

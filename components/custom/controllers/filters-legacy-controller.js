@@ -2,6 +2,7 @@
 .module('izendaFilters')
 .controller('IzendaFiltersLegacyController', [
 '$scope',
+'$window',
 '$rootScope',
 '$log',
 '$izendaUrl',
@@ -12,7 +13,7 @@ IzendaFiltersLegacyController]);
  * Controller for old non angular filters
  */
 // ReSharper disable once InconsistentNaming
-function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $izendaEvent) {
+function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izendaUrl, $izendaEvent) {
 	var _ = angular.element;
 	$scope.izendaUrl = $izendaUrl;
 	var vm = this;
@@ -82,6 +83,9 @@ function IzendaFiltersLegacyController($scope, $rootScope, $log, $izendaUrl, $iz
    * Initialize filters controllers
    */
 	vm.initialize = function () {
+
+		$window.useGetRenderedReportSetForFilters = false;
+
 		// open filters event handler
 		$scope.$on('izendaFiltersOpen', function () {
 			vm.openFiltersPanel();

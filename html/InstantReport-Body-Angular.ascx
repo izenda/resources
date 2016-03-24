@@ -50,6 +50,7 @@
       <div class="iz-inst-sidepanel-button charts"
         ng-class="irController.getLeftPanelClass(1)"
         ng-click="irController.setLeftPanelActiveItem(1)"
+        ng-show="irController.settings.showChartTab"
         title="Charts">
         <span class="iz-inst-sidepanel-button-text">charts</span>
       </div>
@@ -62,14 +63,14 @@
       <div class="iz-inst-sidepanel-button schedule"
         ng-class="irController.getLeftPanelClass(3)"
         ng-click="irController.setLeftPanelActiveItem(3)"
-        ng-show="irController.showScheduleControls"
+        ng-show="irController.settings.showScheduleControls"
         title="Schedule">
         <span class="iz-inst-sidepanel-button-text">schedule</span>
       </div>
       <div class="iz-inst-sidepanel-button access"
         ng-class="irController.getLeftPanelClass(4)"
         ng-click="irController.setLeftPanelActiveItem(4)"
-        ng-show="irController.showSharingControl"
+        ng-show="irController.settings.showSharingControl"
         title="Sharing">
         <span class="iz-inst-sidepanel-button-text">sharing</span>
       </div>
@@ -133,6 +134,7 @@
             <izenda-report-viewer class="iz-inst-preview-container"
               html-text="irController.previewHtml"
               allow-col-reorder="false"
+              allow-col-remove="false"
               empty-text="''">
             </izenda-report-viewer>
           </div>
@@ -195,13 +197,13 @@
       izenda-fit-absolute-element>
       <!-- filters controller -->
       <div ng-include="'Resources/components/instant-report/templates/instant-report-filters.html'"></div>
-      
+
       <!-- pivots controller -->
       <div ng-include="'Resources/components/instant-report/templates/instant-report-pivots.html'"></div>
 
       <!-- validation controller -->
       <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
-
+      
       <div class="iz-inst-preview-root-container"
         droppable-accept=".datasource-field"
         on-drop="irController.addFieldToReport(arg0)"
@@ -210,10 +212,14 @@
           html-text="irController.previewHtml"
           empty-text="''"
           allow-col-reorder="true"
+          allowed-columns-for-reorder="irController.getAllowedColumnsForReorder()"
+          allow-col-remove="true"
           droppable-accept=".datasource-field"
           current-insert-column-order="irController.currentInsertColumnOrder"
           on-reorder="irController.columnReordered(arg0, arg1)"
-          on-header-click="irController.selectedColumn(arg0)">
+          on-header-click="irController.selectedColumn(arg0)"
+          on-remove="irController.removeColumn(arg0)"
+          on-paging-click="irController.onPagingClick(arg0, arg1)">
         </izenda-report-viewer>
       </div>
     </div>
@@ -221,7 +227,7 @@
     <!-- field options for full view-->
     <div ng-include="'Resources/components/instant-report/templates/instant-report-field-options.html'"></div>
   </div>
-  
+
   <!-- refresh preview button for mobile view -->
   <div ng-if="$izendaCompatibility.isSmallResolution()"
     class="btn iz-inst-matherial-refresh btn-izenda-dark"
@@ -230,11 +236,12 @@
     <span class="glyphicon"
       ng-class="irController.leftPanel.previousPanelId === irController.leftPanel.activeItem ? 'glyphicon-refresh' : 'glyphicon-share-alt horizontal-mirror'"></span>
   </div>
-  
+
   <!-- splashscreen -->
-  <div ng-show="irController.reportLoadingIndicatorIsVisible" 
+  <div ng-show="irController.reportLoadingIndicatorIsVisible"
     text="$izendaInstantReportStorage.getPreviewSplashText()"
     loading-indicator-url="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
     parent-selector=".iz-inst-mainpanel-body"
-    izenda-splash-screen></div>
+    izenda-splash-screen>
+  </div>
 </div>

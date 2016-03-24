@@ -288,6 +288,7 @@ function Modal_ShowPopupDiv(url) {
 	var content = responseServer.RequestData(url, null, false);
 
 	if (content != "") {
+		content = "<div id='_ReportsDiv'>{report}</div>".format({ report: content });
 		ShowDialog("<div onmouseover = 'Modal_OnMouseOver(this, true)' onmouseout = 'Modal_OnMouseOver(this, false)' style ='border:lightgrey 0px solid; width:auto; height:auto'><div id=\"popupDiv\"></div></div>", 0, 0, null, null, null, true);
 		ReportScripting.loadReportResponse(content, "#popupDiv");
 		modal_resized();

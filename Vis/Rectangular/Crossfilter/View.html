@@ -104,6 +104,8 @@
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
 			return;
 
+		VIS_CONTEXT.UTC2Local = true;
+
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
 		width = vis.getWidth();

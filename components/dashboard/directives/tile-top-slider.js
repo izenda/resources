@@ -57,10 +57,6 @@
 					hide_min_max: true,
 					from: convertValueToFrom($scope.ngModel),
 					values: valuesArray,
-					onChange: function (data) {
-						var value = convertFromToValue(data.from);
-						setModelValue(value);
-					},
 					onFinish: function (data) {
 						var value = convertFromToValue(data.from);
 						setEndValue(value);

@@ -9,7 +9,7 @@
 				ngDisabled: '=',
 				dateFormat: '=',
 				locale: '=',
-				datepart: '@',
+				datepart: '=',
 				showAdditionalButtons: '@',
 				htmlContainerSelector: '@',
 				onChange: '&'
@@ -33,7 +33,7 @@
 				 * Set date value
 				 */
 				function setDate(newDate) {
-					if (angular.isUndefined(newDate) || newDate === null)
+					if (angular.isUndefined(newDate) || newDate === null || newDate === '')
 						getPicker().date(null);
 					else if (angular.isDate(newDate))
 						getPicker().date(getUpdatedDateValue($scope.ngModel, newDate, $scope.datepart));
@@ -45,16 +45,20 @@
 
 				function getUpdatedDateValue(baseDate, newDate, datepart) {
 					var currDate = baseDate;
-					if (datepart == 'date') {
+					if (!currDate) {
+						currDate = newDate;
+						return currDate;
+					}
+					if (datepart.indexOf('date') >= 0) {
 						currDate.setFullYear(newDate.getFullYear());
 						currDate.setMonth(newDate.getMonth());
 						currDate.setDate(newDate.getDate());
-					} else if (datepart == 'time') {
+					}
+					if (datepart.indexOf('time') >= 0) {
 						currDate.setHours(newDate.getHours());
 						currDate.setMinutes(newDate.getMinutes());
 						currDate.setSeconds(newDate.getSeconds());
-					} else
-						currDate = newDate;
+					}
 					return currDate;
 				}
 

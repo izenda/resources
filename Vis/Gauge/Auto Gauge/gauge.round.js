@@ -90,15 +90,15 @@ var izenda = izenda || {};
 
 		var svg = d3.select(self.parent).append("svg");
 
-		var enter = svg.append("g").attr("class", "component");
+		var enter = svg.append("g");
 
-		var background = enter.append("g").attr("class", "background");
+		var background = enter.append("g").attr("class", "izenda-vis-gauge-background");
 		background.append("path")
 			.attr("transform", "translate(" + self.backgroundArcX + "," + self.backgroundArcY + ")")
 			.attr("d", self.backgroundArc);
 		background.append("text")
 			.attr("width", self.titleWidth)
-			.attr("class", "title")
+			.attr("class", "izenda-vis-gauge-title")
 			.attr("x", self.titleX)
 			.attr("y", self.titleY)
 			.text(self.title)
@@ -126,12 +126,12 @@ var izenda = izenda || {};
 				}
 			});
 		}
-		background.select("text.title").call(wrap, self.width);
+		background.select("text.izenda-vis-gauge-title").call(wrap, self.width);
 
 		svg.attr("width", self.width)
 			.attr("height", background.node().getBBox().height);
 
-		enter.append("g").attr("class", "arcs");
+		enter.append("g").attr("class", "izenda-vis-gauge-arcs");
 
 		var ratio = (self.data.items[0].value - self.minValue) / (self.maxValue - self.minValue),
 			wDegree = self.degree == 360 ? 0 : self.degree / 2;
@@ -139,8 +139,8 @@ var izenda = izenda || {};
 			.startAngle(self.startAngle)
 			.endAngle(dynamic ? self.startAngle : ((Math.min(self.degree * ratio, self.degree) - wDegree) * Math.PI / 180));
 
-		var path = enter.select(".arcs").append("path")
-			.attr("class", "arc")
+		var path = enter.select(".izenda-vis-gauge-arcs").append("path")
+			.attr("class", "izenda-vis-gauge-arc")
 			.attr("transform", "translate(" + self.currentArcX + "," + self.currentArcY + ")")
 			.attr("d", self.currentArc);
 
@@ -163,9 +163,9 @@ var izenda = izenda || {};
 			arc.startAngle((point - self.regionFactor - wDegree) * (Math.PI / 180))
 				.endAngle((point + self.regionFactor - wDegree) * (Math.PI / 180));
 
-			enter.select(".arcs").append("path")
+			enter.select(".izenda-vis-gauge-arcs").append("path")
 				.attr("transform", "translate(" + self.regionX + "," + self.regionY + ")")
-				.attr("class", "arc-region-" + region.name)
+				.attr("class", "izenda-vis-gauge-arc-region-" + region.name)
 				.attr("d", arc)
 				.attr("fill", region.color);
 
@@ -173,27 +173,25 @@ var izenda = izenda || {};
 		});
 
 		var tooltip = d3.select(self.parent).append("div")
-			.attr("class", "tooltip")
+			.attr("class", "izenda-vis-gauge-tooltip")
 			.style("opacity", 0)
 			.html((self.data.items.length > 1 || (typeof self.data.max != "undefined")) ? (self.data.items[0].value + " / " + ((typeof self.data.max != "undefined") ? self.data.max.value : self.data.items[1].value)) : ns.format.formatValue(self.data.items[0].value, self.data.items[0].format));
 
 
-		var labels = enter.append("g").attr("class", "labels");
+		var labels = enter.append("g").attr("class", "izenda-vis-gauge-labels");
 
-		if (dynamic) {
-			labels.on("mouseover", function (d) {
-				tooltip.transition()
-					.duration(200)
-					.style("opacity", 1);
-				tooltip.style("left", (d3.event.layerX) + "px")
-					.style("top", (d3.event.layerY - 15) + "px");
-			})
-			.on("mouseout", function (d) {
-				tooltip.transition()
-					.duration(500)
-					.style("opacity", 0);
-			});
-		}
+		labels.on("mouseover", function (d) {
+			tooltip.transition()
+				.duration(200)
+				.style("opacity", 1);
+			tooltip.style("left", (d3.event.layerX) + "px")
+				.style("top", (d3.event.layerY - 15) + "px");
+		})
+		.on("mouseout", function (d) {
+			tooltip.transition()
+				.duration(500)
+				.style("opacity", 0);
+		});
 
 		var formatTypeText = null;
 		if (self.data.items.length > 1 || (typeof this.data.max != "undefined")) {
@@ -213,13 +211,13 @@ var izenda = izenda || {};
 		}
 
 		var labelValue = labels.append("text")
-			.attr("class", "label-value")
+			.attr("class", "izenda-vis-gauge-label-value")
 			.text(ns.format.formatBigNumber(self.data.items[0].value, self.data.items[0].format))
 			.style("text-anchor", "middle");
 
 		if(formatTypeText) {
 			labels.append("text")
-				.attr("class", "label-format-type")
+				.attr("class", "izenda-vis-gauge-label-format-type")
 				.text(formatTypeText)
 				.style("text-anchor", "start");
 		}
@@ -232,7 +230,7 @@ var izenda = izenda || {};
 				.style("font-size", self.labelValueFontSize + "px");
 			
 			if(formatTypeText) {
-				labels.select(".label-format-type")
+				labels.select(".izenda-vis-gauge-label-format-type")
 					.attr("x", self.labelValueX + labelValue.node().getBBox().width * 0.5 + self.width * 0.01)
 					.attr("y", self.labelValueY)
 					.style("font-size", self.labelFormatTypeFontSize + "px");

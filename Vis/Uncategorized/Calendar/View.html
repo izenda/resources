@@ -545,42 +545,45 @@ temporary rendered events).
 
 	#VIS_ID_CONTAINER .fc-event .fc-title {
 		text-align: center;
+		height: 20px;
+		line-height: 20px;
+		padding: 0 2px;
+		position: relative;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	#VIS_ID_CONTAINER .fc-event .fc-value {
 		color: #4c4c4c;
 		background-color: #ffffff;
-		text-align: center;
 		font-size: 30px;
-		position: relative;
-		top: 50%;
-		left: 0;
-		bottom: 0;
-		right: 0;
-		z-index: -1;
 		overflow: hidden;
+		height: 100%;
+		display: table;
+		margin-left: auto;
+		margin-right: auto;
 	}
 
 	#VIS_ID_CONTAINER .fc-time-grid-container .fc-event .fc-value {
-		margin-top: -9.5px;
-		-webkit-transform: translateY(-50%);
-		-ms-transform: translateY(-50%);
-		transform: translateY(-50%);
+		margin-top: -10px;
 	}
 
-	/* Horizontal Events
+	#VIS_ID_CONTAINER .fc-event .fc-value span {
+		display: table-cell;
+		vertical-align: middle;
+	}
+
+		/* Horizontal Events
 --------------------------------------------------------------------------------------------------*/
-
-	/* events that are continuing to/from another week. kill rounded corners and butt up against edge */
-
-	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-start,
-	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-end {
-		margin-left: 0;
-		border-left-width: 0;
-		padding-left: 1px; /* replace the border with padding */
-		border-top-left-radius: 0;
-		border-bottom-left-radius: 0;
-	}
+		/* events that are continuing to/from another week. kill rounded corners and butt up against edge */
+		#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-start,
+		#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-end {
+			margin-left: 0;
+			border-left-width: 0;
+			padding-left: 1px; /* replace the border with padding */
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
 
 	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-end,
 	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-start {
@@ -1280,7 +1283,7 @@ be a descendant of the grid when it is being dragged.
 		}
 
 		function ISOString(date) {
-			return new Date(date.getTime() - timezoneOffset).toISOString();
+			return new Date(date.getTime()).toISOString();
 		}
 
 		function ISODateString(date) {
@@ -1436,8 +1439,6 @@ be a descendant of the grid when it is being dragged.
 
 		var defaultDate = null,
 			items = vis.getItems(),
-			now = new Date(),
-			timezoneOffset = now.getTimezoneOffset() * 60000,
 			twoDateFields = VIS_COLUMNS.length > 3 && VIS_COLUMNS[3].type == 'DateTime';
 
 		for (var i = 0; i < items.length; ++i) {
@@ -1504,7 +1505,7 @@ be a descendant of the grid when it is being dragged.
 				eventRender: function (event, element) {
 					var eventColor = color(event.item);
 					element.context.style.borderColor = eventColor;
-					element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value">' + event.formattedValue + '</div></div>';
+					element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value"><span>' + event.formattedValue + '</span></div></div>';
 				},
 				eventAfterRender: function (event, element) {
 					// TODO dynamic decrease font-size

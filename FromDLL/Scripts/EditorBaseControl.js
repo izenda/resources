@@ -175,20 +175,20 @@ function EBC_OnServerResponse(url, xmlHttpRequest, arg, additionalData)
 	currentRequests--;
 	if (xmlHttpRequest.status == 200)
 	{
-		var data = xmlHttpRequest.responseText, wait = ebc_wait[arg.path + arg.params];
+		var data = xmlHttpRequest.responseText, wait = ebc_wait[arg.path + arg.params],
+			contentType = xmlHttpRequest.getResponseHeader('Content-Type');
 		if (!data || data.match(/^<opt(?:ion|group)/)) {
 			if (EBC_SetData != null)
 				EBC_SetData(arg.path + arg.params, data, additionalData);
-		}
-		else if (data.match(/^<table/)) {
+		} else if (contentType && contentType.match(/application\/json/)) {
+			data = JSON.parse(data);
 			ebc_data[arg.path + arg.params] = data;
 			ebc_wait[arg.path + arg.params] = null;
-		}
-		else if (data.indexOf("###USEPAGE###") != -1) {
+		} else if (data.match(/^<table/)
+			|| data.indexOf("###USEPAGE###") != -1) {
 			ebc_data[arg.path + arg.params] = data;
 			ebc_wait[arg.path + arg.params] = null;
-		}
-		else {
+		} else {
 			ebc_data[arg.path + arg.params] = data;
 			ebc_wait[arg.path + arg.params] = null;
 			eval(data);

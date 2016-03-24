@@ -24,13 +24,14 @@
 	}
 	
 	// Generate inner tables for each row
-	jq$(table).find('tr:not(.ReportHeader)').each(function (idx) {
+	jq$(table).find('tr:not(.ReportHeader)').each(function () {
 		var innerTable$ = jq$(document.createElement('table'));
 		innerTable$.attr('class', 'inner-field-value-table');
 
 		var cCnt = this.cells.length - columnsToHide;
 		while (cCnt < this.cells.length) {
 			var innerRow$ = jq$(document.createElement('tr'));
+			ReportScripting.tooltipOn(innerRow$[0], this.cells[cCnt].getAttribute("subtotal-title"));
 
 			var headerCell$ = jq$(document.createElement('td'));
 			headerCell$.attr('class', 'field');
@@ -59,7 +60,7 @@
 			cCnt++;
 		}
 
-		row$ = jq$(this);
+		var row$ = jq$(this);
 
 		// Insert hiddable row with inner grid
 		if (!row$.hasClass("ReportHeader")) {

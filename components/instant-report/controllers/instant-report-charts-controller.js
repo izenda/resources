@@ -65,6 +65,16 @@ function InstantReportChartsController(
 	};
 
 	/**
+	 * Open new window with chart help
+	 * @param {object} chart object
+	 */
+	vm.showChartHelp = function(chart) {
+		if (!angular.isObject(chart))
+			throw 'Chart parameter should be object';
+		$window.open(chart.docUrl, '_blank');
+	};
+
+	/**
 	* Initialize controller
 	*/
 	vm.init = function () {
@@ -72,6 +82,10 @@ function InstantReportChartsController(
 		$scope.$watch('$izendaInstantReportStorage.getVisualizationConfig()', function (visConfig) {
 			vm.visualizationConfig = visConfig;
 			vm.prepareConfig();
+		});
+
+		$scope.$watch('$izendaInstantReportStorage.getSelectedChart()', function(chart) {
+			vm.selectedChart = chart;
 		});
 	};
 }

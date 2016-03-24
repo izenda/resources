@@ -177,8 +177,8 @@
 				points: {}
 			};
 		var arc = d3.geo.greatArc()
-			.source(function(d) { return [d.sourceGeo[1], d.sourceGeo[2]]; })
-			.target(function(d) { return [d.targetGeo[1], d.targetGeo[2]]; });
+			.source(function(d) { return [d.sourceGeo[0], d.sourceGeo[1]]; })
+			.target(function(d) { return [d.targetGeo[0], d.targetGeo[1]]; });
 
 		var margin = { top: 0, right: 0, bottom: 0, left: 0 },
 			paneSize = { width: width - margin.left - margin.right, height: height - margin.top - margin.bottom };
@@ -202,8 +202,8 @@
 			loc.points[origin].count += vis.unitValue(items[link.ri], metrics[s.selectedMetric].ci);
 			loc.points[destination].count += vis.unitValue(items[link.ri], metrics[s.selectedMetric].ci);
 
-			loc.points[origin].coord = [originGeo[1], originGeo[2]];
-			loc.points[destination].coord = [destinationGeo[1], destinationGeo[2]];
+			loc.points[origin].coord = [originGeo[0], originGeo[1]];
+			loc.points[destination].coord = [destinationGeo[0], destinationGeo[1]];
 
 			if (loc.points[origin].count > loc.max)
 				loc.max = loc.points[origin].count;

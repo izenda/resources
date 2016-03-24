@@ -14,9 +14,12 @@
 		},
 		drillDownFields: [],
 		options: {
+			rowsRange: null,
 			distinct: true,
+			showFiltersInReportDescription: false,
 			isSubtotalsEnabled: false,
 			exposeAsDatasource: false,
+			hideGrid: false,
 			top: '',
 			previewTop: 10,
 			title: '',
@@ -68,6 +71,8 @@
 		operators: [],
 		existentValues: [],
 		values: [],
+		titleFormat: null,
+		titleFormats: [],
 		isValid: true,
 		validationMessages: [],
 		validationMessageString: ''
@@ -1081,6 +1086,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		fieldObject.groupBySubtotalFunction = EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS;
 		fieldObject.groupBySubtotalFunctionOptions = [];
 		fieldObject.subtotalExpression = '';
+		fieldObject.allowedInFilters = true;
 		fieldObject.sort = null;
 		fieldObject.italic = false;
 		fieldObject.columnGroup = '';
@@ -1104,7 +1110,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		fieldObject.validateMessageLevel = null;
 	};
 
-	var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup, fieldType, fieldSqlType) {
+	var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup, fieldType, fieldSqlType, allowedInFilters) {
 		var fieldObject = {
 			id: getNextId(),
 			isInitialized: false,
@@ -1138,6 +1144,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			groupBySubtotalFunction: EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS, // Subtotal field function  (used to select GROUP BY function for Subtotal)
 			groupBySubtotalFunctionOptions: [], // available field functions for subtotals
 			subtotalExpression: '',
+			allowedInFilters: allowedInFilters,
 			sort: null,
 			italic: false,
 			columnGroup: '',
@@ -1253,6 +1260,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					field.groupBySubtotalFunction = EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS;
 					field.groupBySubtotalFunctionOptions = [];
 					field.subtotalExpression = '';
+					field.allowedInFilters = true;
 					field.sort = null;
 					field.italic = false;
 					field.columnGroup = '';
@@ -1317,9 +1325,17 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				// iterate fields
 				angularJq$.each(table.fields, function (fieldName, field) {
 					var fieldObject = createFieldObject(fieldName, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
-						field.typeGroup, field.type, field.sqlType);
+						field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
 					tableObject.fields.push(fieldObject);
 				});
+				tableObject.fields.sort(function(field1, field2) {
+					if (field1.name > field2.name)
+						return 1;
+					if (field1.name < field2.name)
+						return -1;
+					return 0;
+				});
+
 				categoryObject.tables.push(tableObject);
 			});
 
@@ -1349,6 +1365,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			groupByFunction: field.groupByFunction,
 			groupBySubtotalFunction: field.groupBySubtotalFunction,
 			subtotalExpression: field.subtotalExpression,
+			allowedInFilters: field.allowedInFilters,
 			sort: field.sort,
 			order: field.order,
 			italic: field.italic,
@@ -1441,28 +1458,36 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		// add filters to config
 		angularJq$.each(getFilters(), function () {
 			var filter = this;
-			if (!filter.isValid)
-				return;
 			if (filter.field === null || !angular.isObject(filter.operator) || filter.operator.value === '') {
 				filter.isValid = false;
 				return;
 			}
+			filter.isValid = true;
 
+			// prepare filter values to send
 			var preparedValues = filter.values;
-			if (angular.isObject(filter.operator) && filter.operator.value !== '') {
-				var valueType = getFieldFilterOperatorValueType(filter.operator);
-				if (valueType === 'select_multiple' || valueType === 'select_popup' || valueType === 'select_checkboxes') {
-					preparedValues = [filter.values.join(',')];
-				} else if (valueType === 'field' && filter.values.length === 1 && filter.values[0] !== null) {
-					preparedValues = [filter.values[0].sysname];
-				} else if (valueType === 'twoDates') {
-					preparedValues = [
-						moment(filter.values[0]).format($izendaSettings.getDateFormat().date),
-						moment(filter.values[1]).format($izendaSettings.getDateFormat().date)];
-				} else if (valueType === 'oneDate') {
-					preparedValues = [
-						moment(filter.values[0]).format($izendaSettings.getDateFormat().date)];
-				}
+			// date string created according to format which used in "internal static string DateLocToUs(string date)":
+			var dateformat = $izendaSettings.getDateFormat();
+			var defaultDateFormat = $izendaSettings.getDefaultDateFormat();
+			var dateFormatString = defaultDateFormat.shortDate +
+				(dateformat.showTimeInFilterPickers ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '');
+			var valueType = getFieldFilterOperatorValueType(filter.operator);
+			if (valueType === 'select_multiple' || valueType === 'select_popup' || valueType === 'select_checkboxes') {
+				preparedValues = [filter.values.join(',')];
+			} else if (valueType === 'field' && filter.values.length === 1 && filter.values[0] !== null) {
+				preparedValues = [filter.values[0].sysname];
+			} else if (valueType === 'twoDates') {
+				var momentObj1 = moment(filter.values[0]),
+					  momentObj2 = moment(filter.values[1]);
+				preparedValues = [
+					momentObj1.isValid() ? momentObj1.format(dateFormatString) : null,
+					momentObj2.isValid() ? momentObj2.format(dateFormatString) : null
+				];
+			} else if (valueType === 'oneDate') {
+				var momentObj = moment(filter.values[0]);
+				preparedValues = [
+					momentObj.isValid() ? momentObj.format(dateFormatString) : null
+				];
 			}
 
 			var filterObj = {
@@ -1471,8 +1496,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				parameter: filter.parameter,
 				sysname: filter.field.sysname,
 				operatorString: filter.operator.value,
-				values: preparedValues
+				values: preparedValues,
+				titleFormat: filter.titleFormat
 			};
+			var isBlank = true;
+			angular.element.each(filterObj.values, function() {
+				if (this !== '') isBlank = false;
+			});
+			if (isBlank)
+				filterObj.values = [];
 			reportSetConfig.filters.push(filterObj);
 		});
 
@@ -1527,6 +1559,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			$izendaInstantReportQuery.getNewReportSetPreview(reportSetToSend).then(function (data) {
 				previewHtml = data;
 				isPreviewSplashVisible = false;
+				getOptions().rowsRange = null;
 				$rootScope.$applyAsync();
 				resolve();
 			});
@@ -1577,9 +1610,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Send send report set to server and set it as CRS
 	 */
-	var setReportSetAsCrs = function () {
+	var setReportSetAsCrs = function (applyPreviewTop) {
 		return $q(function (resolve) {
 			var reportSetToSend = createReportSetConfigForSend();
+			if (applyPreviewTop) {
+				reportSetToSend.options.applyPreviewTop = true;
+			}
 			$izendaInstantReportQuery.setReportAsCrs(reportSetToSend).then(function (result) {
 				if (result === 'OK') {
 					resolve(true);
@@ -1836,9 +1872,13 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				if (operatorType === 'field') {
 					filter.values = [getFieldBySysName(filter.values[0])];
 				} else if (operatorType === 'oneDate' || operatorType === 'twoDates') {
+					var dateformat = $izendaSettings.getDateFormat();
+					var defaultDateFormat = $izendaSettings.getDefaultDateFormat();
+					var dateFormatString = defaultDateFormat.shortDate +
+						(dateformat.showTimeInFilterPickers ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '');
 					var valueDates = [];
 					angular.element.each(filter.values, function() {
-						var parsedDate = moment(this, $izendaSettings.getDateFormat().date, true);
+						var parsedDate = moment(this, dateFormatString, true);
 						if (parsedDate.isValid())
 							valueDates.push(parsedDate._d);
 					});
@@ -1939,19 +1979,56 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	}
 
 	/**
-	 * Create new filter object with default values
+	 * Create filter object without loading its format.
 	 */
-	var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter) {
+	var _createNewFilterBase = function(fieldSysName, operatorName, values, required, description, parameter) {
 		var filterObject = angular.extend({}, $injector.get('izendaFilterObjectDefaults'));
 		// set field
 		var field = getFieldBySysName(fieldSysName);
 		filterObject.field = field;
-		filterObject.values = values;
-		filterObject.required = angular.isDefined(required) ? required : false;
-		filterObject.description = description;
-		filterObject.parameter = angular.isDefined(parameter) ? parameter : true;
-		filterObject.operatorString = operatorName;
+		if (angular.isDefined(values))
+			filterObject.values = values;
+		if (angular.isDefined(required))
+			filterObject.required = required;
+		if (angular.isDefined(description))
+			filterObject.description = description;
+		if (angular.isDefined(parameter))
+			filterObject.parameter = parameter;
+		if (angular.isDefined(operatorName))
+			filterObject.operatorString = operatorName;
 		return filterObject;
+	};
+
+	/**
+	 * Load possible formats collection and set format for filter string in description.
+	 * @param {object} filter. Filter object (field must me set to apply format)
+	 * @param {string} titleFormatName. Format object value
+	 * @returns {angular promise}. Promise parameter: filter object. 
+	 */
+	var loadFilterFormats = function(filter, titleFormatName) {
+		// load and set filter format:
+		var filterFormatNameToApply = EMPTY_FIELD_FORMAT_OPTION.value;
+		if (angular.isString(titleFormatName) && titleFormatName !== '')
+			filterFormatNameToApply = titleFormatName;
+		return $q(function (resolve) {
+			if (angular.isObject(filter.field)) {
+				$izendaInstantReportQuery.getFilterFormats(filter).then(function (returnObj) {
+					filter.titleFormats = $izendaUtil.convertOptionsByPath(returnObj);
+					filter.titleFormat = $izendaUtil.getOptionByValue(filter.titleFormats, filterFormatNameToApply);
+					resolve(filter);
+				});
+			} else {
+				resolve(filter);
+			}
+		});
+	};
+
+	/**
+	 * Create new filter object with default values
+	 */
+	var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter, titleFormatName) {
+		var filterObject = _createNewFilterBase(fieldSysName, operatorName, values, required, description, parameter, titleFormatName);
+		return loadFilterFormats(filterObject, titleFormatName);
 	};
 
 	/**
@@ -2336,11 +2413,17 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					values: filter.values,
 					required: filter.required,
 					description: filter.description,
-					parameter: filter.parameter
+					parameter: filter.parameter,
+					titleFormat: filter.titleFormat
 				};
-				var newFilter = createNewFilter(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
+				var newFilter = _createNewFilterBase(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
 					filterConfig.required, filterConfig.description, filterConfig.parameter);
 				reportSet.filters[i] = newFilter;
+
+				// load filter formats
+				var formatLoadPromise = loadFilterFormats(newFilter, filterConfig.titleFormat);
+				filterOperatorPromises.push(formatLoadPromise);
+
 				// set operator
 				var operatorPromise;
 				if (angular.isString(filterConfig.operatorName)) {
@@ -2727,7 +2810,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		getFieldFilterOperatorValueType: getFieldFilterOperatorValueType,
 		refreshNextFiltersCascading: refreshNextFiltersCascading,
 		setFilterOperator: setFilterOperator,
-
+		loadFilterFormats: loadFilterFormats,
 		getPreviewSplashVisible: getPreviewSplashVisible,
 		getPreviewSplashText: getPreviewSplashText,
 

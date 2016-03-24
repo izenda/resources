@@ -457,5 +457,5 @@ is_ie9_or_newer = false;
 </script>
 
 <script type="text/javascript">
-    initDataSources("rs.aspx?wscmd=getjsonschema");
+	initDataSources("rs.aspx?wscmd=getjsonschema&wsarg0=lazy");
 </script>

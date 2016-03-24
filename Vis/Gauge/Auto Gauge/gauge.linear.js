@@ -59,10 +59,10 @@ var izenda = izenda || {};
 		var self = this;
 
 		var svg = d3.select(self.parent).append("svg");
-		var enter = svg.append("g").attr("class", "component");
+		var enter = svg.append("g");
 
 		var gTitle = enter.append("g")
-			.attr("class", "title");
+			.attr("class", "izenda-vis-gauge-title");
 		gTitle.append("text")
 			.attr("x", self.titleX)
 			.attr("y", self.titleY)
@@ -70,7 +70,7 @@ var izenda = izenda || {};
 			.style("font-size", self.titleFontSize + "px");
 
 		var chart = enter.append("g")
-			.attr("class", "chart");
+			.attr("class", "izenda-vis-gauge-chart");
 
 		var titleWidthPlusOffset = gTitle.node().getBBox().width + 10;
 		svg.attr("width", d3.max([self.widthMode, titleWidthPlusOffset]))
@@ -97,7 +97,7 @@ var izenda = izenda || {};
 			.y1(function (d) { return y(d.valueY); });
 
 		chart.append("g")
-			.attr("class", "x axis")
+			.attr("class", "izenda-vis-gauge-x izenda-vis-gauge-axis")
 			.attr("transform", "translate(0," + (self.height * 1.09) + ")")
 			.call(xAxis)
 				.selectAll("text")
@@ -110,14 +110,14 @@ var izenda = izenda || {};
 				.attr("transform", self.chartXAxisTransform);
 
 		chart.append("path")
-			.attr("class", "pointer")
+			.attr("class", "izenda-vis-gauge-pointer")
 			.attr("d", d3.svg.symbol().type("triangle-up"))
 			.attr("transform", "translate(" + self.pointerTX + "," + self.pointerTY + "), scale(" + self.pointerScale + ")");
 		
 		function appendSegment(segment) {
 			chart.append("path")
 				.datum(segment.data)
-				.attr("class", "area")
+				.attr("class", "izenda-vis-gauge-area")
 				.attr("d", area)
 				.attr("fill", segment.color);
 		}

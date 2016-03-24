@@ -292,8 +292,8 @@
 
 	.btn-izenda-dark:hover,
 	.btn-izenda-dark:focus,
-	.btn-izenda-dark:link:hover, 
-	.btn-izenda-dark:visited:hover, 
+	.btn-izenda-dark:link:hover,
+	.btn-izenda-dark:visited:hover,
 	.btn-izenda-dark:active:hover {
 		outline: transparent;
 		color: #fff;
@@ -328,7 +328,7 @@
 		position: absolute;
 		top: 50%;
 		margin-top: -12px;
-		left:0;
+		left: 0;
 		right: 0;
 		text-align: center;
 	}
@@ -338,3 +338,16 @@
 		height: 24px;
 		margin: 4px;
 	}
+
+.report-header-remove-column-btn {
+	position: absolute;
+	display: inline-block;
+	background-color: darkred;
+	cursor: pointer;
+	color: #fff;
+	right: 0;
+	top: 0;
+	padding-left: 4px;
+	padding-right: 4px;
+	display: none;
+}

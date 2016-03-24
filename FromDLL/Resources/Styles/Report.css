@@ -16,7 +16,7 @@ table.ReportTable td
 	border-width:0px;
 	border-style:solid;
 }
-table.ReportTable td.EmptyCell
+table.ReportTable td.EmptyCell, table.ReportTable th.EmptyCell
 {
 	border-style:none !important;
 	background:none !important;
@@ -151,7 +151,6 @@ table.ReportTable td.GridCellHG3
 tr.ReportHeader td
 {
 	font-size: 9pt;
-	font-weight:normal; 
 	border-width:1px;
 	border-style:solid;
 	border-bottom: solid 1px #AFAFAF!important;

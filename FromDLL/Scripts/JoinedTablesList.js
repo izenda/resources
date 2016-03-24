@@ -46,6 +46,25 @@ var isNetscape = window.navigator.appName == 'Netscape';
 var isOpera = window.navigator.appName == 'Opera';
 var JTCS_Init_executes = false;
 
+function JTC_GetCleanDataSource(dataSources)
+{
+	if (dataSources.indexOf('\'') < 0)
+		return dataSources;
+	var bracketOpenedCount = 0;
+	var table = '';
+	for (var i = 0; i < dataSources.length; i++) {
+		if (dataSources[i] == '[')
+			bracketOpenedCount++;
+		else if (dataSources[i] == ']')
+			bracketOpenedCount--;
+		if (dataSources[i] != '\'' || bracketOpenedCount > 0)
+			table += dataSources[i];
+		else if (dataSources[i] == '\'')
+			break;
+	}
+	return table;
+}
+
 //Prepare tabs
 function JTC_PrepareTabStrip(id)
 {
@@ -177,7 +196,7 @@ function JTC_SetRightColumnValues(id, rowIndex)
 			JTC_autoJoinQueue[rowIndex] = 1;
 			EBC_LoadData(
 				"CombinedColumnList",
-				"tables=" + tableSel.value.split("'")[0] +
+				"tables=" + JTC_GetCleanDataSource(tableSel.value) +
 				"&" + "joinFields=true", columnSel,
 				false);
 		}
@@ -844,7 +863,7 @@ function JTC_InitRow(row)
 			else
 				EBC_LoadData(
 					"CombinedColumnList",
-					"tables="+rightTable.split("'")[0] +
+					"tables=" + JTC_GetCleanDataSource(rightTable) +
 					"&" + "joinFields=true",
 					rightColumnSel, false);
 		}

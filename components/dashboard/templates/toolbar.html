@@ -469,6 +469,7 @@
           ng-show="!toolbarController.isButtonBarVisible">
           <div izenda-toolbar-links-panel toolbar-items="toolbarController.dashboardsInCurrentCategory"
             toolbar-active-item="toolbarController.activeDashboard"
+            toolbar-active-item-change-counter="toolbarController.activeDashboardChangeCounter"
             get-title="toolbarController.getToolbarItemTitle(arg0)"
             equals-func="toolbarController.getToolbarItemsEquals(arg0, arg1)"
             on-click="toolbarController.toolbarLoadDashboard(arg0)">

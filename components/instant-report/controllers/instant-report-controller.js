@@ -63,7 +63,6 @@ function InstantReportController(
 	vm.settings = $izendaInstantReportSettings.getSettings();
 	vm.reportInfo = null;
 	vm.isExistingReport = false;
-	vm.allowedPrintEngine = 'None';
 
 	vm.currentInsertColumnOrder = -1; // used for select field position for drag'n'drop fields
 
@@ -160,6 +159,14 @@ function InstantReportController(
 	};
 
 	/**
+	 * Get columns, allowed for reorder
+	 * @returns {number} count of columns which allowed for reorder.
+	 */
+	vm.getAllowedColumnsForReorder = function() {
+		return vm.activeFields.length;
+	};
+
+	/**
 	 * Column selected
 	 */
 	vm.selectedColumn = function (index) {
@@ -167,11 +174,29 @@ function InstantReportController(
 		fieldsArray.sort(function(a, b) {
 			return a.order - b.order;
 		});
-		$log.info(fieldsArray);
 		var field = fieldsArray[index];
 		$izendaInstantReportStorage.unselectAllFields();
 		field.selected = true;
 		$izendaInstantReportStorage.setCurrentActiveField(field);
+	};
+
+	/**
+	 * Remove column by given index
+	 * @param {number} index 
+	 */
+	vm.removeColumn = function(index) {
+		var fieldsArray = $izendaInstantReportStorage.getAllActiveFields().slice();
+		fieldsArray.sort(function(a, b) {
+			return a.order - b.order;
+		});
+		var field = fieldsArray[index];
+		$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+			var selectedField = $izendaInstantReportStorage.getCurrentActiveField();
+			if (selectedField === field)
+				$izendaInstantReportStorage.applyFieldSelected(field, false);
+			vm.updateReportSetValidationAndRefresh();
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -209,11 +234,12 @@ function InstantReportController(
 		if ($izendaInstantReportStorage.getActiveTables().length === 0)
 			return;
 		vm.openFiltersPanel(true);
-		var filter = $izendaInstantReportStorage.createNewFilter(fieldSysName);
-		$izendaInstantReportStorage.getFilters().push(filter);
-		filter.initialized = true;
-		$izendaInstantReportStorage.setFilterOperator(filter, null).then(function() {
-			$scope.$applyAsync();
+		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function(filter) {
+			$izendaInstantReportStorage.getFilters().push(filter);
+			filter.initialized = true;
+			$izendaInstantReportStorage.setFilterOperator(filter, null).then(function () {
+				$scope.$applyAsync();
+			});
 		});
 	};
 
@@ -369,6 +395,34 @@ function InstantReportController(
 	};
 
 	/**
+	 * Sync current settings and set report set as current report set.
+	 */
+	/*vm.syncReportSetAndEval = function (evalCode) {
+		return $q(function(resolve, reject) {
+			$izendaInstantReportStorage.setReportSetAsCrs(true).then(function () {
+				if (angular.isString(evalCode)) {
+					try {
+						eval(evalCode);
+						resolve();
+					} catch (error) {
+						$log.error('Can\'t eval code: "' + evalCode + '". Error: ', error);
+						reject();
+					}
+				}
+			});
+		});
+	};*/
+
+	/**
+	 * on-page-click report preview handler. Raises when user clicks on paging controls in preview.
+	 */
+	vm.onPagingClick = function (pagingControlType, pageRange) {
+		var rs = $izendaInstantReportStorage.getReportSet();
+		rs.options.rowsRange = pageRange;
+		$izendaInstantReportStorage.getReportPreviewHtml();
+	};
+
+	/**
 	 * Send report link via email
 	 */
 	vm.sendReportLinkEmail = function() {
@@ -380,9 +434,20 @@ function InstantReportController(
 	 */
 	vm.init = function () {
 		var applyReportInfo = function (reportInfo) {
-			if (!angular.isDefined(reportInfo)) {
+			if (!angular.isObject(reportInfo)) {
 				vm.isExistingReport = false;
 				vm.reportInfo = null;
+				return;
+			}
+			// default action - new report
+			if (reportInfo.isDefault) {
+				$izendaUrl.setLocation({
+					fullName: null,
+					name: null,
+					category: null,
+					isNew: true,
+					isDefault: false
+				});
 				return;
 			}
 			if (angular.isString(reportInfo.fullName) && reportInfo.fullName.trim() !== '') {
@@ -475,13 +540,6 @@ function InstantReportController(
 
 		$scope.$watch('$izendaInstantReportSettings.getSettings()', function (settings) {
 			vm.settings = settings;
-			if (!angular.isObject(vm.settings))
-				return;
-			vm.showSaveControls = settings.showSaveControls;
-			vm.showScheduleControls = settings.showScheduleControls;
-			vm.showSharingControl = settings.showSharingControl;
-			vm.showDesignLinks = settings.showDesignLinks;
-			vm.allowedPrintEngine = settings.allowedPrintEngine;
 		});
 
 		// listen for validation state change.

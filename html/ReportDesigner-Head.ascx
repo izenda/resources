@@ -1,22 +1,8 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 
-<!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
-
-<!-- Styles Internal -->
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
-
-<!-- jQuery Core -->
-<script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
-<script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
-<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
-
 <script type="text/javascript" src="./Resources/js/RichEditorPopup.js"></script>
-
 <script type="text/javascript">
   jq$(document).ready(function () {
     if (typeof reportLoadError != 'undefined' && reportLoadError == true)

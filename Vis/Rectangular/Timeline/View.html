@@ -77,6 +77,8 @@
 		var lanes = [], items = [], laneLength;
 		var timeBegin, timeEnd, laneIndex = -1;
 
+		VIS_CONTEXT.UTC2Local = true;
+
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
 		var rows = vis.getRows(true);

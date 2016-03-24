@@ -55,7 +55,7 @@ function izendaSelectReportNameController(
 	vm.isSelectDisabled = true;
 	vm.reportSets = [];
 	vm.errorMessages = [];
-	vm.invalidCharsRegex = new RegExp("[^A-Za-z0-9_\\\-'' ]+", 'g');
+	vm.invalidCharsRegex = /[^A-Za-z0-9_\\\-' ]+/g;
 
 	var nextId = 0;
 	var getCategoryByName = function (name) {
