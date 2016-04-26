@@ -12,6 +12,7 @@ angular
 		'$log',
 		'$modal',
 		'$izendaUrl',
+		'$izendaLocale',
 		'$izendaCompatibility',
 		'$izendaInstantReportSettings',
 		'$izendaInstantReportStorage',
@@ -30,6 +31,7 @@ function InstantReportController(
 		$log,
 		$modal,
 		$izendaUrl,
+		$izendaLocale,
 		$izendaCompatibility,
 		$izendaInstantReportSettings,
 		$izendaInstantReportStorage,
@@ -39,7 +41,7 @@ function InstantReportController(
 		$izendaInstantReportValidation) {
 	'use strict';
 	var vm = this;
-
+	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaInstantReportPivots = $izendaInstantReportPivots;
 	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
@@ -51,6 +53,11 @@ function InstantReportController(
 
 	vm.isLoading = true;
 	vm.previewHtml = $izendaInstantReportStorage.getPreview();
+	vm.reportSetOptions = {
+		isVgUsed: false,
+		vgStyle: null,
+		sortedActiveFields: []
+	};;
 	vm.filtersPanelOpened = $izendaInstantReportStorage.getFiltersPanelOpened();
 	vm.pivotsPanelOpened = $izendaInstantReportPivots.getPivotsPanelOpened();
 	vm.isValid = true;
@@ -135,7 +142,7 @@ function InstantReportController(
 	vm.getMobileClass = function () {
 		return vm.isSmallResolution ? ' iz-inst-mobile ' : '';
 	};
-	
+
 	/**
 	 * returns true only for active panel in left panel
 	 */
@@ -153,8 +160,9 @@ function InstantReportController(
 	/**
 	 * Handler column drag/drop reorder
 	 */
-	vm.columnReordered = function (fromIndex, toIndex) {
-		$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, false);
+	vm.columnReordered = function (fromIndex, toIndex, isVg) {
+		$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVg);
+		vm.updateReportSetValidationAndRefresh();
 		$scope.$applyAsync();
 	};
 
@@ -162,41 +170,40 @@ function InstantReportController(
 	 * Get columns, allowed for reorder
 	 * @returns {number} count of columns which allowed for reorder.
 	 */
-	vm.getAllowedColumnsForReorder = function() {
+	vm.getAllowedColumnsForReorder = function () {
 		return vm.activeFields.length;
 	};
 
 	/**
 	 * Column selected
 	 */
-	vm.selectedColumn = function (index) {
-		var fieldsArray = $izendaInstantReportStorage.getAllActiveFields().slice();
-		fieldsArray.sort(function(a, b) {
-			return a.order - b.order;
-		});
-		var field = fieldsArray[index];
+	vm.selectedColumn = function (field) {
 		$izendaInstantReportStorage.unselectAllFields();
 		field.selected = true;
 		$izendaInstantReportStorage.setCurrentActiveField(field);
+		$scope.$applyAsync();
 	};
 
 	/**
 	 * Remove column by given index
 	 * @param {number} index 
 	 */
-	vm.removeColumn = function(index) {
-		var fieldsArray = $izendaInstantReportStorage.getAllActiveFields().slice();
-		fieldsArray.sort(function(a, b) {
-			return a.order - b.order;
-		});
-		var field = fieldsArray[index];
-		$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
-			var selectedField = $izendaInstantReportStorage.getCurrentActiveField();
-			if (selectedField === field)
-				$izendaInstantReportStorage.applyFieldSelected(field, false);
+	vm.removeColumn = function (field) {
+		if (!angular.isNumber(field.parentFieldId)) {
+			// if it is not multiple column for one database field.
+			$izendaInstantReportStorage.applyFieldChecked(field).then(function() {
+				var selectedField = $izendaInstantReportStorage.getCurrentActiveField();
+				if (selectedField === field)
+					$izendaInstantReportStorage.applyFieldSelected(field, false);
+				vm.updateReportSetValidationAndRefresh();
+				$scope.$applyAsync();
+			});
+		} else {
+			var parentField = $izendaInstantReportStorage.getFieldById(field.parentFieldId);
+			$izendaInstantReportStorage.removeAnotherField(parentField, field);
 			vm.updateReportSetValidationAndRefresh();
 			$scope.$applyAsync();
-		});
+		}
 	};
 
 	/**
@@ -234,7 +241,7 @@ function InstantReportController(
 		if ($izendaInstantReportStorage.getActiveTables().length === 0)
 			return;
 		vm.openFiltersPanel(true);
-		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function(filter) {
+		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
 			$izendaInstantReportStorage.getFilters().push(filter);
 			filter.initialized = true;
 			$izendaInstantReportStorage.setFilterOperator(filter, null).then(function () {
@@ -246,12 +253,12 @@ function InstantReportController(
 	/**
 	 * Open pivots panel and add pivot item
 	 */
-	vm.addPivotItem = function(fieldSysName) {
+	vm.addPivotItem = function (fieldSysName) {
 		if (!angular.isString(fieldSysName))
 			return;
 		if ($izendaInstantReportStorage.getActiveTables().length === 0)
 			return;
-		
+
 		vm.openPivotsPanel(true);
 
 		var field = $izendaInstantReportStorage.getFieldBySysName(fieldSysName);
@@ -269,7 +276,7 @@ function InstantReportController(
 	/**
 	 * Update validation state and refresh if needed.
 	 */
-	vm.updateReportSetValidationAndRefresh = function() {
+	vm.updateReportSetValidationAndRefresh = function () {
 		var validationResult = $izendaInstantReportValidation.validateReportSet();
 		if (validationResult) {
 			if (!$izendaCompatibility.isSmallResolution())
@@ -289,6 +296,7 @@ function InstantReportController(
 		if (field.checked) {
 			var anotherField = $izendaInstantReportStorage.addAnotherField(field, true);
 			$izendaInstantReportStorage.applyFieldChecked(anotherField).then(function() {
+				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
 			});
@@ -297,14 +305,21 @@ function InstantReportController(
 			field.selected = true;
 			$izendaInstantReportStorage.setCurrentActiveField(field);
 			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
 			});
 		}
 		// move field from last postions to selected position if it is drag-n-drop:
 		if (field.checked && vm.currentInsertColumnOrder >= 0) {
-			var allFields = $izendaInstantReportStorage.getAllActiveFields();
-			var from = allFields.length - 1;
+			var fieldsArray = $izendaInstantReportStorage.getAllActiveFields().slice();
+			fieldsArray = angular.element.grep(fieldsArray, function (f) {
+				return !f.isVgUsed;
+			});
+			fieldsArray.sort(function (a, b) {
+				return a.order - b.order;
+			});
+			var from = fieldsArray.length - 1;
 			var to = vm.currentInsertColumnOrder;
 			$izendaInstantReportStorage.moveFieldToPosition(from, to, false);
 		}
@@ -340,18 +355,24 @@ function InstantReportController(
 			var rsReportCategory = reportSet.reportCategory;
 			if (angular.isString(rsReportCategory) && rsReportCategory !== '')
 				rsReportName = rsReportCategory + '\\' + rsReportName;
-			
+
 			// show result message
 			var errorMessage = null;
 			if (angular.isString(result)) {
 				if (result === 'OK') {
-					$rootScope.$broadcast('showNotificationEvent', ['Report "' + rsReportName + '" was succesfully saved.']);
+					$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeTextWithParams('js_ReportSaved', 'Report "{0}" sucessfully saved.', [rsReportName])]);
 				} else {
-					errorMessage = 'Can\'t save report "' + rsReportName + '". Error: ' + result;
+					errorMessage = $izendaLocale.localeTextWithParams(
+						'js_FailedSaveReport',
+						'Failed to save report "{0}". Error description: {1}',
+						[rsReportName, result]);
 				}
 			} else if (angular.isObject(result)) {
 				if (result.hasOwnProperty('Value')) {
-					errorMessage = 'Can\'t save report "' + rsReportName + '". Error: ' + result.Value;
+					errorMessage = $izendaLocale.localeTextWithParams(
+						'js_FailedSaveReport',
+						'Failed to save report "{0}". Error description: {1}',
+						[rsReportName, result.Value]);
 				} else {
 					errorMessage = result;
 					$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
@@ -361,7 +382,7 @@ function InstantReportController(
 				$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
 			}
 			if (errorMessage !== null) {
-				$rootScope.$broadcast('izendaShowMessageEvent', [errorMessage, 'Report save error', 'danger']);
+				$rootScope.$broadcast('izendaShowMessageEvent', [errorMessage, $izendaLocale.localeText('js_FailedSaveReportTitle', 'Report save error'), 'danger']);
 			}
 		});
 	}
@@ -369,12 +390,17 @@ function InstantReportController(
 	/**
 	 * Print report buttons handler.
 	 */
-	vm.printReport = function(printType) {
-		$izendaInstantReportStorage.printReport(printType).then(function(result, message) {
+	vm.printReport = function (printType) {
+		$izendaInstantReportStorage.printReport(printType).then(function (result, message) {
 			if (!result) {
+				var reportSet = $izendaInstantReportStorage.getReportSet();
+				var rsReportName = reportSet.reportName;
 				$rootScope.$broadcast('izendaShowMessageEvent', [
-					'Can\'t print report. Error: ' + message + '.',
-					'Report print error',
+					$izendaLocale.localeTextWithParams(
+						'js_FailedPrintReport',
+						'Failed to print report "{0}". Error description: {1}.',
+						[rsReportName, message]),
+					$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error'),
 					'danger']);
 			}
 		});
@@ -383,12 +409,17 @@ function InstantReportController(
 	/**
 	 * Export report buttons handler
 	 */
-	vm.exportReport = function(exportType) {
+	vm.exportReport = function (exportType) {
 		$izendaInstantReportStorage.exportReport(exportType).then(function (result, message) {
 			if (!result) {
+				var reportSet = $izendaInstantReportStorage.getReportSet();
+				var rsReportName = reportSet.reportName;
 				$rootScope.$broadcast('izendaShowMessageEvent', [
-					'Can\'t export report. Error: ' + message + '.',
-					'Report export error',
+					$izendaLocale.localeTextWithParams(
+						'js_FailedExportReport',
+						'Failed to export report "{0}". Error description: {1}.',
+						[rsReportName, message]),
+					$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'),
 					'danger']);
 			}
 		});
@@ -397,9 +428,10 @@ function InstantReportController(
 	/**
 	 * Sync current settings and set report set as current report set.
 	 */
-	/*vm.syncReportSetAndEval = function (evalCode) {
-		return $q(function(resolve, reject) {
-			$izendaInstantReportStorage.setReportSetAsCrs(true).then(function () {
+	vm.syncReportSetAndEval = function (applyPreviewTop, evalCode) {
+		vm.isSynchronized = false;
+		return $q(function (resolve, reject) {
+			$izendaInstantReportStorage.setReportSetAsCrs(applyPreviewTop).then(function () {
 				if (angular.isString(evalCode)) {
 					try {
 						eval(evalCode);
@@ -409,9 +441,11 @@ function InstantReportController(
 						reject();
 					}
 				}
+				vm.isSynchronized = true;
+				$scope.$applyAsync();
 			});
 		});
-	};*/
+	};
 
 	/**
 	 * on-page-click report preview handler. Raises when user clicks on paging controls in preview.
@@ -425,7 +459,7 @@ function InstantReportController(
 	/**
 	 * Send report link via email
 	 */
-	vm.sendReportLinkEmail = function() {
+	vm.sendReportLinkEmail = function () {
 		$izendaInstantReportStorage.sendReportLinkEmail();
 	};
 
@@ -468,8 +502,8 @@ function InstantReportController(
 				});
 			}
 		};
-		
-		$scope.$watch('$izendaCompatibility.isSmallResolution()', function(value, prevValue) {
+
+		$scope.$watch('$izendaCompatibility.isSmallResolution()', function (value, prevValue) {
 			vm.isSmallResolution = value;
 			if (prevValue && !value) {
 				// small -> normal
@@ -478,7 +512,7 @@ function InstantReportController(
 		});
 
 		//
-		$scope.$on('changeVisualizationProperties', function(event, args) {
+		$scope.$on('changeVisualizationProperties', function (event, args) {
 			$izendaInstantReportStorage.getReportSet().charts[0].properties = args[0];
 		});
 
@@ -499,6 +533,27 @@ function InstantReportController(
 
 		// Look for preview change
 		$scope.$watch('$izendaInstantReportStorage.getPreview()', function (previewHtml) {
+
+			// prepare options:
+			var options = $izendaInstantReportStorage.getOptions();
+			vm.reportSetOptions = {
+				isVgUsed: false,
+				vgStyle: options.page.vgStyle,
+				sortedActiveFields: [],
+				pivotCellsCount: vm.pivotCellsCount
+			};
+
+			// add active fields.
+			vm.reportSetOptions.sortedActiveFields = $izendaInstantReportStorage.getAllActiveFields().slice();
+			vm.reportSetOptions.sortedActiveFields.sort(function (a, b) {
+				return a.order - b.order;
+			});
+			angular.element.each(vm.reportSetOptions.sortedActiveFields, function () {
+				if (this.isVgUsed)
+					vm.reportSetOptions.isVgUsed = true;
+			});
+
+			// set preview html
 			vm.previewHtml = previewHtml;
 		});
 
@@ -509,7 +564,7 @@ function InstantReportController(
 		$scope.$watch('$izendaInstantReportPivots.getPivotsPanelOpened()', function (opened) {
 			vm.pivotsPanelOpened = opened;
 		});
-		
+
 		$scope.$watch('$izendaInstantReportStorage.getCurrentActiveField()', function (field) {
 			vm.activeField = field;
 		});
@@ -522,19 +577,19 @@ function InstantReportController(
 			vm.previewTop = top;
 		});
 
-		$scope.$watchCollection('$izendaInstantReportStorage.getFilters()', function(filters) {
+		$scope.$watchCollection('$izendaInstantReportStorage.getFilters()', function (filters) {
 			vm.filtersCount = filters.length;
 		});
 
-		$scope.$watchCollection('$izendaInstantReportPivots.getCellValues()', function(cellValues) {
+		$scope.$watchCollection('$izendaInstantReportPivots.getCellValues()', function (cellValues) {
 			vm.pivotCellsCount = cellValues.length;
 		});
 
-		$scope.$watchCollection('$izendaInstantReportStorage.getAllActiveFields()', function(activeFields) {
+		$scope.$watchCollection('$izendaInstantReportStorage.getAllActiveFields()', function (activeFields) {
 			vm.activeFields = activeFields;
 		});
 
-		$scope.$watch('$izendaInstantReportStorage.getPreviewSplashVisible()', function(visible) {
+		$scope.$watch('$izendaInstantReportStorage.getPreviewSplashVisible()', function (visible) {
 			vm.reportLoadingIndicatorIsVisible = visible;
 		});
 
@@ -553,7 +608,7 @@ function InstantReportController(
 		$scope.$on('selectedNewReportNameEvent', function (event, args) {
 			var name = args[0],
 					category = args[1];
-			if (!angular.isString(category) || category.toLowerCase() === 'uncategorized')
+			if (!angular.isString(category) || category.toLowerCase() === UNCATEGORIZED.toLowerCase())
 				category = '';
 			vm.saveReportWithGivenName(name, category);
 		});

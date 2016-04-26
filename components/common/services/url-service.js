@@ -8,12 +8,13 @@
 	'$izendaRsQuery',
 	'$izendaCommonQuery',
 	'$izendaPing',
-	function ($window, $rootScope, $location, $log, $izendaRsQuery, $izendaCommonQuery, $izendaPing) {
+	'$izendaLocale',
+	function ($window, $rootScope, $location, $log, $izendaRsQuery, $izendaCommonQuery, $izendaPing, $izendaLocale) {
 		'use strict';
 
 		var urlSettings = $window.urlSettings$;
 
-		var UNCATEGORIZED = 'Uncategorized';
+		var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 		var reportNameInfo;
 

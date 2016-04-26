@@ -64,10 +64,6 @@ function FP_ShowFieldProperties(field, dialog) {
 	titleDiv.innerHTML = IzLocal.Res('js_FieldPropertyForField', 'Field Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
 	var propDescription = document.getElementById('propDescription');
 	propDescription.value = field.Description;
-	var propTotal = document.getElementById('propTotal');
-	propTotal.checked = false;
-	if (field.Total == 1)
-		propTotal.checked = true;
 	var propVG = document.getElementById('propVG');
 	propVG.checked = false;
 	if (field.VG)
@@ -86,6 +82,25 @@ function FP_ShowFieldProperties(field, dialog) {
 			optFormat.selected = 'selected';
 		propFormats.add(optFormat);
 	}
+
+	var propSTFunctions = document.getElementById('propSTFunctions');
+	propSTFunctions.options.length = 0;
+	for (var stFunctionsCnt = 0; stFunctionsCnt < field.STFunctionValues.length; stFunctionsCnt++) {
+		var optSTFunction = new Option();
+		optSTFunction.value = field.STFunctionValues[stFunctionsCnt];
+		optSTFunction.text = field.STFunctionNames[stFunctionsCnt];
+		if (field.STFunction == field.STFunctionValues[stFunctionsCnt])
+			optSTFunction.selected = 'selected';
+		propSTFunctions.add(optSTFunction);
+	}
+
+	var propStExpression = document.getElementById('propStExpression');
+	if (field.STFunction == 'EXPRESSION')
+		propStExpression.style.display = '';
+	else
+		propStExpression.style.display = 'none';
+	propStExpression.value = field.SubtotalExpression;
+
 	jq$('#dupFilterNote').hide();
 
 	function getAlignNumber(str) {
@@ -158,6 +173,7 @@ function FP_CollectFieldProperties() {
 	field.Expression = FP_CurrentlyBeingEditedField.Expression;
 	field.ExpressionType = FP_CurrentlyBeingEditedField.ExpressionType;
 	field.FormatString = document.getElementById('propFormats').value;
+	field.STFunction = document.getElementById('propSTFunctions').value;
 	field.FriendlyName = document.getElementById('propFieldFriendlyName').value;
 	field.GUID = FP_CurrentlyBeingEditedField.GUID;
 	field.GaugeColor = FP_CurrentlyBeingEditedField.GaugeColor;
@@ -191,7 +207,7 @@ function FP_CollectFieldProperties() {
 	field.PageBreak = FP_CurrentlyBeingEditedField.PageBreak;
 	field.Separator = FP_CurrentlyBeingEditedField.Separator;
 	field.ShouldBeFormatted = FP_CurrentlyBeingEditedField.ShouldBeFormatted;
-	field.SubtotalExpression = FP_CurrentlyBeingEditedField.SubtotalExpression;
+	field.SubtotalExpression = document.getElementById('propStExpression').value;
 	field.SubtotalFunction = FP_CurrentlyBeingEditedField.SubtotalFunction;
 	field.SubtotalTitle = FP_CurrentlyBeingEditedField.SubtotalTitle;
 	field.TargetReport = FP_CurrentlyBeingEditedField.TargetReport;
@@ -215,12 +231,6 @@ function FP_CollectFieldProperties() {
 	field.Visible = FP_CurrentlyBeingEditedField.Visible;
 	field.Width = document.getElementById('propWidth').value;
 	field.WidthSettedManually = FP_CurrentlyBeingEditedField.WidthSettedManually;
-
-	var propTotal = document.getElementById('propTotal');
-	if (propTotal.checked)
-		field.Total = 1;
-	else
-		field.Total = 0;
 
 	return field;
 }

@@ -10,6 +10,7 @@ angular.module('izendaInstantReport').controller('InstantReportFiltersController
 			'$sce',
 			'$log',
 			'$modal',
+			'$izendaLocale',
 			'$izendaSettings',
 			'$izendaCompatibility',	
 			'$izendaInstantReportQuery',
@@ -26,11 +27,13 @@ function InstantReportFiltersController(
 			$sce,
 			$log,
 			$modal,
+			$izendaLocale,
 			$izendaSettings,
 			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportStorage) {
 	'use strict';
+	$scope.$izendaLocale = $izendaLocale;
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaSettings = $izendaSettings;
 	$scope.$izendaCompatibility = $izendaCompatibility;
@@ -51,7 +54,8 @@ function InstantReportFiltersController(
 	vm.addFilter = function (fieldSysName) {
 		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function(filter) {
 			if (filter.field !== null && !filter.field.allowedInFilters) {
-				$rootScope.$broadcast('showNotificationEvent', ['This field is forbidden to use for filtering.']);
+				$rootScope.$broadcast('showNotificationEvent',
+					[$izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.')]);
 				return;
 			}
 			$izendaInstantReportStorage.getFilters().push(filter);

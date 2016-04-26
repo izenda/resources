@@ -18,7 +18,7 @@
             <div class="img-container">
               <img class="img-responsive" ng-src="{{angular.isString(chart.gifUrl) && chart.gifUrl !== '' ? chart.gifUrl : chart.imgUrl}}" />
             </div>
-            <a class="help-link" title="Show visualization help article"
+            <a class="help-link" ng-attr-title="{{'js_ShowVisHelp' | izendaLocale: 'Show visualization help article'}}"
               ng-click="chartsController.showChartHelp(chart)"
               izenda-stop-propagation>?</a>
             <div ng-bind="chart.title"></div>

@@ -1379,9 +1379,9 @@ be a descendant of the grid when it is being dragged.
 				});
 			});
 
-		if (!VIS_CONTEXT.isDashboard)
+		if (!VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards)
 			galleryManager.init("#VIS_ID_GEAR_GALLERY");
-		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
+		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
 
 		var defaultDateTypeSelect = vs.find("#VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT");
 		defaultDateTypeSelect.find("option").remove().end()

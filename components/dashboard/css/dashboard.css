@@ -8,6 +8,10 @@
 	display: none !important;
 }
 
+.DashPartBody {
+    margin-bottom: 15px;
+}
+
 .iz-dash-toolbtn-panel.navbar-nav>.open>a,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:hover,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:focus {
@@ -818,12 +822,15 @@ body {
 	-webkit-border-radius: 0 0 3px 3px;
 	-khtml-border-radius: 0 0 3px 3px;
 	border-radius: 0 0 3px 3px;*/
-	overflow: auto;
+	overflow: hidden;
 	-moz-user-select: text;
 	-khtml-user-select: text;
 	-webkit-user-select: text;
 	-ms-user-select: text;
 	user-select: text;
+}
+.animate-flip .frame:hover{
+	overflow: auto;
 }
 
 .animate-flip .frame .report {

@@ -54,6 +54,9 @@ function izendaToolbarController(
 	var _ = angular.element;
 	$scope.izendaUrl = $izendaUrl;
 	$scope.izendaDashboardState = $izendaDashboardState;
+
+	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+
 	/**
    * Get cookie by name
    */
@@ -448,7 +451,7 @@ function izendaToolbarController(
 
 		angular.element.each(vm.dashboardCategories, function () {
 			var dashboardCategory = this;
-			if (dashboardCategory.name === currentCategoryName || (dashboardCategory.name.toLowerCase() === 'uncategorized' && !currentCategoryName)) {
+			if (dashboardCategory.name === currentCategoryName || (dashboardCategory.name.toLowerCase() === UNCATEGORIZED.toLowerCase() && !currentCategoryName)) {
 				vm.dashboardsInCurrentCategory = [];
 				angular.element.each(dashboardCategory.dashboards, function (iDashboard, dashboard) {
 					var dashboardObj = {
@@ -562,6 +565,10 @@ function izendaToolbarController(
    */
 	vm.sendEmail = function (type) {
 		if (type === 'Link') {
+			if (vm.activeDashboard == null || !vm.activeDashboard.fullName) {
+				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard'), 'Error', 'danger']);
+				return;
+			}
 			var redirectUrl = '?subject=' + encodeURIComponent(vm.activeDashboard.fullName) + '&body=' + encodeURIComponent(location);
 			redirectUrl = 'mailto:' + redirectUrl.replace(/ /g, '%20');
 			window.top.location = redirectUrl;
@@ -580,7 +587,7 @@ function izendaToolbarController(
 	//crutch to avoid call of window.open inside anonymous function
 	vm.beforePrintDashboard = function () {
 		vm.synchronized = false;
-		$izendaEvent.queueEvent('dashboardSyncEvent', []);
+		$izendaEvent.queueEvent('dashboardSyncEvent', ['toolbar-print']);
 	}
 
 	/**
@@ -675,7 +682,7 @@ function izendaToolbarController(
 			var dashboardName = args[0],
 					dashboardCategory = args[1];
 			var fullName = dashboardName;
-			if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== 'uncategorized') {
+			if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
 				fullName = dashboardCategory + '\\' + dashboardName;
 			}
 			$izendaUrl.setReportFullName(fullName);
@@ -696,8 +703,9 @@ function izendaToolbarController(
 			$izendaDashboardState.turnOnWindowResizeHandler();
 		});
 
-		$izendaEvent.handleQueuedEvent('dashboardSyncCompletedEvent', $scope, vm, function () {
-			vm.synchronized = true;
+		$izendaEvent.handleQueuedEvent('dashboardSyncCompletedEvent', $scope, vm, function (subject) {
+			if(subject == 'toolbar-print')
+				vm.synchronized = true;
 		});
 	};
 

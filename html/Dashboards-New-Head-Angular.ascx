@@ -67,6 +67,7 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
 <script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap3-typeahead.min.js"></script>
 
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
 <script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>

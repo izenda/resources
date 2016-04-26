@@ -1,20 +1,4 @@
 ﻿/**
- * Default locale
- */
-angular.module('izendaQuery').value('$izendaLocalizedTexts', {
-	'close': 'Close',
-	'cancel': 'Cancel',
-	'ok': 'OK',
-	'schedule.title': 'Schedule',
-	'schedule.date': 'Date',
-	'schedule.time': 'Time',
-	'schedule.timezone': 'Timezone',
-	'schedule.repeat': 'Repeat',
-	'schedule.email': 'Send Email As',
-	'schedule.recipients': 'Recipients'
-});
-
-/**
  * Localization service
  */
 angular.module('izendaQuery').service('$izendaLocale', [
@@ -22,10 +6,30 @@ angular.module('izendaQuery').service('$izendaLocale', [
 		'use strict';
 
 		/**
-		 * Get localized text
+		 * Get localized text.
+		 * @param {string} key. Locale string key (defined in resources.aspx)
+		 * @param {string} defaultValue. Default value, when locale text couldn't be got
+		 * @returns {string} localized text.
 		 */
 		this.localeText = function (key, defaultValue) {
 			var result = IzLocal.Res(key, defaultValue);
+			return result;
+		};
+
+		/**
+		 * Apply locale string in format "...{0}...{1}..." and apply instead of '{n}' params[n]
+		 * @param {string} locale text key. This key contains in resources.
+		 * @param {strong} defaultValue. Default value if locale resource wasn't found.
+		 * @param {Array} params. Additional params.
+		 * @returns {string}. Localized text. 
+		 */
+		this.localeTextWithParams = function(key, defaultValue, params) {
+			var result = this.localeText(key, defaultValue);
+			if (angular.isArray(params)) {
+				angular.element.each(params, function(iParamValue, paramValue) {
+					result = result.replaceAll('{' + iParamValue + '}', paramValue);
+				});
+			}
 			return result;
 		};
 	}]);

@@ -359,74 +359,88 @@ function CC_GetFilterCMD(row) {
 
 
 function CC_LoadValues(row) {
-		var operatorName = EBC_GetSelectByName(row, 'Operator').value;
-		var isNotFieldOperator = true;
-
-		if (operatorName != null) {
-				var len = operatorName.length;
-				if (len > 5) {
-						var str = operatorName.substring(len - 5, len);
-						isNotFieldOperator = (str != 'Field');
-				}
+	var operatorName = EBC_GetSelectByName(row, 'Operator').value;
+	var isNotFieldOperator = true;
+	if (operatorName != null) {
+		var len = operatorName.length;
+			if (len > 5) {
+				var str = operatorName.substring(len - 5, len);
+				isNotFieldOperator = (str != 'Field');
 		}
-		if (isNotFieldOperator) {
-				var fullColumnName = EBC_GetSelectByName(row, 'Column').value;
-				var valueSel = EBC_GetSelectByName(row, 'SelectValue');
-				//jq$(valueSel).html("<option>Loading ...</option>")
-				if (fullColumnName != '' && fullColumnName != '...') {
-						var cmd = CC_GetFilterCMD(row);
-						if (operatorName == "Equals_CheckBoxes")
-								EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
-									function (responseResult) {
-											var options = jq$(responseResult);
-											var cnt = options.length;
-											var result = "";
-											var itemTemplate = "<input type=\"checkbox\" value=\"{1}\" onclick=\"CC_OnCheckBoxValueChangedHandler(this)\">{0}</input><br/>";
-											for (var i = 0; i < cnt; i++) {
-													var value = jq$(options[i]).val();
-													var text = jq$(options[i]).text();
-													if (value != null && value != "...")
-															result += itemTemplate.replace("{0}", text).replace("{1}", value);
-											}
-											var valueCheckBoxes = EBC_GetElementByName(row, 'CheckBoxSelectInner', 'div');
-											if (valueCheckBoxes) {
-													var preCheckedArray = new Array();
-													if (jq$(valueCheckBoxes).html() != "")
-															jq$(valueCheckBoxes).find("input:checked").each(function (i) {
-																	preCheckedArray.push(jq$(this).val());
-															});
-													else {
-															if (jq$.isArray(jq$(valueSel).val()))
-																	preCheckedArray = jq$(valueSel).val()[0].split(',');
-															else
-																	preCheckedArray = jq$(valueSel).val().split(',');
-													}
-
-													jq$(valueCheckBoxes).html(result);
-
-													jq$(valueCheckBoxes).find("input:checkbox").each(function (i) {
-															if (jq$.inArray(jq$(this).val(), preCheckedArray) > -1)
-																	jq$(this).prop("checked", true);
-															else
-																	jq$(this).prop("checked", false);
-													});
-											}
-									});
-						else if (operatorName == "Equals_TreeView") {
-							cmd += "&forTree=1&resultType=json";
-							EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
-								function (responseResult) {
-									CC_TreeUpdateValues(row, responseResult[0].options);
+	}
+	if (isNotFieldOperator) {
+		var fullColumnName = EBC_GetSelectByName(row, 'Column').value;
+		var valueSel = EBC_GetSelectByName(row, 'SelectValue');
+		if (fullColumnName != '' && fullColumnName != '...') {
+			var cmd = CC_GetFilterCMD(row);
+			cmd += "&resultType=json";
+			if (operatorName == "Equals_CheckBoxes")
+				EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
+					function (responseResult) {
+						var valueCheckBoxes = EBC_GetElementByName(row, 'CheckBoxSelectInner', 'div');
+						if (valueCheckBoxes) {
+							var preCheckedArray = new Array();
+							if (jq$(valueCheckBoxes).html() != "")
+								jq$(valueCheckBoxes).find("input:checked").each(function (i) {
+									preCheckedArray.push(jq$(this).val());
 								});
+							else {
+								if (jq$.isArray(jq$(valueSel).val()))
+									preCheckedArray = jq$(valueSel).val()[0].split(',');
+								else
+									preCheckedArray = jq$(valueSel).val().split(',');
+							}
+
+							var control = jq$(valueCheckBoxes);
+							control.html("");
+							jq$.each(responseResult[0].options, function (i, item) {
+								if (item.value == null || item.value == '...')
+									return;
+								var label = jq$('<label>').css('display', 'block');
+								label.append(jq$('<input>', {
+									type: 'checkbox',
+									value: item.value,
+									onclick: 'CC_OnCheckBoxValueChangedHandler(this)'
+								}));
+								label.append(item.text);
+								control.append(label);
+							});
+
+							jq$(valueCheckBoxes).find("input:checkbox").each(function (i) {
+								if (jq$.inArray(jq$(this).val(), preCheckedArray) > -1)
+									jq$(this).prop("checked", true);
+								else
+									jq$(this).prop("checked", false);
+							});
 						}
-						else
-							EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, valueSel);
-				}
-				else
-						EBC_LoadData('@CC/Empty', null, valueSel);
+					});
+			else if (operatorName == "Equals_TreeView") {
+				cmd += "&forTree=1";
+				EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
+					function (responseResult) {
+						CC_TreeUpdateValues(row, responseResult[0].options);
+					});
+			}
+			else
+				EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
+					function (responseResult) {
+						var value = EBC_GetSelectValue(valueSel);
+						var control = jq$(valueSel);
+						control.html("");
+						jq$.each(responseResult[0].options, function (i, item) {
+							control.append(jq$('<option>', {
+								value: item.value,
+								text: jq$('<textarea />').html(item.text).text()
+							}));
+						});
+						EBC_SetSelectedIndexByValue(valueSel, value);
+					});
 		}
 		else
-				CC_LoadFields(row);
+			EBC_LoadData('@CC/Empty', null, valueSel);
+	}
+	else
+		CC_LoadFields(row);
 }
 
 function CC_UpdateFiltersFromLogic(){
@@ -920,16 +934,14 @@ function CC_InitAutoComplite(row) {
 					var fullColumnName = EBC_GetSelectByName(currentRow, 'Column').value;
 					if (fullColumnName != '' && fullColumnName != '...') {
 						var cmd = CC_GetFilterCMD(currentRow);
-						cmd += "&possibleValue=" + possibleText.replace('&', '%26');
+						cmd += "&possibleValue=" + possibleText.replace('&', '%26') + "&resultType=json";
 						EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, true, function (responseResult) {
-							var options = jq$(responseResult);
-							var cnt = options.length;
 							var result = new Array();
-							for (var i = 0; i < cnt; i++) {
-								var text = options[i].value;
-								if (text != null && text != "" && text != "...")
-									result.push(text);
-							}
+							jq$.each(responseResult[0].options, function (i, item) {
+								if (item.value == null || item.value == "" || item.value == '...')
+									return;
+								result.push(item.value);
+							});
 							responeFunction(result);
 						});
 					}
@@ -1125,7 +1137,7 @@ function CC_ShowPopupFilter(e) {
 	var columnSel = EBC_GetSelectByName(row, 'Column');
 	if (columnSel != null && columnSel.value != '' && columnSel.value != '...') {
 		ShowLoading();
-		var cmd = CC_GetFilterCMD(row);
+		var cmd = CC_GetFilterCMD(row) + "&resultType=json";
 		EBC_LoadData("ExistentPopupValuesList", "columnName=" + columnSel.value + cmd, null, false, CC_ShowPopupFilterResponse);
 	}
 }
@@ -1155,53 +1167,56 @@ function CC_ShowPopupFilterResponse(data) {
 		return;
 	}
 
-	var s = data.substring(0, 3);
-	if (s == "url") {
-		// loading url
-		var url = data.substring(4, data.length - 4);
+	var row = EBC_GetRow(wasEqualsPopupEvent);
+	var value = EBC_GetInputByName(row, "popup_value_handler").value;
+	var values = value.split(",");
 
-	}
-	else {
-		var row = EBC_GetRow(wasEqualsPopupEvent);
-		var value = EBC_GetInputByName(row, "popup_value_handler").value;
-		var values = value.split(",");
+	var table = jq$("<table>");
+	var tr = jq$("<tr>");
+	var ci = 0;
+	jq$.each(data[0].options, function (i, item) {
+		if (item.value == null || item.value == '...')
+			return;
+		if (ci % 3 == 0) {
+			table.append(tr);
+			tr = jq$("<tr>");
+		}
+		ci++;
+		var td = jq$("<td>");
+		var label = jq$('<label>').css('display', 'block');
+		label.append(jq$('<input>', {
+			type: 'checkbox',
+			value: item.value
+		}));
+		label.append(item.text);
+		tr.append(td.append(label));
+	});
+	table.append(tr);
+	data = table.get(0).outerHTML;
 
-		var genHtml = "<table id='AdHocPopupFilerTable'><tr><td>" + data + "</td></tr>";
-		genHtml += "<tr><td align='center'>";
-		genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Ok' value='" + jsResources.OK + "' onclick='CC_PopupFiltersConfirm(true)'>&nbsp;";
-		genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Cancel' value='" + jsResources.Cancel + "' onclick='CC_PopupFiltersConfirm(false)'>";
-		genHtml += "</td></tr></table>";
+	var genHtml = "<table id='AdHocPopupFilerTable'><tr><td>" + data + "</td></tr>";
+	genHtml += "<tr><td align='center'>";
+	genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Ok' value='" + jsResources.OK + "' onclick='CC_PopupFiltersConfirm(true)'>&nbsp;";
+	genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Cancel' value='" + jsResources.Cancel + "' onclick='CC_PopupFiltersConfirm(false)'>";
+	genHtml += "</td></tr></table>";
 
-		/*for (var i=0;i<values.length;i++)
-		{
-			var currentValue = values[i];
-			// seraching in data
-			var element = EBC_GetElementByName(data, currentValue);
-			element.checked = true;
-		}*/
-		hm();
-		ShowDialog(genHtml);
-		if (values.length > 0) {
-			var table = document.getElementById('AdHocPopupFilerTable');
-			table.style.textAlign = 'left';
-			var parentRow = table.rows[0];
-			var subtable = parentRow.firstChild.firstChild;
-			var rows = subtable.rows;
+	hm();
 
-			for (var i = 0; i < values.length; i++) {
-				var curentValue = values[i];
-				var currentValueReplaced = curentValue.replace('||', ',');
-				while (curentValue != currentValueReplaced) {
-					curentValue = currentValueReplaced;
-					currentValueReplaced = curentValue.replace('||', ',');
-				}
-
-				for (var j = 0; j < rows.length; j++) {
-					for (var k = 0; k < rows[j].cells.length; k++) {
-						var checkbox = rows[j].cells[k].firstChild;
-						if (checkbox.nextSibling != null && checkbox.nextSibling.nodeValue == curentValue || checkbox.nextSibling == null && curentValue == "") {
-							checkbox.checked = true;
-						}
+	ShowDialog(genHtml);
+	if (values.length > 0) {
+		var table = document.getElementById('AdHocPopupFilerTable');
+		table.style.textAlign = 'left';
+		var parentRow = table.rows[0];
+		var subtable = parentRow.firstChild.firstChild;
+		var rows = subtable.rows;
+		for (var i = 0; i < values.length; i++) {
+			var curentValue = values[i];
+			for (var j = 0; j < rows.length; j++) {
+				for (var k = 0; k < rows[j].cells.length; k++) {
+					var label = rows[j].cells[k].firstChild;
+					var checkbox = label.firstChild;
+					if (checkbox.value == curentValue || checkbox.value == null && curentValue == "") {
+						checkbox.checked = true;
 					}
 				}
 			}
@@ -1226,17 +1241,12 @@ function CC_PopupFiltersConfirm(act) {
 		var values = '...';
 		for (var i = 0; i < rows.length; i++) {
 			for (var j = 0; j < rows[i].cells.length; j++) {
-				var checkbox = rows[i].cells[j].firstChild;
+				var label = rows[i].cells[j].firstChild;
+				var checkbox = label.firstChild;
 				if (checkbox.checked) {
 					if (values == '...')
 						values = '';
-					var nextNode = checkbox.nextSibling != null ? checkbox.nextSibling.nodeValue : "";
-					var nextNodeWithReplaced = nextNode.replace(',', '#||#');
-					while (nextNode != nextNodeWithReplaced) {
-						nextNode = nextNodeWithReplaced;
-						nextNodeWithReplaced = nextNode.replace(',', '#||#');
-					}
-					values += nextNode + ',';
+					values += checkbox.value + ',';
 				}
 			}
 		}

@@ -1,63 +1,63 @@
 ﻿angular
-  .module('izendaDashboard')
-  .constant('tileDefaults', {
-  	id: null,
-  	title: null,
-  	description: null,
-  	reportFullName: null,
-  	reportPartName: null,
-  	reportSetName: null,
-  	reportName: null,
-  	reportCategory: null,
-  	reportNameWithCategory: null,
-  	previousReportFullName: null,
-  	isSourceReportDeleted: false,
-  	designerType: 'ReportDesigner',
-  	x: 0,
-  	y: 0,
-  	width: 1,
-  	height: 1,
-  	top: 100,
-  	topString: '100'
-  });
+	.module('izendaDashboard')
+	.constant('tileDefaults', {
+	id: null,
+	title: null,
+	description: null,
+	reportFullName: null,
+	reportPartName: null,
+	reportSetName: null,
+	reportName: null,
+	reportCategory: null,
+	reportNameWithCategory: null,
+	previousReportFullName: null,
+	isSourceReportDeleted: false,
+	designerType: 'ReportDesigner',
+	x: 0,
+	y: 0,
+	width: 1,
+	height: 1,
+	top: 100,
+	topString: '100'
+});
 
 angular
-  .module('izendaDashboard')
-  .controller('IzendaTileController', [
-    '$window',
-    '$timeout',
-    '$element',
-    '$rootScope',
-    '$scope',
-    '$log',
-    '$injector',
-    '$izendaUrl',
-    '$izendaCompatibility',
-    '$izendaCommonQuery',
-    '$izendaSettings',
-    '$izendaDashboardQuery',
-    '$izendaEvent',
+	.module('izendaDashboard')
+	.controller('IzendaTileController', [
+		'$window',
+		'$timeout',
+		'$element',
+		'$rootScope',
+		'$scope',
+		'$log',
+		'$injector',
+		'$izendaUrl',
+		'$izendaCompatibility',
+		'$izendaCommonQuery',
+		'$izendaSettings',
+		'$izendaDashboardQuery',
+		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaDashboardState',
-    izendaTileController]);
+		izendaTileController]);
 
 /**
  * Tile controller
  */
 function izendaTileController(
-  $window,
-  $timeout,
-  $element,
-  $rootScope,
-  $scope,
-  $log,
-  $injector,
-  $izendaUrl,
-  $izendaCompatibility,
-  $izendaCommonQuery,
-  $izendaSettings,
-  $izendaDashboardQuery,
-  $izendaEvent,
+	$window,
+	$timeout,
+	$element,
+	$rootScope,
+	$scope,
+	$log,
+	$injector,
+	$izendaUrl,
+	$izendaCompatibility,
+	$izendaCommonQuery,
+	$izendaSettings,
+	$izendaDashboardQuery,
+	$izendaEvent,
 	$izendaLocale,
 	$izendaDashboardState) {
 
@@ -65,11 +65,13 @@ function izendaTileController(
 	var _ = angular.element;
 
 	$scope.animationCompleted = false;
+	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 	var vm = this;
 	vm.izendaUrl = $izendaUrl;
 	vm.izendaDashboardState = $izendaDashboardState;
 	vm.isDesignLinksAllowed = false;
+	vm.showAllInResults = true;
 
 	vm.isIE8 = $izendaCompatibility.checkIsIe8();
 	vm.printMode = 'Html2PdfAndHtml';
@@ -79,20 +81,22 @@ function izendaTileController(
 		resizableHandlerStarted: false
 	};
 
+	vm.dashboardSyncCompletedForTilePrintHandler = null;
+
 	// delete tile button classes
 	vm.deleteClass = 'title-button';
 	vm.deleteConfirmClass = 'title-button hidden-confirm-btn';
 
 	/**
-   * Check tile is read only
-   */
+	* Check tile is read only
+	*/
 	vm.isEditAllowed = function () {
 		return $izendaCompatibility.isEditAllowed();
 	};
 
 	/**
-   * change report category from cat1\cat2\cat3 to cat1/cat2/cat3
-   */
+	* change report category from cat1\cat2\cat3 to cat1/cat2/cat3
+	*/
 	vm.getConvertedReportCategory = function () {
 		if (!angular.isString(vm.reportCategory))
 			return null;
@@ -100,8 +104,8 @@ function izendaTileController(
 	};
 
 	/**
-   * Check if one column view required
-   */
+	* Check if one column view required
+	*/
 	vm.isOneColumnView = function () {
 		return $izendaCompatibility.isOneColumnView();
 	};
@@ -111,50 +115,50 @@ function izendaTileController(
 	////////////////////////////////////////////////////////
 
 	/**
-   * Get X coordinate for tile. This coordinate used for drawing tile UI
-   */
+	* Get X coordinate for tile. This coordinate used for drawing tile UI
+	*/
 	vm.getX = function () {
 		return vm.isOneColumnView() ? 0 : vm.x;
 	};
 
 	/**
-   * Get Y coordinate for tile. This coordinate used for drawing tile UI
-   */
+	* Get Y coordinate for tile. This coordinate used for drawing tile UI
+	*/
 	vm.getY = function () {
 		return vm.isOneColumnView() ? 4 * $scope.dashboardController.getTilePositionIndex(vm.id) : vm.y;
 	};
 
 	/**
-   * Get width of tile. This coordinate used for drawing tile UI
-   */
+	* Get width of tile. This coordinate used for drawing tile UI
+	*/
 	vm.getWidth = function () {
 		return vm.isOneColumnView() ? 12 : vm.width;
 	};
 
 	/**
-   * Get height of tile. This coordinate used for drawing tile UI
-   */
+	* Get height of tile. This coordinate used for drawing tile UI
+	*/
 	vm.getHeight = function () {
 		return vm.isOneColumnView() ? 4 : vm.height;
 	};
 
 	/**
-   * Check if tile title set
-   */
+	* Check if tile title set
+	*/
 	vm.isTitleSet = function () {
 		return angular.isString(vm.title) && vm.title != '';
 	};
 
 	/**
-   * Check if tile is empty
-   */
+	* Check if tile is empty
+	*/
 	vm.isTileEmpty = function () {
 		return vm.state.empty;
 	};
 
 	/**
-   * Return style object for '.iz-dash-tile'
-   */
+	* Return style object for '.iz-dash-tile'
+	*/
 	vm.getTileStyle = function () {
 		return {
 			'top': ($scope.dashboardController.tileHeight * vm.getY()) + 'px',
@@ -165,15 +169,15 @@ function izendaTileController(
 	};
 
 	/**
-	 * get top
-	 */
+	* get top
+	*/
 	vm.getTopString = function() {
-		return angular.isNumber(vm.top) ? vm.top : '';
+		return vm.topString;
 	};
 
 	/**
-   * Return class for '.iz-dash-tile'
-   */
+	* Return class for '.iz-dash-tile'
+	*/
 	vm.getTileClass = function () {
 		var baseClass = 'iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint';
 		return baseClass;
@@ -184,10 +188,9 @@ function izendaTileController(
 	////////////////////////////////////////////////////////
 
 	vm.initializeEventHandlers = function () {
-
 		/**
-     * Watch top changed
-     */
+		* Watch top changed
+		*/
 		$scope.$watch(angular.bind(vm, function (endTop) {
 			return vm.endTop;
 		}), function (newVal, oldVal) {
@@ -204,8 +207,8 @@ function izendaTileController(
 		});
 
 		/**
-     * Watch title changed
-     */
+		* Watch title changed
+		*/
 		$scope.$watch(angular.bind(vm, function (title) {
 			return vm.title;
 		}), function (newVal, oldVal) {
@@ -216,8 +219,8 @@ function izendaTileController(
 		});
 
 		/**
-     * Watch description changed
-     */
+		* Watch description changed
+		*/
 		$scope.$watch(angular.bind(vm, function (description) {
 			return vm.description;
 		}), function (newVal, oldVal) {
@@ -225,18 +228,24 @@ function izendaTileController(
 				updateParentTile();
 			}
 		});
+
+		$izendaEvent.handleQueuedEvent('dashboardSyncCompletedEvent', $scope, vm, function (subject) {
+			if (typeof vm.dashboardSyncCompletedForTilePrintHandler == 'function')
+				if(subject == 'tile-print')
+					vm.dashboardSyncCompletedForTilePrintHandler();
+		});
 	};
 
 	////////////////////////////////////////////////////////
 	// scope functions:
 	////////////////////////////////////////////////////////
 	/**
-   * Initialize tile
-   */
+	* Initialize tile
+	*/
 	vm.initialize = function (tile) {
 		/**
-     * Tile refresh event handler
-     */
+		* Tile refresh event handler
+		*/
 		$scope.$on('tileRefreshEvent', function (event, args) {
 			if (args.length > 0 && typeof (args[0]) == 'boolean')
 				vm.refreshTile(args[0]);
@@ -244,9 +253,13 @@ function izendaTileController(
 				vm.refreshTile(false);
 		});
 
+		$scope.$on('tileClearEvent', function() {
+			clearTileContent();
+		});
+
 		/**
-     * Tile light effect
-     */
+		* Tile light effect
+		*/
 		$scope.$on('tileLedStartEvent', function (event, args) {
 			if (args.length !== 1 || typeof (args[0]) !== 'string')
 				return;
@@ -257,8 +270,8 @@ function izendaTileController(
 		});
 
 		/**
-     * Turn off tile led effect
-     */
+		* Turn off tile led effect
+		*/
 		$scope.$on('tileLedEndEvent', function (event, args) {
 			if (args.length !== 1 || typeof (args[0]) !== 'string')
 				return;
@@ -269,8 +282,8 @@ function izendaTileController(
 		});
 
 		/**
-     * Start tile edit event handler
-     */
+		* Start tile edit event handler
+		*/
 		$scope.$on('startEditTileEvent', function (event, args) {
 			var eventOptions = angular.isArray(args) && args.length > 0 ? args[0] : null;
 			if (eventOptions == null)
@@ -278,8 +291,8 @@ function izendaTileController(
 		});
 
 		/**
-     * Tile edit completed event handler
-     */
+		* Tile edit completed event handler
+		*/
 		$scope.$on('stopEditTileEvent', function (event, args) {
 			var eventOptions = angular.isArray(args) && args.length > 0 ? args[0] : null;
 			if (eventOptions == null)
@@ -296,15 +309,15 @@ function izendaTileController(
 		});
 
 		/**
-     * Report selected handler
-     */
+		* Report selected handler
+		*/
 		$scope.$on('selectedReportPartEvent', function (event, args) {
 			var tileId = args[0];
 			if (tileId !== vm.id)
 				return;
 			var rpInfo = args[1];
 			var fName = rpInfo.Name;
-			if (rpInfo.Category != null && rpInfo.Category !== '' && rpInfo.Category.toLowerCase() !== 'uncategorized')
+			if (rpInfo.Category != null && rpInfo.Category !== '' && rpInfo.Category.toLowerCase() !== UNCATEGORIZED.toLowerCase())
 				fName = rpInfo.Category + '\\' + fName;
 
 			var nameparts = rpInfo.Name.split('@');
@@ -321,8 +334,7 @@ function izendaTileController(
 			}
 
 			if (found) {
-				$rootScope.$broadcast('showNotificationEvent', [
-		      $izendaLocale.localeText('js_CantSelectReportPart', 'Can\'t select report part because dashboard already contains tile with that report.')]);
+				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSelectReportPart', 'Can\'t select report part because dashboard already contains tile with that report.')]);
 				return;
 			}
 
@@ -331,7 +343,7 @@ function izendaTileController(
 			angular.extend(vm, vm.izendaUrl.extractReportPartNames(fName, true));
 			vm.title = rpInfo.Title;
 			vm.reportNameWithCategory = vm.reportName;
-			if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== 'uncategorized')
+			if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase())
 				vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
 			vm.top = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.endTop = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
@@ -375,33 +387,33 @@ function izendaTileController(
 	};
 
 	/**
-   * Select report part for tile
-   */
+	* Select report part for tile
+	*/
 	vm.selectReportPart = function () {
 		$rootScope.$broadcast('openSelectPartModalEvent', [vm.id]);
 	};
 
 	/**
-   * Get source report name
-   */
+	* Get source report name
+	*/
 	vm.getSourceReportName = function () {
 		var result = vm.reportName;
-		if (vm.reportCategory && vm.reportCategory !== 'Uncategorized') {
+		if (vm.reportCategory && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
 			result = vm.reportCategory + '\\' + result;
 		}
 		return result;
 	};
 
 	/**
-   * Get report viewer link for tile report
-   */
+	* Get report viewer link for tile report
+	*/
 	vm.getReportViewerLink = function () {
 		return vm.izendaUrl.settings.urlReportViewer + '?rn=' + vm.getSourceReportName();
 	};
 
 	/**
-   * Go to report viewer
-   */
+	* Go to report viewer
+	*/
 	vm.fireReportViewerLink = function () {
 		if (!vm.isSourceReportDeleted) {
 			$window.open(vm.getReportViewerLink(), '_blank');
@@ -411,8 +423,8 @@ function izendaTileController(
 	};
 
 	/**
-   * Get report editor link for tile report
-   */
+	* Get report editor link for tile report
+	*/
 	vm.getReportEditorLink = function () {
 		var designerUrl = vm.designerType === 'InstantReport'
 			? vm.izendaUrl.settings.urlInstantReport
@@ -421,8 +433,8 @@ function izendaTileController(
 	};
 
 	/**
-   * Go to report editor
-   */
+	* Go to report editor
+	*/
 	vm.fireReportEditorLink = function () {
 		if (!vm.isSourceReportDeleted) {
 			$window.location.href = vm.getReportEditorLink();
@@ -432,31 +444,31 @@ function izendaTileController(
 	};
 
 	/**
-   * Is tile content should be hidden now.
-   */
+	* Is tile content should be hidden now.
+	*/
 	vm.isReportDivHidden = function () {
 		return vm.reportFullName == null || $scope.dashboardController.isChangingNow;
 	};
 
 	/**
-   * Show confirm delete dialog in title
-   */
+	* Show confirm delete dialog in title
+	*/
 	vm.showConfirmDelete = function () {
 		vm.deleteClass = 'title-button hidden-btn';
 		vm.deleteConfirmClass = 'title-button';
 	};
 
 	/**
-   * Hide confirm delete dialog in title
-   */
+	* Hide confirm delete dialog in title
+	*/
 	vm.hideConfirmDelete = function () {
 		vm.deleteClass = 'title-button';
 		vm.deleteConfirmClass = 'title-button hidden-confirm-btn';
 	};
 
 	/**
-   * Delete tile handler
-   */
+	* Delete tile handler
+	*/
 	vm.deleteTile = function () {
 		$rootScope.$broadcast('deleteTileEvent', [{
 			tileId: vm.id
@@ -464,15 +476,15 @@ function izendaTileController(
 	};
 
 	/**
-   * Refresh tile handler
-   */
+	* Refresh tile handler
+	*/
 	vm.refreshTile = function (updateFromSourceReport) {
 		refreshTile(updateFromSourceReport);
 	};
 
 	/**
-   * Tile top changed:
-   */
+	* Tile top changed:
+	*/
 	vm.topSelected = function () {
 		updateParentTile();
 		$izendaDashboardQuery.setReportPartTop(vm.reportFullName, vm.top).then(function () {
@@ -481,15 +493,15 @@ function izendaTileController(
 	};
 
 	/**
-   * Is html model enabled in AdHocSettings
-   */
+	* Is html model enabled in AdHocSettings
+	*/
 	vm.isPrintTileVisible = function () {
 		return vm.printMode === 'Html' || vm.printMode === 'Html2PdfAndHtml';
 	};
 
 	/**
-   * Get adhocsettings
-   */
+	* Get adhocsettings
+	*/
 	function initializeAdHocSettings() {
 		$izendaSettings.getPrintMode().then(function (printModeString) {
 			vm.printMode = printModeString;
@@ -498,37 +510,45 @@ function izendaTileController(
 
 		$izendaSettings.getCommonSettings().then(function (settings) {
 			vm.isDesignLinksAllowed = settings.showDesignLinks;
+			vm.showAllInResults = settings.showAllInResults;
 			$scope.$applyAsync();
 		});
 	};
 
 	/**
-   * Print tile
-   */
+	* Print tile
+	*/
 	vm.printTile = function () {
 		var windowPrint = $window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
-		$izendaDashboardQuery.loadTileReportForPrint(vm.reportFullName)
-		.then(function (htmlData) {
-			$timeout(function () { 
-				windowPrint.document.write(htmlData);
-				windowPrint.document.close();
-				windowPrint.focus();
-				// Block UI in Chrome while printing is in progress
-				if ('WebkitAppearance' in document.documentElement.style)
-					$scope.dashboardController.printingInProgress = true;
-				$timeout(function () {
-					windowPrint.print();
-					$scope.dashboardController.printingInProgress = false;
-					windowPrint.close();
-				}, 2000);
-			}, 0);
-		});
-		vm.flipFront(true, false);
+
+		vm.dashboardSyncCompletedForTilePrintHandler = function () {
+			$izendaDashboardQuery.loadTileReportForPrint(vm.reportFullName)
+					.then(function (htmlData) {
+						$timeout(function () {
+							windowPrint.document.write(htmlData);
+							windowPrint.document.close();
+							windowPrint.focus();
+							// Block UI in Chrome while printing is in progress
+							if ('WebkitAppearance' in document.documentElement.style)
+								$scope.dashboardController.printingInProgress = true;
+							$timeout(function () {
+								windowPrint.print();
+								$scope.dashboardController.printingInProgress = false;
+								windowPrint.close();
+							}, 2000);
+						}, 0);
+					});
+			vm.flipFront(true, false);
+
+			vm.dashboardSyncCompletedForTilePrintHandler = null;
+		};
+
+		$izendaEvent.queueEvent('dashboardSyncEvent', ['tile-print']);
 	};
 
 	/**
-   * Export to excel
-   */
+	* Export to excel
+	*/
 	vm.exportToExcel = function () {
 		var addParam = '';
 		if (typeof (window.izendaPageId$) !== 'undefined')
@@ -539,14 +559,14 @@ function izendaTileController(
 	};
 
 	/**
-   * Refresh tile parameters
-   */
+	* Refresh tile parameters
+	*/
 	vm.updateTileParameters = function () {
 		var $tile = $scope.dashboardController.getTile$ById(vm.id);
 		var x = Math.round($tile.position().left / $scope.dashboardController.tileWidth),
-        y = Math.round($tile.position().top / $scope.dashboardController.tileHeight),
-        width = Math.round($tile.width() / $scope.dashboardController.tileWidth),
-        height = Math.round($tile.height() / $scope.dashboardController.tileHeight);
+			y = Math.round($tile.position().top / $scope.dashboardController.tileHeight),
+			width = Math.round($tile.width() / $scope.dashboardController.tileWidth),
+			height = Math.round($tile.height() / $scope.dashboardController.tileHeight);
 		vm.x = x > 0 ? x : 0;
 		vm.y = y > 0 ? y : 0;
 		vm.width = width;
@@ -555,22 +575,22 @@ function izendaTileController(
 	};
 
 	/**s
-   * Flip tile back
-   */
+	* Flip tile back
+	*/
 	vm.flipBack = function () {
 		flipTileBack();
 	};
 
 	/**
-   * Flip tile front
-   */
+	* Flip tile front
+	*/
 	vm.flipFront = function (update, updateFromSourceReport) {
 		flipTileFront(update, updateFromSourceReport);
 	};
 
 	/**
-   * Class for confirm delete button (depends on tile size)
-   */
+	* Class for confirm delete button (depends on tile size)
+	*/
 	vm.getConfirmDeleteClass = function () {
 		if (vm.width <= 1)
 			return 'title-button-confirm-remove short';
@@ -578,8 +598,8 @@ function izendaTileController(
 	};
 
 	/**
-   * Class for cancel delete button (depends on tile size)
-   */
+	* Class for cancel delete button (depends on tile size)
+	*/
 	vm.getCancelDeleteClass = function () {
 		if (vm.width <= 1)
 			return 'title-button-cancel-remove short';
@@ -591,8 +611,8 @@ function izendaTileController(
 	////////////////////////////////////////////////////////
 
 	/**
-   * Update parent collection. Should be called when tile change ends.
-   */
+	* Update parent collection. Should be called when tile change ends.
+	*/
 	function updateParentTile() {
 		var parentTile = $scope.dashboardController.getTileById(vm.id);
 		var oldTile = jQuery.extend({}, parentTile);
@@ -624,8 +644,8 @@ function izendaTileController(
 	};
 
 	/**
-   * initialize draggable for tile
-   */
+	* initialize draggable for tile
+	*/
 	function initializeDraggable() {
 		$element.draggable({
 			stack: '.iz-dash-tile',
@@ -633,12 +653,12 @@ function izendaTileController(
 			helper: function (event) {
 				var $target = _(event.currentTarget);
 				var helperStr =
-          '<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
-          '<div class="animate-flip">' +
-          '<div class="flippy-front animated fast">' +
-          '<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text">' +
-          '</span></div></div>' +
-          '</div></div></div>';
+			'<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
+			'<div class="animate-flip">' +
+			'<div class="flippy-front animated fast">' +
+			'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text">' +
+			'</span></div></div>' +
+			'</div></div></div>';
 				return _(helperStr);
 			},
 			distance: 10,
@@ -746,8 +766,8 @@ function izendaTileController(
 	}
 
 	/**
-   * Initialize resizable handler
-   */
+	* Initialize resizable handler
+	*/
 	function initializeResizable() {
 		var $animates = $scope.dashboardController.getTileContainer().find('.animate-flip');
 		$element.resizable({
@@ -829,8 +849,8 @@ function izendaTileController(
 	}
 
 	/**
-   * Flip tile to the front side and refresh if needed.
-   */
+	* Flip tile to the front side and refresh if needed.
+	*/
 	function flipTileFront(update, updateFromSourceReport) {
 		var $tile = _($element);
 		var showClass = 'animated fast flipInY';
@@ -854,8 +874,8 @@ function izendaTileController(
 	}
 
 	/**
-   * Flip tile to back side
-   */
+	* Flip tile to back side
+	*/
 	function flipTileBack() {
 		var $tile = _($element);
 		var showClass = 'animated fast flipInY';
@@ -875,8 +895,8 @@ function izendaTileController(
 	}
 
 	/**
-   * Update handlers state
-   */
+	* Update handlers state
+	*/
 	function updateDashboardHandlers($tile) {
 		if (vm.isEditAllowed()) {
 			$tile.resizable('enable');
@@ -893,16 +913,16 @@ function izendaTileController(
 	}
 
 	/**
-   * Clear tile content
-   */
+	* Clear tile content
+	*/
 	function clearTileContent() {
 		var $body = _($element).find('.report');
 		$body.empty();
 	}
 
 	/**
-	 * Refresh tile content
-	 */
+	* Refresh tile content
+	*/
 	function refreshTile(updateFromSourceReport) {
 		var updateFromSource = vm.updateFromSource || updateFromSourceReport;
 		vm.updateFromSource = false;
@@ -953,8 +973,8 @@ function izendaTileController(
 	}
 
 	/**
-	 * Set tile inner html
-	 */
+	* Set tile inner html
+	*/
 	function applyTileHtml(htmlData) {
 		vm.preloadDataHandler = null;
 		vm.preloadData = null;
@@ -997,10 +1017,6 @@ function izendaTileController(
 			$body.append('<b>Failed to load report: ' + e + '</b>');
 			$log.error($izendaLocale.localeText('js_FailedToLoadReport', 'Failed to load report') + ': ' + e);
 		}
-		$tile.find('.frame').css('overflow', 'hidden');
-		setTimeout(function () {
-			$tile.find('.frame').css('overflow', 'auto');
-		}, 10);
 		vm.state.empty = false;
 	}
 }

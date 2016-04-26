@@ -407,6 +407,7 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 	if(isOk&&(reportName!=null))
 	{
 		reportName = SRA_ProcessReportName(reportName, folderName);
+		reportName = jq$.map(reportName.split('\\'), jq$.trim).join('\\');
 		if (reportName == null) {
 			ShowDialog("<span>"+jsResources.InvalidReportName+"</span><br/><input type='button' onclick='TB_ModalDialogHide(true)' value='OK'>");
 			ebc_cancelSubmiting = true;

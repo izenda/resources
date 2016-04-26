@@ -444,7 +444,7 @@ function renderField(tableIndex, fieldName, fieldId, fieldObj) {
 	var fid = createFieldIdentifier(tableIndex, fieldsIndex);
 	fieldObj.domId = fid;
 	var html = " \
-						<a class='field' href='#" + fieldName + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldId + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
+						<a class='field' href='#" + fieldName + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldId + "' typeGroup='" + fieldObj.typeGroup + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
 							<span class='preview-image'></span> \
 							</span> \
 							<span class='checkbox' style='margin-top: 3px; margin-right: 6px;'></span> \
@@ -587,7 +587,11 @@ function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 	var autoTotal = false;
 	var aRef = document.getElementById(fiIds);
 	var selected = -1;
+	var typeGrp = "None";
 	if (typeof aRef != 'undefined' && aRef != null) {
+		typeGrp = aRef.getAttribute('typegroup');
+		if (typeof typeGrp == 'undefined' || typeGrp == null)
+			typeGrp = "None";
 		selected = aRef.getAttribute('sorder');
 		if (typeof selected == 'undefined' || selected == null)
 			selected = -1;
@@ -603,6 +607,27 @@ function DS_ShowFieldProperties(fieldSqlName, friendlyName, fiIds, filterGUID) {
 	curPropField = fieldSqlName;
 	var field = DS_GetFullField(fieldSqlName, friendlyName);
 	field.Selected = selected;
+	var tgNum = -1;
+	for (var ind = 0; ind < nirConfig.TypeGroups.length; ind++)
+	{
+		if (nirConfig.TypeGroups[ind] == typeGrp)
+		{
+			tgNum = ind;
+			break;
+		}
+	}
+	field.STFunctionValues = new Array();
+	field.STFunctionNames = new Array();
+	if (tgNum >= 0)
+	{
+		for (var index = 0; index < nirConfig.DefaultSTFNames[tgNum].length; index++)
+		{
+			field.STFunctionValues[field.STFunctionValues.length] = nirConfig.DefaultSTFValues[tgNum][index];
+			field.STFunctionNames[field.STFunctionNames.length] = nirConfig.DefaultSTFNames[tgNum][index];
+		}
+	}
+	if (typeof field.STFunction == 'undefined' || field.STFunction == null || field.STFunction == '' || field.STFunction == '...')
+		field.STFunction = 'DEFAULT';
 	if (field.Total == null)
 		field.Total = 1;
 	var requestString = 'wscmd=fieldoperatorsandformatswithdefault';

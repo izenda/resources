@@ -30,18 +30,17 @@ function izendaSelectReportNameController(
 
 	vm.reportNameInputPlaceholderText = $izendaLocale.localeText(reportNameInputPlaceholderText[0], reportNameInputPlaceholderText[1]);
 	vm.CREATE_NEW_TEXT = $izendaLocale.localeText('js_CreateNew', 'Create New');
-	vm.UNCATEGORIZED_TEXT = 'Uncategorized';
+	vm.UNCATEGORIZED_TEXT = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	vm.ERROR_REPORT_NAME_EMPTY = $izendaLocale.localeText('js_NameCantBeEmpty', 'Dashboard name can\'t be empty.');
+
 	vm.ERROR_CATEGORY_EXIST = function (categoryName) {
-		var result = $izendaLocale.localeText('js_CategoryExist', 'Category with name "{0}" already exist.');
-		result = result.replace('{0}', categoryName);
-		return result;
+		return $izendaLocale.localeTextWithParams('js_CategoryExist', 'Category with name "{0}" already exist.', [categoryName]);
 	};
+
 	vm.ERROR_REPORT_EXIST = function (fullReportName) {
-		var result = $izendaLocale.localeText('js_ReportAlreadyExist', 'Dashboard or Report "{0}" already exist');
-		result = result.replace('{0}', fullReportName);
-		return result;
+		return $izendaLocale.localeTextWithParams('js_ReportAlreadyExist', 'Dashboard or Report "{0}" already exist', [fullReportName]);
 	};
+
 	vm.ERROR_INVALID_REPORT_NAME = $izendaLocale.localeText('js_InvalidDashboardName', 'Invalid Dashboard Name'); // InvalidDashboardName
 	vm.ERROR_INVALID_CATEGORY_NAME = $izendaLocale.localeText('js_InvalidCategoryName', 'Invalid Category Name'); // InvalidCategoryName
 
@@ -205,8 +204,9 @@ function izendaSelectReportNameController(
 		return $q(function (resolve, reject) {
 			// check report name not empty
 			vm.errorMessages.length = 0;
-			var rName = angular.isString(vm.reportName) ? vm.reportName.trim() : '';
-			if (rName === '') {
+			vm.reportName = angular.isString(vm.reportName) ? vm.reportName.trim() : '';
+			vm.reportName = jq$.map(vm.reportName.split('\\'), jq$.trim).join('\\');
+			if (vm.reportName === '') {
 				vm.errorMessages.push(vm.ERROR_REPORT_NAME_EMPTY);
 				reject();
 				$scope.$evalAsync();
@@ -216,8 +216,8 @@ function izendaSelectReportNameController(
 			$izendaSettings.getCommonSettings().then(function (settings) {
 				if (!settings.allowInvalidCharacters) {
 					if (settings.stripInvalidCharacters)
-						rName = rName.replace(vm.invalidCharsRegex, '');
-					if (rName.match(vm.invalidCharsRegex)) {
+						vm.reportName = vm.reportName.replace(vm.invalidCharsRegex, '');
+					if (vm.reportName.match(vm.invalidCharsRegex)) {
 						vm.errorMessages.push(vm.ERROR_INVALID_REPORT_NAME);
 						reject();
 						return false;
@@ -226,6 +226,7 @@ function izendaSelectReportNameController(
 
 				// check category
 				if (vm.isCreatingNewCategory) {
+					vm.newCategoryName = jq$.map(vm.newCategoryName.split('\\'), jq$.trim).join('\\');
 					if (!settings.allowInvalidCharacters) {
 						if (settings.stripInvalidCharacters)
 							vm.newCategoryName = vm.newCategoryName.replace(vm.invalidCharsRegex, '');
@@ -251,16 +252,16 @@ function izendaSelectReportNameController(
 
 				// resolve if it is same report
 				var reportInfo = $izendaUrl.getReportInfo();
-				if (reportInfo.name === rName && reportInfo.category === selectedCategoryName) {
-					vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + rName));
+				if (reportInfo.name === vm.reportName && reportInfo.category === selectedCategoryName) {
+					vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + vm.reportName));
 					reject();
 					return false;
 				}
 
 				// check report isn't in that category
 				if (selectedCategoryName === vm.UNCATEGORIZED_TEXT) {
-					if (vm.isReportInReportList(rName, vm.reportSets)) {
-						vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + rName));
+					if (vm.isReportInReportList(vm.reportName, vm.reportSets)) {
+						vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + vm.reportName));
 						reject();
 						$scope.$evalAsync();
 						return false;
@@ -270,8 +271,8 @@ function izendaSelectReportNameController(
 				} else {
 					$izendaCommonQuery.getReportSetCategory(selectedCategoryName).then(function (data) {
 						vm.reportSets = data.ReportSets;
-						if (vm.isReportInReportList(rName, data.ReportSets)) {
-							vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + rName));
+						if (vm.isReportInReportList(vm.reportName, data.ReportSets)) {
+							vm.errorMessages.push(vm.ERROR_REPORT_EXIST(selectedCategoryName + '\\' + vm.reportName));
 							reject();
 							return false;
 						}

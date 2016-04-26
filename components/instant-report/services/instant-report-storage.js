@@ -136,6 +136,7 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportStorage', [
 			'$rootScope',
 			'$izendaUtil',
 			'$izendaUrl',
+			'$izendaLocale',
 			'$izendaSettings',
 			'$izendaCompatibility',
 			'$izendaScheduleService',
@@ -143,7 +144,7 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportStorage', [
 			'izendaInstantReportConfig',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportPivots',
-function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUrl, $izendaSettings, $izendaCompatibility,
+function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUrl, $izendaLocale, $izendaSettings, $izendaCompatibility,
 	$izendaScheduleService, $izendaShareService, izendaInstantReportConfig, $izendaInstantReportQuery,
 	$izendaInstantReportPivots) {
 	'use strict';
@@ -157,14 +158,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		text: '...'
 	};
 	var EMPTY_FIELD_FORMAT_OPTION = $injector.get('izendaDefaultFormatObject');
-	var UNCATEGORIZED = "Uncategorized";
+	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 	var isPageInitialized = false;
 	var isPageReady = false;
 	var existingReportLoadingSchedule = null;
 
 	var isPreviewSplashVisible = false;
-	var previewSplashText = 'Please wait while preview is loading...';
+	var previewSplashText = $izendaLocale.localeText('js_WaitPreviewLoading', 'Please wait while preview is loading...');
 
 	var reportSet = angular.merge({}, $injector.get('izendaInstantReportObjectDefaults'));
 	var activeTables = [];
@@ -226,7 +227,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Becomes true when page is ready to work
 	 */
-	var getPageReady = function() {
+	var getPageReady = function () {
 		return isPageReady;
 	}
 
@@ -344,8 +345,17 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				    fields = tables[j].fields;
 				while (k < fields.length) {
 					var field = fields[k];
-					if (field.id === id)
+					if (field.id === id) {
 						return field;
+					}
+					if (field.isMultipleColumns) {
+						angularJq$.each(field.multipleColumns, function() {
+							var multipleField = this;
+							if (multipleField.id === id) {
+								return multipleField;
+							}
+						});
+					}
 					k++;
 				}
 				j++;
@@ -718,7 +728,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				// if field have sql type which can't be grouped
 				field.validateMessages.push({
 					messageType: 'danger',
-					message: 'Can\'t use fields with sql type "' + field.sqlType + '" with GROUP BY statement'
+					message: $izendaLocale.localeTextWithParams(
+						'js_CantUseWithGroup',
+						'Can\'t use fields with sql type "{0}" with GROUP BY statement',
+						[field.sqlType])
 				});
 				field.validateMessageLevel = 'danger';
 				validationFailed = true;
@@ -726,7 +739,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				// if field have no group function
 				field.validateMessages.push({
 					messageType: 'danger',
-					message: 'If functions are used, each selection must be a function.'
+					message: $izendaLocale.localeText('js_MustBeFunction', 'If functions are used, each selection must be a function.')
 				});
 				field.validateMessageLevel = 'danger';
 				validationFailed = true;
@@ -1065,7 +1078,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 	};
 
-	var resetFieldObject = function(fieldObject) {
+	var resetFieldObject = function (fieldObject) {
 		fieldObject.isInitialized = false;
 		fieldObject.isMultipleColumns = false;
 		fieldObject.multipleColumns = [];
@@ -1328,7 +1341,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 						field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
 					tableObject.fields.push(fieldObject);
 				});
-				tableObject.fields.sort(function(field1, field2) {
+				tableObject.fields.sort(function (field1, field2) {
 					if (field1.name > field2.name)
 						return 1;
 					if (field1.name < field2.name)
@@ -1357,7 +1370,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return result;
 	};
 
-	var createFieldObjectForSend = function(field) {
+	var createFieldObjectForSend = function (field) {
 		return {
 			sysname: field.sysname,
 			description: field.description ? field.description : $izendaUtil.humanizeVariableName(field.name),
@@ -1458,7 +1471,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		// add filters to config
 		angularJq$.each(getFilters(), function () {
 			var filter = this;
-			if (filter.field === null || !angular.isObject(filter.operator) || filter.operator.value === '') {
+			if (filter.field === null || !angular.isObject(filter.operator)) {
 				filter.isValid = false;
 				return;
 			}
@@ -1500,7 +1513,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				titleFormat: filter.titleFormat
 			};
 			var isBlank = true;
-			angular.element.each(filterObj.values, function() {
+			angular.element.each(filterObj.values, function () {
 				if (this !== '') isBlank = false;
 			});
 			if (isBlank)
@@ -1550,10 +1563,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Get and apply preview for current report set config.
 	 */
 	var getReportPreviewHtml = function () {
-		return $q(function(resolve) {
+		return $q(function (resolve) {
 			clearReportPreviewHtml();
 			isPreviewSplashVisible = true;
-			previewSplashText = 'Please wait while preview is loading...';
 			var options = getOptions();
 			var reportSetToSend = createReportSetConfigForSend(options.previewTop);
 			$izendaInstantReportQuery.getNewReportSetPreview(reportSetToSend).then(function (data) {
@@ -1631,18 +1643,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 */
 	var exportReportAs = function (type) {
 		return $q(function (resolve) {
-			setReportSetAsCrs().then(function (reportSetWasSetAsCrs, message) {
-				if (reportSetWasSetAsCrs) {
 					var addParam = '';
 					if (typeof (window.izendaPageId$) !== 'undefined')
 						addParam = '&izpid=' + window.izendaPageId$;
 					$window.open($izendaUrl.settings.urlRsPage + '?output=' + type + addParam, '_self');
 					resolve(true);
-				} else {
-					resolve(false, message);
-				}
 			});
-		});
 	};
 
 	/**
@@ -1650,18 +1656,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 */
 	var printReportAsHtml = function () {
 		return $q(function (resolve) {
-			setReportSetAsCrs().then(function (success, message) {
-				if (success) {
 					var addParam = '';
 					if (typeof (window.izendaPageId$) !== 'undefined')
 						addParam = '&izpid=' + window.izendaPageId$;
 					ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
 					resolve(true);
-				} else {
-					resolve(false, message);
-				}
 			});
-		});
 	};
 
 	/**
@@ -1686,7 +1686,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Open report in report designer.
 	 */
-	var openReportInDesigner = function() {
+	var openReportInDesigner = function () {
 		setReportSetAsCrs().then(function () {
 			var url = $izendaUrl.settings.urlReportDesigner;
 			if (angular.isString(reportSet.reportName) && reportSet.reportName !== '')
@@ -1792,7 +1792,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			});
 			if (!found) {
 				filter.isValid = false;
-				filter.validationMessages.push('filter field refers on datasource which isn\'t included to report');
+				filter.validationMessages.push(
+					$izendaLocale.localeText('js_FilterFieldIsntIncluded', 'Filter field refers on datasource which isn\'t included to report'));
 				filter.validationMessageString = filter.validationMessages.join(', ');
 			}
 		}
@@ -1866,7 +1867,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 				filter.operators = result;
 				filter.operator = getFilterOperatorByValue(filter, operatorNameToApply);
-				
+
 				// update field value
 				var operatorType = getFieldFilterOperatorValueType(filter.operator);
 				if (operatorType === 'field') {
@@ -1877,14 +1878,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					var dateFormatString = defaultDateFormat.shortDate +
 						(dateformat.showTimeInFilterPickers ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '');
 					var valueDates = [];
-					angular.element.each(filter.values, function() {
+					angular.element.each(filter.values, function () {
 						var parsedDate = moment(this, dateFormatString, true);
 						if (parsedDate.isValid())
 							valueDates.push(parsedDate._d);
 					});
 					filter.values = valueDates;
 				}
-				
+
 				resolve(filter);
 			});
 		});
@@ -1909,10 +1910,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 			// parse unicode symbols util
 			var parseHtmlUnicodeEntities = function (str) {
-				return str.replace(/&#([0-9]{1,4});/gi, function (match, numStr) {
-					var num = parseInt(numStr, 10); // read num as normal number
-					return String.fromCharCode(num);
-				});
+				return angularJq$('<textarea />').html(str).text();
 			};
 
 			// get constraint filters
@@ -1923,21 +1921,34 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			}
 			var constraintFilters = allFilters.slice(0, idx);
 
+			// convert options which we have got from server.
+			var convertOptionsForSelect = function (options) {
+				if (!angular.isArray(options))
+					return [];
+					var result = [];
+				angularJq$.each(options, function () {
+						var option = this;
+						if (option.value !== '...') {
+							option.text = parseHtmlUnicodeEntities(option.text);
+							option.value = option.value;
+							result.push(option);
+						}
+					});
+				return result;
+			};
+
 			// load existent values
 			var operatorType = getFieldFilterOperatorValueType(filter.operator);
 			if (operatorType === 'select' || operatorType === 'Equals_Autocomplete' || operatorType === 'select_multiple'
 				|| operatorType === 'select_popup' || operatorType === 'select_checkboxes') {
 				$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true).then(function (data) {
-					var result = [];
-					angularJq$.each(data[0].options, function () {
-						var option = this;
-						if (option.value !== '...') {
-							option.text = parseHtmlUnicodeEntities(option.text);
-							option.value = parseHtmlUnicodeEntities(option.value);
-							result.push(option);
-						}
-					});
-					filter.existentValues = result;
+					filter.existentValues = convertOptionsForSelect(data[0].options);
+					filter.initialized = true;
+					resolve(filter);
+				});
+			} else if (operatorType === 'inTimePeriod') {
+				$izendaInstantReportQuery.getPeriodList().then(function(data) {
+					filter.existentValues = convertOptionsForSelect(data[0].options);
 					filter.initialized = true;
 					resolve(filter);
 				});
@@ -1986,8 +1997,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		// set field
 		var field = getFieldBySysName(fieldSysName);
 		filterObject.field = field;
-		if (angular.isDefined(values))
+		if (angular.isDefined(values)) {
 			filterObject.values = values;
+			if (operatorName === 'Equals_Autocomplete')
+				filterObject.values = [values.join(',')];
+		}
 		if (angular.isDefined(required))
 			filterObject.required = required;
 		if (angular.isDefined(description))
@@ -2257,7 +2271,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Fires when user check/uncheck field
 	 */
 	var applyFieldChecked = function (field, value) {
-		return $q(function(resolve) {
+		return $q(function (resolve) {
 			if (!field.enabled) {
 				validateReport();
 				resolve();
@@ -2338,6 +2352,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		var anotherField = createFieldObject(field.name + (field.multipleColumnsCounter++), field.parentId, field.tableSysname, field.tableName,
 			field.sysname, field.typeGroup, field.type, field.sqlType);
 		anotherField.order = getNextOrder();
+		anotherField.parentFieldId = field.id;
 
 		initializeField(anotherField).then(function () {
 			applyAutoGroups();
@@ -2418,6 +2433,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				};
 				var newFilter = _createNewFilterBase(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
 					filterConfig.required, filterConfig.description, filterConfig.parameter);
+				
 				reportSet.filters[i] = newFilter;
 
 				// load filter formats
@@ -2470,8 +2486,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				// apply config to reportSet object
 				if (!angular.isObject(reportSetConfig)) {
 					$rootScope.$broadcast('izendaShowMessageEvent', [
-						'Failed to load report: "' + reportSetConfig + '"',
-						'Report load error',
+						$izendaLocale.localeText('js_FailedToLoadReport', 'Failed to load report') + ': "' + reportSetConfig + '"',
+						$izendaLocale.localeText('js_ReportLoadError', 'Report load error'),
 						'danger']);
 					// redirect to new report
 					$izendaUrl.setIsNew();
@@ -2558,7 +2574,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Remove another field
 	 */
-	var removeAnotherField = function(field, anotherField) {
+	var removeAnotherField = function (field, anotherField) {
 		var idx = field.multipleColumns.indexOf(anotherField);
 		if (idx >= 0) {
 			if (getCurrentActiveField() === anotherField)
@@ -2573,6 +2589,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			field.multipleColumns = [];
 			field.isMultipleColumns = false;
 			field.collapsed = false;
+			field.parentFieldId = null;
 			autoUpdateFieldDescription(field);
 		}
 	};
@@ -2618,6 +2635,35 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * We need to set visual group fields order first and other fields next.
+	 */
+	var updateVisualGroupFieldOrders = function () {
+		var activeFields = getAllActiveFields();
+		// we need to update field orders:
+		// vgField1, vgField2, ..., vgFieldN, nonVg1, nonVg2, ..., nonVgM
+		var vgFields = angular.element.grep(activeFields, function (f) {
+			return f.isVgUsed;
+		});
+		if (vgFields.length === 0)
+			return;
+		vgFields.sort(function (a, b) {
+			return a.order - b.order;
+		});
+		angular.element.each(vgFields, function () {
+			this.order = getNextOrder();
+		});
+		var nonVgFields = angular.element.grep(activeFields, function (f) {
+			return !f.isVgUsed;
+		});
+		nonVgFields.sort(function (a, b) {
+			return a.order - b.order;
+		});
+		angular.element.each(nonVgFields, function () {
+			this.order = getNextOrder();
+		});
+	};
+
+	/**
 	 * Set visual group 
 	 */
 	var applyVisualGroup = function (field, value) {
@@ -2625,12 +2671,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			applyFieldSort(field, 'asc');
 		}
 		field.isVgUsed = value;
+		if (value) {
+			updateVisualGroupFieldOrders();
+		}
 	};
 
 	/**
 	 * Restore default color settings.
 	 */
-	var restoreDefaultColors = function() {
+	var restoreDefaultColors = function () {
 		var defaultReportSettings = $injector.get('izendaInstantReportObjectDefaults');
 		var defaultStyle = defaultReportSettings.options.style;
 		var style = reportSet.options.style;
@@ -2665,13 +2714,13 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Change field order
 	 */
-	var moveFieldToPosition = function(fromIndex, toIndex, isVisualGroup) {
+	var moveFieldToPosition = function (fromIndex, toIndex, isVisualGroup) {
 		if (fromIndex === toIndex)
 			return;
-		var activeFieldsSorted = getAllActiveFields().sort(function(f1, f2) {
+		var activeFieldsSorted = getAllActiveFields().sort(function (f1, f2) {
 			return f1.order - f2.order;
 		});
-		activeFieldsSorted = angular.element.grep(activeFieldsSorted, function(field) {
+		activeFieldsSorted = angular.element.grep(activeFieldsSorted, function (field) {
 			return (isVisualGroup ^ field.isVgUsed) === 0;
 		});
 		var fromElement = activeFieldsSorted[fromIndex];
@@ -2692,13 +2741,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				if (i !== fromIndex)
 					activeFieldsSorted[i].order = getNextOrder();
 		}
+		updateVisualGroupFieldOrders();
 	};
 
-	var getPreviewSplashVisible = function() {
+	var getPreviewSplashVisible = function () {
 		return isPreviewSplashVisible;
 	};
 
-	var getPreviewSplashText = function() {
+	var getPreviewSplashText = function () {
 		return previewSplashText;
 	};
 
@@ -2725,7 +2775,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				isPageReady = true;
 				var timeSpent = (new Date()).getTime() - startInitializingTimestamp;
 				$log.debug('Page ready: ', timeSpent + 'ms');
-				
+
 			}
 		});
 
@@ -2786,6 +2836,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		applyFieldVisible: applyFieldVisible,
 		applyFieldBold: applyFieldBold,
 		applyVisualGroup: applyVisualGroup,
+		updateVisualGroupFieldOrders: updateVisualGroupFieldOrders,
 		swapFields: swapFields,
 		moveFieldToPosition: moveFieldToPosition,
 		restoreDefaultColors: restoreDefaultColors,

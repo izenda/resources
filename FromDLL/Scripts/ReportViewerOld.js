@@ -786,6 +786,10 @@ function ShowSaveAsDialog() {
 function SaveReportAs() {
     var newRepName = document.getElementById('newReportName').value;
     var newCatName = document.getElementById('newCategoryName').value;
+
+    newRepName = jq$.map(newRepName.split('\\'), jq$.trim).join('\\');
+    newCatName = jq$.map(newCatName.split('\\'), jq$.trim).join('\\');
+
     var fieldWithRn = document.getElementById('reportNameFor2ver');
     var newFullName = newRepName;
     if (newCatName != null && newCatName != '' && newCatName != 'Uncategorized') {
@@ -906,7 +910,7 @@ function CancelSave() {
 }
 
 function CancelAddCategory() {
-    var newCatDialog = document.getElementById('newCatDialog').style.display = 'none';
+    document.getElementById('newCatDialog').style.display = 'none';
     var saveAsDialog = document.getElementById('saveAsDialog');
     var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
     saveAsDialog.style.height = windowHeight + 'px';

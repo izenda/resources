@@ -68,7 +68,7 @@ function izendaDashboardController(
 
 	'use strict';
 	var vm = this;
-
+	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	var _ = angular.element;
 	$scope.izendaUrl = $izendaUrl;
 	$scope.izendaDashboardState = $izendaDashboardState;
@@ -88,6 +88,7 @@ function izendaDashboardController(
 		'height': 0
 	};
 
+	vm.windowScale = 1;
 	vm.galleryContainerStyle = {
 		'height': 0,
 		'top': '20px'
@@ -258,7 +259,7 @@ function izendaDashboardController(
 	/**
    * Close modal box
    */
-	vm.closeMessageBox = function() {
+	vm.closeMessageBox = function () {
 		vm.isMessageDialogOpened = false;
 		$scope.$applyAsync();
 	};
@@ -333,6 +334,14 @@ function izendaDashboardController(
 			$scope.$emit('previousSlide');
 		}
 		$scope.$evalAsync();
+	};
+
+	vm.getGalleryButtonsStyle = function (type) {
+		if (type === 'button')
+			return 'width: calc((100% - ' + (vm.windowScale * 1200) + 'px) / 2);';
+		if (type === 'center')
+			return 'width: ' + (vm.windowScale * 1200) + 'px';
+		throw 'Unknown parameter value: ' + type;
 	};
 
 	/**
@@ -525,7 +534,7 @@ function izendaDashboardController(
 			turnOnAddTileHandler();
 		}
 	};
-	
+
 	/**
 	 * Fires when tiles added and animation is completed.
 	 */
@@ -624,9 +633,9 @@ function izendaDashboardController(
 			requestFullScreen($galleryRoot.get(0));
 		});
 
-		$izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function () {
+		$izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function (subject) {
 			sync().then(function () {
-				$izendaEvent.queueEvent('dashboardSyncCompletedEvent', []);
+				$izendaEvent.queueEvent('dashboardSyncCompletedEvent', [subject]);
 			});
 		});
 
@@ -768,7 +777,7 @@ function izendaDashboardController(
 				var $tContainer = vm.getTileContainer();
 				vm.mouseMoveCache = {
 					$tileContainer: $tContainer,
-					offset: function() { return $tContainer.offset(); }
+					offset: function () { return $tContainer.offset(); }
 				}
 			}
 			var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
@@ -940,7 +949,7 @@ function izendaDashboardController(
    */
 	function save(dashboardName, dashboardCategory) {
 		var dashboardFullName = dashboardName;
-		if (angular.isString(dashboardCategory) && dashboardCategory != '' && dashboardCategory.toLowerCase() !== 'uncategorized') {
+		if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
 			dashboardFullName = dashboardCategory + '\\' + dashboardName;
 		}
 		var json = createSaveJson();
@@ -1107,7 +1116,8 @@ function izendaDashboardController(
 			return;
 		}
 		vm.isGalleryMode = true;
-		updateGalleryContainer();
+		updateGalleryContainer(true);
+		$scope.$broadcast('tileClearEvent', []);
 		setTimeout(function () {
 			angular.element(document.getElementById('impresshook')).scope().$emit('initImpress');
 			loadTileToGallery();
@@ -1139,6 +1149,14 @@ function izendaDashboardController(
 			if (firstTile === null) {
 				firstTile = tileObj;
 			}
+
+			var loadingHtml = '<div class="izenda-vcentered-container" style="margin-top:-40px">' +
+				'<div class="izenda-vcentered-item">' +
+				'<img class="img-responsive" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+				'</div>' +
+				'</div>';
+			$tile.append(loadingHtml);
+
 			$izendaDashboardQuery.loadTileReport({
 				updateFromSourceReport: false,
 				dashboardFullName: $izendaUrl.getReportInfo().fullName,
@@ -1149,70 +1167,80 @@ function izendaDashboardController(
 				contentHeight: $tile.height() - 50,
 				forPrint: false
 			})
-      .then(function (htmlData) {
-      	applyGalleryTileHtml($tile, htmlData);
-      	$scope.$evalAsync();
-      });
+		.then(function (htmlData) {
+			applyGalleryTileHtml($tile, htmlData);
+			$scope.$evalAsync();
+		});
 		});
 		vm.galleryTileIndex = 0;
 		vm.galleryTile = firstTile;
 		vm.galleryTileTitle = createTileTitle(vm.galleryTile);
 	}
 
-	function updateGalleryContainer() {
+	function updateGalleryContainer(addSlides) {
 		var tileContainerTop = vm.getRoot().offset().top;
-		for (var i = 0; i < vm.tiles.length; i++) {
-			var tile = vm.tiles[i];
-			var $slide = _('<div class="step slide" tileid="' + tile.id + '" data-x="' + (i + 1) * 1240 + '" data-y="0" data-z="0" ' +
-				'data-rotate-x="0" data-rotate-y="0" data-rotate-z="0"><h1 ng-bind="' + tile.reportFullName + '"></h1></div>');
-			vm.getGalleryContainer().find('.impress').append($slide);
+		if (addSlides) {
+			for (var i = 0; i < vm.tiles.length; i++) {
+				var tile = vm.tiles[i];
+				var $slide = _('<div class="step slide" tileid="' + tile.id + '" data-x="' + (i + 1) * 1240 + '" data-y="0" data-z="0" ' +
+					'data-rotate-x="0" data-rotate-y="0" data-rotate-z="0"><h1 ng-bind="' + tile.reportFullName + '"></h1></div>');
+				vm.getGalleryContainer().find('.impress').append($slide);
+			}
 		}
+		vm.windowScale = angular.element(document.getElementById('impresshook')).scope().windowScale || 1;
 		vm.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 30;
 		$scope.$evalAsync();
 	}
 
-  function clearGalleryTiles() {
-    vm.getGalleryContainer().find('.slide').remove();
-    vm.getGalleryContainer().find('.impress').empty();
-  }
+	function clearGalleryTiles() {
+		vm.getGalleryContainer().find('.slide').remove();
+		var impress = angular.element(vm.getGalleryContainer().find('.impress'));
+		impress.empty();
+		impress.attr('style', '');
+	}
 
-  /**
+	/**
    * Set tile inner html
    */
-  function applyGalleryTileHtml($tile, htmlData) {
-    var $reportDiv = _('<div class="report"></div>');
-    $tile.append($reportDiv);
-    var $b = $reportDiv;
+	function applyGalleryTileHtml($tile, htmlData) {
+		$tile.children('.izenda-vcentered-container').remove();
+		var $reportDiv = _('<div class="report"></div>');
+		$tile.append($reportDiv);
+		var $b = $reportDiv;
 
-    if (!angular.isUndefined(ReportScripting))
-      ReportScripting.loadReportResponse(htmlData, $b);
-    if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.InitGaugeAnimations == 'function') {
-      AdHoc.Utility.InitGaugeAnimations(null, null, false);
-    }
-    var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
+		if (!angular.isUndefined(ReportScripting))
+			ReportScripting.loadReportResponse(htmlData, $b);
+		$b.find('[id$=_outerSpan]').css("display", "block");
+		if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.InitGaugeAnimations == 'function') {
+			AdHoc.Utility.InitGaugeAnimations(null, null, false);
+		}
+		var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
 
-    divs$.find('span').each(function (iSpan, span) {
-      var $span = _(span);
-      if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
-        $span.css('display', 'inline');
-      }
-    });
+		if (divs$.length > 0) {
+			divs$.css('height', 'auto');
+			divs$.find('span').each(function (iSpan, span) {
+				var $span = _(span);
+				if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
+					$span.css('display', 'inline');
+				}
+			});
 
-    var $zerochartResults = divs$.find('.iz-zero-chart-results');
-    if ($zerochartResults.length > 0) {
-      $zerochartResults.closest('table').css('height', '100%');
-      divs$.css('height', '100%');
-    }
+			var $zerochartResults = divs$.find('.iz-zero-chart-results');
+			if ($zerochartResults.length > 0) {
+				$zerochartResults.closest('table').css('height', '100%');
+				divs$.css('height', '100%');
+			}
+		}
 
-    if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
-      AdHoc.Utility.InitGaugeAnimations(null, null, false);
-    }
-  }
+		if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
+			AdHoc.Utility.InitGaugeAnimations(null, null, false);
+		}
+	}
 
 	/**
    * Initialize dashboard controller (set event listeners and so on)
    */
-  vm.initialize = function () {
+	vm.initialize = function () {
 		$izendaSettings.getDashboardAllowed().then(function (allowed) {
 			vm.dashboardsAllowedByLicense = allowed;
 			vm.licenseInitialized = true;
@@ -1241,7 +1269,7 @@ function izendaDashboardController(
 					if (angular.isUndefined(newWidth))
 						return;
 					vm.updateDashboardSize();
-					updateGalleryContainer();
+					updateGalleryContainer(false);
 					vm.updateDashboardHandlers();
 				});
 

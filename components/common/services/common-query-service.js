@@ -88,7 +88,7 @@ angular.module('izendaQuery')
 		*/
 		function getReportSetCategory(category) {
 			var categoryStr = angular.isDefined(category)
-			? (category.toLowerCase() === 'uncategorized' ? '' : category)
+			? (category.toLowerCase() === $izendaLocale.localeText('js_Uncategorized', 'Uncategorized').toLowerCase() ? '' : category)
 			: '';
 			return $izendaRsQuery.query('reportlistdatalite', [categoryStr], {
 				dataType: 'json'

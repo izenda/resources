@@ -681,32 +681,44 @@ function ShowEqualsPopupDialog(filterInd) {
 	var valueInput = document.getElementById('ndbfc' + filterInd);
 	var valuesSet6 = valueInput.value.split(',');
 
-	var epdHtml = '<div id="IzendaEqualsPopupDialog" class="izenda-dialog-container"><div class="izenda-dialog-body"><table width="100%"><tr>';
-	var inLine = 0;
-	var rowsNum = 1;
-	var ecbCnt = 0;
-	for (var evCnt = 0; evCnt < filter.ExistingValues.length; evCnt++) {
-		if (filter.ExistingValues[evCnt] == '...') {
+
+	var table = jq$("<table>").css("width", "100%");
+	var tr = jq$("<tr>");
+	var ci = 0;
+	for (var i = 0; i < filter.ExistingValues.length; i++, ci++) {
+		if (filter.ExistingValues[i] == '...') {
+			ci--;
 			continue;
 		}
-		var checked = '';
+		if (ci % 3 == 0) {
+			table.append(tr);
+			tr = jq$("<tr>");
+		}
+
+		var attrs = {
+			id: "ndbfc" + filterInd + "_cb" + ci,
+			type: "checkbox",
+			value: filter.ExistingValues[i]
+		};
 		for (var cCnt = 0; cCnt < valuesSet6.length; cCnt++) {
-			if (valuesSet6[cCnt] == filter.ExistingValues[evCnt]) {
-				checked = 'checked = "checked"';
+			if (valuesSet6[cCnt] == filter.ExistingValues[i]) {
+				attrs.checked = "checked";
+				break;
 			}
 		}
-		epdHtml += '<td width="33%" align="left"><div class="izenda-checkbox"><label><input type="checkbox" id="ndbfc' + filterInd + '_cb' + ecbCnt + '" ' + checked + ' value="' + filter.ExistingValues[evCnt] + '" />' + filter.ExistingLabels[evCnt] + '</label></div></td>';
-		ecbCnt++;
-		inLine++;
-		if (inLine >= 3) {
-			rowsNum++;
-			inLine = 0;
-			if (evCnt < filter.ExistingValues.length - 1) {
-				epdHtml += '</tr><tr>';
-			}
-		}
+
+		var td = jq$("<td>").css({ "width": "33%", "text-align": "left" });
+		var div = jq$("<div>").addClass("izenda-checkbox");
+		var label = jq$("<label>");
+		label.append(jq$('<input>', attrs));
+		label.append(filter.ExistingLabels[i]);
+		tr.append(td.append(div.append(label)));
 	}
-	epdHtml += '</tr></table><input type="hidden" id="popupDlgFilterIndex" value="' + filterInd + '" /></div>';
+	table.append(tr);
+
+	var epdHtml = '<div id="IzendaEqualsPopupDialog" class="izenda-dialog-container"><div class="izenda-dialog-body">';
+	epdHtml += table.get(0).outerHTML;
+	epdHtml += '<input type="hidden" id="popupDlgFilterIndex" value="' + filterInd + '" /></div>';
 	epdHtml += '<div class="izenda-dialog-footer">' +
 		'<button type="button" class="izenda-btn izenda-dialog-btn-primary izenda-width-100" onclick="javascript:HideEqualsPopupDialog(true);" lang-text="js_Ok">OK</button>' +
 		'<button type="button" class="izenda-btn izenda-dialog-btn-default izenda-width-100" onclick="javascript:HideEqualsPopupDialog(false);" lang-text="js_Cancel">Cancel</button>' +
@@ -773,7 +785,12 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			break;
 		case 6:
 			result += '<input type="button" style="height:30px;width:300px;background-color:LightGray;border:1px solid DarkGray" onclick="ShowEqualsPopupDialog(\'' + index + '\');" value="...">';
-			result += '<input type="hidden" id="ndbfc' + index + '" value="' + value + '" />';
+			var input = jq$('<input>', {
+				id: 'ndbfc' + index,
+				type: 'hidden',
+				value: value
+			});
+			result += input.get(0).outerHTML;
 			break;
 		case 7:
 			if (value == '...') value = '';
@@ -1152,7 +1169,7 @@ function InitAutoComplete() {
 				var possibleText = CC_extractLast(req.term);
 				var filterIndex = jq$(this.element).attr('id').toString().replace('ndbfc', '');
 				var fullColumnName = filtersData[filterIndex].ColumnName;
-				var cmd = '&possibleValue=' + possibleText.replace('&', '%26');
+				var cmd = '&possibleValue=' + possibleText.replace('&', '%26') + "&resultType=json";;
 
 				// Make sure not to cache request if cascade filters were changed
 				var prevFiltersSignature = '';
@@ -1168,14 +1185,12 @@ function InitAutoComplete() {
 					prevFiltersSignature = GenerateGuid();
 
 				EBC_LoadData('ExistentValuesList', 'columnName=' + fullColumnName + cmd + '&h=' + prevFiltersSignature, null, true, function (responseResult) {
-					var options = jq$(responseResult);
-					var cnt = options.length;
 					var result = new Array();
-					for (var i = 0; i < cnt; i++) {
-						var text = options[i].value;
-						if (text != null && text != "" && text != "...")
-							result.push(text);
-					}
+					jq$.each(responseResult[0].options, function (i, item) {
+						if (item.value == null || item.value == "" || item.value == '...')
+							return;
+						result.push(item.value);
+					});
 					responeFunction(result);
 				});
 			},

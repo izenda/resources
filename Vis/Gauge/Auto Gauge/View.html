@@ -833,8 +833,8 @@
 
 			initGallery("#VIS_ID_GEAR_GALLERY", { hideTimeout: 1000 }, style.initGearGallery);
 
-			toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
-			toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
+			toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
+			toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
 		}
 
 		function wrapGaugesInTable() {

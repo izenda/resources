@@ -1,6 +1,7 @@
 ﻿angular.module('izendaInstantReport').controller('InstantReportPivotsController', [
 			'$rootScope',
 			'$scope',
+			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
 			'$izendaInstantReportPivots',
@@ -11,6 +12,7 @@
 function InstantReportPivotsController(
 	$rootScope,
 	$scope,
+	$izendaLocale,
 	$izendaCompatibility,
 	$izendaInstantReportStorage,
 	$izendaInstantReportPivots,

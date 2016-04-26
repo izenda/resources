@@ -20,7 +20,6 @@
     <div class="iz-inst-sidepanel-buttons noselect">
       <!-- menu button for mobile view -->
       <div class="iz-inst-sidepanel-button"
-        title="Menu"
         ng-if="$izendaCompatibility.isSmallResolution()"
         ng-class="irController.getLeftPanelClass(5)"
         ng-click="irController.setLeftPanelActiveItem(5)">
@@ -29,19 +28,18 @@
       <!-- datasources button -->
       <div class="iz-inst-sidepanel-button datasources"
         ng-class="irController.getLeftPanelClass(0)"
-        ng-click="irController.setLeftPanelActiveItem(0)"
-        title="Data sources">
-        <span class="iz-inst-sidepanel-button-text">data</span>
+        ng-click="irController.setLeftPanelActiveItem(0)">
+        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Data' | izendaLocale: 'Data'" bind-once></span>
       </div>
       <!-- filter button for mobile view -->
-      <div class="iz-inst-sidepanel-button" title="Filters"
+      <div class="iz-inst-sidepanel-button"
         ng-if="$izendaCompatibility.isSmallResolution()"
         ng-class="irController.getLeftPanelClass(8)"
         ng-click="irController.setLeftPanelActiveItem(8)">
         <div class="glyphicon glyphicon-filter bootstrap-glyphicon"></div>
       </div>
       <!-- pivots button for mobile view -->
-      <div class="iz-inst-sidepanel-button" title="Pivots"
+      <div class="iz-inst-sidepanel-button"
         ng-if="$izendaCompatibility.isSmallResolution()"
         ng-class="irController.getLeftPanelClass(9)"
         ng-click="irController.setLeftPanelActiveItem(9)">
@@ -50,29 +48,25 @@
       <div class="iz-inst-sidepanel-button charts"
         ng-class="irController.getLeftPanelClass(1)"
         ng-click="irController.setLeftPanelActiveItem(1)"
-        ng-show="irController.settings.showChartTab"
-        title="Charts">
-        <span class="iz-inst-sidepanel-button-text">charts</span>
+        ng-show="irController.settings.showChartTab">
+        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Charts' | izendaLocale: 'Charts'" bind-once></span>
       </div>
       <div class="iz-inst-sidepanel-button format"
         ng-class="irController.getLeftPanelClass(2)"
-        ng-click="irController.setLeftPanelActiveItem(2)"
-        title="Format and options">
-        <span class="iz-inst-sidepanel-button-text">format</span>
+        ng-click="irController.setLeftPanelActiveItem(2)">
+        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_format' | izendaLocale: 'Format'" bind-once></span>
       </div>
       <div class="iz-inst-sidepanel-button schedule"
         ng-class="irController.getLeftPanelClass(3)"
         ng-click="irController.setLeftPanelActiveItem(3)"
-        ng-show="irController.settings.showScheduleControls"
-        title="Schedule">
-        <span class="iz-inst-sidepanel-button-text">schedule</span>
+        ng-show="irController.settings.showScheduleControls">
+        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_schedule' | izendaLocale: 'Schedule'" bind-once></span>
       </div>
       <div class="iz-inst-sidepanel-button access"
         ng-class="irController.getLeftPanelClass(4)"
         ng-click="irController.setLeftPanelActiveItem(4)"
-        ng-show="irController.settings.showSharingControl"
-        title="Sharing">
-        <span class="iz-inst-sidepanel-button-text">sharing</span>
+        ng-show="irController.settings.showSharingControl">
+        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Sharing' | izendaLocale: 'Sharing'" bind-once></span>
       </div>
     </div>
     <div class="iz-inst-leftpanel-body">
@@ -133,6 +127,7 @@
             izenda-instant-report-field-droppable>
             <izenda-report-viewer class="iz-inst-preview-container"
               html-text="irController.previewHtml"
+              report-set-options="irController.reportSetOptions"
               allow-col-reorder="false"
               allow-col-remove="false"
               empty-text="''">
@@ -186,7 +181,8 @@
     <!-- loading message -->
     <div class="izenda-vcentered-container" ng-show="irController.isLoading">
       <div class="izenda-vcentered-item">
-        <img class="img-responsive" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+        <img class="img-responsive" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
+             ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}"/>
       </div>
     </div>
 
@@ -203,20 +199,21 @@
 
       <!-- validation controller -->
       <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
-      
+
       <div class="iz-inst-preview-root-container"
         droppable-accept=".datasource-field"
         on-drop="irController.addFieldToReport(arg0)"
         izenda-instant-report-field-droppable>
         <izenda-report-viewer class="iz-inst-preview-container"
           html-text="irController.previewHtml"
+          report-set-options="irController.reportSetOptions"
           empty-text="''"
           allow-col-reorder="true"
           allowed-columns-for-reorder="irController.getAllowedColumnsForReorder()"
           allow-col-remove="true"
           droppable-accept=".datasource-field"
           current-insert-column-order="irController.currentInsertColumnOrder"
-          on-reorder="irController.columnReordered(arg0, arg1)"
+          on-reorder="irController.columnReordered(arg0, arg1, arg2)"
           on-header-click="irController.selectedColumn(arg0)"
           on-remove="irController.removeColumn(arg0)"
           on-paging-click="irController.onPagingClick(arg0, arg1)">
@@ -231,7 +228,7 @@
   <!-- refresh preview button for mobile view -->
   <div ng-if="$izendaCompatibility.isSmallResolution()"
     class="btn iz-inst-matherial-refresh btn-izenda-dark"
-    title="Refresh report preview"
+       ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
     ng-click="irController.applyChangesMobile()">
     <span class="glyphicon"
       ng-class="irController.leftPanel.previousPanelId === irController.leftPanel.activeItem ? 'glyphicon-refresh' : 'glyphicon-share-alt horizontal-mirror'"></span>

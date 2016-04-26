@@ -1,33 +1,36 @@
 ﻿angular
-  .module('izendaCommonControls')
-  .controller('IzendaSelectReportController', [
-    '$rootScope',
-    '$scope',
-    '$q',
-    '$log',
-    '$element',
-    '$izendaUrl',
-    '$izendaCommonQuery',
-    IzendaSelectReportController]);
+	.module('izendaCommonControls')
+	.controller('IzendaSelectReportController', [
+		'$rootScope',
+		'$scope',
+		'$q',
+		'$log',
+		'$element',
+		'$izendaUrl',
+		'$izendaLocale',
+		'$izendaCommonQuery',
+		IzendaSelectReportController]);
 
 /**
  * Select report part dialog controller
  */
 function IzendaSelectReportController(
-  $rootScope,
-  $scope,
-  $q,
-  $log,
-  $element,
-  $izendaUrl,
-  $izendaCommonQuery) {
+	$rootScope,
+	$scope,
+	$q,
+	$log,
+	$element,
+	$izendaUrl,
+	$izendaLocale,
+	$izendaCommonQuery) {
 	'use strict';
 
 	var _ = angular.element;
 
 	var vm = this;
+	var uncategorizedText = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	vm.izendaUrl = $izendaUrl;
-	vm.category = 'Uncategorized';
+	vm.category = uncategorizedText;
 	vm.isLoading = false;
 	vm.tileId = null;
 	vm.categories = [];
@@ -37,7 +40,7 @@ function IzendaSelectReportController(
    * Reset form
    */
 	vm.reset = function () {
-		vm.category = 'Uncategorized';
+		vm.category = uncategorizedText;
 		vm.isLoading = true;
 		vm.categories = [];
 		vm.groups = [];
@@ -79,7 +82,7 @@ function IzendaSelectReportController(
 				continue;
 			var category = report.Category;
 			if (category == null || category === '')
-				category = 'Uncategorized';
+				category = uncategorizedText;
 			var item = !report.Subcategory ? category : category + "\\" + report.Subcategory;
 			if (vm.categories.indexOf(item) < 0) {
 				vm.categories.push(item);
@@ -121,7 +124,7 @@ function IzendaSelectReportController(
 		vm.reset();
 		var $modal = _($element);
 		$modal.modal();
-		$izendaCommonQuery.getReportSetCategory('Uncategorized').then(function (data) {
+		$izendaCommonQuery.getReportSetCategory(uncategorizedText).then(function (data) {
 			var reportSets = data.ReportSets;
 			vm.addCategoriesToModal(reportSets);
 			vm.addReportsToModal(reportSets);
@@ -137,7 +140,7 @@ function IzendaSelectReportController(
 		vm.isLoading = true;
 		vm.groups.length = 0;
 		if (vm.category === null)
-			vm.category = 'Uncategorized';
+			vm.category = uncategorizedText;
 		$izendaCommonQuery.getReportSetCategory(vm.category).then(function (data) {
 			vm.addReportsToModal(data.ReportSets);
 			vm.isLoading = false;

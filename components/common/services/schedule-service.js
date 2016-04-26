@@ -25,7 +25,7 @@ angular.module('izenda.common.ui').factory('$izendaScheduleService', ['$injector
 			var d = new Date();
 			scheduleConfig = {
 				date: d,
-				timezone: '0',
+				timezone: -1,
 				repeat: 'None',
 				email: 'Link',
 				recipients: ''
@@ -87,7 +87,7 @@ angular.module('izenda.common.ui').factory('$izendaScheduleService', ['$injector
 						reset();
 					// timezones
 					angular.element.each(scheduleData.TimeZones, function () {
-						if (this.Selected && !clearScheduleOptions) {
+						if (this.Selected && (!clearScheduleOptions || scheduleConfig.timezone == -1)) {
 							scheduleConfig.timezone = this.Value;
 						}
 						timezones.push({

@@ -863,6 +863,9 @@ function SaveReportAs() {
 	var newRepName = document.getElementById('newReportName').value;
 	var newCatName = document.getElementById('newCategoryName').value;
 
+	newRepName = jq$.map(newRepName.split('\\'), jq$.trim).join('\\');
+	newCatName = jq$.map(newCatName.split('\\'), jq$.trim).join('\\');
+
 	newRepName = CheckNameValidity(newRepName);
 	if (newRepName == null) {
 		alert(IzLocal.Res('jsInvalidReportName', 'Invalid Report Name'));
@@ -1160,7 +1163,13 @@ function GotReportViewerConfig(returnObj, id) {
 	ChangeTopRecords(nrvConfig.InitialResults, false);
 	if (urlSettings.reportInfo.exportType != null) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);
-	};
+	}
+
+	if (!nrvConfig.ShowAllInresults) {
+		jq$(".izenda-results-control-separator").hide();
+		jq$(".izenda-results-control-all").hide();
+	}
+
 	ApplySecurityOptions();
 	if (!initialized)
 		GetRenderedReportSet(false);
@@ -1366,7 +1375,7 @@ function CancelSave() {
 }
 
 function CancelAddCategory() {
-	var newCatDialog = document.getElementById('newCatDialog').style.display = 'none';
+	document.getElementById('newCatDialog').style.display = 'none';
 	var saveAsDialog = document.getElementById('saveAsDialog');
 	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
 	saveAsDialog.style.height = windowHeight + 'px';

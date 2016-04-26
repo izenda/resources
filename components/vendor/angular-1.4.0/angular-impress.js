@@ -164,6 +164,10 @@
         var rootCSS = prefixer(rootStyles);
 
         $scope.$on('initImpress', function () {
+          stepData = [];
+          activeStep = null;
+          $scope.currentSlide = 0;
+
           slides = $($element).find('.step');
           
           document.documentElement.style.height = '100%';
@@ -176,7 +180,7 @@
             // force going to active step again, to trigger rescaling
             $scope.$emit('goToSlide');
           }));
-          $scope.canvas = $compile('<div ng-style="canvasStyle()""></div>')($scope, function (ele) {
+          $scope.canvas = $compile('<div ng-style="canvasStyle()"></div>')($scope, function (ele) {
             $scope.canvasStyle = function () {
 
               ele.css(

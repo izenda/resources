@@ -1,20 +1,20 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
-
+<script type="text/javascript">
+  window.izendaPageId$ = (new Date()).getTime().toString();
+</script>
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui"/>
 <link rel="stylesheet" type="text/css" href="Resources/css/shrinkable-grid.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/instant-report/css/instant-report.css" />
-<link rel="stylesheet" type="text/css" href="Resources/components/vendor/jquery/dragtable.css" />
 
 <script type="text/javascript" src="./Resources/components/vendor/custom/msie-detect.js"></script>
 <script type="text/javascript" src="rs.aspx?js=Utility"></script>
 <!-- url settings -->
 <script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/jquery/jquery.dragtable.js"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
 <script type="text/javascript" src="rs.aspx?js=ModalDialog"></script>
@@ -33,6 +33,10 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
 <script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
+<script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+
 <script type="text/javascript">
   window.urlSettings$ = UrlSettings();
   var urlSettings = window.urlSettings$;

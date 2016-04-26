@@ -6,15 +6,15 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b ng-bind="'js_LicenseCheckFailed' | izendaLocale: 'License Check Failed'"></b>
+          <b ng-bind="'js_LicenseCheckFailed' | izendaLocale: 'License Check Failed'" bind-once></b>
         </div>
       </div>
     </div>
     <div class="modal-body">
       <div class="container-fluid">
-        <span ng-bind="'js_DashboardExtnesionsRequiredPage' | izendaLocale: 'This page requires Dashboard Extensions'"></span>
+        <span ng-bind="'js_DashboardExtnesionsRequiredPage' | izendaLocale: 'This page requires Dashboard Extensions'" bind-once></span>
         <br />
-        <span ng-bind="'js_PleaseContact' | izendaLocale: 'Please contact sales@izenda.com for details.'"></span>
+        <span ng-bind="'js_PleaseContact' | izendaLocale: 'Please contact sales@izenda.com for details.'" bind-once></span>
       </div>
     </div>
     <div class="modal-footer">
@@ -26,11 +26,11 @@
 
   <div izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.printingInProgress">
     <div class="modal-header">
-      <span ng-bind="'js_PrintingInProgress' | izendaLocale: 'Printing in progress...'"></span>
+      <span ng-bind="'js_PrintingInProgress' | izendaLocale: 'Printing in progress...'" bind-once></span>
     </div>
     <div class="modal-body">
       <div class="container-fluid">
-        <span ng-bind="'js_FinishPrinting' | izendaLocale: 'Please finish printing before continue.'"></span>
+        <span ng-bind="'js_FinishPrinting' | izendaLocale: 'Please finish printing before continue.'" bind-once></span>
       </div>
     </div>
   </div>
@@ -151,14 +151,14 @@
                   ng-if="tileController.isEditAllowed()">
                   <img src="Resources/images/tile/confirm-delete.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
-                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'"></span>
+                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
                   ng-click="tileController.hideConfirmDelete()"
                   ng-if="tileController.isEditAllowed()">
                   <img src="Resources/images/tile/turn-back.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
-                    ng-bind="'js_Undo' | izendaLocale: 'Undo'"></span>
+                    ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
                 </a>
               </div>
             </div>
@@ -168,7 +168,7 @@
               <div class="container-fluid iz-dash-tile-fb-main">
                 <div class="row">
                   <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
-                    <label ng-bind="'js_Title' | izendaLocale: 'Title'"></label>
+                    <label ng-bind="'js_Title' | izendaLocale: 'Title'" bind-once></label>
                   </div>
                   <div class="col-md-9 col-xs-12">
                     <input type="text" class="form-control"
@@ -177,7 +177,7 @@
                 </div>
                 <div class="row">
                   <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
-                    <label ng-bind="'js_Description' | izendaLocale: 'Description'"></label>
+                    <label ng-bind="'js_Description' | izendaLocale: 'Description'" bind-once></label>
                   </div>
                   <div class="col-md-9 col-xs-12">
                     <input type="text" class="form-control"
@@ -231,11 +231,12 @@
                 <span class="iz-dash-tile-fb-rcount-slider">
                   <div izenda-tile-top-slider ng-model="tileController.top"
                     end-value="tileController.endTop"
+                    show-item-all="tileController.showAllInResults"
                     on-change-end="tileController.topSelected()">
                   </div>
                 </span>
                 <span class="iz-dash-tile-fb-rcount-label text-uppercase"
-                  ng-bind="'js_RecordsCount' | izendaLocale: 'Records count'"></span>
+                  ng-bind="'js_RecordsCount' | izendaLocale: 'Records count'" bind-once></span>
               </div>
             </div>
             <div class="title-container" style="height: 35px; overflow: hidden;">
@@ -280,13 +281,13 @@
                   ng-click="tileController.deleteTile()">
                   <img src="Resources/images/tile/confirm-delete.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
-                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'"></span>
+                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
                   ng-click="tileController.hideConfirmDelete()">
                   <img src="Resources/images/tile/turn-back.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
-                    ng-bind="'js_Undo' | izendaLocale: 'Undo'"></span>
+                    ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
                 </a>
               </div>
             </div>
@@ -312,13 +313,16 @@
       <div class="container-fluid iz-dash-gallery-button-container">
         <div class="row iz-dash-gallery-button-container">
           <div ng-click="dashboardController.prevGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
-            style="cursor: pointer; width: calc((100% - 1200px) / 2);">
+               style="cursor: pointer;"
+               ng-attr-style="{{dashboardController.getGalleryButtonsStyle('button')}}">
             <span class="iz-dash-gallery-button glyphicon glyphicon-arrow-left"></span>
           </div>
-          <div class="col-xs-10 text-center" style="width: 1200px;">
+          <div class="col-xs-10 text-center"
+               ng-attr-style="{{dashboardController.getGalleryButtonsStyle('center')}}">
           </div>
           <div ng-click="dashboardController.nextGalleryTile()" class="col-xs-1 iz-dash-gallery-button-container text-center"
-            style="cursor: pointer; width: calc((100% - 1200px) / 2);">
+               style="cursor: pointer;"
+               ng-attr-style="{{dashboardController.getGalleryButtonsStyle('button')}}">
             <span class="iz-dash-gallery-button glyphicon glyphicon-arrow-right"></span>
           </div>
         </div>

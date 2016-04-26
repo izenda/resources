@@ -675,18 +675,33 @@
 		}
 
 		function validateControls() {
-			var safeMetric = metricSelect.find("option[value!=All]:eq(0)"),
+			type = types[s.props.type].name;
+			if (stacked = !!type.match(stackedRx))
+				type = type.replace(stackedRx, "");
+			if (percent = !!type.match(percentRx))
+				type = type.replace(percentRx, "");
+			if (donut = !!type.match(donutRx))
+				type = type.replace(donutRx, "");
+			if (polar = !!type.match(polarRx))
+				type = type.replace(polarRx, "");
+
+			if (type == "funnel" || type == "pie") {
+				metricSelect.add(metricExtraSelect).find("option").each(function(i, el) {
+					if (vis.unitValue(totals, this.value) == 0)
+						this.setAttribute("disabled", "disabled");
+				});
+			}
+
+			var safeMetric = metricSelect.find("option[value!=All]:not([disabled]):eq(0)"),
 				allMetric = metricSelect.find("option[value=All]");
 
-			type = types[s.props.type].name;
+			if ((type == "funnel" || type == "pie") && metricSelect[0].options[metricSelect[0].selectedIndex].hasAttribute("disabled"))
+				metricSelect.val(safeMetric.val());
 
 			if (type == "bubble" && metricSelect.val() == metricExtraSelect.val())
 				metricSelect.val(allMetric.val());
 
-			if (s.force.type) {
-				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
-					metricSelect.val(safeMetric.val());
-			} else if (s.force.metric) {
+			if (s.force.type || s.force.metric) {
 				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
 					metricSelect.val(safeMetric.val());
 			}
@@ -703,15 +718,6 @@
 			s.props.fromZero = zeroCheckbox.size() > 0 ? zeroCheckbox.prop("checked") : false;
 			s.props.subreportMode = getStripValue("#VIS_ID_SUBREPORT_MODE");
 			s.props.combineBottom = combBottom.size() > 0 && combBottom.val() ? combBottom.val() : 5;
-
-			if (stacked = !!type.match(stackedRx))
-				type = type.replace(stackedRx, "");
-			if (percent = !!type.match(percentRx))
-				type = type.replace(percentRx, "");
-			if (donut = !!type.match(donutRx))
-				type = type.replace(donutRx, "");
-			if (polar = !!type.match(polarRx))
-				type = type.replace(polarRx, "");
 		}
 
 		function store() {
@@ -997,9 +1003,9 @@
 		vs.find("#VIS_ID_PROPERTY_COMBINE_ITEMS").parents("div:eq(0)")
 			.css("display", rounded ? "block" : "none");
 
-		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard && (fromZero || subreported || rounded));
-		toggleSelectorVisibility("#VIS_ID_PALETTE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
-		toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard);
+		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", (!VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards) && (fromZero || subreported || rounded));
+		toggleSelectorVisibility("#VIS_ID_PALETTE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
+		toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
 		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
 
 		var propertiesPanelWidth = propertiesPanel[0].offsetWidth,
@@ -1764,6 +1770,11 @@
 					},
 					credits: { enabled: false }
 				};
+				if (!polar && ["bar", "funnel", "pie"].indexOf(type) < 0) {
+					utility.defaults(s.options, { xAxis: {
+						labels: { autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90] }
+					}});
+				}
 				vis.subscribeImageRenderer(s.options);
 
 				var node = undefined;

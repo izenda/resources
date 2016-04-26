@@ -56,12 +56,12 @@ function initmb(autoResize) {
 function finmb() {
 	initComplete = false;
 
-	jq$("#ol,#mbox").remove();
-
 	if (document.addEventListener)
 		document.removeEventListener('load', modal_resized);
 	else if (window.attachEvent)
-		wrap.children("#ol")[0].detachEvent('onresize', modal_resized);
+		jq$("body").children("#ol")[0].detachEvent('onresize', modal_resized);
+
+	jq$("#ol,#mbox").remove();
 
 	window.onscroll = scrollFix;
 	window.onresize = sizeFix;

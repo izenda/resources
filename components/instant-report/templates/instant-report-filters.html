@@ -5,8 +5,9 @@
        on-drop="filtersController.addFilter(arg0)"
        izenda-instant-report-field-droppable>
     <div class="iz-inst-top-panel-header">
-      Filters
-      <a class="white pull-right close-btn" title="Close filters panel"
+      <span ng-bind="'js_Filters' | izendaLocale: 'Filters'" bind-once></span>
+      <a class="white pull-right close-btn"
+         ng-attr-title="{{'js_CloseFiltersPanel' | izendaLocale: 'Close filters panel'}}"
          ng-click="irController.openFiltersPanel(false)">
         <span class="glyphicon glyphicon-minus"></span>
       </a>
@@ -16,12 +17,16 @@
         <div class="row">
           <div class="iz-inst-field-filters-toolbar">
             <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn" ng-click="filtersController.addFilter()">
-              <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>&nbsp;Add Filter
+              <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>
+              &nbsp;
+              <span ng-bind="'js_AddFilter' | izendaLocale: 'Add Filter'" bind-once></span>
             </a>
             <div class="iz-inst-field-filters-logic-container">
-              Filter Logic:
-              <input type="text" class="iz-inst-field-filters-logic" placeholder="Example:(1 OR 2) AND (3 OR 4)"
-                     ng-model="filtersController.filterOptions.filterLogic" />
+              <span ng-bind="'js_FilterLogic' | izendaLocale: 'Filter Logic'" bind-once></span>
+              :
+              <input type="text" class="iz-inst-field-filters-logic"
+                     ng-attr-placeholder="{{'js_ExampleFilterLogic' | izendaLocale: 'Example:(1 OR 2) AND (3 OR 4)'}}"
+                     ng-model="filtersController.filterOptions.filterLogic"/>
             </div>
           </div>
         </div>
@@ -45,8 +50,8 @@
                         izenda-stop-propagation></span>
                   <span class="izenda-cursor-pointer"
                         ng-click="filter.parameter = !filter.parameter"
+                        ng-bind="'js_Param' | izendaLocale: 'Param'"
                         izenda-stop-propagation>
-                    Param
                   </span>
                 </span>
                 <span class="text-nowrap" style="padding: 4px;">
@@ -56,11 +61,12 @@
                         izenda-stop-propagation></span>
                   <span class="izenda-cursor-pointer"
                         ng-click="filter.required = !filter.required"
+                        ng-bind="'js_Required' | izendaLocale: 'Required'"
                         izenda-stop-propagation>
-                    Required
                   </span>
                 </span>
-                <button class="btn btn-header-close pull-right" type="button" title="Remove filter"
+                <button class="btn btn-header-close pull-right" type="button"
+                        ng-attr-title="{{'js_RemoveFilter' | izendaLocale: 'Remove filter'}}"
                         ng-click="filtersController.removeFilter(filter)" izenda-stop-propagation>
                   <span class="glyphicon glyphicon-remove"></span>
                 </button>
@@ -68,7 +74,8 @@
               <div class="iz-inst-small-panel-body">
 
                 <div class="iz-inst-small-panel-line form-group-sm">
-                  <input type="text" class="form-control" placeholder="Filter description"
+                  <input type="text" class="form-control"
+                         ng-attr-placeholder="{{'js_FilterDesc' | izendaLocale: 'Filter description'}}"
                          ng-model="filter.description" />
                 </div>
 
@@ -116,11 +123,16 @@
                     <!-- autocomplete -->
                     <span ng-switch-when="Equals_Autocomplete">
                       <input type="text" class="iz-inst-filter-input"
-                             typeahead="text for text in filtersController.getExistentValuesSimpleList(filter.existentValues) | filter:$viewValue | limitTo:20"
+                             ng-model="filter.values[0]"
+                             autocomplete-items="filter.existentValues"
+                             ng-change="filtersController.onCurrentValueChange(filter)"
+                             izenda-bootstrap-autocomplete/>
+                      <!--<input type="text" class="iz-inst-filter-input"
+                             typeahead="existentValue.value for existentValue in filter.existentValues | filter:$viewValue | limitTo:20"
                              typeahead-append-to-body="true"
                              ng-model="filter.values[0]"
                              ng-change="filtersController.onCurrentValueChange(filter)"
-                             typeahead-on-select="filtersController.onCurrentValueChange(filter)" />
+                             typeahead-on-select="filtersController.onCurrentValueChange(filter)" />-->
                     </span>
 
                     <!-- select -->
@@ -184,6 +196,15 @@
                             ng-change="filtersController.onCurrentValueChange(filter)"
                             izenda-select-checkboxes></span>
                     </span>
+
+                    <!-- in time period -->
+                    <span ng-switch-when="inTimePeriod">
+                      <select class="iz-inst-filter-input"
+                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
+                              ng-model="filter.values[0]"
+                              ng-change="filtersController.onCurrentValueChange(filter)"></select>
+                    </span>
+
                     <!-- one date -->
                     <span ng-switch-when="oneDate">
                       <div class="input-group date fullwidth"
@@ -250,8 +271,9 @@
         <div class="row">
           <div class="col-xs-12">
             <div class="without-margins alert alert-warning" role="alert">
-              Drag and drop fields from data sources here to add a new filter or
-              <a ng-click="filtersController.addFilter()">add filter manually</a>.
+              <span ng-bind="'js_DragFieldsToFilter1' | izendaLocale: 'Drag and drop fields from data sources here to add a new filter or'" bind-once></span>
+              <a ng-click="filtersController.addFilter()"
+                 ng-bind="'js_DragFieldsToFilter2' | izendaLocale: 'add filter manually'"></a>.
             </div>
           </div>
         </div>
@@ -260,8 +282,8 @@
       <div class="container-fluid" ng-show="filtersController.activeFields.length === 0">
         <div class="row">
           <div class="col-xs-12">
-            <div class="without-margins alert alert-warning" role="alert">
-              You need to select at least one field to add filters.
+            <div class="without-margins alert alert-warning" role="alert"
+                 ng-bind="'js_SelectFieldForFilters' | izendaLocale: 'You need to select at least one field to add filters.'" bind-once>
             </div>
           </div>
         </div>

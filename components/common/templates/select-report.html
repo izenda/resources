@@ -8,7 +8,7 @@
         <div class="row">
           <div class="col-md-2">
             <h4 style="margin-top: 5px;" class="pull-right"
-              ng-bind="'js_Category' | izendaLocale: 'Category'"></h4>
+              ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once></h4>
           </div>
           <div class="col-md-8">
             <select class="form-control" ng-model="izendaSelectReportController.category"
@@ -24,7 +24,7 @@
       <div class="modal-body" style="min-height: 300px;">
         <div class="izenda-vcentered-container" ng-hide="izendaSelectReportController.isLoading || izendaSelectReportController.groups.length > 0">
           <div class="izenda-vcentered-item"
-            ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'">
+            ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once>
           </div>
         </div>
         <div class="izenda-vcentered-container" ng-hide="!izendaSelectReportController.isLoading">

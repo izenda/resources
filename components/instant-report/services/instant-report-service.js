@@ -25,7 +25,8 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			selectCheckboxesValuesOperators = ['Equals_CheckBoxes'],
 			selectOneDateOperators = ['EqualsCalendar', 'NotEqualsCalendar'],
 			selectTwoDatesOperators = ['BetweenTwoDates', 'NotBetweenTwoDates'],
-			fieldOperators = ['LessThanField', 'GreaterThanField', 'EqualsField', 'NotEqualsField'];
+			fieldOperators = ['LessThanField', 'GreaterThanField', 'EqualsField', 'NotEqualsField'],
+			inTimePeriod = ['InTimePeriod'];
 		if (!angular.isObject(operator))
 			return 'hidden';
 		if (operator.value === '' || hiddenOperators.indexOf(operator.value) >= 0)
@@ -48,6 +49,9 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			return 'twoDates';
 		if (fieldOperators.indexOf(operator.value) >= 0)
 			return 'field';
+		if (inTimePeriod.indexOf(operator.value) >= 0) {
+			return 'inTimePeriod';
+		}
 		return operator.value;
 	};
 
@@ -113,7 +117,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			handler: function () {
 				return 'Failed to get report set preview';
 			}
-		});
+		}, true);
 	}
 
 	function saveReportSet(reportSetConfig) {
@@ -230,6 +234,22 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			params: [field]
 		});
 	}
+
+	function getPeriodList() {
+		return $izendaRsQuery.rsQuery({
+			'cmd': 'GetOptionsByPath',
+			'p': 'PeriodList',
+			'resultType': 'json'
+		}, {
+			dataType: 'json',
+			cache: true
+		}, {
+			handler: function() {
+				return 'Failed to get period list.';
+			},
+			params: []
+	});
+	};
 
 	function getDrillDownStyles() {
 		return $izendaRsQuery.rsQuery({
@@ -462,6 +482,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		getContraintsInfo: getContraintsInfo,
 		getFieldFunctions: getFieldFunctions,
 		getFieldFormats: getFieldFormats,
+		getPeriodList: getPeriodList,
 		getFilterFormats: getFilterFormats,
 		getVgStyles: getVgStyles,
 		getExpressionTypes: getExpressionTypes,

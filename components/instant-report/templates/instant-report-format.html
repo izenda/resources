@@ -6,32 +6,35 @@
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="irFormatController.options.distinct" />
-          Distinct
+          <span ng-bind="'js_Distinct' | izendaLocale: 'Distinct'" bind-once></span>
         </label>
       </div>
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="irFormatController.options.isSubtotalsEnabled" />
-          Subtotals
+          <span ng-bind="'js_Subtotals' | izendaLocale: 'Subtotals'" bind-once></span>
         </label>
       </div>
       <div class="checkbox"
            ng-if="irFormatController.settings.allowVirtualDataSources">
         <label>
           <input type="checkbox" ng-model="irFormatController.options.exposeAsDatasource" />
-          Expose as datasource
+          <span ng-bind="'js_ExposeAsDatasource' | izendaLocale: 'Expose as datasource'" bind-once></span>
         </label>
       </div>
       <div class="checkbox">
         <label>
           <input type="checkbox" ng-model="irFormatController.options.hideGrid" />
-          Hide grid
+          <span ng-bind="'js_HideGrid' | izendaLocale: 'Hide grid'" bind-once></span>
         </label>
       </div>
     </div>
     <div class="form-group">
       <div class="form-inline">
-        <label for="izInstTop" class="nobold">Records count:&nbsp;</label>
+        <label for="izInstTop" class="nobold">
+          <span ng-bind="'js_RecordsCount' | izendaLocale: 'Records count'" bind-once></span>
+          :&nbsp;
+        </label>
         <input type="number" class="form-control izenda-width-100" id="izInstTop"
                ng-model="irFormatController.options.top" />
       </div>
@@ -43,39 +46,47 @@
          ng-click="irFormatController.optGroups['headerAndFooter'].opened = !irFormatController.optGroups['headerAndFooter'].opened">
       <span class="glyphicon glyphicon-chevron-right with-label"
             ng-class="irFormatController.optGroups['headerAndFooter'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
-      <span class="ds-tree-item-header-text bold">Header and footer</span>
+      <span class="ds-tree-item-header-text bold"
+            ng-bind="'js_HeaderAndFooter' | izendaLocale: 'Header and footer'" bind-once></span>
     </div>
     <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['headerAndFooter'].opened" izenda-bootstrap-collapse>
       <div class="container-fluid">
         <div class="form-group">
-          <label for="izInstFormatTitle" class="nobold">Title</label>
-          <span izenda-align-switcher ng-model="irFormatController.options.titleAlign" title="Select title align"></span>
+          <label for="izInstFormatTitle" class="nobold"
+                 ng-bind="'js_Title' | izendaLocale: 'Title'" bind-once></label>
+          <span izenda-align-switcher ng-model="irFormatController.options.titleAlign" 
+                ng-attr-title="{{'js_SelectTitleAlign' | izendaLocale: 'Select title align'}}"></span>
           <textarea class="form-control noresize multiline-input" id="izInstFormatTitle" rows="2"
                     ng-model="irFormatController.options.title"></textarea>
         </div>
         <div class="form-group">
-          <label for="izInstFormatDescription" class="nobold">Description</label>
-          <span izenda-align-switcher ng-model="irFormatController.options.descriptionAlign" title="Select description align"></span>
+          <label for="izInstFormatDescription" class="nobold"
+                 ng-bind="'js_Description' | izendaLocale: 'Description'" bind-once></label>
+          <span izenda-align-switcher ng-model="irFormatController.options.descriptionAlign" 
+                ng-attr-title="{{'js_SelectDescAlign' | izendaLocale: 'Select description align'}}"></span>
           <textarea class="form-control noresize multiline-input" id="izInstFormatDescription" rows="2"
                     ng-model="irFormatController.options.description"></textarea>
         </div>
         <div class="form-group">
-          <label for="izInstFormatReportHeader" class="nobold">Report header</label>
+          <label for="izInstFormatReportHeader" class="nobold"
+                 ng-bind="'js_ReportHeader' | izendaLocale: 'Report header'" bind-once></label>
           <textarea class="form-control noresize multiline-input" id="izInstFormatReportHeader" rows="2"
                     ng-model="irFormatController.options.headerAndFooter.reportHeader"></textarea>
 
-          <label for="izInstFormatPageHeader" class="nobold">Page header</label>
+          <label for="izInstFormatPageHeader" class="nobold"
+                 ng-bind="'js_PageHeader' | izendaLocale: 'Page header'" bind-once></label>
           <textarea class="form-control noresize multiline-input" id="izInstFormatPageHeader" rows="2"
                     ng-model="irFormatController.options.headerAndFooter.pageHeader"></textarea>
 
-          <label for="izInstFormatReportFooter" class="nobold">Report footer</label>
+          <label for="izInstFormatReportFooter" class="nobold"
+                 ng-bind="'js_ReportFooter' | izendaLocale: 'Report footer'" bind-once></label>
           <textarea class="form-control noresize multiline-input" id="izInstFormatReportFooter" rows="2"
                     ng-model="irFormatController.options.headerAndFooter.reportFooter"></textarea>
         </div>
         <div class="checkbox">
           <label>
-            <input type="checkbox" ng-model="irFormatController.options.showFiltersInReportDescription" />
-            Show Filters In Report Description
+            <input type="checkbox" ng-model="irFormatController.options.showFiltersInReportDescription"/>
+            <span ng-bind="'js_ShowReportParameters' | izendaLocale: 'Show Filters In Report Description'" bind-once></span>
           </label>
         </div>
       </div>
@@ -88,14 +99,16 @@
          ng-click="irFormatController.optGroups['color'].opened = !irFormatController.optGroups['color'].opened">
       <span class="glyphicon glyphicon-chevron-right with-label"
             ng-class="irFormatController.optGroups['color'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
-      <span class="ds-tree-item-header-text bold">Colors and styles</span>
+      <span class="ds-tree-item-header-text bold"
+            ng-bind="'js_ColorsAndStyles' | izendaLocale: 'Colors and styles'" bind-once></span>
     </div>
     <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['color'].opened" izenda-bootstrap-collapse>
       <div class="form-group">
         <div class="container-fluid">
           <div class="row">
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Border</label>
+              <label class="nobold"
+                     ng-bind="'js_BorderColor' | izendaLocale: 'Border color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.borderColor"></span>
@@ -105,7 +118,8 @@
                      ng-model="irFormatController.options.style.borderColor" />
             </div>
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Header</label>
+              <label class="nobold"
+                     ng-bind="'js_HeaderColor' | izendaLocale: 'Header color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.headerColor"></span>
@@ -117,7 +131,8 @@
           </div>
           <div class="row">
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Header foreground</label>
+              <label class="nobold"
+                     ng-bind="'js_HeaderForegroundColor' | izendaLocale: 'Header foreground color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.headerForecolor"></span>
@@ -127,7 +142,8 @@
                      ng-model="irFormatController.options.style.headerForecolor" />
             </div>
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Item</label>
+              <label class="nobold"
+                     ng-bind="'js_ItemColor' | izendaLocale: 'Item color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.itemColor"></span>
@@ -139,7 +155,8 @@
           </div>
           <div class="row">
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Item foreground</label>
+              <label class="nobold"
+                     ng-bind="'js_ItemForegroundColor' | izendaLocale: 'Item foreground color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.itemForeColor"></span>
@@ -149,7 +166,8 @@
                      ng-model="irFormatController.options.style.itemForeColor" />
             </div>
             <div class="col-md-6 default-bottom-margin">
-              <label class="nobold">Alternating item</label>
+              <label class="nobold"
+                     ng-bind="'js_AlternatingItemColor' | izendaLocale: 'Alternating item color'" bind-once></label>
               <span ng-if="!$izendaCompatibility.isSmallResolution()"
                     izenda-color-picker inline="false"
                     ng-model="irFormatController.options.style.itemAltColor"></span>
@@ -164,13 +182,13 @@
               <div class="checkbox">
                 <label>
                   <input type="checkbox" ng-model="irFormatController.options.style.isHeadersBold" />
-                  All field headers bold
+                  <span ng-bind="'js_AllFieldHeadersBold' | izendaLocale: 'All field headers bold'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
                   <input type="checkbox" ng-model="irFormatController.options.style.isHeadersItalic">
-                  All field headers italic
+                  <span ng-bind="'js_AllFieldHeadersItalic' | izendaLocale: 'All field headers italic'" bind-once></span>
                 </label>
               </div>
             </div>
@@ -178,7 +196,8 @@
           <div class="row">
             <div class="col-xs-12">
               <div class="form-group">
-                <label for="izInstFormatCustomCss" class="nobold">Custom CSS</label>
+                <label for="izInstFormatCustomCss" class="nobold"
+                       ng-bind="'js_CustomCss' | izendaLocale: 'Custom CSS'" bind-once></label>
                 <textarea class="form-control noresize multiline-input" id="izInstFormatCustomCss" rows="3"
                           ng-model="irFormatController.options.style.customCss"></textarea>
               </div>
@@ -187,8 +206,8 @@
           <div class="row">
             <div class="col-xs-12">
               <button type="button" class="btn btn-izenda-dark"
-                      ng-click="irFormatController.restoreDefaultColors()">
-                Restore default colors
+                      ng-click="irFormatController.restoreDefaultColors()"
+                      ng-bind="'js_RestoreDefaultColors' | izendaLocale: 'Restore default colors'">
               </button>
             </div>
           </div>
@@ -203,7 +222,8 @@
          ng-click="irFormatController.optGroups['page'].opened = !irFormatController.optGroups['page'].opened">
       <span class="glyphicon glyphicon-chevron-right with-label"
             ng-class="irFormatController.optGroups['page'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
-      <span class="ds-tree-item-header-text bold">Page</span>
+      <span class="ds-tree-item-header-text bold"
+            ng-bind="'js_Page' | izendaLocale: 'Page'" bind-once></span>
     </div>
     <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['page'].opened" izenda-bootstrap-collapse>
       <div class="form-group">
@@ -213,53 +233,55 @@
               <div class="checkbox">
                 <label>
                   <input type="checkbox" ng-model="irFormatController.options.page.landscapePrinting" />
-                  Landscape printing
+                  <span ng-bind="'js_LandscapePrinting' | izendaLocale: 'Landscape printing'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.showPageNumber" />
-                  Show page number
+                  <input type="checkbox" ng-model="irFormatController.options.page.showPageNumber"/>
+                  <span ng-bind="'js_ShowPageNumber' | izendaLocale: 'Show page number'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.showDateAndTime" />
-                  Show date and time
+                  <input type="checkbox" ng-model="irFormatController.options.page.showDateAndTime"/>
+                  <span ng-bind="'js_ShowDateAndTime' | izendaLocale: 'Show date and time'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.usePagination" />
-                  Use pagination
+                  <input type="checkbox" ng-model="irFormatController.options.page.usePagination"/>
+                  <span ng-bind="'js_UsePagination' | izendaLocale: 'Use pagination'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.addBookmarkForVg" />
-                  Add bookmark for each visual group
+                  <input type="checkbox" ng-model="irFormatController.options.page.addBookmarkForVg"/>
+                  <span ng-bind="'js_AddBookmarkForVisualGroup' | izendaLocale: 'Add bookmark for each visual group'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.pageBreakAfterVg" />
-                  Page Break After Visual Groups (PDF)
+                  <input type="checkbox" ng-model="irFormatController.options.page.pageBreakAfterVg"/>
+                  <span ng-bind="'js_PageBreakAfterVisualGroups' | izendaLocale: 'Page Break After Visual Groups (PDF)'" bind-once></span>
                 </label>
               </div>
               <div class="form-group">
-                <label for="izInstVgStyle" class="nobold">Visual group style</label>
-                <select class="form-control"
+                <label for="izInstVgStyle" class="nobold"
+                       ng-bind="'js_VisualGroupStyle' | izendaLocale: 'Visual group style'" bind-once></label>
+                <select id="izInstVgStyle" class="form-control"
                         ng-model="irFormatController.options.page.vgStyle"
                         ng-options="vgStyle.value as vgStyle.text for vgStyle in irFormatController.vgStyles"></select>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.minimizeGridWidth" />
-                  Minimize Grid Width
+                  <input type="checkbox" ng-model="irFormatController.options.page.minimizeGridWidth"/>
+                  <span ng-bind="'js_MinimizeGridWidth' | izendaLocale: 'Minimize Grid Width'" bind-once></span>
                 </label>
               </div>
               <div class="form-group">
-                <label for="izInstItemsPerPage" class="nobold">Items per page</label>
+                <label for="izInstItemsPerPage" class="nobold"
+                       ng-bind="'js_ItemsPerPage' | izendaLocale: 'Items per page'" bind-once></label>
                 <input type="number" class="form-control" id="izInstItemsPerPage"
                        ng-model="irFormatController.options.page.itemsPerPage" />
               </div>
@@ -276,7 +298,8 @@
          ng-click="irFormatController.optGroups['drilldowns'].opened = !irFormatController.optGroups['drilldowns'].opened">
       <span class="glyphicon glyphicon-chevron-right with-label"
             ng-class="irFormatController.optGroups['drilldowns'].opened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
-      <span class="ds-tree-item-header-text bold">Drilldown keys</span>
+      <span class="ds-tree-item-header-text bold"
+            ng-bind="'js_DrilldownKeys' | izendaLocale: 'Drilldown keys'" bind-once></span>
     </div>
     <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['drilldowns'].opened" izenda-bootstrap-collapse>
       <div class="form-group">
@@ -288,7 +311,8 @@
                 <div class="ds-tree-item-header">
                   <span class="ds-tree-item-header-text"
                         ng-bind="($index + 1) + '. ' + drillDownField.name"></span>
-                  <span class="ds-multiple-button" title="Remove field"
+                  <span class="ds-multiple-button" 
+                        ng-attr-title="{{'js_RemoveField' | izendaLocale: 'Remove field'}}"
                         ng-click="irFormatController.removeDrilldownField(drillDownField)"
                         izenda-stop-propagation>
                     <span class="glyphicon glyphicon glyphicon-remove-circle"></span>
@@ -300,8 +324,8 @@
           <div class="row">
             <div class="col-xs-12"
                  ng-show="irFormatController.drillDownFields.length >= irFormatController.ddkValuesMaxAmount">
-              <div class="alert alert-info" role="alert">
-                You have reached maximum amount of drilldown keys.
+              <div class="alert alert-info" role="alert"
+                   ng-bind="'js_MaxDrilldownKeys' | izendaLocale: 'You have reached maximum amount of drilldown keys.'" bind-once>
               </div>
             </div>
             <div class="col-xs-12"
@@ -309,8 +333,8 @@
               <select class="form-control" ng-options="field as field.name group by field.tableSysname for field in irFormatController.allActiveFields track by field.sysname"
                       ng-model="irFormatController.selectedDrilldownField"></select>
               <button class="btn btn-default" ng-click="irFormatController.addDrilldown()"
-                      ng-disabled="irFormatController.selectedDrilldownField === null">
-                Add drilldown field
+                      ng-disabled="irFormatController.selectedDrilldownField === null"
+                      ng-bind="'js_AddDrilldownKey' | izendaLocale: 'Add drilldown field'">
               </button>
             </div>
           </div>

@@ -1,6 +1,11 @@
 ﻿(function () {
 	'use strict';
-	angular.module('izenda.common.ui').directive('izendaDateTimePicker', ['$window', '$timeout', '$izendaCompatibility', function ($window, $timeout, $izendaCompatibility) {
+	angular.module('izenda.common.ui').directive('izendaDateTimePicker', [
+		'$window',
+		'$timeout',
+		'$izendaLocale',
+		'$izendaCompatibility',
+		function ($window, $timeout, $izendaLocale, $izendaCompatibility) {
 		return {
 			restrict: 'EA',
 			require: 'ngModel',
@@ -110,20 +115,20 @@
 						vertical: 'bottom'
 					},
 					tooltips: {
-						today: 'Go to today',
-						clear: 'Clear selection',
-						close: 'Close the picker',
-						selectMonth: 'Select Month',
-						prevMonth: 'Previous Month',
-						nextMonth: 'Next Month',
-						selectYear: 'Select Year',
-						prevYear: 'Previous Year',
-						nextYear: 'Next Year',
-						selectDecade: 'Select Decade',
-						prevDecade: 'Previous Decade',
-						nextDecade: 'Next Decade',
-						prevCentury: 'Previous Century',
-						nextCentury: 'Next Century'
+						today: $izendaLocale.localeText('js_GoToToday', 'Go to today'),
+						clear: $izendaLocale.localeText('js_ClearSelection', 'Clear selection'),
+						close: $izendaLocale.localeText('js_ClosePicker', 'Close the picker'),
+						selectMonth: $izendaLocale.localeText('js_SelectMonth', 'Select Month'),
+						prevMonth: $izendaLocale.localeText('js_PreviousMonth', 'Previous Month'),
+						nextMonth: $izendaLocale.localeText('js_NextMonth', 'Next Month'),
+						selectYear: $izendaLocale.localeText('js_SelectYear', 'Select Year'),
+						prevYear: $izendaLocale.localeText('js_PreviousYear', 'Previous Year'),
+						nextYear: $izendaLocale.localeText('js_NextYear', 'Next Year'),
+						selectDecade: $izendaLocale.localeText('js_SelectDecade', 'Select Decade'),
+						prevDecade: $izendaLocale.localeText('js_PreviousDecade', 'Previous Decade'),
+						nextDecade: $izendaLocale.localeText('js_NextDecade', 'Next Decade'),
+						prevCentury: $izendaLocale.localeText('js_PreviousCentury', 'Previous Century'),
+						nextCentury: $izendaLocale.localeText('js_NextCentury', 'Next Century')
 					}
 				});
 				$scope.dateTimePicker = $input.datetimepicker(config);
@@ -186,148 +191,4 @@
 		};
 	}
 	]);
-
-	/*function izendaDatePicker() {
-		return {
-			restrict: 'EA',
-			require: ['ngModel'],
-			scope: {
-				ngModel: '=',
-				isDisabled: '=',
-				valueFormat: '='
-			},
-			template: '<input type="text" class="form-control" />' +
-				'<span class="input-group-addon"><span class="glyphicon-calendar glyphicon"></span></span>',
-			link: function ($scope, elem, attrs) {
-				var input = elem.children('input');
-				var btn = elem.children('.input-group-addon');
-
-				// init calendar
-				var datePickerOptions = {};
-				if ($scope.valueFormat) {
-					datePickerOptions.dateFormat = $scope.valueFormat;
-				}
-				$scope.calendar = input.datepicker(datePickerOptions);
-
-				var setDate = function (val) {
-					if (angular.isUndefined(val) || val === null) {
-						input.val('');
-					} else if (angular.isDate(val)) {
-						input.datepicker('update', val);
-					} else {
-						throw 'Unknown date type: ' + typeof (val);
-					}
-				};
-
-				// check for disabled:
-				$scope.$parent.$watch(attrs.ngDisabled, function (newVal) {
-					input.prop('disabled', newVal);
-					if (newVal) {
-						btn.off('click');
-						input.datepicker('hide');
-					} else {
-						btn.on('click', function () {
-							elem.children('input').focus();
-						});
-					}
-				});
-				$scope.$parent.$watch(attrs.ngModel, function (newVal, oldVal) {
-					if (newVal !== oldVal) {
-						setDate(newVal);
-					}
-				});
-				input.prop('disabled', attrs.ngDisabled);
-				setDate($scope.ngModel);
-
-				// handlers
-				btn.on('click', function () {
-					elem.children('input').focus();
-				});
-
-				input.datepicker().on('changeDate', function (e) {
-					if (!angular.isDate(e)) {
-						var d = new Date();
-						if (!angular.isDate($scope.ngModel)) {
-							$scope.ngModel = d;
-						} else {
-							$scope.ngModel.setFullYear(d.getFullYear());
-							$scope.ngModel.setMonth(d.getMonth());
-							$scope.ngModel.setDate(d.getDate());
-						}
-					} else {
-						$scope.ngModel.setFullYear(e.getFullYear());
-						$scope.ngModel.setMonth(e.getMonth());
-						$scope.ngModel.setDate(e.getDate());
-					}
-					$scope.$parent.$applyAsync();
-				});
-			}
-		};
-	}
-
-	function izendaTimePicker() {
-		return {
-			restrict: 'EA',
-			require: ['ngModel'],
-			scope: {
-				ngModel: '=',
-				ngChange: '&'
-			},
-			template: '<input type="text" class="form-control" />' +
-				'<span class="input-group-addon"><span class="glyphicon-time glyphicon"></span></span>',
-			link: function ($scope, elem, attrs) {
-				var input = elem.children('input');
-				var btn = elem.children('.input-group-addon');
-				var timePickerOptions = {
-					minuteStep: 5
-				};
-				$scope.timepicker = input.timepicker(timePickerOptions);
-				
-				var setTime = function (val) {
-					if (angular.isUndefined(val) || val === null) {
-						input.val('');
-					} else if (angular.isDate(val)) {
-						input.val(val.getHours() + ':' + val.getMinutes());
-					} else {
-						throw 'Unknown time type: ' + typeof (val);
-					}
-					$scope.timepicker.timepicker('setTime', val);
-				};
-
-				$scope.$watch('ngModel', function (newVal, oldVal) {
-					if (newVal !== oldVal) {
-						setTime(newVal);
-					}
-				});
-				setTime($scope.ngModel);
-
-				$scope.timepicker.on('changeTime.timepicker', function (e) {
-					if (!angular.isDate($scope.ngModel)) {
-						$scope.ngModel = d;
-					}
-					var hours = e.time.hours;
-					if (e.time.meridian === 'PM' && e.time.hours < 12) hours = hours + 12;
-					if (e.time.meridian === 'AM' && e.time.hours === 12) hours = hours - 12;
-					$scope.ngModel.setHours(hours);
-					$scope.ngModel.setMinutes(e.time.minutes);
-					$scope.$parent.$applyAsync();
-					if (angular.isFunction($scope.ngChange))
-						$scope.ngChange({
-							arg0: $scope.ngModel
-						});
-				});
-
-				// handlers
-				btn.on('click', function () {
-					$scope.timepicker.timepicker('showWidget');
-				});
-			}
-		};
-	}
-
-	// definition
-	angular.module('izenda.common.ui')
-		.directive('izendaDatePicker', [izendaDatePicker])
-		.directive('izendaTimePicker', [izendaTimePicker]);
-	*/
 })();

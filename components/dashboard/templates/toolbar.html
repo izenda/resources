@@ -16,7 +16,7 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b ng-bind="'js_schedule' | izendaLocale: 'Schedule'"></b>
+          <b ng-bind="'js_schedule' | izendaLocale: 'Schedule'" bind-once></b>
         </div>
       </div>
     </div>
@@ -40,7 +40,7 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b ng-bind="'js_Share' | izendaLocale: 'Share'"></b>
+          <b ng-bind="'js_Share' | izendaLocale: 'Share'" bind-once></b>
         </div>
       </div>
     </div>
@@ -65,7 +65,7 @@
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
-          <b ng-bind="'js_SendReportEmail' | izendaLocale: 'Send report email'"></b>
+          <b ng-bind="'js_SendReportEmail' | izendaLocale: 'Send report email'" bind-once></b>
         </div>
       </div>
     </div>
@@ -80,7 +80,7 @@
         <span ng-bind="toolbarController.sendEmailState.type"></span>
         <div class="form-group">
           <label for="izendaDashboardModalSendEmail" class="col-sm-2 control-label"
-            ng-bind="'js_Email' | izendaLocale: 'Email'">
+            ng-bind="'js_Email' | izendaLocale: 'Email'" bind-once>
           </label>
           <div class="col-sm-10">
             <input type="text" class="form-control" id="izendaDashboardModalSendEmail"
@@ -114,7 +114,7 @@
     <div class="modal-body">
       <form>
         <div class="alert alert-info small" role="alert"
-          ng-bind="'js_BackgroundVisibleWarning' | izendaLocale: 'Background will be visible only in this browser'">
+          ng-bind="'js_BackgroundVisibleWarning' | izendaLocale: 'Background will be visible only in this browser'" bind-once>
         </div>
         <div class="checkbox">
           <label>
@@ -126,7 +126,7 @@
           <label>
             <input type="radio" name="a1" checked="checked"
               ng-model="toolbarController.backgroundModalRadio" ng-value="'url'" />
-            <span ng-bind="'js_ImageUrl' | izendaLocale: 'Image url'"></span>
+            <span ng-bind="'js_ImageUrl' | izendaLocale: 'Image url'" bind-once></span>
           </label>
         </div>
         <input type="text" class="form-control"
@@ -137,7 +137,7 @@
           <label>
             <input type="radio" name="a1"
               ng-model="toolbarController.backgroundModalRadio" ng-value="'file'" />
-            <span ng-bind="'js_OpenFile' | izendaLocale: 'Open file in your computer'"></span>
+            <span ng-bind="'js_OpenFile' | izendaLocale: 'Open file in your computer'" bind-once></span>
           </label>
         </div>
         <input id="izendaDashboardBackground" type="file" name="files[]"
@@ -234,14 +234,14 @@
                 <a ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
                   ng-click="toolbarController.saveDashboardHandler(false)">
                   <img src="Resources/images/floppy.png" />
-                  <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'"></span>
+                  <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'" bind-once></span>
                 </a>
               </li>
               <li>
                 <a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
                   ng-click="toolbarController.saveDashboardHandler(true)">
                   <img src="Resources/images/floppy.png" />
-                  <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'"></span>
+                  <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'" bind-once></span>
                 </a>
               </li>
             </ul>
@@ -348,7 +348,7 @@
                   ng-show="!toolbarController.isOneColumnView() && toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
                   ng-click="toolbarController.printDashboard()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;
-                  <span ng-bind="'js_PrintDashboardHtml' | izendaLocale: 'Print dashboard HTML'"></span>
+                  <span ng-bind="'js_PrintDashboardHtml' | izendaLocale: 'Print dashboard HTML'" bind-once></span>
                 </a>
               </li>
               <li>
@@ -356,7 +356,7 @@
                   ng-show="toolbarController.isPrintDashboardPdfVisible() && toolbarController.synchronized"
                   ng-click="toolbarController.printDashboardPdf()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;
-                  <span ng-bind="'js_PrintDashboardPdf' | izendaLocale: 'Print dashboard PDF'"></span>
+                  <span ng-bind="'js_PrintDashboardPdf' | izendaLocale: 'Print dashboard PDF'" bind-once></span>
                 </a>
               </li>
             </ul>
@@ -375,14 +375,14 @@
                   ng-hide="!toolbarController.isFullAccess()"
                   ng-click="toolbarController.saveDashboardHandler(false)">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
-                  <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'"></span>
+                  <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'" bind-once></span>
                 </a>
               </li>
               <li ng-show="toolbarController.isShowSaveAsToolbarButton()">
                 <a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
                   ng-click="toolbarController.saveDashboardHandler(true)">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
-                  <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'"></span>
+                  <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'" bind-once></span>
                 </a>
               </li>
             </ul>
@@ -398,13 +398,13 @@
               <li>
                 <a ng-click="toolbarController.sendEmail('Link')">
                   <span class="glyphicon glyphicon-envelope"></span>&nbsp;
-                  <span ng-bind="'js_SendLinkToEmail' | izendaLocale: 'Send link to Email'"></span>
+                  <span ng-bind="'js_SendLinkToEmail' | izendaLocale: 'Send link to Email'" bind-once></span>
                 </a>
               </li>
               <li>
                 <a ng-click="toolbarController.sendEmail('PDF')">
                   <span class="glyphicon glyphicon-envelope"></span>&nbsp;
-                  <span ng-bind="'js_SendPdfToEmail' | izendaLocale: 'Send PDF to Email'"></span>
+                  <span ng-bind="'js_SendPdfToEmail' | izendaLocale: 'Send PDF to Email'" bind-once></span>
                 </a>
               </li>
             </ul>
@@ -425,8 +425,9 @@
               </div>
               <div izenda-color-picker inline="true" ng-model="toolbarController.izendaBackgroundColor"></div>
               <div style="padding: 5px;">
-                <a class="small" ng-click="toolbarController.selectBackgroundDialogHandler()"
-                  ng-bind="'js_SelectBackgroundImage' | izendaLocale: 'Select background image'"></a>
+                <a class="small" 
+                   ng-click="toolbarController.selectBackgroundDialogHandler()"
+                   ng-bind="'js_SelectBackgroundImage' | izendaLocale: 'Select background image'"></a>
                 <br ng-hide="!toolbarController.isBackgroundImageSet()" />
                 <a class="small" ng-click="toolbarController.removeBackgroundImageHandler()"
                   ng-hide="!toolbarController.isBackgroundImageSet()" style="color: #8b0000;"

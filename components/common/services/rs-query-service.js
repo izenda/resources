@@ -19,13 +19,14 @@
 * this is singleton
 */
 angular.module('izendaQuery').factory('$izendaRsQuery', [
-'$window',
-'$rootScope',
-'$http',
-'$q',
-'$injector',
-'$log',
-function ($window, $rootScope, $http, $q, $injector, $log) {
+	'$window',
+	'$rootScope',
+	'$http',
+	'$q',
+	'$injector',
+	'$log',
+	'$izendaLocale',
+function ($window, $rootScope, $http, $q, $injector, $log, $izendaLocale) {
 	'use strict';
 
 	var urlSettings = $window.urlSettings$;
@@ -56,7 +57,7 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 	/**
 	* Do query to custom url
 	*/
-	function customQuery(baseUrl, queryParams, options, errorOptions) {
+	function customQuery(baseUrl, queryParams, options, errorOptions, invalidateInCacheParameter) {
 		var isPost = angular.isObject(options) && options.method === 'POST';
 
 		var postData = {};
@@ -72,6 +73,11 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 			if (url.substring(url.length - 1) === '&') {
 				url = url.substring(0, url.length - 1);
 			}
+			if (invalidateInCacheParameter)
+				if (url.endsWith('?'))
+					url += 'iic=1';
+				else
+					url += '&iic=1';
 		} else {
 			// POST request params string:
 			var postParamsString = 'urlencoded=true';
@@ -83,6 +89,8 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 			postData = {
 				data: postParamsString
 			};
+			if (invalidateInCacheParameter)
+				url += '?iic=1';
 		}
 
 		// create promises
@@ -93,11 +101,12 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 		// apply query options
 		resolver.errorOptions = angular.isObject(errorOptions) ? errorOptions : null;
 		var dataType = angular.isDefined(options) && angular.isString(options.dataType)
-		? options.dataType
-		: 'text';
+			? options.dataType
+			: 'text';
 		var contentType = 'text/html';
 		if (dataType === 'json')
 			contentType = 'text/json';
+
 		var req = {
 			method: 'GET',
 			url: url,
@@ -138,9 +147,9 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 			} else if (response.message) {
 				errorText = response.message;
 			} else if (config) {
-				errorText = 'Query failed: ' + config;
+				errorText = $izendaLocale.localeText('js_QueryFailed', 'Query failed') + ': ' + config;
 			} else {
-				errorText = 'An unknown error occurred.';
+				errorText = $izendaLocale.localeText('localeVariable', 'An unknown error occurred.');
 			}
 			if (resolver.$izendaRsQueryCancelled) {
 				$rootScope.$broadcast('showNotificationEvent', [errorText, 'Error']);
@@ -153,14 +162,14 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 	/**
 	* Do query to RespornceServer
 	*/
-	function rsQuery(queryParams, options, errorOptions) {
-		return customQuery(rsQueryBaseUrl, queryParams, options, errorOptions);
+	function rsQuery(queryParams, options, errorOptions, invalidateInCacheParameter) {
+		return customQuery(rsQueryBaseUrl, queryParams, options, errorOptions, invalidateInCacheParameter);
 	}
 
 	/**
 	* Base query to RespornceServer with wscmd and wsargN parameters
 	*/
-	function query(wsCmd, wsArgs, options, errorOptions) {
+	function query(wsCmd, wsArgs, options, errorOptions, invalidateInCacheParameter) {
 		// prepare params:
 		var params = {
 			'wscmd': wsCmd
@@ -194,7 +203,7 @@ function ($window, $rootScope, $http, $q, $injector, $log) {
 		} else {
 			eOptions = errorOptions;
 		}
-		return rsQuery(params, options, eOptions);
+		return rsQuery(params, options, eOptions, invalidateInCacheParameter);
 	}
 
 	/**

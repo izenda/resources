@@ -12,6 +12,7 @@
 			scope: {
 				ngModel: '=',
 				endValue: '=',
+				showItemAll: '=',
 				onChangeEnd: '&'
 			},
 			template: '<input></input>',
@@ -75,6 +76,17 @@
 
 				$scope.$watch('ngModel', function (newValue) {
 					setSliderValue(newValue);
+				});
+
+				$scope.$watch('showItemAll', function (value) {
+					var allExist = valuesArray.indexOf('ALL') >= 0;
+					if (allExist && !value)
+						valuesArray.pop();
+					else if(!allExist && value)
+						valuesArray.push('ALL');
+					slider.update({
+						values: valuesArray
+					});
 				});
 			}
 		};

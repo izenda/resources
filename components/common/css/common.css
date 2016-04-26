@@ -351,3 +351,25 @@
 	padding-right: 4px;
 	display: none;
 }
+
+/**************IZENDA COL REORDER*************/
+.izenda-col-reorder-active {
+	background-color: #ddd !important;
+}
+
+.izenda-col-reorder-helper {
+	background-color: #4274AF;
+	position: absolute;
+	display: inline-block;
+	-ms-opacity: 0.5;
+	opacity: 0.5;
+	cursor: move;
+}
+
+.izenda-col-reorder-helper .report-header-remove-column-btn {
+	display: none !important;
+}
+
+.izenda-col-reorder-hidden {
+	display: none !important;
+}

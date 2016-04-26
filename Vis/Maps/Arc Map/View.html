@@ -1,58 +1,93 @@
 ﻿<style type="text/css">
-	#VIS_ID #states path {
+	#VIS_ID_CONTAINER {
+		width: 100%;
+	}
+
+	#VIS_ID_CONTAINER .clearfix:after {
+		content: "";
+		clear: both;
+		display: table;
+	}
+
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+		font-size: 12px;
+		color: #999;
+		height: 30px;
+		width: auto;
+	}
+
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
+	#VIS_ID_CONTAINER .select-control select {
+		width: auto;
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control span {
+		vertical-align: middle;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID #states path {
 		fill: #ccc;
 		stroke: #fff;
 	}
-	#VIS_ID path.arc {
+
+	#VIS_ID_CONTAINER #VIS_ID path.arc {
 		pointer-events: none;
 		fill: none;
 		stroke: blue;
 		display: none;
-		stroke-width:5px;
-		stroke-opacity:.25;
+		stroke-width: 5px;
+		stroke-opacity: .25;
 	}
-	#VIS_ID path.cell {
+
+	#VIS_ID_CONTAINER #VIS_ID path.cell {
 		fill: none;
 		pointer-events: all;
 	}
-	#VIS_ID circle {
+
+	#VIS_ID_CONTAINER #VIS_ID circle {
 		fill: steelblue;
 		fill-opacity: .8;
 		stroke: #fff;
 	}
-	#VIS_ID #cells.voronoi path.cell {
+
+	#VIS_ID_CONTAINER #VIS_ID #cells.voronoi path.cell {
 		stroke: brown;
 	}
-	/*#VIS_ID #cells g:hover path.arc {
-		display: inherit;
-	}*/
-	#VIS_ID #countries path {
+
+	#VIS_ID_CONTAINER #VIS_ID #countries path {
 		fill: #ccc;
 		stroke: #fff;
 		stroke-width: 0.5;
 		fill: none;
 	}
-	
-
-	#VIS_ID span.hint {
-		font-size: 12px;
-		color: #999;
-		width: auto;
-		display: inline-block;
-
-		position: absolute;
-		right: 0;
-	}
-	#VIS_ID span.hint select {
-		width: auto;
-	}
 </style>
 
-<div id="VIS_ID">
-	<span class="hint" style="position: absolute; right: 0;">
-		<span style="display:inline-block">Metric:</span>
-		<select id="metricSelect"></select>
-	</span>
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
+			<div class="property-control select-control">
+				<span>Metrics:</span>
+				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<div id="VIS_ID"></div>
+	</div>
 </div>
 
 <script type="variable/json" accesskey="f1data" src="us-states.json"></script>
@@ -78,30 +113,28 @@
 			var splitted = label.split(',');
 			return splitted.length == 2 ? (splitted[0].trim() + '#' + splitted[1].trim()).toLowerCase() : label;
 		}
+
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {
 				"metric": metricSelect.val()
 			});
 			vis.setProps(s.props);
 		}
+
 		function restore() {
 			if (typeof s.props != "object")
 				return;
 
-			metricSelect.val(s.props.metric);
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
-
-		//var f1data = typeof f1data != "undefined" ? f1data : undefined;
-		//var f2data = typeof f2data != "undefined" ? f2data : undefined;
 
 		var width = 900, height = 600;
 		var f1, f2, f3, links = new Array();
 
-		var util = window.ReportScripting, vis = {},
-		    metrics = [];
+		var util = window.ReportScripting, vis = {}, metrics = [];
 
 		var vs = util.container("VIS_ID"),
-		    metricSelect = vs.find("select#metricSelect");
+			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
 			return;
@@ -114,6 +147,7 @@
 		f1 = "Resources/Vis/Maps/Arc Map/us-states.json";
 		f2 = "Resources/Vis/Maps/Arc Map/geocities.json";
 		f3 = "Resources/Vis/Maps/Arc Map/us.json";
+
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
 		var items = vis.getItems(), si = -1, di = -1;
@@ -141,8 +175,7 @@
 			return;
 		}
 
-		metricSelect
-			.find("option").remove();
+		metricSelect.find("option").remove();
 		jq$.each(metrics, function(i, el) {
 			metricSelect.append("<option>" + el.name + "</option>");
 		});

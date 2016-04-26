@@ -373,9 +373,7 @@
 							.style("fill", function (d3) { return idealTextColor(color(d3)); });
 					}
 				})
-				.call(util.endAll, function () {
-					vis.onReady(100);
-				});
+				.call(util.endAll, function () { });
 
 			tran.select(".clip")
 				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })

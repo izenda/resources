@@ -4,8 +4,11 @@
     <div class="form-group">
       <!-- mobile view -->
       <div class="input-group" ng-if="$izendaCompatibility.isSmallResolution()">
-        <input class="form-control" type="text" placeholder="Search..."
-               title="Search Data Sources" value=""
+        <input class="form-control" 
+               type="text"
+               ng-attr-placeholder="{{'js_Search' | izendaLocale: 'Search'}}"
+               ng-attr-title="{{'js_SearchDatasources' | izendaLocale: 'Search Data Sources'}}"
+               value=""
                ng-model="irDataSourceController.searchString" />
         <span class="input-group-addon izenda-cursor-pointer"
               ng-click="irDataSourceController.performFiltering()">
@@ -14,8 +17,11 @@
       </div>
       <!-- normal view -->
       <div class="iz-inst-inner-glyphicon-container" ng-if="!$izendaCompatibility.isSmallResolution()">
-        <input class="form-control" type="text" placeholder="Search..."
-               title="Search Data Sources" value=""
+        <input class="form-control"
+               type="text"
+               ng-attr-placeholder="{{'js_Search' | izendaLocale: 'Search'}}"
+               ng-attr-title="{{'js_SearchDatasources' | izendaLocale: 'Search Data Sources'}}"
+               value=""
                ng-model="irDataSourceController.searchString" />
         <span class="glyphicon glyphicon-search pull-right"></span>
       </div>
@@ -26,7 +32,9 @@
     <!-- loading message -->
     <div class="izenda-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
       <div class="izenda-vcentered-item">
-        <img class="img-responsive" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+        <img class="img-responsive" style="width: 24px;" 
+             ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
+             ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}"/>
       </div>
     </div>
 
@@ -38,7 +46,8 @@
            ng-click="irDataSourceController.columnSortPanelOpened = !irDataSourceController.columnSortPanelOpened">
         <span class="glyphicon glyphicon-chevron-right with-label"
               ng-class="irDataSourceController.columnSortPanelOpened ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
-        <span class="ds-tree-item-header-text">Columns sort panel</span>
+        <span class="ds-tree-item-header-text"
+              ng-bind="'js_ColumnsSortPanel' | izendaLocale: 'Columns sort panel'" bind-once></span>
       </div>
       <div class="ds-tree-item-body" collapsed="!irDataSourceController.columnSortPanelOpened" izenda-bootstrap-collapse>
         <div ng-include="'Resources/components/instant-report/templates/instant-report-columns-sort.html'"></div>
@@ -59,8 +68,8 @@
         <a class="collapse-link"
            ng-hide="irDataSourceController.isTablesCollapsed(dsCategory) || dsCategory.collapsed"
            ng-click="irDataSourceController.collapseCategoryTables(dsCategory)"
+           ng-bind="'js_CollapseTables' | izendaLocale: 'collapse tables'"
            izenda-stop-propagation>
-          collapse tables
         </a>
       </div>
       <!-- categories body -->
@@ -100,13 +109,14 @@
                 <span class="ds-check-button glyphicon with-label"
                       ng-class="irDataSourceController.getFieldCheckClass(field)"
                       ng-click="irDataSourceController.checkField(field)"
-                      title="Toggle report field"
+                      ng-attr-title="{{'js_ToggleReportField' | izendaLocale: 'Toggle report field'}}"
                       izenda-stop-propagation></span>
                 <span class="ds-tree-item-header-text datasource-field" ng-bind="field.name"
                       draggable-data-id="{{field.sysname}}"
                       draggable-enabled="!field.isMultipleColumns"
                       izenda-instant-report-field-draggable></span>
-                <span class="ds-multiple-button" title="Add another field"
+                <span class="ds-multiple-button" 
+                      ng-attr-title="{{'js_AddAnotherField' | izendaLocale: 'Add another field'}}"
                       ng-show="field.checked"
                       ng-click="irDataSourceController.addAnotherField(field)"
                       izenda-stop-propagation>
@@ -123,23 +133,23 @@
 
                 <span class="ds-tree-item-header-notify-icon-first"
                       ng-show="field.checked && field.sort !== null"
-                      title="Sort function is applyed">
+                      ng-attr-title="{{'js_SortIsApplyed' | izendaLocale: 'Sort function is applyed'}}">
                   <span class="glyphicon"
                         ng-class="field.sort === 'asc' ? 'glyphicon-sort-by-alphabet' : 'glyphicon-sort-by-alphabet-alt'"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
                       ng-show="field.checked && field.isVgUsed"
-                      title="Visual group is applyed">
+                      ng-attr-title="{{'js_VgIsApplyed' | izendaLocale: 'Visual group is applyed'}}">
                   <span class="glyphicon glyphicon-th-list"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
                       ng-show="field.checked && !field.visible"
-                      title="Field is hidden">
+                      ng-attr-title="{{'js_FieldIsHidden' | izendaLocale: 'Field is hidden'}}">
                   <span class="glyphicon glyphicon-eye-close"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
                       ng-show="field.checked && field.subreport !== ''"
-                      title="Field have subreport">
+                      ng-attr-title="{{'js_FieldHaveSubreport' | izendaLocale: 'Field have subreport'}}">
                   <span class="glyphicon glyphicon-link"></span>
                 </span>
               </div>
@@ -159,7 +169,8 @@
                           draggable-data-id="{{multiField.sysname}}"
                           draggable-enabled="true"
                           izenda-instant-report-field-draggable></span>
-                    <span class="ds-multiple-button" title="Remove field"
+                    <span class="ds-multiple-button" 
+                          ng-attr-title="{{'js_RemoveField' | izendaLocale: 'Remove field'}}"
                           ng-click="irDataSourceController.removeAnotherField(field, multiField)"
                           izenda-stop-propagation>
                       <span class="glyphicon glyphicon-remove-circle"></span>
@@ -167,14 +178,24 @@
 
                     <span class="ds-tree-item-header-notify-icon-first"
                           ng-show="multiField.checked && multiField.sort !== null"
-                          title="Sort function is applyed">
+                          ng-attr-title="{{'js_SortIsApplyed' | izendaLocale: 'Sort function is applyed'}}">
                       <span class="glyphicon"
                             ng-class="multiField.sort === 'asc' ? 'glyphicon-sort-by-alphabet' : 'glyphicon-sort-by-alphabet-alt'"></span>
                     </span>
                     <span class="ds-tree-item-header-notify-icon"
                           ng-show="multiField.checked && multiField.isVgUsed"
-                          title="Visual group is applyed">
+                          ng-attr-title="{{'js_VgIsApplyed' | izendaLocale: 'Visual group is applyed'}}">
                       <span class="glyphicon glyphicon-th-list"></span>
+                    </span>
+                    <span class="ds-tree-item-header-notify-icon"
+                          ng-show="multiField.checked && !multiField.visible"
+                          ng-attr-title="{{'js_FieldIsHidden' | izendaLocale: 'Field is hidden'}}">
+                      <span class="glyphicon glyphicon-eye-close"></span>
+                    </span>
+                    <span class="ds-tree-item-header-notify-icon"
+                          ng-show="multiField.checked && multiField.subreport !== ''"
+                          ng-attr-title="{{'js_FieldHaveSubreport' | izendaLocale: 'Field have subreport'}}">
+                      <span class="glyphicon glyphicon-link"></span>
                     </span>
                   </div>
                 </div>

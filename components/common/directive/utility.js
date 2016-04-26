@@ -1,6 +1,30 @@
 ﻿/**
  * Small utility directives
  */
+
+angular.module('izendaQuery').directive('bindOnce', function () {
+	return {
+		scope: true,
+		link: function ($scope, $element) {
+			setTimeout(function () {
+
+				$scope.$destroy();
+				$element.removeClass('ng-binding ng-scope');
+
+				var hasAttr = function (element, attrName) {
+					var attr = angular.element(element).attr(attrName);
+					return typeof attr !== typeof undefined && attr !== false;
+				};
+
+				if (hasAttr($element, 'ng-bind'))
+					$element.removeAttr('ng-bind');
+				if (hasAttr($element, 'bind-once'))
+					$element.removeAttr('bind-once');
+			}, 0);
+		}
+	}
+});
+
 angular.module('izendaCommonControls').directive('izendaStopPropagation', [
 	function() {
 		return {

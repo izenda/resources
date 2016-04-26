@@ -11,6 +11,7 @@ angular
 			'$q',
 			'$sce',
 			'$log',
+			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportStorage',
@@ -25,6 +26,7 @@ function InstantReportFieldOptionsController(
 			$q,
 			$sce,
 			$log,
+			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportStorage) {
@@ -33,6 +35,7 @@ function InstantReportFieldOptionsController(
 	var primaryButtonClass = "btn-izenda-dark",
 			activeButtonClass = "btn-izenda-dark active";
 
+	$scope.$izendaLocale = $izendaLocale;
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	vm.field = null;
 	vm.currentSortFunction = 'asc';

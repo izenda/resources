@@ -11,6 +11,7 @@ angular
 			'$q',
 			'$log',
 			'$izendaUrl',
+			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportValidation',
@@ -26,6 +27,7 @@ function InstantReportDataSourceController(
 			$q,
 			$log,
 			$izendaUrl,
+			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportQuery,
 			$izendaInstantReportValidation,
@@ -169,6 +171,7 @@ function InstantReportDataSourceController(
 		if (!$izendaCompatibility.isSmallResolution()) {
 			// check field occurs in selectField function
 			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
 			});
@@ -188,6 +191,7 @@ function InstantReportDataSourceController(
 	vm.selectField = function (field) {
 		if ($izendaCompatibility.isSmallResolution()) {
 			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
+				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
 			});
@@ -233,6 +237,7 @@ function InstantReportDataSourceController(
 	vm.addAnotherField = function(field) {
 		var anotherField = $izendaInstantReportStorage.addAnotherField(field, true);
 		$izendaInstantReportStorage.applyFieldChecked(anotherField).then(function () {
+			$izendaInstantReportStorage.updateVisualGroupFieldOrders();
 			vm.updateReportSetValidationAndRefresh();
 			$scope.$applyAsync();
 		});

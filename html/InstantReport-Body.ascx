@@ -122,6 +122,17 @@ is_ie9_or_newer = false;
                                     <td>
                                         <select id="propFormats" style="margin: 0px; width: 100%;" onchange="PreviewFieldDelayed(1000);"></select></td>
                                 </tr>
+																<tr class="field-prop-row">
+																		<td style="padding-top: 10px;" lang-text="js_SubtotalFunction">Subtotal function</td>
+																</tr>
+																<tr class="field-prop-row">
+																		<td>
+																				<select id="propSTFunctions" style="margin: 0px; width: 100%;" onchange="document.getElementById('propStExpression').style.display=(this.value=='EXPRESSION'?'':'none'); PreviewFieldDelayed(1000);"></select></td>
+																</tr>
+                                <tr class="field-prop-row">
+                                    <td>
+                                        <input id="propStExpression" type="text" value="" style="width: 100%; margin: 0px; margin-top:4px; display:none;" /></td>
+                                </tr>
                                 <tr class="filter-prop-row">
                                     <td style="padding-top: 10px;" lang-text="js_FilterOperator">Filter Operator<span id="dupFilterNote" title="Several filters applied to this Field. Use Filters tab to modify specific filter." style="cursor: help; display: none;"> of 1st Filter ( ? )</span></td>
                                 </tr>
@@ -137,10 +148,6 @@ is_ie9_or_newer = false;
                         </div>
                         <div style="float: left; margin-top: 10px; margin-right: 20px;" id="fieldPropDiv">
                             <table>
-                                <tr>
-                                    <td>
-                                        <input id="propTotal" type="checkbox" onkeyup="PreviewFieldDelayed(1000);" onmouseup="PreviewFieldDelayed(1000);" /><label style="cursor: pointer;" for="propTotal" lang-text="js_Total">Total</label></td>
-                                </tr>
                                 <tr>
                                     <td>
                                         <input id="propVG" type="checkbox" onkeyup="PreviewFieldDelayed(1000);" onmouseup="PreviewFieldDelayed(1000);" /><label style="cursor: pointer;" for="propVG" lang-text="js_VisualGroup">Visual Group</label></td>

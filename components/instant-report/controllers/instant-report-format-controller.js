@@ -8,6 +8,7 @@ angular.module('izendaInstantReport').controller('InstantReportFormatController'
 			'$timeout',
 			'$q',
 			'$log',
+			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportSettings',
 			'$izendaInstantReportStorage',
@@ -21,6 +22,7 @@ function InstantReportFormatController(
 			$timeout,
 			$q,
 			$log,
+			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportSettings,
 			$izendaInstantReportStorage) {

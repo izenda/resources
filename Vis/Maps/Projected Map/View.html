@@ -1,50 +1,91 @@
 ﻿<style type="text/css">
-	#VIS_ID rect.overlay {
+	#VIS_ID_CONTAINER {
+		width: 100%;
+	}
+
+	#VIS_ID_CONTAINER .clearfix:after {
+		content: "";
+		clear: both;
+		display: table;
+	}
+
+	#VIS_ID_CONTAINER .property-control {
+		color: black;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
+		float: right;
+		position: relative;
+		right: 0;
+		font-size: 12px;
+		color: #999;
+		height: 30px;
+		width: auto;
+	}
+
+	#VIS_ID_CONTAINER .select-control {
+		padding-top: 2px;
+	}
+
+	#VIS_ID_CONTAINER .select-control select {
+		width: auto;
+		font-family: Verdana, Arial, Geneva, sans-serif;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
+		display: inline-block;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control span {
+		vertical-align: middle;
+	}
+
+	#VIS_ID_CONTAINER #VIS_ID rect.overlay {
 		fill: none;
 		pointer-events: all;
 	}
 
-	#VIS_ID .country {
+	#VIS_ID_CONTAINER #VIS_ID .country {
 		fill: #47a2f3;
 		stroke: #fff;
 		stroke-width: 1px;
 		stroke-linejoin: round;
 	}
-	#VIS_ID .country.hovered {
+
+	#VIS_ID_CONTAINER #VIS_ID .country.hovered {
 		stroke-width: 1.5px;
 	}
-	#VIS_ID .country.active {
+
+	#VIS_ID_CONTAINER #VIS_ID .country.active {
 		fill: #1C8BF0;
 	}
 
-	#VIS_ID .graticule {
+	#VIS_ID_CONTAINER #VIS_ID .graticule {
 		fill: none;
 		stroke: #000;
 		stroke-opacity: .3;
 		stroke-width: .5px;
 		pointer-events: none;
 	}
-	#VIS_ID .graticule.outline {
+
+	#VIS_ID_CONTAINER #VIS_ID .graticule.outline {
 		stroke: #333;
 		stroke-opacity: 1;
 		stroke-width: 1.5px;
 	}
-
-	#VIS_ID span.hint {
-		font-size: 12px;
-		color: #999;
-		width: auto;
-		display: inline-block;
-	}
-	#VIS_ID span.hint select {
-		width: auto;
-	}
 </style>
-<div style="width: 100%;" id="VIS_ID">
-	<span class="hint" style="position: absolute; right: 0;">
-		<span style="display:inline-block">Metric:</span>
-		<select id="metricSelect"></select>
-	</span>
+
+<div id="VIS_ID_CONTAINER">
+	<div id="VIS_ID_HOLDER">
+		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
+			<div class="property-control select-control">
+				<span>Metrics:</span>
+				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
+			</div>
+		</div>
+		<div class="clearfix"></div>
+		<div id="VIS_ID"></div>
+	</div>
 </div>
 
 <script type="variable/json" accesskey="f1data" src="World.json"></script>
@@ -53,7 +94,6 @@
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 <script type="text/javascript" src="d3.geo.projection.v0.min.js"></script>
-<script type="text/javascript" src="queue.v1.min.js"></script>
 <script type="text/javascript" src="topojson.v1.min.js"></script>
 
 <script type="text/javascript">
@@ -84,30 +124,29 @@
 			for (i = 0; i < metrics.length; i++)
 				metrics[i].radius = d3.scale.linear().domain([0, metrics[i].max]).range([1, maxradius]);
 		}
+
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {
 				"metric": metricSelect.val()
 			});
 			vis.setProps(s.props);
 		}
+
 		function restore() {
 			if (typeof s.props != "object")
 				return;
 
-			metricSelect.val(s.props.metric);
+			util.setSelectValue(metricSelect, s.props.metric);
 		}
-
-		var VIS_EMBEDDED_DATA;
 
 		var width = 960, height = 500;
 		var i, j, items = [], nodeId = 0,
-		    colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
+			colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
 
-		var util = window.ReportScripting, vis,
-		    metrics = [];
+		var util = window.ReportScripting, vis, metrics = [];
 
 		var vs = util.container("VIS_ID"),
-		    metricSelect = vs.find("select#metricSelect");
+			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
 		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
 			return;
@@ -131,8 +170,7 @@
 			return;
 		}
 
-		metricSelect
-			.find("option").remove();
+		metricSelect.find("option").remove();
 		jq$.each(metrics, function(i, el) {
 			metricSelect.append("<option>" + el.name + "</option>");
 		});
@@ -147,7 +185,8 @@
 			paneSize = { width: width - margin.left - margin.right, height: height - margin.top - margin.bottom },
 			scale = Math.min(paneSize.width, paneSize.height * 1.74) / 5.5,
 			center = [margin.left + paneSize.width / 2, margin.top + paneSize.height / 2],
-			active, zm = 1, countries;
+			active, countries, zm = 1, zoomMin = 0.2, zoomMax = 10;
+
 		var originx = 0;
 		var originy = 0;
 
@@ -161,7 +200,9 @@
 				setup();
 				update();
 			});
+
 		s.selectedMetric = metricSelect.find("option:selected").index();
+
 		setup();
 
 		var projection = d3.geo.kavrayskiy7()
@@ -186,8 +227,8 @@
 			.attr("width", width)
 			.attr("height", height)
 			.on("click", reset);
-		var g = svg.append("g");
 
+		var g = svg.append("g");
 		g.append("path")
 			.datum(graticule)
 			.attr("class", "graticule")
@@ -205,10 +246,16 @@
 			var z = d > 0 ? d : 1 / -d;
 			var mousex = d3.event.offsetX, mousey = d3.event.offsetY;
 
+			var newZoom = zm * z;
+			if ((newZoom <= zoomMin && d < 0) || (newZoom >= zoomMax && d > 0))
+				return;
+
 			originx = (mousex / zm + originx - mousex / (zm * z));
 			originy = (mousey / zm + originy - mousey / (zm * z));
 
-			setZoom([-originx, -originy], zm *= z, 0);
+			zm = newZoom;
+
+			setZoom([-originx, -originy], zm, 0);
 		}
 
 		var dragging = null, origin, moved = false;
@@ -216,10 +263,10 @@
 			dragging = d3.mouse(this);
 			origin = [originx, originy];
 		}
+
 		function onmousemove() {
 			if (dragging == null)
 				return;
-
 
 			var dc = d3.mouse(this),
 				mousex = dragging[0] - dc[0],
@@ -234,6 +281,7 @@
 			originy = origin[1] + mousey / zm;
 			setZoom([-originx, -originy], zm, 0);
 		}
+
 		function onmouseup() {
 			dragging = null;
 		}
@@ -326,6 +374,7 @@
 
 			setZoom([-originx, -originy], zm = z, 750);
 		}
+
 		function reset() {
 			if (moved) {
 				moved = false;
@@ -377,6 +426,7 @@
 				var tryit = names.names.filter(function(n) { return d.id == n[0]; })[0];
 				d.name = typeof tryit === "undefined" ? "Undefined" : tryit.name;
 			});
+
 			countries = g.selectAll(".country")
 				.data(collection.features)
 				.enter()

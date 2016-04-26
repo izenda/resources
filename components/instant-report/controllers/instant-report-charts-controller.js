@@ -10,6 +10,7 @@ angular
 			'$timeout',
 			'$q',
 			'$izendaUrl',
+			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
 			'$log',
@@ -23,6 +24,7 @@ function InstantReportChartsController(
 			$timeout,
 			$q,
 			$izendaUrl,
+			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportStorage,
 			$log) {

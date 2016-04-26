@@ -6,11 +6,18 @@ angular
 .controller('InstantReportValidationController', [
 			'$rootScope',
 			'$scope',
+			'$izendaLocale',
 			'$izendaInstantReportValidation',
+			'$izendaInstantReportStorage',
 			InstantReportValidationController
 ]);
 
-function InstantReportValidationController($rootScope, $scope, $izendaInstantReportValidation) {
+function InstantReportValidationController(
+	$rootScope,
+	$scope,
+	$izendaLocale,
+	$izendaInstantReportValidation,
+	$izendaInstantReportStorage) {
 
 	'use strict';
 	var vm = this;
@@ -18,14 +25,30 @@ function InstantReportValidationController($rootScope, $scope, $izendaInstantRep
 
 	vm.isValid = true;
 	vm.messages = [];
+	vm.infoMessages = [];
 
 	/**
 	* Initialize controller
 	*/
 	vm.init = function () {
-		$scope.$watch('$izendaInstantReportValidation.isReportValid()', function (isValid) {
-			vm.isValid = isValid;
-			vm.messages = $izendaInstantReportValidation.getValidation().messages;
+		$scope.$watch('$izendaInstantReportValidation.getValidationMessages()', function (messages) {
+			vm.isValid = $izendaInstantReportValidation.isReportValid();
+			vm.messages = [];
+			vm.infoMessages = [];
+			angular.element.each(messages, function () {
+				var message = this;
+				if (message.type === 'info') {
+					vm.infoMessages.push(message);
+				} else {
+					vm.messages.push(message);
+				}
+				if (angular.isString(message.additionalActionType)) {
+					if (message.additionalActionType === 'TURN_OFF_DISTINCT') {
+						$izendaInstantReportStorage.getOptions().distinct = false;
+					}
+				}
+			});
+			
 		});
 	};
 }
