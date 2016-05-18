@@ -15,6 +15,7 @@ table.ReportTable td
 	font-family: tahoma; 
 	border-width:0px;
 	border-style:solid;
+	white-space: initial;
 }
 table.ReportTable td.EmptyCell, table.ReportTable th.EmptyCell
 {
@@ -148,7 +149,8 @@ table.ReportTable td.GridCellHG3
 	font-weight:normal;
 }
 
-tr.ReportHeader td
+tr.ReportHeader td,
+tr.ReportHeader th
 {
 	font-size: 9pt;
 	border-width:1px;
@@ -323,6 +325,21 @@ span.ReportTitle
 	white-space: pre-wrap;
 	background-color: #F0F0F0;
 }
+span.DashboardPrintTitle
+{
+	font-size: 18pt;
+	font-weight: bold;
+	white-space: pre-wrap;
+	color: #1c4e89;
+}
+span.DashboardPrintDescription
+{
+	height: 30px;
+	font-size: 16px;
+	white-space: pre-wrap;
+	color: #999999;
+}
+
 /*span.Header
 {
 	white-space: nowrap;

@@ -26,7 +26,7 @@
 	#VIS_ID_CONTAINER .hint {
 		font-size: 12px;
 		color: #999;
-		height: 30px;
+		margin: 2px;
 		width: auto;
 	}
 
@@ -332,7 +332,7 @@
 		<div id="VIS_ID_GEAR_GALLERY" class="gallery" style="display: none;">
 			<div class="property-control hint"><label><input type="checkbox" id="VIS_ID_PROPERTY_ZERO_CHECKBOX" checked="" /> Start at Zero</label></div>
 			<div class="property-control hint">
-				<span>Subreport Mode</span>
+				<span>Subreport mode</span>
 				<ul id="VIS_ID_SUBREPORT_MODE" class="navigation">
 					<li val="EmbeddedDetail">Expand</li>
 					<li val="DetailLink">Link</li>
@@ -341,6 +341,15 @@
 				</ul>
 			</div>
 			<div class="property-control hint"><label>Combine bottom, % <input type="text" id="VIS_ID_PROPERTY_COMBINE_ITEMS" value="5" /></label></div>
+			<div class="property-control hint">
+				<span>Line chart step mode</span>
+				<ul id="VIS_ID_LINESTEP_MODE" class="navigation">
+					<li val="">None</li>
+					<li val="left">Left</li>
+					<li val="center">Center</li>
+					<li val="right">Right</li>
+				</ul>
+			</div>
 		</div>
 		<div id="VIS_ID" style="overflow: hidden"></div>
 		<div id="VIS_ID_EXPAND_GALLERY" class="gallery" style="display: none;">
@@ -500,7 +509,7 @@
 	function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
 		window.visState = window.visState || {};
@@ -515,7 +524,7 @@
 			combineBottom: 5
 		});
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS))
 			return;
 
 		function getItem(list, index) {
@@ -658,7 +667,7 @@
 				return;
 			}
 			vs.find(id).find("li.selected").removeClass("selected");
-			vs.find(id).find("li[val=" + util.escape(value) + "]").addClass("selected");
+			vs.find(id).find("li[val='" + util.escape(value) + "']").addClass("selected");
 		}
 
 		function recreate() {
@@ -717,6 +726,7 @@
 			s.props.colored = coloredSelect.size() > 0 ? coloredSelect.prop("checked") : true;
 			s.props.fromZero = zeroCheckbox.size() > 0 ? zeroCheckbox.prop("checked") : false;
 			s.props.subreportMode = getStripValue("#VIS_ID_SUBREPORT_MODE");
+			s.props.lineStepMode = getStripValue("#VIS_ID_LINESTEP_MODE");
 			s.props.combineBottom = combBottom.size() > 0 && combBottom.val() ? combBottom.val() : 5;
 		}
 
@@ -748,18 +758,22 @@
 			zeroCheckbox.prop("checked", !!s.props.fromZero);
 			combBottom.prop("value", s.props.combineBottom || 5);
 
-			if (typeof s.props.subreportMode == "string")
-				setStripValue("#VIS_ID_SUBREPORT_MODE", s.props.subreportMode);
-			else
-				setStripValue("#VIS_ID_SUBREPORT_MODE", vs.find("#VIS_ID_SUBREPORT_MODE").find("li:eq(0)").attr("val"));
+			setStripValue("#VIS_ID_SUBREPORT_MODE", typeof s.props.subreportMode == "string"
+				? s.props.subreportMode
+				: vs.find("#VIS_ID_SUBREPORT_MODE").find("li:eq(0)").attr("val")
+			);
+			setStripValue("#VIS_ID_LINESTEP_MODE", typeof s.props.lineStepMode == "string"
+				? s.props.lineStepMode
+				: vs.find("#VIS_ID_LINESTEP_MODE").find("li:eq(0)").attr("val")
+			);
 		}
 
 		function adjustimages() {
 			var $gallery = vs.find("#VIS_ID_EXPAND_GALLERY").css({ display: "table", width: "auto" }),
 					$galleryBackground = vs.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND").css({ "width": "" }),
-					$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").css({ "height": "" }),
+					$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER"),
 					bounds = {};
-			var scrollable = util.fitScollableContainer($gallery.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND"), { maxWidth: width, maxHeight: 300 }, bounds);
+			var scrollable = services.fitScollable($gallery.find("#VIS_ID_EXPAND_GALLERY_CONTAINER"), { maxWidth: width, maxHeight: 300 }, bounds);
 
 			if (scrollable) {
 				if (utility.isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
@@ -930,7 +944,6 @@
 			},
 			hideTimeout: 1000
 		});
-
 		initGallery("#VIS_ID_PALETTE_GALLERY", {
 			init: function () {
 				if (jq$(this).find(".gallery-item").size() > 0) {
@@ -971,7 +984,6 @@
 			},
 			hideTimeout: 1000
 		});
-
 		initSelector("#VIS_ID_REFRESH_SELECTOR", {
 			onClick: function () {
 				if (typeof s.chart == "undefined") {
@@ -980,8 +992,10 @@
 				s.chart.zoomOut();
 			}
 		});
-
 		initStrip("#VIS_ID_SUBREPORT_MODE", {
+			onclick: recall
+		});
+		initStrip("#VIS_ID_LINESTEP_MODE", {
 			onclick: recall
 		});
 
@@ -997,6 +1011,8 @@
 			.css("display", fromZero ? "block" : "none");
 		vs.find("#VIS_ID_SUBREPORT_MODE").parents("div:eq(0)")
 			.css("display", subreported ? "block" : "none");
+		vs.find("#VIS_ID_LINESTEP_MODE").parents("div:eq(0)")
+			.css("display", (type == "line" && !polar) || type == "area" ? "block" : "none");
 
 		var rounded = (type == "pie" || type == "pie-donut");
 
@@ -1046,7 +1062,6 @@
 		s.init = false;
 
 		vis.hideBreadcrumb();
-		util.createTootip();
 
 		function execBreadcrumb(d) {
 			if (isThumbnails) {
@@ -1126,26 +1141,8 @@
 					.bind("click", function (e) {
 						window.open(s.chartOptions.usedData[index].link, '_blank');
 					})
-					.on("mouseover", function (e) {
-						egOptions.hoverIndex = index;
-						var name = s.chartOptions.usedData[index].name;
-						util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
-					})
-					.on("mouseleave", function () {
-						if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
-							delete egOptions.hoverIndex;
-						if (typeof egOptions.clickIndex == "undefined")
-							util.hideTooltip();
-					});
-
-				jq$(s.chart.renderer.box)
-					.unbind("mouseleave")
-					.bind("mouseleave", function () {
-						if (typeof egOptions.clickIndex != "undefined")
-							return;
-
-						delete egOptions.hoverIndex;
-						util.hideTooltip();
+					.each(function() {
+						services.tipOn(this, "Open '" + s.chartOptions.usedData[index].name + "' a new tab/window");
 					});
 			}
 			function register(index) {
@@ -1154,25 +1151,27 @@
 					style = "DetailLinkPopup";
 
 				jq$(elements[index])
-					.bind("click", function (e) {
-						function filterReport(code, container, context) {
-							jq$.each(jq$.grep(code.match(/<script[\s\S]+?>([\s\S]+?)<\/script>/g), function (item) {
-								return item.indexOf("ReportScripting.globalEval") < 0;
-							}), function (i, item) {
-								code = code.replace(item, '');
-							});
-							var result = /<form[\s\S]+?>([\s\S]+)<\/form>/.exec(code);
-							var html = jq$('<div>' + (result ? result[1] : code) + '</div>')
-								.find("input[type=hidden]").remove().end()
-								.find("div.aspNetHidden").remove().end()
-								.html();
-							if (typeof container != "undefined" && typeof context != "undefined")
-								util.adjustImages(html, container, context, adjustimages);
-							return html;
+					.bind("click", function() {
+						function getContext() {
+							return {
+								element: elements[index],
+								css: { "background-color": s.chartOptions.usedColors[index] },
+								mode: "popup",
+								//offset: { x: 3, y: 3 },
+								style: "sharp",
+								color: s.chartOptions.usedColors[index],
+								maxWidth: 1000,
+								maxHeight: 500,
+								orientation: "right|50%",
+								showGlyph: true,
+								overlay: true, overlayStyle: "pointer-events: none",
+								title: s.chartOptions.usedData[index].name,
+								showCaption: false,
+								glyphSize: 6
+							};
 						}
 
-						var hoderIndex = egOptions.hoverIndex, // IE8 event handling workaround
-							loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
+						var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
 							reportLink = s.chartOptions.usedData[index].subreportlink,
 							reportLinkFixed = reportLink.replace(utility.server.config.ReportViewerUrl, utility.server.config.ResponseServerUrl);
 
@@ -1191,7 +1190,7 @@
 								delete egOptions.shownIndex;
 								jq$(s.chart.renderer.box).find(".expandtools").remove();
 
-								util.showTooltip(loadImage, { event: e });
+								services.showTip(loadImage, getContext());
 								jq$.get(reportLinkFixed, function (html) {
 									function finish() {
 										s.chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
@@ -1205,15 +1204,13 @@
 											.attr({ 'fill': uc, 'class': 'expandtools' })
 											.add();
 
-										util.hideTooltip();
+										services.hideTip();
 										vs.find("#VIS_ID_EXPAND_GALLERY")
 											.css("border-color", uc)
-											.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(
-												filterReport(html, vs.find("#VIS_ID_EXPAND_GALLERY"), {
-													maxWidth: vs.find("#VIS_ID").width(),
-													maxHeight: 500
-												})
-											)
+											.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(util.filterReport(html, vs.find("#VIS_ID_EXPAND_GALLERY"), {
+												maxWidth: vs.find("#VIS_ID").width(),
+												maxHeight: 500
+											}, adjustimages))
 										.end()
 											.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND")
 											.css("background-color", uc)
@@ -1225,11 +1222,11 @@
 												egOptions.hide();
 											})
 											.find("#VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE")
-												.css("padding-left", ((util.scrollSize().width - 15) / 2) | 0)
+												.css("padding-left", ((services.scrollSize().width - 15) / 2) | 0)
 											.end()
 										.end()
 											.find("#VIS_ID_EXPAND_GALLERY_LABEL")
-											.css("margin-right", util.scrollSize().width + "px")
+											.css("margin-right", services.scrollSize().width + "px")
 											.text(s.chartOptions.usedData[index].name);
 
 										egOptions.shownIndex = index;
@@ -1269,49 +1266,41 @@
 								});
 								break;
 							case "DetailLinkPopup":
-								{
-									if (hoderIndex != index)
-										return;
-									util.showTooltip(loadImage, { event: e });
-									if (type != "pie")
-										egOptions.clickFlag = true;
-									jq$.get(reportLinkFixed, function (html) {
-										egOptions.clickIndex = index;
-										util.showTooltip(filterReport(html), { event: e, maxWidth: Math.max(1000, jq$(window).width()), maxHeight: 500, offset: { x: 0, y: 10 } });
-									});
-								}
+								services.showTip(loadImage, getContext());
+								jq$.get(reportLinkFixed, function (html) {
+									services.showTip(util.filterReport(html), utility.defaults(getContext(), {
+										showCaption: true, 
+										showClose: true,
+										orientation: "right|10%",
+										resizable: true,
+										movable: true
+									}, true));
+								});
 								break;
 							default:
 								return;
 						}
 					})
-					.on("mouseover", function (e) {
-						egOptions.hoverIndex = index;
+					.each(function() {
+						function getContext() {
+							return {
+								color: s.chartOptions.usedColors[index],
+								style: "sharp",
+								orientation: "right|50%",
+								showCaption: false,
+								showGlyph: true,
+								glyphSize: 5
+							};
+						}
 						var name = s.chartOptions.usedData[index].name;
 						if (style == "DetailLink")
-							util.showTooltip("Navigate to '" + name + "'", { event: e });
+							services.tipOn(this, "Navigate to '" + name + "'", getContext());
 						else if (style == "DetailLinkNewWindow")
-							util.showTooltip("Open '" + name + "' a new tab/window", { event: e });
+							services.tipOn(this, "Open '" + name + "' a new tab/window", getContext());
 						else if (style == "DetailLinkPopup")
-							util.showTooltip("Open '" + name + "' in popup", { event: e });
+							services.tipOn(this, "Open '" + name + "' in popup", getContext());
 						else if (style == "EmbeddedDetail")
-							util.showTooltip("Open '" + name + "' in expand panel", { event: e });
-					})
-					.on("mouseleave", function () {
-						if (type == "pie" || (egOptions.hoverIndex == index && typeof egOptions.clickIndex == "undefined"))
-							delete egOptions.hoverIndex;
-						if (typeof egOptions.clickIndex == "undefined")
-							util.hideTooltip();
-					});
-
-				jq$(s.chart.renderer.box)
-					.unbind("mouseleave")
-					.bind("mouseleave", function () {
-						if (typeof egOptions.clickIndex != "undefined")
-							return;
-
-						delete egOptions.hoverIndex;
-						util.hideTooltip();
+							services.tipOn(this, "Open '" + name + "' in expand panel", getContext());
 					});
 			}
 
@@ -1343,23 +1332,6 @@
 					if (typeof s.chartOptions.usedData[i].link == "string")
 						registerLink(i);
 				}
-
-				jq$([document, s.chart.renderer.box])
-					.unbind("click.VIS_ID")
-					.bind("click.VIS_ID", function (e) {
-						for (var i = 0; i < s.chartOptions.usedData.length; i++)
-							if (elements[i] == e.target)
-								return;
-
-						if (type != "pie" && typeof egOptions.clickFlag != "undefined") {
-							delete egOptions.clickFlag;
-							return;
-						}
-
-						delete egOptions.hoverIndex;
-						delete egOptions.clickIndex;
-						util.hideTooltip();
-					});
 			}
 
 			var elements, isPie = type == "pie", isFunnel = type == "funnel";
@@ -1539,8 +1511,11 @@
 			}
 
 			if (!VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0)
-				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
+				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length); i++)
 					s.options.series[i].visible = s.props.visibility[i];
+			if (typeof s.props.lineStepMode == "string" && ((type == "line" && !polar) || type == "area"))
+				for (var i = 0; i < s.options.series.length; i++)
+					s.options.series[i].step = s.props.lineStepMode;
 
 			s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
 			s.options.plotOptions.pie.innerSize = donut ? "55%" : 0;

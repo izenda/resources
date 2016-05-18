@@ -1252,10 +1252,10 @@ be a descendant of the grid when it is being dragged.
 		var colorScheme = ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28f43", "#77a1e5", "#c42525", "#a6c96a", "#d86524", "#707cd3"],
 			u = {}, n = [];
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { input: validate }))
 			return;
 
 		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
@@ -1479,15 +1479,13 @@ be a descendant of the grid when it is being dragged.
 			events.push(event);
 		}
 
-		util.createTootip();
-
 		if (settings.props.defaultDateType == "CustomDate") {
 			defaultDate = new Date(settings.props.customDefaultDate);
 		} else if (!defaultDate || settings.props.defaultDateType == "CurrentDate") {
 			defaultDate = new Date();
 		}
 
-		jq$(document).ready(function () {
+		jq$(document).ready(function() {
 			jq$("#VIS_ID").empty();
 			jq$('#VIS_ID').append("<div id='VIS_ID_CALENDAR'></div>");
 			jq$('#VIS_ID_CALENDAR').width(width - 20);
@@ -1505,17 +1503,16 @@ be a descendant of the grid when it is being dragged.
 				eventRender: function (event, element) {
 					var eventColor = color(event.item);
 					element.context.style.borderColor = eventColor;
-					element.context.innerHTML = '<div class="fc-content" style="height: 100%;"><div class="fc-title" style="background-color: ' + eventColor + ';">' + event.title + '</div><div class="fc-value"><span>' + event.formattedValue + '</span></div></div>';
+					element.context.innerHTML = ('<div class="fc-content" style="height: 100%;">' +
+						'	<div class="fc-title" style="background-color: {color};">{title}</div>' +
+						'	<div class="fc-value"><span>{value}</span></div>' +
+						'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue });
+
+					services.tipOn(element.context.children[0], '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
+						.format({ color: color(event.item), title: event.title, value: event.formattedValue }));
 				},
 				eventAfterRender: function (event, element) {
 					// TODO dynamic decrease font-size
-				},
-				eventMouseover: function (event, e) {
-					var html = '<span style="color:' + color(event.item) + ';">\u25CF</span><span> ' + event.title + ': </span><span>' + event.formattedValue + '</span>';
-					util.showTooltip(html, { event: e });
-				},
-				eventMouseout: function () {
-					util.hideTooltip();
 				}
 			});
 		});

@@ -16,6 +16,7 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/filter/css/filters.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/dashboard/css/dashboard.css" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
 
 <script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.nicescroll.min"></script>
 <script type="text/javascript">
@@ -52,7 +53,6 @@
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
-<script type="text/javascript" src="rs.aspx?js=ModalDialog"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportViewer"></script>
 <script type="text/javascript" src="rs.aspx?js=AdHocToolbarNavigation"></script>
 <script type="text/javascript" src="rs.aspx?js=moment"></script>
@@ -60,8 +60,10 @@
 <script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
 <script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportingServices"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
+<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
 
 <!-- datetime -->
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
@@ -255,7 +257,7 @@
     }
 </style>
 
-<script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.min.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/ionrangeslider/ion.rangeSlider.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/perfect-scrollbar.js"></script>
 

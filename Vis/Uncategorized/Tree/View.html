@@ -94,10 +94,10 @@
 	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true })) {
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true })) {
 			return;
 		}
 
@@ -246,19 +246,18 @@
 			var nodeEnter = node.enter().append("svg:g")
 				.attr("class", "node")
 				.attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-				.on("mouseover", function(d) {
+				.each(function(d) {
 					var exclusion = [];
 					for (var j = 0; j < vis.metrics.length; j++) {
 						if (vis.metrics[j] != s.spendField)
 							exclusion.push(vis.metrics[j]);
 					}
-					util.showTooltip(d, {
+					services.tipOn(this, d, {
 						nested: true,
 						exclusion: ["id", "x0", "y0", "_children", "children", "link", "numChildren", "linkColor"],
 						pass: function(obj, v) { return !obj.children && !obj._children || exclusion.indexOf(v) < 0; }
 					});
-				})
-				.on("mouseout", function() { util.hideTooltip(); });
+				});
 
 			nodeEnter.append("svg:circle")
 				.on("click", function(d) {

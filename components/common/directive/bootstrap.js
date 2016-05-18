@@ -60,78 +60,9 @@
 			}
 		};
 	};
-
-	/**
-	 * Autocomplete directive. Bootstrap "typeahead" component is required. Applyed for <input> element.
-	 */
-	function izendaBootstrapAutocomplete() {
-		return {
-			restrict: 'A',
-			require: 'ngModel',
-			scope: {
-				ngModel: '=',
-				autocompleteItems: '='
-			},
-			link: function ($scope, $element, attrs, ngModelCtrl) {
-				function extractor(query) {
-					var result = /([^,]+)$/.exec(query);
-					if (result && result[1])
-						return result[1].trim();
-					return '';
-				}
-
-				function prepareSource(items) {
-					return angular.element.map(items, function (item) {
-						return angular.isObject(item) ? item.text : null;
-					});
-				};
-
-				function initTypeaheadComponent() {
-					var items = prepareSource($scope.autocompleteItems);
-					$element.typeahead('destroy');
-					$element.typeahead({
-						source: items,
-						items: 15,
-						updater: function (item) {
-							return this.$element.val().replace(/[^,]*$/, '') + item;
-						},
-						matcher: function (item) {
-							var tquery = extractor(this.query);
-							if (!tquery) return false;
-							return ~item.toLowerCase().indexOf(tquery.toLowerCase());
-						},
-						highlighter: function (item) {
-							var query = extractor(this.query).replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-							return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-								return '<strong>' + match + '</strong>';
-							});
-						}
-					});
-					$element.on('change', function () {
-						if (angular.isString(attrs.ngChange))
-							ngModelCtrl.$viewChangeListeners.push(function () {
-								$scope.$eval(attrs.ngChange);
-							});
-					});
-				};
-
-				// prepare element
-				if (!$element.hasClass('typeahead'))
-					$element.addClass('typeahead');
-
-				// watchers
-				$scope.$watchCollection('autocompleteItems', function(newItems) {
-					initTypeaheadComponent();
-				});
-
-				initTypeaheadComponent();
-			}
-		};
-	};
-
+	
 	// definition
 	angular.module('izendaCommonControls')
 		.directive('izendaBootstrapTooltip', [izendaBootstrapTooltip])
-		.directive('izendaBootstrapCollapse', ['$timeout', izendaBootstrapCollapse])
-		.directive('izendaBootstrapAutocomplete', [izendaBootstrapAutocomplete]);
+		.directive('izendaBootstrapCollapse', ['$timeout', izendaBootstrapCollapse]);
 })();

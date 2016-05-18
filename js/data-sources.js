@@ -745,7 +745,7 @@ function FieldPropFormatsGot(returnObj, id, field) {
 		var formatsData = returnObj.AdditionalData.slice(returnObj.Value);
 		field.FormatString = '...';
 		if (fieldsOpts[curPropField] != null)
-			field.FormatString = fieldsOpts[curPropField].FormatString.FormatString;
+			field.FormatString = fieldsOpts[curPropField].FormatString;
 		else
 			field.FormatString = formatsData[formatsData.length - 1];
 		field.FormatNames = new Array();
@@ -865,11 +865,11 @@ function PreviewField(field, container) {
 function ShowReportPreviewContent(showContent) {
 	if (showContent) {
 		jq$('#previewLoading').hide();
-		jq$('#previewContentWrapper').children().show();
+		jq$('#previewWrapper').children().show();
 	}
 	else {
 		jq$('#previewLoading').show();
-		jq$('#previewContentWrapper').children().hide();
+		jq$('#previewWrapper').children().hide();
 	}
 }
 
@@ -933,152 +933,151 @@ function PreviewReport(container) {
 		requestString += "&wsarg1=" + encodeURIComponent(origRn);
 		requestString += "&wsarg2=" + encodeURIComponent(origRsData);
 	}
-	var thisRequestObject;
-	if (window.XMLHttpRequest)
-		thisRequestObject = new XMLHttpRequest();
-	else if (window.ActiveXObject)
-		thisRequestObject = new ActiveXObject('Microsoft.XMLHTTP');
-	thisRequestObject.requestId = 'getreportpreview';
-	thisRequestObject.dtk = container;
-	thisRequestObject.onreadystatechange = ReportPreviewed;
-	thisRequestObject.open('POST', './rs.aspx', true);
-	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	thisRequestObject.send(requestString);
 
-	function ReportPreviewed(returnObj, id) {
+	// run get preview ajax request
+	jq$.ajax({
+		type: 'POST',
+		url: urlSettings.urlRsPage,
+		data: requestString,
+		contentType: 'application/x-www-form-urlencoded',
+		dataType: 'text'
+	}).done(function (data) {
+		reportPreviewed(data);
+	});
+
+	function reportPreviewed(data) {
 		ShowReportPreviewContent(true);
-		if (thisRequestObject.readyState == 4 && thisRequestObject.status == 200) {
-			var subtotalsGrey = 'button';
-			var subtotalsImgName = 'subtotalsplus.png';
-			if (!subtotalsAdded) {
-				subtotalsGrey += ' default';
-				subtotalsImgName = "subtotalsplusW.png";
+
+		// subtotals btn
+		var subtotalsGrey = 'button';
+		var subtotalsImgName = 'subtotalsplus.png';
+		if (!subtotalsAdded) {
+			subtotalsGrey += ' default';
+			subtotalsImgName = "subtotalsplusW.png";
+		}
+		jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
+		jq$('#appendSubtotalsBtn img').attr('src', 'rs.aspx?image=' + subtotalsImgName);
+
+		// chart btn
+		var chartGrey = 'button';
+		var chartImgName = 'chartplus.png';
+		if (!chartAdded) {
+			chartGrey += ' default';
+			chartImgName = "chartplusW.png";
+		}
+		jq$('#appendChartBtn').attr('class', chartGrey);
+		jq$('#appendChartBtn img').attr('src', 'rs.aspx?image=' + chartImgName);
+		if (!chartAvailable)
+			jq$('#appendChartBtn').hide();
+
+		// find or create preview wrapper
+		var containerWrapper$ = jq$('#previewWrapper');
+		if (containerWrapper$ == null || containerWrapper$.length === 0)
+			containerWrapper$ = jq$('<div id="previewWrapper">');
+		containerWrapper$.html(data);
+		jq$('#previewWrapperEmpty').hide();
+		containerWrapper$.insertAfter(jq$('#previewWrapperEmpty'));
+
+		var index = 0;
+		var cb;
+		var soVal;
+		var widthChanged = false;
+		while (true && !widthChanged) {
+			cb = getTableElement(index);
+			if (cb == null)
+				break;
+			soVal = cb.getAttribute('sorder');
+			if (soVal == '-1') {
+				index++;
+				continue;
 			}
-			jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
-			jq$('#appendSubtotalsBtn img').attr('src', 'rs.aspx?image=' + subtotalsImgName);
-
-			var chartGrey = 'button';
-			var chartImgName = 'chartplus.png';
-			if (!chartAdded) {
-				chartGrey += ' default';
-				chartImgName = "chartplusW.png";
-			}
-			jq$('#appendChartBtn').attr('class', chartGrey);
-			jq$('#appendChartBtn img').attr('src', 'rs.aspx?image=' + chartImgName);
-			if (!chartAvailable)
-				jq$('#appendChartBtn').hide();
-
-			var containerWrapper$ = jq$('#previewWrapper');
-			if (containerWrapper$ == null || containerWrapper$.length == 0)
-				containerWrapper$ = jq$('<div id="previewWrapper">');
-			containerWrapper$.html(thisRequestObject.responseText);
-			jq$('#previewWrapperEmpty').hide();
-			containerWrapper$.insertAfter(jq$('#previewWrapperEmpty'));
-
-			var index = 0;
-			var cb;
-			var soVal;
-			var widthChanged = false;
+			var fIndex = 0;
 			while (true && !widthChanged) {
-				cb = getTableElement(index);
+				cb = getFieldElement(index, fIndex);
 				if (cb == null)
 					break;
 				soVal = cb.getAttribute('sorder');
 				if (soVal == '-1') {
-					index++;
+					fIndex++;
 					continue;
 				}
-				var fIndex = 0;
-				while (true && !widthChanged) {
-					cb = getFieldElement(index, fIndex);
-					if (cb == null)
-						break;
-					soVal = cb.getAttribute('sorder');
-					if (soVal == '-1') {
-						fIndex++;
-						continue;
-					}
-					var widthVal = cb.getAttribute('itemwidth');
-					if (typeof widthVal != 'undefined' && widthVal != null && widthVal > 0)
-						widthChanged = true;
-					fIndex++;
-				}
-				index++;
+				var widthVal = cb.getAttribute('itemwidth');
+				if (typeof widthVal != 'undefined' && widthVal != null && widthVal > 0)
+					widthChanged = true;
+				fIndex++;
 			}
-			if (!widthChanged)
-				jq$('.preview-wrapper table.ReportTable').css('width', '100%');
-
-			var visualGroupUsed = (thisRequestObject.responseText.indexOf('class=\'VisualGroup\'') >= 0);
-			if (visualGroupUsed) {
-				currentPreview = null;
-				var tablesContainer$ = jq$('<div>');
-				var mainTableTemplate$ = jq$('.preview-wrapper table.ReportTable').clone().html('');
-				var tableIndex = 1;
-				jq$('.preview-wrapper table.ReportTable').find('tr').each(function (i) {
-					if (jq$(this).attr("class") == 'VisualGroup' && i == 0) {
-						var vgTitleTable$ = jq$('<table>');
-						vgTitleTable$.attr('targettable', 'ReportTable_1');
-						vgTitleTable$.append(jq$(this).clone());
-						tablesContainer$.append(vgTitleTable$);
-					}
-					else if (jq$(this).attr("class") == 'VisualGroup' && i != 0) {
-						var tblToInsert = mainTableTemplate$.clone();
-						tblToInsert.attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex);
-						tablesContainer$.append(tblToInsert);
-
-						var vgTitleTable$ = jq$('<table>');
-						var nextIndex = tableIndex + 1;
-						vgTitleTable$.attr('targettable', 'ReportTable_' + nextIndex);
-						vgTitleTable$.append(jq$(this).clone());
-						tablesContainer$.append(vgTitleTable$);
-
-						tableIndex++;
-						mainTableTemplate$.html('');
-						//mainTableTemplate$.append($(this).clone());
-					}
-					else if (i == jq$('.preview-wrapper table.ReportTable').find('tr').length - 1) {
-						mainTableTemplate$.append(jq$(this).clone());
-						tablesContainer$.append(mainTableTemplate$.clone().attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex));
-						tableIndex++;
-					}
-					else {
-						mainTableTemplate$.append(jq$(this).clone());
-					}
-				});
-				tablesContainer$.find('tr.VisualGroup').find('td').attr('style', 'border-width:0px;overflow:hidden;white-space: nowrap;');
-				tablesContainer$.find('tr.VisualGroup').attr('onclick', 'javascript:EBC_ExpandTable_New(this);');
-				jq$('.preview-wrapper table.ReportTable').replaceWith(tablesContainer$.html());
-				try {
-					var preview;
-					var masterTable;
-					for (var i = 1 ; i < tableIndex ; i++) {
-						preview = new DataSourcesPreview('table.ReportTable_' + i);
-						if (i == 1)
-							masterTable = preview;
-						if (i == tableIndex - 1)
-							setTimeout(function () {
-								preview.InitialResizeColumns();
-								preview.ResizeColumnsInAllTables(jq$('table.ReportTable_1'));
-								jq$('table.ReportTable_1').width(jq$('table.ReportTable_1').width());
-								masterTable.initResize();
-							}, 0);
-					}
-				}
-				catch (e) {
-				}
-			}
-			else {
-				try {
-					var preview = new DataSourcesPreview('table.ReportTable');
-					currentPreview = preview;
-				}
-				catch (e) {
-				}
-			}
-			setTimeout(updatePreviewPosition, 100);
-
-			//initializePreviewTable();
+			index++;
 		}
+		if (!widthChanged) jq$('.preview-wrapper table.ReportTable').css('width', '100%');
+
+		var visualGroupUsed = (data.indexOf('class=\'VisualGroup\'') >= 0);
+		if (visualGroupUsed) {
+			currentPreview = null;
+			var tablesContainer$ = jq$('<div>');
+			var mainTableTemplate$ = jq$('.preview-wrapper table.ReportTable').clone().html('');
+			var tableIndex = 1;
+			jq$('.preview-wrapper table.ReportTable').find('tr').each(function (i) {
+				if (jq$(this).attr("class") == 'VisualGroup' && i == 0) {
+					var vgTitleTable$ = jq$('<table>');
+					vgTitleTable$.attr('targettable', 'ReportTable_1');
+					vgTitleTable$.append(jq$(this).clone());
+					tablesContainer$.append(vgTitleTable$);
+				}
+				else if (jq$(this).attr("class") == 'VisualGroup' && i != 0) {
+					var tblToInsert = mainTableTemplate$.clone();
+					tblToInsert.attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex);
+					tablesContainer$.append(tblToInsert);
+
+					var vgTitleTable$ = jq$('<table>');
+					var nextIndex = tableIndex + 1;
+					vgTitleTable$.attr('targettable', 'ReportTable_' + nextIndex);
+					vgTitleTable$.append(jq$(this).clone());
+					tablesContainer$.append(vgTitleTable$);
+
+					tableIndex++;
+					mainTableTemplate$.html('');
+					//mainTableTemplate$.append($(this).clone());
+				}
+				else if (i == jq$('.preview-wrapper table.ReportTable').find('tr').length - 1) {
+					mainTableTemplate$.append(jq$(this).clone());
+					tablesContainer$.append(mainTableTemplate$.clone().attr('class', 'ReportTable_' + tableIndex).attr('name', 'ReportTable_' + tableIndex));
+					tableIndex++;
+				}
+				else {
+					mainTableTemplate$.append(jq$(this).clone());
+				}
+			});
+			tablesContainer$.find('tr.VisualGroup').find('td').attr('style', 'border-width:0px;overflow:hidden;white-space: nowrap;');
+			tablesContainer$.find('tr.VisualGroup').attr('onclick', 'javascript:EBC_ExpandTable_New(this);');
+			jq$('.preview-wrapper table.ReportTable').replaceWith(tablesContainer$.html());
+			try {
+				var preview;
+				var masterTable;
+				for (var i = 1 ; i < tableIndex ; i++) {
+					preview = new DataSourcesPreview('table.ReportTable_' + i);
+					if (i == 1)
+						masterTable = preview;
+					if (i == tableIndex - 1)
+						setTimeout(function () {
+							preview.InitialResizeColumns();
+							preview.ResizeColumnsInAllTables(jq$('table.ReportTable_1'));
+							jq$('table.ReportTable_1').width(jq$('table.ReportTable_1').width());
+							masterTable.initResize();
+						}, 0);
+				}
+			}
+			catch (e) {
+			}
+		}
+		else {
+			try {
+				var preview = new DataSourcesPreview('table.ReportTable');
+				currentPreview = preview;
+			}
+			catch (e) {
+			}
+		}
+		setTimeout(updatePreviewPosition, 100);
 	}
 }
 
@@ -1299,7 +1298,6 @@ function NDS_SetFiAvailability(fcb, available, checkBoxChildInd) {
 }
 
 function NDS_UpdateFiOpacity(fcb) {
-	console.trace('update opacity');
 	var locked = fcb.getAttribute('locked');
 	var fiOrd = fcb.getAttribute('sorder');
 	if (fiOrd != '-1' || locked == 'true')
@@ -1669,7 +1667,7 @@ function DsClicked(datasourceIndex) {
 			DisengageDs(clicked);
 		}
 	}
-	
+
 	// initialize table content when first time clicked.
 	initFieldsDsp(clicked.parentNode);
 

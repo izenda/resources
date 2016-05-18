@@ -57,13 +57,19 @@
 				&& util.isMetric(VIS_COLUMNS[3])
 				&& util.isMetric(VIS_COLUMNS[4]);
 		}
+		function getRange(ci) {
+			return [vis.unitValue(vis.min, ci), vis.unitValue(vis.max, ci)];
+		}
+		function isEmpty(range) {
+			return range[0] == range[1];
+		}
 
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, animation: true, input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, animation: true, input: validate }))
 			return;
 
 		VIS_CONTEXT.UTC2Local = true;
@@ -94,11 +100,11 @@
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 		var widthWithOffset = width - margin.left - margin.right,
-			heightWithOffset = height - margin.top - margin.bottom;
+			heightWithOffset = height - margin.top - margin.bottom, r;
 
-		var xScale = d3.scale.log().domain([vis.unitValue(vis.min, 3), vis.unitValue(vis.max, 3)]).range([0, widthWithOffset]).clamp(true),
-			yScale = d3.scale.linear().domain([vis.unitValue(vis.min, 2), vis.unitValue(vis.max, 2)]).range([heightWithOffset, 0]).clamp(true),
-			radiusScale = d3.scale.sqrt().domain([vis.unitValue(vis.min, 4), vis.unitValue(vis.max, 4)]).range([0, 40]).clamp(true),
+		var xScale = d3.scale.log().domain(getRange(3)).range([0, widthWithOffset]).clamp(true),
+			yScale = d3.scale.linear().domain(getRange(2)).range([heightWithOffset, 0]).clamp(true),
+			radiusScale = d3.scale.sqrt().domain(r = getRange(4)).range(isEmpty(r) ? [5, 5] : [5, 40]).clamp(true),
 			colorScale = d3.scale.category10();
 
 		var xAxis = d3.svg.axis().orient("bottom").scale(xScale).ticks(12, d3.format(",d"));
@@ -142,15 +148,14 @@
 				.enter().append("circle")
 					.attr("class", "dot")
 					.style("fill", function (d) { return colorScale(color(d)); })
-					.on("mouseover", function (d) {
+					.each(function(d) {
 						var data = {};
 						jq$.each(d, function (key, value) {
 							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
 							data[key] = fieldFormatter ? fieldFormatter(value, d, vis, key) : value + '';
 						});
-						util.showTooltip(data);
+						services.tipOn(this, data);
 					})
-					.on("mouseout", function () { util.hideTooltip(); })
 					.call(position)
 					.sort(order);
 

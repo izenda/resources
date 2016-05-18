@@ -69,7 +69,7 @@ function TabStrip_OnTabActivate(strControlName, strTabName, tabIndex, pause)
 			{
 				var method = arrMethods[methodIdx];
 				if (typeof(method)=='string')
-					modal_ok(method + "(\"" + strControlName + "\", \"" + strTabName + "\", " + tabIndex + "\", " + pause + ")");
+					ReportingServices.showOk(method + "(\"" + strControlName + "\", \"" + strTabName + "\", " + tabIndex + "\", " + pause + ")");
 				else
 					method(strControlName, strTabName, tabIndex, pause);
 			}
@@ -130,7 +130,7 @@ function TabStrip_EnableDisableTab(strControlName, index, enable)
 
 function TabStrip_WaitCursor(element)
 {
-	ShowDialog(jsResources.Loading + "...<br><image src='"+responseServerWithDelimeter+"image=loading.gif'/>");
+	ReportingServices.showLoading(responseServerWithDelimeter);
 }
 
 function TabStrip_ToggleTab(strControlName, strTabName, tabIndex, runEvent, pause)

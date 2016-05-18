@@ -74,7 +74,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 	* Get datasources
 	*/
 	function getDatasources() {
-		return $izendaRsQuery.query('getjsonschema', [], {
+		return $izendaRsQuery.query('getjsonschema', ['lazy'], {
 			dataType: 'json'
 		},
 		// custom error handler:
@@ -83,6 +83,31 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 				return 'Failed to get datasources';
 			},
 			params: []
+		});
+	}
+
+	function getFieldsInfo(fieldSysName) {
+		return $izendaRsQuery.query('getfieldsinfo', [fieldSysName], {
+			dataType: 'json'
+		}, {
+			handler: function(fName) {
+				return 'Failed to get field info for field ' + fName;
+			},
+			params: [fieldSysName]
+		});
+	}
+
+	function findInDatasources(searchString, from, to) {
+		var params = [searchString];
+		if (angular.isNumber(from) && angular.isNumber(to))
+			params = params.concat(from, to);
+		return $izendaRsQuery.query('findfields', params, {
+			dataType: 'json'
+		}, {
+			handler: function(sString) {
+				return 'Failed to search fields and tables by keyword: ' + sString;
+			},
+			params: [searchString]
 		});
 	}
 
@@ -377,17 +402,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		});
 	}
 
-	function getExistentValuesList(tables, constraintFilters, filter, simpleJoins) {
-		var isEmptyFilterValue = function (filter) {
-			if (!angular.isArray(filter.values) || filter.values.length === 0)
-				return true;
-			if (filter.values.length === 1 && filter.values[0] === '')
-				return true;
-			if (filter.values.length === 2 && filter.values[0] === '' && filter.values[1] === '')
-				return true;
-			return false;
-		}
-
+	function getExistentValuesList(tables, constraintFilters, filter, simpleJoins, filterLogic) {
 		if (filter.field === null || !angular.isString(filter.field.sysname))
 			throw 'filter field sysname should be defined.';
 		if (!angular.isArray(tables))
@@ -400,13 +415,16 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			'columnName': filter.field.sysname,
 			'resultType': 'json'
 		};
-
+		if (angular.isString(filter.possibleValue)) {
+			queryParams['possibleValue'] = filter.possibleValue.replace('&', '%26');
+		}
+		
 		// add constraint filters params
 		var counter = 0;
 		angular.element.each(constraintFilters, function () {
 			var constraintFilter = this;
 			if (constraintFilter.field !== null && angular.isObject(constraintFilter.operator)
-				&& constraintFilter.operator.value !== '' && !isEmptyFilterValue(constraintFilter)) {
+				&& constraintFilter.operator.value !== '') {
 				var constraintParamPart = {};
 				constraintParamPart['fc' + counter] = constraintFilter.field.sysname;
 				constraintParamPart['fo' + counter] = constraintFilter.operator.value;
@@ -440,8 +458,10 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 				tableNames.push(this.sysname);
 			});
 			queryParams['tbl0'] = tableNames.join('\'');
-
 			queryParams['clear'] = 1;
+			if (angular.isString(filterLogic) && filterLogic.trim() !== '') {
+				queryParams['filterLogic'] = filterLogic;
+			}
 
 			// run query
 			return $izendaRsQuery.rsQuery(queryParams, {
@@ -475,6 +495,8 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 	return {
 		getFieldFilterOperatorValueType: getFieldFilterOperatorValueType,
 		getDatasources: getDatasources,
+		getFieldsInfo: getFieldsInfo,
+		findInDatasources: findInDatasources,
 		loadReport: loadReport,
 		getNewReportSetPreview: getNewReportSetPreview,
 		saveReportSet: saveReportSet,

@@ -24,6 +24,7 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.custom_dashboard" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=DashboardViewer" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jqui_modified2" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
   
 <!-- jQuery Core -->
 
@@ -37,6 +38,7 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.DashboardViewer"></script>	
 <script type="text/javascript" src="rs.aspx?js=jQuery.NewDashboardControls"></script>	
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.blockUI"></script>
+<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
 
 <!-- Utils Resources -->
 <script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>

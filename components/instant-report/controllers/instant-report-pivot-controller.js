@@ -42,9 +42,32 @@ function InstantReportPivotsController(
 	////////////////////////////
 
 	/**
+	 * Get additional class for "add cell value" button.
+	 * @returns {string} class names 'class1 class2 ...'.
+	 */
+	vm.getAddCellBtnClass = function () {
+		if (!vm.pivotColumn)
+			return 'disabled';
+		var result = false;
+		angular.element.each(vm.cellValues, function(iValue, value) {
+			if (!value)
+				result = true;
+		});
+		return result ? 'disabled' : '';
+	};
+
+	/**
+	 * Update validation
+	 */
+	vm.updateValidation = function() {
+		$izendaInstantReportValidation.validateReportSet();
+	};
+
+	/**
 	 * Update validation state and refresh if needed.
 	 */
 	vm.updateReportSetValidationAndRefresh = function () {
+		$izendaInstantReportStorage.clearReportPreviewHtml();
 		$izendaInstantReportStorage.applyAutoGroups(true);
 		var validationResult = $izendaInstantReportValidation.validateReportSet();
 		if (validationResult) {
@@ -79,6 +102,10 @@ function InstantReportPivotsController(
 						if (this.value === groupName)
 							vm.pivotColumn.groupByFunction = this;
 					});
+				}
+
+				if (vm.cellValues.length === 0) {
+					vm.addCellValue();
 				}
 
 				vm.updateReportSetValidationAndRefresh();
@@ -140,10 +167,12 @@ function InstantReportPivotsController(
 	vm.addCellValue = function() {
 		$izendaInstantReportPivots.addCellValue();
 		vm.selectedFields.push(null);
+		vm.updateValidation();
 	};
 
 	vm.clearPivots = function() {
 		$izendaInstantReportPivots.removePivots();
+		vm.updateReportSetValidationAndRefresh();
 	};
 
 	/**
@@ -153,6 +182,7 @@ function InstantReportPivotsController(
 		var idx = vm.cellValues.indexOf(cellValue);
 		vm.selectedFields.splice(idx, 1);
 		$izendaInstantReportPivots.removeCellValue(cellValue);
+		vm.updateReportSetValidationAndRefresh();
 	}
 
 	/**

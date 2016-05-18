@@ -49,17 +49,14 @@ function ud(){}
 
 function RL_Delete(obj, message, reportName)
 {
-	var UserData = new ud();
-	UserData.reportName = reportName;
-	UserData.obj = obj;
-	modal_confirm(message,UserData,RL_DeleteCallback);
+	ReportingServices.showConfirm(message, RL_DeleteCallback, { ctx: { reportName: reportName, obj: obj } });
 }
 
-function RL_DeleteCallback(UserData,isConfirmed)
+function RL_DeleteCallback(result, context)
 {
-	var obj = UserData.obj;
-	var reportName = UserData.reportName;
-	if (isConfirmed)
+	var obj = context.ctx.obj;
+	var reportName = context.ctx.reportName;
+	if (result == jsResources.OK)
 	{
 		var row = EBC_GetRow(obj);
 		var table = EBC_GetParentTable(row);
@@ -69,7 +66,7 @@ function RL_DeleteCallback(UserData,isConfirmed)
 			var r1 = table.rows[row.rowIndex-1];
 			if (row.rowIndex == table.rows.length-1 ||
 				(table.rows[row.rowIndex+1].attributes["header"]!=null &&
-				 table.rows[row.rowIndex+1].attributes["header"].nodeValue == "true"))
+					table.rows[row.rowIndex+1].attributes["header"].nodeValue == "true"))
 			{
 				if (r1.attributes["reportslistheader"]!=null && r1.attributes["reportslistheader"].nodeValue == "true")
 				{

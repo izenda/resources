@@ -143,12 +143,12 @@
 		var i, j, items = [], nodeId = 0,
 			colors = ["#D5252F", "#E96B38", "#F47337", "#B02D5D", "#9B2C67", "#982B9A", "#692DA7", "#5725AA", "#4823AF"];
 
-		var util = window.ReportScripting, vis, metrics = [];
+		var util = window.ReportScripting, services = window.ReportingServices, vis, metrics = [];
 
 		var vs = util.container("VIS_ID"),
 			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, input: validate }))
 			return;
 
 		if (!s.props) {
@@ -303,8 +303,7 @@
 						y = projection([d[0], d[1]])[1];
 					return "translate(" + x + "," + y + ")";
 				})
-				.on("mouseover", function(d) { util.showTooltip(d); })
-				.on("mouseout", function() { util.hideTooltip(); });
+				.each(function(d) { services.tipOn(this, d); });
 
 			nodeEnter.append("svg:circle")
 				.attr("r", 1e-6)
@@ -412,8 +411,6 @@
 				.attr("height", function() { return na(this, "bheight") / z; })
 				.attr("rx", 2 / z)
 				.attr("ry", 2 / z);
-
-			util.hideTooltip();
 		}
 
 		(function() {
@@ -434,18 +431,18 @@
 				.each(function(d) { d.name = d.properties.name; })
 				.attr("class", "country")
 				.attr("d", path)
-				.on("mouseover", function(d) {
+				.each(function(d) {
+					services.tipOn(this, { "Name": d.name }, { showLabels: false });
+				})
+				.on("mouseover", function() {
 					d3.select(this)
 						.classed("hovered", true)
 						.style("stroke-width", 1.5 / zm);
-
-					util.showTooltip({ "Name": d.name }, { showLabels: false });
 				})
 				.on("mouseout", function() {
 					d3.select(this)
 						.classed("hovered", false)
 						.style("stroke-width", 1 / zm);
-					util.hideTooltip();
 				})
 				.on("click", clicked);
 

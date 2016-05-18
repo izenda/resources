@@ -140,10 +140,10 @@
 	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
 			return;
 
 		var visRoot = {},
@@ -173,7 +173,7 @@
 		}
 		if (window.utility.ie() > -1)
 			css += "#VIS_ID_CONTAINER .label { overflow: auto !important; text-overflow: inherit !important; }";
-		util.updateStyle("iz-heatmap-fix", css);
+		services.updateStyle("iz-heatmap-fix", css);
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
 
@@ -282,12 +282,12 @@
 			.append("svg:svg")
 				.attr("width", width)
 				.attr("height", heightWithOffset)
-			.append("svg:g")
-				.on("mouseout", function () { util.hideTooltip(); });
+			.append("svg:g");
 
 		vs.height(height);
 
-		var labelBox = util.labelBBox(d3.select("#VIS_ID div.chart svg"), "X",
+		var svg = d3.select("#VIS_ID div.chart svg");
+		var labelBox = util.labelBBox(svg, "X",
 			function (pane) {
 				return pane.append("g").attr("class", "cell parent")
 					.append("svg").attr("class", "clip")
@@ -389,14 +389,16 @@
 					var textWidth = kx * d2.dx - 15.0;
 					var textString = d2.name;
 					this.textContent = textString;
-					if (textWidth <= this.getBBox().width) {
+					var textBBox = util.labelBBox(svg, textString, null);
+					if (textWidth <= textBBox.width) {
 						for (var x = textString.length - 3; x > 0; x -= 3) {
 							if (this.getSubStringLength(0, x) <= textWidth) {
 								this.textContent = textString.substring(0, x) + "...";
 								return this.textContent;
 							}
 						}
-						if (this.getBBox().width < 15)
+						textBBox = util.labelBBox(svg, this.textContent, null);
+						if (textBBox.width < 15)
 							return '';
 						return "...";
 					}
@@ -417,8 +419,6 @@
 
 			if (d3.event)
 				d3.event.stopPropagation();
-
-			util.hideTooltip();
 		}
 
 		function processData(data) {
@@ -483,8 +483,7 @@
 					.attr("class", "clip");
 				clips.append("rect")
 					.style("fill", function (d) { return d.parent ? color(d) : ""; })
-					.on("mouseover", function (d) { util.showTooltip(d, { nested: true, exclusion: ["link"] }); })
-					.on("mouseout", function () { util.hideTooltip(); });
+					.each(function (d) { services.tipOn(this, d, { nested: true, exclusion: ["link"] }); });
 				clips.append("text")
 					.attr("class", "label")
 					.attr("x", function (d) { return d.dx / 2; })

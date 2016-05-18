@@ -197,10 +197,10 @@ function GetFiltersDataToCommit() {
 		filterObj.OperatorValue = filtersData[index].OperatorValue;
 		filterObj.AliasTable = filtersData[index].AliasTable;
 		filterObj.Alias = filtersData[index].Alias;
-		if (!filtersData[index].Removed && !filtersData[index].ClearValue)
+		if (!filtersData[index].Removed && !filtersData[index].ClearValue && filtersData[index].GUID != "")
 			filterObj.Values = GetFilterValues(index, filtersData).slice(1);
 		else
-			filterObj.Values = [null];
+			filterObj.Values = [""];
 		dataToCommit[index] = filterObj;
 	}
 	return dataToCommit;
@@ -311,7 +311,7 @@ function AddNewFilterField() {
 	filterObj.GUID = '';
 	filterObj.Value = null;
 	filterObj.Values = null;
-	filterObj.Type = 1;
+	filterObj.ControlType = 1;
 	filterObj.ColumnName = newFilterFieldDropDown.value;
 	filterObj.AliasTable = jq$(newFilterFieldDropDown).find('option[value="' + newFilterFieldDropDown.value + '"]').data('alias');
 
@@ -457,7 +457,12 @@ function RefreshFilters(returnObj) {
 				dateFormat: dateFormatString,
 				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
 				showOn: "both",
-				buttonImageOnly: true
+				buttonImageOnly: true,
+				onClose: function () {
+					setTimeout(function () {
+						CommitFiltersData(false);
+					}, 401);
+				}
 			});
 		}
 	}
@@ -634,8 +639,8 @@ function FiltersDataSet(returnObj, id) {
 		GetDatasourcesList();
 }
 
-function HideEqualsPopupDialog(updateState) {
-	if (updateState) {
+function HideEqualsPopupDialog(result) {
+	if (result == jsResources.OK) {
 		var filterIndex = document.getElementById('popupDlgFilterIndex').value;
 		var newVal = '...';
 		var cnt6 = 0;
@@ -653,18 +658,11 @@ function HideEqualsPopupDialog(updateState) {
 			newVal = newVal.substring(0, newVal.length - 1);
 		var popupDlgValuesContainer = document.getElementById('ndbfc' + filterIndex);
 		popupDlgValuesContainer.value = newVal;
-	}
-	var epd = document.getElementById('IzendaEqualsPopupDialog');
-	if (epd) {
-		HideDialog(epd, true);
-	}
-	if (updateState) {
 		CommitFiltersData(false);
 	}
 }
 
 function ShowEqualsPopupDialog(filterInd) {
-	var width = '800px';
 	var filter = filtersData[filterInd];
 	if (filter == null && subreportsFiltersData != null && subreportsFiltersData.length > 0)
 		for (var i = 0; i < subreportsFiltersData.length; i++) {
@@ -680,7 +678,6 @@ function ShowEqualsPopupDialog(filterInd) {
 
 	var valueInput = document.getElementById('ndbfc' + filterInd);
 	var valuesSet6 = valueInput.value.split(',');
-
 
 	var table = jq$("<table>").css("width", "100%");
 	var tr = jq$("<tr>");
@@ -716,15 +713,18 @@ function ShowEqualsPopupDialog(filterInd) {
 	}
 	table.append(tr);
 
-	var epdHtml = '<div id="IzendaEqualsPopupDialog" class="izenda-dialog-container"><div class="izenda-dialog-body">';
-	epdHtml += table.get(0).outerHTML;
-	epdHtml += '<input type="hidden" id="popupDlgFilterIndex" value="' + filterInd + '" /></div>';
-	epdHtml += '<div class="izenda-dialog-footer">' +
-		'<button type="button" class="izenda-btn izenda-dialog-btn-primary izenda-width-100" onclick="javascript:HideEqualsPopupDialog(true);" lang-text="js_Ok">OK</button>' +
-		'<button type="button" class="izenda-btn izenda-dialog-btn-default izenda-width-100" onclick="javascript:HideEqualsPopupDialog(false);" lang-text="js_Cancel">Cancel</button>' +
-		'</div></div>';
+	var epdHtml = '{data}\n\
+		<input type="hidden" id="popupDlgFilterIndex" value="{value}" />'.format({ data: table.get(0).outerHTML, value: filterInd });
 
-	ShowDialog(epdHtml, width, null, null, null, null, false, 'izenda izenda-dialog');
+	ReportingServices.showModal(epdHtml, {
+		buttons: [{ value: jsResources.OK, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;" }, { value: jsResources.Cancel, classes: "izenda-dialog-btn-default" }],
+		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
+		callback: HideEqualsPopupDialog,
+		tipStyle: "background-color: white; padding: 10px; border: 1px solid #d5d5d5;",
+		containerStyle: "padding: 7px 7px 15px 7px; margin: 0; font-family: Verdana; font-size: 12px; white-space: nowrap;",
+		footerStyle: "padding: 15px 7px 7px 7px; text-align: right; border-top: 1px solid #d5d5d5;",
+		width: 800
+	});
 }
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
@@ -1164,8 +1164,8 @@ function InitAutoComplete() {
 		return;
 	for (var i = 0; i < autocompleteElements.length; i++) {
 		var currInput = autocompleteElements[i];
-		jq$(currInput).autocomplete({
-			source: function (req, responeFunction) {
+		jq$(currInput).tagit({
+			tagSource: function (req, responeFunction) {
 				var possibleText = CC_extractLast(req.term);
 				var filterIndex = jq$(this.element).attr('id').toString().replace('ndbfc', '');
 				var fullColumnName = filtersData[filterIndex].ColumnName;
@@ -1189,28 +1189,23 @@ function InitAutoComplete() {
 					jq$.each(responseResult[0].options, function (i, item) {
 						if (item.value == null || item.value == "" || item.value == '...')
 							return;
-						result.push(item.value);
+						result.push(item.value.replaceAll('#||#', ','));
 					});
 					responeFunction(result);
 				});
 			},
-			search: function () {
-				var term = CC_extractLast(this.value);
-				if (term.length < 1) {
-					return false;
-				}
+			caseSensitive: true,
+			allowDuplicates: false,
+			singleFieldDelimiter: ',',
+			processValuesForSingleField: function (tags) {
+				for (var i = 0; i < tags.length; i++)
+					tags[i] = tags[i].replaceAll(',', '#||#');
+				return tags;
 			},
-			focus: function () {
-				return false;
-			},
-			select: function (event, ui) {
-				var terms = CC_split(this.value);
-				terms.pop();
-				terms.push(ui.item.value);
-				this.value = terms.join(", ");
-				if (jq$(this).attr('refresh'))
-					CommitFiltersData(false);
-				return false;
+			processValuesFromSingleField: function (tags) {
+				for (var i = 0; i < tags.length; i++)
+					tags[i] = tags[i].replaceAll('#||#', ',');
+				return tags;
 			}
 		});
 	}

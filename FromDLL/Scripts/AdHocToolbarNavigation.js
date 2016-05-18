@@ -44,30 +44,18 @@ function ud()
 
 function TB_SaveReportRDL()
 {
-	var UserData = new ud();
-	ud.reportNameFieldID = "";
-	modal_prompt(
-		jsResources.InputReportRdlName,
-		UserData,
-		TB_SaveReportRDLCallback);
-}
-
-function TB_SaveReportRDLCallback(UserData,reportName,isOk)
-{
-	if( isOk && (reportName!=null) && (reportName!=""))
-		responseServer.ExecuteCommand(
-			'saveReportRDL',
-			"reportName=" + reportName,
-			false,
-			TB_SaveCallBack);
+	ReportingServices.showPrompt(null, "", function(result, reportName) {
+		if (result == jsResources.OK && reportName)
+			responseServer.ExecuteCommand('saveReportRDL', "reportName=" + reportName, false, TB_SaveCallBack);
+	}, { title: jsResources.InputReportRdlName });
 }
 
 function TB_SaveCallBack(url, httpRequest)
 {
 	if (httpRequest.status == 200)
-		modal_ok(jsResources.Complete);
+		ReportingServices.showOk(jsResources.Complete);
 	else
-		modal_ok(jsResources.ServerError);
+		ReportingServices.showOk(jsResources.ServerError);
 }
 
 var tbPropmtReportNameData = {};
@@ -118,25 +106,13 @@ function TB_PropmtReportName(
 	var reportNameField = document.getElementById(reportNameFieldID);
 	if (reportNameField != null)
 		reportName = reportNameField.value;
-	if (reportName == null || reportName == "")
-	{
-		if (rnIndex!=-1)
-		{
-			var l = window.location.search.indexOf('&', rnIndex+3);
-			if (l==-1)
-				reportName = window.location.search.slice(rnIndex+3);
-			else
-				reportName = window.location.search.slice(rnIndex+3, l);
-		}
-	}
+	if (!reportName && rnIndex != -1)
+		reportName = window.location.search.match(/rn=([^&$]*)/)[1];
 	if (reportName != null)
 	{
-		while (reportName != reportName.replace('%5c', jsResources.categoryCharacter))
-			reportName = reportName.replace('%5c', jsResources.categoryCharacter);
-		while (reportName != reportName.replace("%27", "'"))
-		  reportName = reportName.replace("%27", "'");
-		while (reportName != reportName.replace("%25", "%"))
-		  reportName = reportName.replace("%25", "%");
+		reportName = reportName.replace(/%5c/g, jsResources.categoryCharacter);
+		reportName = reportName.replace(/%27/g, "'");
+		reportName = reportName.replace(/%25/g, "%");
 		var lastfolderIndex = reportName.lastIndexOf(jsResources.categoryCharacter);
 		if(lastfolderIndex!=-1)
 		{
@@ -157,8 +133,6 @@ function TB_PropmtReportName(
 	if (forceNewNameOnSave || !reportName)
 	{
 		UserData.checkReportExist = true;
-		window.UserDataObject = UserData;
-		window.CallBackFunctionName = TB_PromptCallback;
 		
 		if(folderId!=null)
 		{
@@ -242,24 +216,19 @@ function TB_PropmtReportName(
 			  categoriesHtml += additionalCategories;
 			}
 			categoriesHtml += "</select>";
-			genHtml += "<span>" + jsResources.Category + "</span><br>" + categoriesHtml + "<br>";
+			genHtml += "<span>" + jsResources.Category + "</span><br>" + categoriesHtml;
 		}
 		else
 			genHtml += "<input style='display:none' type='text' value=\"" + category + "\" id='promt_input2'>";
-		genHtml += "<input type='button' class='iz-button' value='" + jsResources.OK + "' onclick='TB_ModalDialogHide(true)'>&nbsp;";
-		genHtml += "<input type='button' class='iz-button' value='" + jsResources.Cancel + "' onclick='TB_ModalDialogHide(false)'>";
-		if (isNetscape)
-			document.addEventListener('keydown', TB_ModalDialogKeydown, true);
-		else
-			document.attachEvent('onkeydown', TB_ModalDialogKeydown);
 
-		ShowDialog(genHtml);
-		document.getElementById("promt_input").focus();
+		ReportingServices.showConfirm(genHtml, function(result) {
+			TB_PromptCallback(result, document.getElementById("promt_input").value, document.getElementById('promt_input2').value, UserData);
+		}, { onshow: function () { ReportingServices.focus(document.getElementById("promt_input")); }, showCaption: false, showClose: false });
 	}
 	else
 	{
 		UserData.checkReportExist = false;
-		TB_PromptCallback(UserData, reportName, category, true);
+		TB_PromptCallback(jsResources.OK, reportName, category, UserData);
 	}
 }
 
@@ -268,17 +237,11 @@ function TB_OnCategoryChanged(obj)
 	var selectedValue = obj.value;
 	if (selectedValue=='CreateNew')
 	{
-		var UserData = new ud();
-		
 		var input = document.getElementById("promt_input");
-		if (input != null)
-			UserData.OldReportName = input.value;
-		else
-			UserData.OldReportName = "";
-		modal_prompt(
-			jsResources.InputNameOfNewCategory,
-			UserData,
-			TB_OnCategoryChangedCallBack);
+		ReportingServices.showPrompt(null, "", TB_OnCategoryChangedCallBack, {
+			ctx: { OldReportName: input != null ? input.value : "" },
+			title: jsResources.InputNameOfNewCategory
+		});
 	}
 }
 
@@ -286,9 +249,9 @@ function escapeRegExp(s) {
   return s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
-function TB_OnCategoryChangedCallBack(userData, inputValue, res)
+function TB_OnCategoryChangedCallBack(result, inputValue, context)
 {
-	if(res==true)
+	if (result == jsResources.OK)
 	{
 		var additionalCategories = tbPropmtReportNameData.additionalCategories;
 		if (additionalCategories==null)
@@ -307,7 +270,7 @@ function TB_OnCategoryChangedCallBack(userData, inputValue, res)
 		  newCat = newCat.replace(regexp, '');
 			if (newCat.length == 0) 
 			{
-				modal_ok("Category Name invalid. Please provide a valid category name.", null, TB_PropmtReportName);
+				ReportingServices.showOk("Category Name invalid. Please provide a valid category name.", TB_PropmtReportName);
 				return false;
 			}
 		}
@@ -316,7 +279,7 @@ function TB_OnCategoryChangedCallBack(userData, inputValue, res)
 		  var pos = newCat.search(regexp);
 			if (pos != -1 && !allowInvalidCharacters) 
 			{
-				modal_ok("Category Name invalid. Please provide a valid category name.", null, TB_PropmtReportName);
+				ReportingServices.showOk("Category Name invalid. Please provide a valid category name.", TB_PropmtReportName);
 				return false;
 			}
 		}
@@ -366,36 +329,10 @@ function TB_OnCategoryChangedCallBack(userData, inputValue, res)
 		tbPropmtReportNameData.showCategory,
 		tbPropmtReportNameData.additionalCategories,
 		null, 
-		userData.OldReportName);	
+		context.ctx.OldReportName);
 }
 
-
-function TB_ModalDialogHide(res) {
-	var input = document.getElementById('promt_input');
-	var input2 = document.getElementById('promt_input2');
-	hm();
-	if (input == null || input2 == null)
-		return;
-
-	if (isNetscape)
-		document.removeEventListener('keydown', modal_promt_keydown, true);
-	else
-		document.detachEvent('onkeydown', modal_promt_keydown);
-
-	if (CallBackFunctionName != null)
-		window.CallBackFunctionName(window.UserDataObject, input.value, input2.value, res);
-}
-
-function TB_ModalDialogKeydown(evt)
-{
-	evt = (evt) ? evt : window.event;
-	if (evt.keyCode == 10 || evt.keyCode == 13)
-		TB_ModalDialogHide(true);
-	if (evt.keyCode == 27)
-		TB_ModalDialogHide(false);
-}
-
-function TB_PromptCallback(UserData, reportName, folderName, isOk) {
+function TB_PromptCallback(result, reportName, folderName, UserData) {
 	var reportNameFieldID = UserData.reportNameFieldID;
 	var formId = UserData.formId;
 	var action = UserData.action;
@@ -404,12 +341,12 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 	
 	ebc_cancelSubmiting = false;
 
-	if(isOk&&(reportName!=null))
+	if (result == jsResources.OK && reportName != null)
 	{
 		reportName = SRA_ProcessReportName(reportName, folderName);
 		reportName = jq$.map(reportName.split('\\'), jq$.trim).join('\\');
 		if (reportName == null) {
-			ShowDialog("<span>"+jsResources.InvalidReportName+"</span><br/><input type='button' onclick='TB_ModalDialogHide(true)' value='OK'>");
+			ReportingServices.showOk(jsResources.InvalidReportName);
 			ebc_cancelSubmiting = true;
 			return;
 		}
@@ -433,7 +370,7 @@ function TB_PromptCallback(UserData, reportName, folderName, isOk) {
 			action = action.replace("__old_tplrep_name__", oldValue.replace(/ /g, "+"));
 			ChangeFormAction(formId, action);
 			pause(100);
-			ShowDialog(jsResources.Saving + "...<br><image src='" + responseServerWithDelimeter + "image=loading.gif'/>");
+			ReportingServices.showLoading(null, { title: jsResources.Saving });
 			pause(100);
 			var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
 			if (mvcHack != null)
@@ -506,7 +443,7 @@ function TB_EMailReport(reportName, redirectUrl)
 {
 	if(reportName=="")
 	{
-		modal_ok(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
+		ReportingServices.showOk(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
 	}
 	else
 	{	
@@ -537,55 +474,35 @@ function TB_EMailReportCallback(UserData,email,IsOk)
 function TB_EMailReportNoPostback(reportName)
 {
 	if(reportName=="")
-		modal_ok(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
+		ReportingServices.showOk(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
 	else
 	{
-		var UserData = new ud();
-		UserData = reportName;
-		modal_prompt(
-			jsResources.InputRecipientEmailAddress,
-			UserData,
-			TB_EMailReportNoPostbackCallBack);
+		ReportingServices.showPrompt(null, "", function(result, email) {
+			if (result == jsResources.OK && email != null && email != "")
+				responseServer.ExecuteCommand("sendEmail", "address=" + email + "&" + "reportName=" + reportName);
+		}, { title: jsResources.InputRecipientEmailAddress });
 	}
 }
 
 function TB_PublishRdlNoPostback(reportName)
 {
 	if(reportName=="")
-		modal_ok(jsResources.PleaseSaveYourReportBeforePublishingIt);
+		ReportingServices.showOk(jsResources.PleaseSaveYourReportBeforePublishingIt);
 	else
 	{
-		var UserData = new ud();
-		UserData.reportName = reportName;
-		modal_prompt(
-			jsResources.InputFolderName,
-			UserData,
-			TB_PublishRdlNoPostbackCallBack);
-	}
-}
-
-function TB_PublishRdlNoPostbackCallBack(UserData, folderName, IsOk)
-{
-	if (IsOk)
-	{
-		var reportName = UserData.reportName;
-		responseServer.ExecuteCommand("publishRdl", "reportName=" + reportName + "&" + "folderName=" + folderName, false, TB_PublishRdlCallBack);
+		ReportingServices.showPrompt(null, "", function(result, folderName) {
+			if (result == jsResources.OK)
+				responseServer.ExecuteCommand("publishRdl", "reportName=" + reportName + "&" + "folderName=" + folderName, false, TB_PublishRdlCallBack);
+		}, { title: jsResources.InputFolderName });
 	}
 }
 
 function TB_PublishRdlCallBack(url, httpRequest)
 {
 	if (httpRequest.status == 200)
-		modal_ok(jsResources.Complete);
+		ReportingServices.showOk(jsResources.Complete);
 	else
-		modal_ok(jsResources.ServerError);
-}
-
-function TB_EMailReportNoPostbackCallBack(UserData,email,IsOk)
-{
-	var reportName = UserData;
-	if(email!=null && email!="")
-	  responseServer.ExecuteCommand("sendEmail", "address=" + email + "&" + "reportName=" + reportName);
+		ReportingServices.showOk(jsResources.ServerError);
 }
 
 function ChangeFormAction(formId, action)
@@ -603,43 +520,27 @@ function TB_ShowUnsupportedImagePopup(url)
 var images = {};
 function TB_ShowImagePopup(url, html)
 {
-	if(html==null)
+	if (html == null)
 		html = "";
 	var img = images[url];
-	if (img==null)
-	{
+	if (img == null) {
 		img = new Image;
 		img.src = url;
 		images[url] = img;
 	}
 
-	var iw;
-	var ih;
-
-	if (!img.onload && img.complete==null)
-	{
-		var genHtml = '<div onclick="hm()">' + jsResources.ClickImageToClose + '<br><image src="' + url + '" onclick="hm()" />' + html + '</div>';
-		ShowDialog(genHtml, 200, 20);
-	}
-	else
-	{
-		if(!img.onload && img.onload!=null)
-		{
+	if (img.onload || img.complete != null) {
+		if (!img.onload && img.onload != null) {
 			while (img.onload);
 		}
-		else
-		{
-			if(!img.complete)
-			{
-				setTimeout("TB_ShowImagePopup(\"" + url.replace("\\","\\\\") + "\", \"" + html + "\")", 500);
-				return;
-			}
+		else if (!img.complete) {
+			setTimeout("TB_ShowImagePopup(\"" + url.replace("\\", "\\\\") + "\", \"" + html + "\")", 500);
+			return;
 		}
-	
-		iw=img.width;
-		ih=img.height;
-
-		var genHtml = '<div onclick="hm()">' + jsResources.ClickImageToClose + '<br><image src="' + url + '" onclick="hm()" width=' + iw + ' height=' + ih + ' />' + html + '</div>';
-		ShowDialog(genHtml, iw, ih);
 	}
+
+	ReportingServices.showModal('<div onclick="ReportingServices.hideTip()">{message}<br />\n\
+<image src="{url}" />{html}</div>'.format({
+		message: jsResources.ClickImageToClose, url: url, html: html
+	}));
 }

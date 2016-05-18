@@ -144,26 +144,13 @@ function S_OnServerResponseGenerateExampleCode(url, httpRequest, propertyID)
 		return;
 	var Item = document.getElementById(propertyID);
 	var result = httpRequest.responseText;
-	if (result.length < 3 || result.substring(0, 3) != "ok_")
-	{
-		var Html = "<div>";
-		Html += "<nobr>Generate exaple code for "+Item.name + " failed.</nobr>";
-		Html += "<br>";
-		Html += "<nobr>Server did not response.</nobr>"
-		Html += "</div>";
-		Html += "<input type='button' value='Close' onclick='hm()'>"
-		ShowDialog(Html);
-		return;
+	if (result.length < 3 || result.substring(0, 3) != "ok_") {
+		ReportingServices.showOk("<nobr>Generate exaple code for {name} failed.</nobr><br />\n\
+		<nobr>Server did not response.</nobr>".format({ name: Item.name }));
 	}
-	result = result.substring(3);
-	S_ShowCodeSample(result);
-}
-
-function S_ShowCodeSample(text)
-{
-	var html = "<div align=left width=80%>"+text+"</div>";
-	html += "<input type='button' value='Close' onclick='hm()'>"
-	ShowDialog(html);
+	else {
+		ReportingServices.showOk(result.substring(3));
+	}
 }
 
 function S_GetDefaultValue(propertyName, pageID)
@@ -225,13 +212,8 @@ function S_GetDefaultValue(propertyName, pageID)
 
 function S_ShowErrorMessage(message)
 {
-	var html = "<div>"
-	html += "<nobr><b style='color:red;'>Failed to save to Izenda.config</b></nobr><br>"
-	html += "<nobr><a style='color:red;'>";
-	html += message;
-	html += "</a></nobr></div>";
-	html += "<input type='button' value='Close' onclick='hm()'>"
-	ShowDialog(html);
+	ReportingServices.showOk("<nobr><b style='color:red;'>Failed to save to Izenda.config</b></nobr><br>\n\
+	<nobr><a style='color:red;'>{message}</a></nobr>".format({ message: message }));
 }
 
 function S_ShowAllTablesClick(pageID)
@@ -273,13 +255,9 @@ function S_ShowTableClick(pageID)
 
 function S_UpdateSchema()
 {
-	responseServer.ExecuteCommand("updateSchema", "", true, S_OnServerResponseUpdateSchema);
-}
-
-function S_OnServerResponseUpdateSchema(url, httpRequest)
-{
-	var result = httpRequest.responseText;
-	S_ShowCodeSample(result);
+	responseServer.ExecuteCommand("updateSchema", "", true, function(url, httpRequest) {
+		ReportingServices.showOk(httpRequest.responseText);
+	});
 }
 
 var S_ShownMessageCount = 0;
@@ -398,21 +376,18 @@ function S_ViewsOnly(pageID)
 function S_ShowDetails(e)
 {
 	var src = e.srcElement || e.target;
-	while(src.tagName != 'TD')
+	while (src.tagName != 'TD')
 		src = src.parentNode;
-	do{
+	do {
 		src = src.previousSibling;
-	}while(src.tagName != 'TD')
-	while(src.tagName != 'NOBR')
+	} while (src.tagName != 'TD')
+	while (src.tagName != 'NOBR')
 		src = src.firstChild;
-	var html = "<div style='max-width:800px;text-align:center;margin-bottom:20px'>"
-	html += "<div style='margin-bottom:10px;'><nobr>" + src.innerHTML + "</nobr></div>"
-	html += "<div style='white-space:normal;max-width:780px'>";
-	html += src.title;
-	html += "</div>";
-	var setting = src.attributes["setting"];
-	html += "<input type='button' style='margin-right:20px;float:right' value='Close' onclick='hm()'></div>";
-	ShowDialog(html);
+	ReportingServices.showModal(src.title, {
+		containerStyle: "padding: 7px; font-family: Verdana; font-size: 12px; text-align: center; white-space: normal;",
+		buttons: [{ value: jsResources.Close, style: "margin: 0 6px 6px 0; float: right;" }],
+		showCaption: true, title: src.innerHTML, maxWidth: 800
+	});
 }
 
 function S_SelectConnectionShowDialog()

@@ -2,48 +2,25 @@
 
 <iframe style="display: none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
 <div id="loadingrv2" style="z-index: 500; top: 0px; left: 0px; width: 100%; background-color: #FFFFFF; position: fixed; display: none; text-align: center; vertical-align: middle;" lang-text="js_Loading">
-        Loading...<br />
-        <img alt="" src="rs.aspx?image=loading.gif" />
+	Loading...<br />
+	<img alt="" src="rs.aspx?image=loading.gif" />
 </div>
 
-<div id="saveAsDialog" style="z-index: 515; top: 0px; left: 0px; width: 100%; position: absolute; display: none; text-align: center; vertical-align: middle;">
-    <div style="padding: 20px; border-style: solid; border-width: 1px; background-color: #FFFFFF; display: table; margin: 0 auto;">
-    <div lang-text="js_InputReportName">Input report name</div>
-        <div>
-            <input type="text" id="newReportName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
-        <div style="margin-top: 5px;" lang-text="js_Category">Category</div>
-        <div>
-            <select onchange="CheckNewCatName();" id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select></div>
-        <div style="margin-top: 5px;">
-            <div class="f-button" style="margin-bottom: 4px;">
-                <a class="blue" onclick="javascript:SaveReportAs();" href="javascript:void(0);" style="width: 50px;"><span class="text" lang-text="js_Ok">OK</span></a>
-            </div>
-                <div class="f-button">
-                <a class="gray" onclick="javascript:CancelSave();" href="javascript:void(0);" style="width: 120px;"><span class="text" lang-text="js_Cancel">Cancel</span></a>
-                </div>
-    </div>
-    </div>
+<div id="saveAsBlock" style="display:none">
+	<div lang-text="js_InputReportName">Input report name</div>
+	<div><input type="text" id="newReportName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
+	<div style="margin-top: 5px;" lang-text="js_Category">Category</div>
+	<div><select onchange="CheckNewCatName();" id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select></div>
 </div>
 
-<div id="newCatDialog" style="z-index: 515; top: 0px; left: 0px; width: 100%; position: absolute; display: none; text-align: center; vertical-align: middle;">
-    <div style="padding: 20px; border-style: solid; border-width: 1px; background-color: #FFFFFF; display: table; margin: 0 auto;">
-    <div lang-text="js_NewCategoryName">New category name</div>
-        <div>
-            <input type="text" id="addedCatName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
-        <div style="margin-top: 5px;">
-            <div class="f-button" style="margin-bottom: 4px;">
-                <a class="blue" onclick="javascript:AddNewCategory();" href="javascript:void(0);" style="width: 120px;"><span class="text" lang-text="js_Create">Create</span></a>
-            </div>
-                <div class="f-button">
-                <a class="gray" onclick="javascript:CancelAddCategory();" href="javascript:void(0);" style="width: 120px;"><span class="text" lang-text="js_Cancel">Cancel</span></a>
-                </div>
-    </div>
-    </div>
+<div id="newCatBlock" style="display:none">
+	<div lang-text="js_NewCategoryName">New category name</div>
+	<div><input type="text" id="addedCatName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
 </div>
 
 <div id="loadingDiv" style="width: 100%; text-align: center; display: none;">
-    <div id="loadingWord" style="font-size: 20px; color: #1D5987; font-family: Verdana,Arial,Helvetica,sans-serif; font-weight: normal !important; font-size: 20px; font-style: normal;" lang-text="js_Loading">Loading...</div>
-    <img style="padding-top: 40px;" id="loadingImg" alt="" src="rs.aspx?image=loading.gif" />
+	<div id="loadingWord" style="font-size: 20px; color: #1D5987; font-family: Verdana,Arial,Helvetica,sans-serif; font-weight: normal !important; font-size: 20px; font-style: normal;" lang-text="js_Loading">Loading...</div>
+	<img style="padding-top: 40px;" id="loadingImg" alt="" src="rs.aspx?image=loading.gif" />
 </div>
 
 <div style="position: relative; margin: 0 8px; padding: 0px 6px;">

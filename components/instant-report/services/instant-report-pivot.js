@@ -86,6 +86,14 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 		};
 
 		/**
+		 * Check if pivot was set for report.
+		 * @returns {boolean} 
+		 */
+		var isPivotEnabled = function() {
+			return angular.isObject(pivotConfig.pivotColumn) && pivotConfig.cellValues.length > 0;
+		};
+
+		/**
 		 * Add cell value field
 		 */
 		var addCellValue = function () {
@@ -199,6 +207,7 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 		return {
 			getPivotsPanelOpened: getPivotsPanelOpened,
 			setPivotsPanelOpened: setPivotsPanelOpened,
+			isPivotEnabled: isPivotEnabled,
 			getPivotColumn: getPivotColumn,
 			getPivotOptions: getPivotOptions,
 			setPivotColumn: setPivotColumn,

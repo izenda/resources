@@ -173,23 +173,56 @@ function InstantReportFiltersController(
 	}
 
 	/**
+	 * Update autocomplete items while user entering some text
+	 * @param {object} filter 
+	 * @param {string} autocompleteText
+	 * @return {angular promise}. Promise on complete
+	 */
+	vm.updateAutoCompleteItems = function (filter, autocompleteText) {
+		return $q(function (resolve) {
+			filter.possibleValue = autocompleteText;
+			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+				filter.possibleValue = null;
+				resolve(filter.existentValues);
+			});
+		});
+	};
+
+	/**
 	 * Prepare value for filter
 	 */
-	vm.onCurrentValueChange = function (filter) {
+	vm.onCurrentValueChange = function(filter) {
 		// prepare data:
 		if (filter.operator.value === 'Equals_TextArea') {
 			var values = filter.currentValue.match(/^.*((\r\n|\n|\r)|$)/gm);
 			filter.values = [];
-			angular.element.each(values, function () {
+			angular.element.each(values, function() {
 				if (this.trim() !== '' && filter.values.indexOf(this.trim()) < 0)
 					filter.values.push(this.trim());
 			});
 		}
 		// refresh cascading:
-		$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
-			$scope.$applyAsync();
+		$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+			$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+				$scope.$applyAsync();
+			});
 		});
-	}
+	};
+
+	/**
+	 * On filter logic change.
+	 */
+	vm.onFilterLogicChange = function () {
+		if (vm.filters.length === 0)
+			return;
+		if (vm.filterOptions.filterLogic) {
+			$izendaInstantReportStorage.refreshFiltersForFilterLogic().then(function() {
+				$scope.$applyAsync();
+			});
+		} else {
+			vm.onCurrentValueChange(vm.filters[0]);
+		}
+	};
 
 	/**
 	 * Get btn text for popup

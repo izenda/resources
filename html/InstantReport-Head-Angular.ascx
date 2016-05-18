@@ -10,14 +10,14 @@
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/instant-report/css/instant-report.css" />
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
 
 <script type="text/javascript" src="./Resources/components/vendor/custom/msie-detect.js"></script>
 <script type="text/javascript" src="rs.aspx?js=Utility"></script>
 <!-- url settings -->
-<script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.min.js"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
-<script type="text/javascript" src="rs.aspx?js=ModalDialog"></script>
 <script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlChartsPieLabels"></script>
@@ -25,6 +25,7 @@
 <script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
 <script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportViewer"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportingServices"></script>
 <script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
 <script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
 <script type="text/javascript" src="rs.aspx?js=moment"></script>
@@ -36,6 +37,7 @@
 <script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap3-typeahead.min.js"></script>
 <script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
 
 <script type="text/javascript">
   window.urlSettings$ = UrlSettings();
@@ -92,6 +94,7 @@
 <script type="text/javascript" src="Resources/components/common/services/share-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/services/settings-service.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/bootstrap.js"></script>
+<script type="text/javascript" src="Resources/components/common/directive/autocomplete.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/bootstrap-modal.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/splashscreen.js"></script>
 <script type="text/javascript" src="Resources/components/common/directive/select-checkboxes.js"></script>

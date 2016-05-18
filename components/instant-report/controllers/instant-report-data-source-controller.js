@@ -10,10 +10,14 @@ angular
 			'$timeout',
 			'$q',
 			'$log',
+			'$sce',
+			'$location',
+			'$anchorScroll',
 			'$izendaUrl',
 			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
+			'$izendaInstantReportPivots',
 			'$izendaInstantReportValidation',
 			'$izendaInstantReportStorage',
 			InstantReportDataSourceController
@@ -26,10 +30,14 @@ function InstantReportDataSourceController(
 			$timeout,
 			$q,
 			$log,
+			$sce,
+			$location,
+			$anchorScroll,
 			$izendaUrl,
 			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportQuery,
+			$izendaInstantReportPivots,
 			$izendaInstantReportValidation,
 			$izendaInstantReportStorage) {
 	'use strict';
@@ -38,10 +46,16 @@ function InstantReportDataSourceController(
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaCompatibility = $izendaCompatibility;
 	$scope.$izendaUrl = $izendaUrl;
+	$scope.trustAsHtml = function (value) {
+		return $sce.trustAsHtml(value);
+	};
 	
 	vm.searchString = '';
 	vm.dataSources = null;
 	vm.isDataSourcesLoading = true;
+	vm.searchResults = [];
+	var previousResultsCount = null;
+	vm.searchPanelOpened = false;
 
 	vm.columnSortPanelOpened = false;
 	vm.columnSortPanelButtonEnabled = false;
@@ -51,20 +65,63 @@ function InstantReportDataSourceController(
 		changing: false
 	};
 
-	vm.performFiltering = function () {
-		$izendaInstantReportStorage.filterDataSources(vm.searchString);
-		$scope.$applyAsync();
+	/**
+	 * Turn off search panel and reset it to default state.
+	 * @param {boolean} resetSearchResults. Clear search string and results.
+	 */
+	vm.turnOffSearch = function (resetSearchResults) {
+		vm.searchPanelOpened = false;
+		if (resetSearchResults) {
+			vm.searchString = '';
+			vm.searchResults = [];
+			previousResultsCount = null;
+		}
+	}
+
+	/**
+	 * Run search query.
+	 */
+	vm.runSearchQuery = function (clearResults) {
+		if (vm.searchQueryRunning)
+			return;
+		if (!angular.isString(vm.searchString) || vm.searchString.trim() === '') {
+			vm.searchPanelOpened = false;
+			vm.searchQueryRunning = false;
+			return;
+		}
+		vm.searchQueryRunning = true;
+		var count = 50;
+		if (clearResults) {
+			vm.searchResults = [];
+			previousResultsCount = null;
+			$location.hash('anchorSearchResultsTop');
+		}
+		if (previousResultsCount === 0) {
+			vm.searchQueryRunning = false;
+			return;
+		}
+		$izendaInstantReportStorage.searchInDataDources(vm.searchString, vm.searchResults.length, vm.searchResults.length + count - 1).then(function (searchResults) {
+			previousResultsCount = searchResults.length;
+			angular.element.each(searchResults, function () {
+				vm.searchResults.push(this);
+			});
+			vm.searchPanelOpened = true;
+			$scope.$applyAsync();
+			vm.searchQueryRunning = false;
+		});
 	};
 
 	/**
 	 * Get filtered datasources
 	 */
-	vm.filterDataSources = function () {
+	vm.searchInDataDources = function () {
 		if ($izendaCompatibility.isSmallResolution())
 			return;
 		if (searchState.timeoutId !== null)
-			clearTimeout(searchState.timeoutId);
-		searchState.timeoutId = setTimeout(vm.performFiltering, 500);
+			$timeout.cancel(searchState.timeoutId);
+		searchState.timeoutId = $timeout(function() {
+			vm.runSearchQuery(true);
+		}, 500);
 	};
 
 	/**
@@ -146,6 +203,25 @@ function InstantReportDataSourceController(
 	};
 
 	/**
+	 * Toggle table collapsed
+	 * @param {object} table. Toggling table object 
+	 */
+	vm.toggleTableCollapse = function (table) {
+		return $q(function(resolve) {
+			table.collapsed = !table.collapsed;
+			// if table is lazy - load fields.
+			if (table.lazy) {
+				$izendaInstantReportStorage.loadLazyFields(table).then(function () {
+					$scope.$applyAsync();
+					resolve(table);
+				});
+			} else {
+				resolve(table);
+			}
+		});
+	};
+
+	/**
 	 * Update validation state and refresh if needed.
 	 */
 	vm.updateReportSetValidationAndRefresh = function () {
@@ -156,6 +232,23 @@ function InstantReportDataSourceController(
 		} else {
 			$izendaInstantReportStorage.clearReportPreviewHtml();
 		}
+	};
+
+	vm.toggleFieldChecked = function (field) {
+		if (!field)
+			return;
+		var needToCheck = !field.checked;
+		var pivotsEnabled = $izendaInstantReportPivots.isPivotEnabled();
+
+		$izendaInstantReportStorage.applyFieldChecked(field, needToCheck, pivotsEnabled).then(function () {
+			$izendaInstantReportStorage.updateVisualGroupFieldOrders();
+			// turn on autogroup if pivots are turned on
+			if (pivotsEnabled && needToCheck) {
+				$izendaInstantReportStorage.applyAutoGroups(true);
+			}
+			vm.updateReportSetValidationAndRefresh();
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -170,11 +263,7 @@ function InstantReportDataSourceController(
 			vm.selectField(field);
 		if (!$izendaCompatibility.isSmallResolution()) {
 			// check field occurs in selectField function
-			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
-				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
-				vm.updateReportSetValidationAndRefresh();
-				$scope.$applyAsync();
-			});
+			vm.toggleFieldChecked(field);
 		}
 	};
 
@@ -190,11 +279,7 @@ function InstantReportDataSourceController(
 	 */
 	vm.selectField = function (field) {
 		if ($izendaCompatibility.isSmallResolution()) {
-			$izendaInstantReportStorage.applyFieldChecked(field).then(function () {
-				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
-				vm.updateReportSetValidationAndRefresh();
-				$scope.$applyAsync();
-			});
+			vm.toggleFieldChecked(field);
 		} else {
 			$izendaInstantReportStorage.applyFieldSelected(field, true);
 		}
@@ -236,11 +321,7 @@ function InstantReportDataSourceController(
 	 */
 	vm.addAnotherField = function(field) {
 		var anotherField = $izendaInstantReportStorage.addAnotherField(field, true);
-		$izendaInstantReportStorage.applyFieldChecked(anotherField).then(function () {
-			$izendaInstantReportStorage.updateVisualGroupFieldOrders();
-			vm.updateReportSetValidationAndRefresh();
-			$scope.$applyAsync();
-		});
+		vm.toggleFieldChecked(anotherField);
 	};
 
 	/**
@@ -264,13 +345,34 @@ function InstantReportDataSourceController(
 	}
 
 	/**
+	 * Go to found field or table
+	 * @param {object} searchResultObject. Object, with table sysname and field sysname. 
+	 */
+	vm.revealSearchResult = function (searchResultObject) {
+		vm.selectField(null);
+		vm.turnOffSearch(true);
+		var isField = searchResultObject.hasOwnProperty('fSysName');
+		var tableSysName = searchResultObject['tSysName'];
+		var table = $izendaInstantReportStorage.getTableBySysname(tableSysName);
+		vm.toggleTableCollapse(table).then(function () {
+			if (isField) {
+				var fieldSysName = searchResultObject['fSysName'];
+				var field = $izendaInstantReportStorage.getFieldBySysName(fieldSysName, true);
+				vm.selectField(field);
+				$scope.$applyAsync();
+			}
+			$location.hash('anchor' + tableSysName);
+		});
+	};
+
+	/**
 	* Initialize watchers
 	*/
 	vm.initWatchers = function () {
 		$scope.$watch(angular.bind(vm, function () {
 			return this.searchString;
 		}), function () {
-			vm.filterDataSources();
+			vm.searchInDataDources();
 		});
 
 		/**

@@ -462,6 +462,10 @@ a.collapse-link {
 				background-color: #4274AF;
 			}
 
+.ds-tree-item-header.list-like {
+	border-bottom: 1px solid #f3f3f3;
+}
+
 /* notify icon */
 .ds-tree-item-header-notify-icon-first {
 	color: #ccc;
@@ -1140,4 +1144,11 @@ a.collapse-link {
 
 .iz-inst-mobile .izenda-width-400 {
 	width: 100% !important;
+}
+
+.iz-inst-small-panel-line ul.tagit {
+	display: block;
+	min-width: 1px;
+	width: 100%;
+	max-width: 100%;
 }

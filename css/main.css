@@ -1287,36 +1287,6 @@ a.button.default:active, a.button.default:active:hover {
 }
 
 /* Izenda Dialog */
-.izenda-dialog {
-	background-color: #ffffff !important;
-	border: 1px solid #d5d5d5 !important;
-}
-
-.izenda-dialog-container {
-}
-
-.izenda-dialog-body {
-	padding: 7px 7px 15px 7px;
-	max-height: 600px;
-	overflow: auto;
-}
-
-.izenda-dialog-body th,
-.izenda-dialog-body td {
-	padding: 6px;
-}
-
-.izenda-dialog-footer {
-	padding: 15px 7px 7px 7px;
-	text-align: right;
-	border-top: 1px solid #d5d5d5;
-}
-
-.izenda-dialog-footer .izenda-btn+.izenda-btn {
-	margin-left: 5px;
-	margin-bottom: 0;
-}
-
 .izenda-dialog-btn-primary {
 	color: #ffffff;
 	background-color: #1c4e89;

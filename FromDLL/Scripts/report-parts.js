@@ -114,6 +114,8 @@ function UpdateReportPartContainer(div, html, first) {
 		jq$(div).html(html);
 	else
 		setTimeout(function () { { UpdateReportPartContainer(div, html); } }, 500);
+	if (typeof GetRenderedReportSet == 'undefined' || GetRenderedReportSet != _getRenderedReportSetFn)
+		GetRenderedReportSet = _getRenderedReportSetFn;
 }
 
 function InitializeReportParts() {
@@ -130,8 +132,8 @@ jq$(window).load(function () {
 });
 
 /* Report Viewer override */
-function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
+window._getRenderedReportSetFn = function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 	var reportPart = jq$(caller).closest('.report-part');
 	if (reportPart != null)
 		LoadReportPart(reportPart, false, additionalParams);
-}
+};

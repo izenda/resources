@@ -72,9 +72,9 @@
 	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis;
+		var util = window.ReportScripting, services = window.ReportingServices, vis;
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
 			return;
 
 		var root,
@@ -100,7 +100,7 @@
 		height = vis.getHeight();
 
 		if (utility.ie() > 0)
-			util.updateStyle("izenda-VIS_ID-style", ".edgePath path { fill: none !important; }");
+			services.updateStyle("izenda-VIS_ID-style", ".edgePath path { fill: none !important; }");
 
 		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
 		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });

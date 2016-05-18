@@ -166,6 +166,7 @@ function SendFieldsData(data) {
 function FieldsDataSent(returnObj, id) {
 	if (id != 'updatecrsfields' || returnObj == undefined || returnObj == null || returnObj.Value == null)
 		return;
+	GetDatasourcesList();
 }
 //------------------------------------------------------------------------------------------------------------------
 
@@ -476,7 +477,6 @@ function updateFields() {
 
 	var s = JSON.stringify(usageData);
 	wereChecked.length = 0;
-	RefreshFieldsList();
 	SendFieldsData(s);
 }
 
@@ -670,7 +670,7 @@ function AddRemainingFields() {
 
 	}
 	wereChecked.length = 0;
-	RefreshFieldsList();
+	updateFields();
 }
 
 function RemoveUsedFields() {
@@ -702,7 +702,7 @@ function RemoveUsedFields() {
 			});
 		}
 	}
-	RefreshFieldsList();
+	updateFields();
 }
 
 function MoveUp() {
@@ -795,6 +795,8 @@ function GotCategoriesList(returnObj, id, setRn) {
 		for (var ccnIndex = 1; ccnIndex < nodes.length - 1; ccnIndex++)
 			curCatName += nrvConfig.CategoryCharacter + nodes[ccnIndex];
 	}
+	if (additionalCategories.length > 0)
+		curCatName = additionalCategories[additionalCategories.length - 1];
 	var newReportName = document.getElementById('newReportName');
 	var newCategoryName = document.getElementById('newCategoryName');
 	if (setRn) {
@@ -804,9 +806,8 @@ function GotCategoriesList(returnObj, id, setRn) {
 	catsArray[catsArray.length] = '';
 	for (var acCnt = 0; acCnt < additionalCategories.length; acCnt++)
 		catsArray[catsArray.length] = additionalCategories[acCnt];
-	if (returnObj.AdditionalData != null && returnObj.AdditionalData.length > 0)
-		for (var index = 0; index < returnObj.AdditionalData.length; index++)
-			catsArray[catsArray.length] = returnObj.AdditionalData[index];
+	for (var index = 0; returnObj.AdditionalData && index < returnObj.AdditionalData.length; index++)
+		catsArray[catsArray.length] = returnObj.AdditionalData[index];
 	newCategoryName.options.length = 0;
 	var root = new Object();
 	root.node = null;
@@ -846,12 +847,19 @@ function GotCategoriesList(returnObj, id, setRn) {
 		}
 	}
 	AddOptsRecursively(newCategoryName, root);
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
-	saveAsDialog.style.height = windowHeight + 'px';
-	saveAsDialog.style.paddingTop = ((windowHeight / 2) - 100) + 'px';
-	saveAsDialog.style.display = '';
 	prevCatValue = newCategoryName.value;
+
+	ReportingServices.showModal(document.getElementById("saveAsBlock"), {
+		buttons: [
+			{ value: jsResources.OK, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: SaveReportAs },
+			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default" }
+		],
+		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
+		tipStyle: "background-color: white; padding: 10px;",
+		overlayStyle: "opacity: 0;",
+		containerStyle: "padding: 7px; margin: 0; font: 16px 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; white-space: nowrap;",
+		footerStyle: "padding: 7px;"
+	});
 }
 
 function ShowSaveAsDialog() {
@@ -921,8 +929,8 @@ function CheckedIfReportExists(returnObj, id) {
 				alert('Unexpected response: Field with validated report set name is empty');
 		}
 		else {
-			modal_confirm('ReportSet with specified name already exists. Are you sure to overwrite it?', null, function(obj, res) {
-				if (res)
+			ReportingServices.showConfirm('ReportSet with specified name already exists. Are you sure to overwrite it?', function(result) {
+				if (result == jsResources.OK)
 					FinalizePreSaveRoutines(returnObj.AdditionalData[0]);
 			});
 		}
@@ -937,8 +945,6 @@ function FinalizePreSaveRoutines(newFullName) {
 	else {
 		reportName = newFullName;
 	}
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	saveAsDialog.style.display = 'none';
 	SaveReportSet();
 }
 
@@ -990,18 +996,21 @@ function ReportSetSaved(returnObj, id) {
 
 function ShowNewCatDialog() {
 	document.getElementById('addedCatName').value = '';
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	saveAsDialog.style.display = 'none';
-	var newCatDialog = document.getElementById('newCatDialog');
-	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
-	newCatDialog.style.height = windowHeight + 'px';
-	newCatDialog.style.paddingTop = ((windowHeight / 2) - 100) + 'px';
-	newCatDialog.style.display = '';
+	ReportingServices.showModal(document.getElementById("newCatBlock"), {
+		buttons: [
+			{ value: jsResources.Create, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: AddNewCategory, default: true },
+			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default", onclick: CancelAddCategory }
+		],
+		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
+		tipStyle: "background-color: white; padding: 10px;",
+		overlayStyle: "opacity: 0;",
+		containerStyle: "padding: 7px; margin: 0; font: 16px 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; white-space: nowrap;",
+		footerStyle: "padding: 7px;"
+	});
 }
 
 function AddNewCategory() {
 	additionalCategories[additionalCategories.length] = document.getElementById('addedCatName').value;
-	var newCatDialog = document.getElementById('newCatDialog').style.display = 'none';
 	GetCategoriesList(false);
 }
 //------------------------------------------------------------------------------------------------------------------------
@@ -1369,20 +1378,20 @@ function CheckNewCatName() {
 		prevCatValue = newCategoryName.value;
 }
 
-function CancelSave() {
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	saveAsDialog.style.display = 'none';
-}
-
 function CancelAddCategory() {
-	document.getElementById('newCatDialog').style.display = 'none';
-	var saveAsDialog = document.getElementById('saveAsDialog');
-	var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : document.body.clientHeight;
-	saveAsDialog.style.height = windowHeight + 'px';
-	saveAsDialog.style.paddingTop = ((windowHeight / 2) - 100) + 'px';
-	saveAsDialog.style.display = '';
-	var newCategoryName = document.getElementById('newCategoryName');
-	newCategoryName.value = prevCatValue;
+	document.getElementById('newCategoryName').value = prevCatValue;
+
+	ReportingServices.showModal(document.getElementById("saveAsBlock"), {
+		buttons: [
+			{ value: jsResources.OK, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: SaveReportAs },
+			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default" }
+		],
+		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
+		tipStyle: "background-color: white; padding: 10px;",
+		overlayStyle: "opacity: 0;",
+		containerStyle: "padding: 7px; margin: 0; font: 16px 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; white-space: nowrap;",
+		footerStyle: "padding: 7px;"
+	});
 }
 //---------------------------------------------------------------------------------------------------------------------------
 

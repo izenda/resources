@@ -598,7 +598,7 @@ function CC_InitNewRow(row) {
 	var parameterCheck = EBC_GetInputByName(row, 'Parameter');
 	if (parameterCheck != null)
 		parameterCheck.checked = true;
-	CC_InitAutoComplite(row);
+	CC_InitAutoComplete(row);
 	CC_InitTreeView(row);
 
 }
@@ -882,51 +882,14 @@ function CC_InitTreeView(row) {
 }
 
 
-function CC_InitAutoComplite(row) {
-	var editForAutoComplite = EBC_GetInputByName(row, "Edit1");
+function CC_InitAutoComplete(row) {
+	var editForAutoComplete = EBC_GetInputByName(row, "Edit1");
 	var operatorObject = EBC_GetSelectByName(row, 'Operator');
 
-	if (editForAutoComplite != null && operatorObject != null) {
-		var name = editForAutoComplite.getAttribute("name");
-		var id = editForAutoComplite.getAttribute("id");
-		var value = editForAutoComplite.value;
-		var parent = editForAutoComplite.parentNode;
-		parent.innerHTML = "";
-		var referenceTextArea = jq$(jq$("input[name$='Iz-TextArea-ReferenceControl']")[0]).clone()[0];
-		if (referenceTextArea) {
-		}
-		else {
-			var edit2 = EBC_GetInputByName(row, "Edit2");
-			referenceTextArea = document.createElement("INPUT");
-			jq$(referenceTextArea).attr("style", jq$(edit2).attr("style"));
-			referenceTextArea.setAttribute('type', 'text');
-			//referenceTextArea.setAttribute('style','width:300px');
-			//referenceTextArea.setAttribute('wrap','off');
-			//referenceTextArea.setAttribute('style','OVERFLOW-X: auto; OVERFLOW-Y: hidden; height: 22px; vertical-align: top; resize: none');
-			//referenceTextArea.setAttribute('cols', '1000');
-			//referenceTextArea.setAttribute('rows', '1');
-			referenceTextArea.setAttribute('onchange', 'javascript:CC_ValueChanged(this);');
-		}
-		referenceTextArea.setAttribute('name', name);
-		referenceTextArea.setAttribute('id', id);
-		referenceTextArea.value = value;
-		jq$(parent).append(referenceTextArea);
-
-		var edit2 = EBC_GetInputByName(row, "Edit2");
-		if (edit2 != null) {
-			jq$(referenceTextArea).css('font-family', jq$(edit2).css('font-family')).css('font-size', jq$(edit2).css('font-size'));
-		}
-
-
-		var browser = jq$.browser;
-		if (browser.msie) {
-			var browserVersion = 1 * browser.version;
-			if (browserVersion < 9)
-				return;
-		}
-		jq$(referenceTextArea).autocomplete({
-			source: function (req, responeFunction) {
-				var currentRow = EBC_GetRow(referenceTextArea);
+	if (editForAutoComplete != null && operatorObject != null) {
+		jq$(editForAutoComplete).tagit({
+			tagSource: function (req, responeFunction) {
+				var currentRow = EBC_GetRow(editForAutoComplete);
 				var operatorValue = EBC_GetSelectByName(currentRow, 'Operator').value;
 				if (operatorValue == 'Equals_Autocomplete') {
 					var possibleText = CC_extractLast(req.term);
@@ -940,7 +903,7 @@ function CC_InitAutoComplite(row) {
 							jq$.each(responseResult[0].options, function (i, item) {
 								if (item.value == null || item.value == "" || item.value == '...')
 									return;
-								result.push(item.value);
+								result.push(item.value.replaceAll('#||#', ','));
 							});
 							responeFunction(result);
 						});
@@ -953,21 +916,18 @@ function CC_InitAutoComplite(row) {
 					responeFunction("");
 				}
 			},
-			search: function () {
-				var term = CC_extractLast(this.value);
-				if (term.length < 1) {
-					return false;
-				}
+			caseSensitive: true,
+			allowDuplicates: false,
+			singleFieldDelimiter: ',',
+			processValuesForSingleField: function (tags) {
+				for (var i = 0; i < tags.length; i++)
+					tags[i] = tags[i].replaceAll(',', '#||#');
+				return tags;
 			},
-			focus: function () {
-				return false;
-			},
-			select: function (event, ui) {
-				var terms = CC_split(this.value);
-				terms.pop();
-				terms.push(ui.item.value);
-				this.value = terms.join(", ");
-				return false;
+			processValuesFromSingleField: function (tags) {
+				for (var i = 0; i < tags.length; i++)
+					tags[i] = tags[i].replaceAll('#||#', ',');
+				return tags;
 			}
 		});
 	}
@@ -1078,7 +1038,7 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 	var rows = jq$(table.tBodies[0]).find("tr");
 	var count = rows.length;
 	for (var i = 0; i < count; i++) {
-		CC_InitAutoComplite(rows[i]);
+		CC_InitAutoComplete(rows[i]);
 		CC_InitTreeView(rows[i]);
 		CC_InitRowWidthAutoComplite(rows[i]);
 	}
@@ -1136,7 +1096,7 @@ function CC_ShowPopupFilter(e) {
 	var row = EBC_GetRow();
 	var columnSel = EBC_GetSelectByName(row, 'Column');
 	if (columnSel != null && columnSel.value != '' && columnSel.value != '...') {
-		ShowLoading();
+		ReportingServices.showLoading();
 		var cmd = CC_GetFilterCMD(row) + "&resultType=json";
 		EBC_LoadData("ExistentPopupValuesList", "columnName=" + columnSel.value + cmd, null, false, CC_ShowPopupFilterResponse);
 	}
@@ -1162,8 +1122,7 @@ function CC_ShowPopupFilterResponse(data) {
 		var valueEdit = document.getElementById(valueEditId);
 		valueEdit.value = EBC_GetInputByName(row, "Edit1").value;
 		var file = data.substring(13, data.length - 3);
-		hm();
-		ShowDialog("<iframe src=\"" + file + "?valueeditid=" + valueEditId + "&columneditid=" + columnEditId + "\" name=\"CustomAspx\" width=\"290\" height=\"530\"></iframe>");
+		ReportingServices.showModal("<iframe src=\"" + file + "?valueeditid=" + valueEditId + "&columneditid=" + columnEditId + "\" name=\"CustomAspx\" width=\"290\" height=\"530\"></iframe>");
 		return;
 	}
 
@@ -1194,21 +1153,11 @@ function CC_ShowPopupFilterResponse(data) {
 	table.append(tr);
 	data = table.get(0).outerHTML;
 
-	var genHtml = "<table id='AdHocPopupFilerTable'><tr><td>" + data + "</td></tr>";
-	genHtml += "<tr><td align='center'>";
-	genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Ok' value='" + jsResources.OK + "' onclick='CC_PopupFiltersConfirm(true)'>&nbsp;";
-	genHtml += "<input type='button' name='" + row.parentNode.parentNode.id + "_Popup_Cancel' value='" + jsResources.Cancel + "' onclick='CC_PopupFiltersConfirm(false)'>";
-	genHtml += "</td></tr></table>";
-
-	hm();
-
-	ShowDialog(genHtml);
 	if (values.length > 0) {
-		var table = document.getElementById('AdHocPopupFilerTable');
-		table.style.textAlign = 'left';
-		var parentRow = table.rows[0];
-		var subtable = parentRow.firstChild.firstChild;
-		var rows = subtable.rows;
+		data = ReportingServices.parseElement(data)[0];
+		data.id = 'AdHocFilerTable';
+		data.style.textAlign = 'left';
+		var rows = data.rows;
 		for (var i = 0; i < values.length; i++) {
 			var curentValue = values[i];
 			for (var j = 0; j < rows.length; j++) {
@@ -1222,10 +1171,11 @@ function CC_ShowPopupFilterResponse(data) {
 			}
 		}
 	}
+	ReportingServices.showConfirm(data, CC_PopupFiltersConfirm);
 }
 
-function CC_PopupFiltersConfirm(act) {
-	if (act) {
+function CC_PopupFiltersConfirm(result) {
+	if (result == jsResources.OK) {
 		var row = EBC_GetRow(wasEqualsPopupEvent);
 		if (row == null)
 			return;
@@ -1234,10 +1184,8 @@ function CC_PopupFiltersConfirm(act) {
 		if (edit1 == null || valueHandler == null)
 			return;
 
-		var table = document.getElementById('AdHocPopupFilerTable');
-		var parentRow = table.rows[0];
-		var subtable = parentRow.firstChild.firstChild;
-		var rows = subtable.rows;
+		var table = document.getElementById('AdHocFilerTable');
+		var rows = table.rows;
 		var values = '...';
 		for (var i = 0; i < rows.length; i++) {
 			for (var j = 0; j < rows[i].cells.length; j++) {
@@ -1256,11 +1204,7 @@ function CC_PopupFiltersConfirm(act) {
 		valueHandler.value = values;
 		CC_ValueChanged(row);
 	}
-	hm();
-}
-
-function CC_GetDateByString(val) {
-
+	ReportingServices.hideTip();
 }
 
 function CC_GetLastDayInMonth(year, month) {

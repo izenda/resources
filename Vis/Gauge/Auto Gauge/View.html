@@ -332,7 +332,7 @@
 		var util = window.ReportScripting, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
 			return;
 
 		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;

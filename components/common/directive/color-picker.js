@@ -8,8 +8,8 @@
 	// template
 	var izendaColorPickerTemplate = '<input class="minicolors form-control" ng-class="additionalClass"></input>';
 
-	// implementation
-	function izendaColorPicker($log) {
+	// definition
+	angular.module('izendaCommonControls').directive('izendaColorPicker', [function () {
 		return {
 			restrict: 'A',
 			scope: {
@@ -19,37 +19,41 @@
 			},
 			template: izendaColorPickerTemplate,
 			link: function ($scope, elem, attrs) {
+
 				var $input = elem.find('input.minicolors');
-				$input.minicolors({
-					inline: $scope.inline === 'true',
-					theme: 'bootstrap',
-					color: $scope.color,
-					position: 'bottom right',
-					change: function (hex) {
-						$scope.ngModel = hex;
-						angular.element('.iz-dash-background').css('background-color', hex);
-						$scope.$applyAsync();
-					}
-				});
+				function initializeControl() {
+					$input.minicolors('destroy');
+					$input.val($scope.ngModel);
+					$input.minicolors({
+						inline: $scope.inline === 'true',
+						lettercase: 'lowercase',
+						theme: 'bootstrap',
+						color: $scope.color,
+						position: 'bottom right',
+						change: function (hex) {
+							var val = $input.val();
+							if (val.match(/^#{0,1}[0-9a-f]{6}$/gi)) {
+								$scope.ngModel = hex;
+								angular.element('.iz-dash-background').css('background-color', hex);
+								$scope.$applyAsync();
+							}
+						}
+					});
+
+					elem.find('.minicolors-grid, .minicolors-slider').click(function (e) {
+						e.stopPropagation();
+						return false;
+					});
+				}
+
 				// watch active item changed
-				$scope.$parent.$watch(attrs.ngModel, function (newVal, oldVal) {
-					if (newVal !== oldVal) {
-						$input.minicolors('value', [newVal]);
-					}
+				$scope.$watch('ngModel', function (newVal) {
+					$input.val(newVal);
+					$input.minicolors('value', newVal);
 				});
-				$input.minicolors('value', [$scope.ngModel]);
-				elem.find('.minicolors-grid, .minicolors-slider').click(function (e) {
-					e.stopPropagation();
-				});
+
+				initializeControl();
 			}
 		};
-	};
-
-	// definition
-	angular
-    .module('izendaCommonControls')
-    .directive('izendaColorPicker', [
-      '$log',
-      izendaColorPicker
-    ]);
+	}]);
 })();

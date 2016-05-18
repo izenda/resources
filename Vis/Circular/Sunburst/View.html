@@ -107,10 +107,10 @@
 	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
 			return;
 
 		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
@@ -354,6 +354,7 @@
 					return "#fff";
 				})
 				.style("opacity", 1)
+				.each(function(d) { services.tipOn(this, d); })
 				.on("mouseover", mouseover)
 				.on("mouseout", mouseout)
 				.on("click", zoom);
@@ -493,14 +494,10 @@
 						});
 					});
 			}
-			util.showTooltip(d, { nested: true, exclusion: ["edx", "edy", "cdx", "cdy", "link"] });
 		}
-
 		function mouseout() {
-			util.hideTooltip();
 			collapseShares();
 		}
-
 		function mouseleave() {
 			collapseShares();
 			d3.select(mouseleaveOpacityLock)

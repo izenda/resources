@@ -1,7 +1,7 @@
 ﻿angular.module('izendaInstantReport').factory('$izendaInstantReportValidation', [
 	'$q',
 	'$izendaLocale',
-	'$izendaInstantReportStorage', 
+	'$izendaInstantReportStorage',
 	'$izendaInstantReportPivots',
 	function ($q, $izendaLocale, $izendaInstantReportStorage, $izendaInstantReportPivots) {
 		'use strict';
@@ -16,7 +16,7 @@
 		 * Is report valid getter
 		 * @returns {boolean} 
 		 */
-		var isReportValid = function() {
+		var isReportValid = function () {
 			return validation.isValid;
 		};
 
@@ -24,7 +24,7 @@
 		 * Validation object getter
 		 * @returns {object} 
 		 */
-		var getValidation = function() {
+		var getValidation = function () {
 			return validation;
 		};
 
@@ -32,8 +32,42 @@
 		 * Get list of validation messages
 		 * @returns {Array}.
 		 */
-		var getValidationMessages = function() {
+		var getValidationMessages = function () {
 			return validation.messages;
+		};
+
+		/**
+		 * Validate pivots. 
+		 */
+		var validatePivots = function () {
+			var pivotColumn = $izendaInstantReportPivots.getPivotColumn();
+			var pivotCells = $izendaInstantReportPivots.getCellValues();
+
+			// check if pivot column was set:
+			if (angular.isObject(pivotColumn)) {
+				if (pivotCells.length === 0) {
+					// show warning when pivot cells wasn't added.
+					validation.isValid = false;
+					validation.messages.push({
+						type: 'info',
+						text: $izendaLocale.localeText('js_AddPivotCellsWarning', 'You should add pivot cells to enable pivot view.')
+					});
+				} else {
+					var havePivotCells = false;
+					angular.element.each(pivotCells, function() {
+						var pivotCell = this;
+						if (angular.isObject(pivotCell))
+							havePivotCells = true;
+					});
+					if (!havePivotCells) {
+						validation.isValid = false;
+						validation.messages.push({
+							type: 'info',
+							text: $izendaLocale.localeText('js_SpecifyPivotColumnWarning', 'You should specify column for at least one pivot cell (pivot cells without column will be ignored).')
+						});
+					}
+				}
+			}
 		};
 
 		/**
@@ -46,12 +80,12 @@
 
 		/**
 		 * Validate report set
-		 * @param {object} $izendaInstantReportStorage instance 
-		 * @param {object} $izendaInstantReportPivots instance
 		 * @returns {boolean} report is valid
 		 */
 		var validateReportSet = function () {
 			clearValidation();
+
+			var pivotColumn = $izendaInstantReportPivots.getPivotColumn();
 
 			// try to find at least one active field
 			var hasActiveFields = false;
@@ -68,7 +102,7 @@
 			hasActiveFields |= $izendaInstantReportPivots.isPivotValid();
 
 			// create validation result for fields
-			if (!hasActiveFields) {
+			if (!hasActiveFields && !pivotColumn) {
 				validation.isValid = false;
 				validation.messages.push({
 					type: 'info',
@@ -76,19 +110,24 @@
 				});
 			}
 
+			// distinct validation
 			if (options.distinct && binaryFields.length > 0) {
-				var binaryFieldsString = binaryFields.map(function(bField) {
+				var binaryFieldsString = binaryFields.map(function (bField) {
 					return '"' + bField.name + '" (' + bField.sqlType + ')';
 				}).join(', ');
 				validation.messages.push({
 					type: 'info',
 					additionalActionType: 'TURN_OFF_DISTINCT',
 					text: $izendaLocale.localeTextWithParams(
-						'js_ColumnsIsntCompatibleWithDistinct', 
-						'Report contain columns: {0}. These columns are not compatable with "distinct" setting. Distinct setting was disabled!', 
+						'js_ColumnsIsntCompatibleWithDistinct',
+						'Report contain columns: {0}. These columns are not compatable with "distinct" setting. Distinct setting was disabled!',
 						[binaryFieldsString])
 				});
 			}
+
+			// run pivots validation
+			validatePivots();
+
 			return validation.isValid;
 		};
 

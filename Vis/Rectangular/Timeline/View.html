@@ -68,10 +68,10 @@
 
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, input: validate }))
 			return;
 
 		var lanes = [], items = [], laneLength;
@@ -306,13 +306,20 @@
 				.attr("x", function (d) { return x1(d.start); })
 				.attr("y", function (d) { return y1(d.lane + 0.5) - (.8 * y1(1)) / 2; })
 				.attr("width", function (d) { var r = x1(d.end) - x1(d.start); return r > 0 ? r : 0; })
-				.attr("height", function (d) { return .8 * y1(1); })
-				.on("mouseover", function (d) {
-					util.showTooltip(d, { exclusion: ["lane", "id", "start", "end", "_identity", "link"] });
-					util.tip.removeClass("miniItem0 miniItem1 miniItem2")
-						.addClass("miniItem" + (d.lane % 3));
-				})
-				.on("mouseout", function () { util.hideTooltip(); });
+				.attr("height", function(d) { return .8 * y1(1); })
+				.on("mouseover", function(d) {
+					services.showTip(d, {
+						exclusion: ["lane", "id", "start", "end", "_identity", "link"],
+						element: this,
+						color: (function() {
+							switch (d.lane % 3) {
+								case 0: return "darksalmon";
+								case 1: return "darkolivegreen";
+								default: return "slategray";
+							}
+						})()
+					});
+				});
 
 			rects.exit().remove();
 

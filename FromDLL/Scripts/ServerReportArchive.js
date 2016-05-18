@@ -165,7 +165,7 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 	{
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
-		modal_ok(jsResources.ReportNameInvalid, null, TB_PropmtReportName);
+		ReportingServices.showOk(jsResources.ReportNameInvalid, TB_PropmtReportName);
 		return false;
 	}
 	var reportName = rnParam.toLowerCase();
@@ -181,7 +181,7 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 	{
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
-		modal_ok(jsResources.EnterANameOfTheSavedReport, null, TB_PropmtReportName);
+		ReportingServices.showOk(jsResources.EnterANameOfTheSavedReport, TB_PropmtReportName);
 
 		return false;
 	}
@@ -193,7 +193,7 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 			if(exists=="ReadOnly" || !allowOverwriting)
 			{
 				tbPropmtReportNameData.forceNewNameOnSave = true;
-				modal_ok(jsResources.ThisReportAlreadyExists, null, TB_PropmtReportName); 
+				ReportingServices.showOk(jsResources.ThisReportAlreadyExists, TB_PropmtReportName);
 			}
 			return false;
 		}
@@ -202,7 +202,7 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 	{
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
-		modal_ok(jsResources.ReportExistsOverwriteNotAllowed, null, TB_PropmtReportName);
+		ReportingServices.showOk(jsResources.ReportExistsOverwriteNotAllowed, TB_PropmtReportName);
 		return false;
 	}
 	return true;
@@ -254,7 +254,7 @@ function SRA_SaveAsView(viewNameId, viewsList)
 		}
 	if (exist)
 	{ 
-		modal_ok(jsResources.jsThereIsAlreadyAnObjectNamedInTheDatabase.replace("{0}", viewName));
+		ReportingServices.showOk(jsResources.jsThereIsAlreadyAnObjectNamedInTheDatabase.format([viewName]));
 		event.cancelBubble = true;
 		event.returnValue = false;
 	}

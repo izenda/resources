@@ -73,7 +73,7 @@
 		  return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, VIS_COLUMNS[i].name); };
 		}
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { input: validate }))
 			return;
 
 		var colors = ['#2f7ed8', '#8bbc21', '#0d233a', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'];

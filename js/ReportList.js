@@ -61,15 +61,10 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 function ud() { }
 
 function RL_DeleteNew(message, reportName) {
-	var userData = new ud();
-	userData.reportName = reportName;
-	modal_confirm(message, userData, RL_DeleteCallbackNew);
-}
-
-function RL_DeleteCallbackNew(userData, isConfirmed) {
-	if (isConfirmed) {
-		ShowContentLoading(function () { PerformDelete(userData); }, IzLocal.Res('js_Deleting', 'Deleting...'));
-	}
+	ReportingServices.showConfirm(message, function(result) {
+		if (result == jsResources.OK)
+			ShowContentLoading(function() { PerformDelete({ reportName: reportName }); }, IzLocal.Res('js_Deleting', 'Deleting...'));
+	}, { title: jsResources.Delete, showClose: false });
 }
 
 function PerformDelete(userData) {

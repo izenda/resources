@@ -136,7 +136,7 @@
 		var vs = util.container("VIS_ID"),
 			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, input: validate }))
 			return;
 
 		if (!s.props) {

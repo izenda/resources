@@ -31,7 +31,7 @@
 		var cCnt = this.cells.length - columnsToHide;
 		while (cCnt < this.cells.length) {
 			var innerRow$ = jq$(document.createElement('tr'));
-			ReportScripting.tooltipOn(innerRow$[0], this.cells[cCnt].getAttribute("subtotal-title"));
+			ReportingServices.tipOn(innerRow$[0], this.cells[cCnt].getAttribute("subtotal-title"), { orientation: "bottom" });
 
 			var headerCell$ = jq$(document.createElement('td'));
 			headerCell$.attr('class', 'field');
@@ -84,6 +84,9 @@ function ToggleReportGrids() {
 	var reportTables$ = jq$('.ReportTable.SimpleGrid');
 	reportTables$.each(function () {
 		var this$ = jq$(this);
+		if (this$.parents('[id$=_ReportsDiv]').length < 1)
+			return;
+
 		if (this$.find('tr.ReportItem:not(.hiddable), tr.AlternatingItem:not(.hiddable)').length > 5001)
 			return;
 		var columnsToHide = 0;

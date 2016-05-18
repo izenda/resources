@@ -51,7 +51,6 @@ var allowComparativeArithmetic;
 var fieldValueChecked = {};
 var groupByMonthName;
 var SC_onMultivaluedCheckBoxValueChangedHandlers = {};
-var quickAddDiv = document.createElement('div');
 
 function SC_OnDrilDownChang(obj)
 {
@@ -472,14 +471,14 @@ function SC_OnColumnChangedHandler(e, el) {
 
 			if (oldValue != null && columnSel.options[columnSel.selectedIndex].value != oldValue) {
 				if (columnSel.options[columnSel.selectedIndex].restrictselecting == "true") {
-					var dialogHtml = "<div id=\"" + id + "_ChangeRowCheck\"><div>This field cannot be selected.</div><br /><input type=\"button\" id=\"" + id + "_ChangeRowCheck_Ok\" value=\"" + jsResources.OK + "\" name=\"" + id + "_ChangeRowCheck_Ok\" onclick=\"SC_ChangeRowCheckDialogResult(false, '" + id + "');\"></div>";
-					ShowDialog(dialogHtml);
+					ReportingServices.showOk("This field cannot be selected.", function() {
+						SC_ChangeRowCheckDialogResult(jsResources.Cancel, id);
+					});
 					fieldCannotBeSelected = true;
 					showChangeRowCheckDialog = true;
-				} else if (coefficientEditTemp && coefficientEditTemp.value.trim().indexOf("example") != 0) {
-					var dialogHtml = "<div id=\"" + id + "_ChangeRowCheck\"><div>You will lose Expression data if you select a different field. Continue?</div><br /><input type=\"button\" id=\"" + id + "_ChangeRowCheck_Ok\" value=\"" + jsResources.OK + "\" name=\"" + id + "_ChangeRowCheck_Ok\" onclick=\"SC_ChangeRowCheckDialogResult(true, '" + id + "');\">&nbsp;" +
-						"<input type=\"button\" id=\"" + id + "_ChangeRowCheck_Cancel\" value=\"" + jsResources.Cancel + "\" name=\"" + id + "_ChangeRowCheck_Cancel\" onclick=\"SC_ChangeRowCheckDialogResult(false, '" + id + "');\"></div>";
-					ShowDialog(dialogHtml);
+				}
+				else if (coefficientEditTemp && coefficientEditTemp.value.trim().indexOf("example") != 0) {
+					ReportingServices.showConfirm("You will lose Expression data if you select a different field. Continue?", SC_ChangeRowCheckDialogResult);
 					showChangeRowCheckDialog = true;
 				}
 			}
@@ -808,9 +807,8 @@ function SC_ResetRowToDefault(isExtraColumn) {
 	}
 }
 
-function SC_ChangeRowCheckDialogResult(result, id) {
-	var dialog = document.getElementById(id + "_ChangeRowCheck");
-	if (result) {
+function SC_ChangeRowCheckDialogResult(result) {
+	if (result == jsResources.OK) {
 		SC_ResetRowToDefault();
 	} else {
 		var row = SC_ColumnChangeContext.row,
@@ -823,7 +821,6 @@ function SC_ChangeRowCheckDialogResult(result, id) {
 			}
 		}
 	}
-	HideDialog(dialog, true);
 }
 
 function SC_GetStringBeforeParenthesis(src)
@@ -1526,7 +1523,7 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth)
 		html += "<table>";  
 		html += "<tr>";
 		for (key in tables)
-			html += "<th colspan='" + tables[key].width + "'>" + key + "</th>";
+			html += "<th colspan='{colspan}'>{key}</th>".format({ colspan: tables[key].width, key: key });
 		html += "</tr>";
 		var optNum = 0;
 		for (var i = 0; i < maxRows; i++)
@@ -1548,10 +1545,8 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth)
 						if(optionTitle.length > maxFieldWidth)
 							optionText = optionTitle.substr(0, maxFieldWidth - 3) + '...';
 						var haveValue = values[optionValue];
-						html += "<td><nobr><input type=checkbox " + (haveValue ? "checked disabled" : "") +
-							" value='" + optionValue +
-							"' id='SC_QuickAdd_" + optNum +
-							"'> <span title='" + optionTitle + "'>" + optionText + "</span></nobr></td>";
+						html += "<td><nobr><input type=checkbox {attrs} value='{value}' id='SC_QuickAdd_{num}'> <span title='{title}'>{text}</span></nobr></td>"
+							.format({ attrs: haveValue ? "checked disabled" : "", value: optionValue, num: optNum, title: optionTitle, text: optionText });
 						optNum++;
 					}
 				}
@@ -1562,14 +1557,8 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth)
 		}
 		html += "</table>";
 	}
-	html += "</div><input type='button' id='" + id + "_QuickAdd_Ok' value='" + jsResources.OK + "' name='" + id + "_QuickAdd_Ok' onclick=\"SC_QuickAdd_Close(true, '" + id + "')\">&nbsp;";
-	html += "<input type='button' id='" + id + "_QuickAdd_Cancel' value='" + jsResources.Cancel + "' name='" + id + "_QuickAdd_Cancel' onclick='SC_QuickAdd_Close(false)'>";
-	quickAddDiv.innerHTML = html;
-	ShowDialog(quickAddDiv);
-	if (isNetscape)
-		document.addEventListener('keydown', SC_QuickAdd_Keydown, true);
-	else
-		document.attachEvent('onkeydown', SC_QuickAdd_Keydown);
+	html += "</div>";
+	ReportingServices.showConfirm(html, SC_QuickAdd_Close, { ctx: id, title: jsResources.QuickAdd, movable: true });
 
 	if (selRez == null) {
 		jq$('.quick-add-container').css('cursor', 'wait');
@@ -1582,7 +1571,6 @@ function SC_QuickAdd_Refresh(id, columnNumber, minInColumn, maxFieldWidth) {
 	var selRez = EBC_LoadData("CombinedColumnList", "&" + "tables=" + sc_tables[id], columnSel, false);
 
 	if (selRez) {
-		hm();
 		SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth);
 	}
 	else if (jq$('.quick-add-container').length > 0)
@@ -1593,18 +1581,18 @@ var sc_qac_works = false;
 var sc_qac_requests = 0;
 var sc_qac_timers = 0;
 
-function SC_QuickAdd_Close(res, id)
+function SC_QuickAdd_Close(result, context)
 {
 	try
 	{
 		sc_qac_requests = 0;
 		sc_qac_timers = 0;
 		sc_qac_works = true;
-		if(res)
+		if (result == jsResources.OK)
 		{
 			//show all;
 			var showAll = document.getElementById("SC_QuickAdd_ShowAll");
-			var allFieldsTable = document.getElementById(id + "_AllFieldsTable");
+			var allFieldsTable = document.getElementById(context.ctx + "_AllFieldsTable");
 			if (allFieldsTable != null)
 			{
 				var allFieldsBody = allFieldsTable.tBodies[0];
@@ -1615,7 +1603,7 @@ function SC_QuickAdd_Close(res, id)
 				SC_OnShowAll(obj);
 			}
 
-			var table = document.getElementById(id);
+			var table = document.getElementById(context.ctx);
 			var max = table.getAttribute("max");
 			var body = table.tBodies[0];
 			var rowCount = body.rows.length;
@@ -1673,14 +1661,11 @@ function SC_QuickAdd_Close(res, id)
 				EBC_RemoveRow(table.tBodies[0].rows[max]);
 			if (added)
 			{
-				SC_CallOnColumnFunctionChangeHandlers(id);
+				SC_CallOnColumnFunctionChangeHandlers(context.ctx);
 			}
 		}
 	}
-	finally
-	{
-	    HideDialog(quickAddDiv, true);
-	}
+	finally { }
 }
 
 function SC_QuickAdd_Close_Callback() {
@@ -1699,24 +1684,6 @@ function SC_QuickAdd_Close_Callback() {
 		SC_CheckGroupingAndFunctionsWithStoredParams();
 	if (typeof EBC_CheckFieldsCountWithStoredParams === "function")
 		EBC_CheckFieldsCountWithStoredParams();
-}
-
-function SC_QuickAdd_Keydown(evt)
-{
-	var evt = (evt) ? evt : window.event;
-	/*if(evt.keyCode==10 || evt.keyCode==13)
-	{
-		if(isNetscape)
-		{
-			evt.stopPropagation();
-			evt.preventDefault();
-		}
-		else
-			evt.cancelBubble = true;
-		SC_QuickAdd_Close(true);
-	}*/
-	if(evt.keyCode==27)
-		SC_QuickAdd_Close(false);
 }
 
 function SC_ClearRowSelects(row)
@@ -1939,11 +1906,9 @@ function SC_ShowProperties(e, sc_id) {
 		ebc_mozillaEvent = e;
 	}
 	dialogRow = EBC_GetRow();
-	var propsTable = EBC_GetElementByName(dialogRow, "PropertiesTable", "table");
-	var sc = document.getElementById(sc_id);
-	var top = AdHoc.Utility.absPosition(sc).top;
-	//sc_properties_container = propsTable.parentNode;
-	sc_propsTable = ShowDialog(propsTable, null, null, top - 12, null, false);
+	ReportingServices.showOk(sc_propsTable = EBC_GetElementByName(dialogRow, "PropertiesTable", "table"),
+		function() { SC_HideProperties(sc_id); }, { title: jsResources.AdvancedProperties, movable: true }
+	);
 }
 
 function SC_CheckPropertiesModified(dialogRow) {
@@ -2022,7 +1987,7 @@ function SC_CheckPropertiesModified(dialogRow) {
 
 function SC_HideProperties(id)
 {
-	HideDialog(sc_propsTable, false);
+	ReportingServices.hideTip();
 	var row = EBC_GetRow(sc_propsTable);
 	SC_CheckPropertiesModified(row);
 	var expressionTypeSelect = EBC_GetSelectByName(row, "ExpressionType");

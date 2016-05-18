@@ -332,6 +332,14 @@ span.DashboardPrintTitle
 	white-space: pre-wrap;
 	color: #1c4e89;
 }
+span.DashboardPrintDescription
+{
+	height: 30px;
+	font-size: 16px;
+	white-space: pre-wrap;
+	color: #999999;
+}
+
 /*span.Header
 {
 	white-space: nowrap;

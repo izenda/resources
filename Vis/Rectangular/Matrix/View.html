@@ -40,10 +40,10 @@
 
 		var width = 720, height = 500;
 
-		var util = window.ReportScripting, vis,
+		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, { d3: true, svg: true, input: validate }))
+		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, input: validate }))
 			return;
 
 		var i, t, rotate = true, rotateBox, buckets = 9, left = 14, top;
@@ -140,15 +140,14 @@
 					.attr("width", gridSize)
 					.attr("height", gridSize)
 					.style("fill", colors[0])
-					.on("mouseover", function (d) {
+					.each(function(d) {
 						var data = {};
-						jq$.each(d.data, function (key, value) {
-							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+						jq$.each(d.data, function(key, value) {
+							var fieldFormatter = VIS_COLUMNS.find(function(d) { return d.name == key; }).formatter;
 							data[key] = fieldFormatter ? fieldFormatter(value, d.data, vis, key) : value + '';
 						});
-						util.showTooltip(data);
-					})
-					.on("mouseout", function() { util.hideTooltip(); });
+						services.tipOn(this, data);
+					});
 			}
 
 			g.selectAll(".hour").transition().duration(1000)

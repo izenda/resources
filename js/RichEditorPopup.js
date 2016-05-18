@@ -130,7 +130,7 @@ function RE_InstantiateRichEditor(paramsObj) {
 		if (typeof serverCulture != 'undefined' && serverCulture != null && serverCulture != '' && serverCulture != 'en-US')
 			lang = './rs.aspx?wscmd=tinymceresource&wsarg0=langjs&wsarg1=' + serverCulture;
 		tinymce.init({
-			forced_root_block: false,
+			//forced_root_block: false,
 			force_p_newlines: false,
 			selector: paramsObj.TargetSelector,
 			height: paramsObj.Height,

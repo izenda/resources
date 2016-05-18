@@ -26,7 +26,8 @@
               :
               <input type="text" class="iz-inst-field-filters-logic"
                      ng-attr-placeholder="{{'js_ExampleFilterLogic' | izendaLocale: 'Example:(1 OR 2) AND (3 OR 4)'}}"
-                     ng-model="filtersController.filterOptions.filterLogic"/>
+                     ng-model="filtersController.filterOptions.filterLogic"
+                     ng-blur="filtersController.onFilterLogicChange()" />
             </div>
           </div>
         </div>
@@ -122,17 +123,13 @@
 
                     <!-- autocomplete -->
                     <span ng-switch-when="Equals_Autocomplete">
-                      <input type="text" class="iz-inst-filter-input"
-                             ng-model="filter.values[0]"
+                      <input type="text" name="autocomplete-filter" 
+                             class="iz-inst-filter-input" refresh="true"
                              autocomplete-items="filter.existentValues"
+                             update-autocomplete-items="filtersController.updateAutoCompleteItems(filter, arg0)"
                              ng-change="filtersController.onCurrentValueChange(filter)"
-                             izenda-bootstrap-autocomplete/>
-                      <!--<input type="text" class="iz-inst-filter-input"
-                             typeahead="existentValue.value for existentValue in filter.existentValues | filter:$viewValue | limitTo:20"
-                             typeahead-append-to-body="true"
                              ng-model="filter.values[0]"
-                             ng-change="filtersController.onCurrentValueChange(filter)"
-                             typeahead-on-select="filtersController.onCurrentValueChange(filter)" />-->
+                             izenda-autocomplete/>
                     </span>
 
                     <!-- select -->

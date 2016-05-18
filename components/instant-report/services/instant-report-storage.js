@@ -148,8 +148,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	$izendaScheduleService, $izendaShareService, izendaInstantReportConfig, $izendaInstantReportQuery,
 	$izendaInstantReportPivots) {
 	'use strict';
-	var angularJq$ = angular.element;
-	var _this = this;
+
 	// const:
 	var EMPTY_FIELD_GROUP_OPTION = $injector.get('izendaDefaultFunctionObject');
 	var EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS = $injector.get('izendaDefaultSubtotalFunctionObject');
@@ -332,6 +331,23 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * Find table by given sysname
+	 * @param {string} sysname.
+	 * @returns {object} table object. 
+	 */
+	var getTableBySysname = function (sysname) {
+		var result = null;
+		angular.element.each(getDataSources(), function () {
+			var category = this;
+			angular.element.each(category.tables, function () {
+				if (this.sysname === sysname)
+					result = this;
+			});
+		});
+		return result;
+	};
+
+	/**
 	 * Find field by given id
 	 */
 	var getFieldById = function (id) {
@@ -349,7 +365,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 						return field;
 					}
 					if (field.isMultipleColumns) {
-						angularJq$.each(field.multipleColumns, function() {
+						angular.element.each(field.multipleColumns, function() {
 							var multipleField = this;
 							if (multipleField.id === id) {
 								return multipleField;
@@ -369,7 +385,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		var result = [];
 		angular.element.each(getDataSources(), function () {
 			var category = this;
-			angularJq$.each(category.tables, function () {
+			angular.element.each(category.tables, function () {
 				result.push(this);
 			});
 		});
@@ -391,8 +407,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		var tablesCollection = (typeof (findInAllTables) === 'boolean' && findInAllTables)
 			? getAllTables()
 			: getActiveTables();
-		angularJq$.each(tablesCollection, function () {
-			angularJq$.each(this.fields, function () {
+		angular.element.each(tablesCollection, function () {
+			if (this.lazy)
+				return;
+			angular.element.each(this.fields, function () {
 				if (this.sysname === sysname)
 					result = this;
 			});
@@ -412,14 +430,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 */
 	var getActiveFields = function (table) {
 		var result = [];
-		angularJq$.each(table.fields, function () {
+		angular.element.each(table.fields, function () {
 			var field = this;
 			if (!field.isMultipleColumns) {
 				if (field.checked) {
 					result.push(field);
 				}
 			} else {
-				angularJq$.each(field.multipleColumns, function () {
+				angular.element.each(field.multipleColumns, function () {
 					var multipleField = this;
 					if (multipleField.checked) {
 						result.push(multipleField);
@@ -438,10 +456,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		if (!angular.isFunction(fieldHandler))
 			throw 'fieldHandler should be a function.';
 		var activeTables = getActiveTables();
-		angularJq$.each(activeTables, function () {
+		angular.element.each(activeTables, function () {
 			var table = this;
 			var aFields = getActiveFields(table);
-			angularJq$.each(aFields, function () {
+			angular.element.each(aFields, function () {
 				var field = this;
 				fieldHandler.call(angular.isDefined(context) ? context : this, field, table);
 			});
@@ -697,13 +715,13 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	var clearValidation = function () {
 		if (!angular.isArray(getDataSources()))
 			return;
-		angularJq$.each(getDataSources(), function () {
+		angular.element.each(getDataSources(), function () {
 			var category = this;
-			angularJq$.each(category.tables, function () {
+			angular.element.each(category.tables, function () {
 				var table = this;
 				table.validateMessages = [];
 				table.validateMessageLevel = null;
-				angularJq$.each(table.fields, function () {
+				angular.element.each(table.fields, function () {
 					var field = this;
 					field.validateMessages = [];
 					field.validateMessageLevel = null;
@@ -855,7 +873,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 		// process constraints data
 		var foreignKeyTables = [];
-		angularJq$.each(constaints, function () {
+		angular.element.each(constaints, function () {
 			var constraint = this;
 			var part1 = constraint[0];
 			var part2 = constraint[1];
@@ -864,7 +882,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			if (part1Index >= 0 && part2Index >= 0 && part1 !== part2) {
 				nodeConstraints.push([part1Index, part2Index]);
 			}
-			angularJq$.each(currentActiveTables, function () {
+			angular.element.each(currentActiveTables, function () {
 				var table = this;
 				if (part1 === table.sysname || part2 === table.sysname) {
 					if (foreignKeyTables.indexOf(part1) < 0)
@@ -876,16 +894,16 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 
 		// enable/disable tables
-		angularJq$.each(getDataSources(), function () {
+		angular.element.each(getDataSources(), function () {
 			var category = this;
 			category.enabled = false;
 			// check tables
-			angularJq$.each(category.tables, function () {
+			angular.element.each(category.tables, function () {
 				var table = this;
 				if (!applyConstraints) {
 					category.enabled = true;
 					table.enabled = true;
-					angularJq$.each(table.fields, function () {
+					angular.element.each(table.fields, function () {
 						var field = this;
 						field.enabled = table.enabled;
 					});
@@ -893,7 +911,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				}
 				table.enabled = table.active || foreignKeyTables.indexOf(table.sysname) >= 0;
 				category.enabled |= table.enabled;
-				angularJq$.each(table.fields, function () {
+				angular.element.each(table.fields, function () {
 					var field = this;
 					field.enabled = table.enabled;
 				});
@@ -913,14 +931,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Set "selected = false" for all fields
 	 */
 	var unselectAllFields = function () {
-		angularJq$.each(getDataSources(), function () {
+		angular.element.each(getDataSources(), function () {
 			var category = this;
-			angularJq$.each(category.tables, function () {
+			angular.element.each(category.tables, function () {
 				var table = this;
-				angularJq$.each(table.fields, function () {
+				angular.element.each(table.fields, function () {
 					var field = this;
 					field.selected = false;
-					angularJq$.each(field.multipleColumns, function () {
+					angular.element.each(field.multipleColumns, function () {
 						this.selected = false;
 					});
 				});
@@ -937,11 +955,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		activeTables = [];
 		activeFields = [];
 		activeCheckedFields = [];
-		angularJq$.each(getDataSources(), function () {
-			angularJq$.each(this.tables, function () {
+		angular.element.each(getDataSources(), function () {
+			angular.element.each(this.tables, function () {
 				if (this.active) {
 					activeTables.push(this);
-					angularJq$.each(this.fields, function () {
+					angular.element.each(this.fields, function () {
 						activeFields.push(this);
 						if (this.checked)
 							activeCheckedFields.push(this);
@@ -976,7 +994,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Update tree state after checking field
 	 */
-	var updateParentFoldersAndTables = function (field, syncCollapse) {
+	var updateParentFoldersAndTables = function (field, syncCollapse, restrictTableUncheck) {
 		var table = getTableById(field.parentId);
 
 		// update table active
@@ -992,7 +1010,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		if (hasCheckedFields && !table.active)
 			table.order = getNextOrder();
 		// set table active
-		table.active = hasCheckedFields || !table.enabled;
+		table.active = restrictTableUncheck || hasCheckedFields || !table.enabled;
 
 		if (syncCollapse)
 			table.collapsed = !hasCheckedFields;
@@ -1028,8 +1046,25 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	* Get filtered datasources
 	*/
-	var filterDataSources = function (searchString) {
-		if (!angular.isArray(getDataSources()))
+	var searchInDataDources = function (searchString, from, to) {
+		return $q(function(resolve) {
+			if (searchString === '') {
+				resolve([]);
+				return;
+			}
+			// start search
+			$izendaInstantReportQuery.findInDatasources(searchString, from, to).then(function (results) {
+				// search completed
+				var searchResults = results;
+				angular.element.each(searchResults, function (idx) {
+					this.id = from + idx;
+				});
+				resolve(searchResults);
+			});
+		});
+		
+
+		/*if (!angular.isArray(getDataSources()))
 			return;
 		if (searchString === '') {
 			angular.element.each(getDataSources(), function () {
@@ -1048,7 +1083,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				});
 			});
 			return;
-		}
+	
 
 		angular.element.each(getDataSources(), function () {
 			var category = this;
@@ -1075,7 +1110,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			});
 			category.collapsed = !isTablesFound;
 			category.visible = isTablesFound;
-		});
+		});*/
 	};
 
 	var resetFieldObject = function (fieldObject) {
@@ -1301,6 +1336,26 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * Convert fields which got from server into format which used in app and add it to table object.
+	 * @param {Array} fields. Server side fields object.
+	 */
+	var convertAndAddFields = function (tableObject, fields) {
+		angular.element.each(fields, function (fieldName, field) {
+			var fieldObject = createFieldObject(fieldName, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
+				field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
+			tableObject.fields.push(fieldObject);
+		});
+		tableObject.fields.sort(function (field1, field2) {
+			if (field1.name > field2.name)
+				return 1;
+			if (field1.name < field2.name)
+				return -1;
+			return 0;
+		});
+		tableObject.lazy = false;
+	};
+
+	/**
 	* Convert datasources for future use it in app
 	*/
 	var convertDataSources = function (dataSources) {
@@ -1309,7 +1364,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		var result = [];
 		// iterate categories
 		var uncategorized = null;
-		angularJq$.each(dataSources, function (iCategory, category) {
+		angular.element.each(dataSources, function (iCategory, category) {
 			var categoryObject = {
 				id: getNextId(),
 				name: category.DataSourceCategory,
@@ -1320,7 +1375,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				collapsed: true
 			};
 			// iterate tables
-			angularJq$.each(category.tables, function (tableName, table) {
+			angular.element.each(category.tables, function (tableName, table) {
 				var tableObject = {
 					id: getNextId(),
 					order: 0,
@@ -1333,22 +1388,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					enabled: true,
 					collapsed: true,
 					validateMessages: [],
-					validateMessageLevel: null
+					validateMessageLevel: null,
+					lazy: false
 				};
-				// iterate fields
-				angularJq$.each(table.fields, function (fieldName, field) {
-					var fieldObject = createFieldObject(fieldName, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
-						field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
-					tableObject.fields.push(fieldObject);
-				});
-				tableObject.fields.sort(function (field1, field2) {
-					if (field1.name > field2.name)
-						return 1;
-					if (field1.name < field2.name)
-						return -1;
-					return 0;
-				});
-
+				// add field if loadded
+				if (table.fields === 'LAZIED') {
+					tableObject.lazy = true;
+				} else {
+					convertAndAddFields(tableObject, table.fields);
+				}
 				categoryObject.tables.push(tableObject);
 			});
 
@@ -1469,7 +1517,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		}
 
 		// add filters to config
-		angularJq$.each(getFilters(), function () {
+		angular.element.each(getFilters(), function () {
 			var filter = this;
 			if (filter.field === null || !angular.isObject(filter.operator)) {
 				filter.isValid = false;
@@ -1532,17 +1580,18 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			reportSetConfig.pivot.pivotColumn = createFieldObjectForSend(pivotConfig.pivotColumn);
 			reportSetConfig.pivot.cellValues = [];
 			angular.element.each(pivotConfig.cellValues, function () {
-				reportSetConfig.pivot.cellValues.push(createFieldObjectForSend(this));
+				if (this)
+					reportSetConfig.pivot.cellValues.push(createFieldObjectForSend(this));
 			});
 		}
 		// create config
-		angularJq$.each(activeTables, function () {
+		angular.element.each(activeTables, function () {
 			var table = this;
 			var tableConfig = {
 				sysname: table.sysname
 			}
 			var aFields = getActiveFields(table);
-			angularJq$.each(aFields, function () {
+			angular.element.each(aFields, function () {
 				var field = this;
 				reportSetConfig.fields.push(createFieldObjectForSend(field));
 			});
@@ -1550,6 +1599,23 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 		$log.debug('reportSetConfig: ', reportSetConfig);
 		return reportSetConfig;
+	};
+
+	/**
+	 * Load fields for lazy table
+	 * @param {object} table 
+	 */
+	var loadLazyFields = function (table) {
+		return $q(function(resolve) {
+			if (!table.lazy) {
+				resolve(false);
+				return;
+			}
+			$izendaInstantReportQuery.getFieldsInfo(table.sysname).then(function(data) {
+				convertAndAddFields(table, data[0].fields);
+				resolve(true);
+			});
+		});
 	};
 
 	/**
@@ -1830,9 +1896,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return $q(function (resolve) {
 			$izendaInstantReportQuery.getFieldOperatorList(field).then(function (data) {
 				var result = [];
-				angularJq$.each(data, function () {
+				angular.element.each(data, function () {
 					var groupName = this.name;
-					angularJq$.each(this.options, function () {
+					angular.element.each(this.options, function () {
 						if (this.value !== '...') {
 							var optionToAdd = angular.extend({
 								groupName: groupName
@@ -1895,6 +1961,28 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Load filter existent values list (you need to ensure that all operators were applyed before starting update existing values)
 	 */
 	var updateFieldFilterExistentValues = function (filter) {
+		// parse unicode symbols util
+		function parseHtmlUnicodeEntities(str) {
+			return angular.element('<textarea />').html(str).text();
+		}
+
+		// convert options which we have got from server.
+		function convertOptionsForSelect(options) {
+			if (!angular.isArray(options))
+				return [];
+			var result = [];
+			angular.element.each(options, function () {
+				var option = this;
+				if (option.value !== '...') {
+					option.text = parseHtmlUnicodeEntities(option.text);
+					option.value = option.value;
+					result.push(option);
+				}
+			});
+			return result;
+		}
+
+		// return promise
 		return $q(function (resolve) {
 			if (!angular.isObject(filter)) {
 				resolve(null);
@@ -1903,15 +1991,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 			if (!angular.isObject(filter.field) || !angular.isObject(filter.operator)) {
 				filter.existentValues = [];
+				filter.values = [];
 				filter.initialized = true;
 				resolve(filter);
 				return;
 			}
-
-			// parse unicode symbols util
-			var parseHtmlUnicodeEntities = function (str) {
-				return angularJq$('<textarea />').html(str).text();
-			};
 
 			// get constraint filters
 			var allFilters = getFilters();
@@ -1919,33 +2003,21 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			if (idx < 0) {
 				throw 'Filter ' + (filter.field !== null ? filter.field.sysname : '') + ' isn\'t found in report set filters collection.';
 			}
-			var constraintFilters = allFilters.slice(0, idx);
-
-			// convert options which we have got from server.
-			var convertOptionsForSelect = function (options) {
-				if (!angular.isArray(options))
-					return [];
-					var result = [];
-				angularJq$.each(options, function () {
-						var option = this;
-						if (option.value !== '...') {
-							option.text = parseHtmlUnicodeEntities(option.text);
-							option.value = option.value;
-							result.push(option);
-						}
-					});
-				return result;
-			};
+			// Add constraint filters if filter logic wasn't applyed
+			var constraintFilters = [];
+			if (!reportSet.filterOptions.filterLogic) {
+				constraintFilters = allFilters.slice(0, idx);
+			}
 
 			// load existent values
 			var operatorType = getFieldFilterOperatorValueType(filter.operator);
-			if (operatorType === 'select' || operatorType === 'Equals_Autocomplete' || operatorType === 'select_multiple'
-				|| operatorType === 'select_popup' || operatorType === 'select_checkboxes') {
-				$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true).then(function (data) {
-					filter.existentValues = convertOptionsForSelect(data[0].options);
-					filter.initialized = true;
-					resolve(filter);
-				});
+			if (['select', 'Equals_Autocomplete', 'select_multiple', 'select_popup', 'select_checkboxes'].indexOf(operatorType) >= 0) {
+				$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true, reportSet.filterOptions.filterLogic)
+					.then(function (data) {
+						filter.existentValues = convertOptionsForSelect(data[0].options);
+						filter.initialized = true;
+						resolve(filter);
+					});
 			} else if (operatorType === 'inTimePeriod') {
 				$izendaInstantReportQuery.getPeriodList().then(function(data) {
 					filter.existentValues = convertOptionsForSelect(data[0].options);
@@ -1961,10 +2033,36 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * Set filter existing values when filterLogic
+	 */
+	var refreshFiltersForFilterLogic = function () {
+		return $q(function (resolve) {
+			if (!reportSet.filterOptions.filterLogic) {
+				resolve();
+				return;
+			}
+			var allFilters = getFilters();
+			var promises = [];
+			angular.element.each(allFilters, function () {
+				var filter = this;
+				var promise = updateFieldFilterExistentValues(filter);
+				promises.push(promise);
+			});
+			$q.all(promises).then(function () {
+				resolve();
+			});
+		});
+	};
+
+	/**
 	 * Refresh next filter values.
 	 */
 	var refreshNextFiltersCascading = function (filter) {
 		return $q(function (resolve) {
+			if (reportSet.filterOptions.filterLogic) {
+				resolve();
+				return;
+			}
 			var allFilters = getFilters();
 			var idx;
 			var filtersToRefresh;
@@ -1978,13 +2076,18 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				filtersToRefresh = allFilters.slice(0);
 			}
 
+			// cascading filters update
 			if (filtersToRefresh.length > 0) {
 				var refreshingFilter = filtersToRefresh[0];
-				updateFieldFilterExistentValues(refreshingFilter).then(function () {
+				updateFieldFilterExistentValues(refreshingFilter).then(function() {
 					refreshNextFiltersCascading(refreshingFilter).then(function () {
+						// we don't need to call markAllFiltersAsRefreshing(false); here, because the last time when that function
+						// will be called - it will go through the "else" condition.
 						resolve();
 					});
 				});
+			} else {
+				resolve();
 			}
 		});
 	}
@@ -2082,10 +2185,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 		// find filters to remove
 		var filtersToRemove = [];
-		angularJq$.each(filters, function () {
+		angular.element.each(filters, function () {
 			var filter = this;
 			var isFilterActive = false;
-			angularJq$.each(aFields, function () {
+			angular.element.each(aFields, function () {
 				var activeField = this;
 				if (filter.field === null || activeField.sysname === filter.field.sysname) {
 					isFilterActive = true;
@@ -2096,7 +2199,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 
 		// remove filters
-		angularJq$.each(filtersToRemove, function () {
+		angular.element.each(filtersToRemove, function () {
 			removeFilter(this);
 		});
 	};
@@ -2270,7 +2373,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Fires when user check/uncheck field
 	 */
-	var applyFieldChecked = function (field, value) {
+	var applyFieldChecked = function (field, value, restrictTableUncheck) {
 		return $q(function (resolve) {
 			if (!field.enabled) {
 				validateReport();
@@ -2281,7 +2384,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			field.order = getNextOrder();
 
 			// update state of datasources tree
-			updateParentFoldersAndTables(field);
+			updateParentFoldersAndTables(field, false, restrictTableUncheck);
 
 			initializeField(field).then(function () {
 				updateUiStateAndRefreshPreview();
@@ -2294,6 +2397,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Select/unselect field
 	 */
 	var applyFieldSelected = function (field, value) {
+		if (!angular.isObject(field)) {
+			unselectAllFields();
+			setCurrentActiveField(null);
+			return;
+		}
 		if (!field.enabled)
 			return;
 		if (field.isMultipleColumns) {
@@ -2334,31 +2442,35 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Add more than one same field to report
 	 */
 	var addAnotherField = function (field, needToSelect) {
-		field.isMultipleColumns = true;
-		if (field.multipleColumns.length === 0) {
-			field.multipleColumnsCounter = 1;
-			var copyField = angular.copy(field);
-			copyField.isMultipleColumns = false;
-			copyField.multipleColumns = [];
-			field.multipleColumns.push(copyField);
+		var parentField = field;
+		if (parentField.multipleColumns.length === 0) {
+			var copyField = parentField = angular.copy(field);
+			copyField.isMultipleColumns = true;
+			copyField.multipleColumnsCounter = 1;
+			copyField.multipleColumns.push(field);
+			// set copy field instead of original field.
+			var table = getTableById(field.parentId);
+			var fieldIndex = table.fields.indexOf(field);
+			table.fields[fieldIndex] = copyField;
+
 			if (needToSelect) {
 				unselectAllFields();
-				copyField.selected = true;
-				setCurrentActiveField(copyField);
+				field.selected = true;
+				setCurrentActiveField(field);
 			}
 		}
 
-		// add another field
-		var anotherField = createFieldObject(field.name + (field.multipleColumnsCounter++), field.parentId, field.tableSysname, field.tableName,
-			field.sysname, field.typeGroup, field.type, field.sqlType);
+		// add another field to parentField
+		var anotherField = createFieldObject(parentField.name + (parentField.multipleColumnsCounter++), parentField.parentId, parentField.tableSysname, parentField.tableName,
+			parentField.sysname, parentField.typeGroup, parentField.type, parentField.sqlType);
 		anotherField.order = getNextOrder();
-		anotherField.parentFieldId = field.id;
+		anotherField.parentFieldId = parentField.id;
 
 		initializeField(anotherField).then(function () {
 			applyAutoGroups();
 		});
+		parentField.multipleColumns.push(anotherField);
 
-		field.multipleColumns.push(anotherField);
 		return anotherField;
 	};
 
@@ -2518,54 +2630,65 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					}
 				}
 
-				// convert fields
-				var addedFieldSysNames = [];
-				angular.element.each(reportSet.activeFields, function () {
-					var activeField = this;
-					var sysname = activeField.sysname;
-					var field = getFieldBySysName(sysname, true);
-					if (!angular.isObject(field))
-						$log.error('Field ' + sysname + ' not found in datasources');
-
-					var isFieldMultiple = addedFieldSysNames.indexOf(sysname) >= 0;
-					if (!isFieldMultiple) {
-						loadReportField(field, activeField);
-						field.checked = true;
-						updateParentFoldersAndTables(field, true);
-						addedFieldSysNames.push(sysname);
-					} else {
-						var anotherField = addAnotherField(field);
-						loadReportField(anotherField, activeField);
-						anotherField.checked = true;
-					}
+				var lazyPromises = [];
+				angular.element.each(reportSet.joinedTables, function() {
+					var tableObj = this;
+					var table = getTableBySysname(tableObj.sysname);
+					var loadFieldPromise = loadLazyFields(table);
+					lazyPromises.push(loadFieldPromise);
 				});
 
-				// initialization promises
-				var promises = [];
+				// wait until table fields will be loaded:
+				$q.all(lazyPromises).then(function() {
+					// convert fields
+					var addedFieldSysNames = [];
+					angular.element.each(reportSet.activeFields, function () {
+						var activeField = this;
+						var sysname = activeField.sysname;
+						var field = getFieldBySysName(sysname, true);
+						if (!angular.isObject(field))
+							$log.error('Field ' + sysname + ' not found in datasources');
 
-				// pivots initialization
-				if (angular.isObject(reportSet.pivot)) {
-					var pivotData = reportSet.pivot;
-					promises.push($izendaInstantReportPivots.loadPivotData(pivotData));
-					reportSet.pivot = null;
-				}
+						var isFieldMultiple = addedFieldSysNames.indexOf(sysname) >= 0;
+						if (!isFieldMultiple) {
+							loadReportField(field, activeField);
+							field.checked = true;
+							updateParentFoldersAndTables(field, true);
+							addedFieldSysNames.push(sysname);
+						} else {
+							var anotherField = addAnotherField(field);
+							loadReportField(anotherField, activeField);
+							anotherField.checked = true;
+						}
+					});
 
-				// convert filters
-				promises.push(loadFilters());
+					// initialization promises
+					var promises = [];
 
-				// load schedule data for config
-				var scheduleConfigData = angular.extend({}, reportSetConfig.schedule);
-				promises.push($izendaScheduleService.loadScheduleData(scheduleConfigData));
+					// pivots initialization
+					if (angular.isObject(reportSet.pivot)) {
+						var pivotData = reportSet.pivot;
+						promises.push($izendaInstantReportPivots.loadPivotData(pivotData));
+						reportSet.pivot = null;
+					}
 
-				// load share data for config
-				var shareConfig = angular.extend([], reportSetConfig.share);
-				promises.push($izendaShareService.loadShareData(shareConfig));
+					// convert filters
+					promises.push(loadFilters());
 
-				// wait for all preparations completion
-				$q.all(promises).then(function () {
-					validateFilters();
-					$log.debug('loadReport end');
-					resolve(true, true);
+					// load schedule data for config
+					var scheduleConfigData = angular.extend({}, reportSetConfig.schedule);
+					promises.push($izendaScheduleService.loadScheduleData(scheduleConfigData));
+
+					// load share data for config
+					var shareConfig = angular.extend([], reportSetConfig.share);
+					promises.push($izendaShareService.loadShareData(shareConfig));
+
+					// wait for all preparations completion
+					$q.all(promises).then(function () {
+						validateFilters();
+						$log.debug('loadReport end');
+						resolve(true, true);
+					});
 				});
 			});
 		});
@@ -2795,6 +2918,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 		getCategoryById: getCategoryById,
 		getTableById: getTableById,
+		getTableBySysname: getTableBySysname,
 		getActiveTables: getActiveTables,
 		getAllFieldsInActiveTables: getAllFieldsInActiveTables,
 		getAllActiveFields: getAllActiveFields,
@@ -2805,9 +2929,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		getFilters: getFilters,
 		getFilterOptions: getFilterOptions,
 
+		loadLazyFields: loadLazyFields,
 		updateParentFoldersAndTables: updateParentFoldersAndTables,
 		unselectAllFields: unselectAllFields,
-		filterDataSources: filterDataSources,
+		searchInDataDources: searchInDataDources,
 		getFieldById: getFieldById,
 		getOptions: getOptions,
 		getDrillDownFields: getDrillDownFields,
@@ -2860,6 +2985,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		updateFieldFilterExistentValues: updateFieldFilterExistentValues,
 		getFieldFilterOperatorValueType: getFieldFilterOperatorValueType,
 		refreshNextFiltersCascading: refreshNextFiltersCascading,
+		refreshFiltersForFilterLogic: refreshFiltersForFilterLogic,
 		setFilterOperator: setFilterOperator,
 		loadFilterFormats: loadFilterFormats,
 		getPreviewSplashVisible: getPreviewSplashVisible,

@@ -193,21 +193,25 @@
             </div>
           </div>
 
-          <!-- show advanced properties button -->
-          <div class="row">
-            <div class="col-xs-12">
-              <button class="btn"
-                      ng-click="fieldOptionsController.expanded = !fieldOptionsController.expanded"
-                      ng-bind="fieldOptionsController.expanded ? $izendaLocale.localeText('js_HideAdvancedFieldProperties', 'Hide advanced field properties') : $izendaLocale.localeText('js_ShowAdvancedFieldProperties', 'Show advanced field properties')"
-                      ng-class="!fieldOptionsController.expanded ? 'btn-default' : 'btn-izenda-dark'"></button>
-            </div>
-          </div>
-
           <!-- advanced field properties -->
           <div class="row" ng-show="fieldOptionsController.expanded">
             <div class="col-xs-12">
               <hr />
             </div>
+          </div>
+
+          <!-- show advanced properties button -->
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="ds-tree-item noselect">
+                <div class="ds-tree-item-header"
+                     ng-click="fieldOptionsController.expanded = !fieldOptionsController.expanded">
+                  <span class="glyphicon glyphicon-chevron-right with-label"
+                        ng-class="fieldOptionsController.expanded ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
+                  <span class="ds-tree-item-header-text bold"
+                        ng-bind="fieldOptionsController.expanded ? $izendaLocale.localeText('js_HideAdvancedFieldProperties', 'Hide advanced field properties') : $izendaLocale.localeText('js_ShowAdvancedFieldProperties', 'Show advanced field properties')"></span>
+                </div>
+              </div>
           </div>
 
           <div class="row" ng-show="fieldOptionsController.expanded">

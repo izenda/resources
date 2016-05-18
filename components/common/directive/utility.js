@@ -2,6 +2,43 @@
  * Small utility directives
  */
 
+angular.module('izendaQuery').filter('izendaReplaceString', [function () {
+		return function (text, rules) {
+			if (!angular.isArray(rules))
+				return text;
+			var resultText = text;
+			if (!resultText)
+				return resultText;
+			angular.element.each(rules, function () {
+				if (!angular.isObject(this))
+					return;
+				resultText = resultText.replaceAll(this.from, this.to);
+			});
+			return resultText;
+		};
+	}
+]);
+
+/**
+ * Directive which runs handler on scroll end
+ */
+angular.module('izendaQuery').directive('scrollBottomAction', function() {
+	return {
+		restrict: 'A',
+		link: function ($scope, $element, attrs) {
+			var $parent = $element.parent();
+			$parent.on('scroll', function () {
+				var height = $element.height();
+				if (height === 0)
+					return;
+				if (height - $parent.height() - 100 < $parent.scrollTop()) {
+					$scope.$eval(attrs.scrollBottomAction);
+				}
+			});
+		}
+	};
+});
+
 angular.module('izendaQuery').directive('bindOnce', function () {
 	return {
 		scope: true,
@@ -25,6 +62,9 @@ angular.module('izendaQuery').directive('bindOnce', function () {
 	}
 });
 
+/**
+ * Click stop propagation directive.
+ */
 angular.module('izendaCommonControls').directive('izendaStopPropagation', [
 	function() {
 		return {
