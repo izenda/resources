@@ -10,8 +10,8 @@ angular.module('izendaInstantReport').controller('InstantReportFormatController'
 			'$log',
 			'$izendaLocale',
 			'$izendaCompatibility',
-			'$izendaInstantReportSettings',
 			'$izendaInstantReportStorage',
+			'$izendaInstantReportSettings',
 			InstantReportFormatController
 ]);
 
@@ -24,8 +24,8 @@ function InstantReportFormatController(
 			$log,
 			$izendaLocale,
 			$izendaCompatibility,
-			$izendaInstantReportSettings,
-			$izendaInstantReportStorage) {
+			$izendaInstantReportStorage,
+			$izendaInstantReportSettings) {
 	'use strict';
 	$scope.$izendaCompatibility = $izendaCompatibility;
 	var vm = this;
@@ -44,15 +44,16 @@ function InstantReportFormatController(
 		}
 	};
 
-	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	vm.options = $izendaInstantReportStorage.getOptions();
 	vm.vgStyles = [];
 	vm.allActiveFields = [];
 	vm.drillDownFields = $izendaInstantReportStorage.getDrillDownFields();
 	vm.selectedDrilldownField = null;
-	vm.ddkValuesMaxAmount = 2;
-	vm.allowVirtualDataSources = false;
+
+	vm.settings = $izendaInstantReportSettings;
+	vm.ddkValuesMaxAmount = vm.settings.ddkValuesMaxAmount;
+	vm.allowVirtualDataSources = vm.settings.allowVirtualDataSources;
 
 	/**
 	 * Restore default color settings.
@@ -135,14 +136,6 @@ function InstantReportFormatController(
 
 		$scope.$watchCollection('$izendaInstantReportStorage.getActiveTables()', function () {
 			vm.syncAvailableCollection();
-		});
-
-		$scope.$watch('$izendaInstantReportSettings.getSettings()', function (settings) {
-			vm.settings = settings;
-			if (!angular.isObject(vm.settings))
-				return;
-			vm.ddkValuesMaxAmount = settings.ddkValuesMaxAmount;
-			vm.allowVirtualDataSources = settings.allowVirtualDataSources;
 		});
 	};
 }

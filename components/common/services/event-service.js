@@ -2,7 +2,7 @@
  * Background image/color storage service
  */
 angular
-	.module('izendaQuery')
+	.module('izenda.common.query')
 	.service('$izendaEvent', ['$rootScope', '$log', function ($rootScope, $log) {
 		'use strict';
 

@@ -493,153 +493,115 @@ var izendaFormatStringConverter;
 	};
 })(izendaFormatStringConverter || (izendaFormatStringConverter = {}));
 
-angular.module('izendaQuery').factory('$izendaSettings', [
-'$log',
-'$q',
-'$izendaRsQuery',
-'$izendaLocale',
-function ($log, $q, $izendaRsQuery, $izendaLocale) {
-	'use strict';
+angular.module('izenda.common.query').factory('$izendaSettings', [
+	'$log',
+	'$q',
+	'$izendaRsQuery',
+	'$izendaLocale',
+	'$izendaCommonSettings',
+	function ($log, $q, $izendaRsQuery, $izendaLocale, $izendaCommonSettings) {
+		'use strict';
 
-	var dashboardSettingsCached = {};
+		var settings = $izendaCommonSettings;
+		
+		var defaultDateFormat = {
+			longDate: 'dddd, MMMM DD, YYYY',
+			longTime: 'h:mm:ss A',
+			shortDate: 'M/D/YYYY',
+			shortTime: 'h:mm A',
+			timeFormatForInnerIzendaProcessing: 'HH:mm:ss', // this time format used in method DateLocToUs for saving filters.
+			showTimeInFilterPickers: false
+		};
 
-	var defaultDateFormat = {
-		longDate: 'dddd, MMMM DD, YYYY',
-		longTime: 'h:mm:ss A',
-		shortDate: 'M/D/YYYY',
-		shortTime: 'h:mm A',
-		timeFormatForInnerIzendaProcessing: 'HH:mm:ss', // this time format used in method DateLocToUs for saving filters.
-		showTimeInFilterPickers: false
-	};
+		// default format culture "en-US" (momentjs format string)
+		var dateFormat = angular.extend({}, defaultDateFormat);
+		var culture = 'en';
+		var bulkCsv = false;
+		var categoryCharacter = '\\';
 
-	// default format culture "en-US" (momentjs format string)
-	var dateFormat = angular.extend({}, defaultDateFormat);
-	var culture = 'en';
+		/**
+		 * Default date formats
+		 * @returns {object} 
+		 */
+		var getDefaultDateFormat = function () {
+			return defaultDateFormat;
+		};
 
-	/**
-	 * Default date formats
-	 * @returns {object} 
-	 */
-	var getDefaultDateFormat = function() {
-		return defaultDateFormat;
-	};
+		/**
+		 * Convert .net date time format string to momentjs format string.
+		 * @param {string} .net format string
+		 * @returns {string} momentjs format string
+		 */
+		var convertDotNetTimeFormatToMoment = function (format) {
+			return izendaFormatStringConverter.convert(format, izendaFormatStringConverter.dotNet, izendaFormatStringConverter.momentJs);
+		};
+		
+		/**
+		* Get common settings
+		*/
+		var getCommonSettings = function () {
+			return settings;
+		};
 
-	/**
-	 * Convert .net date time format string to momentjs format string.
-	 * @param {string} .net format string
-	 * @returns {string} momentjs format string
-	 */
-	var convertDotNetTimeFormatToMoment = function (format) {
-		return izendaFormatStringConverter.convert(format, izendaFormatStringConverter.dotNet, izendaFormatStringConverter.momentJs);
-	};
+		/**
+		 * Get date format.
+		 */
+		var getDateFormat = function () {
+			return dateFormat;
+		};
 
-	/**
-	* Get all dashboard settings
-	*/
-	var getDashboardSettings = function () {
-		return $izendaRsQuery.query('getDashboardSettings', [], {
-			dataType: 'json'
-		},
-			// custom error handler:
-			{
-				handler: function () {
-					return $izendaLocale.localeText('js_DashboardSettingsError', 'Failed to get Dashboard settings');
-				},
-				params: []
-			});
-	};
+		/**
+		 * Get current page culture.
+		 */
+		var getCulture = function () {
+			return culture;
+		};
 
-	/**
-	* Get common settings
-	*/
-	var getCommonSettings = function () {
-		return $q(function (resolve) {
-			$izendaRsQuery.query('getCommonSettings', [], {
-				dataType: 'json',
-				cache: true
-			},
-			// custom error handler:
-			{
-				handler: function () {
-					return 'Failed to get settings';
-				},
-				params: []
-			}).then(function (settings) {
-				resolve(settings);
-			});
-		});
-	};
+		/**
+		 * Get "bulk csv" CSV export mode enabled.
+		 */
+		var getBulkCsv = function () {
+			return bulkCsv;
+		}
 
-	/**
-	 * Load date format
-	 */
-	var loadSettings = function () {
-		getCommonSettings().then(function (settings) {
-			dateFormat.longDate = convertDotNetTimeFormatToMoment(settings.dateFormatLong);
-			dateFormat.longTime = convertDotNetTimeFormatToMoment(settings.timeFormatLong);
-			dateFormat.shortDate = convertDotNetTimeFormatToMoment(settings.dateFormatShort);
-			dateFormat.shortTime = convertDotNetTimeFormatToMoment(settings.timeFormatShort);
-			dateFormat.showTimeInFilterPickers = settings.showTimeInFilterPickers;
-			dateFormat.defaultFilterDateFormat = dateFormat.shortDate + (settings.showTimeInFilterPickers ? ' ' + dateFormat.longTime : '');
-			culture = settings.culture;
+		var getCategoryCharacter = function () {
+			return categoryCharacter;
+		}
+
+		/**
+		 * Get raw settings object ($izendaCommonSettings) and initialize service settings objects
+		 * Runs when service starts.
+		 */
+		function initialize() {
+			dateFormat.longDate = convertDotNetTimeFormatToMoment($izendaCommonSettings.dateFormatLong);
+			dateFormat.longTime = convertDotNetTimeFormatToMoment($izendaCommonSettings.timeFormatLong);
+			dateFormat.shortDate = convertDotNetTimeFormatToMoment($izendaCommonSettings.dateFormatShort);
+			dateFormat.shortTime = convertDotNetTimeFormatToMoment($izendaCommonSettings.timeFormatShort);
+			dateFormat.showTimeInFilterPickers = $izendaCommonSettings.showTimeInFilterPickers;
+			dateFormat.defaultFilterDateFormat = dateFormat.shortDate + ($izendaCommonSettings.showTimeInFilterPickers ? ' ' + dateFormat.longTime : '');
+
+			culture = $izendaCommonSettings.culture;
 			if (culture.indexOf('-') > 0)
 				culture = culture.substring(0, culture.indexOf('-'));
-		});
+
+			if (typeof $izendaCommonSettings.bulkCsv != 'undefined')
+				bulkCsv = $izendaCommonSettings.bulkCsv;
+			if (typeof $izendaCommonSettings.categoryCharacter != 'undefined')
+				categoryCharacter = $izendaCommonSettings.categoryCharacter;
+
+			$log.debug('Common settings initialized');
+		};
+
+		initialize();
+
+		// public API
+		return {
+			getDefaultDateFormat: getDefaultDateFormat,
+			getCommonSettings: getCommonSettings,
+			getDateFormat: getDateFormat,
+			getCulture: getCulture,
+			getBulkCsv: getBulkCsv,
+			getCategoryCharacter: getCategoryCharacter
+		};
 	}
-
-	/**
-	 * Get date format
-	 */
-	var getDateFormat = function () {
-		return dateFormat;
-	};
-
-	var getCulture = function () {
-		return culture;
-	};
-
-	/**
-	 * Get dashboard setting from server or cache
-	 */
-	var getDashboardSetting = function (name) {
-		var defer = $q.defer();
-		if (!(name in dashboardSettingsCached)) {
-			getDashboardSettings().then(function (data) {
-				dashboardSettingsCached = data;
-				defer.resolve(dashboardSettingsCached[name]);
-			});
-		} else {
-			// get cached value
-			defer.resolve(dashboardSettingsCached[name]);
-		}
-		return defer.promise;
-	};
-
-	/**
-	* Get AdHocSettings.PrintMode value (value will be cached)
-	*/
-	var getPrintMode = function () {
-		var printMode = getDashboardSetting('allowedPrintEngine');
-		return printMode;
-	};
-
-	/**
-	* get dashboards is allowed
-	*/
-	var getDashboardAllowed = function () {
-		var dashboardsAllowed = getDashboardSetting('dashboardsAllowed');
-		return dashboardsAllowed;
-	};
-
-	loadSettings();
-
-	return {
-		getDefaultDateFormat: getDefaultDateFormat,
-		getPrintMode: getPrintMode,
-		getDashboardAllowed: getDashboardAllowed,
-		getCommonSettings: getCommonSettings,
-		getDateFormat: getDateFormat,
-		getCulture: getCulture
-	};
-}
 ]);

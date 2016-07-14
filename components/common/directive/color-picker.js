@@ -9,7 +9,7 @@
 	var izendaColorPickerTemplate = '<input class="minicolors form-control" ng-class="additionalClass"></input>';
 
 	// definition
-	angular.module('izendaCommonControls').directive('izendaColorPicker', [function () {
+	angular.module('izenda.common.ui').directive('izendaColorPicker', [function () {
 		return {
 			restrict: 'A',
 			scope: {

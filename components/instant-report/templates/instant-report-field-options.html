@@ -256,7 +256,8 @@
                   <div class="col-md-4">
                     <select class="form-control" id="izInstFieldSubreport"
                             ng-options="subreport.value as subreport.text for subreport in fieldOptionsController.subreports"
-                            ng-model="fieldOptionsController.field.subreport"></select>
+                            ng-model="fieldOptionsController.field.subreport"
+                            ng-change="fieldOptionsController.subreportSelectedHandler()"></select>
                   </div>
                 </div>
                 <div class="row default-bottom-margin">
@@ -267,7 +268,7 @@
                   </div>
                   <div class="col-md-4">
                     <select class="form-control" id="izInstFieldDdStyle"
-                            ng-options="ddStyle.value as ddStyle.text for ddStyle in fieldOptionsController.drillDownStyles"
+                            ng-options="ddStyle.value as ddStyle.text disable when ddStyle.disabled for ddStyle in fieldOptionsController.drillDownStyles"
                             ng-model="fieldOptionsController.field.drillDownStyle"
                             ng-disabled="fieldOptionsController.field.subreport === ''"></select>
                   </div>

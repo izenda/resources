@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 
-<div ng-app="izendaInstantReport" class="iz-inst-root"
+<div id="izendaInstantReportRootContainer" class="iz-inst-root"
   ng-controller="InstantReportController as irController"
   ng-init="irController.init()"
   ng-cloak>

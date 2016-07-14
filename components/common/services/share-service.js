@@ -1,7 +1,10 @@
 ﻿/**
  * Service used for store data in share control
  */
-angular.module('izenda.common.ui').factory('$izendaShareService', ['$injector', '$q', '$izendaCommonQuery',
+angular.module('izenda.common.ui').factory('$izendaShareService', [
+	'$injector',
+	'$q',
+	'$izendaCommonQuery',
 	function ($injector, $q, $izendaCommonQuery) {
 		'use strict';
 

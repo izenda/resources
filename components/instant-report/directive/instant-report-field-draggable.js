@@ -12,7 +12,10 @@
 			return {
 				restrict: 'A',
 				link: function (scope, elem, attrs) {
+					var handle = attrs.draggableHandle || false;
+
 					angular.element(elem).draggable({
+						handle: handle,
 						start: function () {
 							$rootScope.isDraggingNow = true;
 							$rootScope.$applyAsync();
@@ -34,6 +37,7 @@
 						},
 						cursorAt: { left: -10, top: -10 },
 						appendTo: 'body',
+						distance: 10,
 						cursor: 'move',
 						zIndex: 9999
 					});

@@ -10,16 +10,15 @@ angular
 		'$timeout',
 		'$q',
 		'$log',
-		'$modal',
 		'$izendaUrl',
 		'$izendaLocale',
 		'$izendaCompatibility',
-		'$izendaInstantReportSettings',
 		'$izendaInstantReportStorage',
 		'$izendaInstantReportPivots',
 		'$izendaScheduleService',
 		'$izendaShareService',
 		'$izendaInstantReportValidation',
+		'$izendaInstantReportSettings',
 		InstantReportController]);
 
 function InstantReportController(
@@ -29,22 +28,20 @@ function InstantReportController(
 		$timeout,
 		$q,
 		$log,
-		$modal,
 		$izendaUrl,
 		$izendaLocale,
 		$izendaCompatibility,
-		$izendaInstantReportSettings,
 		$izendaInstantReportStorage,
 		$izendaInstantReportPivots,
 		$izendaScheduleService,
 		$izendaShareService,
-		$izendaInstantReportValidation) {
+		$izendaInstantReportValidation,
+		$izendaInstantReportSettings) {
 	'use strict';
 	var vm = this;
 	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaInstantReportPivots = $izendaInstantReportPivots;
-	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
 	$scope.$izendaInstantReportValidation = $izendaInstantReportValidation;
 	$scope.$izendaUrl = $izendaUrl;
 
@@ -67,7 +64,7 @@ function InstantReportController(
 	vm.top = $izendaInstantReportStorage.getOptions().top;
 	vm.previewTop = $izendaInstantReportStorage.getOptions().previewTop;
 	vm.activeFields = $izendaInstantReportStorage.getAllActiveFields();
-	vm.settings = $izendaInstantReportSettings.getSettings();
+	vm.settings = $izendaInstantReportSettings;
 	vm.reportInfo = null;
 	vm.isExistingReport = false;
 
@@ -155,6 +152,16 @@ function InstantReportController(
 	 */
 	vm.toggleLeftPanel = function () {
 		vm.leftPanel.opened = !vm.leftPanel.opened;
+	};
+
+	/**
+	 * Get toggle left panel button title
+	 */
+	vm.getToggleButtonTitle = function () {
+		if (vm.leftPanel.opened)
+			return $izendaLocale.localeText('js_HideLeftPanel', 'Hide left panel');
+		else
+			return $izendaLocale.localeText('js_ShowLeftPanel', 'Show left panel');
 	};
 
 	/**
@@ -360,7 +367,7 @@ function InstantReportController(
 			var errorMessage = null;
 			if (angular.isString(result)) {
 				if (result === 'OK') {
-					$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeTextWithParams('js_ReportSaved', 'Report "{0}" sucessfully saved.', [rsReportName])]);
+					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeTextWithParams('js_ReportSaved', 'Report "{0}" sucessfully saved.', [rsReportName])]);
 				} else {
 					errorMessage = $izendaLocale.localeTextWithParams(
 						'js_FailedSaveReport',
@@ -591,10 +598,6 @@ function InstantReportController(
 
 		$scope.$watch('$izendaInstantReportStorage.getPreviewSplashVisible()', function (visible) {
 			vm.reportLoadingIndicatorIsVisible = visible;
-		});
-
-		$scope.$watch('$izendaInstantReportSettings.getSettings()', function (settings) {
-			vm.settings = settings;
 		});
 
 		// listen for validation state change.

@@ -415,6 +415,10 @@ a.collapse-link {
 	padding-bottom: 50px;
 }
 
+.ds-tree-item-distinct {
+	padding: 4px 4px 0 4px;
+}
+
 .ds-tree-item {
 }
 
@@ -968,6 +972,7 @@ a.collapse-link {
 	background-color: #4274AF;
 	color: #fff;
 	border-bottom: 1px solid #ccc;
+	cursor: move;
 }
 
 	.iz-inst-small-panel-header.not-valid {

@@ -105,7 +105,7 @@
 	}
 
 	// report viewer directive
-	angular.module('izendaCommonControls').directive('izendaReportViewer', [
+	angular.module('izenda.common.ui').directive('izendaReportViewer', [
 		'$rootScope', '$timeout', '$izendaLocale',
 		function ($rootScope, $timeout, $izendaLocale) {
 			return {
@@ -588,6 +588,9 @@
 						addDragHandlers();
 						addClickHandler();
 						addColRemoveButtons();
+
+						if (!angular.isUndefined(ReportScripting))
+							ReportScripting.registerPostRenderHandlers();
 					};
 
 					/**

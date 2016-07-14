@@ -43,7 +43,7 @@
 
   // definition
   angular
-    .module('izendaCommonControls')
+    .module('izenda.common.ui')
     .directive('izendaSwitcher', [
       izendaSwitcher
     ]);

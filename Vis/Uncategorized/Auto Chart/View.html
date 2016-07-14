@@ -1446,7 +1446,7 @@
 					yAxis: i,
 					y: val,
 					data: data,
-					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: 0, max: yAxisMaxs[index], value: val, factor: single ? 0.7 : 0.15 }) : pc,
+					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: yAxisMins[index], max: yAxisMaxs[index], value: Math.abs(val), factor: single ? 0.7 : 0.15 }) : pc,
 					colorByPoint: false
 				});
 
@@ -1466,13 +1466,21 @@
 					data: data,
 					others: true,
 					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
-						min: 0,
+						min: yAxisMins[index],
 						max: yAxisMaxs[index],
 						value: sum,
 						factor: single ? 0.7 : 0.15
 					}) : pc,
 					colorByPoint: false
 				});
+			}
+
+			// Workaround for zero values with "minPointLength" option in case of column and bar charts.
+			if (type == 'column' || type == 'bar') {
+				for (var i = items.length - 1; i >= 0; --i) {
+					if (items[i].y == 0)
+						items[i].y = null;
+				}
 			}
 
 			return {
@@ -1651,13 +1659,13 @@
 						enabled: true
 					},
 					plotOptions: {
-						column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
 						line: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						spline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						scatter: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
 						funnel: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: true } },
 						pie: {
 							size: "75%",

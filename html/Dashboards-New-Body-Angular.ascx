@@ -1,6 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 
-<div id="izendaDashboardMainContainer" ng-app="izendaDashboard">
+<div id="izendaDashboardMainContainer">
   
   <!-- select report name and category dialog -->
   <div ng-include="'Resources/components/common/templates/select-report-name.html'"></div>

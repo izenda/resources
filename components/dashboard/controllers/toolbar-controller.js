@@ -19,6 +19,7 @@
 		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaDashboardState',
+		'$izendaDashboardSettings',
 		izendaToolbarController]);
 
 /**
@@ -42,7 +43,8 @@ function izendaToolbarController(
 	$izendaUrl,
 	$izendaEvent,
 	$izendaLocale,
-	$izendaDashboardState) {
+	$izendaDashboardState,
+	$izendaDashboardSettings) {
 
 	'use strict';
 
@@ -438,15 +440,25 @@ function izendaToolbarController(
 		if (!currentCategoryName) {
 			currentCategoryName = vm.dashboardConfig.defaultDashboardCategory;
 		}
+		// if we have no category and default category to load.
 		if (!currentCategoryName) {
-			currentCategoryName = '';
+			var uncategorized = angular.element.grep(vm.dashboardCategories, function (cat) {
+				return cat.name.toLowerCase() === UNCATEGORIZED.toLowerCase();
+			});
+			if (uncategorized.length > 0)
+				// if we have "uncategorized" dashboards - select it
+				currentCategoryName = uncategorized[0].name;
+			else
+				// if we have no "uncategorized" dashboards - select first category as default.
+				currentCategoryName = vm.dashboardCategories.length > 0 ? vm.dashboardCategories[0].name : '';
 		}
+
 		// calculate current dashboard name
 		var currentDashboardFullName = vm.reportInfo.fullName;
 		if (!currentDashboardFullName) {
 			currentDashboardFullName = vm.dashboardConfig.defaultDashboardName;
 			if (currentDashboardFullName && currentCategoryName !== '')
-				currentDashboardFullName = currentCategoryName + '\\' + currentDashboardFullName;
+				currentDashboardFullName = currentCategoryName + $izendaSettings.getCategoryCharacter() + currentDashboardFullName;
 		}
 
 		angular.element.each(vm.dashboardCategories, function () {
@@ -538,9 +550,9 @@ function izendaToolbarController(
 				$izendaDashboardToolbarQuery.sendReportViaEmail(vm.sendEmailState.sendType, vm.sendEmailState.email).then(function (result) {
 					vm.sendEmailState.opened = false;
 					if (result === 'OK') {
-						$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_EmailWasSent', 'Email  was sent')]);
+						$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_EmailWasSent', 'Email  was sent')]);
 					} else {
-						$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email')]);
+						$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email')]);
 					}
 					$scope.$applyAsync();
 				});
@@ -566,7 +578,7 @@ function izendaToolbarController(
 	vm.sendEmail = function (type) {
 		if (type === 'Link') {
 			if (vm.activeDashboard == null || !vm.activeDashboard.fullName) {
-				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard'), 'Error', 'danger']);
+				$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard'), 'Error', 'danger']);
 				return;
 			}
 			var redirectUrl = '?subject=' + encodeURIComponent(vm.activeDashboard.fullName) + '&body=' + encodeURIComponent(location);
@@ -683,7 +695,7 @@ function izendaToolbarController(
 					dashboardCategory = args[1];
 			var fullName = dashboardName;
 			if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
-				fullName = dashboardCategory + '\\' + dashboardName;
+				fullName = dashboardCategory + $izendaSettings.getCategoryCharacter() + dashboardName;
 			}
 			$izendaUrl.setReportFullName(fullName);
 			vm.hideButtonBar();
@@ -713,50 +725,47 @@ function izendaToolbarController(
    * Get adhocsettings
    */
 	vm.initializeAdHocSettings = function () {
-		$izendaSettings.getPrintMode().then(function (printModeString) {
-			vm.printMode = printModeString;
-			$scope.$applyAsync();
-		});
+		// common settings
+		var settings = $izendaSettings.getCommonSettings();
+		vm.isDesignLinksAllowed = settings.showDesignLinks;
 
-		$izendaSettings.getCommonSettings().then(function (settings) {
-			vm.isDesignLinksAllowed = settings.showDesignLinks;
-			$scope.$applyAsync();
-		});
+		// dashboard settings
+		vm.printMode = $izendaDashboardSettings.allowedPrintEngine;
+
+		$scope.$applyAsync();
 	};
 
 	/**
 	* Initialize dashboard navigation
 	*/
 	vm.initialize = function () {
-		$izendaSettings.getDashboardAllowed().then(function (allowed) {
-			vm.dashboardsAllowedByLicense = allowed;
-			if (allowed) {
-				vm.initializeAdHocSettings();
+		vm.dashboardsAllowedByLicense = $izendaDashboardSettings.dashboardsAllowed;
+		if (vm.dashboardsAllowedByLicense) {
+			vm.initializeAdHocSettings();
 
-				vm.initializeEventHandlers();
+			vm.initializeEventHandlers();
 
-				vm.updateDashboardBackgroundImage();
+			vm.updateDashboardBackgroundImage();
 
-				// load dashboard navigation
-				$izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
-					vm.dashboardNavigationLoaded(data);
-				});
+			// load dashboard navigation
+			$izendaDashboardToolbarQuery.loadDashboardNavigation().then(function (data) {
+				vm.dashboardNavigationLoaded(data);
+			});
 
-				// initialize color picker
-				vm.initializeColorPicker();
+			// initialize color picker
+			vm.initializeColorPicker();
 
-				// watch for window width chage
-				$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-					if (angular.isUndefined(newWidth))
-						return;
-					vm.updateToolbarItems();
-				});
+			// watch for window width chage
+			$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+				if (angular.isUndefined(newWidth))
+					return;
+				vm.updateToolbarItems();
+			});
 
-				// watch for location change
-				$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-					vm.dashboardLocationChangedHandler(reportInfo);
-				});
-			}
-		});
+			// watch for location change
+			$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+				vm.dashboardLocationChangedHandler(reportInfo);
+			});
+		}
 	};
 }

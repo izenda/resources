@@ -1,25 +1,25 @@
 ﻿angular
 	.module('izendaDashboard')
 	.constant('tileDefaults', {
-	id: null,
-	title: null,
-	description: null,
-	reportFullName: null,
-	reportPartName: null,
-	reportSetName: null,
-	reportName: null,
-	reportCategory: null,
-	reportNameWithCategory: null,
-	previousReportFullName: null,
-	isSourceReportDeleted: false,
-	designerType: 'ReportDesigner',
-	x: 0,
-	y: 0,
-	width: 1,
-	height: 1,
-	top: 100,
-	topString: '100'
-});
+		id: null,
+		title: null,
+		description: null,
+		reportFullName: null,
+		reportPartName: null,
+		reportSetName: null,
+		reportName: null,
+		reportCategory: null,
+		reportNameWithCategory: null,
+		previousReportFullName: null,
+		isSourceReportDeleted: false,
+		designerType: 'ReportDesigner',
+		x: 0,
+		y: 0,
+		width: 1,
+		height: 1,
+		top: 100,
+		topString: '100'
+	});
 
 angular
 	.module('izendaDashboard')
@@ -39,6 +39,7 @@ angular
 		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaDashboardState',
+		'$izendaDashboardSettings',
 		izendaTileController]);
 
 /**
@@ -59,9 +60,11 @@ function izendaTileController(
 	$izendaDashboardQuery,
 	$izendaEvent,
 	$izendaLocale,
-	$izendaDashboardState) {
+	$izendaDashboardState,
+	$izendaDashboardSettings) {
 
 	'use strict';
+
 	var _ = angular.element;
 
 	$scope.animationCompleted = false;
@@ -100,7 +103,7 @@ function izendaTileController(
 	vm.getConvertedReportCategory = function () {
 		if (!angular.isString(vm.reportCategory))
 			return null;
-		return vm.reportCategory.split('\\').join('/');
+		return vm.reportCategory;
 	};
 
 	/**
@@ -318,7 +321,7 @@ function izendaTileController(
 			var rpInfo = args[1];
 			var fName = rpInfo.Name;
 			if (rpInfo.Category != null && rpInfo.Category !== '' && rpInfo.Category.toLowerCase() !== UNCATEGORIZED.toLowerCase())
-				fName = rpInfo.Category + '\\' + fName;
+				fName = rpInfo.Category + $izendaSettings.getCategoryCharacter() + fName;
 
 			var nameparts = rpInfo.Name.split('@');
 			var name = nameparts[0];
@@ -334,7 +337,7 @@ function izendaTileController(
 			}
 
 			if (found) {
-				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSelectReportPart', 'Can\'t select report part because dashboard already contains tile with that report.')]);
+				$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSelectReportPart', 'Can\'t select report part because dashboard already contains tile with that report.')]);
 				return;
 			}
 
@@ -344,7 +347,7 @@ function izendaTileController(
 			vm.title = rpInfo.Title;
 			vm.reportNameWithCategory = vm.reportName;
 			if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase())
-				vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
+				vm.reportNameWithCategory = vm.reportCategory + $izendaSettings.getCategoryCharacter() + vm.reportNameWithCategory;
 			vm.top = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.endTop = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.flipFront(true, true);
@@ -360,7 +363,7 @@ function izendaTileController(
 		// set report name
 		vm.reportNameWithCategory = vm.reportName;
 		if (vm.reportCategory != null)
-			vm.reportNameWithCategory = vm.reportCategory + '\\' + vm.reportNameWithCategory;
+			vm.reportNameWithCategory = vm.reportCategory + $izendaSettings.getCategoryCharacter() + vm.reportNameWithCategory;
 
 		initializeAdHocSettings();
 
@@ -399,7 +402,7 @@ function izendaTileController(
 	vm.getSourceReportName = function () {
 		var result = vm.reportName;
 		if (vm.reportCategory && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
-			result = vm.reportCategory + '\\' + result;
+			result = vm.reportCategory + $izendaSettings.getCategoryCharacter() + result;
 		}
 		return result;
 	};
@@ -418,7 +421,7 @@ function izendaTileController(
 		if (!vm.isSourceReportDeleted) {
 			$window.open(vm.getReportViewerLink(), '_blank');
 		} else {
-			$rootScope.$broadcast('showNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+			$rootScope.$broadcast('izendaShowNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
 		}
 	};
 
@@ -439,7 +442,7 @@ function izendaTileController(
 		if (!vm.isSourceReportDeleted) {
 			$window.location.href = vm.getReportEditorLink();
 		} else {
-			$rootScope.$broadcast('showNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+			$rootScope.$broadcast('izendaShowNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
 		}
 	};
 
@@ -503,16 +506,15 @@ function izendaTileController(
 	* Get adhocsettings
 	*/
 	function initializeAdHocSettings() {
-		$izendaSettings.getPrintMode().then(function (printModeString) {
-			vm.printMode = printModeString;
-			$scope.$applyAsync();
-		});
+		// common settings
+		var settings = $izendaSettings.getCommonSettings();
+		vm.isDesignLinksAllowed = settings.showDesignLinks;
+		vm.showAllInResults = settings.showAllInResults;
 
-		$izendaSettings.getCommonSettings().then(function (settings) {
-			vm.isDesignLinksAllowed = settings.showDesignLinks;
-			vm.showAllInResults = settings.showAllInResults;
-			$scope.$applyAsync();
-		});
+		// dashboard settings
+		vm.printMode = $izendaDashboardSettings.allowedPrintEngine;
+
+		$scope.$applyAsync();
 	};
 
 	/**

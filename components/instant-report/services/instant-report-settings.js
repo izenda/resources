@@ -43,6 +43,7 @@ function ($izendaRsQuery) {
 
 	// public api
 	return {
+		getInstantReportSettings: getInstantReportSettings,
 		getSettings: getSettings
 	};
 }]);

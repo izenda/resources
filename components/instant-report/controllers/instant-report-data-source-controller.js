@@ -56,6 +56,7 @@ function InstantReportDataSourceController(
 	vm.searchResults = [];
 	var previousResultsCount = null;
 	vm.searchPanelOpened = false;
+	vm.options = $izendaInstantReportStorage.getOptions();
 
 	vm.columnSortPanelOpened = false;
 	vm.columnSortPanelButtonEnabled = false;
@@ -63,6 +64,28 @@ function InstantReportDataSourceController(
 	var searchState = {
 		timeoutId: null,
 		changing: false
+	};
+
+	var collapseState = {
+		started: false
+	};
+
+	/**
+	 * Collapse animation completed handler.
+	 */
+	vm.collapseCompleted = function (collapsed) {
+		collapseState.started = false;
+		$scope.$applyAsync();
+	};
+
+	/**
+	 * Toggle opened/collapsed state.
+	 */
+	vm.toggleItemCollapse = function (item) {
+		if (!collapseState.started) {
+			collapseState.started = true;
+			item.collapsed = !item.collapsed;
+		}
 	};
 
 	/**
@@ -234,6 +257,9 @@ function InstantReportDataSourceController(
 		}
 	};
 
+	/**
+	 * Check/uncheck field.
+	 */
 	vm.toggleFieldChecked = function (field) {
 		if (!field)
 			return;
@@ -251,16 +277,30 @@ function InstantReportDataSourceController(
 		});
 	};
 
+	vm.getFieldTooltip = function (field) {
+		if (!field.checked)
+			return $izendaLocale.localeText('js_ToggleReportField', 'Toggle report field');
+		else if (!field.selected)
+			return $izendaLocale.localeText('js_SelectReportField', 'Select report field');
+		else
+			return '';
+	}
+
 	/**
 	 * Check/uncheck field handler
 	 */
-	vm.checkField = function (field) {
+	vm.checkField = function (field, allowUncheck) {
 		if (field.isMultipleColumns) {
-			field.collapsed = !field.collapsed;
+			vm.toggleItemCollapse(field);
 			return;
 		}
-		if (!field.checked)
-			vm.selectField(field);
+
+		vm.selectField(field);
+
+		// exit if field checked but we not allowed to uncheck
+		if (field.checked && !allowUncheck)
+			return;
+
 		if (!$izendaCompatibility.isSmallResolution()) {
 			// check field occurs in selectField function
 			vm.toggleFieldChecked(field);
@@ -373,6 +413,13 @@ function InstantReportDataSourceController(
 			return this.searchString;
 		}), function () {
 			vm.searchInDataDources();
+		});
+
+		/**
+		 * Look for options change
+		 */
+		$scope.$watch('$izendaInstantReportStorage.getOptions()', function (options) {
+			vm.options = options;
 		});
 
 		/**

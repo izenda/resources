@@ -36,6 +36,7 @@
             <div class="iz-inst-small-panel"
                  draggable-data-id="{{$index}}"
                  draggable-enabled="true"
+                 draggable-handle=".iz-inst-small-panel-header"
                  izenda-instant-report-field-draggable
                  droppable-accept=".iz-inst-small-panel"
                  on-drop="filtersController.reorderFilters(arg0, $index)"
@@ -123,13 +124,13 @@
 
                     <!-- autocomplete -->
                     <span ng-switch-when="Equals_Autocomplete">
-                      <input type="text" name="autocomplete-filter" 
+                      <input type="text" name="autocomplete-filter"
                              class="iz-inst-filter-input" refresh="true"
                              autocomplete-items="filter.existentValues"
                              update-autocomplete-items="filtersController.updateAutoCompleteItems(filter, arg0)"
                              ng-change="filtersController.onCurrentValueChange(filter)"
                              ng-model="filter.values[0]"
-                             izenda-autocomplete/>
+                             izenda-autocomplete />
                     </span>
 
                     <!-- select -->
@@ -151,24 +152,35 @@
                     <!-- select multiple -->
                     <span ng-switch-when="select_multiple">
                       <select class="iz-inst-filter-input"
-                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
                               ng-model="filter.values" multiple
-                              ng-change="filtersController.onCurrentValueChange(filter)"></select>
+                              ng-change="filtersController.onCurrentValueChange(filter)">
+                        <option ng-repeat="existentValue in filter.existentValues" value="{{existentValue.value}}">{{existentValue.text}}</option>
+                      </select>
                     </span>
 
                     <!-- select popup -->
                     <span ng-switch-when="select_popup">
+
+                      <input ng-attr-id="{{'filterPopupValue' + $index}}" 
+                             type="hidden"
+                             izenda-on-popup-value-change="filtersController.onPopupValueChange(filter, newValue)"/>
+                      <input ng-attr-id="{{'filterPopupColumnIdValue' + $index}}" 
+                             ng-attr-value="{{filter.field.sysname}}" 
+                             type="hidden" />
                       <button class="btn btn-default" ng-bind="filtersController.getPopupBtnText(filter)"
                               data-toggle="modal" ng-attr-data-target="{{'#filterPopupModal' + $index}}"></button>
-                      <div ng-attr-id="{{'filterPopupModal' + $index}}" class="modal fade" tabindex="-1" role="dialog">
+                      <div ng-attr-id="{{'filterPopupModal' + $index}}" class="modal fade" tabindex="-1" role="dialog"
+                           name="filtersPopupModalDialog">
                         <div class="modal-dialog" role="document">
                           <div class="modal-content">
                             <div class="modal-header">
                               <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                               <h4 class="modal-title">&nbsp;</h4>
                             </div>
-                            <div class="modal-body">
-                              <div ng-repeat="existentValue in filter.existentValues" class="checkbox">
+                            <div class="modal-body" style="min-height: 500px;">
+                              <!-- default popup filter -->
+                              <div ng-repeat="existentValue in filter.existentValues" class="checkbox"
+                                   ng-if="!filter.customPopupTemplateUrl">
                                 <label>
                                   <input type="checkbox"
                                          ng-checked="filtersController.isValueChecked(filter.values, existentValue.value)"
@@ -176,8 +188,15 @@
                                   &nbsp;<span ng-bind="existentValue.text"></span>
                                 </label>
                               </div>
+                              <!-- popup filter with custom template -->
+                              <div ng-if="filter.customPopupTemplateUrl">
+                                <iframe ng-src="{{filter.customPopupTemplateUrl + '?valueeditid=filterPopupValue' + $index + '&columneditid=filterPopupColumnIdValue' + $index}}" 
+                                        name="CustomAspx" style="width: 100%; height: 100%;">
+                                </iframe>
+                              </div>
                             </div>
-                            <div class="modal-footer">
+                            <div class="modal-footer" 
+                                 ng-hide="filter.customPopupTemplateUrl !== null">
                               <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
                             </div>
                           </div>

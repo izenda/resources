@@ -86,6 +86,9 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		});
 	}
 
+	/**
+	 * Load field info by given sql column name.
+	 */
 	function getFieldsInfo(fieldSysName) {
 		return $izendaRsQuery.query('getfieldsinfo', [fieldSysName], {
 			dataType: 'json'
@@ -96,7 +99,10 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			params: [fieldSysName]
 		});
 	}
-
+	
+	/**
+	 * Search fields in datasources (returns range of values [from, to])
+	 */
 	function findInDatasources(searchString, from, to) {
 		var params = [searchString];
 		if (angular.isNumber(from) && angular.isNumber(to))
@@ -145,6 +151,9 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		}, true);
 	}
 
+	/**
+	 * Create report set from json and save it.
+	 */
 	function saveReportSet(reportSetConfig) {
 		var paramsString = JSON.stringify(reportSetConfig);
 		return $izendaRsQuery.query('saveReportSetFromJson', [paramsString], {
@@ -160,6 +169,9 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		});
 	}
 
+	/**
+	 * Create report set from json and set it as CurrentReportSet.
+	 */
 	function setReportAsCrs(reportSetConfig) {
 		var paramsString = JSON.stringify(reportSetConfig);
 		return $izendaRsQuery.query('setReportSetFromJsonToCrs', [paramsString], {
@@ -273,7 +285,26 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 				return 'Failed to get period list.';
 			},
 			params: []
-	});
+		});
+	};
+
+	function getExistentPopupValuesList(field, table) {
+		return $izendaRsQuery.rsQuery({
+			'cmd': 'GetOptionsByPath',
+			'p': 'ExistentPopupValuesList',
+			'columnName':field.sysname,
+			'tbl0':table.sysname,
+			'ta0': '',
+			'resultType': 'json'
+		}, {
+			dataType: 'json',
+			cache: true
+		}, {
+			handler: function () {
+				return 'Failed to get custom popups styles.';
+			},
+			params: []
+		});
 	};
 
 	function getDrillDownStyles() {
@@ -509,6 +540,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		getVgStyles: getVgStyles,
 		getExpressionTypes: getExpressionTypes,
 		getDrillDownStyles: getDrillDownStyles,
+		getExistentPopupValuesList: getExistentPopupValuesList,
 		getSubreports: getSubreports,
 		getFieldOperatorList: getFieldOperatorList,
 		getExistentValuesList: getExistentValuesList,

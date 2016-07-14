@@ -1,6 +1,7 @@
-﻿angular
-	.module('izendaCompatibility')
-	.factory('$izendaCompatibility', ['$window', '$log', function ($window, $log) {
+﻿angular.module('izenda.common.compatibility').factory('$izendaCompatibility', [
+	'$window',
+	'$log',
+	function ($window, $log) {
 		'use strict';
 		var currentRights;
 		var showSaveControls;
@@ -20,14 +21,14 @@
 		};
 
 		/**
-		 * Check is dashboard should have mobile view.
+		 * Check is page should have mobile view.
 		 */
 		var isMobile = function () {
 			return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 		};
 
 		/**
-		 * Check is dashboard window is too small to fit several columns of tiles.
+		 * Check is page window is too small to fit several columns of tiles.
 		 */
 		var isSmallResolution = function () {
 			return $window.innerWidth <= 991;

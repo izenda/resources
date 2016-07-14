@@ -181,14 +181,6 @@ var izenda = izenda || {};
 			setTransformOfAreaBullseye(lastRecord);
 		}
 
-		enter.append("g")
-			.attr("class", "izenda-vis-gauge-title")
-			.append("text")
-				.attr("x", self.titleX)
-				.attr("y", self.titleY)
-				.text(self.title)
-				.style("font-size", self.titleFontSize + "px");
-
 		var relativeBlock = enter.append("g");
 		var relativeBlockText = relativeBlock.append("text")
 			.attr("class", "izenda-vis-gauge-relative-value")
@@ -226,6 +218,34 @@ var izenda = izenda || {};
 			}
 		}
 		setRelativeValue(relativeValue);
+
+		var title = enter.append("g")
+			.attr("class", "izenda-vis-gauge-title")
+			.append("text")
+				.attr("x", self.titleX)
+				.attr("y", self.titleY)
+				.style({
+					"font-size": self.titleFontSize + "px",
+				});
+
+		title.append("title").text(self.title);
+
+		var titleTSpan = title.append("tspan");
+		var ellipsis = "…";
+		var currentTitle = self.title;
+		titleTSpan.text(currentTitle);
+		var tBBox = title.node().getBBox(),
+			rbBbox = relativeBlock.node().getBBox(),
+			currentTitleWidth = tBBox.width,
+			truncatedTitleWidth = rbBbox.x - tBBox.x - 10;
+		var newLength = currentTitle.length - 2;
+		while (currentTitleWidth > truncatedTitleWidth && newLength >= 0) {
+			currentTitle = currentTitle.substr(0, newLength);
+			currentTitle += ellipsis;
+			titleTSpan.text(currentTitle);
+			currentTitleWidth = title.node().getBBox().width;
+			newLength = currentTitle.length - 2;
+		}
 
 		var currentBlock = enter.append("g")
 			.attr("class", "izenda-vis-gauge-current-block");

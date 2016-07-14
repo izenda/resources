@@ -1,10 +1,11 @@
 ﻿/**
  * Requirements: 
- *   common/izendaCompatibility
- *   common/izendaQuery
+ *   izenda.common.compatibility
+ *   izenda.common.query
+ *   izenda.common.ui
  */
 
 angular.module('izendaReportViewer', [
-  'izendaCommonControls',
-  'izendaCompatibility',
-  'izendaQuery']);
+	'izenda.common.compatibility',
+	'izenda.common.query',
+	'izenda.common.ui']);

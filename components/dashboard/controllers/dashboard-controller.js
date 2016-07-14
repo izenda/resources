@@ -39,12 +39,13 @@ angular
 		'$izendaScheduleService',
 		'$izendaShareService',
 		'$izendaDashboardState',
-    izendaDashboardController]);
+		'$izendaDashboardSettings',
+    IzendaDashboardController]);
 
 /**
    * Dashboard controller
    */
-function izendaDashboardController(
+function IzendaDashboardController(
 	$rootScope,
 	$scope,
 	$window,
@@ -64,9 +65,11 @@ function izendaDashboardController(
 	$izendaSettings,
 	$izendaScheduleService,
 	$izendaShareService,
-	$izendaDashboardState) {
+	$izendaDashboardState,
+	$izendaDashboardSettings) {
 
 	'use strict';
+
 	var vm = this;
 	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	var _ = angular.element;
@@ -950,7 +953,7 @@ function izendaDashboardController(
 	function save(dashboardName, dashboardCategory) {
 		var dashboardFullName = dashboardName;
 		if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
-			dashboardFullName = dashboardCategory + '\\' + dashboardName;
+			dashboardFullName = dashboardCategory + $izendaSettings.getCategoryCharacter() + dashboardName;
 		}
 		var json = createSaveJson();
 		if (json.Rows[0].ColumnsCount === 0) {
@@ -960,11 +963,11 @@ function izendaDashboardController(
 		$izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
 			if (data.Value !== 'OK') {
 				// handle save error:
-				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
+				$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
 					' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value]);
 			} else {
 				var n = $izendaUrl.getReportInfo().name, c = $izendaUrl.getReportInfo().category;
-				$rootScope.$broadcast('showNotificationEvent', [$izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved')]);
+				$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved')]);
 				if (n !== dashboardName || c !== dashboardCategory) {
 					$rootScope.$broadcast('selectedNewReportNameEvent', [dashboardName, dashboardCategory]);
 				}
@@ -1241,64 +1244,62 @@ function izendaDashboardController(
    * Initialize dashboard controller (set event listeners and so on)
    */
 	vm.initialize = function () {
-		$izendaSettings.getDashboardAllowed().then(function (allowed) {
-			vm.dashboardsAllowedByLicense = allowed;
-			vm.licenseInitialized = true;
-			if (allowed) {
-				// remove content from all tiles to speed up "bounce up" animation
-				if (!vm.isIE8) {
-					document.addEventListener("fullscreenchange", fullscreenChangeHandler);
-					document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler);
-					document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
-					document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
+		vm.dashboardsAllowedByLicense = $izendaDashboardSettings.dashboardsAllowed;
+		vm.licenseInitialized = true;
+		if (vm.dashboardsAllowedByLicense) {
+			// remove content from all tiles to speed up "bounce up" animation
+			if (!vm.isIE8) {
+				document.addEventListener("fullscreenchange", fullscreenChangeHandler);
+				document.addEventListener("webkitfullscreenchange", fullscreenChangeHandler);
+				document.addEventListener("mozfullscreenchange", fullscreenChangeHandler);
+				document.addEventListener("MSFullscreenChange", fullscreenChangeHandler);
+			}
+
+			vm.initializeEventHandlers();
+
+			// all tiles added:
+			$scope.$watch(angular.bind(vm, function (name) {
+				return this.tilesAnimationCompleted;
+			}), function (newVal) {
+				if (newVal) {
+					$izendaEvent.queueEvent('refreshFilters', [], true);
+				}
+			});
+
+			// watch for dashboard resize:
+			$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+				if (angular.isUndefined(newWidth))
+					return;
+				vm.updateDashboardSize();
+				updateGalleryContainer(false);
+				vm.updateDashboardHandlers();
+			});
+
+			// watch for location change: we can set dashboard when location is changing
+			$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+				var initDone = function () {
+					if (reportInfo.fullName === null && !reportInfo.isNew)
+						return;
+					$log.debug('Initialize dashboard after location change: ', reportInfo);
+					vm.initializeDashboard(reportInfo);
+					$izendaScheduleService.loadScheduleData();
+					$izendaShareService.loadShareData();
 				}
 
-				vm.initializeEventHandlers();
-
-				// all tiles added:
-				$scope.$watch(angular.bind(vm, function (name) {
-					return this.tilesAnimationCompleted;
-				}), function (newVal) {
-					if (newVal) {
-						$izendaEvent.queueEvent('refreshFilters', [], true);
-					}
-				});
-
-				// watch for dashboard resize:
-				$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-					if (angular.isUndefined(newWidth))
-						return;
-					vm.updateDashboardSize();
-					updateGalleryContainer(false);
-					vm.updateDashboardHandlers();
-				});
-
-				// watch for location change: we can set dashboard when location is changing
-				$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-					var initDone = function () {
-						if (reportInfo.fullName === null && !reportInfo.isNew)
-							return;
-						$log.debug('Initialize dashboard after location change: ', reportInfo);
-						vm.initializeDashboard(reportInfo);
-						$izendaScheduleService.loadScheduleData();
-						$izendaShareService.loadShareData();
-					}
-
-					if (!angular.isDefined(reportInfo))
-						return;
-					if (reportInfo.isNew) {
-						// create new dashboard
-						$izendaCommonQuery.newDashboard().then(function () {
-							initDone();
-						});
-					} else {
-						// set existing dashboard as current
-						$izendaCommonQuery.setCurrentReportSet(reportInfo.fullName).then(function () {
-							initDone();
-						});
-					}
-				});
-			}
-		});
+				if (!angular.isDefined(reportInfo))
+					return;
+				if (reportInfo.isNew) {
+					// create new dashboard
+					$izendaCommonQuery.newDashboard().then(function () {
+						initDone();
+					});
+				} else {
+					// set existing dashboard as current
+					$izendaCommonQuery.setCurrentReportSet(reportInfo.fullName).then(function () {
+						initDone();
+					});
+				}
+			});
+		}
 	};
 }

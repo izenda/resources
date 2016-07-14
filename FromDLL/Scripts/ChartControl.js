@@ -569,20 +569,22 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 		}
 	}
 	var row = EBC_GetRow(e);
-	var titleDiv = document.getElementById(id + "_ChartTitleDiv");
+	var titleDiv$ = jq$(document.getElementById(id + "_ChartTitleDiv"));
 	if (chartTypesSelect.value == '...' || chartTypesSelect.value == '')
-		titleDiv.style["display"] = 'none';
+		titleDiv$.css('display', 'none');
 	else
-		titleDiv.style["display"] = 'block';
+		titleDiv$.css('display', 'block');
 	
 	var visualizationsDiv = document.getElementById(id + "_visualizationsDiv");
 	if (visualizationsDiv != null) {
-	  if (chartTypesSelect.value == 'Visualization') {
-	    visualizationsDiv.style["display"] = 'block';
-	  }
-	  else {
-	    visualizationsDiv.style["display"] = 'none';
-	  }
+		if (chartTypesSelect.value == 'Visualization') {
+			titleDiv$.find("td[id$=\"_ChartRecordsLabel\"], td[id$=\"_ChartRecords\"]").css('display', 'none');
+			visualizationsDiv.style["display"] = 'block';
+		}
+		else {
+			titleDiv$.find("td[id$=\"_ChartRecordsLabel\"], td[id$=\"_ChartRecords\"]").css('display', 'table-cell');
+			visualizationsDiv.style["display"] = 'none';
+		}
 	}
 }
 

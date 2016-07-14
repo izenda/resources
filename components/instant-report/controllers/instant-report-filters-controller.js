@@ -9,10 +9,9 @@ angular.module('izendaInstantReport').controller('InstantReportFiltersController
 			'$q',
 			'$sce',
 			'$log',
-			'$modal',
 			'$izendaLocale',
 			'$izendaSettings',
-			'$izendaCompatibility',	
+			'$izendaCompatibility',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportStorage',
 			InstantReportFiltersController
@@ -26,7 +25,6 @@ function InstantReportFiltersController(
 			$q,
 			$sce,
 			$log,
-			$modal,
 			$izendaLocale,
 			$izendaSettings,
 			$izendaCompatibility,
@@ -52,9 +50,9 @@ function InstantReportFiltersController(
 	 * Add new filter
 	 */
 	vm.addFilter = function (fieldSysName) {
-		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function(filter) {
+		$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
 			if (filter.field !== null && !filter.field.allowedInFilters) {
-				$rootScope.$broadcast('showNotificationEvent',
+				$rootScope.$broadcast('izendaShowNotificationEvent',
 					[$izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.')]);
 				return;
 			}
@@ -132,6 +130,7 @@ function InstantReportFiltersController(
 		filter.currentValue = '';
 		$izendaInstantReportStorage.loadFilterFormats(filter);
 		$izendaInstantReportStorage.setFilterOperator(filter).then(function () {
+			$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter);
 			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
 				$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
 					$scope.$applyAsync();
@@ -145,19 +144,42 @@ function InstantReportFiltersController(
 	 */
 	vm.updateFilterValues = function (filter) {
 		filter.values = [];
-		var operatorType = $izendaInstantReportStorage.getFieldFilterOperatorValueType(filter.operator);
-		if (operatorType === 'oneValue' || operatorType === 'oneDate') {
-			filter.values = [''];
-		} else if (operatorType === 'twoValues' || operatorType === 'twoDates') {
-			filter.values = ['', ''];
-		} else if (operatorType === 'Equals_TextArea') {
-			filter.currentValue = '';
-		} else if (operatorType === 'select' || operatorType === 'Equals_Autocomplete' || operatorType === 'select_multiple') {
-			filter.values = [''];
-		}
-		$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
-			$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
-				$scope.$applyAsync();
+		var asyncPromise = $q(function (resolve) {
+			var operatorType = $izendaInstantReportStorage.getFieldFilterOperatorValueType(filter.operator);
+			if (operatorType === 'oneValue' || operatorType === 'oneDate') {
+				filter.values = [''];
+				resolve();
+				return;
+			}
+			if (operatorType === 'twoValues' || operatorType === 'twoDates') {
+				filter.values = ['', ''];
+				resolve();
+				return;
+			}
+			if (operatorType === 'Equals_TextArea') {
+				filter.currentValue = '';
+				resolve();
+				return;
+			}
+			if (operatorType === 'Equals_Autocomplete' || operatorType === 'select_multiple') {
+				filter.values = [''];
+				resolve();
+				return;
+			}
+			if (operatorType === 'select_popup') {
+				$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter).then(function () {
+					resolve();
+				});
+				return;
+			}
+			resolve();
+		});
+
+		asyncPromise.then(function () {
+			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+					$scope.$applyAsync();
+				});
 			});
 		});
 	}
@@ -191,12 +213,12 @@ function InstantReportFiltersController(
 	/**
 	 * Prepare value for filter
 	 */
-	vm.onCurrentValueChange = function(filter) {
+	vm.onCurrentValueChange = function (filter) {
 		// prepare data:
 		if (filter.operator.value === 'Equals_TextArea') {
 			var values = filter.currentValue.match(/^.*((\r\n|\n|\r)|$)/gm);
 			filter.values = [];
-			angular.element.each(values, function() {
+			angular.element.each(values, function () {
 				if (this.trim() !== '' && filter.values.indexOf(this.trim()) < 0)
 					filter.values.push(this.trim());
 			});
@@ -216,12 +238,20 @@ function InstantReportFiltersController(
 		if (vm.filters.length === 0)
 			return;
 		if (vm.filterOptions.filterLogic) {
-			$izendaInstantReportStorage.refreshFiltersForFilterLogic().then(function() {
+			$izendaInstantReportStorage.refreshFiltersForFilterLogic().then(function () {
 				$scope.$applyAsync();
 			});
 		} else {
 			vm.onCurrentValueChange(vm.filters[0]);
 		}
+	};
+
+	/**
+	 * Change value handler for custom popup filter.
+	 */
+	vm.onPopupValueChange = function (filter, newValue) {
+		filter.values = newValue.split(',');
+		$scope.$applyAsync();
 	};
 
 	/**
@@ -233,7 +263,7 @@ function InstantReportFiltersController(
 		var labels = [];
 		angular.element.each(filter.values, function () {
 			var filterValue = this;
-			angular.element.each(filter.existentValues, function() {
+			angular.element.each(filter.existentValues, function () {
 				var existentValue = this;
 				if (existentValue.value === filterValue)
 					labels.push(existentValue.text);
@@ -356,3 +386,62 @@ function InstantReportFiltersController(
 
 	vm.initWatchers();
 }
+
+/**
+ * Find all opened filter popup modals and close it.
+ */
+function hideModal() {
+	var popupModals = document.getElementsByName('filtersPopupModalDialog');
+	angular.element.each(popupModals, function () {
+		var $modal = angular.element(this);
+		if ($modal.hasClass('modal') && $modal.hasClass('in')) {
+			$modal.modal('hide');
+		}
+	});
+}
+
+/**
+ * Custom popup filter modal submit callback.
+ */
+function CC_CustomFilterPageValueReceived() {}
+
+/**
+ * Override hide modal function.
+ */
+window.hm = function() {
+	hideModal();
+}
+
+/**
+ * Directive, which used for listening custom popup filters value change.
+ */
+angular.module('izendaInstantReport').directive('izendaOnPopupValueChange', [
+	'$interval',
+	function ($interval) {
+		return {
+			restrict: 'A',
+			scope: {
+				handler: '&izendaOnPopupValueChange'
+			},
+			link: function ($scope, $element, attrs) {
+				var previousValue = $element.val();
+				var intervalId = $interval(function () {
+					var newValue = $element.val();
+					if (newValue !== previousValue) {
+						$scope.handler({
+							newValue: newValue
+						});
+						previousValue = newValue;
+					}
+				}, 20);
+
+				// we should turn off interval on destroy input tag.
+				$scope.$on('$destroy', function handleDestroyEvent() {
+					if (intervalId) {
+						$interval.cancel(intervalId);
+						intervalId = null;
+					}
+				});
+			}
+		};
+	}]);

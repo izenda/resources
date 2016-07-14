@@ -2,7 +2,7 @@
  * Small utility directives
  */
 
-angular.module('izendaQuery').filter('izendaReplaceString', [function () {
+angular.module('izenda.common.query').filter('izendaReplaceString', [function () {
 		return function (text, rules) {
 			if (!angular.isArray(rules))
 				return text;
@@ -22,7 +22,7 @@ angular.module('izendaQuery').filter('izendaReplaceString', [function () {
 /**
  * Directive which runs handler on scroll end
  */
-angular.module('izendaQuery').directive('scrollBottomAction', function() {
+angular.module('izenda.common.query').directive('scrollBottomAction', function () {
 	return {
 		restrict: 'A',
 		link: function ($scope, $element, attrs) {
@@ -39,7 +39,34 @@ angular.module('izendaQuery').directive('scrollBottomAction', function() {
 	};
 });
 
-angular.module('izendaQuery').directive('bindOnce', function () {
+/**
+ * Set focus on element directive.
+ * Usage: 
+ * <some-tag izenda-focus="{{expression_which_returns_bool}}" ...>
+ *   ...
+ * </some-tag>
+ */
+angular.module('izenda.common.query').directive('izendaFocus', function ($timeout) {
+	return {
+		scope: {
+			trigger: '@izendaFocus'
+		},
+		link: function (scope, element) {
+			scope.$watch('trigger', function (value) {
+				if (value === 'true') {
+					$timeout(function () {
+						element[0].focus();
+					});
+				}
+			});
+		}
+	};
+});
+
+/**
+ * Apply binding value and remove binding directive.
+ */
+angular.module('izenda.common.query').directive('bindOnce', function () {
 	return {
 		scope: true,
 		link: function ($scope, $element) {
@@ -65,7 +92,7 @@ angular.module('izendaQuery').directive('bindOnce', function () {
 /**
  * Click stop propagation directive.
  */
-angular.module('izendaCommonControls').directive('izendaStopPropagation', [
+angular.module('izenda.common.ui').directive('izendaStopPropagation', [
 	function() {
 		return {
 			restrict: 'A',
@@ -78,7 +105,7 @@ angular.module('izendaCommonControls').directive('izendaStopPropagation', [
 	}
 ]);
 
-angular.module('izendaCommonControls').directive('izendaFitAbsoluteElement', [
+angular.module('izenda.common.ui').directive('izendaFitAbsoluteElement', [
 	'$window', '$timeout',
 	function ($window, $timeout) {
 		return {

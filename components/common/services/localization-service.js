@@ -1,7 +1,7 @@
 ﻿/**
  * Localization service
  */
-angular.module('izendaQuery').service('$izendaLocale', [
+angular.module('izenda.common.query').service('$izendaLocale', [
 	function () {
 		'use strict';
 
@@ -32,12 +32,14 @@ angular.module('izendaQuery').service('$izendaLocale', [
 			}
 			return result;
 		};
+
+		IzLocal.LocalizePage();
 	}]);
 
 /**
  * Filter to apply locale in html templates
  */
-angular.module('izendaQuery').filter('izendaLocale', [
+angular.module('izenda.common.query').filter('izendaLocale', [
 	'$izendaLocale', function ($izendaLocale, defaultValue) {
 		return function (text, defaultValue) {
 			var defaultVal = angular.isString(defaultValue) ? defaultValue : '';

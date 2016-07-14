@@ -1,80 +1,79 @@
 ﻿/**
  * Autocomplete directive. Uses "tagit". Applyed for <input> element.
  */
-angular.module('izendaCommonControls')
-	.directive('izendaAutocomplete', [
-		function() {
-			return {
-				restrict: 'A',
-				require: 'ngModel',
-				scope: {
-					ngModel: '=',
-					autocompleteItems: '=',
-					updateAutocompleteItems: '&'
-				},
-				link: function ($scope, $element) {
-					$element.val($scope.ngModel);
-					/**
-					 * Create array with autocomplete item texts
-					 * @param {Array<object>} items.
-					 * @returns {Array<string>}.
-					 */
-					function prepareSource(items) {
-						if (!angular.isArray(items))
-							return [];
-						return angular.element.map(items, function (item) {
-							return angular.isObject(item) ? item.text : null;
-						});
-					};
+angular.module('izenda.common.ui').directive('izendaAutocomplete', [
+	function () {
+		return {
+			restrict: 'A',
+			require: 'ngModel',
+			scope: {
+				ngModel: '=',
+				autocompleteItems: '=',
+				updateAutocompleteItems: '&'
+			},
+			link: function ($scope, $element) {
+				$element.val($scope.ngModel);
+				/**
+					* Create array with autocomplete item texts
+					* @param {Array<object>} items.
+					* @returns {Array<string>}.
+					*/
+				function prepareSource(items) {
+					if (!angular.isArray(items))
+						return [];
+					return angular.element.map(items, function (item) {
+						return angular.isObject(item) ? item.text : null;
+					});
+				};
 
-					/**
-					 * Initialize tagit component.
-					 */
-					function initTagIt() {
-						$element.tagit({
-							tagSource: function(req, responseFunction) {
-								if (angular.isFunction($scope.updateAutocompleteItems)) {
-									var possibleText = req.term.split(/,\s*/).pop();
-									// update suggested items:
-									$scope.updateAutocompleteItems({ arg0: possibleText }).then(function (newExistentValuesList) {
-										var result = [];
-										var items = prepareSource(newExistentValuesList);
-										if (angular.isArray(items)) {
-											angular.element.each(items, function (iItem, item) {
-												if (!angular.isString(item) || item === '' || item === '...')
-													return;
-												result.push(this.replaceAll('#||#', ','));
-											});
-										}
-										responseFunction(result);
-									});
-								}
-							},
-							caseSensitive: true,
-							allowDuplicates: false,
-							singleFieldDelimiter: ',',
-							processValuesForSingleField: function(tags) {
-								for (var i = 0; i < tags.length; i++)
-									tags[i] = tags[i].replaceAll(',', '#||#');
-								return tags;
-							},
-							processValuesFromSingleField: function(tags) {
-								for (var i = 0; i < tags.length; i++)
-									tags[i] = tags[i].replaceAll('#||#', ',');
-								return tags;
+				/**
+					* Initialize tagit component.
+					*/
+				function initTagIt() {
+					$element.tagit({
+						tagSource: function (req, responseFunction) {
+							if (angular.isFunction($scope.updateAutocompleteItems)) {
+								var possibleText = req.term.split(/,\s*/).pop();
+								// update suggested items:
+								$scope.updateAutocompleteItems({ arg0: possibleText }).then(function (newExistentValuesList) {
+									var result = [];
+									var items = prepareSource(newExistentValuesList);
+									if (angular.isArray(items)) {
+										angular.element.each(items, function (iItem, item) {
+											if (!angular.isString(item) || item === '' || item === '...')
+												return;
+											result.push(this.replaceAll('#||#', ','));
+										});
+									}
+									responseFunction(result);
+								});
 							}
-						});
-					}
-
-					// watchers
-					$scope.$watch('ngModel', function (newValue, oldValue) {
-						if (!newValue) {
-							$element.tagit('removeAll');
+						},
+						caseSensitive: true,
+						allowDuplicates: false,
+						singleFieldDelimiter: ',',
+						processValuesForSingleField: function (tags) {
+							for (var i = 0; i < tags.length; i++)
+								tags[i] = tags[i].replaceAll(',', '#||#');
+							return tags;
+						},
+						processValuesFromSingleField: function (tags) {
+							for (var i = 0; i < tags.length; i++)
+								tags[i] = tags[i].replaceAll('#||#', ',');
+							return tags;
 						}
 					});
-
-					initTagIt();
 				}
+
+				// watchers
+				$scope.$watch('ngModel', function (newValue, oldValue) {
+					if (!newValue) {
+						$element.tagit('removeAll');
+					}
+				});
+
+				initTagIt();
 			}
 		}
-	]);
+	}
+]);

@@ -570,14 +570,17 @@ function CC_OnCheckBoxValueChangedHandler(e) {
 	if (!edit)
 		return;
 	var concatValue = "";
+	var somethingChecked = false;
 	jq$(checkList).find("input:checked").each(function (i) {
+		somethingChecked = true;
 		if (concatValue == "")
 			concatValue = jq$(this).val();
 		else
 			concatValue += "," + jq$(this).val();
 	});
-
 	jq$(edit).val(concatValue);
+	if (!somethingChecked)
+		concatValue = "...";
 	if (jq$(sel).val() != "Loading ...") {
 		jq$(sel).attr('multiple', true);
 		jq$(sel).val(concatValue.split(','));
@@ -821,7 +824,10 @@ function CC_OnOperatorChangedHandler(e) {
 			else if (oldValue == '' && operatorValue == 'EqualsPopup')
 				edit1.value = '...';
 
-			CC_InitRowWidthAutoComplite(row);
+			if (operatorValue == "Equals_Autocomplete")
+				CC_InitAutoComplete(row);
+			else
+				CC_RemoveAutocomplete(row);
 		}
 		if (operatorValue == 'Equals_Select' || operatorValue == 'NotEquals_Select' ||
 			operatorValue == 'Equals_Multiple' || operatorValue == 'NotEquals_Multiple' ||
@@ -881,12 +887,30 @@ function CC_InitTreeView(row) {
 	}
 }
 
+function CC_RemoveAutocomplete(row) {
+	var editForAutoComplete = EBC_GetInputByName(row, "Edit1");
+	if (editForAutoComplete != null) {
+		jq$(editForAutoComplete).tagit('destroy');
+		// Manually destroy autocomplete elements because plugin won't do it for some reason
+		jq$(editForAutoComplete).removeClass([
+				'tagit',
+				'ui-widget',
+				'ui-widget-content',
+				'ui-corner-all',
+				'tagit-hidden-field'
+		].join(' '));
+		var nextElem = jq$(editForAutoComplete).next();
+		if (nextElem && nextElem.hasClass('tagit'))
+			nextElem.remove();
+	}
+}
 
 function CC_InitAutoComplete(row) {
 	var editForAutoComplete = EBC_GetInputByName(row, "Edit1");
 	var operatorObject = EBC_GetSelectByName(row, 'Operator');
 
 	if (editForAutoComplete != null && operatorObject != null) {
+		CC_RemoveAutocomplete(row);
 		jq$(editForAutoComplete).tagit({
 			tagSource: function (req, responeFunction) {
 				var currentRow = EBC_GetRow(editForAutoComplete);
@@ -1108,7 +1132,11 @@ function CC_CustomFilterPageValueReceived() {
 	var valueEditId = CC_CurrentRowForCustomFilterPage.parentNode.parentNode.id + "_EditValueId";
 	var valueEdit = document.getElementById(valueEditId);
 	var valueField = EBC_GetInputByName(CC_CurrentRowForCustomFilterPage, "Edit1");
-	valueField.value = valueEdit.value;
+	var popupValueField = EBC_GetInputByName(CC_CurrentRowForCustomFilterPage, "popup_value_handler");
+	if (valueField)
+		valueField.value = valueEdit.value;
+	if (popupValueField)
+		popupValueField.value = valueEdit.value;
 }
 
 function CC_ShowPopupFilterResponse(data) {

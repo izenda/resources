@@ -9,7 +9,6 @@ angular.module('izendaInstantReport').controller('InstantReportColumnsSortContro
 			'$q',
 			'$sce',
 			'$log',
-			'$modal',
 			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
@@ -24,7 +23,6 @@ function InstantReportColumnsSortController(
 			$q,
 			$sce,
 			$log,
-			$modal,
 			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportStorage) {

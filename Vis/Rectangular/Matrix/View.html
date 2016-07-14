@@ -47,6 +47,7 @@
 			return;
 
 		var i, t, rotate = true, rotateBox, buckets = 9, left = 14, top;
+		var maxCellSize = 100, maxLegendCellSize = { width: 10, height: 10 };
 		var colors = ["#ffffd9", "#edf8b1", "#c7e9b4", "#7fcdbb", "#41b6c4", "#1d91c0", "#225ea8", "#253494", "#081d58"];
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
@@ -94,10 +95,27 @@
 
 			var margin = { top: top + 6, right: 0, bottom: 30, left: left + 16 },
 				widthWithMargins = width - margin.left - margin.right,
-				gridSize = Math.floor(widthWithMargins / hc),
-				height = (vis.items.length + 1) * gridSize + margin.top + rotateBox.height;
+				cellSize = Math.floor(widthWithMargins / hc),
+				height = (vis.items.length + 1) * cellSize + margin.top + rotateBox.height;
+
+			if (cellSize > maxCellSize)
+				cellSize = maxCellSize;
 
 			svg.attr("width", width).attr("height", height);
+
+			function hideOverlappingElements(arr, axis) {
+				var length = arr.length;
+				var currentBBox = null,
+						previousBBox = null;
+				for (var i = 0; i < length; ++i) {
+					var elem = arr[i];
+					currentBBox = elem.getBBox();
+					if (previousBBox != null && currentBBox[axis] - previousBBox[axis] < (axis === 'y' ? previousBBox.height : previousBBox.width))
+						jq$(elem).css('display', 'none');
+					else
+						previousBBox = currentBBox;
+				}
+			}
 
 			var g = svg.append("g")
 				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -107,21 +125,25 @@
 				.enter().append("text")
 					.text(function(d) { return vis.unitValue(d, 0); })
 					.attr("x", 0)
-					.attr("y", function(d, i2) { return i2 * gridSize; })
+					.attr("y", function(d, i2) { return i2 * cellSize; })
 					.style("text-anchor", "end")
-					.attr("transform", "translate(-6," + gridSize / 1.5 + ")")
+					.attr("transform", "translate(-6," + cellSize / 1.5 + ")")
 					.attr("class", "dayLabel mono axis axis-workweek");
+
+			hideOverlappingElements(jq$('.dayLabel'), 'y');
 
 			// Fills a time scale (top of the chart).
 			g.selectAll(".timeLabel")
 				.data(uniqueDateOffsets)
 				.enter().append("text")
 					.text(function(d) { return util.renderDate(util.getDateByOffset(vis.unitValue(vis.min, 1), d)); })
-					.attr("x", rotate ? 0 : function(d, i2) { return i2 * gridSize; })
-					.attr("y", rotate ? function(d, i2) { return i2 * gridSize; } : 0)
+					.attr("x", rotate ? 0 : function(d, i2) { return i2 * cellSize; })
+					.attr("y", rotate ? function(d, i2) { return i2 * cellSize; } : 0)
 					.style("text-anchor", rotate ? "end" : "middle")
-					.attr("transform", rotate ? "rotate(-90) translate(" + (rotateBox.width + 6) + ", " + ((gridSize + rotateBox.height - 4) / 2) + ")" : "translate(" + gridSize / 2 + ", -6)")
+					.attr("transform", rotate ? "rotate(-90) translate(" + (rotateBox.width + 6) + ", " + ((cellSize + rotateBox.height - 4) / 2) + ")" : "translate(" + cellSize / 2 + ", -6)")
 					.attr("class", "timeLabel mono axis axis-worktime");
+
+			hideOverlappingElements(jq$('.timeLabel'), 'y');
 
 			// Adds items to the chart.
 			for (i = 0; i < vis.items.length; i++) {
@@ -131,14 +153,14 @@
 					.attr("x", function (d) {
 						// Calculates an item position by date.
 						var position = jq$.inArray(d[0], uniqueDateOffsets);
-						return (position * gridSize);
+						return (position * cellSize);
 					})
-					.attr("y", function(d) { return (i * gridSize); })
+					.attr("y", function(d) { return (i * cellSize); })
 					.attr("rx", 4)
 					.attr("ry", 4)
 					.attr("class", "hour bordered")
-					.attr("width", gridSize)
-					.attr("height", gridSize)
+					.attr("width", cellSize)
+					.attr("height", cellSize)
 					.style("fill", colors[0])
 					.each(function(d) {
 						var data = {};
@@ -158,21 +180,29 @@
 				.enter().append("g")
 				.attr("class", "legend");
 
-			var legendItemWidth = (gridSize * hc) / quantiles.length,
-				legendItemHeight = gridSize / 3;
+			var legendItemWidth = (cellSize * hc) / quantiles.length,
+				legendItemHeight = cellSize / 3;
+
+			if (legendItemWidth < maxLegendCellSize.width)
+				legendItemWidth = maxLegendCellSize.width;
+
+			if (legendItemHeight < maxLegendCellSize.height)
+				legendItemHeight = maxLegendCellSize.height;
 
 			legend.append("rect")
-				.attr("x", function(d, i2) { return legendItemWidth * i2; })
-				.attr("y", (vis.items.length + 1/3) * gridSize)
+				.attr("x", function (d, i2) { return legendItemWidth * i2; })
+				.attr("y", (vis.items.length + 1 / 3) * cellSize)
 				.attr("width", legendItemWidth)
 				.attr("height", legendItemHeight)
-				.style("fill", function(d, i2) { return colors[i2]; });
+				.style("fill", function (d, i2) { return colors[i2]; });
 
 			legend.append("text")
 				.attr("class", "mono")
-				.text(function(d) { return "≥ " + Math.round(d); })
-				.attr("x", function(d, i2) { return legendItemWidth * i2; })
-				.attr("y", ((vis.items.length + 2/3) * gridSize) + rotateBox.height);
+				.text(function (d) { return "≥ " + Math.round(d); })
+				.attr("x", function (d, i2) { return legendItemWidth * i2; })
+				.attr("y", ((vis.items.length + 2 / 3) * cellSize) + rotateBox.height);
+
+			hideOverlappingElements(jq$('.legend text'), 'x');
 		}
 
 		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {

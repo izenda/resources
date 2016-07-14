@@ -75,7 +75,7 @@ ul.tagit {
     background: inherit;
     display: inline-block;
     max-height: 96px;
-    max-width: 300px;
+    width: 300px;
 }
 ul.tagit li.tagit-choice {
     -moz-border-radius: 3px;

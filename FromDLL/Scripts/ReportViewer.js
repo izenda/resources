@@ -19,13 +19,21 @@ if (typeof IzLocal == 'undefined') { IzLocal = { Res: function (key, defaultValu
 
 //Util-----------------------------------------------------------------------------------------------------
 function modifyUrl(parameterName, parameterValue) {
-	var queryParameters = {}, queryString = location.search.substring(1),
-            re = /([^&=]+)=([^&]*)/g, m;
+	var queryParameters = {},
+		queryString = location.search.substring(1),
+		re = /([^&=]+)=([^&]*)/g, m;
+	var s = [];
 	while (m = re.exec(queryString)) {
-		queryParameters[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+		var key = decodeURIComponent(m[1]);
+		var value = decodeURIComponent(m[2]);
+		if (key == parameterName)
+			value = parameterValue;
+		if (key.toLowerCase() != 'rn')
+			value = encodeURIComponent(value);
+		key = encodeURIComponent(key);
+		s[s.length] = key + "=" + value;
 	}
-	queryParameters[parameterName] = parameterValue;
-	location.search = jq$.param(queryParameters);
+	location.search = s.join("&").replace(/%20/g, "+");
 }
 
 function updateURLParameter(url, param, paramVal) {
@@ -870,9 +878,8 @@ function ShowSaveAsDialog() {
 function SaveReportAs() {
 	var newRepName = document.getElementById('newReportName').value;
 	var newCatName = document.getElementById('newCategoryName').value;
-
-	newRepName = jq$.map(newRepName.split('\\'), jq$.trim).join('\\');
-	newCatName = jq$.map(newCatName.split('\\'), jq$.trim).join('\\');
+	newRepName = jq$.map(newRepName.split(nrvConfig.CategoryCharacter), jq$.trim).join(nrvConfig.CategoryCharacter);
+	newCatName = jq$.map(newCatName.split(nrvConfig.CategoryCharacter), jq$.trim).join(nrvConfig.CategoryCharacter);
 
 	newRepName = CheckNameValidity(newRepName);
 	if (newRepName == null) {
@@ -896,8 +903,15 @@ function SaveReportAs() {
 	CheckIfReportExists(newFullName);
 }
 
+function escapeRegExp(s) {
+	return s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
 function CheckNameValidity(name) {
-	var invalidCharsRegex = /[^A-Za-z0-9_\\\-' ]+/g;
+	var additionalCharacter = '';
+	if (nrvConfig.CategoryCharacter != '\\')
+		additionalCharacter = escapeRegExp(nrvConfig.CategoryCharacter);
+	var invalidCharsRegex = new RegExp("[^A-Za-z0-9_/" + additionalCharacter + "\\-'' \\\\]", 'g');
 	if (nrvConfig.AllowInvalidCharacters)
 		return name;
 	if (nrvConfig.StripInvalidCharacters)
@@ -998,7 +1012,7 @@ function ShowNewCatDialog() {
 	document.getElementById('addedCatName').value = '';
 	ReportingServices.showModal(document.getElementById("newCatBlock"), {
 		buttons: [
-			{ value: jsResources.Create, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: AddNewCategory, default: true },
+			{ value: jsResources.Create, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: AddNewCategory, isDefault: true },
 			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default", onclick: CancelAddCategory }
 		],
 		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
@@ -1048,29 +1062,29 @@ var initialized;
 var nrvConfig;
 
 function InitializePopup() {
+	var dialogButtons = {};
+	dialogButtons[IzLocal.Res('js_Ok', 'OK')] = function () {
+		switchTabAfterRefreshCycle = true;
+		var propDialogMode = document.getElementById('propDialogMode');
+		if (propDialogMode.value == 'filter') {
+			var filter = FP_CollectFilterProperties();
+			CommitChangedFilter(filter);
+		}
+		else if (propDialogMode.value == 'field') {
+			var field = FP_CollectFieldProperties();
+			updateFieldProperties(field);
+		}
+		jq$(this).dialog("close");
+	};
+	dialogButtons[IzLocal.Res('js_Cancel', 'Cancel')] = function () {
+		jq$(this).dialog("close");
+	};
 	fieldPopup = jq$("#data-source-field").dialog({
 		autoOpen: false,
 		width: GetDialogWidth(),
 		height: "auto",
 		modal: true,
-		buttons: {
-			"OK": function () {
-				switchTabAfterRefreshCycle = true;
-				var propDialogMode = document.getElementById('propDialogMode');
-				if (propDialogMode.value == 'filter') {
-					var filter = FP_CollectFilterProperties();
-					CommitChangedFilter(filter);
-				}
-				else if (propDialogMode.value == 'field') {
-					var field = FP_CollectFieldProperties();
-					updateFieldProperties(field);
-				}
-				jq$(this).dialog("close");
-			},
-			"Cancel": function () {
-				jq$(this).dialog("close");
-			}
-		},
+		buttons: dialogButtons,
 		open: function () {
 			jq$(this).parents(".ui-dialog-buttonpane button:eq(0)").focus();
 		},
@@ -1174,7 +1188,7 @@ function GotReportViewerConfig(returnObj, id) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);
 	}
 
-	if (!nrvConfig.ShowAllInresults) {
+	if (!nrvConfig.ShowAllInResults) {
 		jq$(".izenda-results-control-separator").hide();
 		jq$(".izenda-results-control-all").hide();
 	}

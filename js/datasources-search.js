@@ -1,767 +1,519 @@
-﻿// Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED    
+﻿var highlightedTablesCache = [];
+var highlightedFieldsCache = [];
 
 function IzendaDatasourcesSearch(databaseSchema, options) {
-	var datasourcesSearchOptions = {
+	// set up options:
+	var searchOptions = {
 		applySearchOnDelay: false
 	};
-	if (options != null) {
-		for (var key in datasourcesSearchOptions) {
-			if (key in options) {
-				datasourcesSearchOptions[key] = options[key];
-			}
-		}
-	}
+	jq$.extend(searchOptions, options);
 
-	var inputCtrl$ = jq$("#fieldSearch");
-	var clearBtn$ = jq$("#fieldSearchClearBtn");
-	var searchBtn$ = jq$("#fieldSearchBtn");
-	var waitMessage$ = jq$("#fieldSearchMessage");
-	var searchAutocomplete$ = jq$("#fieldSearchAutoComplete");
-	var currentItem$ = null;
-	var autocompleteHover = false;
 	var autocompleteTimer = null;
+	var autocompleteHover = false;
+	var previousSearchString = null;
+	var $currentItem = null;
 
-	// Maximum count of items for autocomplete search feature
-	var maxAutocompleteItems = 150;
+	//////////////////////////////////////////////////////////////
+	// UI
+	//////////////////////////////////////////////////////////////
 
-	var databaseStateCache = [];
-	var tableStateCache = [];
-
-	/******************************************************************************************
-	 * UI handlers
-	 ******************************************************************************************/
+	// set up dom elements:
+	var controls = {
+		$inputCtrl: jq$("#fieldSearch"),
+		$clearBtn: jq$("#fieldSearchClearBtn"),
+		$searchBtn: jq$("#fieldSearchBtn"),
+		$waitMessage: jq$("#fieldSearchMessage"),
+		$searchAutocomplete: jq$("#fieldSearchAutoComplete")
+	};
 
 	/**
-	 * Search input key press hadler
+	 * Search input key press event handler
 	 */
-	inputCtrl$.keydown(function (event) {
+	controls.$inputCtrl.keyup(function (event) {
 		var code = (event.keyCode ? event.keyCode : e.which);
 		var ctrl = event.ctrlKey;
 		if (code == 13) {
-			if (autocompleteTimer != null) {
-				clearTimeout(autocompleteTimer);
-			}
-			var searchString = inputCtrl$.val();
-			if (searchString) {
-				hideAutocomplete();
-				if (currentItem$ == null) {
-					applySearch({
-						type: "string",
-						text: searchString
-					});
-				} else {
-					var db = currentItem$.attr("database");
-					var table = currentItem$.attr("table");
-					var field = currentItem$.attr("field");
-					applySearch({
-						type: "field",
-						database: db,
-						table: table,
-						field: field
-					});
-				}
-			} else {
-				clear(true, true);
-			}
+			// enter
+			var searchString = jq$(this).val();
+			if ($currentItem === null)
+				runTextSearch(searchString);
+			else
+				$currentItem.click();
 		} else if (ctrl && code == 32) {
-			// ctrl + space
+			// ctrl + space or down
 			event.preventDefault();
-			openAutocomplete();
-			return false;
-		} else if (code == 38) {
-			// up
-			event.preventDefault();
-			searchAutocomplete$.stop();
-			navigatePrevItem();
-			return false;
-		} else if (code == 40) {
-			// down
-			event.preventDefault();
-			searchAutocomplete$.stop();
-			navigateNextItem();
-			return false;
-		} else if (code == 33) {
-			// page up
-			event.preventDefault();
-			searchAutocomplete$.stop();
-			searchAutocomplete$.animate({ scrollTop: searchAutocomplete$.scrollTop() - searchAutocomplete$.height() }, "slow");
-			return false;
-		} else if (code == 34) {
-			// page down
-			event.preventDefault();
-			searchAutocomplete$.stop();
-			searchAutocomplete$.animate({ scrollTop: searchAutocomplete$.scrollTop() + searchAutocomplete$.height() }, "slow");
+			var searchString = jq$(this).val();
+			runAutocompleteSearch(searchString);
 			return false;
 		} else if (code == 27) {
 			// esc
 			event.preventDefault();
-			searchAutocomplete$.stop();
-			clear(true, true);
-			inputCtrl$.val(null);
+			hideAutocomplete();
+			return false;
+		} else if (code == 38) {
+			// up
+			event.preventDefault();
+			goToPreviousItem();
+			return false;
+		} else if (code == 40) {
+			// down
+			event.preventDefault();
+			goToNextItem();
+			return false;
+		} else if (code == 33) {
+			// page up
+			event.preventDefault();
+			controls.$searchAutocomplete.stop();
+			controls.$searchAutocomplete.animate({
+				scrollTop: controls.$searchAutocomplete.scrollTop() - controls.$searchAutocomplete.height()
+			}, "slow");
+			return false;
+		} else if (code == 34) {
+			// page down
+			event.preventDefault();
+			controls.$searchAutocomplete.stop();
+			controls.$searchAutocomplete.animate({
+				scrollTop: controls.$searchAutocomplete.scrollTop() + controls.$searchAutocomplete.height()
+			}, "slow");
 			return false;
 		} else {
-			openAutocomplete();
+			// default:
+			var searchString = jq$(this).val();
+			if (searchString !== previousSearchString)
+				runAutocompleteTimer(searchString);
+			previousSearchString = searchString;
 		}
 		return true;
 	});
 
-	inputCtrl$.focus(function () {
-		currentItem$ = null;
-		initializeCache();
-	});
-
-	inputCtrl$.blur(function (event) {
-		event.preventDefault();
-		if (!autocompleteHover) {
-			currentItem$ = null;
-			hideAutocomplete();
-		}
-	});
-
-	searchAutocomplete$.hover(
+	controls.$searchAutocomplete.hover(
 		function () { autocompleteHover = true; },
 		function () { autocompleteHover = false; }
 	);
 
 	/**
+	 * Blur event handler
+	 */
+	controls.$inputCtrl.blur(function () {
+		event.preventDefault();
+		if (!autocompleteHover) {
+			hideAutocomplete();
+		}
+	});
+
+	/**
 	 * Clear search button clicked
 	 */
-	clearBtn$.click(function () {
-		clear(true, true);
-		inputCtrl$.val(null);
+	controls.$clearBtn.click(function () {
+		clearSearch();
 	});
 
 	/**
 	 * Search button clicked
 	 */
-	searchBtn$.click(function () {
-		var searchString = inputCtrl$.val();
-		currentItem$ = null;
-		hideAutocomplete();
-		if (searchString) {
-			applySearch({
-				type: "string",
-				text: searchString
-			});
-		}
+	controls.$searchBtn.click(function () {
+		var searchString = controls.$inputCtrl.val();
+		runTextSearch(searchString);
 	});
 
-	/******************************************************************************************
-	 * Search
-	 ******************************************************************************************/
+	function stringIsNullOrEmpty(str) {
+		return typeof (str) !== 'string' || str.trim() === '';
+	}
 
-	var openAutocomplete = function () {
-		if (autocompleteTimer != null) {
+	/**
+	 * Clear autcomplete timer
+	 */
+	function clearAutocompleteTimer() {
+		if (autocompleteTimer !== null) {
 			clearTimeout(autocompleteTimer);
+			autocompleteTimer = null;
 		}
-		searchAutocomplete$.stop();
-		searchAutocomplete$.animate({ scrollTop: 0 }, 0);
-
-		autocompleteTimer = setTimeout(function () {
-			var searchStringA = inputCtrl$.val();
-			if (searchStringA) {
-				currentItem$ = null;
-				autocomplete(searchStringA);
-				if (datasourcesSearchOptions['applySearchOnDelay']) {
-					applySearch({
-						type: "string",
-						text: searchStringA
-					});
-				}
-			} else {
-				clear(true, true);
-			}
-		}, 500);
-	};
-
-	var initializeCache = function () {
-		databaseStateCache = [];
-		tableStateCache = [];
-		var rdbhInd = -1;
-		while (true) {
-			rdbhInd++;
-			var dbh = document.getElementById('rdbh' + rdbhInd);
-			if (typeof dbh == 'undefined' || dbh == null)
-				break;
-			if (dbh.nodeName != 'DIV')
-				continue;
-			var classes = ' ' + dbh.className + ' ';
-			if (classes.indexOf(' database ') < 0 || classes.indexOf(' opened ') < 0)
-				continue;
-			var id = jq$(dbh).find("div.database-header").find("a").attr("href");
-			databaseStateCache.push(id);
-		}
-		var tbCnt = -1;
-		while (true) {
-			tbCnt++;
-			var tableChChCh = document.getElementById('tcb' + tbCnt);
-			if (typeof tableChChCh == 'undefined' || tableChChCh == null)
-				break;
-			var tableObj = tableChChCh.parentElement.parentElement.parentElement;
-			if (tableObj.nodeName != 'DIV')
-				continue;
-			var classes = ' ' + tableObj.className + ' ';
-			if (classes.indexOf(' table ') < 0 || classes.indexOf(' opened ') < 0)
-				continue;
-			var id = jq$(tableObj).find("div.table-header").find("a").attr("href");
-			tableStateCache.push(id);
-		}
-		return null;
 	};
 
 	/**
-	 * Return html string for autosuggest result
+	 * Run timer, which allow to keep minimum delay between autocomplete queries
 	 */
-	var getTextDataResult = function (text, searchText) {
-		var searchTextLo = searchText.toLowerCase();
-		var index = text.toLowerCase().indexOf(searchTextLo);
-		if (index < 0)
-			return null;
+	function runAutocompleteTimer(searchText) {
+		openAutocomplete();
+		addAutocompleteLoadingMessage(searchText);
 
-		var part1 = text.substring(0, index);
-		var part2 = text.substring(index, index + searchText.length);
-		var part3 = text.substring(index + searchText.length, text.length);
-		//var fieldNameHtml = part1 + "<span class='autocomplete-item-field-selection'>" + part2 + "</span>" + part3;
-		var fieldNameHtml = part1 + "<b>" + part2 + "</b>" + part3;
-		return fieldNameHtml;
+		// run timer
+		clearAutocompleteTimer();
+		if (!stringIsNullOrEmpty(searchText)) {
+			autocompleteTimer = setTimeout(function () {
+				var searchString = controls.$inputCtrl.val();
+				runAutocompleteSearch(searchString);
+			}, 1000);
+		} else {
+			hideAutocomplete();
+		}
 	};
 
 	/**
-	 * parse search string
+	 * Add autocomplete loading message
 	 */
-	var getFieldSearchResult = function (text) {
-		var complexSearch = false;
-		var searchTextParts = text.toLowerCase().split(".");
-		var searchTextField = searchTextParts[searchTextParts.length - 1];
-		var searchTextTable = null;
-		var searchTextDatabase = null;
-		if (searchTextParts.length > 1) {
-			searchTextTable = searchTextParts[searchTextParts.length - 2];
-			complexSearch = true;
+	function addAutocompleteLoadingMessage(searchString) {
+		var $message = controls.$searchAutocomplete.children('.izenda-autocomplete-loading');
+		if ($message.length === 0) {
+			$currentItem = null;
+			controls.$searchAutocomplete.empty();
+			$message = jq$('<div class="izenda-autocomplete-loading"></div>');
+			controls.$searchAutocomplete.append($message);
 		}
-		if (searchTextParts.length > 2) {
-			searchTextDatabase = searchTextParts[searchTextParts.length - 3];
-		}
-		return {
-			searchTextDatabase: searchTextDatabase,
-			searchTextTable: searchTextTable,
-			searchTextField: searchTextField,
-			isComplexSearch: complexSearch
-		};
+		$message.text('Finding results for "' + searchString + '"...');
 	};
 
 	/**
-	 * Find data for autocomplete
+	 * Open autocomplete
 	 */
-	var getData = function (text) {
-		if (!text)
-			return [];
-		var result = [];
+	function openAutocomplete(clear) {
+		if (clear)
+			controls.$searchAutocomplete.empty();
+		controls.$searchAutocomplete.removeClass("hidden");
+	};
 
-		// check if used "datasource.table.field" search string
-		var complexResult = getFieldSearchResult(text);
-		var complexSearch = complexResult["isComplexSearch"];
-		var searchTextField = complexResult["searchTextField"];
-		var searchTextTable = complexResult["searchTextTable"];
-		var searchTextDatabase = complexResult["searchTextDatabase"];
+	/**
+	 * Hide autocomplete
+	 */
+	function hideAutocomplete() {
+		clearAutocompleteTimer();
+		$currentItem = null;
+		controls.$searchAutocomplete.empty();
+		controls.$searchAutocomplete.addClass("hidden");
+	}
 
-		if (databaseSchema == null)
-			return result;
-		
-		// database search
-		jq$.each(databaseSchema, function (i, database) {
-			if (database == null) return;
-			var databaseNameText = database["DataSourceCategory"];
-			var complexSearchDatabaseResult = true;
-			if (complexSearch && searchTextDatabase) {
-				complexSearchDatabaseResult = databaseNameText.toLowerCase().indexOf(searchTextDatabase) >= 0;
+	/**
+	 * Navigate among autocomplete items
+	 */
+	function goToNextItem() {
+		var $items = controls.$searchAutocomplete.find('.autocomplete-item');
+		$items.removeClass('autocomplete-item-active');
+		if ($currentItem == null || $currentItem.is(":last-child")) {
+			if ($items.length > 0) {
+				$currentItem = jq$($items[0]);
+				$currentItem.addClass('autocomplete-item-active');
 			}
-			
-			if (complexSearchDatabaseResult) {
-				// table search
-				jq$.each(database["tables"], function (i, table) {
-					var tableNameText = table["name"],
-						tableSysnameText = table["sysname"];
-					var complexSearchTableResult = true;
-					if (complexSearch && searchTextTable) {
-						complexSearchTableResult = tableNameText.toLowerCase().indexOf(searchTextTable) >= 0;
-					} else {
-						var htmlResultTable = getTextDataResult(tableNameText, text);
-						if (htmlResultTable) {
-							result.push({
-								databaseName: databaseNameText,
-								tableName: tableNameText,
-								tableSysname: tableSysnameText,
-								fieldName: null,
-								htmlResult: htmlResultTable
-							});
-						}
-					}
-					
-					if (complexSearchTableResult) {
-						// field search
-						jq$.each(table["fields"], function (fieldNameText, field) {
-							var htmlResultField;
-							if (complexSearch) {
-								htmlResultField = getTextDataResult(fieldNameText, searchTextField);
-							} else {
-								htmlResultField = getTextDataResult(fieldNameText, text);
-							}
-							if (htmlResultField) {
-								result.push({
-									databaseName: databaseNameText,
-									tableName: tableNameText,
-									tableSysname: tableSysnameText,
-									fieldName: fieldNameText,
-									htmlResult: htmlResultField
-								});
-							}
-						});
-					}
-				});
+		} else {
+			$currentItem = $currentItem.next();
+			$currentItem.addClass('autocomplete-item-active');
+		}
+		// scroll if $currentItem out of current scroll position
+		if ($currentItem !== null) {
+			var itemHeight = $currentItem.height();
+			var itemIndex = $currentItem.index();
+			var itemPos = $currentItem.position();
+			var itemRealTop = itemHeight * itemIndex;
+			var height = controls.$searchAutocomplete.height();
+			if (itemPos.top + $currentItem.height() - height > 0) {
+				controls.$searchAutocomplete.animate({
+					scrollTop: itemRealTop + $currentItem.height() - height
+				}, "fast");
+			} else if (itemPos.top < 0) {
+				controls.$searchAutocomplete.animate({
+					scrollTop: 0
+				}, "fast");
 			}
+		}
+	}
+
+	/**
+	 * Navigate among autocomplete items
+	 */
+	function goToPreviousItem() {
+		var $items = controls.$searchAutocomplete.find('.autocomplete-item');
+		$items.removeClass('autocomplete-item-active');
+		if ($currentItem == null || $currentItem.is(":first-child")) {
+			if ($items.length > 0) {
+				$currentItem = jq$($items[$items.length - 1]);
+				$currentItem.addClass('autocomplete-item-active');
+			}
+		} else {
+			$currentItem = $currentItem.prev();
+			$currentItem.addClass('autocomplete-item-active');
+		}
+		// scroll if $currentItem out of current scroll position
+		if ($currentItem !== null) {
+			var itemHeight = $currentItem.height();
+			var itemIndex = $currentItem.index();
+			var itemPos = $currentItem.position();
+			var itemRealTop = itemHeight * itemIndex;
+			var height = controls.$searchAutocomplete.height();
+			if (itemPos.top < 0) {
+				controls.$searchAutocomplete.animate({
+					scrollTop: controls.$searchAutocomplete.scrollTop() + itemPos.top
+				}, "fast");
+			} else if (itemPos.top > controls.$searchAutocomplete.scrollTop() + height) {
+				controls.$searchAutocomplete.animate({
+					scrollTop: itemRealTop
+				}, "fast");
+			}
+		}
+	}
+
+	//////////////////////////////////////////////////////////////
+	// Search
+	//////////////////////////////////////////////////////////////
+
+	/**
+	 * Fetch search results from server and create autocomplete content.
+	 */
+	function runAutocompleteSearch(searchString) {
+		openAutocomplete(true);
+		getData(searchString, false).done(function (searchResults) {
+			fillAutocomplete(searchResults);
 		});
-		return result;
-	};
+	}
 
 	/**
-	 * Hide autocomplete control
+	 * Run search by text
 	 */
-	var hideAutocomplete = function () {
-		searchAutocomplete$.empty();
-		searchAutocomplete$.addClass("hidden");
-	};
-
-	/**
-	 * Find autocomplete results
-	 */
-	var autocomplete = function (text) {
-		if (!text) {
-			currentItem$ = null;
-			hideAutocomplete();
+	function runTextSearch(searchString) {
+		clearAutocompleteTimer();
+		if (stringIsNullOrEmpty(searchString)) {
+			clearSearch();
 			return;
 		}
-		var autocompleteData = getData(text);
-		if (autocompleteData.length == 0) {
-			currentItem$ = null;
+		openAutocomplete(true);
+		controls.$searchAutocomplete.append('<div class="izenda-autocomplete-loading">Finding results for "' + searchString + '"...</div>');
+		getData(searchString, true).done(function (searchResults) {
 			hideAutocomplete();
-			return;
-		}
-		searchAutocomplete$.empty();
-		searchAutocomplete$.removeClass("hidden");
-
-		// Use vanilla JS to fill a list of items because in case of many items this approach is much faster than jQuery
-		var itemsCount = autocompleteData.length > maxAutocompleteItems ? maxAutocompleteItems : autocompleteData.length;
-		for (var i = 0; i < itemsCount; i++) {
-			var data = autocompleteData[i];
-			var htmlResult = data["htmlResult"];
-
-			// Create autocomplete item header and field
-			var headerString = "";
-			if (data["tableName"] != null)
-				headerString = "&nbsp;-&nbsp;&nbsp;<b>" + data["databaseName"] + "</b>";
-			if (data["fieldName"] != null)
-				headerString += " &rarr; " + "<i>" + data["tableName"] + "</i>";
-
-			var itemField = '<span class="autocomplete-item-field">' + htmlResult + '</span>';
-			var itemHeader = '<span class="autocomplete-item-header">' + headerString + '</span>';
-
-			// Create autocomplete item
-			var itemContainerDiv = '<div class="autocomplete-item" database="'
-								+ (data["databaseName"] != null ? data["databaseName"] : "")
-								+ '" table="' + (data["tableSysname"] != null ? data["tableSysname"] : "")
-								+ '" field="' + (data["fieldName"] != null ? data["fieldName"] : "")
-								+ '">'
-								+ itemField + itemHeader
-								+'</div>';
-
-			var itemContainer$ = jq$(itemContainerDiv);
-			itemContainer$.click(function (e) {
-				var target = jq$(e.currentTarget);
-				var db = target.attr("database");
-				var table = target.attr("table");
-				var field = target.attr("field");
-				applySearch({
-					type: "field",
-					database: db,
-					table: table,
-					field: field
-				});
-				currentItem$ = null;
-				hideAutocomplete();
+			applySearch({
+				isFieldSearch: false,
+				results: searchResults
 			});
-
-			searchAutocomplete$.append(itemContainer$);
-		}
-
-		if (autocompleteData.length > maxAutocompleteItems) {
-			var messageDiv$ = jq$('<div>', { 'class': 'autocomplete-item' }).appendTo(searchAutocomplete$);
-			var messageSpan$ = jq$('<span>', { 'class': 'autocomplete-item-header' });
-			messageSpan$.text('... and ' + (autocompleteData.length - maxAutocompleteItems) + ' more. Please clarify search parameters.');
-			messageDiv$.append(messageSpan$);
-		}
-	};
-
-	/**
-	 * highlight and scroll to current item in autosuggest
-	 */
-	var scrollToItem = function () {
-		if (currentItem$ == null || currentItem$.offset() == null)
-			return;
-		currentItem$.addClass("autocomplete-item-active");
-		var top = searchAutocomplete$.offset().top;
-		var itemTop = currentItem$.offset().top;
-		var height = searchAutocomplete$.height();
-		var itemHeight = currentItem$.height();
-		var scrollTop = searchAutocomplete$.scrollTop();
-		if (itemTop < top) {
-			searchAutocomplete$.scrollTo(currentItem$);
-		}
-		if (itemTop + itemHeight > scrollTop + height + top) {
-			searchAutocomplete$.scrollTo(currentItem$);
-		}
-	};
-
-	/**
-	 * up key handler
-	 */
-	var navigatePrevItem = function () {
-		if (searchAutocomplete$.is(":empty"))
-			return;
-		if (currentItem$ != null)
-			currentItem$.removeClass("autocomplete-item-active");
-		if (currentItem$ == null || currentItem$.is(":first-child")) {
-			currentItem$ = searchAutocomplete$.find("div:last-child");
-		} else {
-			currentItem$ = currentItem$.prev();
-		}
-		scrollToItem();
-	};
-
-	/**
-	 * down key handler
-	 */
-	var navigateNextItem = function () {
-		if (searchAutocomplete$.is(":empty"))
-			return;
-		if (currentItem$ != null)
-			currentItem$.removeClass("autocomplete-item-active");
-		if (currentItem$ == null || currentItem$.is(":last-child")) {
-			currentItem$ = searchAutocomplete$.find("div:first-child");
-		} else {
-			currentItem$ = currentItem$.next();
-		}
-		scrollToItem();
+		});
 	};
 
 	/**
 	 * Clear search
 	 */
-	var clear = function (isHideAutocomplete, isRestoreState) {
-		if (isHideAutocomplete) {
-			currentItem$ = null;
-			hideAutocomplete();
-		}
-		// clear selection
-		var rdbhInd = -1;
-		while (true) {
-			rdbhInd++;
-			var dbh = document.getElementById('rdbh' + rdbhInd);
-			if (typeof dbh == 'undefined' || dbh == null)
-				break;
-			if (dbh.nodeName != 'DIV')
-				continue;
-			var classes = ' ' + dbh.className + ' ';
-			if (classes.indexOf(' database ') < 0)
-				continue;
-			var database$ = jq$(dbh);
-			var databaseName$ = database$.find("span.database-name");
-			databaseName$.removeClass("autocomplete-item-field-selection");
-			if (database$.hasClass("closed")) {
-				database$.stop();
-				database$.removeClass("closed");
-			}
-			if (isRestoreState) {
-				var idDatabase = database$.find("div.database-header").find("a").attr("href");
-				if (database$.hasClass("opened") && databaseStateCache.indexOf(idDatabase) < 0)
-					database$.removeClass("opened");
-				if (!database$.hasClass("opened") && databaseStateCache.indexOf(idDatabase) >= 0)
-					database$.addClass("opened");
-			}
-			jq$.each(database$.find("div.table"), function (j, table) {
-				var table$ = jq$(table);
-				var tableName$ = table$.find("span.table-name");
-				tableName$.removeClass("autocomplete-item-field-selection");
-				if (table$.hasClass("closed")) {
-					table$.stop();
-					table$.removeClass("closed");
-				}
-				if (isRestoreState) {
-					var idTable = table$.find("div.table-header").find("a").attr("href");
-					if (table$.hasClass("opened") && tableStateCache.indexOf(idTable) < 0)
-						table$.removeClass("opened");
-					if (!table$.hasClass("opened") && tableStateCache.indexOf(idTable) >= 0)
-						table$.addClass("opened");
-				}
-				jq$.each(table$.find("a.field"), function (k, field) {
-					var field$ = jq$(field);
-					var fieldName$ = field$.find("span.field-name");
-					if (field$.hasClass("closed")) {
-						field$.stop();
-						field$.removeClass("closed");
-					}
-					fieldName$.removeClass("autocomplete-item-field-selection");
-				});
-			});
-		}
-	};
-
-	var preloadFound = function(searchObject) {
-		var isTextSearch = searchObject["type"] == "string";
-		var text = searchObject["text"];
-		if (isTextSearch && !text) {
-			return;
-		}
-		if (isTextSearch) {
-			var complexResult = getFieldSearchResult(text);
-			var complexSearch = complexResult["isComplexSearch"];
-			var searchTextField = complexResult["searchTextField"];
-			var searchTextTable = complexResult["searchTextTable"];
-			var searchTextDatabase = complexResult["searchTextDatabase"];
-			if (complexSearch) {
-				searchObject = {
-					type: "field",
-					isPartial: true,
-					database: searchTextDatabase,
-					table: searchTextTable,
-					field: searchTextField
-				};
-				isTextSearch = false;
-			}
-		}
-		var categoriesToExpand = new Array();
-		jq$.each(databaseSchema, function (i, database) {
-			if (database == null) {
-				return;
-			}
-			var databaseFound = false;
-			var databaseNameText = database["DataSourceCategory"];
-			var tablesToExpand = new Array();
-			jq$.each(database["tables"], function (i, table) {
-				var tableFound = false;
-				var tableid = table.domId;
-				var tableNameText = table["name"],
-					tableSysnameText = table["sysname"];
-				if (!isTextSearch && tableNameText) {
-					if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableSysnameText == searchObject["table"]) {
-						databaseFound = true;
-						tableFound = true;
-					}
-				}
-				if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-					databaseFound = true;
-					tableFound = true;
-				}
-				jq$.each(table["fields"], function (fieldNameText, field) {
-					if (!isTextSearch && fieldNameText) {
-						if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
-									&& searchObject["table"] == tableSysnameText && searchObject["database"] == databaseNameText) {
-							databaseFound = true;
-							tableFound = true;
-						} else if (searchObject["isPartial"]
-									&& (!searchObject["database"] || databaseNameText.toLowerCase().indexOf(searchObject["database"]) >= 0)
-									&& tableNameText.toLowerCase().indexOf(searchObject["table"]) >= 0
-									&& fieldNameText.toLowerCase().indexOf(searchObject["field"]) >= 0) {
-							databaseFound = true;
-							tableFound = true;
-						}
-					}
-					if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-						databaseFound = true;
-						tableFound = true;
-					}
-				});
-				if (tableFound) {
-					tablesToExpand[tablesToExpand.length] = tableid;
-				}
-			});
-			if (databaseFound) {
-				var cte = new Object();
-				cte.CategoryToExpand = database.domIdHeader;
-				cte.TablesToExpand = tablesToExpand;
-				categoriesToExpand[categoriesToExpand.length] = cte;
-			}
-		});
-		for (var cCnt = 0; cCnt < categoriesToExpand.length; cCnt++) {
-			var db = document.getElementById(categoriesToExpand[cCnt].CategoryToExpand);
-			initializeTables(jq$(db));
-			for (var tCnt = 0; tCnt < categoriesToExpand[cCnt].TablesToExpand.length; tCnt++) {
-				var tableTitleSpan = jq$(document.getElementById(categoriesToExpand[cCnt].TablesToExpand[tCnt]));
-				if (tableTitleSpan.length > 0) {
-					initFieldsDsp(tableTitleSpan[0].parentElement);
-				}
-			}
-		}
-	};
-
-	var _applySearch = function(searchObject, isHideAutocomplete) {
-		preloadFound(searchObject);
-		clear(isHideAutocomplete);
-
-		var isTextSearch = searchObject["type"] == "string";
-		var text = searchObject["text"];
-		if (isTextSearch && !text) {
-			return;
-		}
-		var scriptToCheckField = null;
-		if (isTextSearch) {
-			var complexResult = getFieldSearchResult(text);
-			var complexSearch = complexResult["isComplexSearch"];
-			var searchTextField = complexResult["searchTextField"];
-			var searchTextTable = complexResult["searchTextTable"];
-			var searchTextDatabase = complexResult["searchTextDatabase"];
-			if (complexSearch) {
-				searchObject = {
-					type: "field",
-					isPartial: true,
-					database: searchTextDatabase,
-					table: searchTextTable,
-					field: searchTextField
-				};
-				isTextSearch = false;
-			}
-		}
-
-		jq$.each(databaseSchema, function (i, database) {
-			if (database == null) {
-				return;
-			}
-			var databaseFound = false;
-			var databaseNameText = database["DataSourceCategory"];
-
-			jq$.each(database["tables"], function (i, table) {
-				var tableFound = false;
-				var tableNameText = table["name"],
-					tableSysnameText = table["sysname"];
-
-				// Table search from autosuggest
-				if (!isTextSearch && tableSysnameText) {
-					if (!searchObject["isPartial"] && searchObject["database"] == databaseNameText && tableSysnameText == searchObject["table"]) {
-						databaseFound = true;
-						tableFound = true;
-					}
-				}
-				// Text search
-				if (isTextSearch && tableNameText && tableNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-					databaseFound = true;
-					tableFound = true;
-				}
-
-				// Field search
-				if (isTextSearch || tableFound) {
-					jq$.each(table["fields"], function (fieldNameText, field) {
-						var fieldHighLight = false;
-						var fieldFound = false;
-						var needToCheck = false;
-
-						// Field search
-						if (!isTextSearch && fieldNameText) {
-							if (!searchObject["isPartial"] && fieldNameText == searchObject["field"]
-										&& searchObject["table"] == tableSysnameText && searchObject["database"] == databaseNameText) {
-								databaseFound = true;
-								tableFound = true;
-								fieldFound = true;
-								fieldHighLight = true;
-								needToCheck = true;
-							} else if (searchObject["isPartial"]
-										&& (!searchObject["database"] || databaseNameText.toLowerCase().indexOf(searchObject["database"]) >= 0)
-										&& tableNameText.toLowerCase().indexOf(searchObject["table"]) >= 0
-										&& fieldNameText.toLowerCase().indexOf(searchObject["field"]) >= 0) {
-								databaseFound = true;
-								tableFound = true;
-								fieldFound = true;
-								fieldHighLight = true;
-							}
-						}
-
-						// Text search
-						if (isTextSearch && fieldNameText && fieldNameText.toLowerCase().indexOf(text.toLowerCase()) >= 0) {
-							databaseFound = true;
-							tableFound = true;
-							fieldFound = true;
-							fieldHighLight = true;
-						}
-
-						// found ?
-						if (fieldFound) {
-							var fieldEnumVar$ = jq$(document.getElementById(field.domId));
-							jq$.each(fieldEnumVar$, function (fieldIdx, fieldDom) {
-								// find all fields
-								var field$ = jq$(fieldDom);
-								if (fieldHighLight) {
-									field$.find("span.field-name").addClass("autocomplete-item-field-selection");
-								}
-								if (needToCheck) {
-									var locked = (field$.attr("locked") == "true");
-									var checkScript = field$.attr("onmouseup");
-									if (!locked && checkScript)
-									  scriptToCheckField = checkScript;
-								}
-							});
-						}
-					});
-				}
-
-				// found ?
-				var table$ = jq$(document.getElementById(table.domId).parentElement.parentElement.parentElement);
-				if (tableFound) {
-					var tableName$ = table$.find("span.table-name");
-					tableName$.addClass("autocomplete-item-field-selection");
-					table$.addClass("opened");
-				} else {
-					table$.addClass("closed");
-				}
-			});
-
-			// found ?
-			var database$ = jq$(document.getElementById(database.domIdHeader));
-			if (databaseFound) {
-				database$.addClass("opened");
-			} else {
-				database$.addClass("closed");
-			}
-		});
-
-		var tbCnt = -1;
-		while (true) {
-			tbCnt++;
-			var tableChChCh = document.getElementById('tcb' + tbCnt);
-			if (typeof tableChChCh == 'undefined' || tableChChCh == null) {
-				break;
-			}
-			var tableObj = tableChChCh.parentElement.parentElement.parentElement;
-			if (tableObj.nodeName != 'DIV') {
-				continue;
-			}
-			var classes = ' ' + tableObj.className + ' ';
-			if (classes.indexOf(' table ') < 0 || classes.indexOf(' checked ') < 0) {
-				continue;
-			}
-			var table$ = jq$(tableObj);
-			table$.addClass("opened").removeClass("closed");
-			table$.closest("div.database").addClass("opened").removeClass("closed");
-		}
-		setTimeout(function () { DsDomChanged(); if (typeof scriptToCheckField != 'undefined' && scriptToCheckField != null && scriptToCheckField != '') { eval(scriptToCheckField); } }, animationTime + 100);
+	function clearSearch() {
+		previousSearchString = null;
+		removeHighlights();
+		hideAutocomplete();
+		controls.$inputCtrl.val(null);
+		jq$('.data-sources .table').show();
 	};
 
 	/**
-	 * Perform search text (hide not matched data)
+	 * Find data for autocomplete
 	 */
-	var applySearch = function (searchObject, isHideAutocomplete) {
-		waitMessage$.removeClass("hidden");
-		setTimeout(function () {
-			_applySearch(searchObject, isHideAutocomplete);
-			waitMessage$.addClass("hidden");
+	var getData = function (text, getAllResults) {
+		var queryParams = [
+			'wscmd=findfields',
+			'wsarg0=' + encodeURIComponent(text),
+			'wsarg1=0',
+			'wsarg2=' + (getAllResults ? 100000 : 49),
+			'wsarg3=false'
+		];
+		return jq$.get('./rs.aspx?' + queryParams.join('&'));
+	}
+
+	/**
+	 * Generate autocomplete content.
+	 */
+	var fillAutocomplete = function (dataArray) {
+		$currentItem = null;
+		controls.$searchAutocomplete.empty();
+
+		if (!dataArray || dataArray.length === 0) {
+			controls.$searchAutocomplete.append('<div class="izenda-autocomplete-loading">No results found</div>');
+			return;
+		}
+		jq$.each(dataArray, function () {
+			var data = this;
+			var isTable = data.found === 't';
+			var tableNameFormatted = data['tNameFmt']
+					? data['tNameFmt'].replaceAll('[h]', '<b>').replaceAll('[/h]', '</b>')
+					: null;
+			var fieldNameFormatted = data['fNameFmt']
+				? data['fNameFmt'].replaceAll('[h]', '<b>').replaceAll('[/h]', '</b>')
+				: null;
+			var htmlResult = isTable ? tableNameFormatted : fieldNameFormatted;
+
+			// Create autocomplete item header and field
+			var headerString = "";
+			if (tableNameFormatted != null)
+				headerString = data["dName"] + " &rarr; ";
+			if (fieldNameFormatted != null)
+				headerString += tableNameFormatted + " &rarr; ";
+			var itemHeader = '<span class="autocomplete-item-header">' + headerString + '</span>';
+			var itemField = '<span class="autocomplete-item-field">' + htmlResult + '</span>';
+			// Create autocomplete item
+			var dataBaseParameter = data["dName"] != null ? data["dName"] : "";
+			var tableParameter = data["tSysName"] != null ? data["tSysName"] : "";
+			var fieldParameter = data["fSysName"] != null ? data["fSysName"] : "";
+
+			var itemContainerDiv =
+				'<div class="autocomplete-item" ' +
+					'database="' + dataBaseParameter + '" ' +
+					'table="' + tableParameter + '" ' +
+					'field="' + fieldParameter + '">' +
+					itemHeader + itemField +
+				'</div>';
+			var $itemContainer = jq$(itemContainerDiv);
+			$itemContainer.click(function () {
+				var $item = jq$(this);
+				var db = $item.attr("database");
+				var table = $item.attr("table");
+				var field = $item.attr("field");
+				hideAutocomplete();
+				applySearch({
+					isFieldSearch: true,
+					database: db,
+					table: table,
+					field: field
+				});
+			});
+			controls.$searchAutocomplete.append($itemContainer);
 		});
-	};
+	}
+
+	/**
+	 * Reveal search results in datasource tree.
+	 */
+	function applySearch(searchResultObject) {
+		if (searchResultObject.isFieldSearch) {
+			applyFieldSearch(searchResultObject);
+		} else {
+			applyTextSearch(searchResultObject);
+		}
+	}
+
+	/**
+	 * Remove item highlight
+	 */
+	function removeHighlights() {
+		jq$.each(highlightedTablesCache, function () {
+			this.removeClass('autocomplete-item-field-selection');
+			this.closest('.data-sources .table').attr('highlight', '');
+		});
+		jq$.each(highlightedFieldsCache, function () {
+			this.removeClass('autocomplete-item-field-selection');
+		});
+		highlightedTablesCache = [];
+		highlightedFieldsCache = [];
+	}
+
+	/**
+	 * Open expand in tree
+	 */
+	function expandDatabaseInTree(databaseName) {
+		jq$.each(databaseSchema, function () {
+			var database = this;
+			if (database.DataSourceCategory === databaseName) {
+				var $database = jq$('#' + database.domIdHeader);
+				if (!$database.hasClass('opened'))
+					$database.addClass('opened');
+			}
+		});
+	}
+
+	/**
+	 * Find table element in tree
+	 */
+	function findTableInTree(tableSysName) {
+		var table = null;
+		jq$.each(databaseSchema, function () {
+			var database = this;
+			var i = 0;
+			while (table === null && i < database.tables.length) {
+				if (database.tables[i].sysname === tableSysName) {
+					table = database.tables[i];
+				}
+				i++;
+			}
+		});
+		if (table) {
+			var $tableCheckbox = jq$('#' + table.domId);
+			var $table = $tableCheckbox.closest('.data-sources .table');
+			return $table;
+		}
+		return null;
+	}
+
+	/**
+	 * Highlight field item in datasource tree
+	 */
+	function highlightField($table, fieldSysname) {
+		if (!stringIsNullOrEmpty(fieldSysname)) {
+			var $field = $table.find('.field[fieldid="' + fieldSysname + '"]');
+			if ($field.length === 0)
+				return false;
+			var $fieldName = $field.find("span.field-name");
+			$fieldName.addClass("autocomplete-item-field-selection");
+			highlightedFieldsCache.push($fieldName);
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Open text search results
+	 */
+	function applyTextSearch(searchResultObject) {
+		removeHighlights();
+		jq$('.data-sources .table').hide();
+		var results = searchResultObject.results;
+		jq$.each(results, function () {
+			var result = this;
+			// open database
+			expandDatabaseInTree(result.dName);
+
+			// open table and hide others
+			var $table = findTableInTree(result.tSysName);
+			$table.show();
+			// highlight table
+			var $tableName = $table.find('span.table-name');
+			$tableName.addClass('autocomplete-item-field-selection');
+			highlightedTablesCache.push($tableName);
+
+			var highlightedField = !stringIsNullOrEmpty(result.fSysName);
+			var tryToHighlighedImmediately = highlightField($table, result.fSysName);
+			if (!tryToHighlighedImmediately && highlightedField) {
+				var tableHighlights = $table.attr('highlight');
+				if (tableHighlights)
+					tableHighlights += ',';
+				else
+					tableHighlights = '';
+				tableHighlights += result.fSysName;
+				$table.attr('highlight', tableHighlights);
+			}
+		});
+	}
+
+	/**
+	 * Open field
+	 */
+	function applyFieldSearch(searchResultObject) {
+		jq$('.data-sources .table').hide();
+		removeHighlights();
+
+		// open database
+		expandDatabaseInTree(searchResultObject.database);
+
+		// open table and hide others
+		var $table = findTableInTree(searchResultObject.table);
+		var $tableCheckbox = $table.find('.table-header > a > .checkbox-container');
+		$table.siblings().hide();
+		$table.show();
+
+		// highlight table
+		var $tableName = $table.find('span.table-name');
+		$tableName.addClass('autocomplete-item-field-selection');
+		highlightedTablesCache.push($tableName);
+
+		// open table
+		if (!$table.hasClass('opened')) {
+			var tableIndex = parseInt($tableCheckbox.parent().attr('tableind'));
+			_initFieldsDsp($tableCheckbox.parent().attr('id'), function () {
+				$table.addClass('opened');
+				// highlight field
+				highlightField($table, searchResultObject.field);
+			});
+		} else {
+			// highlight field
+			highlightField($table, searchResultObject.field);
+		}
+	}
 }

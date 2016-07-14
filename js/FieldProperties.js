@@ -9,7 +9,7 @@ function FP_ShowFilterProperties(filter, dialog) {
 	var fieldFriendlyName = filter.FilterFriendlyName ? filter.FilterFriendlyName : filter.FriendlyName;
 	if (filter.TableJoinAlias)
 		fieldFriendlyName += " (" + filter.TableJoinAlias + ")";
-	titleDiv.innerHTML = IzLocal.Res('js_FfilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
+	titleDiv.innerHTML = IzLocal.Res('js_FilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
 	var propDescription = document.getElementById('propDescription');
 	propDescription.value = filter.Description;
 	var propFilterOperators = document.getElementById('propFilterOperators');

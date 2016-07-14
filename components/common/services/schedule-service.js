@@ -1,7 +1,11 @@
 ﻿/**
  * Service used for store data in schedule control
  */
-angular.module('izenda.common.ui').factory('$izendaScheduleService', ['$injector', '$q', '$izendaSettings', '$izendaCommonQuery',
+angular.module('izenda.common.ui').factory('$izendaScheduleService', [
+	'$injector',
+	'$q',
+	'$izendaSettings',
+	'$izendaCommonQuery',
 	function ($injector, $q, $izendaSettings, $izendaCommonQuery) {
 		'use strict';
 

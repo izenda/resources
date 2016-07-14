@@ -12,7 +12,7 @@ function UrlSettings() {
   var reportName = null;
   var reportCategoryName = null;
   if (reportFullName != null) {
-    var reportFullNameParts = reportFullName.split('\\');
+  	var reportFullNameParts = reportFullName.split(jsResources.categoryCharacter);
     if (reportFullNameParts.length === 2) {
       reportName = reportFullNameParts[1];
       reportCategoryName = reportFullNameParts[0];

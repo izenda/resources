@@ -54,7 +54,7 @@
 
   // definition
   angular
-    .module('izendaCommonControls')
+    .module('izenda.common.ui')
     .directive('izendaToggleButton', [
       '$log',
       izendaToggleButton

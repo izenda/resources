@@ -34,9 +34,10 @@
 |___________________________________________________________________|
 */
 
+var DMC_DescSet = false;
 var DMC_isErrorNow = false;
-var DMC_visibilityNow = false;
 var DMC_wasMapType = '...';
+var lastCallParams_MC_OnTableListChangedHandler = new Array();
 
 function MC_OnTableListChangedHandlerWithStoredParams() {
 	if (lastCallParams_MC_OnTableListChangedHandler == null || lastCallParams_MC_OnTableListChangedHandler.length != 2)
@@ -44,7 +45,6 @@ function MC_OnTableListChangedHandlerWithStoredParams() {
 	MC_OnTableListChangedHandler(lastCallParams_MC_OnTableListChangedHandler[0], lastCallParams_MC_OnTableListChangedHandler[1]);
 }
 
-var lastCallParams_MC_OnTableListChangedHandler = new Array();
 function MC_OnTableListChangedHandler(id, tables) {
 	if (tables == null)
 		return;
@@ -60,13 +60,9 @@ function MC_OnTableListChangedHandler(id, tables) {
 		lastCallParams_MC_OnTableListChangedHandler[1] = tables;
 		return;
 	}
-	var table = document.getElementById(id+"_Table");
-	var body = table.tBodies[0];
-
-	if (tables.join != null)
+	if (typeof tables.join == 'function')
 		tables = tables.join('\'');
 	tablesSave[id] = tables;
-
 	var additionalData = null;
 	if (descriptions != null && descriptions.length > 0) {
 		additionalData = "<option disabled=''>------</option>";
@@ -75,7 +71,6 @@ function MC_OnTableListChangedHandler(id, tables) {
 			additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
 		}
 	}
-
 	var sel = document.getElementById(id + '_CountryState');
 	EBC_LoadData("CombinedColumnList", "tables=" + tables + "&includeBlank=true", sel);
 	sel = document.getElementById(id + '_City');
@@ -97,259 +92,219 @@ function MC_OnFieldsListChangedHandler(id, fields) {
 	MC_OnTableListChangedHandler(id, tablesSave[id]);
 }
 
+function DMC_GetMapType(id) {
+	var mapTypeValue = document.getElementById(id + '_MapType').value;
+	return {
+		usaMap: mapTypeValue == 'USA',
+		worldMap: mapTypeValue == 'World',
+		europeMap: mapTypeValue == 'Europe',
+		australiaMap: mapTypeValue == 'Australia'
+	};
+}
+
 function DMC_UpdateVisibility(id, visibility) {
-  var usaMap = (document.getElementById(id + '_MapType').value == 'USA') ? true : false;
-  var australiaMap = (document.getElementById(id + '_MapType').value == 'Australia') ? true : false;
-  var countryMap = (document.getElementById(id + '_MapType').value == 'World') ? true : false;
-  var europeMap = (document.getElementById(id + '_MapType').value == 'Europe') ? true : false;
-  var row = document.getElementById(id + '_countryStateRow');
-  row.style.visibility = visibility;
-  if (usaMap || australiaMap) { 
-    row.cells[0].innerHTML = jsResources.State;
-  }
-  if (countryMap || europeMap) {
-    row.cells[0].innerHTML = jsResources.Country;
-  }
-  row = document.getElementById(id + '_autoRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_shadingLabelRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_indicatorLabelRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_cityRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_postalRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_longitudeRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_latitudeRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_shadingRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_fillFromColorRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_fillToColorRow');
-  row.style.visibility = visibility;  
-  row = document.getElementById(id + '_dotsizevalueRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_shadingTargetreportRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_valueTargetreportRow');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_labelRow1');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_labelRow2');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_labelRow3');
-  row.style.visibility = visibility;
-  row = document.getElementById(id + '_labelRow4');
-  row.style.visibility = visibility;
+	var row = document.getElementById(id + '_countryStateRow');
+	row.style.visibility = visibility;
+	var mapType = DMC_GetMapType(id);
+	if (mapType.usaMap || mapType.australiaMap) {
+		row.cells[0].innerHTML = jsResources.State;
+	}
+	if (mapType.worldMap || mapType.europeMap) {
+		row.cells[0].innerHTML = jsResources.Country;
+	}
+	row = document.getElementById(id + '_autoRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_shadingLabelRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_indicatorLabelRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_cityRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_postalRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_longitudeRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_latitudeRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_shadingRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_fillFromColorRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_fillToColorRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_dotsizevalueRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_shadingTargetreportRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_valueTargetreportRow');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_labelRow1');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_labelRow2');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_labelRow3');
+	row.style.visibility = visibility;
+	row = document.getElementById(id + '_labelRow4');
+	row.style.visibility = visibility;
 }
 
 function DMC_SelectValue(id, sId, valueInd) {
-  var options = document.getElementById(id + sId);
-  for (var i = 0; i < options.length; i++) {
-    if (i != valueInd && options[i].selected) {
-      options[i].selected = false;
-    }
-    if (i == valueInd && !options[i].selected) {
-      options[i].selected = true;
-    }    
-  }
+	var options = document.getElementById(id + sId);
+	for (var i = 0; i < options.length; i++) {
+		if (i != valueInd && options[i].selected) {
+			options[i].selected = false;
+		}
+		if (i == valueInd && !options[i].selected) {
+			options[i].selected = true;
+		}
+	}
 }
 
 function DMC_AutoSelect(id) {
-  var options = document.getElementById(id + '_CountryState');
-  var fNum = 0;
-  var fields = new Array();
-  for (var i = 0; i < options.length; i++) {
-    var fName = options[i].innerHTML;
-    if (fName.charAt(fName.length - 1) == ']') {
-      fName = fName.substr(0, fName.length - 1);
-      var lastBracket = fName.lastIndexOf('[');
-      fName = fName.substr(lastBracket + 1);
-    }
-    fNum++;
-    fields[fNum - 1] = fName.toLowerCase();
-  }
-  var usaMap = (document.getElementById(id + '_MapType').value == 'USA') ? true : false;
-  var australiaMap = (document.getElementById(id + '_MapType').value == 'Australia') ? true : false;
-  var matchCountryState = -1;
-  var matchCity = -1;
-  var matchLongitude = -1;
-  var matchLatitude = -1;
-  var closestCountryState = -1;
-  var closestState = -1;
-  var closestCity = -1;
-  var closestPostal = -1;
-  var closestLongitude = -1;
-  var closestLatitude = -1;
-  for (var i = 0; i < fields.length; i++) {
-    if (fields[i] == 'country' && !usaMap) {
-      matchCountryState = i;
-    }
-    if (fields[i] == 'state' && (usaMap || australiaMap)) {
-      matchCountryState = i;
-    }
-    if (fields[i] == 'city') {
-      matchCity = i;
-    }
-    if (fields[i] == 'longitude') {
-      matchLongitude = i;
-    }
-    if (fields[i] == 'latitude') {
-      matchLatitude = i;
-    }
-    if (fields[i].indexOf('country') >= 0 && !usaMap) {
-      closestCountryState = i;
-    }
-    if (fields[i].indexOf('state') >= 0 && (usaMap || australiaMap)) {
-      closestCountryState = i;
-    }
-    if (fields[i].indexOf('city') >= 0) {
-      closestCity = i;
-    }
-    if (fields[i].indexOf('postal') >= 0 || fields[i].indexOf('zip') >= 0) {
-      closestPostal = i;
-    }    
-    if (fields[i].indexOf('longitude') >= 0) {
-      closestLongitude = i;
-    }
-    if (fields[i].indexOf('latitude') >= 0) {
-      closestLatitude = i;
-    }
-  }
-  //if (matchLongitude >= 0 && matchLatitude >= 0) {
-  //  DMC_SelectValue(id, '_Longitude', matchLongitude);
-  //  DMC_SelectValue(id, '_Latitude', matchLatitude);
-  //  return;
-  //}
-  //if (matchCity >= 0) {
-  //  DMC_SelectValue(id, '_City', matchCity);
-  //}
-  if (matchCountryState >= 0) {
-    DMC_SelectValue(id, '_CountryState', matchCountryState);
-  }
-  //if (closestPostal >= 0) {
-  //  DMC_SelectValue(id, '_Postal', closestPostal);
-  //}
-  if (matchCity >= 0 || matchCountryState >= 0) {
-    return;
-  }
-  //if (closestLatitude >= 0 && closestLatitude >= 0 && closestPostal < 0) {
-  //  DMC_SelectValue(id, '_Longitude', closestLongitude);
-  //  DMC_SelectValue(id, '_Latitude', closestLatitude);    
-  //}
-  else {
-    //if (closestCity >= 0) {
-    //  DMC_SelectValue(id, '_City', closestCity);
-    //}
-    if (closestCountryState >= 0) {
-      DMC_SelectValue(id, '_CountryState', closestCountryState);
-    }
-  }
+	var options = document.getElementById(id + '_CountryState');
+	var fNum = 0;
+	var fields = new Array();
+	for (var i = 0; i < options.length; i++) {
+		var fName = options[i].innerHTML;
+		if (fName.charAt(fName.length - 1) == ']') {
+			fName = fName.substr(0, fName.length - 1);
+			var lastBracket = fName.lastIndexOf('[');
+			fName = fName.substr(lastBracket + 1);
+		}
+		fNum++;
+		fields[fNum - 1] = fName.toLowerCase();
+	}
+	var matchCity = -1;
+	var matchCountryState = -1;
+	var closestCountryState = -1;
+	var mapType = DMC_GetMapType(id);
+	for (var i = 0; i < fields.length; i++) {
+		if (fields[i] == 'country' && !mapType.usaMap) {
+			matchCountryState = i;
+		}
+		if (fields[i] == 'state' && (mapType.usaMap || mapType.australiaMap)) {
+			matchCountryState = i;
+		}
+		if (fields[i] == 'city') {
+			matchCity = i;
+		}
+		if (fields[i].indexOf('country') >= 0 && !mapType.usaMap) {
+			closestCountryState = i;
+		}
+		if (fields[i].indexOf('state') >= 0 && (mapType.usaMap || mapType.australiaMap)) {
+			closestCountryState = i;
+		}
+	}
+	if (matchCountryState >= 0) {
+		DMC_SelectValue(id, '_CountryState', matchCountryState);
+	}
+	if (matchCity >= 0 || matchCountryState >= 0) {
+		return;
+	}
+	if (closestCountryState >= 0) {
+		DMC_SelectValue(id, '_CountryState', closestCountryState);
+	}
 }
 
 function DMC_CheckFieldAllowed(columnSel) {
-  try {
-    var oldValue = columnSel.getAttribute("oldValue");
-    if (columnSel.options[columnSel.selectedIndex].restrictselecting == "true") {
-      if (oldValue != null && columnSel.options[columnSel.selectedIndex].value != oldValue) {
-        EBC_SetSelectedIndexByValue(columnSel, oldValue);
-        alert(jsResources.ThisFieldCannotBeSelected);
-      }
-    }
-    columnSel.setAttribute("oldValue", columnSel.options[columnSel.selectedIndex].value);
-  }
-  catch (exc) {
-  }
+	try {
+		var oldValue = columnSel.getAttribute("oldValue");
+		if (columnSel.options[columnSel.selectedIndex].restrictselecting == "true") {
+			if (oldValue != null && columnSel.options[columnSel.selectedIndex].value != oldValue) {
+				EBC_SetSelectedIndexByValue(columnSel, oldValue);
+				alert(jsResources.ThisFieldCannotBeSelected);
+			}
+		}
+		columnSel.setAttribute("oldValue", columnSel.options[columnSel.selectedIndex].value);
+	} catch (exc) { }
 }
 
 function DMC_FieldsChanged(id) {
-  var isError = false;
-  var count = 0;
-  var selValue = document.getElementById(id + '_MapType');
-  var mapTypeSelected = !(selValue.value == '...' || selValue.value == 'None');
-  var visibility = '';
-  if (!mapTypeSelected) {
-    visibility = 'hidden';
-  }
-  var mapType = selValue.value;
-  if (mapType != DMC_wasMapType) {
-    DMC_visibilityNow = visibility;
-    DMC_UpdateVisibility(id, visibility);
-  }
-  if (mapTypeSelected) {
-    var usaMap = (document.getElementById(id + '_MapType').value == 'USA') ? true : false;
-    var australiaMap = (document.getElementById(id + '_MapType').value == 'Australia') ? true : false;
-    var sel;
-    sel = document.getElementById(id + '_CountryState');
-    DMC_CheckFieldAllowed(sel);
-    var countryStateSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    sel = document.getElementById(id + '_City');
-    DMC_CheckFieldAllowed(sel);
-    var citySelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    sel = document.getElementById(id + '_Postal');
-    DMC_CheckFieldAllowed(sel);
-    var postalSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    sel = document.getElementById(id + '_Longitude');
-    DMC_CheckFieldAllowed(sel);
-    var longitudeSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    sel = document.getElementById(id + '_Latitude');
-    DMC_CheckFieldAllowed(sel);
-    var latitudeSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    sel = document.getElementById(id + '_ShadingValue');
-    DMC_CheckFieldAllowed(sel);
-    var shadingValueSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    var shadingFunctionSelected = (document.getElementById(id + '_ShadingFunction').value == '...' || document.getElementById(id + '_ShadingFunction').value == 'None') && !sel.value.startsWith('Desciption!') ? false : true;
-    if (!shadingValueSelected && shadingFunctionSelected)
-      DMC_SelectValue(id, '_ShadingFunction', 0);
-    sel = document.getElementById(id + '_DotSizeValue');
-    DMC_CheckFieldAllowed(sel);
-    var dotSizeValueSelected = (sel.value == '...' || sel.value == 'None') ? false : true;
-    var dotSizeFunctionSelected = (document.getElementById(id + '_DotFunction').value == '...' || document.getElementById(id + '_DotFunction').value == 'None') && !sel.value.startsWith('Desciption!') ? false : true;
-    if (!dotSizeValueSelected && dotSizeFunctionSelected)
-      DMC_SelectValue(id, '_DotFunction', 0);
-    if (!countryStateSelected && !citySelected && !postalSelected && !longitudeSelected && !latitudeSelected && !shadingValueSelected && !shadingFunctionSelected && !dotSizeValueSelected && !dotSizeFunctionSelected) {
-      if (DMC_wasMapType == '...') {
-        DMC_AutoSelect(id);
-      }
-    }
-    if (((dotSizeValueSelected && dotSizeFunctionSelected) || (shadingValueSelected && shadingFunctionSelected)) && (countryStateSelected || citySelected || postalSelected || (longitudeSelected && latitudeSelected))) {
-      count = 1;
-    }
-    if (dotSizeValueSelected != (longitudeSelected || citySelected || postalSelected))
-    	isError = true;
-    if (shadingValueSelected != countryStateSelected)
-	    isError = true;
-    if ((dotSizeValueSelected != dotSizeFunctionSelected) || (shadingValueSelected != shadingFunctionSelected) || (!dotSizeValueSelected && !shadingValueSelected)) {
-      isError = true;
-    }
-    if (longitudeSelected != latitudeSelected) {
-      isError = true;
-    }
-    if (longitudeSelected && (citySelected || countryStateSelected || postalSelected)) {
-      isError = true;
-    }
-  }
-  DMC_wasMapType = document.getElementById(id + '_MapType').value;
-  if (!isError) {
-    if (DMC_isErrorNow) {
-      DisableEnablePreviewTab(isError);
-      DisableEnableToolbar(isError);
-    }
-    EBC_CheckFieldsCount(id, count);
-  }
-  else {
-    if (!DMC_isErrorNow) {
-      DisableEnablePreviewTab(isError);
-      DisableEnableToolbar(isError);
-    }
-  }
-  DMC_isErrorNow = isError;
+	var isError = false;
+	var count = 0;
+	var selValue = document.getElementById(id + '_MapType');
+	var mapTypeSelected = !(selValue.value == '...' || selValue.value == 'None');
+	var visibility = '';
+	if (!mapTypeSelected) {
+		visibility = 'hidden';
+	}
+	var mapType = selValue.value;
+	if (mapType != DMC_wasMapType) {
+		DMC_UpdateVisibility(id, visibility);
+	}
+	if (mapTypeSelected) {
+		var sel = document.getElementById(id + '_CountryState');
+		DMC_CheckFieldAllowed(sel);
+		var countryStateSelected = (sel.value != '...' && sel.value != 'None');
+		sel = document.getElementById(id + '_City');
+		DMC_CheckFieldAllowed(sel);
+		var citySelected = (sel.value != '...' && sel.value != 'None');
+		sel = document.getElementById(id + '_Postal');
+		DMC_CheckFieldAllowed(sel);
+		var postalSelected = (sel.value != '...' && sel.value != 'None');
+		sel = document.getElementById(id + '_Longitude');
+		DMC_CheckFieldAllowed(sel);
+		var longitudeSelected = (sel.value != '...' && sel.value != 'None');
+		sel = document.getElementById(id + '_Latitude');
+		DMC_CheckFieldAllowed(sel);
+		var latitudeSelected = (sel.value != '...' && sel.value != 'None');
+		sel = document.getElementById(id + '_ShadingValue');
+		DMC_CheckFieldAllowed(sel);
+		var shadingValueSelected = (sel.value != '...' && sel.value != 'None');
+		var shadingFunctionControl = document.getElementById(id + '_ShadingFunction');
+		var shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		if (!shadingValueSelected && shadingFunctionSelected) {
+			DMC_SelectValue(id, '_ShadingFunction', 0);
+			shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		}
+		sel = document.getElementById(id + '_DotSizeValue');
+		DMC_CheckFieldAllowed(sel);
+		var dotValueSelected = (sel.value != '...' && sel.value != 'None');
+		var dotFunctionControl = document.getElementById(id + '_DotFunction');
+		var dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		if (!dotValueSelected && dotFunctionSelected) {
+			DMC_SelectValue(id, '_DotFunction', 0);
+			dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		}
+		if (!(countryStateSelected || citySelected || postalSelected || longitudeSelected || latitudeSelected || shadingValueSelected || shadingFunctionSelected || dotValueSelected || dotFunctionSelected)) {
+			if (DMC_wasMapType == '...') {
+				DMC_AutoSelect(id);
+			}
+		}
+		if (((dotValueSelected && dotFunctionSelected) || (shadingValueSelected && shadingFunctionSelected)) && (countryStateSelected || citySelected || postalSelected || (longitudeSelected && latitudeSelected))) {
+			count = 1;
+		}
+		if (dotValueSelected != (citySelected || postalSelected || (longitudeSelected && latitudeSelected)))
+			isError = true;
+		if (shadingValueSelected != countryStateSelected)
+			isError = true;
+		if ((dotValueSelected != dotFunctionSelected) || (shadingValueSelected != shadingFunctionSelected) || (!dotValueSelected && !shadingValueSelected))
+			isError = true;
+		if (longitudeSelected != latitudeSelected)
+			isError = true;
+		if ((longitudeSelected && latitudeSelected) && (citySelected || countryStateSelected || postalSelected))
+			isError = true;
+	}
+
+	DMC_wasMapType = mapType;
+
+	if (!isError) {
+		if (DMC_isErrorNow) {
+			DisableEnablePreviewTab(isError);
+			DisableEnableToolbar(isError);
+		}
+		EBC_CheckFieldsCount(id, count);
+	}
+	else {
+		if (!DMC_isErrorNow) {
+			DisableEnablePreviewTab(isError);
+			DisableEnableToolbar(isError);
+		}
+	}
+	DMC_isErrorNow = isError;
 }
 
-function DMC_OnValueColumnChanged(e, columnID, functionID){
+function DMC_OnValueColumnChanged(e, columnID, functionID) {
 	if (e)
 		ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e);
@@ -374,7 +329,6 @@ function DMC_PopulateDescriptions(fields) {
 	EBC_PopulateDescriptions(fields);
 }
 
-var DMC_DescSet = false;
 function DMC_OnFieldsListInitialized(id, fields) {
 	if (!DMC_DescSet) {
 		DMC_PopulateDescriptions(fields);

@@ -127,5 +127,7 @@ function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izend
 				return;
 			vm.closeFiltersPanel();
 		});
+
+		IzLocal.LocalizePage();
 	};
 }

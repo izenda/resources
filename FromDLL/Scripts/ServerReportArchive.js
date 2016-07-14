@@ -41,7 +41,6 @@ var allowOverwriting;
 var folderId;
 var stripInvalidCharacters;
 var allowInvalidCharacters;
-var categoryCharacter = '\\';
 
 function SRA_ReportExists(reportName)
 {
@@ -118,8 +117,8 @@ function SRA_ProcessReportName(reportName, folder, replaceFolder)
 		}
 	}	
 	var additionalCharacter = '';
-	if (categoryCharacter != '\\')
-	  additionalCharacter = escapeRegExp(categoryCharacter);
+	if (jsResources.categoryCharacter != '\\')
+		additionalCharacter = escapeRegExp(jsResources.categoryCharacter);
 	var regexp = new RegExp("[^A-Za-z0-9_/" + additionalCharacter + "\\-'' \\\\]", 'g');
 	if (folder != "" && folder != null)
 	{
@@ -156,7 +155,7 @@ function SRA_SaveReportClick(evt, reportNameId, formId, action) {
 function SRA_CheckReport(rnParam, checkReportExist) {
 	if(checkReportExist==null)
 	  checkReportExist = true;
-	nameNodes = rnParam.split(categoryCharacter);
+	nameNodes = rnParam.split(jsResources.categoryCharacter);
 	var emptyName = false;
 	for (var index = 0; index < nameNodes.length; index++)
 	  if (nameNodes[index] == null || nameNodes[index].length == 0)

@@ -1,21 +1,24 @@
-﻿angular.module('izenda.common.ui').controller('IzendaNotificationController', [
-	'$rootScope',
-	'$scope',
-	izendaNotificationController]);
-
-/**
- * Notification controller
+﻿/**
+ * Show notification controller
+ * it could be run by using $rootScope.$broadcast 'izendaShowNotificationEvent'
+ * with 2 parameters: text and title.
  */
-function izendaNotificationController(
-	$rootScope,
-	$scope) {
-	'use strict';
+angular
+	.module('izenda.common.ui')
+	.controller('IzendaNotificationController', [
+		'$rootScope',
+		'$scope',
+		IzendaNotificationController]);
 
+function IzendaNotificationController($rootScope, $scope) {
+	'use strict';
 	var vm = this;
+
 	vm.notificationsIdCounter = 1;
 	vm.notifications = [];
 
-	var getNotificationById = function(id) {
+	// private
+	var getNotificationById = function (id) {
 		var i = 0;
 		while (i < vm.notifications.length) {
 			var itm = vm.notifications[i];
@@ -78,7 +81,7 @@ function izendaNotificationController(
 		$scope.$evalAsync();
 	};
 
-	$scope.$on('showNotificationEvent', function (event, args) {
+	$scope.$on('izendaShowNotificationEvent', function (event, args) {
 		if (args.length > 0) {
 			var title = args.length > 1 ? args[1] : '';
 			var text = args[0];
@@ -89,7 +92,5 @@ function izendaNotificationController(
 	/**
 	 * Initialize controller
 	 */
-	vm.initialize = function () {
-		
-	};
+	vm.initialize = function () {};
 }

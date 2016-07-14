@@ -21,7 +21,7 @@
 			exposeAsDatasource: false,
 			hideGrid: false,
 			top: '',
-			previewTop: 10,
+			previewTop: 100,
 			title: '',
 			titleAlign: 'L',
 			description: '',
@@ -75,19 +75,10 @@
 		titleFormats: [],
 		isValid: true,
 		validationMessages: [],
-		validationMessageString: ''
+		validationMessageString: '',
+		customPopupTemplateUrl: null
 	});
-
-	/**
-	 * Chart object template
-	 */
-	angular.module('izendaInstantReport').constant('izendaChartObjectDefaults', {
-		id: 0,
-		title: '',
-		top: 100,
-		chartType: null
-	});
-
+	
 	/**
 	 * Default (empty) function (for group by "function" field property)
 	 */
@@ -141,12 +132,13 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportStorage', [
 			'$izendaCompatibility',
 			'$izendaScheduleService',
 			'$izendaShareService',
-			'izendaInstantReportConfig',
+			'$izendaInstantReportSettings',
 			'$izendaInstantReportQuery',
 			'$izendaInstantReportPivots',
+			'$izendaInstantReportVisualization',
 function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUrl, $izendaLocale, $izendaSettings, $izendaCompatibility,
-	$izendaScheduleService, $izendaShareService, izendaInstantReportConfig, $izendaInstantReportQuery,
-	$izendaInstantReportPivots) {
+	$izendaScheduleService, $izendaShareService, $izendaInstantReportSettings, $izendaInstantReportQuery,
+	$izendaInstantReportPivots, $izendaInstantReportVisualization) {
 	'use strict';
 
 	// const:
@@ -167,11 +159,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	var previewSplashText = $izendaLocale.localeText('js_WaitPreviewLoading', 'Please wait while preview is loading...');
 
 	var reportSet = angular.merge({}, $injector.get('izendaInstantReportObjectDefaults'));
+	reportSet.options.distinct = $izendaInstantReportSettings.distinct; // set default distinct setting value
+
 	var activeTables = [];
 	var activeFields = [];
 	var activeCheckedFields = [];
 	var constaints = [];
-	var visualizationConfig = null;
 	var vgStyles = null;
 	var drillDownStyles = null;
 	var expressionTypes = null;
@@ -606,46 +599,6 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return vgStyles;
 	};
 
-	/////////////////////////////////////////
-	// visualization functions
-	/////////////////////////////////////////
-
-	var findVisualizationInConfig = function (category, name) {
-		if (!angular.isObject(visualizationConfig))
-			return null;
-		var result = null;
-		angular.element.each(visualizationConfig.categories, function () {
-			if (this.name === category) {
-				angular.element.each(this.charts, function () {
-					if (this.name === name)
-						result = this;
-				});
-			}
-		});
-		return result;
-	};
-
-	var initializeVisualizations = function () {
-		return $q(function (resolve) {
-			$izendaInstantReportQuery.getVisualizationConfig().then(function (config) {
-				visualizationConfig = config;
-				if (!angular.isObject(visualizationConfig) || !angular.isArray(visualizationConfig.categories))
-					return;
-				angular.element.each(visualizationConfig.categories, function () {
-					var categoryName = this.name;
-					angular.element.each(this.charts, function () {
-						this.categoryName = categoryName;
-					});
-				});
-				resolve();
-			});
-		});
-	};
-
-	var getVisualizationConfig = function () {
-		return visualizationConfig;
-	};
-
 	/**
 	 * Initialize possible expression types.
 	 */
@@ -672,12 +625,25 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			$izendaInstantReportQuery.getDrillDownStyles().then(function (result) {
 				drillDownStyles = [];
 				angular.element.each(result[0].options, function () {
-					if (this.value !== '') {
-						drillDownStyles.push(this);
-					}
+					this.disabled = false;
+					drillDownStyles.push(this);
 				});
 				resolve();
 			});
+		});
+	};
+
+	/**
+	 * Disable EmbeddedDetail drilldown style for current report and (AUTO)
+	 */
+	var disableEmbeddedDrillDownStyle = function (field) {
+		angular.element.each(drillDownStyles, function () {
+			var ddStyle = this;
+			ddStyle.disabled = false;
+			var reportInfo = $izendaUrl.getReportInfo();
+			if (ddStyle.value === 'EmbeddedDetail') {
+				ddStyle.disabled = field.subreport === '(AUTO)' || field.subreport === reportInfo.fullName;
+			}
 		});
 	};
 
@@ -1113,7 +1079,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});*/
 	};
 
-	var resetFieldObject = function (fieldObject) {
+	var resetFieldObject = function (fieldObject, defaultValues) {
 		fieldObject.isInitialized = false;
 		fieldObject.isMultipleColumns = false;
 		fieldObject.multipleColumns = [];
@@ -1143,12 +1109,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		fieldObject.cellHighlight = '';
 		fieldObject.valueRange = '';
 		fieldObject.width = '';
-		fieldObject.labelJustification = 'L';
-		fieldObject.valueJustification = 'L';
+		fieldObject.labelJustification = 'M';
+		fieldObject.valueJustification = 'J';
 		fieldObject.visible = true;
 		fieldObject.gradient = false;
 		fieldObject.bold = false;
-		fieldObject.drillDownStyle = 'DetailLink';
+		fieldObject.drillDownStyle = '';
 		fieldObject.customUrl = '';
 		fieldObject.subreport = '';
 		fieldObject.expression = '';
@@ -1156,14 +1122,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		fieldObject.groupByExpression = false;
 		fieldObject.validateMessages = [];
 		fieldObject.validateMessageLevel = null;
+
+		angular.extend(fieldObject, defaultValues);
 	};
 
 	var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup, fieldType, fieldSqlType, allowedInFilters) {
-		var fieldObject = {
+		var fieldObject = { };
+		resetFieldObject(fieldObject, {
 			id: getNextId(),
-			isInitialized: false,
-			isMultipleColumns: false,
-			multipleColumns: [],
 			parentId: tableId,
 			name: fieldName,
 			tableSysname: tableSysname,
@@ -1172,49 +1138,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			typeGroup: fieldTypeGroup,
 			type: fieldType,
 			sqlType: fieldSqlType,
-			highlight: false,
-			enabled: true,
-			checked: false,
-			selected: false,
-			collapsed: false,
-			isVgUsed: false,
-			breakPageAfterVg: false,
-			description: $izendaUtil.humanizeVariableName(fieldName),
-			isDescriptionSetManually: false,
-			order: 0,
-			// formats
-			format: EMPTY_FIELD_FORMAT_OPTION,
-			formatOptionGroups: [],
-			// group by
-			groupByFunction: EMPTY_FIELD_GROUP_OPTION, // field function (used to select GROUP BY function)
-			groupByFunctionOptions: [], // available field functions to select
-			// Subtotal group by
-			groupBySubtotalFunction: EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS, // Subtotal field function  (used to select GROUP BY function for Subtotal)
-			groupBySubtotalFunctionOptions: [], // available field functions for subtotals
-			subtotalExpression: '',
-			allowedInFilters: allowedInFilters,
-			sort: null,
-			italic: false,
-			columnGroup: '',
-			separator: false,
-			textHighlight: '',
-			cellHighlight: '',
-			valueRange: '',
-			width: '',
-			labelJustification: 'L',
-			valueJustification: 'L',
-			visible: true,
-			gradient: false,
-			bold: false,
-			drillDownStyle: 'DetailLink',
-			customUrl: '',
-			subreport: '',
-			expression: '',
-			expressionType: EMPTY_EXPRESSION_TYPE,
-			groupByExpression: false,
-			validateMessages: [],
-			validateMessageLevel: null
-		};
+			allowedInFilters: allowedInFilters
+		});
 		return fieldObject;
 	};
 
@@ -1280,7 +1205,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			category.enabled = true;
 			category.collapsed = true;
 			// iterate tables
-			angular.element.each(category.tables, function (tableName, table) {
+			angular.element.each(category.tables, function (idx, table) {
 				table.visible = true;
 				table.active = false;
 				table.enabled = true;
@@ -1288,48 +1213,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				table.validateMessages = [];
 				table.validateMessageLevel = null;
 				// iterate fields
-				angular.element.each(table.fields, function (fieldName, field) {
-					field.isMultipleColumns = false;
-					field.multipleColumns = [];
-					field.highlight = false;
-					field.enabled = true;
-					field.checked = false;
-					field.selected = false;
-					field.collapsed = false;
-					field.isVgUsed = false,
-					field.breakPageAfterVg = false;
-					field.description = '';
-					field.isDescriptionSetManually = false;
-					field.order = 0;
-					field.format = EMPTY_FIELD_FORMAT_OPTION;
-					field.formatOptionGroups = [];
-					field.groupByFunction = EMPTY_FIELD_GROUP_OPTION;
-					field.groupByFunctionOptions = [];
-					field.groupBySubtotalFunction = EMPTY_SUBTOTAL_FIELD_GROUP_OPTIONS;
-					field.groupBySubtotalFunctionOptions = [];
-					field.subtotalExpression = '';
-					field.allowedInFilters = true;
-					field.sort = null;
-					field.italic = false;
-					field.columnGroup = '';
-					field.separator = false;
-					field.textHighlight = '';
-					field.cellHighlight = '';
-					field.valueRange = '';
-					field.width = '';
-					field.labelJustification = 'L';
-					field.valueJustification = 'L';
-					field.gradient = false;
-					field.visible = true;
-					field.bold = false;
-					field.drillDownStyle = 'DetailLink';
-					field.customUrl = '';
-					field.subreport = '';
-					field.expression = '';
-					field.expressionType = EMPTY_EXPRESSION_TYPE;
-					field.groupByExpression = false;
-					field.validateMessages = [];
-					field.validateMessageLevel = null;
+				angular.element.each(table.fields, function (idx, field) {
+					resetFieldObject(field, {
+						isInitialized: field.isInitialized,
+						description: ''
+					});
 				});
 			});
 		});
@@ -1343,6 +1231,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		angular.element.each(fields, function (fieldName, field) {
 			var fieldObject = createFieldObject(fieldName, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
 				field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
+			autoUpdateFieldDescription(fieldObject);
 			tableObject.fields.push(fieldObject);
 		});
 		tableObject.fields.sort(function (field1, field2) {
@@ -1400,7 +1289,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				categoryObject.tables.push(tableObject);
 			});
 
-			if (isUncategorized(categoryObject.name) && izendaInstantReportConfig.moveUncategorizedToLastPostion) {
+			if (isUncategorized(categoryObject.name) && $izendaInstantReportSettings.moveUncategorizedToLastPostion) {
 				uncategorized = categoryObject;
 			} else {
 				result.push(categoryObject);
@@ -1558,7 +1447,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				sysname: filter.field.sysname,
 				operatorString: filter.operator.value,
 				values: preparedValues,
-				titleFormat: filter.titleFormat
+				titleFormat: filter.titleFormat,
+				customPopupTemplateUrl: filter.customPopupTemplateUrl
 			};
 			var isBlank = true;
 			angular.element.each(filterObj.values, function () {
@@ -1777,7 +1667,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					resolve(success, message);
 				});
 			} else if (exportType === 'csv') {
-				exportReportAs('CSV').then(function (success, message) {
+				var exportMode = 'CSV';
+				if ($izendaSettings.getBulkCsv())
+					exportMode = 'BULKCSV';
+				exportReportAs(exportMode).then(function (success, message) {
 					resolve(success, message);
 				});
 			} else if (exportType === 'xml') {
@@ -1897,7 +1790,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			$izendaInstantReportQuery.getFieldOperatorList(field).then(function (data) {
 				var result = [];
 				angular.element.each(data, function () {
-					var groupName = this.name;
+					var groupName = this.name ? this.name : undefined;
 					angular.element.each(this.options, function () {
 						if (this.value !== '...') {
 							var optionToAdd = angular.extend({
@@ -1967,19 +1860,36 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		}
 
 		// convert options which we have got from server.
-		function convertOptionsForSelect(options) {
+		function convertOptionsForSelect(options, operatorType) {
 			if (!angular.isArray(options))
 				return [];
 			var result = [];
 			angular.element.each(options, function () {
 				var option = this;
-				if (option.value !== '...') {
+				if (option.value === '...') {
+					if (operatorType === 'select' || operatorType === 'inTimePeriod') {
+						option.text = parseHtmlUnicodeEntities(option.text);
+						option.value = option.value;
+						result.push(option);
+					}
+				} else {
 					option.text = parseHtmlUnicodeEntities(option.text);
 					option.value = option.value;
 					result.push(option);
 				}
 			});
 			return result;
+		}
+
+		function getOptionByValue(options, value) {
+			if (!angular.isArray(options))
+				return null;
+			var resultsArray = angular.element.grep(options, function (currentOption) {
+				return currentOption.value === value;
+			});
+			if (resultsArray.length === 0)
+				return null;
+			return resultsArray[0];
 		}
 
 		// return promise
@@ -2014,13 +1924,19 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			if (['select', 'Equals_Autocomplete', 'select_multiple', 'select_popup', 'select_checkboxes'].indexOf(operatorType) >= 0) {
 				$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true, reportSet.filterOptions.filterLogic)
 					.then(function (data) {
-						filter.existentValues = convertOptionsForSelect(data[0].options);
+						filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
+						var defaultValue = getOptionByValue(filter.existentValues, '...');
+						if (filter.values.length === 0 && defaultValue)
+							filter.values = [defaultValue.value];
 						filter.initialized = true;
 						resolve(filter);
 					});
 			} else if (operatorType === 'inTimePeriod') {
 				$izendaInstantReportQuery.getPeriodList().then(function(data) {
-					filter.existentValues = convertOptionsForSelect(data[0].options);
+					filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
+					var defaultValue = getOptionByValue(filter.existentValues, '...');
+					if (filter.values.length === 0 && defaultValue)
+						filter.values = [defaultValue.value];
 					filter.initialized = true;
 					resolve(filter);
 				});
@@ -2095,7 +2011,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Create filter object without loading its format.
 	 */
-	var _createNewFilterBase = function(fieldSysName, operatorName, values, required, description, parameter) {
+	var _createNewFilterBase = function (fieldSysName, operatorName, values, required, description, parameter, customPopupTemplateUrl) {
 		var filterObject = angular.extend({}, $injector.get('izendaFilterObjectDefaults'));
 		// set field
 		var field = getFieldBySysName(fieldSysName);
@@ -2113,6 +2029,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			filterObject.parameter = parameter;
 		if (angular.isDefined(operatorName))
 			filterObject.operatorString = operatorName;
+		if (angular.isDefined(customPopupTemplateUrl))
+			filterObject.customPopupTemplateUrl = customPopupTemplateUrl;
 		return filterObject;
 	};
 
@@ -2143,8 +2061,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Create new filter object with default values
 	 */
-	var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter, titleFormatName) {
-		var filterObject = _createNewFilterBase(fieldSysName, operatorName, values, required, description, parameter, titleFormatName);
+	var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter, titleFormatName, customPopupTemplateUrl) {
+		var filterObject = _createNewFilterBase(fieldSysName, operatorName, values, required, description, parameter, titleFormatName, customPopupTemplateUrl);
 		return loadFilterFormats(filterObject, titleFormatName);
 	};
 
@@ -2201,6 +2119,34 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		// remove filters
 		angular.element.each(filtersToRemove, function () {
 			removeFilter(this);
+		});
+	};
+
+	/**
+	 * Parse filter custom temlpate string
+	 * format: "###USEPAGE###http://.../CustomFilters/CustomFilterTemplate.aspx###"
+	 */
+	var parseFilterCustomTemplate = function (templateString) {
+		if (angular.isString(templateString) && templateString.indexOf("###USEPAGE###") != -1) {
+			return templateString.substring(13, templateString.length - 3);
+		}
+		return templateString;
+	};
+
+	/**
+	 * Load custom template for popup filter.
+	 */
+	var getPopupFilterCustomTemplate = function (filter) {
+		return $q(function (resolve) {
+			var field = filter.field;
+			var table = getTableById(field.parentId);
+			$izendaInstantReportQuery.getExistentPopupValuesList(field, table).then(function (data) {
+				if (angular.isString(data))
+					filter.customPopupTemplateUrl = parseFilterCustomTemplate(data);
+				else
+					filter.customPopupTemplateUrl = null;
+				resolve();
+			});
 		});
 	};
 
@@ -2468,6 +2414,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 		initializeField(anotherField).then(function () {
 			applyAutoGroups();
+			autoUpdateFieldDescription(anotherField);
 		});
 		parentField.multipleColumns.push(anotherField);
 
@@ -2491,6 +2438,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 
 		loadGroupFunctionsAndFormatsToField(field, functionValue, formatValue, subtotalFunctionValue).then(function (f) {
+			autoUpdateFieldDescription(f);
 			f.isInitialized = true;
 		});
 	}
@@ -2514,7 +2462,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		for (var i = 0; i < reportSet.charts.length; i++) {
 			var chart = reportSet.charts[i];
 			if (angular.isObject(chart) && chart.hasOwnProperty('name') && chart.hasOwnProperty('category')) {
-				var vis = findVisualizationInConfig(chart.category, chart.name);
+				var vis = $izendaInstantReportVisualization.findVisualization(chart.category, chart.name);
 				vis.properties = reportSet.charts[i].properties;
 				reportSet.charts[i] = vis;
 			}
@@ -2541,10 +2489,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					required: filter.required,
 					description: filter.description,
 					parameter: filter.parameter,
-					titleFormat: filter.titleFormat
+					titleFormat: filter.titleFormat,
+					customPopupTemplateUrl: filter.customPopupTemplateUrl
 				};
 				var newFilter = _createNewFilterBase(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
-					filterConfig.required, filterConfig.description, filterConfig.parameter);
+					filterConfig.required, filterConfig.description, filterConfig.parameter, filter.customPopupTemplateUrl);
 				
 				reportSet.filters[i] = newFilter;
 
@@ -2612,24 +2561,6 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				if (reportSet.options.top < 0) reportSet.options.top = '';
 				reportSet.options.previewTop = 10;
 
-				// convert drilldown field sysnames to fields collection:
-				convertDrilldownFieldNamesToFields();
-				// convert chart names to chart objects collection
-				convertChartNamesToCharts();
-
-				// load pivot fields
-				if (angular.isObject(reportSet.pivot)) {
-					var pivotColumnConfig = angular.copy(reportSet.pivot.pivotColumn);
-					reportSet.pivot.pivotColumn = angular.copy(getFieldBySysName(pivotColumnConfig.sysname, true));
-					reportSet.pivot.pivotColumn.isPivotColumn = true;
-					loadReportField(reportSet.pivot.pivotColumn, pivotColumnConfig);
-					for (var i = 0; i < reportSet.pivot.cellValues.length; i++) {
-						var cellValueConfig = angular.copy(reportSet.pivot.cellValues[i]);
-						reportSet.pivot.cellValues[i] = angular.copy(getFieldBySysName(cellValueConfig.sysname, true));
-						loadReportField(reportSet.pivot.cellValues[i], cellValueConfig);
-					}
-				}
-
 				var lazyPromises = [];
 				angular.element.each(reportSet.joinedTables, function() {
 					var tableObj = this;
@@ -2639,7 +2570,27 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				});
 
 				// wait until table fields will be loaded:
-				$q.all(lazyPromises).then(function() {
+				$q.all(lazyPromises).then(function () {
+					// convert chart names to chart objects collection
+					convertChartNamesToCharts();
+
+					// convert drilldown field sysnames to fields collection:
+					convertDrilldownFieldNamesToFields();
+
+					// load pivot fields
+					if (angular.isObject(reportSet.pivot)) {
+						var pivotColumnConfig = angular.copy(reportSet.pivot.pivotColumn);
+						var pivotColumnField = getFieldBySysName(pivotColumnConfig.sysname, true);
+						reportSet.pivot.pivotColumn = angular.copy(pivotColumnField);
+						reportSet.pivot.pivotColumn.isPivotColumn = true;
+						loadReportField(reportSet.pivot.pivotColumn, pivotColumnConfig);
+						for (var i = 0; i < reportSet.pivot.cellValues.length; i++) {
+							var cellValueConfig = angular.copy(reportSet.pivot.cellValues[i]);
+							reportSet.pivot.cellValues[i] = angular.copy(getFieldBySysName(cellValueConfig.sysname, true));
+							loadReportField(reportSet.pivot.cellValues[i], cellValueConfig);
+						}
+					}
+
 					// convert fields
 					var addedFieldSysNames = [];
 					angular.element.each(reportSet.activeFields, function () {
@@ -2879,9 +2830,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	$log.debug('Start instant report initialize');
 	isPageInitialized = false;
 	isPageReady = false;
+
 	var startInitializingTimestamp = (new Date()).getTime();
-	$q.all([$izendaSettings.getCommonSettings(), loadDataSources(), initializeVgStyles(), initializeSubreports(), initializeDrillDownStyles(),
-		initializeExpressionTypes(), initializeVisualizations()]).then(function () {
+	$q.all([loadDataSources(), initializeVgStyles(), initializeSubreports(), initializeDrillDownStyles(),
+		initializeExpressionTypes(), $izendaInstantReportVisualization.loadVisualizations()]).then(function () {
 			isPageInitialized = true;
 			if (angular.isString(existingReportLoadingSchedule)) {
 				$log.debug('Start loading scheduled report', existingReportLoadingSchedule);
@@ -2938,6 +2890,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		getDrillDownFields: getDrillDownFields,
 		getVgStyles: getVgStyles,
 		getDrillDownStyles: getDrillDownStyles,
+		disableEmbeddedDrillDownStyle: disableEmbeddedDrillDownStyle,
 		getExpressionTypes: getExpressionTypes,
 		getSubreports: getSubreports,
 		getCurrentActiveField: getCurrentActiveField,
@@ -2990,8 +2943,6 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		loadFilterFormats: loadFilterFormats,
 		getPreviewSplashVisible: getPreviewSplashVisible,
 		getPreviewSplashText: getPreviewSplashText,
-
-		// visualization
-		getVisualizationConfig: getVisualizationConfig
+		getPopupFilterCustomTemplate: getPopupFilterCustomTemplate
 	};
 }]);

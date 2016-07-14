@@ -7,7 +7,7 @@
 	var izendaAlignSwitcherTemplate =
 		'<span class="izenda-align-switcher glyphicon" ng-click="nextValue()" ng-attr-title="title" ng-class="alignShortcut"></span>';
 
-	angular.module('izendaCommonControls').directive('izendaAlignSwitcher', [
+	angular.module('izenda.common.ui').directive('izendaAlignSwitcher', [
 		function() {
 			return {
 				restrict: 'AE',

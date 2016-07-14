@@ -13,6 +13,7 @@ angular
 			'$izendaLocale',
 			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
+			'$izendaInstantReportVisualization',
 			'$log',
 			InstantReportChartsController
 ]);
@@ -27,12 +28,15 @@ function InstantReportChartsController(
 			$izendaLocale,
 			$izendaCompatibility,
 			$izendaInstantReportStorage,
+			$izendaInstantReportVisualization,
 			$log) {
 	'use strict';
 	var vm = this;
 
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
-	vm.visualizationConfig = $izendaInstantReportStorage.visualizationConfig;
+	$scope.$izendaInstantReportVisualization = $izendaInstantReportVisualization;
+
+	vm.visualizationConfig = $izendaInstantReportVisualization.getVisualizationConfig();
 	vm.selectedChart = null;
 
 	/**
@@ -81,7 +85,7 @@ function InstantReportChartsController(
 	*/
 	vm.init = function () {
 		
-		$scope.$watch('$izendaInstantReportStorage.getVisualizationConfig()', function (visConfig) {
+		$scope.$watch('$izendaInstantReportVisualization.getVisualizationConfig()', function (visConfig) {
 			vm.visualizationConfig = visConfig;
 			vm.prepareConfig();
 		});

@@ -82,7 +82,7 @@
     </ul>
         </div>
   <div class="btn-group cool">
-            <button id="menuBtnExcelExport" type="button" class="btn" title="Excel"
+            <button id="menuBtnExcelExport" type="button" class="btn" lang-title="js_ExportToExcel" title="Export to Excel"
       onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XLS(MIME)', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
       <img class="icon" src="rs.aspx?image=ModernImages.excel.png" alt="Get Excel file" />
       <span class="hide" lang-text="js_ExportToExcel">Export to Excel</span>
@@ -241,7 +241,7 @@
             <div class="filterViewerTemplate" style="float: left; margin-right: 8px; margin-bottom: 16px; min-width: 300px; width: auto; display: none;">
                 <div class="filterInnerContent" style="float: left; margin-right: 8px; min-width: 300px;">
                         <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
-                            <span class="filterRequiredFlag" style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;" title="Required">*</span>
+                            <span class="filterRequiredFlag" style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display:none;" lang-title="js_Require" title="Require">*</span>
                             <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
                                 <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" 
                                   style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
@@ -252,7 +252,7 @@
                 </div>
             </div>
             <!-- Add New Filter Template -->
-                    <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" title="Add New Filter"></div>
+                    <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" lang-title="js_AddNewFilterTooltip" title="Add New Filter"></div>
             <!-- Add New Filter Button Template -->
                     <div class="fuidNewFilterTemplate" style="margin-right: 8px; width: 30px; display: none;" expanded="false">
                         <div style="background-color: #1C4E89; padding-left: 4px; margin-bottom: 2px; height: 26px; color: white; font-weight: bold; line-height: 22px;">

@@ -2,7 +2,7 @@
 * Background image/color storage service
 */
 angular
-.module('izendaQuery')
+.module('izenda.common.query')
 .factory('$izendaBackground', ['$log', '$cookies', function ($log, $cookies) {
 	'use strict';
 

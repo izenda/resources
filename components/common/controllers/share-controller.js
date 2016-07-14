@@ -1,19 +1,20 @@
-﻿angular.module('izenda.common.ui').controller('IzendaShareController', [
+﻿/**
+ * Share controller control. Used for configure access for report.
+ */
+angular.module('izenda.common.ui').controller('IzendaShareController', [
 	'$scope',
 	'$izendaLocale',
 	'$izendaShareService',
-	izendaShareController]);
+	IzendaShareController]);
 
-/**
- * Share controller
- */
-function izendaShareController(
+function IzendaShareController(
 	$scope,
 	$izendaLocale,
 	$izendaShareService) {
 	'use strict';
-	$scope.$izendaShareService = $izendaShareService;
 	var vm = this;
+
+	$scope.$izendaShareService = $izendaShareService;
 
 	vm.subjects = [];
 	vm.rights = [];

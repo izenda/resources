@@ -1535,12 +1535,15 @@ function NDS_RestoreDsSelection(tind) {
  * Initialize table element content.
  * @param {string} id of table element header. Table element content has similar id.
  */
-function initFieldsDsp(nwid) {
-	var hId = nwid.id; // get table header element Id
+function _initFieldsDsp(hId, onInitComplete) {
+	var nwid = document.getElementById(hId);
 	hId = hId.substr(4); // remove "rdbh" prefix
 	var contentDiv = document.getElementById('rdb' + hId);
 	var currHtml = contentDiv.innerHTML;
 	if (currHtml != IzLocal.Res("js_Loading", "Loading...")) {
+		if (typeof (onInitComplete) === 'function') {
+			onInitComplete();
+		}
 		return;
 	}
 	// if table element content wasn't loaded, initialize it:
@@ -1567,6 +1570,7 @@ function initFieldsDsp(nwid) {
 		var furtherWorkData = new Object();
 		furtherWorkData.ContentDiv = contentDiv;
 		furtherWorkData.WillBeTableIndex = willBeTableIndex;
+		furtherWorkData.onInitComplete = onInitComplete;
 		var tableFullName = '';
 		for (var index = 0; index < nwid.children.length; index++) {
 			if (nwid.children[index].id.indexOf('tcb') >= 0) {
@@ -1578,7 +1582,16 @@ function initFieldsDsp(nwid) {
 		AjaxRequest('./rs.aspx', 'wscmd=getfieldsinfo&wsarg0=' + tableFullName, FieldsInfoGot, null, 'getfieldsinfo', furtherWorkData);
 	}
 	else
-		finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData);
+		finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData, onInitComplete);
+}
+
+/**
+ * Initialize table element content.
+ * @param {string} id of table element header. Table element content has similar id.
+ */
+function initFieldsDsp(nwid, onInitComplete) {
+	var hId = nwid.id; // get table header element Id
+	_initFieldsDsp(hId, onInitComplete);
 }
 
 function FieldsInfoGot(returnObj, id, furtherWorkData) {
@@ -1593,16 +1606,15 @@ function FieldsInfoGot(returnObj, id, furtherWorkData) {
 				}
 			}
 		}
-		finalizeInitFieldsDsp(furtherWorkData.ContentDiv, furtherWorkData.WillBeTableIndex, returnObj[0].fields);
+		finalizeInitFieldsDsp(furtherWorkData.ContentDiv, furtherWorkData.WillBeTableIndex, returnObj[0].fields, furtherWorkData.onInitComplete);
 	}
 }
 
-function finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData) {
+function finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData, onInitComplete) {
 	fieldsIndex = 0;
 	var html = renderSections(willBeTableIndex, fieldsData);
 	html = '<div class=\'table-fields-sections-background\'></div>' + html;
 	contentDiv.innerHTML = html;
-
 	initDraggable();
 	jq$(".database-header a, .table-header a, a.field, .table-header a .checkbox-container, a.uncheck, a.collapse").click(function (event) {
 		event.preventDefault();
@@ -1644,6 +1656,23 @@ function finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData) {
 		}
 		return false;
 	});
+
+	// apply delayed search highlights
+	var $table = jq$(contentDiv).closest('.table');
+	var highlights = $table.attr('highlight');
+	if (typeof (highlights) === 'string') {
+		jq$.each(highlights.split(','), function () {
+			var fieldSysName = this;
+			var $field = $table.find('.field[fieldid="' + fieldSysName + '"]');
+			var $fieldName = $field.find("span.field-name");
+			$fieldName.addClass("autocomplete-item-field-selection");
+			highlightedFieldsCache.push($fieldName);
+		});
+	}
+
+	if (typeof (onInitComplete) === 'function') {
+		onInitComplete(fieldsData);
+	}
 }
 
 /**
@@ -1669,28 +1698,29 @@ function DsClicked(datasourceIndex) {
 	}
 
 	// initialize table content when first time clicked.
-	initFieldsDsp(clicked.parentNode);
+	initFieldsDsp(clicked.parentNode, function () {
+		// uncheck table and all its fields if checked
+		if ($table.hasClass('checked')) {
+			$table.removeClass('checked');
+			jq$.each($table.find('a.field'), function () {
+				var $field = jq$(this);
+				var sorder = $field.attr('sorder');
+				if (sorder && sorder !== '-1') {
+					var fid = parseFieldIdentifier($field.attr('id'));
+					FiClick(fid.tableIndex, fid.fieldIndex, false, false, true);
+				}
+			});
+		}
 
-	// uncheck table and all its fields if checked
-	if ($table.hasClass('checked')) {
-		$table.removeClass('checked');
-		jq$.each($table.find('a.field'), function () {
-			var $field = jq$(this);
-			var sorder = $field.attr('sorder');
-			if (sorder && sorder !== '-1') {
-				var fid = parseFieldIdentifier($field.attr('id'));
-				FiClick(fid.tableIndex, fid.fieldIndex, false, false, true);
-			}
-		});
-	}
+		// open table
+		$table.addClass("opened");
 
-	// open table
-	$table.addClass("opened");
-	// update tree items availability:
-	NDS_UpdateDatasourcesAvailability(false);
+		// update tree items availability:
+		NDS_UpdateDatasourcesAvailability(false);
 
-	// run preview report
-	PreviewReportManual();
+		// run preview report
+		PreviewReportManual();
+	});
 }
 
 function NDS_UnckeckAllDs() {

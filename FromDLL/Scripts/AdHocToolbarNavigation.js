@@ -160,7 +160,7 @@ function TB_PropmtReportName(
 				var currentName = "";
 				var currentDispalName = "";
 				var newCurrentCategory = new Array();
-				var subcategories = categories[i].split(categoryCharacter);
+				var subcategories = categories[i].split(jsResources.categoryCharacter);
 				
 				var cnt = currentCategory.length;
 				if (cnt > subcategories.length)
@@ -171,7 +171,7 @@ function TB_PropmtReportName(
 				while ((subcategoriesIndex < cnt) && (currentCategory[subcategoriesIndex] == subcategories[subcategoriesIndex]))
 				{
 					if (currentName != "")
-					  currentName += categoryCharacter;
+						currentName += jsResources.categoryCharacter;
 					currentName += subcategories[subcategoriesIndex];
 					currentDispalName += indent;
 					newCurrentCategory.push(subcategories[subcategoriesIndex]);
@@ -182,7 +182,7 @@ function TB_PropmtReportName(
 				for (var j=subcategoriesIndex;j<cnt;j++)
 				{
 					if (currentName != "")
-					  currentName += categoryCharacter;
+						currentName += jsResources.categoryCharacter;
 				  currentName += subcategories[j];
 				  selected = "";
 				  if (!selectedAnything) {
@@ -262,8 +262,8 @@ function TB_OnCategoryChangedCallBack(result, inputValue, context)
 		
 		var newCat = inputValue;
 		var additionalCharacter = '';
-		if (categoryCharacter != '\\')
-		  additionalCharacter = escapeRegExp(categoryCharacter);
+		if (jsResources.categoryCharacter != '\\')
+			additionalCharacter = escapeRegExp(jsResources.categoryCharacter);
 		var regexp = new RegExp("[^A-Za-z0-9_/" + additionalCharacter + "\\-'' \\\\]", 'g');
 		if (stripInvalidCharacters)
 		{
@@ -344,7 +344,7 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 	if (result == jsResources.OK && reportName != null)
 	{
 		reportName = SRA_ProcessReportName(reportName, folderName);
-		reportName = jq$.map(reportName.split('\\'), jq$.trim).join('\\');
+		reportName = jq$.map(reportName.split(jsResources.categoryCharacter), jq$.trim).join(jsResources.categoryCharacter);
 		if (reportName == null) {
 			ReportingServices.showOk(jsResources.InvalidReportName);
 			ebc_cancelSubmiting = true;

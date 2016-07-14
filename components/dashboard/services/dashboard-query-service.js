@@ -3,7 +3,7 @@
  * this is singleton
  */
 angular
-  .module('izendaQuery')
+  .module('izenda.common.query')
   .factory('$izendaDashboardQuery', [
     '$izendaRsQuery',
 		'$izendaLocale',

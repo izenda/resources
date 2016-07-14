@@ -2,7 +2,7 @@
  * Select checkboxes directive. 
  */
 angular
-	.module('izendaCommonControls')
+	.module('izenda.common.ui')
 	.directive('izendaSelectCheckboxes', [
 		'$log',
 		function () {

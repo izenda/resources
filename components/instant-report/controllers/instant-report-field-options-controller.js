@@ -245,6 +245,15 @@ function InstantReportFieldOptionsController(
 	};
 
 	/**
+	* Subreport selected handler
+	*/
+	vm.subreportSelectedHandler = function () {
+		vm.field.drillDownStyle = (vm.field.subreport) ? 'DetailLinkNewWindow' : '';
+		$izendaInstantReportStorage.disableEmbeddedDrillDownStyle(vm.field);
+		$scope.$applyAsync();
+	};
+
+	/**
 	 * Close panel
 	 */
 	vm.closePanel = function () {
@@ -258,6 +267,9 @@ function InstantReportFieldOptionsController(
 		$scope.$watch('$izendaInstantReportStorage.getCurrentActiveField()', function (field) {
 			vm.field = field;
 			vm.expanded = false;
+			if (angular.isObject(vm.field)) {
+				$izendaInstantReportStorage.disableEmbeddedDrillDownStyle(vm.field);
+			}
 		});
 
 		$scope.$watch('$izendaInstantReportStorage.getDrillDownStyles()', function (ddStyles) {

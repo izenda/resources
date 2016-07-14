@@ -10,15 +10,38 @@
 			restrict: 'A',
 			scope: {
 				collapsed: '=',
-				useDelay: '='
+				useDelay: '=',
+				onComplete: '&'
 			},
 			link: function ($scope, element) {
+				/**
+				 * Invoke complete handler.
+				 */
+				function collapseCompleted(result) {
+					if (angular.isFunction($scope.onComplete)) {
+						$scope.onComplete({
+							collapsed: result
+						});
+					}
+				};
+
 				var $element = angular.element(element);
 				$element.addClass('collapse');
 				if ($scope.collapsed) {
 					$element.addClass('in');
 				}
+
 				$element.collapse();
+				
+				// add event collapse handlers
+				$element.on('hidden.bs.collapse', function () {
+					collapseCompleted(true);
+				});
+				$element.on('shown.bs.collapse', function () {
+					collapseCompleted(false);
+				});
+
+				// watch for collapsed state change
 				$scope.$watch('collapsed', function () {
 					if ($scope.useDelay) {
 						$timeout(function () {
@@ -62,7 +85,7 @@
 	};
 	
 	// definition
-	angular.module('izendaCommonControls')
+	angular.module('izenda.common.ui')
 		.directive('izendaBootstrapTooltip', [izendaBootstrapTooltip])
 		.directive('izendaBootstrapCollapse', ['$timeout', izendaBootstrapCollapse]);
 })();

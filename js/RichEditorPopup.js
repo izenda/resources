@@ -240,6 +240,8 @@ function RE_InitToolbarItems(editor) {
 		type: 'splitbutton',
 		text: fdtSmartTag,
 		icon: false,
+		onclick: function () {
+		},
 		menu: [
 			{ text: fdtFilters, onclick: function () { editor.insertContent('[Filters]'); } },
 			{ text: fdtDate, onclick: function () { editor.insertContent('[Date]'); } },

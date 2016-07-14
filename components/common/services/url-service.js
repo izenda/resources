@@ -1,15 +1,13 @@
-﻿angular
-.module('izendaQuery')
-.factory('$izendaUrl', [
+﻿angular.module('izenda.common.query').factory('$izendaUrl', [
 	'$window',
 	'$rootScope',
 	'$location',
 	'$log',
 	'$izendaRsQuery',
-	'$izendaCommonQuery',
+	'$izendaSettings',
 	'$izendaPing',
 	'$izendaLocale',
-	function ($window, $rootScope, $location, $log, $izendaRsQuery, $izendaCommonQuery, $izendaPing, $izendaLocale) {
+	function ($window, $rootScope, $location, $log, $izendaRsQuery, $izendaSettings, $izendaPing, $izendaLocale) {
 		'use strict';
 
 		var urlSettings = $window.urlSettings$;
@@ -23,7 +21,7 @@
 		*/
 		function extractName(fullName) {
 			if (angular.isString(fullName)) {
-				var reportFullNameParts = fullName.split('\\');
+				var reportFullNameParts = fullName.split($izendaSettings.getCategoryCharacter());
 				return reportFullNameParts[reportFullNameParts.length - 1];
 			} else
 				throw 'Can\'t extract category from object ' + fullName + 'with type ' + typeof (fullName);
@@ -32,12 +30,12 @@
 		/**
 		* Extract report category from "category\report full name
 		*/
-		var extractCategory = function(fullName) {
+		var extractCategory = function (fullName) {
 			if (angular.isString(fullName)) {
-				var reportFullNameParts = fullName.split('\\');
+				var reportFullNameParts = fullName.split($izendaSettings.getCategoryCharacter());
 				var category;
 				if (reportFullNameParts.length >= 2)
-					category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join('\\');
+					category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join($izendaSettings.getCategoryCharacter());
 				else
 					category = UNCATEGORIZED;
 				return category;
@@ -48,7 +46,7 @@
 		/**
 		* Extract report name, category, report set name for report part.
 		*/
-		var extractReportPart = function(reportFullName, isPartNameAtRight) {
+		var extractReportPart = function (reportFullName, isPartNameAtRight) {
 			if (reportFullName == null)
 				throw 'Full name is null';
 
@@ -74,7 +72,7 @@
 			result.reportCategory = extractCategory(reportSetName);
 			result.reportNameWithCategory = result.reportName;
 			if (result.reportCategory !== UNCATEGORIZED)
-				result.reportNameWithCategory = result.reportCategory + '\\' + result.reportNameWithCategory;
+				result.reportNameWithCategory = result.reportCategory + $izendaSettings.getCategoryCharacter() + result.reportNameWithCategory;
 			result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
 			return result;
 		};
@@ -94,19 +92,21 @@
 			var path = '';
 			var category = reportNameObject['category'];
 			if (angular.isString(category) && category !== UNCATEGORIZED) {
-				var reportCategoryFixed = reportNameObject['category'].split('\\').join('/');
+				var reportCategoryFixed = reportNameObject['category'];
 				if (reportCategoryFixed.indexOf('/') !== 0) {
 					reportCategoryFixed = '/' + reportCategoryFixed;
 				}
 				path = reportCategoryFixed;
+				path += $izendaSettings.getCategoryCharacter() + reportNameObject['name'];
+			} else {
+				path = reportNameObject['name'];
 			}
-			path += '/' + reportNameObject['name'];
 			$location.search('new', null); // remove "new" url parameter
 			$location.path(path);
 		};
 
 		/**
-		* Returns report full name (category delimiter: '/')
+		* Returns report full name (category delimiter: $izendaSettings.getCategoryCharacter())
 		*/
 		var getLocation = function () {
 			var result = {
@@ -123,7 +123,6 @@
 				if (path.indexOf('/') === 0) {
 					path = path.slice(1, path.length);
 				}
-				path = path.split('/').join('\\');
 				result['fullName'] = path;
 				result['category'] = extractCategory(path);
 				result['name'] = extractName(path);
@@ -151,7 +150,7 @@
 				category: extractCategory(fullName),
 				isNew: false,
 				isDefault: false
-		});
+			});
 		};
 
 		var setIsNew = function () {
@@ -172,7 +171,7 @@
 			var countCancelled = $izendaRsQuery.cancelAllQueries();
 			if (countCancelled > 0)
 				$log.debug('>>> Cancelled ' + countCancelled + ' queryes');
-			
+
 			// set current report set
 			var newLocation2 = getLocation();
 			if (newLocation2.fullName !== reportNameInfo.fullName || newLocation2.isNew !== reportNameInfo.isNew)
@@ -188,7 +187,7 @@
 		reportNameInfo = getLocation();
 
 		// start ping
-		$izendaPing.startPing(10000);
+		$izendaPing.startPing();
 
 		return {
 			settings: urlSettings,

@@ -8,10 +8,6 @@
 	display: none !important;
 }
 
-.DashPartBody {
-    margin-bottom: 15px;
-}
-
 .iz-dash-toolbtn-panel.navbar-nav>.open>a,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:hover,
 .iz-dash-toolbtn-panel.navbar-nav>.open>a:focus {

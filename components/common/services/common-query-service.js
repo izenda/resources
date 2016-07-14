@@ -2,7 +2,7 @@
  * Izenda query service which provides dashboard specific queries
  * this is singleton
  */
-angular.module('izendaQuery')
+angular.module('izenda.common.query')
 	.factory('$izendaCommonQuery', [
 	'$log',
 	'$izendaRsQuery',

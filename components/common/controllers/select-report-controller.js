@@ -1,5 +1,8 @@
-﻿angular
-	.module('izendaCommonControls')
+﻿/**
+ * Select report report part modal dialog control.
+ */
+angular
+	.module('izenda.common.ui')
 	.controller('IzendaSelectReportController', [
 		'$rootScope',
 		'$scope',
@@ -8,26 +11,15 @@
 		'$element',
 		'$izendaUrl',
 		'$izendaLocale',
+		'$izendaSettings',
 		'$izendaCommonQuery',
 		IzendaSelectReportController]);
 
-/**
- * Select report part dialog controller
- */
-function IzendaSelectReportController(
-	$rootScope,
-	$scope,
-	$q,
-	$log,
-	$element,
-	$izendaUrl,
-	$izendaLocale,
-	$izendaCommonQuery) {
+function IzendaSelectReportController($rootScope, $scope, $q, $log, $element,
+	$izendaUrl, $izendaLocale, $izendaSettings, $izendaCommonQuery) {
 	'use strict';
-
-	var _ = angular.element;
-
 	var vm = this;
+
 	var uncategorizedText = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 	vm.izendaUrl = $izendaUrl;
 	vm.category = uncategorizedText;
@@ -83,7 +75,7 @@ function IzendaSelectReportController(
 			var category = report.Category;
 			if (category == null || category === '')
 				category = uncategorizedText;
-			var item = !report.Subcategory ? category : category + "\\" + report.Subcategory;
+			var item = !report.Subcategory ? category : category + $izendaSettings.getCategoryCharacter() + report.Subcategory;
 			if (vm.categories.indexOf(item) < 0) {
 				vm.categories.push(item);
 			}
@@ -95,7 +87,7 @@ function IzendaSelectReportController(
    */
 	vm.addReportsToModal = function (reportSets) {
 		vm.groups.length = 0;
-		var reportSetsToShow = _.grep(reportSets, function (currentReportSet) {
+		var reportSetsToShow = angular.element.grep(reportSets, function (currentReportSet) {
 			return !currentReportSet.Dashboard && currentReportSet.Name;
 		});
 		if (reportSetsToShow == null || reportSetsToShow.length === 0) {
@@ -122,7 +114,7 @@ function IzendaSelectReportController(
    */
 	vm.show = function () {
 		vm.reset();
-		var $modal = _($element);
+		var $modal = angular.element($element);
 		$modal.modal();
 		$izendaCommonQuery.getReportSetCategory(uncategorizedText).then(function (data) {
 			var reportSets = data.ReportSets;
@@ -156,7 +148,7 @@ function IzendaSelectReportController(
 		var reportFullName = item.Name;
 
 		if (item.CategoryFull != null && item.CategoryFull !== '')
-			reportFullName = item.CategoryFull + '\\' + reportFullName;
+			reportFullName = item.CategoryFull + $izendaSettings.getCategoryCharacter() + reportFullName;
 
 		if (!isReportPart) {
 			// if report set selected
@@ -170,7 +162,7 @@ function IzendaSelectReportController(
 			});
 		} else {
 			// if report part selected
-			var $modal = _('#izendaSelectPartModal');
+			var $modal = angular.element('#izendaSelectPartModal');
 			$modal.modal('hide');
 			$rootScope.$broadcast('selectedReportPartEvent', [vm.tileId, item]);
 		}

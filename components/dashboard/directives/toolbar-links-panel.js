@@ -116,6 +116,14 @@
 						$scope.$parent.$eval(attrs.toolbarActiveItem);
 					}, 0);
 				});
+				// watch active item changed
+				$scope.$watch('toolbarActiveItem', function () {
+					$timeout(function () {
+						console.log('toolbar active item changed:', $scope.toolbarActiveItem);
+						$scope.moveTo($scope.toolbarActiveItem);
+						$scope.$parent.$eval(attrs.toolbarActiveItem);
+					}, 0);
+				});
 			}
 		};
 	}

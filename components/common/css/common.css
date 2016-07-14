@@ -373,3 +373,5 @@
 .izenda-col-reorder-hidden {
 	display: none !important;
 }
+
+.ui-helper-hidden-accessible { display:none; }

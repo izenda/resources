@@ -1,7 +1,9 @@
-﻿angular.module('izendaCompatibility', []);
+﻿// common compatibility module definition
+angular.module('izenda.common.compatibility', []);
 
+// common Query module definition
 angular
-	.module('izendaQuery', [])
+	.module('izenda.common.query', [])
 	.config(["$httpProvider", function ($httpProvider) {
 		$httpProvider.defaults.transformResponse.push(function (responseData) {
 			// convert $http response. We need to translate asp.net dates 
@@ -31,7 +33,33 @@ angular
 		});
 	}]);
 
-angular.module('izendaCommonControls', ['izendaCompatibility', 'izendaQuery']);
-angular.module('izendaCommonControls').value('reportNameInputPlaceholderText', ['js_Name', 'Name']);
+// common UI module definition:
+angular
+	.module('izenda.common.ui', ['izenda.common.compatibility', 'izenda.common.query'])
+	.value('izenda.common.ui.reportNameInputPlaceholderText', ['js_Name', 'Name'])
+	.value('izenda.common.ui.reportNameEmptyError', ['js_NameCantBeEmpty', 'Report name can\'t be empty.'])
+	.value('izenda.common.ui.reportNameInvalidError', ['js_InvalidReportName', 'Invalid report name']);
 
-angular.module('izenda.common.ui', []);
+/**
+ * Common module settings loader.
+ */
+function izendaCommonQuerySettingsLoader() {
+	this.loadSettings = function () {
+		var deferredObject = angular.element.Deferred();
+
+		var urlSettings = window.urlSettings$;
+		var rsPageUrl = urlSettings.urlRsPage;
+		var settingsUrl = rsPageUrl + '?wscmd=getCommonSettings';
+
+		// load common settings:
+		angular.element.get(settingsUrl, function (configJson, resultStatus, xhr) {
+			var configObject = configJson;
+			angular
+				.module('izenda.common.query')
+				.constant('$izendaCommonSettings', configObject);
+			
+			deferredObject.resolve();
+		});
+		return deferredObject.promise();
+	};
+}

@@ -3,7 +3,7 @@
   <div class="collapse in navbar-collapse">
     <ul class="iz-inst-nav nav navbar-nav">
       <li ng-if="!$izendaCompatibility.isSmallResolution()">
-        <a ng-attr-title="{{'js_ToggleLeftPanel' | izendaLocale: 'Toggle left panel'}}"
+        <a ng-attr-title="{{irController.getToggleButtonTitle()}}"
            ng-click="irController.toggleLeftPanel()">
           <span class="glyphicon glyphicon-chevron-left"
                 ng-class="irController.leftPanel.opened ? 'glyphicon-chevron-left' : 'glyphicon-chevron-right'"></span>

@@ -64,7 +64,7 @@ function GetFilterValues(index, filters, id) {
 			break;
 		case 6:
 			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
-			result[1] = document.getElementById('ndbfc' + id).value;
+			result[1] = document.getElementById('ndbfc' + id).value || "...";
 			break;
 		case 7:
 			result[0] = document.getElementById('ndbfc' + id).parentElement.id;
@@ -133,6 +133,20 @@ function CommitChangedFilter(field) {
 }
 
 function CommitFiltersData(updateReportSet) {
+	// Handle situation when server-side sort caused sorting exception
+	var sortErrorControl = jq$('[name="iz-critical_report_error"]');
+	if (sortErrorControl && sortErrorControl.length > 0 && typeof sortedFieldGuid != 'undefined' && sortedFieldGuid) {
+		for (var i = 0; i < fieldsList.length; i++)
+			if (fieldsList[i].GUID == sortedFieldGuid) {
+				fieldsList[i].OrderType = 'NONE';
+				sortedFieldGuid = null;
+				break;
+			}
+		if (typeof UpdateFieldsAndRefresh == 'function')
+			UpdateFieldsAndRefresh();
+		return;
+	}
+
 	var dataToCommit = new Array();
 	dataToCommit = dataToCommit.concat(GetFiltersDataToCommit());
 	dataToCommit = dataToCommit.concat(GetSubreportsFiltersDataToCommit());
@@ -676,8 +690,26 @@ function ShowEqualsPopupDialog(filterInd) {
 					}
 		}
 
-	var valueInput = document.getElementById('ndbfc' + filterInd);
+	var valInputId = 'ndbfc' + filterInd;
+	var valueInput = document.getElementById(valInputId);
 	var valuesSet6 = valueInput.value.split(',');
+
+	if (filter.CustomDestination) {
+		var colValInputId = 'ndbfc_col' + filterInd;
+		var colValInput = jq$('#' + colValInputId);
+		if (colValInput.length <= 0)
+			jq$('#' + valInputId).after('<input id="' + colValInputId + '" value="' + filter.ColumnName + '" type="hidden"></input>');
+		else
+			colValInput.val(filter.ColumnName);
+		var epdHtml = "<iframe src=\"" + filter.CustomDestination + "?valueeditid=" + valInputId + "&columneditid=" + colValInputId + "\" name=\"CustomAspx\" width=\"100%\" height=\"530\"></iframe>";
+		ReportingServices.showModal(epdHtml, {
+			tipStyle: "background-color: white; padding: 10px; border: 1px solid #d5d5d5;",
+			containerStyle: "padding: 7px 7px 15px 7px; margin: 0; font-family: Verdana; font-size: 12px; white-space: nowrap;",
+			footerStyle: "padding: 15px 7px 7px 7px; text-align: right; border-top: 1px solid #d5d5d5;",
+			width: 800
+		});
+		return;
+	}
 
 	var table = jq$("<table>").css("width", "100%");
 	var tr = jq$("<tr>");
@@ -725,6 +757,10 @@ function ShowEqualsPopupDialog(filterInd) {
 		footerStyle: "padding: 15px 7px 7px 7px; text-align: right; border-top: 1px solid #d5d5d5;",
 		width: 800
 	});
+}
+
+// Old Filters compatibility function for custom Popups. Do not delete.
+function CC_CustomFilterPageValueReceived() {
 }
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {

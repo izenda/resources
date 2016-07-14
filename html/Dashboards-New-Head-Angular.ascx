@@ -25,18 +25,17 @@
     window.jQueryTemp = window.jQuery;
   window.jQuery = jq$;
 </script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/TweenMax.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-animate.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-aria.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-cookies.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-impress.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-loader.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-messages.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-resource.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-route.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.4.0/angular-sanitize.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/bootstrap-angular/ui-bootstrap-tpls-0.13.3.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-animate.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-aria.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-cookies.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-loader.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-messages.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-resource.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-route.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-sanitize.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/TweenMax.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-impress.js"></script>
 <script type="text/javascript">
   if (window.jQueryTemp)
     window.jQuery = window.jQueryTemp;

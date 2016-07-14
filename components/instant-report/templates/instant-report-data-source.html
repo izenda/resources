@@ -22,7 +22,7 @@
                ng-attr-placeholder="{{'js_Search' | izendaLocale: 'Search'}}"
                ng-attr-title="{{'js_SearchDatasources' | izendaLocale: 'Search Data Sources'}}"
                value=""
-               ng-model="irDataSourceController.searchString"/>
+               ng-model="irDataSourceController.searchString" />
         <span ng-show="irDataSourceController.searchString === ''"
               class="glyphicon glyphicon-search pull-right"></span>
         <span ng-show="irDataSourceController.searchString !== ''"
@@ -38,7 +38,7 @@
       <div class="izenda-vcentered-item">
         <img class="img-responsive" style="width: 24px;"
              ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
-             ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}"/>
+             ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
       </div>
     </div>
 
@@ -73,13 +73,23 @@
       </div>
     </div>
 
+    <!-- distinct option -->
+    <div class="ds-tree-item-distinct"
+         ng-show="!irDataSourceController.isDataSourcesLoading && !irDataSourceController.searchPanelOpened">
+      <label>
+        <input type="checkbox" ng-model="irDataSourceController.options.distinct" />
+        <span class="nobold"
+              ng-bind="'js_Distinct' | izendaLocale: 'Distinct'" bind-once></span>
+      </label>
+    </div>
+
     <!-- categories -->
     <div class="ds-tree-item noselect"
          ng-repeat="dsCategory in irDataSourceController.dataSources"
          ng-show="!irDataSourceController.isDataSourcesLoading && !irDataSourceController.searchPanelOpened && dsCategory.enabled && dsCategory.visible">
       <!-- categories header -->
       <div class="ds-tree-item-header collapse-link"
-           ng-click="dsCategory.collapsed = !dsCategory.collapsed"
+           ng-click="irDataSourceController.toggleItemCollapse(dsCategory)"
            ng-class="irDataSourceController.getFolderLabelClass(dsCategory)">
         <span class="svg-icon icon-16 folder with-label"
               ng-class="irDataSourceController.getFolderClass(dsCategory)"></span>
@@ -94,6 +104,7 @@
       <!-- categories body -->
       <div class="ds-tree-item-body"
            collapsed="dsCategory.collapsed"
+           on-complete="irDataSourceController.collapseCompleted(collapsed)"
            use-delay="irDataSourceController.isDataSourcesLoading"
            izenda-bootstrap-collapse>
 
@@ -120,15 +131,17 @@
                izenda-bootstrap-collapse>
 
             <!-- fields -->
-            <div class="ds-tree-item noselect" ng-repeat="field in table.fields"
+            <div class="ds-tree-item noselect" 
+                 ng-repeat="field in table.fields"
                  ng-show="field.enabled">
               <div class="ds-tree-item-header"
                    ng-class="irDataSourceController.getFolderLabelClass(field)"
-                   ng-click="irDataSourceController.selectField(field)">
+                   ng-click="irDataSourceController.checkField(field, false)"
+                   ng-attr-title="{{irDataSourceController.getFieldTooltip(field)}}">
 
                 <span class="ds-check-button glyphicon with-label"
                       ng-class="irDataSourceController.getFieldCheckClass(field)"
-                      ng-click="irDataSourceController.checkField(field)"
+                      ng-click="irDataSourceController.checkField(field, true)"
                       ng-attr-title="{{'js_ToggleReportField' | izendaLocale: 'Toggle report field'}}"
                       izenda-stop-propagation></span>
                 <span class="ds-tree-item-header-text datasource-field" ng-bind="field.name"
@@ -151,6 +164,7 @@
                   <span class="glyphicon glyphicon-cog"></span>
                 </span>
 
+                <!-- notifications -->
                 <span class="ds-tree-item-header-notify-icon-first"
                       ng-show="field.checked && field.sort !== null"
                       ng-attr-title="{{'js_SortIsApplyed' | izendaLocale: 'Sort function is applyed'}}">
@@ -173,16 +187,20 @@
                   <span class="glyphicon glyphicon-link"></span>
                 </span>
               </div>
-              <div class="ds-tree-item-body" collapsed="!field.isMultipleColumns || field.collapsed" izenda-bootstrap-collapse>
+              <div class="ds-tree-item-body" 
+                   collapsed="!field.isMultipleColumns || field.collapsed" 
+                   on-complete="irDataSourceController.collapseCompleted(collapsed)"
+                   izenda-bootstrap-collapse>
                 <!-- multiple fields -->
                 <div class="ds-tree-item noselect" ng-repeat="multiField in field.multipleColumns">
                   <div class="ds-tree-item-header"
                        ng-class="irDataSourceController.getFolderLabelClass(multiField)"
-                       ng-click="irDataSourceController.selectField(multiField)">
-
+                       ng-click="irDataSourceController.checkField(multiField, false)"
+                       ng-attr-title="{{irDataSourceController.getFieldTooltip(multiField)}}">
                     <span class="ds-check-button glyphicon with-label"
                           ng-class="irDataSourceController.getFieldCheckClass(multiField, true)"
-                          ng-click="irDataSourceController.checkField(multiField)"
+                          ng-click="irDataSourceController.checkField(multiField, true)"
+                          ng-attr-title="{{'js_ToggleReportField' | izendaLocale: 'Toggle report field'}}"
                           izenda-stop-propagation></span>
                     <span class="ds-tree-item-header-text datasource-field"
                           ng-bind="multiField.description !== '' ? multiField.description : multiField.name"
