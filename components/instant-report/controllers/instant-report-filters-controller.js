@@ -251,7 +251,9 @@ function InstantReportFiltersController(
 	 */
 	vm.onPopupValueChange = function (filter, newValue) {
 		filter.values = newValue.split(',');
-		$scope.$applyAsync();
+		$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -280,18 +282,23 @@ function InstantReportFiltersController(
 	/**
 	 * Toggle filter value
 	 */
-	vm.toggleValue = function (values, value) {
+	vm.toggleValue = function (filter, value) {
+		var values = filter.values;
 		var index = values.indexOf(value);
 		if (index >= 0)
 			values.splice(index, 1);
 		else
 			values.push(value);
+		$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
 	 * Is value in values collection in filter
 	 */
-	vm.isValueChecked = function (values, value) {
+	vm.isValueChecked = function (filter, value) {
+		var values = filter.values;
 		return values.indexOf(value) >= 0;
 	};
 

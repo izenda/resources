@@ -250,61 +250,98 @@
 
         <!-- non ie8 button bar -->
         <ul ng-class="toolbarController.buttonbarClass"
-          class="nav navbar-nav iz-dash-toolbtn-panel left-transition"
-          ng-if="!toolbarController.isIE8">
+            class="nav navbar-nav iz-dash-toolbtn-panel left-transition"
+            ng-if="!toolbarController.isIE8">
           <li>
             <a ng-click="toolbarController.hideButtonBar()" style="border-right: 1px solid #ddd;"
-              ng-attr-title="{{'js_HideButtons' | izendaLocale: 'Hide buttons'}}">
+               ng-attr-title="{{'js_HideButtons' | izendaLocale: 'Hide buttons'}}">
               <span class="glyphicon glyphicon-chevron-left"></span>
             </a>
           </li>
           <!-- presentation mode -->
           <li ng-show="!toolbarController.isOneColumnView() && toolbarController.isPresentationModeEnable">
             <a ng-attr-title="{{'js_PresentationMode' | izendaLocale: 'Presentation mode'}}"
-              ng-click="toolbarController.toggleGalleryMode(true)"
-              ng-hide="toolbarController.isGalleryMode">
-              <span class="glyphicon glyphicon-play" style="color: greenyellow;"></span>
+               ng-click="toolbarController.toggleGalleryMode(true)"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
+              <span class="glyphicon glyphicon-film" style="color: greenyellow;"></span>
             </a>
             <a ng-attr-title="{{'js_TileMode' | izendaLocale: 'Tile mode'}}"
-              ng-click="toolbarController.toggleGalleryMode(false)"
-              ng-show="toolbarController.isGalleryMode">
+               ng-click="toolbarController.toggleGalleryMode(false)"
+               ng-show="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-th"></span>
             </a>
           </li>
-          <li ng-show="!toolbarController.isOneColumnView()">
+
+          <!-- toggle gallery fullscreen -->
+          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled">
             <a ng-attr-title="{{'js_FullScreenMode' | izendaLocale: 'Fullscreen mode'}}"
-              ng-click="toolbarController.toggleGalleryModeFullScreen()"
-              ng-show="toolbarController.isGalleryMode">
+               ng-click="toolbarController.toggleGalleryModeFullScreen()">
               <span class="glyphicon glyphicon-fullscreen"></span>
             </a>
           </li>
+          <!-- play gallery -->
+          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled"
+              ng-class="toolbarController.galleryState.isPlayStarted ? 'toggle' : ''">
+            <a ng-attr-title="{{'js_Slideshow' | izendaLocale: 'Slide show'}}"
+               ng-click="toolbarController.toggleGalleryPlay()">
+              <span class="glyphicon"
+                    ng-class="toolbarController.galleryState.isPlayStarted ? 'glyphicon-pause' : 'glyphicon-play'"></span>
+            </a>
+          </li>
+          <!-- stop when play completed -->
+          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled"
+              ng-class="toolbarController.galleryState.isPlayRepeat ? 'toggle' : ''">
+            <a ng-attr-title="{{'js_Repeat' | izendaLocale: 'Repeat after complete'}}"
+               ng-click="toolbarController.galleryState.isPlayRepeat = !toolbarController.galleryState.isPlayRepeat">
+              <span class="glyphicon glyphicon-repeat-2"></span>
+            </a>
+          </li>
+
+          <!-- gallery settings -->
+          <li class="dropdown"
+              ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled">
+            <a class="dropdown-toggle" data-toggle="dropdown">
+              <span class="glyphicon glyphicon-cog"></span>
+              &nbsp;<b class="caret"></b>
+            </a>
+            <div class="dropdown-menu dropdown-no-close-on-click"
+                 style="min-width: 250px;"
+                 izenda-stop-propagation>
+              <div class="container-fluid">
+                <div ng-bind="'js_SlideDelay' | izendaLocale: 'Delay before next slide (ms)'" bind-once></div>
+                <input class="form-control"
+                       ng-model="toolbarController.galleryState.playDelay" />
+              </div>
+            </div>
+          </li>
+
           <!-- new dashboard -->
           <li ng-show="!toolbarController.isOneColumnView()" ng-if="toolbarController.isDesignLinksAllowed">
             <a ng-attr-title="{{'js_CreateNewDashboard' | izendaLocale: 'Create new dashboard'}}"
-              ng-click="toolbarController.createNewDashboardHandler()"
-              ng-hide="toolbarController.isGalleryMode">
+               ng-click="toolbarController.createNewDashboardHandler()"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-plus"></span>
             </a>
           </li>
           <!-- refresh -->
           <li ng-if="toolbarController.autoRefreshIntervals.length == 0">
             <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
-              ng-click="toolbarController.refreshDashboardHandler()"
-              ng-hide="toolbarController.isGalleryMode">
+               ng-click="toolbarController.refreshDashboardHandler()"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-refresh"></span>
             </a>
           </li>
           <li class="dropdown"
-            ng-if="toolbarController.autoRefreshIntervals.length != 0">
+              ng-if="toolbarController.autoRefreshIntervals.length != 0">
             <a class="dropdown-toggle" data-toggle="dropdown" ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
-              ng-hide="toolbarController.isGalleryMode">
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-refresh">&nbsp;<b class="caret"></b></span>
             </a>
             <ul class="dropdown-menu">
               <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
                 <a title="{{interval.name}}"
-                  ng-class="{'selected-item': interval.selected}"
-                  ng-click="toolbarController.refreshDashboardHandler($index)">
+                   ng-class="{'selected-item': interval.selected}"
+                   ng-click="toolbarController.refreshDashboardHandler($index)">
                   <span class="glyphicon glyphicon-refresh"></span>&nbsp;
                   <span ng-bind="interval.name"></span>
                 </a>
@@ -314,47 +351,47 @@
           <!-- filters -->
           <li>
             <a ng-attr-title="{{'js_ShowDashboardFilters' | izendaLocale: 'Show dashboard filter'}}"
-              ng-hide="toolbarController.isGalleryMode || !toolbarController.isFiltersEditAllowed()"
-              ng-click="toolbarController.toggleDashboardFilters()">
+               ng-hide="toolbarController.galleryState.isGalleryEnabled || !toolbarController.isFiltersEditAllowed()"
+               ng-click="toolbarController.toggleDashboardFilters()">
               <span class="glyphicon glyphicon-filter"></span>
             </a>
           </li>
           <!-- share -->
           <li>
             <a ng-attr-title="{{'js_ShareWith' | izendaLocale: 'Share with'}}"
-              ng-hide="toolbarController.isGalleryMode || !toolbarController.isFullAccess()"
-              ng-click="toolbarController.showShareDialog()">
+               ng-hide="toolbarController.galleryState.isGalleryEnabled || !toolbarController.isFullAccess()"
+               ng-click="toolbarController.showShareDialog()">
               <span class="glyphicon glyphicon-share-alt"></span>
             </a>
           </li>
           <!-- schedule -->
           <li>
             <a ng-attr-title="{{'js_schedule' | izendaLocale: 'Schedule'}}"
-              ng-hide="toolbarController.isGalleryMode || !toolbarController.isFullAccess()"
-              ng-click="toolbarController.showScheduleDialog()">
+               ng-hide="toolbarController.galleryState.isGalleryEnabled || !toolbarController.isFullAccess()"
+               ng-click="toolbarController.showScheduleDialog()">
               <span class="glyphicon glyphicon-calendar"></span>
             </a>
           </li>
           <!-- print -->
           <li class="dropdown" ng-click="toolbarController.beforePrintDashboard()"
-            ng-show="!toolbarController.isGalleryMode && toolbarController.isPrintDropdownVisible()">
+              ng-show="!toolbarController.galleryState.isGalleryEnabled && toolbarController.isPrintDropdownVisible()">
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_Print' | izendaLocale: 'Print'}}">
+               ng-attr-title="{{'js_Print' | izendaLocale: 'Print'}}">
               <span class="glyphicon glyphicon-print">&nbsp;<b class="caret"></b></span>
             </a>
             <ul class="dropdown-menu">
               <li>
                 <a id="newDbHtmlPrint" ng-attr-title="{{'js_PrintHTML' | izendaLocale: 'Print HTML'}}"
-                  ng-show="!toolbarController.isOneColumnView() && toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
-                  ng-click="toolbarController.printDashboard()">
+                   ng-show="!toolbarController.isOneColumnView() && toolbarController.isPrintDashboardVisible() && toolbarController.synchronized"
+                   ng-click="toolbarController.printDashboard()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;
                   <span ng-bind="'js_PrintDashboardHtml' | izendaLocale: 'Print dashboard HTML'" bind-once></span>
                 </a>
               </li>
               <li>
                 <a id="newDbPdfPrint" ng-attr-title="{{'js_PrintPdf' | izendaLocale: 'Print PDF'}}"
-                  ng-show="toolbarController.isPrintDashboardPdfVisible() && toolbarController.synchronized"
-                  ng-click="toolbarController.printDashboardPdf()">
+                   ng-show="toolbarController.isPrintDashboardPdfVisible() && toolbarController.synchronized"
+                   ng-click="toolbarController.printDashboardPdf()">
                   <span class="glyphicon glyphicon-print"></span>&nbsp;
                   <span ng-bind="'js_PrintDashboardPdf' | izendaLocale: 'Print dashboard PDF'" bind-once></span>
                 </a>
@@ -363,24 +400,24 @@
           </li>
           <!-- save -->
           <li class="dropdown"
-            ng-show="toolbarController.isShowSaveControls() && !toolbarController.isGalleryMode && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
+              ng-show="toolbarController.isShowSaveControls() && !toolbarController.galleryState.isGalleryEnabled && (toolbarController.isSaveAsAllowed() || toolbarController.isFullAccess())">
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
-              ng-hide="toolbarController.isGalleryMode">
+               ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-floppy-disk">&nbsp;<b class="caret"></b></span>
             </a>
             <ul class="dropdown-menu">
               <li>
                 <a ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
-                  ng-hide="!toolbarController.isFullAccess()"
-                  ng-click="toolbarController.saveDashboardHandler(false)">
+                   ng-hide="!toolbarController.isFullAccess()"
+                   ng-click="toolbarController.saveDashboardHandler(false)">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
                   <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'" bind-once></span>
                 </a>
               </li>
               <li ng-show="toolbarController.isShowSaveAsToolbarButton()">
                 <a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
-                  ng-click="toolbarController.saveDashboardHandler(true)">
+                   ng-click="toolbarController.saveDashboardHandler(true)">
                   <span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
                   <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'" bind-once></span>
                 </a>
@@ -388,10 +425,10 @@
             </ul>
           </li>
           <!-- email -->
-          <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
+          <li class="dropdown" ng-hide="toolbarController.galleryState.isGalleryEnabled">
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_SendEmailAs' | izendaLocale: 'Send Email as'}}"
-              ng-hide="toolbarController.isGalleryMode">
+               ng-attr-title="{{'js_SendEmailAs' | izendaLocale: 'Send Email as'}}"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-envelope">&nbsp;<b class="caret"></b></span>
             </a>
             <ul class="dropdown-menu">
@@ -410,10 +447,10 @@
             </ul>
           </li>
           <!-- color -->
-          <li class="dropdown" ng-hide="toolbarController.isGalleryMode">
+          <li class="dropdown" ng-hide="toolbarController.galleryState.isGalleryEnabled">
             <a class="hue-rotate-btn dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_ToggleHue' | izendaLocale: 'Toggle background hue rotate'}}"
-              ng-style="toolbarController.backgroundColorStyle">
+               ng-attr-title="{{'js_ToggleHue' | izendaLocale: 'Toggle background hue rotate'}}"
+               ng-style="toolbarController.backgroundColorStyle">
               <img class="icon" ng-src="{{toolbarController.getHueRotateBtnImageUrl()}}" style="width: 16px;" alt="Hue rotate" />
               &nbsp;<b class="caret"></b>
             </a>
@@ -421,22 +458,22 @@
               <div class="iz-dash-color-preview-container">
                 <span ng-style="toolbarController.backgroundColorStyle" class="iz-dash-color-preview">&nbsp;</span>
                 <span class="iz-dash-color-preview"
-                  ng-bind="toolbarController.izendaBackgroundColor"></span>
+                      ng-bind="toolbarController.izendaBackgroundColor"></span>
               </div>
               <div izenda-color-picker inline="true" ng-model="toolbarController.izendaBackgroundColor"></div>
               <div style="padding: 5px;">
-                <a class="small" 
+                <a class="small"
                    ng-click="toolbarController.selectBackgroundDialogHandler()"
                    ng-bind="'js_SelectBackgroundImage' | izendaLocale: 'Select background image'"></a>
                 <br ng-hide="!toolbarController.isBackgroundImageSet()" />
                 <a class="small" ng-click="toolbarController.removeBackgroundImageHandler()"
-                  ng-hide="!toolbarController.isBackgroundImageSet()" style="color: #8b0000;"
-                  ng-bind="'js_RemoveBackgroundImage' | izendaLocale: 'Remove background image'"></a>
+                   ng-hide="!toolbarController.isBackgroundImageSet()" style="color: #8b0000;"
+                   ng-bind="'js_RemoveBackgroundImage' | izendaLocale: 'Remove background image'"></a>
               </div>
               <div style="padding: 5px;" ng-hide="!toolbarController.isToggleHueRotateEnabled()">
                 <hr style="margin-top: 5px; margin-bottom: 10px;" />
                 <div izenda-switcher ng-model="toolbarController.hueRotate"
-                  label="'js_ColorHue' | izendaLocale: 'Color hue rotate'" />
+                     label="'js_ColorHue' | izendaLocale: 'Color hue rotate'" />
               </div>
             </div>
           </li>

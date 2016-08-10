@@ -145,18 +145,16 @@
 
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
+				"metric": metricSelect.find('option:selected').text()
 			});
 
 			vis.setProps(s.props);
 		}
 
 		function restore() {
-			if (typeof s.props != "object") {
-				return;
+			if (typeof s.props == "object" && s.props.metric) {
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
 			}
-
-			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		vis.collectTree();
@@ -171,7 +169,7 @@
 
 		metricSelect.find("option").remove();
 		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option>" + el + "</option>");
+			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
 		});
 
 		restore();

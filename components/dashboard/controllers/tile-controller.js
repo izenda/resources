@@ -980,45 +980,11 @@ function izendaTileController(
 	function applyTileHtml(htmlData) {
 		vm.preloadDataHandler = null;
 		vm.preloadData = null;
-		clearTileContent();
 
-		var $tile = _($element);
+		// load tile content
+		var $report = angular.element($element).find('.report');
+		$izendaDashboardState.loadReportIntoContainer(htmlData, $report);
 
-		var $b = _($element).find('.report');
-		var divs$ = $b.find('div.DashPartBody, div.DashPartBodyNoScroll');
-		try {
-			// prepare
-			if (!angular.isUndefined(ReportScripting))
-				ReportScripting.loadReportResponse(htmlData, $b);
-			$b.find('[id$=_outerSpan]').css("display", "block");
-			if (!angular.isUndefined(AdHoc.Utility) && typeof AdHoc.Utility.InitGaugeAnimations == 'function') {
-				AdHoc.Utility.InitGaugeAnimations(null, null, false);
-			}
-			if (divs$.length > 0) {
-				divs$.css('height', 'auto');
-				divs$.find('span').each(function (iSpan, span) {
-					var $span = _(span);
-					if ($span.attr('id') && $span.attr('id').indexOf('_outerSpan') >= 0) {
-						$span.css('display', 'inline');
-					}
-				});
-
-				var $zerochartResults = divs$.find('.iz-zero-chart-results');
-				if ($zerochartResults.length > 0) {
-					$zerochartResults.closest('table').css('height', '100%');
-					divs$.css('height', '100%');
-				}
-			}
-
-			if (!angular.isUndefined(AdHoc) && !angular.isUndefined(AdHoc.Utility) && typeof (AdHoc.Utility.InitGaugeAnimations) == 'function') {
-				AdHoc.Utility.InitGaugeAnimations(null, null, false);
-			}
-		} catch (e) {
-			clearTileContent();
-			var $body = _($element).find('.report');
-			$body.append('<b>Failed to load report: ' + e + '</b>');
-			$log.error($izendaLocale.localeText('js_FailedToLoadReport', 'Failed to load report') + ': ' + e);
-		}
 		vm.state.empty = false;
 	}
 }

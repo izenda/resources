@@ -19,6 +19,7 @@
 		'$izendaEvent',
 		'$izendaLocale',
 		'$izendaDashboardState',
+		'$izendaGalleryService',
 		'$izendaDashboardSettings',
 		izendaToolbarController]);
 
@@ -44,6 +45,7 @@ function izendaToolbarController(
 	$izendaEvent,
 	$izendaLocale,
 	$izendaDashboardState,
+	$izendaGalleryService,
 	$izendaDashboardSettings) {
 
 	'use strict';
@@ -56,6 +58,7 @@ function izendaToolbarController(
 	var _ = angular.element;
 	$scope.izendaUrl = $izendaUrl;
 	$scope.izendaDashboardState = $izendaDashboardState;
+	$scope.$izendaGalleryService = $izendaGalleryService;
 
 	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
@@ -126,7 +129,7 @@ function izendaToolbarController(
 	vm.hueRotate = false;
 	vm.selectBackgroundImageModalOpened = false; // background image dialog opened
 
-	vm.isGalleryMode = false; // gallery mode
+	vm.galleryState = $izendaGalleryService.getGalleryState();
 	vm.windowResizeOptions = {
 		timeout: false,
 		rtime: null,
@@ -223,16 +226,12 @@ function izendaToolbarController(
 	/**
    * Activate/deactivate dashboard mode
    */
-	vm.toggleGalleryMode = function (state) {
-		vm.isGalleryMode = state;
-		if (vm.isGalleryMode) {
+	vm.toggleGalleryMode = function (enableGalleryMode) {
+		if (enableGalleryMode) {
 			vm.closeDashboardFilters();
-			$timeout(function () {
-				$rootScope.$broadcast('toggleGalleryMode', [state]);
-			}, 100, false);
-		} else {
-			$rootScope.$broadcast('toggleGalleryMode', [state]);
 		}
+		vm.galleryState.isGalleryEnabled = enableGalleryMode;
+		vm.galleryState.isPlayStarted = false;
 	};
 
 	/**
@@ -240,7 +239,15 @@ function izendaToolbarController(
    */
 	vm.toggleGalleryModeFullScreen = function () {
 		vm.closeDashboardFilters();
-		$rootScope.$broadcast('toggleGalleryModeFullscreen', []);
+		vm.galleryState.isGalleryFullScreen = !vm.galleryState.isGalleryFullScreen;
+	};
+
+	/**
+	 * Turn off/on gallery play
+	 */
+	vm.toggleGalleryPlay = function () {
+		vm.closeDashboardFilters();
+		vm.galleryState.isPlayStarted = !vm.galleryState.isPlayStarted;
 	};
 
 	/**
@@ -675,7 +682,8 @@ function izendaToolbarController(
 	 * Raises when location changed and need to load dashboard.
 	 */
 	vm.dashboardLocationChangedHandler = function (reportInfo) {
-		vm.isGalleryMode = false;
+		$izendaGalleryService.resetGalleryState();
+
 		if (!angular.isObject(reportInfo))
 			return;
 		vm.reportInfo = reportInfo;
@@ -766,6 +774,11 @@ function izendaToolbarController(
 			$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
 				vm.dashboardLocationChangedHandler(reportInfo);
 			});
+
+			// watch for gallery state change.
+			$scope.$watch('$izendaGalleryService.getGalleryState()', function (galleryState) {
+				vm.galleryState = $izendaGalleryService.getGalleryState();
+			}, true);
 		}
 	};
 }

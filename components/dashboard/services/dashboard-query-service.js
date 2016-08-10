@@ -13,8 +13,8 @@ angular
       /**
        * Load dashboard tiles
        */
-      function loadDashboardLayout() {
-        return $izendaRsQuery.query('getReportDashboardConfig', [], {
+      function loadDashboardLayout(updateFromSource) {
+      	return $izendaRsQuery.query('getReportDashboardConfig', [updateFromSource ? 'true' : 'false'], {
           dataType: 'json'
         },
         // custom error handler:

@@ -639,7 +639,7 @@
 
 		function updateRefreshButton() {
 			var t = types[s.props.type].name,
-				m = metricSelect.val(),
+				m = metricSelect.find('option:selected').text(),
 				zoom = s.props.zoom,
 				zoommed = typeof zoom != "undefined" && typeof zoom[t] != "undefined" && typeof zoom[t][m] != "undefined";
 			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", zoommed);
@@ -701,22 +701,21 @@
 				});
 			}
 
-			var safeMetric = metricSelect.find("option[value!=All]:not([disabled]):eq(0)"),
-				allMetric = metricSelect.find("option[value=All]");
+			var safeMetric = metricSelect.find("option[value!=All]:not([disabled]):eq(0)").text();
 
 			if ((type == "funnel" || type == "pie") && metricSelect[0].options[metricSelect[0].selectedIndex].hasAttribute("disabled"))
-				metricSelect.val(safeMetric.val());
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + safeMetric + '"]').index();
 
-			if (type == "bubble" && metricSelect.val() == metricExtraSelect.val())
-				metricSelect.val(allMetric.val());
+			if (type == "bubble" && metricSelect.find('option:selected').text() == metricExtraSelect.find('option:selected').text())
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="All"]').index();
 
 			if (s.force.type || s.force.metric) {
-				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.val() == "All")
-					metricSelect.val(safeMetric.val());
+				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.find('option:selected').text() == "All")
+					metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + safeMetric + '"]').index();
 			}
 
-			metricValue = metricSelect.val();
-			metricExtraValue = metricExtraSelect.val();
+			metricValue = metricSelect.find('option:selected').text();
+			metricExtraValue = metricExtraSelect.find('option:selected').text();
 
 			metricExtraSelect.parents("span:eq(0)").css("display", type == "bubble" ? "inline-block" : "none");
 			coloredSelect.parents(".property-control:eq(0)").css("display", metricValue != "All" ? "block" : "none");
@@ -736,8 +735,8 @@
 			if (s.props.metric != "All")
 				delete s.props.visibility;
 			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val(),
-				"metric2": metricExtraSelect.val()
+				"metric": metricSelect.find('option:selected').text(),
+				"metric2": metricExtraSelect.find('option:selected').text()
 			});
 			if (!isEmbedded) {
 				vis.setProps(s.props);
@@ -751,8 +750,12 @@
 
 			colors = palettes[s.props.palette].colors;
 
-			util.setSelectValue(metricSelect, s.props.metric);
-			util.setSelectValue(metricExtraSelect, s.props.metric2);
+			if (s.props.metric) {
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+			}
+			if (s.props.metric2) {
+				metricExtraSelect.get(0).selectedIndex = metricExtraSelect.find('option[value="' + s.props.metric2 + '"]').index();
+			}
 
 			coloredSelect.prop("checked", !!s.props.colored);
 			zeroCheckbox.prop("checked", !!s.props.fromZero);
@@ -827,7 +830,6 @@
 		}
 
 		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
 		width = vis.getWidth();
 		height = vis.getHeight();
 
@@ -858,8 +860,8 @@
 		metricExtraSelect.find("option").remove().end()
 			.append('<option value="empty"></option>');
 		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option>" + el + "</option>");
-			metricExtraSelect.append("<option>" + el + "</option>");
+			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
+			metricExtraSelect.append("<option value='" + el + "'>" + el + "</option>");
 		});
 
 		restore();
@@ -1071,7 +1073,8 @@
 			if (metricValue == "All") {
 				vis.updateBreadcrumb(d, { label: "" });
 			} else {
-				var percentage = (100 * vis.unitValue(d, metricValue) / vis.unitValue(totals, metricValue)).toPrecision(3);
+				var currentTotal = vis.unitValue(totals, metricValue);
+				var percentage = (currentTotal != 0) ? (100 * vis.unitValue(d, metricValue) / currentTotal).toPrecision(3) : 100;
 				vis.updateBreadcrumb(d, { label: percentage < 0.1 ? "< 0.1%" : percentage + "%" });
 			}
 		}
@@ -1172,15 +1175,16 @@
 						}
 
 						var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
-							reportLink = s.chartOptions.usedData[index].subreportlink,
-							reportLinkFixed = reportLink.replace(utility.server.config.ReportViewerUrl, utility.server.config.ResponseServerUrl);
+							subreportLink = s.chartOptions.usedData[index].subreportlink,
+							rvSubreportlink = utility.server.config.ReportViewerUrl + utility.server.config.UrlParametersDelimiter + subreportLink,
+							rsSubreportlinkForPopup = utility.server.config.ResponseServerUrl + utility.server.config.UrlParametersDelimiter + subreportLink + "&mw=1&paging=0&reportonly=1";
 
 						switch (style) {
 							case "DetailLink":
-								window.location.href = reportLink;
+								window.location.href = rvSubreportlink;
 								break;
 							case "DetailLinkNewWindow":
-								window.open(reportLink, '_blank');
+								window.open(rvSubreportlink, '_blank');
 								break;
 							case "EmbeddedDetail":
 								if (egOptions.shownIndex == index) {
@@ -1191,7 +1195,7 @@
 								jq$(s.chart.renderer.box).find(".expandtools").remove();
 
 								services.showTip(loadImage, getContext());
-								jq$.get(reportLinkFixed, function (html) {
+								jq$.get(rsSubreportlinkForPopup, function (html) {
 									function finish() {
 										s.chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
 											.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
@@ -1267,7 +1271,7 @@
 								break;
 							case "DetailLinkPopup":
 								services.showTip(loadImage, getContext());
-								jq$.get(reportLinkFixed, function (html) {
+								jq$.get(rsSubreportlinkForPopup, function (html) {
 									services.showTip(util.filterReport(html), utility.defaults(getContext(), {
 										showCaption: true, 
 										showClose: true,
@@ -1327,10 +1331,11 @@
 
 			function registerLabels() {
 				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-					if (typeof s.chartOptions.usedData[i].subreportlink == "string")
+					if (typeof s.chartOptions.usedData[i].subreportlink == "string") {
 						register(i);
-					if (typeof s.chartOptions.usedData[i].link == "string")
+					} else if (typeof s.chartOptions.usedData[i].link == "string") {
 						registerLink(i);
+					}
 				}
 			}
 
@@ -1500,7 +1505,7 @@
 			var yaxis = [],
 				series = [],
 				t = types[s.props.type].name,
-				m = metricSelect.val(),
+				m = metricSelect.find('option:selected').text(),
 				zoom = s.props.zoom;
 			getSeries((s.chartOptions = o).data.children, yaxis, series);
 
@@ -1697,7 +1702,7 @@
 							dataLabels: { enabled: false },
 							minSize: 5,
 							maxSize: 40,
-							marker: { fillOpacity: 0.2, lineColor: "rgba(0, 0, 0, 0.1)" }
+							marker: { fillOpacity: 0.5, lineColor: "rgba(0, 0, 0, 0.4)" }
 						},
 						series: {
 							events: { legendItemClick: legendItemClick },
@@ -1712,12 +1717,12 @@
 							html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
 							if (metricValue == "All") {
 								for (var i = 0; i < vis.metrics.length; i++) {
-									var val = this.point.others ? this.point.y : vis.unitValue(d, vis.metrics[i]);
-									var current = val == this.point.y;
-
+									var value = this.point.others ? this.point.y : vis.unitValue(d, vis.metrics[i]);
+									var titleStyle = i == this.series._i ? ' style="font-weight:bold;"' : '';
 									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == vis.metrics[i]; }).formatter;
-									if (fieldFormatter) val = fieldFormatter(val, d, vis, vis.metrics[i]);
-									html.push('<span style="color:' + (current ? 'black' : getItem(colors, i)) + '; font-weight: ' + (current ? 'bold' : 'normal') + ';">' + vis.metrics[i] + '</span>' + ': <b>' + val + '</b>');
+									if (fieldFormatter) value = fieldFormatter(value, d, vis, vis.metrics[i]);
+									html.push('<span style="color:{color};">\u25CF</span><span{titleStyle}> {title}: </span><span style="font-weight:bold;">{value}</span>'
+										.format({ color: getItem(colors, i), titleStyle: titleStyle, title: vis.metrics[i], value: value }));
 								}
 							} else {
 								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
@@ -1726,25 +1731,28 @@
 									for (var i = 0; i < this.point.data.length; i++)
 										total += vis.unitValue(this.point.data[i], metricValue);
 									var value = this.point.others ? this.point.y : vis.unitValue(d, metricValue);
-
 									var rawValue = value;
 									if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
-									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + value + " (" + (Math.round(1000 * rawValue / total) / 10) + " %)</b>");
+									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value} ({percentage}%)</span>'
+										.format({ color: this.color, title: metricValue, value: value, percentage: (Math.round(1000 * rawValue / total) / 10) }));
 								} else if (type == "bubble" && metricExtraValue != "empty") {
-									var val = vis.unitValue(d, metricValue);
-									var val2 = vis.unitValue(d, metricExtraValue);
+									var value1 = vis.unitValue(d, metricValue);
+									var value2 = vis.unitValue(d, metricExtraValue);
 
 									if (fieldFormatter) {
-										val = fieldFormatter(val, d, vis, metricValue);
-										val2 = fieldFormatter(val2, d, vis, metricExtraValue);
+										value1 = fieldFormatter(value1, d, vis, metricValue);
+										value2 = fieldFormatter(value2, d, vis, metricExtraValue);
 									}
 
-									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
-									html.push('<span style="color:' + getItem(colors, 1) + '">' + metricExtraValue + '</span>' + ": <b>" + val2 + "</b>");
+									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+										.format({ color: getItem(colors, metricSelect.get(0).selectedIndex - 1), title: metricValue, value: value1 }));
+									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+										.format({ color: getItem(colors, metricExtraSelect.get(0).selectedIndex - 1), title: metricExtraValue, value: value2 }));
 								} else {
-									var val = vis.unitValue(d, metricValue);
-									if (fieldFormatter) val = fieldFormatter(val, d, vis, metricValue);
-									html.push('<span style="color:' + getItem(colors, 0) + '">' + metricValue + '</span>' + ": <b>" + val + "</b>");
+									var value = vis.unitValue(d, metricValue);
+									if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
+									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+										.format({ color: this.color, title: metricValue, value: value }));
 								}
 							}
 							return "<span style=\"border-color: " + this.point.color + ";\" class=\"tooltip-wrapper\">" + html.join("<br/>") + "</span>";

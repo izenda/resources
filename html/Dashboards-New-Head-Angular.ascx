@@ -298,10 +298,12 @@
 <script type="text/javascript" src="Resources/components/dashboard/module-definition.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/background-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/dashboard-query-service.js"></script>
+<script type="text/javascript" src="Resources/components/dashboard/services/gallery-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/toolbar-query-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/services/dashboard-state-service.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-links-panel.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/dashboard-background.js"></script>
+<script type="text/javascript" src="Resources/components/dashboard/directives/gallery.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/tile-top-slider.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-folder-menu-accordion.js"></script>
 <script type="text/javascript" src="Resources/components/dashboard/controllers/tile-controller.js"></script>
@@ -333,7 +335,7 @@
         query += string.Format("{0}={1}", key, Request.QueryString[key]);
       }
 
-      Response.Redirect(Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query + "#/" + report.Replace('\\', '/'));
+      Response.Redirect(Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query + "#/" + report.Replace("\\", "%5c"));
     }
   }
 </script>

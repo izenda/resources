@@ -120,16 +120,15 @@
 
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
+				"metric": metricSelect.find('option:selected').text()
 			});
 			vis.setProps(s.props);
 		}
 
 		function restore() {
-			if (typeof s.props != "object")
-				return;
-
-			util.setSelectValue(metricSelect, s.props.metric);
+			if (typeof s.props == "object" && s.props.metric) {
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+			}
 		}
 
 		var width = 900, height = 600;
@@ -181,7 +180,7 @@
 
 		metricSelect.find("option").remove();
 		jq$.each(metrics, function(i, el) {
-			metricSelect.append("<option>" + el.name + "</option>");
+			metricSelect.append("<option value='" + el + "'>" + el.name + "</option>");
 		});
 
 		restore();
@@ -307,7 +306,17 @@
 				});
 			}
 
-			var polygons = d3.geom.voronoi(items.map(function(e) { return [e.projected[0], e.projected[1], undefined]; })), clicked;
+			var polygons, clicked;
+
+			try {
+				polygons = d3.geom.voronoi(items.map(function (e) { return [e.projected[0], e.projected[1], undefined]; }));
+			} catch (e) {
+				polygons = null;
+			}
+
+			if (polygons == null)
+				return;
+ 
 			var g = cells.selectAll("g")
 				.data(items)
 				.enter().append("svg:g")

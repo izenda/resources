@@ -85,6 +85,15 @@
 	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
 		display: inline-block;
 	}
+
+	#VIS_ID_CONTAINER .sunburst-cetral-area {
+		cursor: pointer;
+		fill: #ffffff;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
@@ -115,7 +124,7 @@
 
 		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
 
-		var root, spendField, expText = "of value";
+		var root, current, spendField, expText = "of value";
 		var colors = d3.scale.category20();
 		var b = { w: 75, h: 30, s: 3, t: 10 }; // Breadcrumb dimensions: width, height, spacing, width of tip/tail.
 
@@ -144,17 +153,15 @@
 
 		function store() {
 			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
+				"metric": metricSelect.find('option:selected').text()
 			});
 			vis.setProps(s.props);
 		}
 
 		function restore() {
-			if (typeof s.props != "object") {
-				return;
+			if (typeof s.props == "object" && s.props.metric) {
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
 			}
-
-			util.setSelectValue(metricSelect, s.props.metric);
 		}
 
 		vis.collectTree();
@@ -168,12 +175,12 @@
 
 		metricSelect.find("option").remove();
 		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option>" + el + "</option>");
+			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
 		});
 
 		restore();
 
-		spendField = metricSelect.val();
+		spendField = metricSelect.find('option:selected').text();
 
 		expText = "of " + spendField + " value";
 
@@ -182,6 +189,8 @@
 				context.node["size"] = vis.unitValue(context.node, spendField);
 			}
 		});
+
+		current = root;
 
 		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
 
@@ -262,8 +271,13 @@
 			.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")");
 		g1.append("svg:circle")
 			.attr("r", radius * 0.47)
+			.attr("class", "sunburst-cetral-area")
 			.attr("transform", "translate(" + width / 2 + "," + heightWithOffset / 2 + ")")
-			.style("fill", "#ffffff");
+			.on("click", function (d) {
+				if (current != root) {
+					zoom(current.parent);
+				}
+			});
 		var g2 = g1.append("svg:g");
 		var explanation = g2.append("svg:text")
 			.attr("x", "0")
@@ -354,7 +368,8 @@
 					return "#fff";
 				})
 				.style("opacity", 1)
-				.each(function(d) { services.tipOn(this, d); })
+				.style("cursor", "pointer")
+				.each(function (d) { services.tipOn(this, d); })
 				.on("mouseover", mouseover)
 				.on("mouseout", mouseout)
 				.on("click", zoom);
@@ -410,6 +425,7 @@
 						return arc(d2);
 					});
 				});
+				percentage.text(getPercentageString(d));
 			}
 
 			if (!isImageRender) {
@@ -463,7 +479,7 @@
 
 			g.selectAll("path")
 				.style("opacity", 0.5)
-				.filter(function(node) { return (ancestors.indexOf(node) >= 0); })
+				.filter(function (node) { return (ancestors.indexOf(node) >= 0); })
 				.style("opacity", 1);
 
 			g.selectAll("path")
@@ -506,7 +522,7 @@
 					var i = d3.interpolateString("0.5", "1");
 					return function(t) { path.style("opacity", i(t)); };
 				});
-			percentage.text("100%");
+			percentage.text(getPercentageString(current));
 		}
 
 		function setZoom(value) {
@@ -518,6 +534,9 @@
 			store();
 			setZoom(d.depth != 0);
 			vis.setBreadcrumbDefaultNode(zoomEnabled ? d : null);
+
+			current = d;
+			percentage.text(getPercentageString(current));
 
 			var pathLocks = new Array(path.size());
 			path.each(function(d2, i2) { pathLocks[i2] = this; });

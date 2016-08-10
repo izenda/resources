@@ -183,8 +183,8 @@
                                    ng-if="!filter.customPopupTemplateUrl">
                                 <label>
                                   <input type="checkbox"
-                                         ng-checked="filtersController.isValueChecked(filter.values, existentValue.value)"
-                                         ng-click="filtersController.toggleValue(filter.values, existentValue.value)">
+                                         ng-checked="filtersController.isValueChecked(filter, existentValue.value)"
+                                         ng-click="filtersController.toggleValue(filter, existentValue.value)">
                                   &nbsp;<span ng-bind="existentValue.text"></span>
                                 </label>
                               </div>

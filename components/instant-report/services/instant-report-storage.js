@@ -1843,6 +1843,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 							valueDates.push(parsedDate._d);
 					});
 					filter.values = valueDates;
+				} else if (filter.operator && filter.operator.value === 'Equals_TextArea') {
+					filter.currentValue = filter.values.join();
 				}
 
 				resolve(filter);
@@ -1867,7 +1869,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			angular.element.each(options, function () {
 				var option = this;
 				if (option.value === '...') {
-					if (operatorType === 'select' || operatorType === 'inTimePeriod') {
+					if (operatorType === 'select' || operatorType === 'inTimePeriod' || operatorType === 'select_multiple') {
 						option.text = parseHtmlUnicodeEntities(option.text);
 						option.value = option.value;
 						result.push(option);
@@ -1892,10 +1894,22 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			return resultsArray[0];
 		}
 
+		function syncValues(filter) {
+			if (filter.values.length === 0 || filter.operator.value === 'Equals_Autocomplete')
+				return;
+			var newValues = [];
+			angular.element.each(filter.existentValues, function () {
+				var existentValue = this.value;
+				if (filter.values.indexOf(existentValue) >= 0)
+					newValues.push(existentValue);
+			});
+			filter.values = newValues;
+		}
+
 		// return promise
 		return $q(function (resolve) {
 			if (!angular.isObject(filter)) {
-				resolve(null);
+				resolve(filter);
 				return;
 			}
 
@@ -1925,6 +1939,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true, reportSet.filterOptions.filterLogic)
 					.then(function (data) {
 						filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
+						syncValues(filter);
 						var defaultValue = getOptionByValue(filter.existentValues, '...');
 						if (filter.values.length === 0 && defaultValue)
 							filter.values = [defaultValue.value];
@@ -1934,6 +1949,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			} else if (operatorType === 'inTimePeriod') {
 				$izendaInstantReportQuery.getPeriodList().then(function(data) {
 					filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
+					syncValues(filter);
 					var defaultValue = getOptionByValue(filter.existentValues, '...');
 					if (filter.values.length === 0 && defaultValue)
 						filter.values = [defaultValue.value];
@@ -1999,11 +2015,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					refreshNextFiltersCascading(refreshingFilter).then(function () {
 						// we don't need to call markAllFiltersAsRefreshing(false); here, because the last time when that function
 						// will be called - it will go through the "else" condition.
-						resolve();
+						resolve(filter);
 					});
 				});
 			} else {
-				resolve();
+				resolve(filter);
 			}
 		});
 	}
@@ -2492,8 +2508,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					titleFormat: filter.titleFormat,
 					customPopupTemplateUrl: filter.customPopupTemplateUrl
 				};
-				var newFilter = _createNewFilterBase(filterConfig.fieldSysName, filterConfig.operatorName, filterConfig.values,
-					filterConfig.required, filterConfig.description, filterConfig.parameter, filter.customPopupTemplateUrl);
+				var newFilter = _createNewFilterBase(
+					filterConfig.fieldSysName,
+					filterConfig.operatorName,
+					filterConfig.values,
+					filterConfig.required,
+					filterConfig.description,
+					filterConfig.parameter,
+					filter.customPopupTemplateUrl);
 				
 				reportSet.filters[i] = newFilter;
 

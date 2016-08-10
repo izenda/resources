@@ -148,24 +148,23 @@
 		jq$("#VIS_ID").width(width).height(heightWithOffset);
 
 		function validateControls() {
-			metricValue = metricSelect.val();
+			metricValue = metricSelect.find('option:selected').text();
 		}
 
 		function store() {
 			validateControls();
 
 			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.val()
+				"metric": metricSelect.find('option:selected').text()
 			});
 
 			vis.setProps(s.props);
 		}
 
 		function restore() {
-			if (typeof s.props != "object")
-				return;
-
-			util.setSelectValue(metricSelect, s.props.metric);
+			if (typeof s.props == "object" && s.props.metric) {
+				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+			}
 		}
 
 		var items = [], i, j, item, stopped = false;
@@ -185,7 +184,7 @@
 
 		metricSelect.find("option").remove();
 		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option>" + el + "</option>");
+			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
 		});
 
 		restore();

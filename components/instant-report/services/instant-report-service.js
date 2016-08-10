@@ -455,7 +455,8 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		angular.element.each(constraintFilters, function () {
 			var constraintFilter = this;
 			if (constraintFilter.field !== null && angular.isObject(constraintFilter.operator)
-				&& constraintFilter.operator.value !== '') {
+				&& constraintFilter.operator.value !== '' && angular.isArray(constraintFilter.values)
+				&& constraintFilter.values.length > 0) {
 				var constraintParamPart = {};
 				constraintParamPart['fc' + counter] = constraintFilter.field.sysname;
 				constraintParamPart['fo' + counter] = constraintFilter.operator.value;
