@@ -75,9 +75,10 @@
       </div>
       <!-- repeat tiles -->
       <div tileid="{{tile.id}}"
+           class="iz-dash-tile"
+           data-hover="false"
            tile-report-full-name="{{tileController.reportFullName}}"
            ng-repeat="tile in dashboardController.tiles"
-           ng-class="tileController.getTileClass()"
            ng-style="tileController.getTileStyle()"
            ng-controller="IzendaTileController as tileController"
            ng-init="tileController.initialize(tile)"
@@ -85,7 +86,7 @@
            ng-cloak>
 
         <div class="animate-flip">
-          <div class="flippy-front animated fast">
+          <div class="flippy flippy-front animated fast">
             <div class="frame">
               <div ng-show="tileController.description != null && tileController.description != ''"
                    class="iz-dash-tile-description" ng-bind="tileController.description">
@@ -161,7 +162,7 @@
               </div>
             </div>
           </div>
-          <div class="flippy-back">
+          <div class="flippy flippy-back">
             <div class="frame">
               <div class="container-fluid iz-dash-tile-fb-main">
                 <div class="row">
@@ -185,39 +186,41 @@
               </div>
               <div class="iz-dash-tile-fb-toolbar2">
                 <div class="iz-dash-tile-fb-toolbtn"
-                     ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible() && !tileController.isTileEmpty()">
+                     ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible() && !tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_PrintTileReport' | izendaLocale: 'Print tile report'}}"
                      ng-click="tileController.printTile()">
                     <img class="img-responsive" src="Resources/images/back-tile/print.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn"
-                     ng-show="!tileController.isOneColumnView() && !tileController.isTileEmpty()">
+                     ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_ExportTileToExcel' | izendaLocale: 'Export tile report to Excel'}}"
                      ng-click="tileController.exportToExcel()">
                     <img class="img-responsive" src="Resources/images/back-tile/excel.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty() || !tileController.isDesignLinksAllowed">
+                <div class="iz-dash-tile-fb-toolbtn" 
+                     ng-show="!tileController.isTileEmpty() && tileController.isDesignLinksAllowed && tileController.hasReadOnlyRightsOrMore()">
                   <a ng-attr-title="{{'js_OpenTileInDesigner' | izendaLocale: 'Open tile report in designer'}}"
                      ng-click="tileController.fireReportEditorLink()">
                     <img class="img-responsive" src="Resources/images/back-tile/edit.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
+                <div class="iz-dash-tile-fb-toolbtn" 
+                     ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_OpenTileInViewer' | izendaLocale: 'Open tile report in viewer'}}"
                      ng-click="tileController.fireReportViewerLink()">
                     <img class="img-responsive" src="Resources/images/back-tile/view.png" />
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn" ng-hide="tileController.isTileEmpty()">
+                <div class="iz-dash-tile-fb-toolbtn" 
+                     ng-show="tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_ReloadTile' | izendaLocale: 'Reload tile from its source'}}"
                      ng-click="tileController.flipFront(true, true)">
                     <img class="img-responsive" src="Resources/images/back-tile/reload.png">
                   </a>
                 </div>
-                <div class="iz-dash-tile-fb-toolbtn"
-                     ng-hide="tileController.isOneColumnView()">
+                <div class="iz-dash-tile-fb-toolbtn">
                   <a ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
                      ng-click="tileController.selectReportPart()">
                     <img class="img-responsive" src="Resources/images/back-tile/add.png">
@@ -227,10 +230,13 @@
               <div class="iz-dash-tile-fb-toolbar">
                 <span class="iz-dash-tile-fb-rcount" ng-bind="tileController.getTopString()"></span>
                 <span class="iz-dash-tile-fb-rcount-slider">
-                  <div izenda-tile-top-slider ng-model="tileController.top"
+                  <div ng-model="tileController.top"
+                       disabled="!tileController.hasLockedRightsOrMore()"
                        end-value="tileController.endTop"
                        show-item-all="tileController.showAllInResults"
-                       on-change-end="tileController.topSelected()">
+                       rendered="tileController.flip"
+                       on-change-end="tileController.topSelected()"
+                       izenda-tile-top-slider >
                   </div>
                 </span>
                 <span class="iz-dash-tile-fb-rcount-label text-uppercase"
@@ -267,7 +273,7 @@
                 </span>
                 <a class="title-button title-button-remove button2"
                    ng-attr-title="{{'js_ShowTile' | izendaLocale: 'Show tile'}}"
-                   ng-click="tileController.flipFront(false)">
+                   ng-click="tileController.flipFront(tileController.tileSizeChanged)">
                   <img src="Resources/images/turn-18.png" class="img-responsive" />
                 </a>
                 <a class="title-button title-button-remove button1"

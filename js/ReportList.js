@@ -3,6 +3,20 @@ var tabNames = new Array();
 var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
 //Ajax request for JSON methods-----------------------------------------------------------
+function appendParameterToUrl(url, parameterName, parameterValue) {
+	var modifiedUrl = url;
+	if (parameterValue) {
+		if (modifiedUrl.indexOf("?") == -1)
+			modifiedUrl = modifiedUrl + "?";
+		else {
+			if (modifiedUrl[modifiedUrl.length - 1] != '&' && modifiedUrl[modifiedUrl.length - 1] != '?')
+				modifiedUrl = modifiedUrl + "&";
+		}
+		modifiedUrl = modifiedUrl + parameterName + '=' + parameterValue;
+	}
+	return modifiedUrl;
+}
+
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
 		return;
@@ -14,15 +28,9 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
 	thisRequestObject.requestId = id;
 	thisRequestObject.onreadystatechange = ProcessRequest;
 	url = url + '?' + parameters;
-	if (typeof (window.izendaPageId$) !== 'undefined') {
-		if (url.indexOf("?") == -1)
-			url = url + "?";
-		else {
-			if (url[url.length - 1] != '&' && url[url.length - 1] != '?')
-				url = url + "&";
-		}
-		url = url + 'izpid=' + window.izendaPageId$;
-	}
+	url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
+	url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
+
 	thisRequestObject.open('GET', url, true);
 	thisRequestObject.send();
 
@@ -147,7 +155,7 @@ function AcceptConfig(returnObj, id) {
 		return;
 	nrlConfigObj = returnObj;
 	if (!nrlConfigObj.Operational) {
-		window.location = nrlConfigObj.SettingsLink;
+		window.location = getAppendedUrl(nrlConfigObj.SettingsLink);
 		return;
 	}
 	UseDefaultDialogs = nrlConfigObj.UseDefaultDialogs;
@@ -425,7 +433,7 @@ function AcceptReports(returnObj, id, parameters) {
 		report = returnObj.Recent[index];
 		viewTemplate = report.Dashboard ? nrlConfigObj.DashboardViewTemplate : nrlConfigObj.ReportViewTemplate;
 		viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
-		directLink = (report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + report.UrlEncodedName;
+		directLink = getAppendedUrl((report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + report.UrlEncodedName);
 		recentContent += '<li><a onclick="javascript:var evt=event||window.event;if((evt.which==null&&evt.button<2)||(evt.which!=null&&evt.which<2)){' + viewLink + 'if(evt.preventDefault){evt.preventDefault();}else{evt.returnValue=false;}return false;}" href="' + directLink + '">' + report.Name + '</a></li>';
 	}
 	recentContent += '</ul>';

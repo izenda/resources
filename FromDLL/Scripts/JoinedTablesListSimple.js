@@ -265,10 +265,12 @@ function JTCS_UpdateControls(id, dsListId, initialDatasources) {
 		dsArr[i].checked = false;
 		var initialCnt = 0;
 		while (initialCnt < initialArr.length - 1) {
-			if (initialArr[initialCnt].toString().toLowerCase() == dsArr[i].parentNode.attributes['tfn'].nodeValue.toString().toLowerCase()) {
+			var dsCurr = initialArr[initialCnt].toString().replace(/-=_comma_=-/g, ',');
+			var dsNext = initialArr[initialCnt + 1].toString().replace(/-=_comma_=-/g, ',');
+			if (dsCurr.toLowerCase() == dsArr[i].parentNode.attributes['tfn'].nodeValue.toString().toLowerCase()) {
 				dsArr[i].checked = true;
-				if (initialArr[initialCnt + 1].toString() != '') {
-					dsArr[i].parentNode.setAttribute('joinalias', initialArr[initialCnt + 1].toString());
+				if (dsNext != '') {
+					dsArr[i].parentNode.setAttribute('joinalias', dsNext);
 				}
 				break;
 			}

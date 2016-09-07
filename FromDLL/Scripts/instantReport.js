@@ -17,6 +17,20 @@ k();if("true"==a.slice(b,b+4))return b+=4,!0;if("false"==a.slice(b,b+5))return b
 a[0])&&":"==z()||k();c[a.slice(1)]=M(z())}return c}k()}return a},Q=function(a,b,e){e=P(a,b,e);e===v?delete a[b]:a[b]=e},P=function(a,b,e){var g=a[b],f;if("object"==typeof g&&g)if("[object Array]"==t.call(g))for(f=g.length;f--;)Q(g,f,e);else C(g,function(a){Q(g,a,e)});return e.call(a,b,g)};q.parse=function(a,c){var e,g;b=0;I=""+a;e=M(z());"$"!=z()&&k();b=I=null;return c&&"[object Function]"==t.call(c)?P((g={},g[""]=e,g),"",c):e}}}q.runInContext=K;return q}var J=typeof define==="function"&&define.amd,
 A="object"==typeof global&&global;!A||A.global!==A&&A.window!==A||(n=A);if("object"!=typeof exports||!exports||exports.nodeType||J){var N=n.JSON,B=K(n,n.JSON3={noConflict:function(){n.JSON=N;return B}});n.JSON={parse:B.parse,stringify:B.stringify}}else K(n,exports);J&&define(function(){return B})})(this);
 
+function appendParameterToUrl(url, parameterName, parameterValue) {
+	var modifiedUrl = url;
+	if (parameterValue) {
+		if (modifiedUrl.indexOf("?") == -1)
+			modifiedUrl = modifiedUrl + "?";
+		else {
+			if (modifiedUrl[modifiedUrl.length - 1] != '&' && modifiedUrl[modifiedUrl.length - 1] != '?')
+				modifiedUrl = modifiedUrl + "&";
+		}
+		modifiedUrl = modifiedUrl + parameterName + '=' + parameterValue;
+	}
+	return modifiedUrl;
+}
+
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
 	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
 		return;
@@ -28,15 +42,10 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
   thisRequestObject.requestId = id;
   thisRequestObject.dtk = dataToKeep;
   thisRequestObject.onreadystatechange = ProcessRequest;
-  if (typeof (window.izendaPageId$) !== 'undefined') {
-  	if (url.indexOf("?") == -1)
-  		url = url + "?";
-  	else {
-  		if (url[url.length - 1] != '&' && url[url.length - 1] != '?')
-  			url = url + "&";
-  	}
-  	url = url + 'izpid=' + window.izendaPageId$;
-  }
+  
+  url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
+  url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
+
   thisRequestObject.open('POST', url, true);
   thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
   thisRequestObject.send(parameters);

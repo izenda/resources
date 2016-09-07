@@ -106,7 +106,7 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 			var contentType = 'text/html';
 			if (dataType === 'json')
 				contentType = 'text/json';
-
+			url = getAppendedUrl(url);
 			var req = {
 				method: 'GET',
 				url: url,
@@ -190,6 +190,8 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 			// apply izendaPageId$
 			if (typeof (window.izendaPageId$) !== 'undefined')
 				params['izpid'] = window.izendaPageId$;
+			if (typeof (window.angularPageId$) !== 'undefined')
+				params['anpid'] = window.angularPageId$;
 
 			// set default error options if it is not defined:
 			var eOptions;

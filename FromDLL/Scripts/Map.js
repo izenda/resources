@@ -282,8 +282,6 @@ function DMC_FieldsChanged(id) {
 			isError = true;
 		if (longitudeSelected != latitudeSelected)
 			isError = true;
-		if ((longitudeSelected && latitudeSelected) && (citySelected || countryStateSelected || postalSelected))
-			isError = true;
 	}
 
 	DMC_wasMapType = mapType;

@@ -2,6 +2,8 @@
 	.module('izendaDashboard')
 	.constant('tileDefaults', {
 		id: null,
+		canBeLoaded: false,
+		maxRights: 'None',
 		title: null,
 		description: null,
 		reportFullName: null,
@@ -18,7 +20,8 @@
 		width: 1,
 		height: 1,
 		top: 100,
-		topString: '100'
+		topString: '100',
+		flip: false
 	});
 
 angular
@@ -65,8 +68,6 @@ function izendaTileController(
 
 	'use strict';
 
-	var _ = angular.element;
-
 	$scope.animationCompleted = false;
 	var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
@@ -77,6 +78,7 @@ function izendaTileController(
 	vm.showAllInResults = true;
 
 	vm.isIE8 = $izendaCompatibility.checkIsIe8();
+	vm.isIE = $izendaCompatibility.checkIE();
 	vm.printMode = 'Html2PdfAndHtml';
 
 	vm.state = {
@@ -89,6 +91,8 @@ function izendaTileController(
 	// delete tile button classes
 	vm.deleteClass = 'title-button';
 	vm.deleteConfirmClass = 'title-button hidden-confirm-btn';
+
+	vm.tileSizeChanged = false;
 
 	/**
 	* Check tile is read only
@@ -178,14 +182,6 @@ function izendaTileController(
 		return vm.topString;
 	};
 
-	/**
-	* Return class for '.iz-dash-tile'
-	*/
-	vm.getTileClass = function () {
-		var baseClass = 'iz-dash-tile fx-fade-down fx-speed-500 fx-trigger fx-easing-quint';
-		return baseClass;
-	};
-
 	////////////////////////////////////////////////////////
 	// tile events
 	////////////////////////////////////////////////////////
@@ -269,7 +265,7 @@ function izendaTileController(
 			var reportFullName = args[0];
 			if (reportFullName !== vm.reportFullName)
 				return;
-			$element.find('.flippy-front, .flippy-back').css('background-color', 'greenyellow');
+			$getFlippies().css('background-color', 'greenyellow');
 		});
 
 		/**
@@ -281,7 +277,7 @@ function izendaTileController(
 			var reportFullName = args[0];
 			if (reportFullName !== vm.reportFullName)
 				return;
-			$element.find('.flippy-front, .flippy-back').css('background-color', '#fff');
+			$getFlippies().css('background-color', '#fff');
 		});
 
 		/**
@@ -348,11 +344,20 @@ function izendaTileController(
 			vm.reportNameWithCategory = vm.reportName;
 			if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase())
 				vm.reportNameWithCategory = vm.reportCategory + $izendaSettings.getCategoryCharacter() + vm.reportNameWithCategory;
+
+			if (rpInfo.IsLocked)
+				vm.maxRights = 'Locked';
+			else if (rpInfo.ViewOnly)
+				vm.maxRights = 'View Only';
+			else if (rpInfo.ReadOnly)
+				vm.maxRights = 'Read Only';
+			else
+				vm.maxRights = 'Full Access';
+
 			vm.top = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.endTop = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
-			vm.flipFront(true, true);
 			updateParentTile();
-			$izendaEvent.queueEvent('refreshFilters', [], true);
+			vm.flipFront(true, true);
 		});
 
 
@@ -386,6 +391,25 @@ function izendaTileController(
 			updateDashboardHandlers($tile);
 			vm.refreshTile(false);
 		});
+
+		// add/remove .hover class for tile
+		if (vm.isIE && vm.top >= 500)
+			$element.addClass('hover-ie');
+		if (vm.top < 500) {
+			$getTile().addClass('no-hover-overflow');
+		}
+		$element.hover(function () {
+			if (vm.top < 500)
+				angular.element(this).removeClass('no-hover-overflow');
+			if (!vm.isIE || (vm.isIE && vm.top < 500))
+				angular.element(this).addClass('hover');
+		}, function () {
+			if (vm.top < 500)
+				angular.element(this).addClass('no-hover-overflow');
+			if (!vm.isIE || (vm.isIE && vm.top < 500))
+				angular.element(this).removeClass('hover');
+		});
+
 		refreshTile(false);
 	};
 
@@ -394,6 +418,30 @@ function izendaTileController(
 	*/
 	vm.selectReportPart = function () {
 		$rootScope.$broadcast('openSelectPartModalEvent', [vm.id]);
+	};
+
+	vm.hasRightLevel = function(requiredLevel) {
+		var rights = ['None', 'Locked', 'View Only', 'Read Only', 'Full Access'];
+		var currentRightLevel = rights.indexOf(vm.maxRights);
+		if (currentRightLevel < 0)
+			throw 'Unknown right string: ' + vm.maxRights;
+		return currentRightLevel >= requiredLevel;
+	}
+
+	vm.hasLockedRightsOrMore = function () {
+		return vm.hasRightLevel(1);
+	};
+
+	vm.hasViewOnlyRightsOrMore = function () {
+		return vm.hasRightLevel(2);
+	};
+
+	vm.hasReadOnlyRightsOrMore = function () {
+		return vm.hasRightLevel(3);
+	};
+
+	vm.hasFullRights = function () {
+		return vm.hasRightLevel(4);
 	};
 
 	/**
@@ -411,7 +459,7 @@ function izendaTileController(
 	* Get report viewer link for tile report
 	*/
 	vm.getReportViewerLink = function () {
-		return vm.izendaUrl.settings.urlReportViewer + '?rn=' + vm.getSourceReportName();
+		return getAppendedUrl(vm.izendaUrl.settings.urlReportViewer + '?rn=' + vm.getSourceReportName());
 	};
 
 	/**
@@ -432,7 +480,7 @@ function izendaTileController(
 		var designerUrl = vm.designerType === 'InstantReport'
 			? vm.izendaUrl.settings.urlInstantReport
   		: vm.izendaUrl.settings.urlReportDesigner;
-		return designerUrl + '?rn=' + vm.getSourceReportName();
+		return getAppendedUrl(designerUrl + '?rn=' + vm.getSourceReportName());
 	};
 
 	/**
@@ -554,8 +602,10 @@ function izendaTileController(
 	vm.exportToExcel = function () {
 		var addParam = '';
 		if (typeof (window.izendaPageId$) !== 'undefined')
-			addParam = '&izpid=' + window.izendaPageId$;
-		var url = vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)' + addParam;
+			addParam += '&izpid=' + window.izendaPageId$;
+		if (typeof (window.angularPageId$) !== 'undefined')
+			addParam += '&anpid=' + window.angularPageId$;
+		var url = getAppendedUrl(vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)' + addParam);
 		$window.open(url, '_self');
 		vm.flipFront(true, false);
 	};
@@ -631,6 +681,7 @@ function izendaTileController(
 		parentTile.reportNameWithCategory = vm.reportNameWithCategory;
 		parentTile.title = vm.title;
 		parentTile.description = vm.description;
+		parentTile.maxRights = vm.maxRights;
 
 		var change = {};
 		var changeCount = 0;
@@ -653,15 +704,17 @@ function izendaTileController(
 			stack: '.iz-dash-tile',
 			handle: '.title-container',
 			helper: function (event) {
-				var $target = _(event.currentTarget);
+				var width = vm.getWidth() * $scope.dashboardController.tileWidth;
+				var height = vm.getHeight() * $scope.dashboardController.tileHeight;
 				var helperStr =
-			'<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + $target.height() + 'px; left: 0px; width: ' + $target.width() + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
-			'<div class="animate-flip">' +
-			'<div class="flippy-front animated fast">' +
-			'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text">' +
-			'</span></div></div>' +
-			'</div></div></div>';
-				return _(helperStr);
+					'<div class="iz-dash-tile iz-dash-tile-helper" style="top: 0px; height: ' + height + 'px; left: 0px; width: ' + width + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
+						'<div class="animate-flip">' +
+							'<div class="flippy flippy-front animated fast">' +
+								'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text"></span></div></div>' +
+							'</div>' +
+						'</div>' +
+					'</div>';
+				return angular.element(helperStr);
 			},
 			distance: 10,
 			start: function (event, ui) {
@@ -671,15 +724,19 @@ function izendaTileController(
 				}]);
 
 				var $helper = ui.helper;
-				$helper.find('.flippy-front, .flippy-back').removeClass('flipInY');
-				$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
-				$helper.find('.frame').remove();
+				var $helperFlippies = $getFlippyFront($helper);
+				console.log($helperFlippies);
+				$scope.$allFlippies = $scope.dashboardController.getTileContainer().find('.iz-dash-tile > .animate-flip > .flippy-front, .iz-dash-tile > .animate-flip > .flippy-back');
+				$helperFlippies.removeClass('flipInY');
+				$helperFlippies.css('background-color', 'rgba(50,205,50, 0.3)');
+				$helperFlippies.find('.frame').remove();
 				$helper.css('z-index', 1000);
 				$helper.css('opacity', 1);
 			},
 			drag: function (event, ui) {
-				var $flippies = $scope.dashboardController.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
 				var $helper = ui.helper;
+				var $helperFlippies = $getFlippyFront($helper);
+
 				var helperPos = $helper.position();
 				// move tile shadow
 				var x = Math.round(helperPos.left / $scope.dashboardController.tileWidth) * $scope.dashboardController.tileWidth;
@@ -694,29 +751,30 @@ function izendaTileController(
 				$scope.dashboardController.updateDashboardSize(helperBbox);
 
 				// check underlying tile
-				$flippies.css('background-color', '#fff');
-				$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
+				$scope.$allFlippies.css('background-color', '#fff');
+				$helperFlippies.css('background-color', 'rgba(50,205,50, 0.3)');
 				var $target = $scope.dashboardController.getUnderlyingTile(event.pageX, event.pageY, vm);
 				if ($target != null) {
+					var $targetFlippies = $getFlippies($target);
 					$scope.dashboardController.hideTileGridShadow();
-					$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 1)');
+					$targetFlippies.css('background-color', 'rgba(50,205,50, 1)');
 				} else {
 					if ($scope.dashboardController.checkTileIntersects(vm, $helper) || $scope.dashboardController.checkTileMovedToOuterSpace($helper, 10)) {
-						$helper.find('.flippy-front, .flippy-back').css('background-color', 'rgba(220,20,60,0.2)');
+						$helperFlippies.css('background-color', 'rgba(220,20,60,0.2)');
 					}
 				}
 			},
 			stop: function (event, ui) {
-				var $flippies = $scope.dashboardController.getTileContainer().find('.animate-flip > .flippy-front, .animate-flip > .flippy-back');
 				var $helper = ui.helper;
-				var $source = _(event.target);
+				var $source = angular.element(event.target);
+
+				$scope.$allFlippies.css('background-color', '#fff');
 
 				angular.forEach($scope.dashboardController.tiles, function (tile) {
 					$scope.dashboardController.getTile$ById(tile.id).css('z-index', 1);
 				});
 
 				var $target = $scope.dashboardController.getUnderlyingTile(event.pageX, event.pageY, vm);
-				$flippies.css('background-color', '#fff');
 
 				// swap tile:
 				if ($target != null) {
@@ -735,6 +793,7 @@ function izendaTileController(
 							actionName: 'drag'
 						}]);
 					});
+					$scope.$allFlippies.css('background-color', '');
 					return;
 				}
 
@@ -746,6 +805,7 @@ function izendaTileController(
 						refresh: false,
 						actionName: 'drag'
 					}]);
+					$scope.$allFlippies.css('background-color', '');
 					return;
 				}
 
@@ -763,6 +823,7 @@ function izendaTileController(
 						actionName: 'drag'
 					}]);
 				});
+				$scope.$allFlippies.css('background-color', '');
 			}
 		});
 	}
@@ -784,10 +845,11 @@ function izendaTileController(
 					actionName: 'resize'
 				}]);
 				$animates = $scope.dashboardController.getTileContainer().find('.animate-flip');
-				var $target = _(event.target);
-				$target.find('.flippy-front, .flippy-back').removeClass('flipInY');
-				$target.find('.flippy-front, .flippy-back').css('background-color', 'rgba(50,205,50, 0.3)');
-				$target.find('.frame').addClass('hidden');
+				var $target = angular.element(event.target);
+				var $targetFlippies = $getFlippies($target);
+				$targetFlippies.removeClass('flipInY');
+				$targetFlippies.css('background-color', 'rgba(50,205,50, 0.3)');
+				$targetFlippies.children('.frame').addClass('hidden');
 				$target.css('z-index', 1000);
 				$target.css('opacity', 1);
 			},
@@ -820,7 +882,7 @@ function izendaTileController(
 				$t.css('z-index', 1);
 				$t.find('.frame').removeClass('hidden');
 				$t.find('.flippy-front, .flippy-back').addClass('flipInY');
-				$animates.find('.flippy-front,.flippy-back').css('background-color', '#fff');
+				$animates.find('.flippy-front,.flippy-back').css('background-color', '');
 				if ($scope.dashboardController.checkTileIntersects(tile) || $scope.dashboardController.checkTileMovedToOuterSpace($t)) {
 					// revert if intersects
 					$currentTileUi.animate({
@@ -836,14 +898,17 @@ function izendaTileController(
 						}]);
 					});
 				} else {
+					var isFlippyBack = $t.find('.flippy-back').is(':visible');
+					vm.tileSizeChanged = $currentTileUi.width() != ui.originalSize.width || $currentTileUi.height() != ui.originalSize.height;
 					vm.updateTileParameters();
 					$rootScope.$broadcast('stopEditTileEvent', [{
 						tileId: vm.id,
 						actionName: 'resize',
-						refresh: true
+						refresh: !isFlippyBack
 					}]);
 				}
-				$t.find('.flippy-front .report, .flippy-back .report').removeClass('hidden');
+				
+				$getReport($t).removeClass('hidden');
 				$t.css('opacity', 1);
 			}
 		});
@@ -854,21 +919,25 @@ function izendaTileController(
 	* Flip tile to the front side and refresh if needed.
 	*/
 	function flipTileFront(update, updateFromSourceReport) {
-		var $tile = _($element);
+		var $tile = $getTile();
+		$tile.children('.ui-resizable-handle').hide();
 		var showClass = 'animated fast flipInY';
 		var hideClass = 'animated fast flipOutY';
-		var $front = $tile.find('.flippy-front');
-		var $back = $front.parent().find('.flippy-back');
+
+		var $front = $getFlippyFront();
+		var $back = $getFlippyBack();
 		$back.addClass(hideClass);
 		$front.removeClass(showClass);
-
 		$front.css('display', 'block').addClass(showClass);
 		$back.css('display', 'none').removeClass(hideClass);
 
 		$timeout(function () {
 			$front.removeClass('flipInY');
 			$back.removeClass('flipInY');
-		}, 200);
+			$tile.children('.ui-resizable-handle').fadeIn(200);
+		}, 200).then(function () {
+			vm.flip = false;
+		});
 
 		if (update) {
 			refreshTile(updateFromSourceReport);
@@ -879,20 +948,23 @@ function izendaTileController(
 	* Flip tile to back side
 	*/
 	function flipTileBack() {
-		var $tile = _($element);
+		var $tile = $getTile();
+		$tile.children('.ui-resizable-handle').hide();
 		var showClass = 'animated fast flipInY';
 		var hideClass = 'animated fast flipOutY';
-		var $front = $tile.find('.flippy-front');
-		var $back = $tile.find('.flippy-back');
+
+		var $front = $getFlippyFront()
+		var $back = $getFlippyBack();
 		$front.addClass(hideClass);
 		$back.removeClass(showClass);
-
 		$back.css('display', 'block').addClass(showClass);
 		$front.css('display', 'none').removeClass(hideClass);
-		
+
+		vm.flip = true;
 		$timeout(function () {
 			$front.removeClass('flipInY');
 			$back.removeClass('flipInY');
+			$tile.children('.ui-resizable-handle').fadeIn(200);
 		}, 200);
 	}
 
@@ -918,7 +990,7 @@ function izendaTileController(
 	* Clear tile content
 	*/
 	function clearTileContent() {
-		var $body = _($element).find('.report');
+		var $body = $getReport();
 		$body.empty();
 	}
 
@@ -926,9 +998,10 @@ function izendaTileController(
 	* Refresh tile content
 	*/
 	function refreshTile(updateFromSourceReport) {
+		var $body = $getReport();
 		var updateFromSource = vm.updateFromSource || updateFromSourceReport;
+		vm.tileSizeChanged = false;
 		vm.updateFromSource = false;
-
 		if (vm.reportFullName == null || vm.reportFullName === '') {
 			return;
 		}
@@ -945,7 +1018,6 @@ function izendaTileController(
 				'<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 				'</div>' +
 				'</div>';
-			var $body = _($element).find('.report');
 			$body.html(loadingHtml);
 			// load from handler:
 			if (vm.preloadDataHandler != null) {
@@ -968,6 +1040,7 @@ function izendaTileController(
 					contentHeight: tileHeight,
 					forPrint: false
 				}).then(function (htmlData) {
+					$izendaEvent.queueEvent('refreshFilters', [], true);
 					applyTileHtml(htmlData);
 				});
 			}
@@ -986,6 +1059,30 @@ function izendaTileController(
 		$izendaDashboardState.loadReportIntoContainer(htmlData, $report);
 
 		vm.state.empty = false;
+	}
+
+	function $getTile($customTile) {
+		return angular.isDefined($customTile) ? angular.element($customTile) : angular.element($element);
+	}
+
+	function $getFlippies($customTile) {
+		var $tile = $getTile($customTile);
+		return $tile.children('.animate-flip').children('.flippy');
+	}
+
+	function $getFlippyFront($customTile) {
+		var $tile = $getTile($customTile);
+		return $tile.children('.animate-flip').children('.flippy-front');
+	}
+
+	function $getFlippyBack($customTile) {
+		var $tile = $getTile($customTile);
+		return $tile.children('.animate-flip').children('.flippy-back');
+	}
+
+	function $getReport($customTile) {
+		var $tile = $getTile($customTile);
+		return $tile.children('.animate-flip').children('.flippy-front').children('.frame').children('.report');
 	}
 }
 

@@ -10,6 +10,8 @@
 			restrict: 'A',
 			require: ['ngModel'],
 			scope: {
+				disabled: '=',
+				rendered: '=',
 				ngModel: '=',
 				endValue: '=',
 				showItemAll: '=',
@@ -17,6 +19,7 @@
 			},
 			template: '<input></input>',
 			link: function ($scope, elem) {
+				var slider = null;
 				// initialize values array
 				var valuesArray = [];
 				for (var i = 1; i <= 10; i++)
@@ -51,28 +54,40 @@
 					$scope.$parent.$applyAsync();
 				};
 
-				// initialize slider
-				var $input = elem.children('input');
-				$input.ionRangeSlider({
-					grid: true,
-					hide_min_max: true,
-					from: convertValueToFrom($scope.ngModel),
-					values: valuesArray,
-					onFinish: function (data) {
-						var value = convertFromToValue(data.from);
-						setEndValue(value);
-						$scope.onChangeEnd({});
-						$scope.$parent.$applyAsync();
-					}
-				});
+				/**
+				 * Initialize slider
+				 */
+				var initializeSlider = function() {
+					var $input = elem.children('input');
+					$input.ionRangeSlider({
+						disable: $scope.disabled,
+						grid: true,
+						hide_min_max: true,
+						from: convertValueToFrom($scope.ngModel),
+						values: valuesArray,
+						onFinish: function (data) {
+							var value = convertFromToValue(data.from);
+							setEndValue(value);
+							$scope.onChangeEnd({});
+							$scope.$parent.$applyAsync();
+						}
+					});
+					slider = $input.data("ionRangeSlider");
+				}
 
-				var slider = $input.data("ionRangeSlider");
+				/**
+				 * Set value to slider
+				 */
 				var setSliderValue = function (value) {
+					if (!slider)
+						return;
 					var from = convertValueToFrom(value);
 					slider.update({
 						from: from
 					});
 				};
+
+				// watches: 
 
 				$scope.$watch('ngModel', function (newValue) {
 					setSliderValue(newValue);
@@ -84,9 +99,29 @@
 						valuesArray.pop();
 					else if(!allExist && value)
 						valuesArray.push('ALL');
-					slider.update({
-						values: valuesArray
-					});
+					if (slider)
+						slider.update({
+							values: valuesArray
+						});
+				});
+
+				$scope.$watch('rendered', function (value) {
+					if (value) {
+						initializeSlider();
+					} else {
+						if (slider) {
+							slider.destroy();
+							slider = null;
+						}
+					}
+					
+				});
+
+				$scope.$watch('disabled', function (value) {
+					if (slider)
+						slider.update({
+							disable: value
+						});
 				});
 			}
 		};

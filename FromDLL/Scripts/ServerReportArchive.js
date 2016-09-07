@@ -146,9 +146,18 @@ function SRA_ProcessReportName(reportName, folder, replaceFolder)
 function SRA_SaveReportClick(evt, reportNameId, formId, action) {
 	var value = SRA_ProcessReportName(document.getElementById(reportNameId).value);
 	var b = SRA_CheckReport(value);
-	if(b) {
-	  ChangeFormAction(formId, action + "rn=" + value);
-		document.getElementById(reportNameId).value = value;
+	if (b.canBeSaved) {
+		if (b.confirm) {
+			ReportingServices.showConfirm(jsResources.AReportWithTheSameNameAlreadyExists, function (result) {
+				if (result == jsResources.OK) {
+					ChangeFormAction(formId, action + "rn=" + value);
+					document.getElementById(reportNameId).value = value;
+				}
+			});
+		} else {
+			ChangeFormAction(formId, action + "rn=" + value);
+			document.getElementById(reportNameId).value = value;
+		}
 	}
 }
 
@@ -165,7 +174,7 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
 		ReportingServices.showOk(jsResources.ReportNameInvalid, TB_PropmtReportName);
-		return false;
+		return { canBeSaved: false };
 	}
 	var reportName = rnParam.toLowerCase();
 	var trimReportName = reportName;
@@ -181,30 +190,29 @@ function SRA_CheckReport(rnParam, checkReportExist) {
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
 		ReportingServices.showOk(jsResources.EnterANameOfTheSavedReport, TB_PropmtReportName);
-
-		return false;
+		return { canBeSaved: false };
 	}
-	var exists = SRA_ReportExists(reportName);
-	if (exists!=false && checkReportExist)
-		if (exists=="ReadOnly" || !allowOverwriting || !confirm(jsResources.AReportWithTheSameNameAlreadyExists))
-		{
-			ebc_cancelSubmiting = true;
-			if(exists=="ReadOnly" || !allowOverwriting)
-			{
+	if (checkReportExist) {
+		var exists = SRA_ReportExists(reportName);
+		if (exists != false) {
+			if (exists == "ReadOnly" || !allowOverwriting) {
+				ebc_cancelSubmiting = true;
 				tbPropmtReportNameData.forceNewNameOnSave = true;
 				ReportingServices.showOk(jsResources.ThisReportAlreadyExists, TB_PropmtReportName);
+				return { canBeSaved: false };
 			}
-			return false;
+			return { canBeSaved: true, confirm: true };
+		} else {
+			var existsToOther = SRA_ReportExistsToOtherUser(reportName);
+			if (existsToOther != false) {
+				ebc_cancelSubmiting = true;
+				tbPropmtReportNameData.forceNewNameOnSave = true;
+				ReportingServices.showOk(jsResources.ReportExistsOverwriteNotAllowed, TB_PropmtReportName);
+				return { canBeSaved: false };
+			}
 		}
-	var existsToOther = SRA_ReportExistsToOtherUser(reportName);
-	if (existsToOther!=false && checkReportExist)
-	{
-		ebc_cancelSubmiting = true;
-		tbPropmtReportNameData.forceNewNameOnSave = true;
-		ReportingServices.showOk(jsResources.ReportExistsOverwriteNotAllowed, TB_PropmtReportName);
-		return false;
 	}
-	return true;
+	return { canBeSaved: true };
 }
 
 function SRA_ReportSelect(selectId, reportNameId, newLocation)

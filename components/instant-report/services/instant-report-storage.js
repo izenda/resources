@@ -1601,8 +1601,10 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return $q(function (resolve) {
 					var addParam = '';
 					if (typeof (window.izendaPageId$) !== 'undefined')
-						addParam = '&izpid=' + window.izendaPageId$;
-					$window.open($izendaUrl.settings.urlRsPage + '?output=' + type + addParam, '_self');
+						addParam += '&izpid=' + window.izendaPageId$;
+					if (typeof (window.angularPageId$) !== 'undefined')
+						addParam += '&anpid=' + window.angularPageId$;
+					$window.open(getAppendedUrl($izendaUrl.settings.urlRsPage + '?output=' + type + addParam), '_self');
 					resolve(true);
 			});
 	};
@@ -1614,7 +1616,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return $q(function (resolve) {
 					var addParam = '';
 					if (typeof (window.izendaPageId$) !== 'undefined')
-						addParam = '&izpid=' + window.izendaPageId$;
+						addParam += '&izpid=' + window.izendaPageId$;
+					if (typeof (window.angularPageId$) !== 'undefined')
+						addParam += '&anpid=' + window.angularPageId$;
 					ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
 					resolve(true);
 			});
@@ -1649,7 +1653,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 				url += '?rn=' + getReportSetFullName() + '&tab=Fields';
 			else
 				url += '?tab=Fields';
-			$window.location.href = url;
+			$window.location.href = getAppendedUrl(url);
 		});
 	};
 
@@ -1692,7 +1696,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			throw 'Can\'t send email without report name';
 		var redirectUrl = '?subject=' + encodeURIComponent(reportInfo.fullName) + '&body=' + encodeURIComponent(location);
 		redirectUrl = 'mailto:' + redirectUrl.replace(/ /g, '%20');
-		window.top.location = redirectUrl;
+		window.top.location = getAppendedUrl(redirectUrl);
 	};
 
 	/**

@@ -42,7 +42,10 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 					windowTimeoutHandler: undefined,
 					width: 0,
 					height: 0,
-					isUiHidden: false
+					isUiHidden: false,
+					smallButtonsPanelHeight: $smallButtonsPanel.height(), // cache sizes
+					elementHeight: $element.height(),
+					titlePanelPosition: $titlePanel.position()
 				};
 
 				/**
@@ -80,14 +83,6 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				}
 
 				/**
-				 * Get gallery item translate top
-				 */
-				$scope.getItemTop = function () {
-					var height = $element.find('.izenda-gallery-item').first().height();
-					return height;
-				};
-
-				/**
 				 * Get gallery item size
 				 */
 				$scope.getItemSize = function (itemIndex) {
@@ -103,12 +98,12 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 					var transformX = Math.round(($scope.state.width - galleryItemWidth) / 2 + delta * (galleryItemWidth + spaceWidth));
 					var transformY = Math.round(($scope.state.height - galleryItemHeight) / 2);
 
-					var constraintBottom = $smallButtonsPanel.height();
-					var constraintTop = $titlePanel.position().top + $titlePanel.height() + 10;
+					var constraintBottom = $scope.state.smallButtonsPanelHeight;
+					var constraintTop = $scope.state.titlePanelPosition.top + $scope.state.elementHeight + 10;
 					if (transformY < constraintTop)
 						transformY = constraintTop;
-					if (transformY + galleryItemHeight > $element.height() - constraintBottom) {
-						galleryItemHeight = $element.height() - transformY - constraintBottom;
+					if (transformY + galleryItemHeight > $scope.state.elementHeight - constraintBottom) {
+						galleryItemHeight = $scope.state.elementHeight - transformY - constraintBottom;
 					}
 					return {
 						x: transformX,
@@ -377,6 +372,11 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 						$scope.state.windowTimeoutHandler = undefined;
 						// start update after animation complete
 						$timeout(function () {
+
+							$scope.state.smallButtonsPanelHeight = $smallButtonsPanel.height(); // cache sizes
+							$scope.state.elementHeight = $element.height();
+							$scope.state.titlePanelPosition = $titlePanel.position();
+
 							$scope.update();
 							$scope.$applyAsync();
 						}, 250);

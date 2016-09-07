@@ -51,6 +51,20 @@ function IsIE() {
 //------------------------------------------------------------------------------------------------------------------
 
 //Ajax--------------------------------------------------------------------------------------------------------------
+function appendParameterToUrl(url, parameterName, parameterValue) {
+	var modifiedUrl = url;
+	if (parameterValue) {
+		if (modifiedUrl.indexOf("?") == -1)
+			modifiedUrl = modifiedUrl + "?";
+		else {
+			if (modifiedUrl[modifiedUrl.length - 1] != '&' && modifiedUrl[modifiedUrl.length - 1] != '?')
+				modifiedUrl = modifiedUrl + "&";
+		}
+		modifiedUrl = modifiedUrl + parameterName + '=' + parameterValue;
+	}
+	return modifiedUrl;
+}
+
 function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
 	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
 		return;
@@ -62,15 +76,10 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
     thisRequestObject.requestId = id;
     thisRequestObject.dtk = dataToKeep;
     thisRequestObject.onreadystatechange = ProcessRequest;
-    if (typeof (window.izendaPageId$) !== 'undefined') {
-    	if (url.indexOf("?") == -1)
-    		url = url + "?";
-    	else {
-    		if (url[url.length - 1] != '&' && url[url.length - 1] != '?')
-    			url = url + "&";
-    	}
-    	url = url + 'izpid=' + window.izendaPageId$;
-    }
+    
+    url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
+    url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
+
     thisRequestObject.open('POST', url, true);
     thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
     thisRequestObject.send(parameters);

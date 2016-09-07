@@ -132,22 +132,34 @@ function IzendaDashboardController(
 	////////////////////////////////////////////////////////
 	// scope helper functions:
 	////////////////////////////////////////////////////////
-
+	var _$dashboardsDiv = null;
 	vm.getRoot = function () {
-		return _('#dashboardsDiv');
+		if (!_$dashboardsDiv || !_$dashboardsDiv.length)
+			_$dashboardsDiv = angular.element('#dashboardsDiv');
+		return _$dashboardsDiv;
 	};
+
+	var _$tileContainer = null;
 	vm.getTileContainer = function () {
-		return _('#dashboardBodyContainer');
+		if (!_$tileContainer || !_$tileContainer.length)
+			_$tileContainer = angular.element('#dashboardBodyContainer');
+		return _$tileContainer;
 	};
+
+	var _$galleryContainer = null;
 	vm.getGalleryContainer = function () {
-		return _('#galleryBodyContainer');
+		if (!_$galleryContainer || !_$galleryContainer.length)
+			_$galleryContainer = angular.element('#galleryBodyContainer');
+		return _$galleryContainer;
 	};
+
 	vm.getTileById = function (tileId) {
 		var searchResult = _.grep(vm.tiles, function (tile) {
 			return tile.id === tileId;
 		});
 		return searchResult.length > 0 ? searchResult[0] : null;
 	};
+
 	vm.getTileIndex = function (tileid) {
 		var i = 0;
 		var result = -1;
@@ -245,7 +257,9 @@ function IzendaDashboardController(
 	vm.printDashboardAsHtml = function () {
 		var addParam = '';
 		if (typeof (window.izendaPageId$) !== 'undefined')
-			addParam = '&izpid=' + window.izendaPageId$;
+			addParam += '&izpid=' + window.izendaPageId$;
+		if (typeof (window.angularPageId$) !== 'undefined')
+			addParam += '&anpid=' + window.angularPageId$;
 		ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
 	};
 
@@ -255,7 +269,9 @@ function IzendaDashboardController(
 	vm.printDashboardAsPDF = function () {
 		var addParam = '';
 		if (typeof (window.izendaPageId$) !== 'undefined')
-			addParam = '&izpid=' + window.izendaPageId$;
+			addParam += '&izpid=' + window.izendaPageId$;
+		if (typeof (window.angularPageId$) !== 'undefined')
+			addParam += '&anpid=' + window.angularPageId$;
 		$window.open($izendaUrl.settings.urlRsPage + '?output=PDF' + addParam, '_self');
 	};
 
@@ -546,7 +562,9 @@ function IzendaDashboardController(
 				if (vm.tiles[i].id == tileid)
 					idx = i;
 			vm.tiles.splice(idx, 1);
-			$izendaEvent.queueEvent('refreshFilters', [], true);
+			sync().then(function () {
+				$izendaEvent.queueEvent('refreshFilters', [], true);
+			});
 		});
 		
 		$izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function (subject) {
@@ -655,8 +673,10 @@ function IzendaDashboardController(
 			$scope.$evalAsync();
 		};
 
+		var $tileContainer = vm.getTileContainer();
+
 		// mouse down
-		vm.getTileContainer().on('mousedown.dashboard', function (e) {
+		$tileContainer.on('mousedown.dashboard', function (e) {
 			ensureAddTile();
 			var $tileContainer = vm.getTileContainer();
 			var $target = _(e.target);
@@ -675,7 +695,7 @@ function IzendaDashboardController(
 		});
 
 		// move mouse over the dashboard
-		vm.getTileContainer().on('mousemove.dashboard', function (e) {
+		$tileContainer.on('mousemove.dashboard', function (e) {
 			ensureAddTile();
 			if (!angular.isObject(vm.mouseMoveCache)) {
 				var $tContainer = vm.getTileContainer();
@@ -684,37 +704,43 @@ function IzendaDashboardController(
 					offset: function () { return $tContainer.offset(); }
 				}
 			}
-			var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
-			var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
-			var x = Math.floor(relativeX / vm.tileWidth);
-			var y = Math.floor(relativeY / vm.tileHeight);
-
 			if (!vm.addtile.started) {
+				var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
+				var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
+				var x = Math.floor(relativeX / vm.tileWidth);
+				var y = Math.floor(relativeY / vm.tileHeight);
 				var $target = _(e.target);
-				var isTile = vm.isTile$($target);
-				if (isTile) {
-					vm.addtile.count = 0;
-					$rootScope.$broadcast('stopEditTileEvent', [{
-						tileId: null,
-						actionName: 'addtile'
-					}]);
-				} else {
-					vm.addtile.count++;
-					if (vm.addtile.count > 5) {
-						$rootScope.$broadcast('startEditTileEvent', [{
-							tileId: vm.id,
-							shadowX: x * vm.tileWidth,
-							shadowY: y * vm.tileHeight,
+				if (e.target != vm.mouseMoveCache.previousElement || e.target === vm.mouseMoveCache.$tileContainer.get(0) || $target.hasClass('dashboard-grid')) {
+					var isTile = vm.isTile$($target);
+					if (isTile) {
+						vm.addtile.count = 0;
+						$rootScope.$broadcast('stopEditTileEvent', [{
+							tileId: null,
 							actionName: 'addtile'
 						}]);
+					} else {
+						vm.addtile.count++;
+						if (vm.addtile.count > 5) {
+							$rootScope.$broadcast('startEditTileEvent', [{
+								tileId: vm.id,
+								shadowX: x * vm.tileWidth,
+								shadowY: y * vm.tileHeight,
+								actionName: 'addtile'
+							}]);
+						}
 					}
-				}
+				};
+				vm.mouseMoveCache.previousElement = e.target;
 				return;
 			}
 
 			// add new tile if needed
 			if (vm.addtile.count > 5) {
 				if (vm.addtile.tile == null) {
+					var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
+					var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
+					var x = Math.floor(relativeX / vm.tileWidth);
+					var y = Math.floor(relativeY / vm.tileHeight);
 					addNewPixelTile(x, y);
 				}
 			}
@@ -722,7 +748,7 @@ function IzendaDashboardController(
 		});
 
 		// mouseup
-		vm.getTileContainer().on('mouseup.dashboard', function (e) {
+		$tileContainer.on('mouseup.dashboard', function (e) {
 			ensureAddTile();
 			var $tileContainer = vm.getTileContainer();
 			var $target = _(e.target);
@@ -745,7 +771,7 @@ function IzendaDashboardController(
 		});
 
 		// mouseout
-		vm.getTileContainer().on('mouseout.dashboard', function (e) {
+		$tileContainer.on('mouseout.dashboard', function (e) {
 			ensureAddTile();
 			vm.addtile.started = false;
 			vm.addtile.startedDraw = false;
@@ -829,22 +855,17 @@ function IzendaDashboardController(
 	function sync() {
 		var deferred = $q.defer();
 		var json = createSaveJson();
-		if (json.Rows[0].ColumnsCount !== 0) {
-			$izendaDashboardQuery.syncDashboard(json).then(function (data) {
-				if (data.Value !== 'OK') {
-					deferred.reject(
-						$izendaLocale.localeText('js_SyncDashboardError', 'Can\'t sync dashboard.') + ' ' +
-						$izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value);
-					$scope.$applyAsync();
-				} else {
-					deferred.resolve();
-					$scope.$applyAsync();
-				}
-			});
-		} else {
-			deferred.reject($izendaLocale.localeText('js_CantPrintEmptyDashboard', 'Can\'t sync empty dashboard.'));
-			$scope.$applyAsync();
-		}
+		$izendaDashboardQuery.syncDashboard(json).then(function (data) {
+			if (data.Value !== 'OK') {
+				deferred.reject(
+					$izendaLocale.localeText('js_SyncDashboardError', 'Can\'t sync dashboard.') + ' ' +
+					$izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value);
+				$scope.$applyAsync();
+			} else {
+				deferred.resolve();
+				$scope.$applyAsync();
+			}
+		});
 		return deferred.promise;
 	}
 
@@ -925,7 +946,9 @@ function IzendaDashboardController(
 						designerType: cell.DesignerType,
 						isSourceReportDeleted: cell.IsSourceReportDeleted,
 						description: cell.ReportDescription,
-						top: cell.RecordsCount
+						top: cell.RecordsCount,
+						canBeLoaded: cell.CanBeLoaded,
+						maxRights: cell.MaxRights
 					});
 					if (maxHeight < cell.Y + cell.Height)
 						maxHeight = cell.Y + cell.Height;

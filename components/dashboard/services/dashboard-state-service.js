@@ -88,7 +88,7 @@ angular
 			 */
 			var turnOnWindowResizeHandler = function () {
 				windowResizeOptions.id = null;
-				windowResizeOptions.previousWidth = angular.element($window).width();
+				//windowResizeOptions.previousWidth = angular.element($window).width();
 				isWindowChangingNow = true;
 				function doneResizing() {
 					if (windowResizeOptions.previousWidth !== angular.element($window).width()) {

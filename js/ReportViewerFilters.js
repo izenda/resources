@@ -1232,7 +1232,7 @@ function InitAutoComplete() {
 			},
 			caseSensitive: true,
 			allowDuplicates: false,
-			singleFieldDelimiter: ',',
+			singleFieldDelimiter: jsResources.literalComma,
 			processValuesForSingleField: function (tags) {
 				for (var i = 0; i < tags.length; i++)
 					tags[i] = tags[i].replaceAll(',', '#||#');

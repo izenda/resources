@@ -1457,6 +1457,7 @@ be a descendant of the grid when it is being dragged.
 
 		var customDefaultDateInput = vs.find("#VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT"),
 			customDefaultDateControl = customDefaultDateInput.parent();
+		var dynamicFontSizeCheckbox = vs.find('#VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX');
 
 		if (!isImageRender) {
 			customDefaultDateInput.datepicker({
@@ -1482,7 +1483,6 @@ be a descendant of the grid when it is being dragged.
 					}
 				});
 
-			var dynamicFontSizeCheckbox = vs.find('#VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX');
 			dynamicFontSizeCheckbox
 				.unbind("change")
 				.bind("change", function () {

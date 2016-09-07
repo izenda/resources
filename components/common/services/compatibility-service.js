@@ -11,13 +11,19 @@
 				rightViewOnly = "View Only",
 				rightLocked = "Locked",
 				rightFullAccess = "Full Access";
-
+		var isIE8 = isSpecificIeVersion(8, 'lte');
+		var isLteIE10 = isSpecificIeVersion(10, 'lte');
+		var isGteIE9 = isSpecificIeVersion(10, 'gte');
 		var checkIsIe8 = function () {
-			return isSpecificIeVersion(8, 'lte');
+			return isIE8;
+		};
+
+		var checkIE = function () {
+			return isGteIE9;
 		};
 
 		var checkIsLteIe10 = function () {
-			return isSpecificIeVersion(10, 'lte');
+			return isLteIE10;
 		};
 
 		/**
@@ -131,6 +137,7 @@
 		};
 
 		return {
+			checkIE: checkIE,
 			checkIsIe8: checkIsIe8,
 			checkIsLteIe10: checkIsLteIe10,
 			isMobile: isMobile,

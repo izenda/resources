@@ -376,7 +376,7 @@ function SC_OnExtraColumnChangedHandler(e, el, columnName) {
 	}
 }
 
-function SC_InsertExtraColumnBelow(id) {
+function SC_InsertExtraColumnBelow(event, id) {
 	EBC_InsertBelowHandler(event, 1);
 	if (jq$('#' + id + '_ExtraColumn').children().children().length > 1) {
 		jq$('.' + id + '_ExtraDescription_Label1').show();
@@ -386,7 +386,7 @@ function SC_InsertExtraColumnBelow(id) {
 	}
 }
 
-function SC_RemoveExtraColumn(id, force) {
+function SC_RemoveExtraColumn(event, id, force) {
 	EBC_RemoveNotLastRowHandler('ExtraValue', event, force);
 	if (jq$('#' + id + '_ExtraColumn').children().children().length < 3) {
 		jq$('.' + id + '_ExtraDescription_Label1').hide();

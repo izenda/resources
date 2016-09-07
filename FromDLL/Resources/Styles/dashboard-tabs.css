@@ -1,0 +1,36 @@
+﻿.TabStrip {width:100%; height: 28px; background-repeat: repeat-x; background-position: top; padding:0px 0px 0px 0px; cursor: default;}
+.TabStrip .LeftPart {background-position: bottom;background-repeat: repeat-x;}
+.TabStrip .MiddlePart {font-family: verdana, arial, helvetica, sans-serif; font-size: 11px; width: 100%; height: 28px; background-repeat: repeat-x; background-position: bottom; padding: 2px 0px 0px 0px; text-align: center; vertical-align: middle;}
+.TabStrip .RightPart {background-position: bottom;background-repeat: repeat-x;}
+							
+.TabStrip .ActiveTab {width:100%;cursor:pointer;}
+
+.TabStrip .ActiveTab .LeftPart {background-image: url(###RS###image=TabStrip.ActiveLeft.gif);}
+.TabStrip .ActiveTab .MiddlePart {background-image: url(###RS###image=TabStrip.ActiveMid.gif);}
+.TabStrip .ActiveTab .RightPart {background-image: url(###RS###image=TabStrip.ActiveRight.gif);}
+
+.TabStrip .InactiveTab {width:100%;cursor:pointer;}
+
+.TabStrip .InactiveTab .LeftPart {background-image: url(###RS###image=TabStrip.InactiveLeft.gif);}
+.TabStrip .InactiveTab .MiddlePart {background-image: url(###RS###image=TabStrip.InactiveMid.gif);}
+.TabStrip .InactiveTab .RightPart {background-image: url(###RS###image=TabStrip.InactiveRight.gif);}
+
+.TabStrip .DisabledTab {width:100%;cursor:default;color:gray}
+
+.TabStrip .DisabledTab .LeftPart {background-image: url(###RS###image=TabStrip.DisabledLeft.gif);}
+.TabStrip .DisabledTab .MiddlePart {background-image: url(###RS###image=TabStrip.DisabledMid.gif);}
+.TabStrip .DisabledTab .RightPart {background-image: url(###RS###image=TabStrip.DisabledRight.gif);}
+
+.TabStrip .Highlighted .ActiveTab {}
+.TabStrip .Highlighted .ActiveTab .LeftPart {}
+.TabStrip .Highlighted .ActiveTab .MiddlePart {}
+.TabStrip .Highlighted .ActiveTab .RightPart {}
+.TabStrip .Highlighted .InactiveTab {cursor:pointer}
+.TabStrip .Highlighted .InactiveTab .LeftPart {}
+.TabStrip .Highlighted .InactiveTab .MiddlePart {}
+.TabStrip .Highlighted .InactiveTab .RightPart {}
+							
+.TabStrip .ActiveTab div {width: 9px; height: 28px; overflow : hidden;}
+.TabStrip .InactiveTab div {width: 9px; height: 28px; overflow : hidden;}
+.TabStrip .DisabledTab div {width: 9px; height: 28px; overflow : hidden;}
+.TabStrip .TabSeparator {width: 20px;}

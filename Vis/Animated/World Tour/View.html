@@ -356,12 +356,14 @@
 			context.strokeStyle = "rgb(20,20,20)";
 			context.lineWidth = 0.5;
 			context.beginPath();
-			path(countries[index]);
+			if (countries.length > 0) {
+				path(countries[index]);
+			}
 			context.stroke();
 		}
 
 		function transition() {
-			if (stopped) {
+			if (stopped || !countries.length) {
 				return;
 			}
 
@@ -400,9 +402,13 @@
 				.sort(function(a, b) { return a.name.localeCompare(b.name); });
 			borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
 			index = -1;
-			min = d3.min(items, function(item) { return item.support[metricValue].o; });
-			max = d3.max(items, function(item) { return item.support[metricValue].o; });
-			transition();
+			if (countries.length > 0) {
+				min = d3.min(items, function (item) { return item.support[metricValue].o; });
+				max = d3.max(items, function (item) { return item.support[metricValue].o; });
+				transition();
+			} else {
+				draw();
+			}
 		}
 
 		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {

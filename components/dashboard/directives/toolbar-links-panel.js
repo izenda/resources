@@ -21,6 +21,7 @@
 			templateUrl: $izendaUrl.settings.urlBase + '/Resources/components/dashboard/templates/toolbar-links-panel.html',
 			link: function ($scope, elem, attrs) {
 				var $slideContainer = _(elem).find('.iz-dash-linkspanel-navbar-3');
+				var slideContainerWidth = $slideContainer.width();
 
 				// calculate max right of menu items
 				var getMaxRight = function () {
@@ -40,7 +41,7 @@
 						left = parseInt(left.substring(0, left.length - 2));
 					left += leftDelta;
 					var maxRight = getMaxRight();
-					var width = $slideContainer.width();
+					var width = slideContainerWidth;
 					if (left < width - maxRight)
 						left = width - maxRight;
 					if (left > 0)
@@ -57,7 +58,7 @@
 					if (itemToMove) {
 						var $item = angular.element(elem).find('#izDashToolbarItem' + itemToMove.id);
 						var maxRight = getMaxRight();
-						var width = $slideContainer.width();
+						var width = slideContainerWidth;
 						var left = $item.position().left + $item.width() / 2;
 						left = -left + width / 2;
 						if (left > 0)
@@ -86,15 +87,16 @@
 
 				// check left and right buttons is needed
 				$scope.isButtonsVisible = function () {
-					var width = 0;
-					$slideContainer.find('.iz-dash-linkspanel-navbar-item').each(function () {
-						width += _(this).width();
-					});
-					return width > $slideContainer.width();
+					return $scope.sumWidth > slideContainerWidth;
 				};
 
 				// watch toolbar item collection changed
 				$scope.$watchCollection('toolbarItems', function () {
+					$scope.sumWidth = 0;
+					$slideContainer.find('.iz-dash-linkspanel-navbar-item').each(function () {
+						$scope.sumWidth += angular.element(this).width();
+					});
+
 					$slideContainer.find('.iz-dash-linkspanel-navbar-item').on('mouseup', function () {
 						var idStr = _(this).attr('id');
 						var id = parseInt(idStr.split('izDashToolbarItem')[1]);

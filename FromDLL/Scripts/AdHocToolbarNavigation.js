@@ -337,8 +337,7 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 	var formId = UserData.formId;
 	var action = UserData.action;
 	var forceNewNameOnSave = UserData.forceNewNameOnSave;
-	var PostBackScript = UserData.PostBackScript;
-	
+
 	ebc_cancelSubmiting = false;
 
 	if (result == jsResources.OK && reportName != null)
@@ -351,40 +350,52 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 			return;
 		}
 		var b = SRA_CheckReport(reportName, UserData.checkReportExist);
-		if (b)
+		if (b.canBeSaved)
 		{
-			var reportNameField = document.getElementById(reportNameFieldID);
-			if(reportNameField==null)
-			{
-				reportNameField = document.getElementsByName(reportNameFieldID);
-				reportNameField = reportNameField[0];
-			}
-			var oldValue = reportNameField.value;
-			reportNameField.value = reportName;
-			var PostBackScript = PostBackScript.replace("__report_name__", reportName);
-			var PostBackScript = PostBackScript.replace("__old_report_name__", oldValue);
-			var PostBackScript = PostBackScript.replace("__old_tplrep_name__", oldValue);
-			PostBackScript = PostBackScript.replace(/&quot;/g,'"');
-			action = action.replace("__report_name__", reportName.replace(/ /g, "+"));
-			action = action.replace("__old_report_name__", oldValue.replace(/ /g, "+"));
-			action = action.replace("__old_tplrep_name__", oldValue.replace(/ /g, "+"));
-			ChangeFormAction(formId, action);
-			pause(100);
-			ReportingServices.showLoading(null, { title: jsResources.Saving });
-			pause(100);
-			var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
-			if (mvcHack != null)
-				mvcHack.value = "1";
-			theForm.hidden = true;
-			theForm.onsubmit = function () {
-				for (i = 0; i < theForm.length; i++) {
-					if (theForm[i].getAttribute('htmlallowed') == 'true')
-						if (theForm[i].value)
-							theForm[i].value = theForm[i].value.escapeHtml();
+			this.PostBackScript = UserData.PostBackScript;
+			var currentContext = this;
+			function execute() {
+				var reportNameField = document.getElementById(reportNameFieldID);
+				if (reportNameField == null) {
+					reportNameField = document.getElementsByName(reportNameFieldID);
+					reportNameField = reportNameField[0];
 				}
-				return true;
+				var oldValue = reportNameField.value;
+				reportNameField.value = reportName;
+				var PostBackScript = this.PostBackScript.replace("__report_name__", reportName);
+				PostBackScript = PostBackScript.replace("__old_report_name__", oldValue);
+				PostBackScript = PostBackScript.replace("__old_tplrep_name__", oldValue);
+				PostBackScript = PostBackScript.replace(/&quot;/g, '"');
+				action = action.replace("__report_name__", reportName.replace(/ /g, "+"));
+				action = action.replace("__old_report_name__", oldValue.replace(/ /g, "+"));
+				action = action.replace("__old_tplrep_name__", oldValue.replace(/ /g, "+"));
+				ChangeFormAction(formId, action);
+				pause(100);
+				ReportingServices.showLoading(null, { title: jsResources.Saving });
+				pause(100);
+				var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
+				if (mvcHack != null)
+					mvcHack.value = "1";
+				theForm.hidden = true;
+				theForm.onsubmit = function () {
+					for (i = 0; i < theForm.length; i++) {
+						if (theForm[i].getAttribute('htmlallowed') == 'true')
+							if (theForm[i].value)
+								theForm[i].value = theForm[i].value.escapeHtml();
+					}
+					return true;
+				}
+				eval(PostBackScript);
 			}
-			eval(PostBackScript);
+			if (b.confirm) {
+				ReportingServices.showConfirm(jsResources.AReportWithTheSameNameAlreadyExists, function (result) {
+					if (result == jsResources.OK) {
+						execute.apply(currentContext);
+					}
+				});
+			} else {
+				execute();
+			}
 		}
 	}
 	else

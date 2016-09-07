@@ -83,7 +83,6 @@ function izendaToolbarController(
 	vm.dashboardsAllowedByLicense = false;
 	vm.isIE8 = $izendaCompatibility.checkIsIe8();
 	vm.isStorageAvailable = $izendaBackground.isStorageAvailable();
-	vm.isPresentationModeEnable = !$izendaCompatibility.checkIsLteIe10();
 	vm.synchronized = false;
 	vm.isDesignLinksAllowed = true;
 
