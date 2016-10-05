@@ -33,8 +33,8 @@ function IzendaSelectReportNameController(
 	reportNameInvalidError) {
 	'use strict';
 	var vm = this;
-
 	$scope.$izendaUrl = $izendaUrl;
+	vm.isCategoryAllowed = $izendaSettings.getCommonSettings().showCategoryTextboxInSaveDialog;
 
 	// localization:
 	vm.reportNameInputPlaceholderText = $izendaLocale.localeText(reportNameInputPlaceholderText[0], reportNameInputPlaceholderText[1]);
@@ -220,6 +220,10 @@ function IzendaSelectReportNameController(
    * Report category selected handler
    */
 	vm.categorySelectedHandler = function () {
+		if (!vm.isCategoryAllowed) {
+			vm.selectedCategory = getCategoryByName(vm.UNCATEGORIZED_TEXT);
+			return;
+		}
 		if (vm.selectedCategory !== null) {
 			if (vm.selectedCategory.name === vm.CREATE_NEW_TEXT) {
 				vm.isCreatingNewCategory = true;

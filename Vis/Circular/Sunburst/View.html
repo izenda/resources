@@ -160,7 +160,8 @@
 
 		function restore() {
 			if (typeof s.props == "object" && s.props.metric) {
-				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
 			}
 		}
 
@@ -194,8 +195,9 @@
 
 		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
 
-		var heightOffset = 4,
-			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").height(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").height(), vis.container.find(".clearfix").height())) - heightOffset;
+		var heightOffset = 5,
+			settingsPanelHeight = 32,
+			heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : settingsPanelHeight) - heightOffset;
 
 		var radius = Math.min(width, heightWithOffset) / 2 - 6,
 			breadcrumbWidthOffset = isImageRender ? 55 : 10,
@@ -236,8 +238,6 @@
 			showLabel: true,
 			total: 1
 		});
-
-		heightWithOffset = height - ((isImageRender && !showPanelInImage) ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight())) - heightOffset;
 
 		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
 		vis.container

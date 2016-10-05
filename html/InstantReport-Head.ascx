@@ -1,5 +1,7 @@
 ﻿<%@ Control AutoEventWireup="true" %>
 
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+
 <!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.data-sources" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.charts" />

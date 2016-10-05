@@ -506,7 +506,7 @@
 		];
 	})();
 
-	function ExecuteVIS_ID() {
+	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
 
 		var util = window.ReportScripting, services = window.ReportingServices, vis,
@@ -751,10 +751,12 @@
 			colors = palettes[s.props.palette].colors;
 
 			if (s.props.metric) {
-				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
 			}
 			if (s.props.metric2) {
-				metricExtraSelect.get(0).selectedIndex = metricExtraSelect.find('option[value="' + s.props.metric2 + '"]').index();
+				var metricExtraIndex = metricExtraSelect.find('option[value="' + s.props.metric2 + '"]').index();
+				metricExtraSelect.get(0).selectedIndex = metricExtraIndex >= 0 ? metricExtraIndex : 0;
 			}
 
 			coloredSelect.prop("checked", !!s.props.colored);
@@ -1832,14 +1834,5 @@
 			jq$("#VIS_ID").empty();
 			s.init = true;
 		});
-	}
-
-	// Wait for CSS to be applied when dynamically adding CSS rules to HTML
-	(function WaitInitVIS_ID() {
-		if (document.getElementById('VIS_ID_CONTAINER').offsetWidth != 0) {
-			ExecuteVIS_ID();
-		} else {
-			setTimeout(WaitInitVIS_ID, 100);
-		}
 	})();
 </script>

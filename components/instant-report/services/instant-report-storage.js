@@ -1597,16 +1597,13 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Generate pdf with current report and send file to user
 	 */
-	var exportReportAs = function (type) {
+	var exportReportAs = function (exportType) {
 		return $q(function (resolve) {
-					var addParam = '';
-					if (typeof (window.izendaPageId$) !== 'undefined')
-						addParam += '&izpid=' + window.izendaPageId$;
-					if (typeof (window.angularPageId$) !== 'undefined')
-						addParam += '&anpid=' + window.angularPageId$;
-					$window.open(getAppendedUrl($izendaUrl.settings.urlRsPage + '?output=' + type + addParam), '_self');
-					resolve(true);
-			});
+			var reportSetToSend = createReportSetConfigForSend();
+			reportSetToSend.options.applyPreviewTop = false;
+			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, exportType);
+			resolve(true);
+		});
 	};
 
 	/**
@@ -1614,14 +1611,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 */
 	var printReportAsHtml = function () {
 		return $q(function (resolve) {
-					var addParam = '';
-					if (typeof (window.izendaPageId$) !== 'undefined')
-						addParam += '&izpid=' + window.izendaPageId$;
-					if (typeof (window.angularPageId$) !== 'undefined')
-						addParam += '&anpid=' + window.angularPageId$;
-					ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
-					resolve(true);
-			});
+			var reportSetToSend = createReportSetConfigForSend();
+			reportSetToSend.options.applyPreviewTop = false;
+			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, 'print');
+			resolve(true);
+		});
 	};
 
 	/**

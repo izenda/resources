@@ -237,50 +237,47 @@ function JTC_SelectRightTableSelValue(id, rowIndex)
 
 function JTC_GetTableList(id) {
 	var tableSels = jq$('[name="' + id + '_Table"]').not('[additional="true"]');
-	
+
 	var tables = new Array();
-	for (var i = 0; i < tableSels.length; i++)
-	{
+	for (var i = 0; i < tableSels.length; i++) {
 		var value = new Array();
 		value.table = tableSels[i].value;
-		if (value.table != null && value.table != '...')
-		{
+		var alias = jq$(tableSels[i]).closest('tr').find('input[name$="TableAlias"]').val();
+		if (value.table != null && value.table != '...') {
+			if (alias)
+				value.alias = alias;
 			if (tableSels[i].selectedIndex > -1)
-			{
-				value.alias = tableSels[i].options[tableSels[i].selectedIndex].text;
-			}
+				value.name = tableSels[i].options[tableSels[i].selectedIndex].text;
 			else
-				value.alias = '';
+				value.name = '';
 			value.notFirst = i != 0;
 			tables.push(value);
 		}
 	}
 	var tablesCopy = new Array();
-	for(var i = 0; i < tables.length; i++)
-	{
+	for (var i = 0; i < tables.length; i++) {
 		var countBefore = 0;
 		var count = 0;
-		for(var j = 0; j<tables.length; j++)
-		{
-			if(tables[i].table == tables[j].table)
-			{
+		for (var j = 0; j < tables.length; j++) {
+			if (tables[i].table == tables[j].table && !tables[i].alias) {
 				count++;
-				if(j<i)
+				if (j < i)
 					countBefore++;
 			}
 		}
-		if(count>1)
-		{
-			var num = countBefore+1;
-			var newElem = new Array();
-			newElem.table = tables[i].table;
-			if (num>1)
+		var newElem = new Array();
+		newElem.table = tables[i].table;
+		newElem.alias = tables[i].name;
+		if (count > 1) {
+			var num = countBefore + 1;
+			if (num > 1)
 				newElem.table += "*" + num;
-			newElem.alias = tables[i].alias;
-			tablesCopy.push(newElem);
 		}
-		else
-			tablesCopy.push(tables[i]);
+		else if (tables[i].alias) {
+			newElem.table += "*" + tables[i].alias;
+			newElem.alias = tables[i].alias;
+		}
+		tablesCopy.push(newElem);
 	}
 	return tablesCopy;
 }

@@ -12,6 +12,8 @@
         return AdHocSettings.DashboardDesignerUrl;
     }
 </script>
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+
 
 <% if (AdHocContext.DashboardsAllowed)
    { %>
@@ -27,7 +29,6 @@
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
   
 <!-- jQuery Core -->
-
 <script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
 

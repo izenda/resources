@@ -110,7 +110,7 @@ function RE_InitializeEditorInstance(editor) {
 	editor.on('BeforeExecCommand', RE_RichEditorBeforeExecCommandEvent);
 	if (typeof editorParamsObj.ContentData == 'undefined' || editorParamsObj.ContentData == null)
 		editorParamsObj.ContentData = '';
-	editor.setContent(editorParamsObj.ContentData);
+	editor.setContent(editorParamsObj.ContentData, {format:'raw'});
 	tinymce.DOM.setStyle(tinymce.DOM.get(editorParamsObj.EditorId + '_ifr'), 'width', editorParamsObj.Width + 'px');
 	tinymce.DOM.setStyle(tinymce.DOM.get(editorParamsObj.EditorId + '_ifr'), 'height', editorParamsObj.Height + 'px');
 }

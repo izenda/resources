@@ -57,7 +57,6 @@ function izendaCommonQuerySettingsLoader() {
 			angular
 				.module('izenda.common.query')
 				.constant('$izendaCommonSettings', configObject);
-			
 			deferredObject.resolve();
 		});
 		return deferredObject.promise();

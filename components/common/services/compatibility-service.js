@@ -26,6 +26,10 @@
 			return isLteIE10;
 		};
 
+		var isHtml5FullScreenSupported = function () {
+			return !isLteIE10 && (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled);
+		};
+
 		/**
 		 * Check is page should have mobile view.
 		 */
@@ -145,6 +149,7 @@
 			isOneColumnView: isOneColumnView,
 			isShowSaveControls: isShowSaveControls,
 			isShowSaveAsToolbarButton: isShowSaveAsToolbarButton,
+			isHtml5FullScreenSupported: isHtml5FullScreenSupported,
 			isEditAllowed: isEditAllowed,
 			isFullAccess: isFullAccess,
 			isSaveAsAllowed: isSaveAsAllowed,

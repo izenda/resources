@@ -2,69 +2,6 @@
 var tabNames = new Array();
 var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
-//Ajax request for JSON methods-----------------------------------------------------------
-function appendParameterToUrl(url, parameterName, parameterValue) {
-	var modifiedUrl = url;
-	if (parameterValue) {
-		if (modifiedUrl.indexOf("?") == -1)
-			modifiedUrl = modifiedUrl + "?";
-		else {
-			if (modifiedUrl[modifiedUrl.length - 1] != '&' && modifiedUrl[modifiedUrl.length - 1] != '?')
-				modifiedUrl = modifiedUrl + "&";
-		}
-		modifiedUrl = modifiedUrl + parameterName + '=' + parameterValue;
-	}
-	return modifiedUrl;
-}
-
-function AjaxRequest(url, parameters, callbackSuccess, callbackError, id) {
-	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
-		return;
-	var thisRequestObject = null;
-	if (window.XMLHttpRequest)
-		thisRequestObject = new XMLHttpRequest();
-	else if (window.ActiveXObject)
-		thisRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
-	thisRequestObject.requestId = id;
-	thisRequestObject.onreadystatechange = ProcessRequest;
-	url = url + '?' + parameters;
-	url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
-	url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
-
-	thisRequestObject.open('GET', url, true);
-	thisRequestObject.send();
-
-	function DeserializeJson() {
-		var responseText = thisRequestObject.responseText;
-		while (responseText.indexOf('"\\/Date(') >= 0) {
-			responseText = responseText.replace('"\\/Date(', 'eval(new Date(');
-			responseText = responseText.replace(')\\/"', '))');
-		}
-		if (responseText.charAt(0) != '[' && responseText.charAt(0) != '{')
-			responseText = '{' + responseText + '}';
-		var isArray = true;
-		if (responseText.charAt(0) != '[') {
-			responseText = '[' + responseText + ']';
-			isArray = false;
-		}
-		var retObj = eval(responseText);
-		if (!isArray)
-			return retObj[0];
-		return retObj;
-	}
-
-	function ProcessRequest() {
-		if (thisRequestObject.readyState == 4) {
-			if (thisRequestObject.status == 200 && callbackSuccess) {
-				callbackSuccess(DeserializeJson(), thisRequestObject.requestId, parameters);
-			}
-			else if (callbackError) {
-				callbackError(thisRequestObject);
-			}
-		}
-	}
-}
-
 //Delete ReportSet methods--------------------------------------------------------------------
 function ud() { }
 
@@ -78,7 +15,7 @@ function RL_DeleteNew(message, reportName) {
 function PerformDelete(userData) {
 	var requestString = 'wscmd=deletereportset';
 	requestString += '&wsarg0=' + userData.reportName;
-	AjaxRequest('./rs.aspx', requestString, ReportSetDeleted, null, 'deletereportset');
+	AjaxRequest('./rs.aspx', requestString, ReportSetDeleted, null, 'deletereportset', requestString);
 }
 
 function ReportSetDeleted(returnObj, id) {
@@ -147,7 +84,7 @@ function GetConfig() {
 	if (instant != '1')
 		instant = '0';
 	var requestString = 'wscmd=reportlistconfig&wsarg0=' + instant;
-	AjaxRequest('./rs.aspx', requestString, AcceptConfig, null, 'reportlistconfig');
+	AjaxRequest('./rs.aspx', requestString, AcceptConfig, null, 'reportlistconfig', requestString);
 }
 
 function AcceptConfig(returnObj, id) {
@@ -179,7 +116,7 @@ function GetReports(keyword, category) {
 	if (keyword == null)
 		keyword = '';
 	requestString += '&wsarg0=' + category + '&wsarg1=' + keyword + '&wsarg2=1';
-	AjaxRequest('./rs.aspx', requestString, AcceptReports, GetReportsFail, 'reportlistdatalite');
+	AjaxRequest('./rs.aspx', requestString, AcceptReports, GetReportsFail, 'reportlistdatalite', requestString);
 }
 
 function LeftTabClicked(tabClicked, tabsNum) {

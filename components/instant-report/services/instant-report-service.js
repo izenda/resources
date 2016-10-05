@@ -4,9 +4,11 @@
  */
 angular.module('izendaInstantReport').factory('$izendaInstantReportQuery', [
 	'$log',
+	'$window',
+	'$izendaUrl',
 	'$izendaSettings',
 	'$izendaRsQuery',
-function ($log, $izendaSettings, $izendaRsQuery) {
+function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 	'use strict';
 	var angularJq$ = angular.element;
 
@@ -186,6 +188,41 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			}
 		});
 	};
+
+	/**
+	 * Open url in new window. 
+	 */
+	function exportReportInNewWindow(reportSetToSend, exportType) {
+		var openPostWindow = function (verb, url, data, target) {
+			var form = document.createElement("form");
+			form.action = url;
+			form.method = verb;
+			form.target = target || "_self";
+			if (data) {
+				for (var key in data) {
+					var input = document.createElement("textarea");
+					input.name = key;
+					input.value = typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key];
+					form.appendChild(input);
+				}
+			}
+			form.style.display = 'none';
+			document.body.appendChild(form);
+			form.submit();
+			document.body.removeChild(form);
+		};
+
+		// create url for export
+		var urlParams = {
+			'wscmd': exportType === 'print' ? 'printReportSet' : 'exportReportSet',
+			'wsarg0': JSON.stringify(reportSetToSend),
+			'wsarg1': exportType
+		};
+		if (typeof ($window.izendaPageId$) !== 'undefined')
+			urlParams['izpid'] = $window.izendaPageId$;
+		// open window
+		openPostWindow('POST', $izendaUrl.settings.urlRsPage, urlParams, '_blank');
+	}
 
 	function getVisualizationConfig() {
 		return $izendaRsQuery.query('getVisualizationConfig', [], {
@@ -421,6 +458,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 			'cmd': 'GetOptionsByPath',
 			'p': 'OperatorList',
 			'typeGroup': typeGroup,
+			'colFullName': field.sysname,
 			'resultType': 'json'
 		}, {
 			dataType: 'json',
@@ -533,6 +571,7 @@ function ($log, $izendaSettings, $izendaRsQuery) {
 		getNewReportSetPreview: getNewReportSetPreview,
 		saveReportSet: saveReportSet,
 		setReportAsCrs: setReportAsCrs,
+		exportReportInNewWindow: exportReportInNewWindow,
 		getContraintsInfo: getContraintsInfo,
 		getFieldFunctions: getFieldFunctions,
 		getFieldFormats: getFieldFormats,

@@ -163,7 +163,8 @@
 
 		function restore() {
 			if (typeof s.props == "object" && s.props.metric) {
-				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
+				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
 			}
 		}
 

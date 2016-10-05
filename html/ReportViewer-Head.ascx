@@ -2,6 +2,8 @@
 
 <title>Report viewer</title>
 
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+
 <!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
 <link rel="stylesheet" type="text/css" href="./Resources/css/shrinkable-grid.css" />

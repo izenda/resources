@@ -273,7 +273,7 @@
           </li>
 
           <!-- toggle gallery fullscreen -->
-          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled">
+          <li ng-show="toolbarController.isHtml5FullScreenSupported && !toolbarController.isOneColumnView() && toolbarController.galleryState.isGalleryEnabled">
             <a ng-attr-title="{{'js_FullScreenMode' | izendaLocale: 'Fullscreen mode'}}"
                ng-click="toolbarController.toggleGalleryModeFullScreen()">
               <span class="glyphicon glyphicon-fullscreen"></span>

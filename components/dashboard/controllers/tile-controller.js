@@ -378,11 +378,13 @@ function izendaTileController(
 
 		vm.initializeEventHandlers();
 
-		// watch for window width chage
+		// watch for window width change
 		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
 			if (angular.isUndefined(newWidth))
 				return;
 			var $tile = $scope.dashboardController.getTile$ById(vm.id);
+			if (!$tile.is(':visible'))
+				return;
 			if (vm.isOneColumnView()) {
 				$tile.addClass('mobile');
 			} else {

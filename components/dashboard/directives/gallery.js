@@ -37,15 +37,16 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				var fullscreenRootElement = $element.parent().get(0);
 				$scope.state = {
 					uid: Math.floor(Math.random() * 1000 * 1000 * 1000 * 1000),
-					intervalHandler: undefined,
-					timeoutHandler: undefined,
-					windowTimeoutHandler: undefined,
+					updatePlayIntervalId: null,
+					updatePlayTimeoutId: null,
+					resizeTimeoutId: null,
 					width: 0,
 					height: 0,
 					isUiHidden: false,
 					smallButtonsPanelHeight: $smallButtonsPanel.height(), // cache sizes
 					elementHeight: $element.height(),
-					titlePanelPosition: $titlePanel.position()
+					titlePanelPosition: $titlePanel.position(),
+					titlePanelHeight: $titlePanel.height()
 				};
 
 				/**
@@ -99,7 +100,7 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 					var transformY = Math.round(($scope.state.height - galleryItemHeight) / 2);
 
 					var constraintBottom = $scope.state.smallButtonsPanelHeight;
-					var constraintTop = $scope.state.titlePanelPosition.top + $scope.state.elementHeight + 10;
+					var constraintTop = $scope.state.titlePanelPosition.top + $scope.state.titlePanelHeight + 10;
 					if (transformY < constraintTop)
 						transformY = constraintTop;
 					if (transformY + galleryItemHeight > $scope.state.elementHeight - constraintBottom) {
@@ -173,30 +174,30 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				 * Initialize interval
 				 */
 				$scope.updatePlay = function (started) {
-					if ($scope.state.intervalHandler) {
-						$interval.cancel($scope.state.intervalHandler);
-						$scope.state.intervalHandler = undefined;
+					if ($scope.state.updatePlayIntervalId != null) {
+						$interval.cancel($scope.state.updatePlayIntervalId);
+						$scope.state.updatePlayIntervalId = null;
 					}
-					if ($scope.state.timeoutHandler) {
-						$timeout.cancel($scope.state.timeoutHandler);
-						$scope.state.timeoutHandler = undefined;
+					if ($scope.state.updatePlayTimeoutId != null) {
+						$timeout.cancel($scope.state.updatePlayTimeoutId);
+						$scope.state.updatePlayTimeoutId = null;
 						$scope.state.isUiHidden = false;
 					}
 					if (started) {
-						$scope.state.intervalHandler = $interval(function () {
+						$scope.state.updatePlayIntervalId = $interval(function () {
 							if ($scope.playStopOnComplete && $scope.ngModel === $scope.galleryItems.length - 1) {
-								$interval.cancel($scope.state.intervalHandler);
-								$scope.state.intervalHandler = undefined;
+								$interval.cancel($scope.state.updatePlayIntervalId);
+								$scope.state.updatePlayIntervalId = null;
 								$scope.playStarted = false;
-								$timeout.cancel($scope.state.timeoutHandler);
-								$scope.state.timeoutHandler = undefined;
+								$timeout.cancel($scope.state.updatePlayTimeoutId);
+								$scope.state.updatePlayTimeoutId = null;
 								$scope.state.isUiHidden = false;
 							} else {
 								$scope.goNext();
 							}
 						}, $scope.playTimeout);
 
-						$scope.state.timeoutHandler = $timeout(function () {
+						$scope.state.updatePlayTimeoutId = $timeout(function () {
 							$scope.state.isUiHidden = true;
 						}, 1);
 					}
@@ -251,6 +252,10 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				$scope.initItemPositions = function () {
 					$scope.state.width = $element.width();
 					$scope.state.height = $element.height();
+					$scope.state.elementHeight = $element.height();
+					$scope.state.smallButtonsPanelHeight = $smallButtonsPanel.height(); // cache sizes
+					$scope.state.titlePanelPosition = $titlePanel.position();
+					$scope.state.titlePanelHeight = $titlePanel.height();
 					var itemSize = $scope.getItemSize();
 					$smallButtonsPanel.css('top', itemSize.y + itemSize.height + 'px');
 				};
@@ -309,12 +314,8 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				 * On fullscreen change handler
 				 */
 				$scope.onfullscreenchange = function (e) {
-					var fullscreenEnabled =
-						document.fullscreenEnabled ||
-							document.mozFullscreenEnabled ||
-							document.webkitFullscreenEnabled ||
-							document.webkitIsFullScreen;
-					$scope.isFullScreen = fullscreenEnabled;
+					var isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement);
+					$scope.isFullScreen = isFullscreen;
 					$scope.$applyAsync();
 				}
 
@@ -323,35 +324,25 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				 */
 				$scope.toggleFullScreen = function () {
 					function launchFullScreen(element) {
-						if (element.requestFullScreen) {
-							element.requestFullScreen();
+						if (element.requestFullscreen) {
+							element.requestFullscreen();
 						} else if (element.mozRequestFullScreen) {
 							element.mozRequestFullScreen();
 						} else if (element.webkitRequestFullScreen) {
 							element.webkitRequestFullScreen();
 						} else if (element.msRequestFullscreen) {
 							element.msRequestFullscreen();
-						} else if (typeof window.ActiveXObject !== "undefined") {
-							var wscript = new ActiveXObject("WScript.Shell");
-							if (typeof (wscript.SendKeys) === 'function') {
-								wscript.SendKeys("{F11}");
-							}
 						}
 					}
 					function cancelFullscreen() {
-						if (document.cancelFullScreen) {
-							document.cancelFullScreen();
+						if (document.exitFullscreen) {
+							document.exitFullscreen();
 						} else if (document.mozCancelFullScreen) {
 							document.mozCancelFullScreen();
 						} else if (document.webkitCancelFullScreen) {
 							document.webkitCancelFullScreen();
 						} else if (document.msExitFullscreen) {
 							document.msExitFullscreen();
-						} else if (typeof window.ActiveXObject !== "undefined") {
-							var wscript = new ActiveXObject("WScript.Shell");
-							if (typeof (wscript.SendKeys) === 'function') {
-								wscript.SendKeys("{F11}");
-							}
 						}
 					}
 
@@ -365,34 +356,33 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				/**
 				 * Window resize handler
 				 */
-				$scope.turnOnWindowResize = function () {
+				$scope.turnOnWindowResizeHandler = function () {
+					$scope.state.resizeTimeoutId = null;
 					var resizeCompleted = function () {
 						$element.show();
-						$timeout.cancel($scope.state.windowTimeoutHandler);
-						$scope.state.windowTimeoutHandler = undefined;
-						// start update after animation complete
-						$timeout(function () {
+						$timeout.cancel($scope.state.resizeTimeoutId);
+						$scope.state.resizeTimeoutId = null;
 
-							$scope.state.smallButtonsPanelHeight = $smallButtonsPanel.height(); // cache sizes
-							$scope.state.elementHeight = $element.height();
-							$scope.state.titlePanelPosition = $titlePanel.position();
-
-							$scope.update();
-							$scope.$applyAsync();
-						}, 250);
+						$scope.state.smallButtonsPanelHeight = $smallButtonsPanel.height(); // cache sizes
+						$scope.state.elementHeight = $element.height();
+						$scope.state.titlePanelPosition = $titlePanel.position();
+						$scope.state.titlePanelHeight = $titlePanel.height();
+						$scope.update();
+						$scope.$applyAsync();
 					};
-					$scope.state.windowTimeoutHandler = undefined;
 					angular.element($window).on('resize.izendaGallery' + $scope.state.uid, function () {
-						$scope.clearGalleryTiles();
-						if ($element.css('display') !== 'none')
-							$element.hide();
-						if ($scope.state.windowTimeoutHandler) {
-							$timeout.cancel($scope.state.windowTimeoutHandler);
-							$scope.state.windowTimeoutHandler = undefined;
+						if ($scope.state.resizeTimeoutId != null) {
+							$timeout.cancel($scope.state.resizeTimeoutId);
+							$scope.state.resizeTimeoutId = null;
 						}
-						$scope.state.windowTimeoutHandler = $timeout(function () {
+						if (!$scope.enabled)
+							return;
+						$scope.clearGalleryTiles();
+						$element.hide();
+						$scope.state.resizeTimeoutId = $timeout(function () {
 							resizeCompleted();
 						}, 500);
+						
 					});
 				}
 
@@ -433,7 +423,7 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 					$element.addClass('izenda-gallery-container');
 
 				// window resize
-				$scope.turnOnWindowResize();
+				$scope.turnOnWindowResizeHandler();
 
 				// hotkeys handler
 				angular.element('body').on('keydown.izendaGallery' + $scope.state.uid, function (e) {
@@ -452,9 +442,11 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 
 				// fullscreen handler
 				fullscreenRootElement.addEventListener('webkitfullscreenchange', $scope.onfullscreenchange);
-				fullscreenRootElement.addEventListener('mozfullscreenchange', $scope.onfullscreenchange);
 				fullscreenRootElement.addEventListener('fullscreenchange', $scope.onfullscreenchange);
-				fullscreenRootElement.addEventListener('msscreenchange', $scope.onfullscreenchange);
+
+				document.addEventListener("mozfullscreenchange", $scope.onfullscreenchange);
+				document.addEventListener('MSFullscreenChange', $scope.onfullscreenchange);
+				document.addEventListener("fullscreenchange", $scope.onfullscreenchange);
 
 				// init
 				$scope.update();

@@ -3,54 +3,6 @@
 
 	var refreshInterval = null;
 
-	function ajaxRequest(url, parameters, callbackSuccess, callbackError, id) {
-		if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
-			return;
-		var thisRequestObject = null;
-		if (window.XMLHttpRequest)
-			thisRequestObject = new XMLHttpRequest();
-		else if (window.ActiveXObject)
-			thisRequestObject = new ActiveXObject("Microsoft.XMLHTTP");
-		else
-			return;
-
-		thisRequestObject.requestId = id;
-		thisRequestObject.onreadystatechange = processRequest;
-
-		thisRequestObject.open('GET', url + '?' + parameters, true);
-		thisRequestObject.send();
-
-		function deserializeJson() {
-			var responseText = thisRequestObject.responseText;
-			while (responseText.indexOf('"\\/Date(') >= 0) {
-				responseText = responseText.replace('"\\/Date(', 'eval(new Date(');
-				responseText = responseText.replace(')\\/"', '))');
-			}
-			if (responseText.charAt(0) != '[' && responseText.charAt(0) != '{')
-				responseText = '{' + responseText + '}';
-			var isArray = true;
-			if (responseText.charAt(0) != '[') {
-				responseText = '[' + responseText + ']';
-				isArray = false;
-			}
-			var retObj = eval(responseText);
-			if (!isArray)
-				return retObj[0];
-			return retObj;
-		}
-
-		function processRequest() {
-			if (thisRequestObject.readyState == 4) {
-				if (thisRequestObject.status == 200 && callbackSuccess) {
-					callbackSuccess(deserializeJson(), thisRequestObject.requestId, parameters);
-				}
-				else if (callbackError) {
-					callbackError(thisRequestObject);
-				}
-			}
-		}
-	}
-
 	function createDropDownControl(data) {
 		if (typeof data === "object" && !jq$.isEmptyObject(data)) {
 			var refreshToolbar = jq$("#refreshToolbar");
@@ -101,6 +53,6 @@
 
 	jq$(document).ready(function () {
 		var requestString = 'wscmd=autorefreshintervals';
-		ajaxRequest('./rs.aspx', requestString, createDropDownControl, null, 'autorefreshintervals');
+		AjaxRequest('./rs.aspx', requestString, createDropDownControl, null, 'autorefreshintervals', requestString);
 	});
 })();

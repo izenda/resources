@@ -82,6 +82,7 @@ function izendaToolbarController(
 	vm.dashboardConfig = $injector.get('izendaDashboardConfig');
 	vm.dashboardsAllowedByLicense = false;
 	vm.isIE8 = $izendaCompatibility.checkIsIe8();
+	vm.isHtml5FullScreenSupported = $izendaCompatibility.isHtml5FullScreenSupported();
 	vm.isStorageAvailable = $izendaBackground.isStorageAvailable();
 	vm.synchronized = false;
 	vm.isDesignLinksAllowed = true;
@@ -712,14 +713,6 @@ function izendaToolbarController(
 				vm.dashboardNavigationLoaded(data);
 			});
 			$scope.$evalAsync();
-		});
-
-		$scope.$on('startEditTileEvent', function () {
-			$izendaDashboardState.turnOffWindowResizeHandler();
-		});
-
-		$scope.$on('stopEditTileEvent', function () {
-			$izendaDashboardState.turnOnWindowResizeHandler();
 		});
 
 		$izendaEvent.handleQueuedEvent('dashboardSyncCompletedEvent', $scope, vm, function (subject) {

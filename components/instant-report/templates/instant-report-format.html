@@ -326,7 +326,7 @@
                  ng-show="irFormatController.drillDownFields.length < irFormatController.ddkValuesMaxAmount">
               <select class="form-control" ng-options="field as field.name group by field.tableSysname for field in irFormatController.allActiveFields track by field.sysname"
                       ng-model="irFormatController.selectedDrilldownField"></select>
-              <button class="btn btn-default" ng-click="irFormatController.addDrilldown()"
+              <button type="button" class="btn btn-default" ng-click="irFormatController.addDrilldown()"
                       ng-disabled="irFormatController.selectedDrilldownField === null"
                       ng-bind="'js_AddDrilldownKey' | izendaLocale: 'Add drilldown field'">
               </button>

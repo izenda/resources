@@ -1,5 +1,6 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
 <script type="text/javascript">
     function toggleLayer(whichLayer) {
         var elem, vis;

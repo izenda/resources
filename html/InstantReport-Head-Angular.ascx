@@ -1,12 +1,12 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
 <script type="text/javascript" src="Resources/js/main.js"></script>
 <script type="text/javascript">
-	ensureIzPidProcessed();
-	window.angularPageId$ = (new Date()).getTime().toString();
+  ensureIzPidProcessed();
 </script>
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui"/>
+<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="Resources/css/shrinkable-grid.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
@@ -137,35 +137,35 @@
 <script type="text/javascript" src="Resources/components/instant-report/controllers/instant-report-pivot-controller.js"></script>
 
 <script runat="server">
-  protected override void OnInit(EventArgs e)
-  {
-    if (Utility.PageIsPostBack(Page))
-      return;
-
-    if (Page.Request.Params["clear"] != null)
+    protected override void OnInit(EventArgs e)
     {
-      Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "#?new");
-    }
+      if (Utility.PageIsPostBack(Page))
+        return;
 
-    if (Page.Request.Params["rn"] != null)
-    {
-      string report = Page.Request.Params["rn"],
-        query = null;
-      var izpidFound = false;
-      foreach (string key in Request.QueryString.AllKeys)
+      if (Page.Request.Params["clear"] != null)
       {
-        if (key == "rn")
-          continue;
-        if (key == "izpid")
-          izpidFound = true;
-        if (!string.IsNullOrEmpty(query))
-          query += "&";
-        query += string.Format("{0}={1}", key, Request.QueryString[key]);
+        Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "#?new");
       }
-      var baseUrl = Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query;
-      if (!izpidFound)
-        baseUrl = Utility.AppendIzPidParameter(baseUrl);
-      Response.Redirect(baseUrl + "#/" + report.Replace('\\', '/'));
+
+      if (Page.Request.Params["rn"] != null)
+      {
+        string report = Page.Request.Params["rn"],
+          query = null;
+        var izpidFound = false;
+        foreach (string key in Request.QueryString.AllKeys)
+        {
+          if (key == "rn")
+            continue;
+          if (key == "izpid")
+            izpidFound = true;
+          if (!string.IsNullOrEmpty(query))
+            query += "&";
+          query += string.Format("{0}={1}", key, Request.QueryString[key]);
+        }
+        var baseUrl = Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query;
+        if (!izpidFound)
+          baseUrl = Utility.AppendIzPidParameter(baseUrl);
+        Response.Redirect(baseUrl + "#/" + report.Replace("\\", "%5c"));
+      }
     }
-  }
 </script>

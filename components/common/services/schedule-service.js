@@ -83,7 +83,8 @@ angular.module('izenda.common.ui').factory('$izendaScheduleService', [
 		var loadScheduleData = function (customScheduleConfig) {
 			return $q(function(resolve) {
 				reset();
-				$izendaCommonQuery.getScheduleData(new Date().getTimezoneOffset()).then(function (scheduleData) {
+				$izendaCommonQuery.getScheduleData(moment(new Date()).utcOffset()).then(function (scheduleData) {
+					scheduleData.Date = moment(scheduleData.DateString, 'YYYY-MM-DD HH:mm:ss')._d;
 					if (angular.isObject(customScheduleConfig)) {
 						setScheduleConfig(angular.extend({}, customScheduleConfig));
 					}
@@ -145,7 +146,7 @@ angular.module('izenda.common.ui').factory('$izendaScheduleService', [
 				scheduleConfigFixed.timeString = null;
 			} else {
 				scheduleConfigFixed.dateString = moment(d).format('YYYY-MM-DD');
-				scheduleConfigFixed.timeString = moment(d).format('hh:mm:ss');
+				scheduleConfigFixed.timeString = moment(d).format('HH:mm:ss');
 			}
 			delete scheduleConfigFixed.date;
 			return scheduleConfigFixed;

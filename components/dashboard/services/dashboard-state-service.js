@@ -69,11 +69,9 @@ angular
 			/////////////////////////////////////////
 
 			var windowResizeOptions = {
-				timeout: false,
-				rtime: null,
+				timeoutId: null,
 				previousWidth: null
 			};
-			var isWindowChangingNow;
 			var windowWidth;
 
 			/**
@@ -87,32 +85,24 @@ angular
 			 * Turn on window resize handler
 			 */
 			var turnOnWindowResizeHandler = function () {
-				windowResizeOptions.id = null;
-				//windowResizeOptions.previousWidth = angular.element($window).width();
-				isWindowChangingNow = true;
-				function doneResizing() {
+				windowResizeOptions.timeoutId = null;
+				windowResizeOptions.previousWidth = angular.element($window).width();
+				var resizeCompleted = function () {
 					if (windowResizeOptions.previousWidth !== angular.element($window).width()) {
-						windowResizeOptions.timeout = false;
-						isWindowChangingNow = false;
 						windowWidth = angular.element($window).width();
 						$rootScope.$applyAsync();
 					}
 					windowResizeOptions.previousWidth = angular.element($window).width();
-				}
+				};
 				angular.element($window).on('resize.dashboard', function () {
-					if (windowResizeOptions.id != null)
-						clearTimeout(windowResizeOptions.id);
-					windowResizeOptions.id = setTimeout(doneResizing, 200);
+					if (windowResizeOptions.timeoutId != null) {
+						clearTimeout(windowResizeOptions.timeoutId);
+						windowResizeOptions.timeoutId = null;
+					}
+					windowResizeOptions.timeoutId = setTimeout(resizeCompleted, 200);
 				});
 			};
-			
-			/**
-			 * Remove window resize handler.
-			 */
-			var turnOffWindowResizeHandler = function() {
-				angular.element($window).off('resize.dashboard');
-			};
-			
+
 			// INITIALIZE:
 
 			turnOnWindowResizeHandler();
@@ -122,8 +112,6 @@ angular
 				getDashboardTilesLoaded: getDashboardTilesLoaded,
 				setDashboardTilesLoaded: setDashboardTilesLoaded,
 				getWindowWidth: getWindowWidth,
-				turnOnWindowResizeHandler: turnOnWindowResizeHandler,
-				turnOffWindowResizeHandler: turnOffWindowResizeHandler,
 				loadReportIntoContainer: loadReportIntoContainer
 			};
 		}]);

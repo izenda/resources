@@ -64,7 +64,7 @@
               </ul>
             </div>
 
-            <button class="btn"
+            <button class="btn" type="button"
                     ng-attr-title="{{'js_VisualGroup' | izendaLocale: 'Visual group'}}"
                     ng-class="fieldOptionsController.getVgButtonClass()"
                     ng-click="fieldOptionsController.applyVg()"
@@ -72,7 +72,7 @@
               <span class="glyphicon glyphicon-th-list"></span>
             </button>
 
-            <button class="btn"
+            <button class="btn" type="button"
                     ng-attr-title="{{'js_ToggleFieldVis' | izendaLocale: 'Toggle field visibility'}}"
                     ng-class="fieldOptionsController.getVisibleButtonClass()"
                     ng-click="fieldOptionsController.applyFieldVisible()">
@@ -80,14 +80,14 @@
                     ng-class="fieldOptionsController.field.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'"></span>
             </button>
 
-            <button class="btn"
+            <button class="btn" type="button"
                     ng-attr-title="{{'js_Italic' | izendaLocale: 'Italic'}}"
                     ng-class="fieldOptionsController.getItalicButtonClass()"
                     ng-click="fieldOptionsController.applyFieldItalic()">
               <span class="glyphicon glyphicon-italic"></span>
             </button>
 
-            <button class="btn"
+            <button class="btn" type="button"
                     ng-attr-title="{{'js_Bold' | izendaLocale: 'Bold'}}"
                     ng-class="fieldOptionsController.getBoldButtonClass()"
                     ng-click="fieldOptionsController.applyFieldBold()">

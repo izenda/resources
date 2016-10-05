@@ -442,7 +442,7 @@ function SC_OnColumnChangedHandler(e, el) {
 					fieldCannotBeSelected = true;
 					showChangeRowCheckDialog = true;
 				}
-				else if (coefficientEditTemp && coefficientEditTemp.value.trim().indexOf("example") != 0) {
+				else if (columnSel.options[columnSel.selectedIndex].value != "..." && coefficientEditTemp && coefficientEditTemp.value.trim().indexOf("example") != 0) {
 					ReportingServices.showConfirm("You will lose Expression data if you select a different field. Continue?", SC_ChangeRowCheckDialogResult);
 					showChangeRowCheckDialog = true;
 				}

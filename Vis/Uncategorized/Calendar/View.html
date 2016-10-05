@@ -565,7 +565,6 @@ temporary rendered events).
 
 	#VIS_ID_CONTAINER .fc-event tr:nth-child(2) td {
 		vertical-align: middle;
-		padding: 10px;
 	}
 
 	#VIS_ID_CONTAINER .fc-event .fc-title {
@@ -584,42 +583,21 @@ temporary rendered events).
 		font-size: 25px;
 		overflow: hidden;
 		text-align: center;
-		text-overflow: ellipsis;
-		min-height: 48px;
+		padding-left: 10px;
+		padding-right: 10px;
 	}
 
 	#VIS_ID_CONTAINER .fc-content {
 		height: 100%;
 	}
 
+	#VIS_ID_CONTAINER .fc-content td {
+		border: none;
+		border-width: 0;
+	}
+
 	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content {
 		height: 88px;
-	}
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-value {
-		line-height: 48px;
-	}
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-dynamic-font-size .fc-value-cell {
-		line-height: 0;
-	}
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-dynamic-font-size .fc-value {
-		display: inline-block;
-		line-height: 1.5em;
-		white-space: initial;
-		height: 100%;
-	}
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-dynamic-font-size .fc-value span:first-child {
-		display: inline-block;
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-dynamic-font-size .fc-value .fc-placeholder {
-		display: inline-block;
-		vertical-align: middle;
-		height: 100%;
 	}
 
 	#VIS_ID_CONTAINER .fc-popover td {
@@ -691,9 +669,7 @@ be a descendant of the grid when it is being dragged.
 		padding: 0 0;
 	}
 
-
-	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content { /* force events to be one-line tall */
-		white-space: nowrap;
+	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content {
 		overflow: hidden;
 	}
 
@@ -706,7 +682,6 @@ be a descendant of the grid when it is being dragged.
 		right: -3px;
 		width: 7px;
 	}
-
 
 	/* Event Limiting
 --------------------------------------------------------------------------------------------------*/
@@ -1341,12 +1316,20 @@ be a descendant of the grid when it is being dragged.
 		});
 
 		function color(item) {
-			var name = item[VIS_COLUMNS[1].name];
+			var name = item[VIS_COLUMNS[0].name];
 			return colorScheme[((u[name] || (u[name] = n.push(name))) - 1) % colorScheme.length];
 		}
 
+		function getDateWithZeroTimeZone(date) {
+			return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+		}
+
+		function getDateWithCurrentTimeZone(date) {
+			return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+		}
+
 		function ISOString(date) {
-			return new Date(date.getTime()).toISOString();
+			return date.toISOString();
 		}
 
 		function ISODateString(date) {
@@ -1355,7 +1338,10 @@ be a descendant of the grid when it is being dragged.
 		}
 
 		function store() {
-			settings.props.customDefaultDate = customDefaultDateInput.val();
+			var customDefaultDate = customDefaultDateInput.datepicker('getDate');
+			if (customDefaultDate) {
+				settings.props.customDefaultDate = getDateWithZeroTimeZone(customDefaultDate).getTime();
+			}
 			settings.props.defaultDateType = defaultDateTypeSelect.val();
 			settings.props.dynamicFontSize = dynamicFontSizeCheckbox.is(":checked");
 			if (!isEmbedded) {
@@ -1366,7 +1352,7 @@ be a descendant of the grid when it is being dragged.
 		function restore() {
 			defaultDateTypeSelect.val(settings.props.defaultDateType);
 			if (settings.props.defaultDateType == "CustomDate") {
-				customDefaultDateInput.val(settings.props.customDefaultDate);
+				customDefaultDateInput.datepicker('setDate', getDateWithCurrentTimeZone(new Date(settings.props.customDefaultDate)));
 				customDefaultDateControl.show();
 			}
 			dynamicFontSizeCheckbox.prop("checked", settings.props.dynamicFontSize);
@@ -1460,8 +1446,10 @@ be a descendant of the grid when it is being dragged.
 		var dynamicFontSizeCheckbox = vs.find('#VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX');
 
 		if (!isImageRender) {
+			var converter = izenda.utils.date.formatConverter;
+			var dateFormatShort = izenda.commonSettings().dateFormatShort;
 			customDefaultDateInput.datepicker({
-				format: "mm/dd/yyyy",
+				dateFormat: dateFormatShort ? converter.convert(dateFormatShort, converter.dotNet, converter.datepicker) : "mm/dd/yy",
 				clearBtn: true,
 				autoclose: true
 			});
@@ -1471,7 +1459,7 @@ be a descendant of the grid when it is being dragged.
 				.bind("change", function() {
 					if (this.value == "CustomDate") {
 						customDefaultDateControl.show();
-						var date = new Date(customDefaultDateInput.val());
+						var date = customDefaultDateInput.datepicker('getDate');
 						if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
 							store();
 							ExecuteVIS_ID();
@@ -1492,8 +1480,8 @@ be a descendant of the grid when it is being dragged.
 
 			customDefaultDateInput
 				.unbind("change")
-				.bind("change", function(e) {
-					var date = new Date(this.value);
+				.bind("change", function (e, t) {
+					var date = customDefaultDateInput.datepicker('getDate');
 					if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
 						store();
 						ExecuteVIS_ID();
@@ -1562,7 +1550,7 @@ be a descendant of the grid when it is being dragged.
 		if (settings.props.defaultDateType == "CustomDate") {
 			defaultDate = new Date(settings.props.customDefaultDate);
 		} else if (!defaultDate || settings.props.defaultDateType == "CurrentDate") {
-			defaultDate = new Date();
+			defaultDate = getDateWithZeroTimeZone(new Date);
 		}
 
 		function normalizeEventContent(contentDiv) {
@@ -1575,57 +1563,44 @@ be a descendant of the grid when it is being dragged.
 				fontSize = 30;
 			}
 
-			var isDayEvent = contentDiv.parent('.fc-day-grid-event').length > 0;
-			if (settings.props.dynamicFontSize || !isDayEvent) {
-				if (isDayEvent) {
-					contentDiv.addClass('fc-dynamic-font-size');
-				}
+			var padding = 10, fontSizeLimit = 10, ellipsis = "…",
+				cX = contentDiv.offset().left + contentDiv.width() - padding,
+				cY = contentDiv.offset().top + contentDiv.height(),
+				vX = valueDiv.offset().left + valueDiv.width(),
+				vY = valueDiv.offset().top + valueDiv.height();
 
-				var vpadding = 10, fontSizeLimit = 10, ellipsis = "…",
-					cX = contentDiv.offset().left + contentDiv.width() - vpadding,
-					cY = contentDiv.offset().top + contentDiv.height() - vpadding,
-					vX = valueDiv.offset().left + valueDiv.width(),
-					vY = valueDiv.offset().top + valueDiv.height();
-
-				var originalValue = valueSpan.html();
-				var l = 0, r = originalValue.length, newLength = r;
-				var inprocess = (vY > cY || vX > cX);
-				while (inprocess) {
-					if (settings.props.dynamicFontSize && fontSize >= fontSizeLimit) {
-						if (vY > cY || vX > cX) {
-							fontSize -= 1;
-							if (fontSize >= fontSizeLimit) {
-								valueDiv.css('font-size', '{size}px'.format({ size: fontSize }));
-							}
-						} else {
+			var originalValue = valueSpan.html();
+			var l = 0, r = originalValue.length, newLength = r;
+			var inprocess = (vY > cY || vX > cX);
+			while (inprocess) {
+				if (settings.props.dynamicFontSize && fontSize >= fontSizeLimit) {
+					if (vY > cY || vX > cX) {
+						fontSize -= 1;
+						if (fontSize >= fontSizeLimit) {
+							valueDiv.css('font-size', '{size}px'.format({ size: fontSize }));
+						}
+					} else {
+						inprocess = false;
+					}
+				} else {
+					if (vY > cY || vX > cX) {
+						r = newLength;
+						newLength = l + ((r - l) >> 1);
+						if (r - l == 1) {
 							inprocess = false;
 						}
 					} else {
-						if (vY > cY || vX > cX) {
-							r = newLength;
-							newLength = l + ((r - l) >> 1);
-							if (r - l == 1) {
-								inprocess = false;
-							}
-						} else {
-							l = newLength;
-							newLength = l + ((r - l) >> 1);
-							if (r - l == 1) {
-								inprocess = false;
-							}
+						l = newLength;
+						newLength = l + ((r - l) >> 1);
+						if (r - l == 1) {
+							inprocess = false;
 						}
-						valueSpan.html(originalValue.substr(0, newLength - 1) + ellipsis);
 					}
-
-					vX = valueDiv.offset().left + valueDiv.width();
-					vY = valueDiv.offset().top + valueDiv.height();
+					valueSpan.html(originalValue.substr(0, newLength - 1) + ellipsis);
 				}
 
-				if (isDayEvent) {
-					valueDiv.css({
-						'height': '48px'
-					});
-				}
+				vX = valueDiv.offset().left + valueDiv.width();
+				vY = valueDiv.offset().top + valueDiv.height();
 			}
 		}
 
@@ -1671,8 +1646,10 @@ be a descendant of the grid when it is being dragged.
 					store();
 				}
 			});
-			jq$('#VIS_ID .fc-more').on('show-popover', function () {
-				jq$('#VIS_ID .fc-more-popover .fc-content').each(function () {
+			jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
+				var popover = jq$('#VIS_ID .fc-more-popover');
+				popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
+				popover.find('.fc-content').each(function () {
 					normalizeEventContent(jq$(this));
 				});
 			});

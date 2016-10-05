@@ -96,8 +96,7 @@ function IzendaDashboardController(
 
 	// gallery
 	vm.galleryContainerStyle = {
-		'height': 0,
-		'top': '20px'
+		'height': 0
 	};
 	vm.galleryState = $izendaGalleryService.getGalleryState();
 	vm.galleryTileIndex = 0;
@@ -255,12 +254,18 @@ function IzendaDashboardController(
 	 * Print whole dashboard as HTML
 	 */
 	vm.printDashboardAsHtml = function () {
-		var addParam = '';
-		if (typeof (window.izendaPageId$) !== 'undefined')
-			addParam += '&izpid=' + window.izendaPageId$;
-		if (typeof (window.angularPageId$) !== 'undefined')
-			addParam += '&anpid=' + window.angularPageId$;
-		ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1' + addParam, 'aspnetForm', '');
+		if ('WebkitAppearance' in document.documentElement.style)
+			vm.printingInProgress = true;
+			
+		// izpid and anpid will be added inside the ExtendReportExport method 
+		$timeout(function () {
+			var newWindow = ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1', 'aspnetForm', '', '', true);
+			newWindow.addEventListener("beforeunload", function (e) {
+				console.log('closed!', arguments);
+				vm.printingInProgress = false;
+				$scope.$applyAsync();
+			}, false);
+		}, 500);
 	};
 
 	/**

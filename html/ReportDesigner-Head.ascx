@@ -1,6 +1,8 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+
 <link rel="stylesheet" type="text/css" href="./Resources/css/Filters.css" />
 <script type="text/javascript" src="./Resources/js/RichEditorPopup.js"></script>
 <script type="text/javascript">

@@ -167,7 +167,7 @@
                       <input ng-attr-id="{{'filterPopupColumnIdValue' + $index}}" 
                              ng-attr-value="{{filter.field.sysname}}" 
                              type="hidden" />
-                      <button class="btn btn-default" ng-bind="filtersController.getPopupBtnText(filter)"
+                      <button type="button" class="btn btn-default" ng-bind="filtersController.getPopupBtnText(filter)"
                               data-toggle="modal" ng-attr-data-target="{{'#filterPopupModal' + $index}}"></button>
                       <div ng-attr-id="{{'filterPopupModal' + $index}}" class="modal fade" tabindex="-1" role="dialog"
                            name="filtersPopupModalDialog">

@@ -26,7 +26,8 @@
                    tabindex="1">
           </div>
         </div>
-        <div class="form-group">
+        <div class="form-group"
+             ng-show="selectReportNameController.isCategoryAllowed">
           <label for="izendaNameModalCategory" class="col-sm-2 control-label"
             ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once>
           </label>
