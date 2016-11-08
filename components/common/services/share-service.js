@@ -27,10 +27,6 @@ angular.module('izenda.common.ui').factory('$izendaShareService', [
 			shareRules = [];
 		};
 
-		var getShareRules = function() {
-			return shareRules;
-		};
-
 		var getShareRulesToSend = function () {
 			var result = [];
 			angular.element.each(shareRules, function () {
@@ -41,6 +37,10 @@ angular.module('izenda.common.ui').factory('$izendaShareService', [
 					});
 			});
 			return result;
+		};
+
+		var getShareRules = function () {
+			return shareRules;
 		};
 
 		var setShareRules = function(value) {
@@ -59,21 +59,27 @@ angular.module('izenda.common.ui').factory('$izendaShareService', [
 			return shareDataLoaded;
 		};
 
-		var loadShareData = function (customShareRules) {
+		var loadShareData = function (options) {
+			var defaultOptions = {
+				defaultShareConfig: false, // by default we are getting share config from current report set.
+				shareConfig: null // custom share config
+			};
+			var actualOptions = angular.isObject(options)
+				? angular.extend({}, defaultOptions, options)
+				: defaultOptions;
+
 			reset();
 			return $q(function (resolve) {
-				if (angular.isObject(customShareRules))
-					setShareRules(customShareRules);
-				$izendaCommonQuery.getShareData().then(function(shareData) {
-					// rights
-					angular.element.each(shareData.Rights, function() {
+				// load share config
+				$izendaCommonQuery.getShareData(actualOptions.defaultShareConfig).then(function (shareData) {
+					// fill available rights collection
+					angular.element.each(shareData.Rights, function () {
 						rights.push({
 							text: this.Text,
 							value: this.Value
 						});
 					});
-
-					// subjects
+					// fill available subjects collection
 					angular.element.each(shareData.ShareWith, function () {
 						subjects.push({
 							text: this.Text,
@@ -81,17 +87,25 @@ angular.module('izenda.common.ui').factory('$izendaShareService', [
 						});
 					});
 
-					if (!clearShareRules) {
-						shareRules = [];
+					var newShareRules = [];
+					
+					if (actualOptions.shareConfig) {
+						// if we already have share rules: just set it, no need to use rules, which were 
+						// loaded from server
+						newShareRules = actualOptions.shareConfig;
+					} else if (!clearShareRules) {
+						// if "izendaCommonUiConfig.clearShareRules" 
 						for (var key in shareData.ReportVisibility) {
 							if (shareData.ReportVisibility.hasOwnProperty(key)) {
-								shareRules.push({
+								newShareRules.push({
 									subject: key,
 									right: shareData.ReportVisibility[key]
 								});
 							}
 						}
 					}
+					// store share rules model
+					setShareRules(newShareRules);
 					shareDataLoaded = true;
 					resolve();
 				});
@@ -104,6 +118,7 @@ angular.module('izenda.common.ui').factory('$izendaShareService', [
 		};
 
 		reset();
+
 		return {
 			getShareRules: getShareRules,
 			setShareRules: setShareRules,

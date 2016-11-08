@@ -227,7 +227,8 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 		JTCS_UpdateTabStrip(id, true);
 		if (JTCS_oldTablesHash[id] != tablesHash) {
 			JTCS_oldTablesHash[id] = tablesHash;
-			JTCS_OnListChanged(id, dsSelected);
+			if (allTabsFilled)
+				JTCS_OnListChanged(id, dsSelected);
 		}
 		if (EBC_CheckFieldsCount)
 			EBC_CheckFieldsCount('', 0);
@@ -240,8 +241,6 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 		for (var i = 0; i < allDatasources.length; i++) {
 			dsArr[i].disabled = allDatasources[i].CanBeExcludedOrAdded ? '' : 'disabled';
 		}
-
-
 	}
 	for (var i = 0; i < dsArr.length; i++) {
 		if (!allDatasources[i].Checked)
@@ -253,6 +252,7 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 		else
 			dsArr[i].parentNode.style.color = '#000000';
 	}
+	allTabsFilled = true;
 }
 
 function JTCS_UpdateControls(id, dsListId, initialDatasources) {

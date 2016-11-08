@@ -1509,12 +1509,14 @@ be a descendant of the grid when it is being dragged.
 				title = item[VIS_COLUMNS[0].name],
 				value = vis.unitValue(item, VIS_COLUMNS[1].name),
 				formattedValue = item[VIS_COLUMNS[1].name];
-
-			if (VIS_COLUMNS[0].url && item.link) {
-				var link = jq$('<a>', {
-					href: item.link,
-				}).addClass('izenda-fc-link-title').html(title);
-				title = link[0].outerHTML;
+			if (VIS_COLUMNS[0].url) {
+				var link = vis.unitValue(item, 0, { sf: vis.fields.link });
+				if (link) {
+					var linkControl = jq$('<a>', {
+						href: link,
+					}).addClass('izenda-fc-link-title').html(title);
+					title = linkControl[0].outerHTML;
+				}
 			}
 
 			if (startDate == null || isNaN(startDate.valueOf())) {
@@ -1644,14 +1646,15 @@ be a descendant of the grid when it is being dragged.
 				eventAfterAllRender: function (view) {
 					settings.props.currentView = view.type;
 					store();
+
+					jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
+						var popover = jq$('#VIS_ID .fc-more-popover');
+						popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
+						popover.find('.fc-content').each(function () {
+							normalizeEventContent(jq$(this));
+						});
+					});
 				}
-			});
-			jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
-				var popover = jq$('#VIS_ID .fc-more-popover');
-				popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
-				popover.find('.fc-content').each(function () {
-					normalizeEventContent(jq$(this));
-				});
 			});
 		});
 

@@ -501,7 +501,9 @@ function InstantReportController(
 			} else {
 				// load schedule data with default config for new report
 				var scheduleDataPromise = $izendaScheduleService.loadScheduleData();
-				var shareDataPromise = $izendaShareService.loadShareData();
+				var shareDataPromise = $izendaShareService.loadShareData({
+					defaultShareConfig: true
+				});
 				$q.all([scheduleDataPromise, shareDataPromise]).then(function () {
 					vm.isExistingReport = false;
 					vm.reportInfo = reportInfo;

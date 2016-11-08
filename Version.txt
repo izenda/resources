@@ -1,1 +1,1 @@
-This /Resources directory was built with version 6.10.0.11
+This /Resources directory was built with version 6.10.0.12

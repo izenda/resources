@@ -843,26 +843,6 @@ function CC_OnOperatorChangedHandler(e) {
 	}
 }
 
-function CC_InitRowWidthAutoComplite(row) {
-	/*var edit1 = EBC_GetElementByName(row, "Edit1", "TEXTAREA");
-	var operatorValue = EBC_GetSelectByName(row, 'Operator').value;
-		
-	var defaultWidth = jq$(edit1).attr("defaultWidth");
-	var autocompliteWidth = jq$(edit1).attr("autocompliteWidth");
-	if (defaultWidth == "" || defaultWidth == null)
-	{
-		var width = jq$(edit1).width();
-		defaultWidth = width;
-		autocompliteWidth = width;
-		jq$(edit1).attr("defaultWidth", defaultWidth);
-		jq$(edit1).attr("autocompliteWidth", autocompliteWidth);
-	}
-	if (operatorValue == "Equals_Autocomplete")
-		jq$(edit1).width(autocompliteWidth);
-	else
-		jq$(edit1).width(defaultWidth);*/
-}
-
 function CC_split(val) {
 	return val.split(/,\s*/);
 }
@@ -1062,9 +1042,12 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 	var rows = jq$(table.tBodies[0]).find("tr");
 	var count = rows.length;
 	for (var i = 0; i < count; i++) {
-		CC_InitAutoComplete(rows[i]);
+		var operatorValue = EBC_GetSelectByName(rows[i], 'Operator').value;
+		if (operatorValue == "Equals_Autocomplete")
+			CC_InitAutoComplete(rows[i]);
+		else
+			CC_RemoveAutocomplete(rows[i]);
 		CC_InitTreeView(rows[i]);
-		CC_InitRowWidthAutoComplite(rows[i]);
 	}
 	EBC_RegiserForUnusedRowsRemoving(table);
 	CC_Initialized = true;

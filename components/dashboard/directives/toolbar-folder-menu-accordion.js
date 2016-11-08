@@ -13,7 +13,7 @@
       scope: {
         categories: '='
       },
-      templateUrl: $izendaUrl.settings.urlBase + '/Resources/components/dashboard/templates/toolbar-folder-menu-accordion.html',
+      templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/toolbar-folder-menu-accordion.html',
       link: function ($scope, elem, attrs) {
 
         // add category 'in' class for currentCategory

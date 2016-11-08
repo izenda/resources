@@ -18,7 +18,7 @@
 				equalsFunc: '&',
 				getTitle: '&'
 			},
-			templateUrl: $izendaUrl.settings.urlBase + '/Resources/components/dashboard/templates/toolbar-links-panel.html',
+			templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/toolbar-links-panel.html',
 			link: function ($scope, elem, attrs) {
 				var $slideContainer = _(elem).find('.iz-dash-linkspanel-navbar-3');
 				var slideContainerWidth = $slideContainer.width();
@@ -87,16 +87,19 @@
 
 				// check left and right buttons is needed
 				$scope.isButtonsVisible = function () {
+					if ($scope.refreshButtonsWidth) {
+						$scope.sumWidth = 0;
+						$slideContainer.find('.iz-dash-linkspanel-navbar-item').each(function () {
+							$scope.sumWidth += angular.element(this).width();
+						});
+						$scope.refreshButtonsWidth = false;
+					}
 					return $scope.sumWidth > slideContainerWidth;
 				};
 
 				// watch toolbar item collection changed
 				$scope.$watchCollection('toolbarItems', function () {
-					$scope.sumWidth = 0;
-					$slideContainer.find('.iz-dash-linkspanel-navbar-item').each(function () {
-						$scope.sumWidth += angular.element(this).width();
-					});
-
+					$scope.refreshButtonsWidth = true;
 					$slideContainer.find('.iz-dash-linkspanel-navbar-item').on('mouseup', function () {
 						var idStr = _(this).attr('id');
 						var id = parseInt(idStr.split('izDashToolbarItem')[1]);

@@ -83,7 +83,8 @@ function izendaTileController(
 
 	vm.state = {
 		empty: true,
-		resizableHandlerStarted: false
+		resizableHandlerStarted: false,
+		relativeReportComplexity: 0
 	};
 
 	vm.dashboardSyncCompletedForTilePrintHandler = null;
@@ -395,21 +396,10 @@ function izendaTileController(
 		});
 
 		// add/remove .hover class for tile
-		if (vm.isIE && vm.top >= 500)
-			$element.addClass('hover-ie');
-		if (vm.top < 500) {
-			$getTile().addClass('no-hover-overflow');
-		}
 		$element.hover(function () {
-			if (vm.top < 500)
-				angular.element(this).removeClass('no-hover-overflow');
-			if (!vm.isIE || (vm.isIE && vm.top < 500))
-				angular.element(this).addClass('hover');
+			applyTileHover(angular.element(this), true);
 		}, function () {
-			if (vm.top < 500)
-				angular.element(this).addClass('no-hover-overflow');
-			if (!vm.isIE || (vm.isIE && vm.top < 500))
-				angular.element(this).removeClass('hover');
+			applyTileHover(angular.element(this), false);
 		});
 
 		refreshTile(false);
@@ -727,7 +717,6 @@ function izendaTileController(
 
 				var $helper = ui.helper;
 				var $helperFlippies = $getFlippyFront($helper);
-				console.log($helperFlippies);
 				$scope.$allFlippies = $scope.dashboardController.getTileContainer().find('.iz-dash-tile > .animate-flip > .flippy-front, .iz-dash-tile > .animate-flip > .flippy-back');
 				$helperFlippies.removeClass('flipInY');
 				$helperFlippies.css('background-color', 'rgba(50,205,50, 0.3)');
@@ -1050,6 +1039,22 @@ function izendaTileController(
 	}
 
 	/**
+	* Set tile hover
+	*/
+	function applyTileHover(tile, value) {
+		tile.removeClass('no-hover-overflow');
+		if (value) {
+			if (!vm.isIE || vm.state.relativeReportComplexity < 0.5)
+				tile.addClass('hover');
+		} else {
+			if (vm.state.relativeReportComplexity < 0.5)
+				tile.addClass('no-hover-overflow');
+			if (!vm.isIE || vm.state.relativeReportComplexity < 0.5)
+				tile.removeClass('hover');
+		}
+	}
+
+	/**
 	* Set tile inner html
 	*/
 	function applyTileHtml(htmlData) {
@@ -1059,6 +1064,17 @@ function izendaTileController(
 		// load tile content
 		var $report = angular.element($element).find('.report');
 		$izendaDashboardState.loadReportIntoContainer(htmlData, $report);
+
+		var numberOfCellInComplexReport = 3000;
+		var numberOfCells = angular.element($element).find('.ReportTable td').length;
+		vm.state.relativeReportComplexity = numberOfCells / numberOfCellInComplexReport;
+		if (vm.state.relativeReportComplexity > 1)
+			vm.state.relativeReportComplexity = 1;
+
+		if (vm.isIE && vm.state.relativeReportComplexity >= 0.5)
+			$element.addClass('hover-ie');
+		var tile = $getTile();
+		applyTileHover(tile, tile.is(':hover'));
 
 		vm.state.empty = false;
 	}

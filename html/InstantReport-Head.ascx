@@ -19,10 +19,10 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="rs.aspx?js=Utility"></script>
-<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
+<script type="text/javascript" src="rs.aspx?js=Utility"></script>
+<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
@@ -47,12 +47,12 @@
 <script type="text/javascript" src="rs.aspx?js=tag-it"></script>
 
 <!-- Utils Resources -->
-<script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>
-<script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
-<script type="text/javascript" src="./Resources/js/charts.js"></script>
-<script type="text/javascript" src="./Resources/js/datasources-search.js"></script>
-<script type="text/javascript" src="./Resources/js/data-sources.js"></script>
-<script type="text/javascript" src="./Resources/js/data-sources-preview.js"></script>
+<script type="text/javascript" src="Resources/js/ReportViewerFilters.js"></script>
+<script type="text/javascript" src="Resources/js/FieldProperties.js"></script>
+<script type="text/javascript" src="Resources/js/charts.js"></script>
+<script type="text/javascript" src="Resources/js/datasources-search.js"></script>
+<script type="text/javascript" src="Resources/js/data-sources.js"></script>
+<script type="text/javascript" src="Resources/js/data-sources-preview.js"></script>
 
 
 <script type="text/javascript">

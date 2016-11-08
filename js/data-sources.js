@@ -1805,7 +1805,7 @@ function UpdateFiltersAvailability() {
 }
 
 // Report Viewer override
-function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
+function ShowFilterPropertiesByFieldName(fieldName, GUID) {
 	for (var dsInd = 0; dsInd < dataSources.length; dsInd++)
 		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++)
 			if (dataSources[dsInd].Columns[colInd].DbName == fieldName) {

@@ -508,7 +508,6 @@
 
 	(function ExecuteVIS_ID() {
 		var width = 720, height = 500;
-
 		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
 
@@ -848,7 +847,6 @@
 
 		var totals = vis.traverseTree(function (context) {
 			if (!context.node.hasOwnProperty("id")) {
-				context.node["drilldown"] = context.node["id"] = context.node["name"];
 				context.node["label"] = VIS_COLUMNS[context.fi].name;
 			}
 		});
@@ -901,7 +899,7 @@
 			onHide: function () {
 				delete egOptions.shownIndex;
 				if (egOptions.style == "EmbeddedDetail") {
-					jq$(s.chart.renderer.box).find(".expandtools").remove();
+					jq$(s.chart.renderer.box).find("[class=expandtools]").remove();
 					vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html("");
 				}
 			}
@@ -1141,16 +1139,17 @@
 				}, time / tickCount);
 			}
 
-			function registerLink(index) {
+			function registerLink(index, link) {
 				jq$(elements[index])
 					.bind("click", function (e) {
-						window.open(s.chartOptions.usedData[index].link, '_blank');
+						window.open(link, '_blank');
 					})
+					.css({ "cursor": "pointer", "text-decoration": "underline" })
 					.each(function() {
 						services.tipOn(this, "Open '" + s.chartOptions.usedData[index].name + "' a new tab/window");
 					});
 			}
-			function register(index) {
+			function register(index, subreportlink) {
 				var style = s.props.subreportMode;
 				if (style == "EmbeddedDetail" && (vis.isDashboards || s.isVml))
 					style = "DetailLinkPopup";
@@ -1176,10 +1175,10 @@
 							};
 						}
 
+						var urlSettings = UrlSettings();
 						var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
-							subreportLink = s.chartOptions.usedData[index].subreportlink,
-							rvSubreportlink = utility.server.config.ReportViewerUrl + utility.server.config.UrlParametersDelimiter + subreportLink,
-							rsSubreportlinkForPopup = utility.server.config.ResponseServerUrl + utility.server.config.UrlParametersDelimiter + subreportLink + "&mw=1&paging=0&reportonly=1";
+							rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
+							rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + "&mw=1&paging=0&reportonly=1";
 
 						switch (style) {
 							case "DetailLink":
@@ -1194,7 +1193,7 @@
 									return;
 								}
 								delete egOptions.shownIndex;
-								jq$(s.chart.renderer.box).find(".expandtools").remove();
+								jq$(s.chart.renderer.box).find("[class=expandtools]").remove();
 
 								services.showTip(loadImage, getContext());
 								jq$.get(rsSubreportlinkForPopup, function (html) {
@@ -1287,6 +1286,7 @@
 								return;
 						}
 					})
+					.css({ "cursor": "pointer", "text-decoration": "underline" })
 					.each(function() {
 						function getContext() {
 							return {
@@ -1326,17 +1326,17 @@
 							elements.push(s.chart.xAxis[0].ticks[f].label.element);
 					}
 				}
-
-				if (typeof s.chartOptions.usedData[0].subreportlink == "string" || typeof s.chartOptions.usedData[0].link == "string")
-					jq$(elements).css({ "cursor": "pointer", "text-decoration": "underline" });
 			}
 
 			function registerLabels() {
 				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-					if (typeof s.chartOptions.usedData[i].subreportlink == "string") {
-						register(i);
-					} else if (typeof s.chartOptions.usedData[i].link == "string") {
-						registerLink(i);
+					var nodeData = s.chartOptions.usedData[i],
+							columnIndex = VIS_COLUMNS.findIndex(function (d) { return d.name == nodeData.label; }),
+							link = vis.unitValue(nodeData, columnIndex, { sf: vis.fields.link });
+					if (VIS_COLUMNS[columnIndex].target) {
+						register(i, link);
+					} else if (VIS_COLUMNS[columnIndex].url) {
+						registerLink(i, link);
 					}
 				}
 			}

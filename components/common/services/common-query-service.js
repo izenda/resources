@@ -35,19 +35,6 @@ angular.module('izenda.common.query')
 			});
 		}
 
-		function setCurrentReportSet(reportSetFullName) {
-			return $izendaRsQuery.query('setcurrentreportset', [reportSetFullName], {
-				dataType: 'text'
-			},
-			// custom error handler:
-			{
-				handler: function (name) {
-					return $izendaLocale.localeText('js_DashboardCrsError', 'Failed to set current report set') + ': ' + name;
-				},
-				params: [reportSetFullName]
-			});
-		}
-
 		/**
 		* Check report set is exist.
 		* returns promise with 'true' value if exists
@@ -134,9 +121,11 @@ angular.module('izenda.common.query')
 
 		/**
 		 * Get data which needed for schedule
+		 * @param defaultShareConfig bool. If true - share config will get from
+		 * new empty reportset, false - from current report set.
 		 */
-		function getShareData() {
-			return $izendaRsQuery.query('getCrsShare', [], {
+		function getShareData(defaultShareConfig) {
+			return $izendaRsQuery.query('getCrsShare', [defaultShareConfig ? "true" : "false"], {
 				dataType: 'json'
 			}, {
 				handler: function () {
@@ -176,7 +165,6 @@ angular.module('izenda.common.query')
 
 		// PUBLIC API
 		return {
-			setCurrentReportSet: setCurrentReportSet,
 			newDashboard: newDashboard,
 			checkReportSetExist: checkReportSetExist,
 			getReportSetCategory: getReportSetCategory,

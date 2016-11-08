@@ -311,7 +311,10 @@ function InstantReportDataSourceController(
 	 * Activate/deactivate table
 	 */
 	vm.activateTable = function (table) {
-		$izendaInstantReportStorage.applyTableActive(table);
+		$izendaInstantReportStorage.applyTableActive(table).then(function () {
+			vm.updateReportSetValidationAndRefresh();
+			$scope.$applyAsync();
+		});
 	}
 
 	/**

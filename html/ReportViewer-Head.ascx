@@ -20,10 +20,10 @@
 <script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="rs.aspx?js=Utility"></script>
-<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
+<script type="text/javascript" src="rs.aspx?js=Utility"></script>
+<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>

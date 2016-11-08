@@ -542,7 +542,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	}
 	if (!isSimpleFilter && (typeof nrvConfig == 'undefined' || nrvConfig == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false)) {
 		filterContent.find('.filterRemoveButton').attr('onclick', 'RemoveFilterByUid(\'' + filter.Uid + '\')');
-		filterContent.find('.filterPropertiesButton').attr('onclick', 'ShowFieldPropertiesByFullFieldName(\'' + filter.ColumnName + '\', \'' + filter.GUID + '\')');
+		filterContent.find('.filterPropertiesButton').attr('onclick', 'ShowFilterPropertiesByFieldName(\'' + filter.ColumnName + '\', \'' + filter.GUID + '\')');
 	}
 	else {
 		filterContent.find('.filterRemoveButton').hide();
@@ -637,6 +637,8 @@ function ToggleSubreportsFiltersControl() {
 
 function CascadingFiltersChanged(returnObj, id) {
 	if (id != ('refreshcascadingfilters-' + refreshFiltersLastGUID) || returnObj == null)
+		return;
+	if (nrvConfig && nrvConfig.ReportIsLocked == true && nrvConfig.HideFiltersWhenLocked == true)
 		return;
 	RefreshFilters(returnObj);
 }
@@ -899,6 +901,10 @@ function TextFilterInputKeyDown() {
 * Load filters
 */
 function GetFiltersData() {
+	if (nrvConfig && nrvConfig.ReportIsLocked == true && nrvConfig.HideFiltersWhenLocked == true) {
+		jq$('#tab1 #loadingDiv').hide();
+		return;
+	}
 	var requestString = 'wscmd=getfiltersdata';
 	AjaxRequest(urlSettings.urlRsPage, requestString, GotFiltersData, null, 'getfiltersdata');
 }

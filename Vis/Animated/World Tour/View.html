@@ -3,6 +3,10 @@
 		overflow: hidden;
 	}
 
+	#VIS_ID_CONTAINER #VIS_ID {
+		position: relative;
+	}
+
 	 #VIS_ID_CONTAINER #VIS_ID_LABEL {
 		cursor: pointer;
 		position: absolute;
@@ -273,12 +277,12 @@
 		var path = d3.geo.path()
 			.projection(projection)
 			.context(context);
-
+		var labelFactor = 0.06;
 		var title = d3.select("#VIS_ID_LABEL")
 			.style({
-				"top": (center[1] + minDimension / 4.9) + "px",
+				"top": (center[1] + minDimension * labelFactor) + "px",
 				"text-shadow": "0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white",
-				"font-size": (minDimension * 3 / 49) + "px",
+				"font-size": (minDimension * labelFactor) + "px",
 				"visibility": "visible"
 			});
 
@@ -363,12 +367,16 @@
 			context.stroke();
 		}
 
+		function checkStop() {
+			return stopped || !document.getElementById('VIS_ID');
+		}
+
 		function transition() {
-			if (stopped || !countries.length) {
+			if (checkStop() || !countries.length) {
 				return;
 			}
 
-			d3.transition()
+			canvas.transition()
 				.duration(1000)
 				.each("start", function () {
 					var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
@@ -376,11 +384,11 @@
 							val = vis.unitValue(i2[0], metricValue);
 					title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, metricValue) : val) + ")");
 				})
-				.tween("rotate", function() {
+				.tween("rotate", function () {
 					var p = d3.geo.centroid(countries[index]),
 						r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
 					return function(t) {
-						if (stopped) {
+						if (checkStop()) {
 							return;
 						}
 						projection.rotate(r(t));

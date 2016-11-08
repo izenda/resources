@@ -261,7 +261,6 @@ function IzendaDashboardController(
 		$timeout(function () {
 			var newWindow = ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1', 'aspnetForm', '', '', true);
 			newWindow.addEventListener("beforeunload", function (e) {
-				console.log('closed!', arguments);
 				vm.printingInProgress = false;
 				$scope.$applyAsync();
 			}, false);
@@ -1122,64 +1121,67 @@ function IzendaDashboardController(
 	vm.initialize = function () {
 		vm.dashboardsAllowedByLicense = $izendaDashboardSettings.dashboardsAllowed;
 		vm.licenseInitialized = true;
-		if (vm.dashboardsAllowedByLicense) {
+		if (!vm.dashboardsAllowedByLicense)
+			return;
 
-			vm.initializeEventHandlers();
+		// initialize events
+		vm.initializeEventHandlers();
 
-			// all tiles added:
-			$scope.$watch(angular.bind(vm, function (name) {
-				return this.tilesAnimationCompleted;
-			}), function (newVal) {
-				if (newVal) {
-					$izendaEvent.queueEvent('refreshFilters', [], true);
-				}
-			});
+		// all tiles added:
+		$scope.$watch(angular.bind(vm, function (name) {
+			return this.tilesAnimationCompleted;
+		}), function (newVal) {
+			if (newVal) {
+				$izendaEvent.queueEvent('refreshFilters', [], true);
+			}
+		});
 
-			// watch for gallery state change.
-			$scope.$watch('$izendaGalleryService.getGalleryState()', function (galleryState, oldState) {
-				vm.galleryState = $izendaGalleryService.getGalleryState();
+		// watch for gallery state change.
+		$scope.$watch('$izendaGalleryService.getGalleryState()', function (galleryState, oldState) {
+			vm.galleryState = $izendaGalleryService.getGalleryState();
 
-				// gallery was turned on/off
-				if (oldState.isGalleryEnabled !== galleryState.isGalleryEnabled) {
-					galleryModeChanged();
-				}
-				// gallery fullscreen changed
-				if (oldState.isGalleryFullScreen !== galleryState.isGalleryFullScreen) {
-					galleryFullScreenChanged();
-				}
-			}, true);
-			// watch for dashboard resize:
-			$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
-				updateSize();
-			});
-
-			// watch for location change: we can set dashboard when location is changing
-			$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
-				var initDone = function () {
-					if (reportInfo.fullName === null && !reportInfo.isNew)
-						return;
-					$log.debug('Initialize dashboard after location change: ', reportInfo);
-					vm.initializeDashboard(reportInfo);
-					$izendaScheduleService.loadScheduleData();
-					$izendaShareService.loadShareData();
-				}
-
-				if (!angular.isDefined(reportInfo))
-					return;
-				if (reportInfo.isNew) {
-					// create new dashboard
-					$izendaCommonQuery.newDashboard().then(function () {
-						initDone();
-					});
-				} else {
-					// set existing dashboard as current
-					$izendaCommonQuery.setCurrentReportSet(reportInfo.fullName).then(function () {
-						initDone();
-					});
-				}
-			});
-
+			// gallery was turned on/off
+			if (oldState.isGalleryEnabled !== galleryState.isGalleryEnabled) {
+				galleryModeChanged();
+			}
+			// gallery fullscreen changed
+			if (oldState.isGalleryFullScreen !== galleryState.isGalleryFullScreen) {
+				galleryFullScreenChanged();
+			}
+		}, true);
+		// watch for dashboard resize:
+		$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
 			updateSize();
-		}
+		});
+
+		// watch for location change: we can set dashboard when location is changing
+		$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+			var initDone = function () {
+				if (reportInfo.fullName === null && !reportInfo.isNew)
+					return;
+				$log.debug('Initialize dashboard after location change: ', reportInfo);
+				vm.initializeDashboard(reportInfo);
+				$izendaScheduleService.loadScheduleData();
+				$izendaShareService.loadShareData({
+					defaultShareConfig: false
+				});
+			}
+
+			if (!angular.isDefined(reportInfo))
+				return;
+			if (reportInfo.isNew) {
+				// create new dashboard
+				$izendaCommonQuery.newDashboard().then(function () {
+					initDone();
+				});
+			} else if (reportInfo.fullName) {
+				// set existing dashboard as current
+				$izendaCommonQuery.setCrs(reportInfo.fullName).then(function () {
+					initDone();
+				});
+			}
+		});
+
+		updateSize();
 	};
 }

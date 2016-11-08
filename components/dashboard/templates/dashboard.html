@@ -214,7 +214,7 @@
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" 
-                     ng-show="tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
+                     ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_ReloadTile' | izendaLocale: 'Reload tile from its source'}}"
                      ng-click="tileController.flipFront(true, true)">
                     <img class="img-responsive" src="Resources/images/back-tile/reload.png">

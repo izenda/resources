@@ -19,7 +19,7 @@ angular.module('izendaInstantReport', [
 		angular
 			.module('izenda.common.ui')
 			.constant('izendaCommonUiConfig', {
-				clearShareRules: true, // do not show rules which defined in current report set.
+				clearShareRules: false, // do not show rules which defined in current report set.
 				clearScheduleOptions: true // do not show schedule options for current report set.
 			})
 			.value('izenda.common.ui.reportNameInputPlaceholderText', ['js_ReportName', 'Report Name'])

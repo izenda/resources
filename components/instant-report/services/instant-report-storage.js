@@ -923,12 +923,14 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		activeCheckedFields = [];
 		angular.element.each(getDataSources(), function () {
 			angular.element.each(this.tables, function () {
-				if (this.active) {
-					activeTables.push(this);
-					angular.element.each(this.fields, function () {
-						activeFields.push(this);
-						if (this.checked)
-							activeCheckedFields.push(this);
+				var table = this;
+				if (table.active) {
+					activeTables.push(table);
+					angular.element.each(table.fields, function () {
+						var field = this;
+						activeFields.push(field);
+						if (field.checked)
+							activeCheckedFields.push(field);
 					});
 				}
 			});
@@ -2381,21 +2383,38 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * Check/uncheck table
 	 */
 	var applyTableActive = function (table) {
-		if (!table.enabled) {
-			return;
-		}
-		table.active = !table.active;
-		table.order = getNextOrder();
+		return $q(function (resolve) {
+			var updateAndResolve = function () {
+				updateParentFolders(table);
+				updateUiStateAndRefreshPreview();
+				resolve();
+			};
 
-		if (!table.active) {
-			// deactivate all table fields
-			angular.element.each(table.fields, function () {
-				var field = this;
-				field.checked = false;
-			});
-		}
-		updateParentFolders(table);
-		updateUiStateAndRefreshPreview();
+			if (!table.enabled) {
+				return;
+			}
+			table.active = !table.active;
+			table.order = getNextOrder();
+
+			if (!table.active) {
+				// deactivate all table fields
+				angular.element.each(table.fields, function () {
+					var field = this;
+					field.checked = false;
+				});
+				updateAndResolve();
+				return;
+			}
+			// table activated
+			if (table.lazy) {
+				// load lazy fields
+				loadLazyFields(table).then(function () {
+					updateAndResolve();
+				});
+			} else {
+				updateAndResolve();
+			}
+		});
 	};
 
 	/**
@@ -2586,6 +2605,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					var tableObj = this;
 					var table = getTableBySysname(tableObj.sysname);
 					var loadFieldPromise = loadLazyFields(table);
+					table.active = true;
+					table.order = getNextOrder();
 					lazyPromises.push(loadFieldPromise);
 				});
 
@@ -2652,7 +2673,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 
 					// load share data for config
 					var shareConfig = angular.extend([], reportSetConfig.share);
-					promises.push($izendaShareService.loadShareData(shareConfig));
+					promises.push($izendaShareService.loadShareData({
+						shareConfig: shareConfig
+					}));
 
 					// wait for all preparations completion
 					$q.all(promises).then(function () {

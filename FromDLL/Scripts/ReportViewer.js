@@ -507,7 +507,7 @@ function SetPivotCount() {
 //------------------------------------------------------------------------------------------------------------------
 
 //Field advanced properties-------------------------------------------------------------------------------------------------------
-function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
+function ShowFilterPropertiesByFieldName(fieldName, GUID) {
 	var calcFieldIndex = -1;
 	var tableAlias = '';
 	for (var i = 0; i < filtersData.length; i++) {
@@ -516,18 +516,22 @@ function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
 			break;
 		}
 	}
+	function prepareFieldToFilterPropertiesView(field) {
+		field.FilterGUID = GUID;
+		for (var i = 0; i < filtersData.length; i++) {
+			if (filtersData[i].GUID == GUID) {
+				field.FilterOperator = filtersData[i].OperatorValue;
+				field.FilterFriendlyName = field.Description;
+				field.Description = filtersData[i].Alias;
+				break;
+			}
+		}
+	}
 	for (var dsInd = 0; dsInd < dataSources.length; dsInd++) {
 		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++) {
 			if (dataSources[dsInd].Columns[colInd].DbName == fieldName && (tableAlias == '' || dataSources[dsInd].Columns[colInd].TableJoinAlias == tableAlias)) {
 				var newField = jq$.extend({}, dataSources[dsInd].Columns[colInd]);
-				newField.FilterGUID = GUID;
-				for (var i = 0; i < filtersData.length; i++) {
-					if (filtersData[i].GUID == GUID) {
-						newField.FilterOperator = filtersData[i].OperatorValue;
-						newField.Description = filtersData[i].Alias;
-						break;
-					}
-				}
+				prepareFieldToFilterPropertiesView(newField);
 				FP_ShowFilterProperties(newField, fieldPopup);
 				return;
 			}
@@ -541,7 +545,9 @@ function ShowFieldPropertiesByFullFieldName(fieldName, GUID) {
 	}
 	if (calcFieldIndex >= 0) {
 		curPropFInd = calcFieldIndex;
-		FP_ShowFieldProperties(fieldsList[calcFieldIndex], fieldPopup);
+		var newField = jq$.extend({}, fieldsList[calcFieldIndex]);
+		prepareFieldToFilterPropertiesView(newField);
+		FP_ShowFilterProperties(newField, fieldPopup);
 		return;
 	}
 }
@@ -864,7 +870,7 @@ function CheckedIfReportExists(returnObj, id) {
 				alert('Unexpected response: Field with validated report set name is empty');
 		}
 		else {
-			ReportingServices.showConfirm('ReportSet with specified name already exists. Are you sure to overwrite it?', function(result) {
+			ReportingServices.showConfirm('ReportSet with specified name already exists. Are you sure to overwrite it?', function (result) {
 				if (result == jsResources.OK)
 					FinalizePreSaveRoutines(returnObj.AdditionalData[0]);
 			});
@@ -1058,13 +1064,12 @@ function InitializeViewer() {
 function GetReportViewerConfig() {
 	var wwidth = jq$(window).width();
 	var wheight = jq$(window).height();
-    var rnParam = '';
-    if (reportName)
-    	rnParam = reportName;
-    else if (typeof UrlSettings == 'function')
-
-	    rnParam = UrlSettings().reportInfo.fullName;
-    var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam;
+	var rnParam = '';
+	if (reportName)
+		rnParam = reportName;
+	else if (typeof UrlSettings == 'function')
+		rnParam = UrlSettings().reportInfo.fullName;
+	var requestString = 'wscmd=reportviewerconfig&wsarg0=' + wwidth + '&wsarg1=' + wheight + '&wsarg2=' + rnParam;
 	AjaxRequest('./rs.aspx', requestString, GotReportViewerConfig, null, 'reportviewerconfig');
 }
 
@@ -1086,7 +1091,7 @@ function GotReportViewerConfig(returnObj, id) {
 	if (nrvConfig.UseBulkCsv) {
 		var csvExportBtn = document.getElementById('csvExportBtn');
 		if (csvExportBtn != null)
-			csvExportBtn.onclick = function () { responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=BULKCSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl); };
+			csvExportBtn.onclick = function () { ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=BULKCSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl); };
 	}
 	if (!nrvConfig.ShowHtmlPrint || nrvConfig.LimitOutputsToCsv)
 		document.getElementById('htmlPrintBtn').style.display = 'none';
@@ -1101,9 +1106,9 @@ function GotReportViewerConfig(returnObj, id) {
 	}
 
 	if (!nrvConfig.ShowSaveControls)
-	  document.getElementById('saveControls').style.display = 'none';
+		document.getElementById('saveControls').style.display = 'none';
 	if (!nrvConfig.ShowSaveAsToolbarButton)
-	  document.getElementById('saveAsBtn').style.display = 'none';
+		document.getElementById('saveAsBtn').style.display = 'none';
 	ChangeTopRecords(nrvConfig.InitialResults, false);
 	if (urlSettings.reportInfo.exportType != null) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);
@@ -1120,7 +1125,7 @@ function GotReportViewerConfig(returnObj, id) {
 	//http://fogbugz.izenda.us/default.asp?15858#BugEvent.185759
 	/*if (!nrvConfig.AllowRTFExportFormat)
 		jq$("#RTFExportButton").remove();*/
-    AppendReportNameTitle(nrvConfig.ClearReportName);
+	AppendReportNameTitle(nrvConfig.ClearReportName);
 }
 
 function ApplySecurityOptions() {
@@ -1130,8 +1135,11 @@ function ApplySecurityOptions() {
 	}
 	if (nrvConfig.ReportIsViewOnly == true)
 		jq$('.hide-viewonly').hide();
-	if (nrvConfig.ReportIsLocked == true)
+	if (nrvConfig.ReportIsLocked == true) {
 		jq$('.hide-locked').hide();
+		if (nrvConfig.HideFiltersWhenLocked)
+			jq$('.hide-when-locked').hide();
+	}
 }
 
 function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
@@ -1175,7 +1183,7 @@ function GotRenderedReportSet(returnObj, id) {
 	}
 	else {
 		jq$('#htmlFilters :input').prop('disabled', true);
-		if (typeof(GetFiltersData) === 'function')
+		if (typeof (GetFiltersData) === 'function')
 			GetFiltersData();
 	}
 }
@@ -1215,23 +1223,26 @@ function FirstLoadInit() {
 
 	InitializeFields();
 	RefreshPivots();
-	if (typeof(GetFiltersData) === 'function')
+	if (typeof (GetFiltersData) === 'function')
 		GetFiltersData();
 }
 
-function AppendReportNameTitle(forcedReportName){
+function AppendReportNameTitle(forcedReportName) {
 	var fieldWithRn = document.getElementById('clearReportNameFor2ver');
 	var rnVal;
 	if (forcedReportName)
 		rnVal = forcedReportName;
 	else if (fieldWithRn != null)
 		rnVal = fieldWithRn.value;
-	else if (reportName == undefined || reportName == null)
+	else
 		rnVal = '';
-
-	while (rnVal.indexOf('+') >= 0) {
-		rnVal = rnVal.replace('+', ' ');
-	}
+	var autoInd = rnVal.indexOf('(AUTO)_');
+	if (autoInd == 0)
+		rnVal = rnVal.substr(7);
+	var selfInd = rnVal.indexOf('(SELF)_');
+	if (selfInd >= 0)
+		rnVal = rnVal.substr(0, selfInd);
+	rnVal = rnVal.replaceAll('+', ' ');
 	var frNodes = rnVal.split(nrvConfig.CategoryCharacter);
 	var namePart = frNodes[frNodes.length - 1];
 	var catPart = frNodes.length <= 1 ? '' : frNodes[frNodes.length - 2];
@@ -1241,14 +1252,7 @@ function AppendReportNameTitle(forcedReportName){
 	if (catPart.indexOf('&') >= 0) {
 		catPart = catPart.substr(0, catPart.indexOf('&'));
 	}
-	var rntc = namePart;
-	var selfInd = rntc.indexOf('(SELF)_');
-	if (selfInd >= 0)
-		rntc = rntc.substr(0, selfInd);
-	var autoInd = rntc.indexOf('(AUTO)_');
-	if (autoInd == 0)
-		rntc = rntc.substr(7);
-	var hdr = '<h1 style=\"margin-left:40px;\">' + rntc + (catPart.length <= 0 ? '' : ' <i>(' + catPart + ')</i>') + '</h1>';
+	var hdr = '<h1 style=\"margin-left:40px;\">' + namePart + (catPart.length <= 0 ? '' : ' <i>(' + catPart + ')</i>') + '</h1>';
 	var repHeader = document.getElementById('repHeader');
 	if (typeof repHeader != 'undefined' && repHeader != null)
 		repHeader.innerHTML = hdr;

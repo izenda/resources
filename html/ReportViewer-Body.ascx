@@ -104,13 +104,13 @@
         <span lang-text="js_WordDocumentMessage">File for Microsoft's word processor, most widely-used office application</span>
       </a></li>
                 <li><a id="csvExportBtn" href="javascript:void(0)" title=""
-        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=CSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=CSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.csv-32.png" alt="" />
         <b lang-text="js_CSV">CSV</b><br>
         <span lang-text="js_CSVMessage">Stores tabular data in text file, that can be used in Google Docs</span>
       </a></li>
                 <li><a href="javascript:void(0)" title=""
-        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=XML', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XML', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
         <img class="icon" src="rs.aspx?image=ModernImages.xml-32.png" alt="" />
         <b lang-text="js_XML">XML</b><br>
         <span lang-text="js_XMLMessage">Both human-readable and machine-readable text file</span>
@@ -193,7 +193,7 @@
                 <img src="rs.aspx?image=ModernImages.pivots.png" alt="" class="icon" />Pivots</a></li>
             <li class="designer-only hide-locked hide-viewonly"><a href="#tab2" data-toggle="tab" lang-text="js_Fields">
                 <img src="rs.aspx?image=ModernImages.fields.png" alt="" class="icon" />Fields</a></li>
-            <li id="tab1li"><a href="#tab1" data-toggle="tab" id="tab1a" lang-text="js_Filters">
+            <li class="hide-when-locked" id="tab1li"><a href="#tab1" data-toggle="tab" id="tab1a" lang-text="js_Filters">
                 <img src="rs.aspx?image=ModernImages.filter.png" alt="" class="icon" />Filters</a></li>
   </ul>
   <div class="clearfix" style="border-bottom: 1px solid #c4c4c4;"></div>
@@ -205,7 +205,7 @@
 
   <div class="tab-content" id="tabsContentsDiv">
     <div class="tab-pane" id="tab1">
-        <div id="htmlFilters">
+        <div id="htmlFilters" class="hide-when-locked">
                     <table style="width: 100%;">
                 <tr>
                     <td class="filtersContent"></td>

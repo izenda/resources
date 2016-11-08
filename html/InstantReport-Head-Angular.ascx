@@ -14,12 +14,12 @@
 <link rel="stylesheet" type="text/css" href="Resources/components/instant-report/css/instant-report.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
 
-<script type="text/javascript" src="./Resources/components/vendor/custom/msie-detect.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/custom/msie-detect.js"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
 <script type="text/javascript" src="rs.aspx?js=Utility"></script>
 <!-- url settings -->
 <script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.min.js"></script>
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
 <script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
 <script type="text/javascript" src="rs.aspx?js=HtmlChartsPieLabels"></script>
