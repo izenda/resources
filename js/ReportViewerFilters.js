@@ -900,12 +900,14 @@ function TextFilterInputKeyDown() {
 /**
 * Load filters
 */
-function GetFiltersData() {
+function GetFiltersData(filterUrlParameters) {
 	if (nrvConfig && nrvConfig.ReportIsLocked == true && nrvConfig.HideFiltersWhenLocked == true) {
 		jq$('#tab1 #loadingDiv').hide();
 		return;
 	}
 	var requestString = 'wscmd=getfiltersdata';
+	if (typeof (filterUrlParameters) === 'string')
+		requestString += filterUrlParameters;
 	AjaxRequest(urlSettings.urlRsPage, requestString, GotFiltersData, null, 'getfiltersdata');
 }
 

@@ -58,6 +58,13 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 		* Do query to custom url
 		*/
 		function customQuery(baseUrl, queryParams, options, errorOptions, invalidateInCacheParameter) {
+			var _queryParams = angular.extend({}, queryParams);
+			// apply izendaPageId$
+			if (typeof (window.izendaPageId$) !== 'undefined')
+				_queryParams['izpid'] = window.izendaPageId$;
+			if (typeof (window.angularPageId$) !== 'undefined')
+				_queryParams['anpid'] = window.angularPageId$;
+
 			var isPost = angular.isObject(options) && options.method === 'POST';
 
 			var postData = {};
@@ -65,9 +72,9 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 			if (!isPost) {
 				// GET request url:
 				url += '?';
-				for (var paramName in queryParams) {
-					if (queryParams.hasOwnProperty(paramName)) {
-						url += paramName + '=' + encodeURIComponent(queryParams[paramName]) + '&';
+				for (var paramName in _queryParams) {
+					if (_queryParams.hasOwnProperty(paramName)) {
+						url += paramName + '=' + encodeURIComponent(_queryParams[paramName]) + '&';
 					}
 				}
 				if (url.substring(url.length - 1) === '&') {
@@ -81,9 +88,9 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 			} else {
 				// POST request params string:
 				var postParamsString = 'urlencoded=true';
-				for (var paramName2 in queryParams) {
-					if (queryParams.hasOwnProperty(paramName2)) {
-						postParamsString += '&' + paramName2 + '=' + encodeURIComponent(queryParams[paramName2]);
+				for (var paramName2 in _queryParams) {
+					if (_queryParams.hasOwnProperty(paramName2)) {
+						postParamsString += '&' + paramName2 + '=' + encodeURIComponent(_queryParams[paramName2]);
 					}
 				}
 				postData = {
@@ -187,12 +194,6 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 				throw new Error('wsArgs: expected array, but got: ' + typeof (wsArgs));
 			}
 
-			// apply izendaPageId$
-			if (typeof (window.izendaPageId$) !== 'undefined')
-				params['izpid'] = window.izendaPageId$;
-			if (typeof (window.angularPageId$) !== 'undefined')
-				params['anpid'] = window.angularPageId$;
-
 			// set default error options if it is not defined:
 			var eOptions;
 			if (angular.isUndefined(errorOptions)) {
@@ -254,11 +255,108 @@ angular.module('izenda.common.query').factory('$izendaRsQuery', [
 			return count - i;
 		}
 
+		/**
+		 * Send post request and receive file attachment.
+		 */
+		function downloadFileRequest(method, url, parameters) {
+			return $q(function (resolve) {
+				if (typeof (Blob) !== 'undefined') {
+					// post request for download the file
+					var xhr = new XMLHttpRequest();
+					xhr.open(method, url, true);
+					xhr.responseType = 'arraybuffer';
+					xhr.onload = function () {
+						if (this.status === 200) {
+							var filename = "";
+							var disposition = xhr.getResponseHeader('Content-Disposition');
+							if (disposition && disposition.toLowerCase().indexOf('attachment') !== -1) {
+								var filenameRegex = /[Ff]ilename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+								var matches = filenameRegex.exec(disposition);
+								if (matches != null && matches[1])
+									filename = matches[1].replace(/['"]/g, '');
+							}
+							var type = xhr.getResponseHeader('Content-Type');
+
+							var blob = new Blob([this.response], { type: type });
+							if (typeof window.navigator.msSaveBlob !== 'undefined') {
+								// IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. 
+								// These URLs will no longer resolve as the data backing the URL has been freed."
+								window.navigator.msSaveBlob(blob, filename);
+								resolve();
+							} else {
+								var URL = window.URL || window.webkitURL;
+								var downloadUrl = URL.createObjectURL(blob);
+								if (filename) {
+									// use HTML5 a[download] attribute to specify filename
+									var a = document.createElement("a");
+									// safari doesn't support this yet
+									if (typeof a.download === 'undefined') {
+										window.location = downloadUrl;
+									} else {
+										a.href = downloadUrl;
+										a.target = '_blank';
+										a.download = filename;
+										document.body.appendChild(a);
+										a.click();
+										document.body.removeChild(a);
+									}
+								} else {
+									window.location = downloadUrl;
+								}
+								setTimeout(function () {
+									URL.revokeObjectURL(downloadUrl);
+									resolve();
+								}, 100); // cleanup
+							}
+						}
+					};
+
+					xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+					if (method.toLowerCase() === 'post')
+						xhr.send(angular.element.param(parameters));
+					else if (method.toLowerCase() === 'get')
+						xhr.send();
+					else
+						throw 'Unsupported request method: ' + method;
+				} else {
+					if (method.toLowerCase() === 'post') {
+						// old browser post request
+						var form = document.createElement("form");
+						form.action = url;
+						form.method = method;
+						form.target = "_blank";
+						if (parameters) {
+							for (var key in parameters) {
+								var input = document.createElement("textarea");
+								input.name = key;
+								input.value = typeof parameters[key] === "object" ? JSON.stringify(parameters[key]) : parameters[key];
+								form.appendChild(input);
+							}
+						}
+						form.style.display = 'none';
+						document.body.appendChild(form);
+						form.submit();
+						document.body.removeChild(form);
+					} else {
+						// old browser get request
+						var a = document.createElement("a");
+						a.href = url;
+						a.target = '_blank';
+						document.body.appendChild(a);
+						a.click();
+						document.body.removeChild(a);
+					}
+					resolve();
+				}
+			});
+		}
+
 		// PUBLIC API:
 		return {
 			cancelAllQueries: cancelAllQueries,
 			customQuery: customQuery,
 			rsQuery: rsQuery,
-			query: query
+			query: query,
+			downloadFileRequest: downloadFileRequest
 		};
 	}]);

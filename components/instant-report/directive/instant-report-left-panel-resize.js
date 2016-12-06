@@ -26,7 +26,7 @@ angular.module('izendaInstantReport').directive('izendaInstantReportLeftPanelRes
 					}
 					if (angular.isString(styleString))
 						angular.element.each(styleString.split(';'), function () {
-							if (this.trim().startsWith('width')) {
+							if (this.trim().indexOf('width') === 0) {
 								var widthArray = this.split(':');
 								var widthString = widthArray[1].trim();
 								width = parseInt(widthString.substring(0, widthString.length - 2));

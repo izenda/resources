@@ -23,13 +23,13 @@
     </div>
   </div>
 
-  <div izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.printingInProgress">
+  <div izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.exportProgress">
     <div class="modal-header">
-      <span ng-bind="'js_PrintingInProgress' | izendaLocale: 'Printing in progress...'" bind-once></span>
+      <span ng-bind="dashboardController.getWaitMessageHeaderText()"></span>
     </div>
     <div class="modal-body">
       <div class="container-fluid">
-        <span ng-bind="'js_FinishPrinting' | izendaLocale: 'Please finish printing before continue.'" bind-once></span>
+        <span ng-bind="dashboardController.getWaitMessageText()"></span>
       </div>
     </div>
   </div>

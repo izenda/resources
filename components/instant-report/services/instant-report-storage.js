@@ -154,6 +154,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	var isPageInitialized = false;
 	var isPageReady = false;
 	var existingReportLoadingSchedule = null;
+	var newReportLoadingSchedule = null;
 
 	var isPreviewSplashVisible = false;
 	var previewSplashText = $izendaLocale.localeText('js_WaitPreviewLoading', 'Please wait while preview is loading...');
@@ -304,23 +305,36 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * Find first table by property value.
+	 */
+	var _getTableByProperty = function (propertyName, value, caseIndependent) {
+		if (angular.isUndefined(propertyName))
+			throw 'propertyName parameter should be set.';
+		var datasources = getDataSources();
+		for (var i = 0; i < datasources.length; i++) {
+			var category = datasources[i];
+			for (var j = 0; j < category.tables.length; j++) {
+				var table = category.tables[j];
+				if (!table.hasOwnProperty(propertyName))
+					throw 'Table don\'t have property ' + propertyName;
+				var propertyValue = table[propertyName];
+				var compareValue = value;
+				if (propertyValue && caseIndependent)
+					propertyValue = (propertyValue + '').toLowerCase();
+				if (compareValue && caseIndependent)
+					compareValue = (compareValue + '').toLowerCase();
+				if (propertyValue === compareValue)
+					return table;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * Find table by given id
 	 */
 	var getTableById = function (id) {
-		var i = 0,
-		    datasources = getDataSources();
-		while (i < datasources.length) {
-			var j = 0,
-					tables = datasources[i].tables;
-			while (j < tables.length) {
-				var table = tables[j];
-				if (table.id === id)
-					return table;
-				j++;
-			}
-			i++;
-		}
-		return null;
+		return _getTableByProperty('id', id);
 	};
 
 	/**
@@ -329,16 +343,17 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * @returns {object} table object. 
 	 */
 	var getTableBySysname = function (sysname) {
-		var result = null;
-		angular.element.each(getDataSources(), function () {
-			var category = this;
-			angular.element.each(category.tables, function () {
-				if (this.sysname === sysname)
-					result = this;
-			});
-		});
-		return result;
+		return _getTableByProperty('sysname', sysname);
 	};
+
+	/**
+	 * Find table by name. (Case independent)
+	 * @param {string} name.
+	 * @returns {object} table object.
+	 */
+	var getTableByName = function (name) {
+		return _getTableByProperty('name', name, true);
+	}
 
 	/**
 	 * Find field by given id
@@ -1230,18 +1245,11 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	 * @param {Array} fields. Server side fields object.
 	 */
 	var convertAndAddFields = function (tableObject, fields) {
-		angular.element.each(fields, function (fieldName, field) {
-			var fieldObject = createFieldObject(fieldName, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
+		angular.element.each(fields, function (i, field) {
+			var fieldObject = createFieldObject(field.name, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
 				field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
 			autoUpdateFieldDescription(fieldObject);
 			tableObject.fields.push(fieldObject);
-		});
-		tableObject.fields.sort(function (field1, field2) {
-			if (field1.name > field2.name)
-				return 1;
-			if (field1.name < field2.name)
-				return -1;
-			return 0;
 		});
 		tableObject.lazy = false;
 	};
@@ -1462,6 +1470,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		});
 
 		// pivot
+		$izendaInstantReportPivots.syncPivotState(getAllFieldsInActiveTables());
 		var pivotConfig = $izendaInstantReportPivots.getPivotDataForSend();
 		if (!pivotConfig)
 			reportSetConfig.pivot = null;
@@ -1526,7 +1535,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			isPreviewSplashVisible = true;
 			var options = getOptions();
 			var reportSetToSend = createReportSetConfigForSend(options.previewTop);
-			$izendaInstantReportQuery.getNewReportSetPreview(reportSetToSend).then(function (data) {
+			$izendaInstantReportQuery.getReportSetPreviewQueued(reportSetToSend).then(function (data) {
 				previewHtml = data;
 				isPreviewSplashVisible = false;
 				getOptions().rowsRange = null;
@@ -1560,6 +1569,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		}
 		if (angular.isString(category) && category !== '') {
 			categoryToSave = category;
+		} else {
+			categoryToSave = '';
 		}
 		rs.reportName = nameToSave;
 		rs.reportCategory = categoryToSave;
@@ -1603,8 +1614,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return $q(function (resolve) {
 			var reportSetToSend = createReportSetConfigForSend();
 			reportSetToSend.options.applyPreviewTop = false;
-			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, exportType);
-			resolve(true);
+			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, exportType).then(function () {
+				resolve(true);
+			});
 		});
 	};
 
@@ -1615,8 +1627,9 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		return $q(function (resolve) {
 			var reportSetToSend = createReportSetConfigForSend();
 			reportSetToSend.options.applyPreviewTop = false;
-			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, 'print');
-			resolve(true);
+			$izendaInstantReportQuery.exportReportInNewWindow(reportSetToSend, 'print').then(function () {
+				resolve(true);
+			});
 		});
 	};
 
@@ -2566,6 +2579,43 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	}
 
 	/**
+	 * Initialize service for new report
+	 */
+	var newReport = function () {
+		return $q(function (resolve) {
+			if (!isPageInitialized) {
+				newReportLoadingSchedule = 'new!';
+				$log.debug('newReport scheduled');
+				resolve(false);
+				return;
+			}
+			
+			var promises = [];
+
+			// load schedule data with default config for new report
+			promises.push($izendaScheduleService.loadScheduleData());
+			promises.push($izendaShareService.loadShareData({ defaultShareConfig: true }));
+
+			// load default table if defined
+			if (angular.isString($izendaInstantReportSettings.defaultTable)) {
+				var table = getTableBySysname($izendaInstantReportSettings.defaultTable);
+				if (!table) {
+					table = getTableByName($izendaInstantReportSettings.defaultTable);
+				}
+				if (table) {
+					table.collapsed = false;
+					promises.push(applyTableActive(table));
+				}
+			}
+
+			// wait until completed all asynchronous operations
+			$q.all(promises).then(function () {
+				resolve();
+			});
+		});
+	};
+
+	/**
 	 * Load existing report
 	 */
 	var loadReport = function (reportFullName) {
@@ -2879,6 +2929,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		initializeExpressionTypes(), $izendaInstantReportVisualization.loadVisualizations()]).then(function () {
 			isPageInitialized = true;
 			if (angular.isString(existingReportLoadingSchedule)) {
+				// existing report
 				$log.debug('Start loading scheduled report', existingReportLoadingSchedule);
 				loadReport(existingReportLoadingSchedule).then(function () {
 					$log.debug('End loading scheduled report');
@@ -2889,7 +2940,19 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 					var timeSpent = (new Date()).getTime() - startInitializingTimestamp;
 					$log.debug('Page ready: ', timeSpent + 'ms');
 				});
+			} else if (angular.isString(newReportLoadingSchedule)) {
+				// new report
+				$log.debug('Start creating new report');
+				newReport().then(function () {
+					$log.debug('End creating new report');
+					newReportLoadingSchedule = null;
+					isPageReady = true;
+					$rootScope.$applyAsync();
+					var timeSpent = (new Date()).getTime() - startInitializingTimestamp;
+					$log.debug('Page ready: ', timeSpent + 'ms');
+				});
 			} else {
+				// default
 				isPageReady = true;
 				var timeSpent = (new Date()).getTime() - startInitializingTimestamp;
 				$log.debug('Page ready: ', timeSpent + 'ms');
@@ -2963,7 +3026,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		restoreDefaultColors: restoreDefaultColors,
 
 		getPreview: getPreview,
-
+		newReport: newReport,
 		loadReport: loadReport,
 
 		// charts

@@ -1237,6 +1237,8 @@
 										egOptions.shownIndex = index;
 										egOptions.show();
 										egOptions.style = style;
+
+										ReportScripting.registerPostRenderHandlers();
 									}
 
 									var x, y, w,
@@ -1278,7 +1280,8 @@
 										showClose: true,
 										orientation: "right|10%",
 										resizable: true,
-										movable: true
+										movable: true,
+										onshow: ReportScripting.registerPostRenderHandlers
 									}, true));
 								});
 								break;
@@ -1319,6 +1322,10 @@
 				}
 				else if (isFunnel) {
 					util.disperseFunnelLabels(s.chart.renderer.box);
+					var container = vis.container.find('.highcharts-container svg');
+					container.find('.highcharts-data-labels tspan').each(function () {
+						izenda.utils.html.adjustTextBlockInContainer(container, this);
+					});
 				}
 				else {
 					for (var f in s.chart.xAxis[0].ticks) {
@@ -1334,7 +1341,9 @@
 							columnIndex = VIS_COLUMNS.findIndex(function (d) { return d.name == nodeData.label; }),
 							link = vis.unitValue(nodeData, columnIndex, { sf: vis.fields.link });
 					if (VIS_COLUMNS[columnIndex].target) {
-						register(i, link);
+						if (vis.unitValue(nodeData, columnIndex, { sf: vis.fields.formatted }) !== "") {
+							register(i, link);
+						}
 					} else if (VIS_COLUMNS[columnIndex].url) {
 						registerLink(i, link);
 					}
@@ -1673,7 +1682,14 @@
 						area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
 						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
-						funnel: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: true } },
+						funnel: {
+						  width: "60%",
+							center: ["40%", "50%"],
+							cursor: 'pointer', 
+							point: { events: { click: itemClick } }, 
+							dataLabels: { 
+								enabled: true
+							} },
 						pie: {
 							size: "75%",
 							cursor: 'pointer',

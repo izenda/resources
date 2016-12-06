@@ -74,9 +74,11 @@ function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izend
 	/**
    * Run filters
    */
-	vm.initializeFilters = function () {
-		// start legacy code
-		GetFiltersData();
+	vm.initializeFilters = function (getFiltersFromQuery) {
+		if (getFiltersFromQuery)
+			GetFiltersData($izendaUrl.getFilterParamsString());
+		else
+			GetFiltersData();
 	};
 
 	/**
@@ -101,16 +103,17 @@ function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izend
 			vm.toggleFiltersPanel();
 		});
 
-		vm.initializeFilters();
+		vm.initializeFilters(false);
 
 		// 'refreshFilters' event handle
 		$izendaEvent.handleQueuedEvent('refreshFilters', $scope, vm, function () {
-			vm.initializeFilters();
+			vm.initializeFilters(true);
 		});
 
 		$izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
-			if (reloadDashboardLayout || updateFromSource)
-				vm.initializeFilters();
+			if (reloadDashboardLayout || updateFromSource) {
+				vm.initializeFilters(false);
+			}
 		});
 
 		_('#updateBtnP > a').click(function (event) {

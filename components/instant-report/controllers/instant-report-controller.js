@@ -78,6 +78,26 @@ function InstantReportController(
 		opened: true
 	};
 
+	vm.exportProgress = null;
+	vm.getWaitMessageHeaderText = function () {
+		if (vm.exportProgress === 'export') {
+			return $izendaLocale.localeText('js_ExportingInProgress', 'Exporting in progress.');
+		}
+		if (vm.exportProgress === 'print') {
+			return $izendaLocale.localeText('js_PrintingInProgress', 'Printing in progress.');
+		}
+		return '';
+	}
+	vm.getWaitMessageText = function () {
+		if (vm.exportProgress === 'export') {
+			return $izendaLocale.localeText('js_FinishExporting', 'Please wait till export is completed...');
+		}
+		if (vm.exportProgress === 'print') {
+			return $izendaLocale.localeText('js_FinishPrinting', 'Please finish printing before continue.');
+		}
+		return '';
+	}
+
 	/**
 	 * Set active panel
 	 */
@@ -398,25 +418,31 @@ function InstantReportController(
 	 * Print report buttons handler.
 	 */
 	vm.printReport = function (printType) {
-		$izendaInstantReportStorage.printReport(printType).then(function (result, message) {
-			if (!result) {
-				var reportSet = $izendaInstantReportStorage.getReportSet();
-				var rsReportName = reportSet.reportName;
-				$rootScope.$broadcast('izendaShowMessageEvent', [
-					$izendaLocale.localeTextWithParams(
-						'js_FailedPrintReport',
-						'Failed to print report "{0}". Error description: {1}.',
-						[rsReportName, message]),
-					$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error'),
-					'danger']);
-			}
-		});
+		vm.exportProgress = 'print';
+		$timeout(function () {
+			$izendaInstantReportStorage.printReport(printType).then(function (result, message) {
+				if (!result) {
+					var reportSet = $izendaInstantReportStorage.getReportSet();
+					var rsReportName = reportSet.reportName;
+					$rootScope.$broadcast('izendaShowMessageEvent', [
+						$izendaLocale.localeTextWithParams(
+							'js_FailedPrintReport',
+							'Failed to print report "{0}". Error description: {1}.',
+							[rsReportName, message]),
+						$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error'),
+						'danger']);
+				}
+				vm.exportProgress = null;
+			});
+			$scope.$applyAsync();
+		}, 500);
 	};
 
 	/**
 	 * Export report buttons handler
 	 */
 	vm.exportReport = function (exportType) {
+		vm.exportProgress = 'export';
 		$izendaInstantReportStorage.exportReport(exportType).then(function (result, message) {
 			if (!result) {
 				var reportSet = $izendaInstantReportStorage.getReportSet();
@@ -429,6 +455,7 @@ function InstantReportController(
 					$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'),
 					'danger']);
 			}
+			vm.exportProgress = null;
 		});
 	};
 
@@ -499,12 +526,7 @@ function InstantReportController(
 					$scope.$applyAsync();
 				});
 			} else {
-				// load schedule data with default config for new report
-				var scheduleDataPromise = $izendaScheduleService.loadScheduleData();
-				var shareDataPromise = $izendaShareService.loadShareData({
-					defaultShareConfig: true
-				});
-				$q.all([scheduleDataPromise, shareDataPromise]).then(function () {
+				$izendaInstantReportStorage.newReport().then(function () {
 					vm.isExistingReport = false;
 					vm.reportInfo = reportInfo;
 					$scope.$applyAsync();

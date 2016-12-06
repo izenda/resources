@@ -277,35 +277,24 @@ function renderSections(tableIndex, fields) {
 
 function renderFields(tableIndex, fields, sectionName) {
 	var html = "";
-	var fieldArray = new Array();
-	for (key in fields)
-		if (fields[key] != null && fields[key].type == sectionName)
-			fieldArray.push({ key: key, value: fields[key] });
-
-	fieldArray.sort(function (a, b) {
-		if (a.key < b.key) return -1;
-		if (a.key > b.key) return 1;
-		return 0;
-	});
-
-	for (var i = 0; i < fieldArray.length; i++)
-		html += renderField(tableIndex, fieldArray[i].key, fieldArray[i].value.sysname, fieldArray[i].value);
+	for (var i = 0; i < fields.length; ++i)
+		if (fields[i] != null && fields[i].type == sectionName)
+			html += renderField(tableIndex, fields[i]);
 	return html;
 }
 
-function renderField(tableIndex, fieldName, fieldId, fieldObj) {
+function renderField(tableIndex, fieldObj) {
 	var fid = createFieldIdentifier(tableIndex, fieldsIndex);
 	fieldObj.domId = fid;
 	var html = " \
-						<a class='field' href='#" + fieldName + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldId + "' typeGroup='" + fieldObj.typeGroup + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
-							<span class='preview-image'></span> \
-							</span> \
-							<span class='checkbox' style='margin-top: 3px; margin-right: 6px;'></span> \
-							<span class='field-name' style=''>" + fieldName + "</span> \
-              <span class='field-popup-trigger' style='float:right; margin-top: 2px; left:2px;' title='" + IzLocal.Res("js_Options", "Options") + "' fieldId='" + fieldId + "' style='float:right;'></span> \
-              <span style='visibility:hidden;  margin-top: 2px; left:2px; width:20px; float:right;height:0px;'>&nbsp;&nbsp;&nbsp;&nbsp;</span> \
-							<span class='clearfix'></span> \
-							</a> \ ";
+					<a class='field' href='#" + fieldObj.name + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldObj.sysname + "' typeGroup='" + fieldObj.typeGroup + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
+						<span class='preview-image'></span> \
+						<span class='checkbox' style='margin-top: 3px; margin-right: 6px;'></span> \
+						<span class='field-name' style=''>" + fieldObj.name + "</span> \
+						<span class='field-popup-trigger' style='float:right; margin-top: 2px; left:2px;' title='" + IzLocal.Res("js_Options", "Options") + "' fieldId='" + fieldObj.sysname + "' style='float:right;'></span> \
+						<span style='visibility:hidden;  margin-top: 2px; left:2px; width:20px; float:right;height:0px;'>&nbsp;&nbsp;&nbsp;&nbsp;</span> \
+						<span class='clearfix'></span> \
+					</a> \ ";
 	fieldsIndex++;
 	return html;
 }
@@ -1763,10 +1752,10 @@ function UpdateDataSources() {
 				JoinAlias: ''
 			};
 			var columns = new Array();
-			for (fieldKey in table.fields) {
-				var field = table.fields[fieldKey];
+			for (var i = 0; i < table.fields.length; ++i) {
+				var field = table.fields[i];
 				var column = {
-					FriendlyName: fieldKey,
+					FriendlyName: field.name,
 					DbName: field.sysname,
 					FilterFriendlyName: field.filterAlias
 				};

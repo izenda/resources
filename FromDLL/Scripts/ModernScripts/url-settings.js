@@ -65,9 +65,25 @@ UrlSettingsPaths = {
  * Url settings object. Contains information about izenda urls and report url parameters.
  */
 function UrlSettings() {
+	function _parseFilterParameters(url) {
+		var urlParams = url.data.param.query;
+		var result = [];
+		for (var paramName in urlParams) {
+			if (urlParams.hasOwnProperty(paramName)) {
+				if (paramName.match(/p\d+value[2]{0,1}/gi) != null) {
+					result.push([paramName, urlParams[paramName]]);
+				}
+			}
+		}
+		return result;
+	}
+
 	// start process url
 	var location = window.location.href;
 	var url = (typeof (jq$.url) == 'undefined') ? window.purl(location) : jq$.url(location);
+
+	// parse filter parameters
+	var filterParameters = _parseFilterParameters(url);
 
 	// parse report full name
 	var reportFullName = url.param('rn');
@@ -93,7 +109,8 @@ function UrlSettings() {
 	};
 
 	var result = jq$.extend({}, UrlSettingsPaths, {
-		reportInfo: reportInfo
+		reportInfo: reportInfo,
+		filterParameters: filterParameters
 	});
 	return result;
 }

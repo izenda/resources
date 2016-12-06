@@ -180,11 +180,9 @@
 			}
 		}
 
-		vis.collectTree();
-
-		if (!vis.metrics.length) {
-			jq$("#VIS_ID").text("No metric found");
-			return;
+		vis.metrics = [];
+		for (var i = 1; i < VIS_COLUMNS.length; ++i) {
+			vis.metrics.push(VIS_COLUMNS[i].name);
 		}
 
 		metricSelect.find("option").remove();
@@ -286,9 +284,11 @@
 				"visibility": "visible"
 			});
 
-		var land, grid, countries, borders, index, min, max;
-		function gc(i) { return countries[i % countries.length]; }
-		function gi(d) { return items.filter(function(i) { return shortName(d.name).toUpperCase() == vis.unitValue(i, 0).toUpperCase(); }); }
+		var land, grid, countries = [], countriesInReportOrder = [], borders, min, max;
+
+		function equalsString(a, b, ci) {
+			return ci ? a.toUpperCase() === b.toUpperCase() : a === b;
+		}
 
 		function draw() {
 			context.clearRect(0, 0, width, heightWithOffset);
@@ -324,34 +324,6 @@
 			context.strokeStyle = "#000";
 			context.stroke();
 
-			for (var i = 0; i < countries.length; i++) {
-				context.beginPath();
-				path(countries[i]);
-
-				var d = gc(i), i2 = gi(d);
-				var v = vis.unitValue(i2[0], metricValue);
-				var c = util.getMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
-				context.fillStyle = util.getRgb(c);
-				context.fill();
-
-				if (i == index) {
-					context.save();
-
-					path(countries[i]);
-					context.clip();
-
-					context.beginPath();
-					context.lineWidth = 2;
-					context.shadowColor = "rgb(20,20,20)";
-					context.strokeStyle = "rgb(20,20,20)";
-					context.shadowBlur = 20;
-					path(countries[i]);
-					context.stroke();
-
-					context.restore();
-				}
-			}
-
 			context.strokeStyle = "#fff";
 			context.lineWidth = 1;
 			context.beginPath();
@@ -361,31 +333,77 @@
 			context.strokeStyle = "rgb(20,20,20)";
 			context.lineWidth = 0.5;
 			context.beginPath();
-			if (countries.length > 0) {
-				path(countries[index]);
-			}
+			path(country);
 			context.stroke();
+
+			for (var i = 0; i < countries.length; i++) {
+				var country = countries[i];
+
+				context.beginPath();
+				path(country);
+
+				if (country.id == countriesInReportOrder[countryIndex].id) {
+					country.lastValue = vis.unitValue(items[itemIndex], metricValue);
+				}
+
+				if (typeof country.lastValue === 'undefined') {
+					for (var j = items.length - 1; j >= 0; j--) {
+						if (equalsString(vis.unitValue(items[j], 0), shortName(country.name), true)) {
+							country.lastValue = vis.unitValue(items[j], metricValue);
+						}
+					}
+				}
+
+				var v = country.lastValue;
+				var c = util.getMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
+				context.fillStyle = util.getRgb(c);
+				context.fill();
+
+				if (country.id == countriesInReportOrder[countryIndex].id) {
+					context.save();
+
+					path(country);
+					context.clip();
+
+					context.beginPath();
+					context.lineWidth = 2;
+					context.shadowColor = "rgb(20,20,20)";
+					context.strokeStyle = "rgb(20,20,20)";
+					context.shadowBlur = 20;
+					path(country);
+					context.stroke();
+
+					context.restore();
+				}
+			}
 		}
 
 		function checkStop() {
 			return stopped || !document.getElementById('VIS_ID');
 		}
 
+		var countryIndex = -1,
+			itemIndex = 0;
+
 		function transition() {
-			if (checkStop() || !countries.length) {
+			if (checkStop() || !countriesInReportOrder.length) {
 				return;
 			}
 
 			canvas.transition()
 				.duration(1000)
 				.each("start", function () {
-					var d = gc(index = (index + 1) % countries.length), i2 = gi(d),
-							fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter,
-							val = vis.unitValue(i2[0], metricValue);
-					title.text(shortName(d.name) + " (" + (fieldFormatter ? fieldFormatter(val, d, vis, metricValue) : val) + ")");
+					var item = items[itemIndex];
+					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
+					var name = vis.unitValue(item, 0);
+					var val = vis.unitValue(item, metricValue);
+					if (itemIndex == 0 || !equalsString(name, shortName(countriesInReportOrder[countryIndex].name), true)) {
+						countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
+					}
+					title.text(shortName(name) + " (" + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ")");
 				})
 				.tween("rotate", function () {
-					var p = d3.geo.centroid(countries[index]),
+					var p = d3.geo.centroid(countriesInReportOrder[countryIndex]),
 						r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
 					return function(t) {
 						if (checkStop()) {
@@ -396,24 +414,40 @@
 					};
 				})
 				.transition()
-				.each("end", transition);
+				.each("end", function () {
+					itemIndex = (itemIndex + 1) % items.length;
+					transition();
+				});
 		}
 
 		function startTransition(world, names) {
 			land = topojson.feature(world, world.objects.land);
 			grid = graticule();
-			countries = topojson.feature(world, world.objects.countries).features
-				.filter(function(d) {
-					var result = names.some(function(n) { return d.id == n.id ? (d.name = n.name) : undefined; });
-					return !result ? result
-						: items.some(function(it) { return shortName(d.name).toUpperCase() == vis.unitValue(it, 0).toUpperCase(); });
-				})
-				.sort(function(a, b) { return a.name.localeCompare(b.name); });
+			var features = topojson.feature(world, world.objects.countries).features
+				.filter(function (feature) { return names.some(function (n) { return feature.id == n.id && (feature.name = n.name); }); });
+			var lastItemName = null;
+			items.map(function (item) { return vis.unitValue(item, 0); })
+				.filter(function (name) { return name !== lastItemName && (lastItemName = name); })
+				.forEach(function (name) {
+					for (var i = 0; i < features.length; ++i) {
+						var feature = features[i];
+						if (equalsString(shortName(feature.name), name, true)) {
+							countriesInReportOrder.push(feature);
+							if (!countries.some(function (c) { c.id == feature.id })) {
+								countries.push(feature);
+							}
+							return;
+						}
+					}
+				});
+
 			borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
-			index = -1;
-			if (countries.length > 0) {
+			if (countriesInReportOrder.length > 0) {
 				min = d3.min(items, function (item) { return item.support[metricValue].o; });
 				max = d3.max(items, function (item) { return item.support[metricValue].o; });
+				if (Math.abs(max - min) < 0.0000001) {
+					max = min + 1;
+				}
 				transition();
 			} else {
 				draw();

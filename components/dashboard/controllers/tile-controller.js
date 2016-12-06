@@ -21,7 +21,8 @@
 		height: 1,
 		top: 100,
 		topString: '100',
-		flip: false
+		flip: false,
+		applyFilterParams: false
 	});
 
 angular
@@ -35,6 +36,7 @@ angular
 		'$log',
 		'$injector',
 		'$izendaUrl',
+		'$izendaRsQuery',
 		'$izendaCompatibility',
 		'$izendaCommonQuery',
 		'$izendaSettings',
@@ -57,6 +59,7 @@ function izendaTileController(
 	$log,
 	$injector,
 	$izendaUrl,
+	$izendaRsQuery,
 	$izendaCompatibility,
 	$izendaCommonQuery,
 	$izendaSettings,
@@ -357,6 +360,7 @@ function izendaTileController(
 
 			vm.top = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
 			vm.endTop = rpInfo.NativeTop && rpInfo.NativeTop > 0 ? rpInfo.NativeTop : 100;
+			vm.designerType = rpInfo.DesignerType;
 			updateParentTile();
 			vm.flipFront(true, true);
 		});
@@ -561,31 +565,10 @@ function izendaTileController(
 	* Print tile
 	*/
 	vm.printTile = function () {
-		var windowPrint = $window.open('', '', 'left=0,top=0,width=800,height=900,toolbar=0,scrollbars=0,status=0');
 
-		vm.dashboardSyncCompletedForTilePrintHandler = function () {
-			$izendaDashboardQuery.loadTileReportForPrint(vm.reportFullName)
-					.then(function (htmlData) {
-						$timeout(function () {
-							windowPrint.document.write(htmlData);
-							windowPrint.document.close();
-							windowPrint.focus();
-							// Block UI in Chrome while printing is in progress
-							if ('WebkitAppearance' in document.documentElement.style)
-								$scope.dashboardController.printingInProgress = true;
-							$timeout(function () {
-								windowPrint.print();
-								$scope.dashboardController.printingInProgress = false;
-								windowPrint.close();
-							}, 2000);
-						}, 0);
-					});
+		$scope.dashboardController.printDashboardAsHtml(vm.reportFullName).then(function () {
 			vm.flipFront(true, false);
-
-			vm.dashboardSyncCompletedForTilePrintHandler = null;
-		};
-
-		$izendaEvent.queueEvent('dashboardSyncEvent', ['tile-print']);
+		});
 	};
 
 	/**
@@ -597,9 +580,15 @@ function izendaTileController(
 			addParam += '&izpid=' + window.izendaPageId$;
 		if (typeof (window.angularPageId$) !== 'undefined')
 			addParam += '&anpid=' + window.angularPageId$;
-		var url = getAppendedUrl(vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)' + addParam);
-		$window.open(url, '_self');
-		vm.flipFront(true, false);
+		
+		// download the file
+		$scope.dashboardController.exportProgress = 'print';
+		$izendaRsQuery.downloadFileRequest('GET', vm.izendaUrl.settings.urlRsPage + '?rpn=' + vm.reportFullName + '&output=XLS(MIME)' + addParam).then(function () {
+			$scope.dashboardController.exportProgress = null;
+			vm.flipFront(true, false);
+			$izendaEvent.queueEvent('dashboardSyncEvent', ['tile-print']);
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -1029,11 +1018,14 @@ function izendaTileController(
 					top: vm.top,
 					contentWidth: tileWidth,
 					contentHeight: tileHeight,
-					forPrint: false
+					forPrint: false,
+					applyFilterParams: vm.applyFilterParams
 				}).then(function (htmlData) {
-					$izendaEvent.queueEvent('refreshFilters', [], true);
+					if (updateFromSourceReport)
+						$izendaEvent.queueEvent('refreshFilters', [], true);
 					applyTileHtml(htmlData);
 				});
+				vm.applyFilterParams = false;
 			}
 		}
 	}

@@ -162,31 +162,21 @@ function SRA_SaveReportClick(evt, reportNameId, formId, action) {
 }
 
 function SRA_CheckReport(rnParam, checkReportExist) {
-	if(checkReportExist==null)
-	  checkReportExist = true;
+	if (checkReportExist == null)
+		checkReportExist = true;
 	nameNodes = rnParam.split(jsResources.categoryCharacter);
 	var emptyName = false;
 	for (var index = 0; index < nameNodes.length; index++)
-	  if (nameNodes[index] == null || nameNodes[index].length == 0)
-	  emptyName = true;
-	if (emptyName)
-	{
+		if (nameNodes[index] == null || nameNodes[index].length == 0)
+			emptyName = true;
+	if (emptyName) {
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
 		ReportingServices.showOk(jsResources.ReportNameInvalid, TB_PropmtReportName);
 		return { canBeSaved: false };
 	}
-	var reportName = rnParam.toLowerCase();
-	var trimReportName = reportName;
-	while (trimReportName != null && trimReportName.length >0 && trimReportName.charAt(0) == ' ')
-	{
-		if (trimReportName.length == 1)
-			trimReportName = '';
-		else
-			trimReportName = trimReportName.slice(1-trimReportName.length);
-	}	
-	if (trimReportName == '')
-	{
+	var reportName = rnParam;
+	if (!reportName.trim()) {
 		ebc_cancelSubmiting = true;
 		tbPropmtReportNameData.forceNewNameOnSave = true;
 		ReportingServices.showOk(jsResources.EnterANameOfTheSavedReport, TB_PropmtReportName);

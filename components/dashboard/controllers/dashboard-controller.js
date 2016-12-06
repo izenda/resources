@@ -126,7 +126,25 @@ function IzendaDashboardController(
 
 	};
 
-	vm.printingInProgress = false;
+	vm.exportProgress = null;
+	vm.getWaitMessageHeaderText = function () {
+		if (vm.exportProgress === 'export') {
+			return $izendaLocale.localeText('js_ExportingInProgress', 'Exporting in progress.');
+		}
+		if (vm.exportProgress === 'print') {
+			return $izendaLocale.localeText('js_PrintingInProgress', 'Printing in progress.');
+		}
+		return '';
+	}
+	vm.getWaitMessageText = function () {
+		if (vm.exportProgress === 'export') {
+			return $izendaLocale.localeText('js_FinishExporting', 'Please wait till export is completed...');
+		}
+		if (vm.exportProgress === 'print') {
+			return $izendaLocale.localeText('js_FinishPrinting', 'Please finish printing before continue.');
+		}
+		return '';
+	}
 
 	////////////////////////////////////////////////////////
 	// scope helper functions:
@@ -253,18 +271,35 @@ function IzendaDashboardController(
 	/**
 	 * Print whole dashboard as HTML
 	 */
-	vm.printDashboardAsHtml = function () {
-		if ('WebkitAppearance' in document.documentElement.style)
-			vm.printingInProgress = true;
-			
-		// izpid and anpid will be added inside the ExtendReportExport method 
-		$timeout(function () {
-			var newWindow = ExtendReportExport(responseServer.OpenUrl, 'rs.aspx?p=htmlreport&print=1', 'aspnetForm', '', '', true);
-			newWindow.addEventListener("beforeunload", function (e) {
-				vm.printingInProgress = false;
-				$scope.$applyAsync();
-			}, false);
-		}, 500);
+	vm.printDashboardAsHtml = function (reportForPrint) {
+		return $q(function (resolve) {
+			var printUrl = $izendaUrl.settings.urlRsPage;
+			printUrl += '?p=htmlreport&print=1';
+			// print single tile if parameter is set:
+			if (angular.isString(reportForPrint) && reportForPrint !== '')
+				printUrl += '&reportPartName=' + encodeURIComponent(reportForPrint);
+
+			// izpid and anpid will be added inside the ExtendReportExport method 
+			var newWindow = ExtendReportExport(responseServer.OpenUrl, printUrl, 'aspnetForm', '', '', true);
+			vm.exportProgress = 'print';
+			$timeout(function () {
+				if ('WebkitAppearance' in document.documentElement.style) {
+					var intervalId = setInterval(function () {
+						if (!newWindow || newWindow.closed) {
+							clearInterval(intervalId);
+							intervalId = null;
+							vm.exportProgress = null;
+							resolve();
+							$scope.$applyAsync();
+						}
+					}, 500);
+				} else {
+					vm.exportProgress = null;
+					resolve();
+					$scope.$applyAsync();
+				}
+			}, 500);
+		});
 	};
 
 	/**
@@ -276,7 +311,13 @@ function IzendaDashboardController(
 			addParam += '&izpid=' + window.izendaPageId$;
 		if (typeof (window.angularPageId$) !== 'undefined')
 			addParam += '&anpid=' + window.angularPageId$;
-		$window.open($izendaUrl.settings.urlRsPage + '?output=PDF' + addParam, '_self');
+
+		// download the file
+		vm.exportProgress = 'print';
+		$izendaRsQuery.downloadFileRequest('GET', $izendaUrl.settings.urlRsPage + '?output=PDF' + addParam).then(function () {
+			vm.exportProgress = null;
+			$scope.$applyAsync();
+		});
 	};
 
 	/**
@@ -952,7 +993,8 @@ function IzendaDashboardController(
 						description: cell.ReportDescription,
 						top: cell.RecordsCount,
 						canBeLoaded: cell.CanBeLoaded,
-						maxRights: cell.MaxRights
+						maxRights: cell.MaxRights,
+						applyFilterParams: true
 					});
 					if (maxHeight < cell.Y + cell.Height)
 						maxHeight = cell.Y + cell.Height;
@@ -1104,7 +1146,7 @@ function IzendaDashboardController(
 	 */
 	function updateGalleryContainer() {
 		var tileContainerTop = vm.getRoot().offset().top;
-		vm.galleryContainerStyle['height'] = _($window.top).height() - tileContainerTop - 30;
+		vm.galleryContainerStyle['height'] = _($window).height() - tileContainerTop - 30;
 		$scope.$applyAsync();
 	}
 

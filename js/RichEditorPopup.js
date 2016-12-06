@@ -35,7 +35,7 @@ jq$(document).on('focusin', function (e) {
 });
 
 function CreateTextareaPopup(baseId, width, height) {
-	jq$('<div id="' + baseId + '_iz-richeditor-container"><textarea id="' + baseId + '__textarea"></textarea></div>').dialog({
+	var dlg = jq$('<div id="' + baseId + '_iz-richeditor-container"><textarea id="' + baseId + '__textarea"></textarea></div>').dialog({
 		width: width,
 		height: height + 80,
 		minWidth: 600,
@@ -52,6 +52,9 @@ function CreateTextareaPopup(baseId, width, height) {
 				jq$(this).remove();
 		}
 	});
+	//This is needed to get fullscreen mode working in IE11
+	if (dlg.length > 0 && dlg[0] && dlg[0].parentNode)
+		dlg[0].parentNode.style.overflow = 'visible';
 }
 
 function DisposeTextareaPopup(baseId) {

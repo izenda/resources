@@ -63,7 +63,7 @@ function RL_SearchInputStartTimeout(searchString) {
 }
 
 //Exchange data with server and list rendering methods--------------------------------------------
-var UseDefaultDialogs;
+var UseDefaultDialogs = false;
 var responseServer;
 var nrlConfigObj;
 var currentThId = 0;
@@ -95,7 +95,6 @@ function AcceptConfig(returnObj, id) {
 		window.location = getAppendedUrl(nrlConfigObj.SettingsLink);
 		return;
 	}
-	UseDefaultDialogs = nrlConfigObj.UseDefaultDialogs;
 	responseServer = new AdHoc.ResponseServer(nrlConfigObj.ResponseServerUrl, nrlConfigObj.TimeOut);
 	var reportDesignerLink = jq$("#newReportLink");
 	var dashboardDesignerLink = jq$("#newDashboardLink");

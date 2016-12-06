@@ -13,6 +13,17 @@
   <!-- message dialog -->
   <div ng-include="'Resources/components/common/templates/message.html'"></div>
 
+  <div izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="irController.exportProgress">
+    <div class="modal-header">
+      <span ng-bind="irController.getWaitMessageHeaderText()"></span>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">
+        <span ng-bind="irController.getWaitMessageText()"></span>
+      </div>
+    </div>
+  </div>
+
   <!-- left panel -->
   <div class="iz-inst-left-panel"
     style="width: 550px" data-style="width: 550px"

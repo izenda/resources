@@ -1565,45 +1565,11 @@ be a descendant of the grid when it is being dragged.
 				fontSize = 30;
 			}
 
-			var padding = 10, fontSizeLimit = 10, ellipsis = "…",
-				cX = contentDiv.offset().left + contentDiv.width() - padding,
-				cY = contentDiv.offset().top + contentDiv.height(),
-				vX = valueDiv.offset().left + valueDiv.width(),
-				vY = valueDiv.offset().top + valueDiv.height();
-
-			var originalValue = valueSpan.html();
-			var l = 0, r = originalValue.length, newLength = r;
-			var inprocess = (vY > cY || vX > cX);
-			while (inprocess) {
-				if (settings.props.dynamicFontSize && fontSize >= fontSizeLimit) {
-					if (vY > cY || vX > cX) {
-						fontSize -= 1;
-						if (fontSize >= fontSizeLimit) {
-							valueDiv.css('font-size', '{size}px'.format({ size: fontSize }));
-						}
-					} else {
-						inprocess = false;
-					}
-				} else {
-					if (vY > cY || vX > cX) {
-						r = newLength;
-						newLength = l + ((r - l) >> 1);
-						if (r - l == 1) {
-							inprocess = false;
-						}
-					} else {
-						l = newLength;
-						newLength = l + ((r - l) >> 1);
-						if (r - l == 1) {
-							inprocess = false;
-						}
-					}
-					valueSpan.html(originalValue.substr(0, newLength - 1) + ellipsis);
-				}
-
-				vX = valueDiv.offset().left + valueDiv.width();
-				vY = valueDiv.offset().top + valueDiv.height();
-			}
+			izenda.utils.html.adjustTextBlockInContainer(contentDiv, valueSpan, {
+				useDynamicFontSize: settings.props.dynamicFontSize,
+				maxFontSize: fontSize,
+				target: valueDiv
+			});
 		}
 
 		var valueField = VIS_COLUMNS[1],

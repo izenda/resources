@@ -286,7 +286,7 @@ function InstantReportPivotsController(
 				} else
 					i++;
 			}
-			$izendaInstantReportPivots.removeNotActiveFields(vm.activeFields);
+			$izendaInstantReportPivots.syncPivotState(vm.activeFields);
 		});
 	};
 }

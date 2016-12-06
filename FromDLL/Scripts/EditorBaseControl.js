@@ -56,9 +56,8 @@ function urldecode(s) {
   return decodeURIComponent(s).replace(/\+/g, ' ');
 }
 
-function EBC_Init(responseServerUrl, count, useDefaultDialogs, timeOut) {
+function EBC_Init(responseServerUrl, count, timeOut) {
 	quantityOfCallsInvalidate = count;
-	UseDefaultDialogs = useDefaultDialogs;
 	responseServer = new AdHoc.ResponseServer(responseServerUrl, timeOut);
 	AdHoc.ResponseServer.RegisterBeforeSubmitHandler("EBC_RenameControls()");
 	AdHoc.ResponseServer.RegisterAfterSubmitHandler("EBC_RenameControls(true)");

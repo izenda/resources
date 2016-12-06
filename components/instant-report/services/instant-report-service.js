@@ -3,14 +3,17 @@
  * this is singleton
  */
 angular.module('izendaInstantReport').factory('$izendaInstantReportQuery', [
+	'$q',
+	'$http',
 	'$log',
 	'$window',
 	'$izendaUrl',
 	'$izendaSettings',
 	'$izendaRsQuery',
-function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
+function ($q, $http, $log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 	'use strict';
-	var angularJq$ = angular.element;
+
+	var requestList = [];
 
 	/**
 	 * Get type group of field operator
@@ -136,21 +139,62 @@ function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 	}
 
 	/**
-	 * Send report set config to server and return it's preview.
+	 * Run reportSet preview request. If request R2 have come earlier that request R1 - R1 request cancels.
 	 */
-	function getNewReportSetPreview(reportSetConfig) {
-		var paramsString = JSON.stringify(reportSetConfig);
-		return $izendaRsQuery.query('getNewReportSetPreviewFromJson', [paramsString], {
+	function getReportSetPreviewQueued(reportSetConfig) {
+		// cancel previous queries
+		var i = 0;
+		for (var i = 0; i < requestList.length; i++) {
+			var request = requestList[i];
+			request.canceller.resolve();
+		}
+		requestList = [];
+
+		// we will return this deferred object:
+		var resolver = $q.defer();
+
+		// prepare params
+		var paramsArray = [
+			'iic=1', // invalidate in cache
+			'urlencoded=true',
+			'wscmd=getNewReportSetPreviewFromJson',
+			'wsarg0=' + encodeURIComponent(JSON.stringify(reportSetConfig))
+		];
+		if (typeof (window.izendaPageId$) !== 'undefined')
+			paramsArray.push('izpid=' + window.izendaPageId$);
+		if (typeof (window.angularPageId$) !== 'undefined')
+			paramsArray.push('anpid=' + window.angularPageId$);
+
+		// create request config
+		var canceller = $q.defer();
+		var req = {
+			method: 'POST',
+			url: $izendaUrl.settings.urlRsPage,
+			timeout: canceller.promise,
 			dataType: 'text',
+			data: paramsArray.join('&'), // query parameters
 			headers: {
 				'Content-Type': 'text/html'
-			},
-			method: 'POST'
-		}, {
-			handler: function () {
-				return 'Failed to get report set preview';
 			}
-		}, true);
+		};
+
+		// add request to current requests list
+		requestList.push({
+			canceller: canceller,
+			resolver: resolver
+		});
+
+		// run query
+		$http(req).then(function (response) {
+			resolver.resolve(response.data);
+		}, function (response) {
+			if (response.status > 0) {
+				// handle errors:
+				$rootScope.$broadcast('izendaShowNotificationEvent', ['Failed to load preview from server', 'Error']);
+			}
+			resolver.reject(data);
+		});
+		return resolver.promise;
 	}
 
 	/**
@@ -190,38 +234,67 @@ function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 	};
 
 	/**
+	 * Open window for print.
+	 */
+	function openPrintWindow(url, parameters, resolve) {
+		// open html print window
+		var form = document.createElement("form");
+		form.action = $izendaUrl.settings.urlRsPage;
+		form.method = 'POST';
+		// set custom (our) window as target window
+		form.target = 'form-target';
+		if (parameters) {
+			for (var key in parameters) {
+				var input = document.createElement("textarea");
+				input.name = key;
+				input.value = typeof parameters[key] === "object" ? JSON.stringify(parameters[key]) : parameters[key];
+				form.appendChild(input);
+			}
+		}
+		form.style.display = 'none';
+		document.body.appendChild(form);
+
+		// open window for form and submit for into that window
+		var formWindow = window.open('', 'form-target', '');
+		form.submit();
+
+		// workaroud for webkit ajax request block
+		if ('WebkitAppearance' in document.documentElement.style) {
+			var intervalId = setInterval(function () {
+				if (!formWindow || formWindow.closed) {
+					clearInterval(intervalId);
+					intervalId = null;
+					resolve();
+				}
+			}, 500);
+		} else
+			resolve();
+	}
+
+	/**
 	 * Open url in new window. 
 	 */
 	function exportReportInNewWindow(reportSetToSend, exportType) {
-		var openPostWindow = function (verb, url, data, target) {
-			var form = document.createElement("form");
-			form.action = url;
-			form.method = verb;
-			form.target = target || "_self";
-			if (data) {
-				for (var key in data) {
-					var input = document.createElement("textarea");
-					input.name = key;
-					input.value = typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key];
-					form.appendChild(input);
-				}
-			}
-			form.style.display = 'none';
-			document.body.appendChild(form);
-			form.submit();
-			document.body.removeChild(form);
-		};
+		return $q(function (resolve) {
+			// create url for export
+			var urlParams = {
+				'wscmd': exportType === 'print' ? 'printReportSet' : 'exportReportSet',
+				'wsarg0': JSON.stringify(reportSetToSend),
+				'wsarg1': exportType
+			};
+			if (typeof ($window.izendaPageId$) !== 'undefined')
+				urlParams['izpid'] = $window.izendaPageId$;
 
-		// create url for export
-		var urlParams = {
-			'wscmd': exportType === 'print' ? 'printReportSet' : 'exportReportSet',
-			'wsarg0': JSON.stringify(reportSetToSend),
-			'wsarg1': exportType
-		};
-		if (typeof ($window.izendaPageId$) !== 'undefined')
-			urlParams['izpid'] = $window.izendaPageId$;
-		// open window
-		openPostWindow('POST', $izendaUrl.settings.urlRsPage, urlParams, '_blank');
+			if (exportType !== 'print') {
+				// export file
+				$izendaRsQuery.downloadFileRequest('POST', $izendaUrl.settings.urlRsPage, urlParams).then(function () {
+					resolve();
+				});
+			} else {
+				// print html
+				openPrintWindow($izendaUrl.settings.urlRsPage, urlParams, resolve);
+			}
+		});
 	}
 
 	function getVisualizationConfig() {
@@ -524,7 +597,7 @@ function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 		if (simpleJoins) {
 			// create tablenames
 			var tableNames = [];
-			angularJq$.each(tables, function () {
+			angular.element.each(tables, function () {
 				tableNames.push(this.sysname);
 			});
 			queryParams['tbl0'] = tableNames.join('\'');
@@ -568,7 +641,7 @@ function ($log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 		getFieldsInfo: getFieldsInfo,
 		findInDatasources: findInDatasources,
 		loadReport: loadReport,
-		getNewReportSetPreview: getNewReportSetPreview,
+		getReportSetPreviewQueued: getReportSetPreviewQueued,
 		saveReportSet: saveReportSet,
 		setReportAsCrs: setReportAsCrs,
 		exportReportInNewWindow: exportReportInNewWindow,

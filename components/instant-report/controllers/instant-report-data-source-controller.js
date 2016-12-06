@@ -264,7 +264,7 @@ function InstantReportDataSourceController(
 		if (!field)
 			return;
 		var needToCheck = !field.checked;
-		var pivotsEnabled = $izendaInstantReportPivots.isPivotEnabled();
+		var pivotsEnabled = $izendaInstantReportPivots.isPivotValid();
 
 		$izendaInstantReportStorage.applyFieldChecked(field, needToCheck, pivotsEnabled).then(function () {
 			$izendaInstantReportStorage.updateVisualGroupFieldOrders();

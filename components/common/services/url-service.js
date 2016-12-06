@@ -189,8 +189,20 @@
 		// start ping
 		$izendaPing.startPing();
 
+		function getFilterParamsString() {
+			var requestString = '';
+			if (urlSettings.filterParameters.length > 0) {
+				for (var i = 0; i < urlSettings.filterParameters.length; i++) {
+					var paramObject = urlSettings.filterParameters[i];
+					requestString += '&' + paramObject[0] + '=' + encodeURIComponent(paramObject[1]);
+				}
+			}
+			return requestString;
+		}
+
 		return {
 			settings: urlSettings,
+			getFilterParamsString: getFilterParamsString,
 			extractReportName: extractName,
 			extractReportCategory: extractCategory,
 			extractReportPartNames: extractReportPart,

@@ -75,7 +75,7 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 		};
 		
 		/////////////////////////////////////////
-		// cell value functinos
+		// cell value functions
 		/////////////////////////////////////////
 		
 		/**
@@ -86,10 +86,10 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 		};
 
 		/**
-		 * Check if pivot was set for report.
-		 * @returns {boolean} 
+		 * Check is pivot added and valid.
+		 * @returns {boolean} is valid
 		 */
-		var isPivotEnabled = function() {
+		var isPivotValid = function () {
 			return angular.isObject(pivotConfig.pivotColumn) && pivotConfig.cellValues.length > 0;
 		};
 
@@ -147,6 +147,18 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 			}
 		};
 
+		/**
+		 * Synchronizes pivot
+		 */
+		var syncPivotState = function (activeFieldsInActiveTables) {
+			removeNotActiveFields(activeFieldsInActiveTables);
+		};
+
+		/**
+		 * Remove pivot column and pivot cell if corresponging fields are no
+		 * longer available.
+		 * @param {array} array of currently active fields.
+		 */
 		var removeNotActiveFields = function (activeFieldsInActiveTables) {
 			var isFieldInList = function(field, fieldList) {
 				if (!angular.isArray(fieldList))
@@ -168,16 +180,6 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 				}
 				j++;
 			}
-		};
-
-		/**
-		 * Check is pivot added and valid.
-		 * @returns {boolean} is valid
-		 */
-		var isPivotValid = function() {
-			if (pivotConfig.pivotColumn === null)
-				return false;
-			return pivotConfig.cellValues.length > 0;
 		};
 
 		/////////////////////////////////////////
@@ -207,7 +209,6 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 		return {
 			getPivotsPanelOpened: getPivotsPanelOpened,
 			setPivotsPanelOpened: setPivotsPanelOpened,
-			isPivotEnabled: isPivotEnabled,
 			getPivotColumn: getPivotColumn,
 			getPivotOptions: getPivotOptions,
 			setPivotColumn: setPivotColumn,
@@ -222,7 +223,7 @@ angular.module('izendaInstantReport').factory('$izendaInstantReportPivots', [
 			getPivotDataForSend: getPivotDataForSend,
 			loadPivotData: loadPivotData,
 			isPivotValid: isPivotValid,
-			removeNotActiveFields: removeNotActiveFields
+			syncPivotState: syncPivotState
 		};
 	}
 ]);
