@@ -458,6 +458,15 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	};
 
 	/**
+	 * Check if active fields contains binary field.
+	 */
+	var isActiveFieldsContainsBinary = function () {
+		return angular.element.grep(getAllActiveFields(), function (field) {
+			return isBinaryField(field);
+		}).length > 0;
+	};
+
+	/**
 	 * Works like each. Iterate through active fields.
 	 */
 	var eachActiveFields = function (fieldHandler, context) {
@@ -492,10 +501,12 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	/**
 	 * Check if functions allowed to field
 	 */
-	var allowFieldFunctions = function (field) {
+	var isBinaryField = function (field) {
+		if (!angular.isObject(field))
+			return false;
 		if (angular.isObject(field.expressionType) && field.expressionType.value !== '...')
-			return ['Binary', 'Other', 'None'].indexOf(field.expressionType) < 0;
-		return field.sqlType !== 'Text' && field.sqlType !== 'Image';
+			return ['Binary', 'Other', 'None'].indexOf(field.expressionType) >= 0;
+		return field.sqlType === 'Text' || field.sqlType === 'Image';
 	}
 
 	/**
@@ -567,7 +578,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 	var resetAutoGroups = function () {
 		// check group function:
 		eachActiveFields(function (field) {
-			if (allowFieldFunctions(field)) {
+			if (!isBinaryField(field)) {
 				field.groupByFunction = getGroupByValue(field, 'NONE');
 				updateFieldFormats(field);
 			}
@@ -586,7 +597,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		}
 		// check group function:
 		eachActiveFields(function (field) {
-			if (!allowFieldFunctions(field))
+			if (isBinaryField(field))
 				return;
 			if (!isFieldGrouped(field)) {
 				field.groupByFunction = getGroupByValue(field, 'GROUP');
@@ -723,7 +734,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		var hasGroup = isReportUseGroup();
 
 		eachActiveFields(function (field) {
-			if (hasGroup && !allowFieldFunctions(field)) {
+			if (hasGroup && isBinaryField(field)) {
 				// if field have sql type which can't be grouped
 				field.validateMessages.push({
 					messageType: 'danger',
@@ -2235,7 +2246,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 			var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'NONE';
 			var groupSubtotalToApply = angular.isString(defaultSubtotalGroupString) ? defaultSubtotalGroupString : 'DEFAULT';
 
-			if (!allowFieldFunctions(field)) {
+			if (isBinaryField(field)) {
 				// if field type doesn't support group by.
 				field.groupByFunctionOptions = [EMPTY_FIELD_GROUP_OPTION];
 				field.groupByFunction = EMPTY_FIELD_GROUP_OPTION;
@@ -2338,7 +2349,7 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		syncFilters();
 
 		// apply/reset autogroups
-		if (getActiveTables().length === 0) {
+		if (getActiveTables().length === 0 || isActiveFieldsContainsBinary()) {
 			resetAutoGroups();
 		} else {
 			applyAutoGroups();
@@ -3020,6 +3031,8 @@ function ($injector, $window, $q, $log, $sce, $rootScope, $izendaUtil, $izendaUr
 		applyFieldVisible: applyFieldVisible,
 		applyFieldBold: applyFieldBold,
 		applyVisualGroup: applyVisualGroup,
+		isBinaryField: isBinaryField,
+		isActiveFieldsContainsBinary: isActiveFieldsContainsBinary,
 		updateVisualGroupFieldOrders: updateVisualGroupFieldOrders,
 		swapFields: swapFields,
 		moveFieldToPosition: moveFieldToPosition,

@@ -21,6 +21,7 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 			scope: {
 				width: '@',
 				height: '@',
+				updateCounter: '=',
 				playTimeout: '=',
 				playStarted: '=',
 				playStopOnComplete: '=',
@@ -404,6 +405,13 @@ angular.module('izendaDashboard').directive('izendaGallery', [
 				// handle fullscreen
 				$scope.$watch('isFullScreen', function () {
 					$scope.toggleFullScreen();
+				});
+
+				// handler update
+				$scope.$watch('updateCounter', function (newVal) {
+					if (!newVal || newVal < 0)
+						return;
+					$scope.update();
 				});
 
 				// handle activate/deactivate gallery

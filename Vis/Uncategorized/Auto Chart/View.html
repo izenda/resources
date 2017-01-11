@@ -507,6 +507,7 @@
 	})();
 
 	(function ExecuteVIS_ID() {
+		var urlSettings = UrlSettings();
 		var width = 720, height = 500;
 		var util = window.ReportScripting, services = window.ReportingServices, vis,
 			isThumbnails = (document.URL === 'about:blank');
@@ -938,7 +939,7 @@
 					item.append(titlebox);
 					titlebox.append(placeholder);
 					placeholder.append(jq$('<img></img>')
-						.attr("src", type.thumbnail)
+						.attr("src", (urlSettings.urlBase ? urlSettings.urlBase + '/' : '') + type.thumbnail)
 					);
 					typeControl.append(item);
 					setTypeControlValue(s.props.type);
@@ -1080,6 +1081,8 @@
 		}
 
 		function registerLabelEvents() {
+			var urlSettings = UrlSettings();
+
 			function fixPosition(pos, fix) {
 				pos.left += fix.left;
 				pos.top += fix.top;
@@ -1139,8 +1142,12 @@
 				}, time / tickCount);
 			}
 
-			function registerLink(index, link) {
-				jq$(elements[index])
+			function registerLink(index, name, link) {
+				var itemAxisLabel = jq$(elements[index]);
+				if (itemAxisLabel.text() != name)
+					return;
+
+				itemAxisLabel
 					.bind("click", function (e) {
 						window.open(link, '_blank');
 					})
@@ -1149,12 +1156,16 @@
 						services.tipOn(this, "Open '" + s.chartOptions.usedData[index].name + "' a new tab/window");
 					});
 			}
-			function register(index, subreportlink) {
+			function register(index, name, subreportlink) {
 				var style = s.props.subreportMode;
 				if (style == "EmbeddedDetail" && (vis.isDashboards || s.isVml))
 					style = "DetailLinkPopup";
 
-				jq$(elements[index])
+				var itemAxisLabel = jq$(elements[index]);
+				if (itemAxisLabel.text() != name)
+					return;
+
+				itemAxisLabel
 					.bind("click", function() {
 						function getContext() {
 							return {
@@ -1175,7 +1186,6 @@
 							};
 						}
 
-						var urlSettings = UrlSettings();
 						var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
 							rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
 							rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + "&mw=1&paging=0&reportonly=1";
@@ -1339,13 +1349,14 @@
 				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
 					var nodeData = s.chartOptions.usedData[i],
 							columnIndex = VIS_COLUMNS.findIndex(function (d) { return d.name == nodeData.label; }),
+							name = nodeData.name,
 							link = vis.unitValue(nodeData, columnIndex, { sf: vis.fields.link });
 					if (VIS_COLUMNS[columnIndex].target) {
 						if (vis.unitValue(nodeData, columnIndex, { sf: vis.fields.formatted }) !== "") {
-							register(i, link);
+							register(i, name, link);
 						}
 					} else if (VIS_COLUMNS[columnIndex].url) {
-						registerLink(i, link);
+						registerLink(i, name, link);
 					}
 				}
 			}
@@ -1408,7 +1419,8 @@
 				});
 				series.push(getSerie(data, vis.metrics.indexOf(metricValue)));
 			} else {
-				for (var i = 0; i < vis.metrics.length; i++) {
+				var seriesCount = vis.metrics.length;
+				for (var i = 0; i < seriesCount; i++) {
 					yaxis.push({
 						labels: { style: { color: getItem(colors, 0) } },
 						title: { text: null },
@@ -1416,11 +1428,14 @@
 						max: zero ? null : yAxisMaxs.All,
 						gridLineInterpolation: polar ? 'polygon' : null
 					});
-					series.push(getSerie(data, i));
+					var serie = getSerie(data, i);
+					serie.index = !stacked ? i : seriesCount - i - 1;
+					series.push(serie);
 				}
 			}
 		}
 
+		var isCombineBottom = false;
 		function getSerie(data, index) {
 			var pieFamily = (type == "pie" || type == "pie-donut");
 			if (pieFamily) {
@@ -1474,12 +1489,14 @@
 				var pc = !single
 					? getItem(colors, index)
 					: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
-
+				isCombineBottom = true;
+				var actualData = data.slice(0, bIndex);
+				actualData.push({ name: 'Others', label: data[i].label });
 				items.push({
 					name: 'Others',
 					yAxis: i,
 					y: sum,
-					data: data,
+					data: actualData,
 					others: true,
 					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
 						min: yAxisMins[index],
@@ -1518,28 +1535,33 @@
 				t = types[s.props.type].name,
 				m = metricSelect.find('option:selected').text(),
 				zoom = s.props.zoom;
+			isCombineBottom = false;
 			getSeries((s.chartOptions = o).data.children, yaxis, series);
 
 			if (s.options.series && s.options.series.length) {
 				for (var i = 0; i < s.options.series.length; i++)
 					s.options.series[i] = series[i];
 			} else {
-				if (VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0) {
-					for (var i = Math.min(s.props.visibility.length, series.length) - 1; i > -1; i--) {
-						if (!s.props.visibility[i])
-							series.removeAt(i);
-					}
-				}
-
 				s.options.series = series;
 			}
 
-			if (!VIS_CONTEXT.toImage && s.props.visibility && s.props.visibility.length > 0)
-				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length); i++)
-					s.options.series[i].visible = s.props.visibility[i];
+			function setSeriesProperty(series, index, name, value) {
+				var seriesCount = series.length;
+				for (var i = 0; i < seriesCount; ++i) {
+					var serie = series[i];
+					if (serie.index == index) {
+						serie[name] = value;
+						return;
+					}
+				}
+			}
+
+			if (s.props.visibility && s.props.visibility.length > 0)
+				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
+					setSeriesProperty(s.options.series, i, 'visible', s.props.visibility[i]);
 			if (typeof s.props.lineStepMode == "string" && ((type == "line" && !polar) || type == "area"))
 				for (var i = 0; i < s.options.series.length; i++)
-					s.options.series[i].step = s.props.lineStepMode;
+					setSeriesProperty(s.options.series, i, 'step', s.props.lineStepMode);
 
 			s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
 			s.options.plotOptions.pie.innerSize = donut ? "55%" : 0;
@@ -1561,10 +1583,6 @@
 					updateRefreshButton();
 				}
 			};
-
-			var seriesCount = s.options.series.length,
-				itemsInSeries = (seriesCount > 0) ? s.options.series[0].data.length : 0,
-				itemsOnScreen = (metricValue == "All" && types[s.props.type].name == "column") ? seriesCount * itemsInSeries : itemsInSeries;
 
 			execBreadcrumb(o.data);
 			vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())));
@@ -1600,6 +1618,9 @@
 						});
 					vs.find("#VIS_ID").css("height", "");
 				});
+				if (isCombineBottom) {
+					vis.container.find('.highcharts-series path:last-child').css('cursor', 'default');
+				}
 			} catch (err) {
 				if (/Highcharts\serror\s#19/.test(err)) {
 					showInsufficientWidth(width, height);
@@ -1672,7 +1693,8 @@
 						lineWidth: polar ? 0 : 1
 					},
 					legend: {
-						enabled: true
+						enabled: true,
+						reversed: stacked
 					},
 					plotOptions: {
 						column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
@@ -1734,13 +1756,19 @@
 							var d = this.point.data[this.point.x];
 							html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
 							if (metricValue == "All") {
+								var n = 0, m = 1;
+								if (type == 'column' && stacked) {
+									n = vis.metrics.length - 1; m = -1;
+								}
 								for (var i = 0; i < vis.metrics.length; i++) {
-									var value = this.point.others ? this.point.y : vis.unitValue(d, vis.metrics[i]);
-									var titleStyle = i == this.series._i ? ' style="font-weight:bold;"' : '';
-									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == vis.metrics[i]; }).formatter;
-									if (fieldFormatter) value = fieldFormatter(value, d, vis, vis.metrics[i]);
+									var index = (i - n) * m,
+											metric = vis.metrics[index];
+									var value = this.point.others ? this.point.y : vis.unitValue(d, metric);
+									var titleStyle = index == this.series._i ? ' style="font-weight:bold;"' : '';
+									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metric; }).formatter;
+									if (fieldFormatter) value = fieldFormatter(value, d, vis, metric);
 									html.push('<span style="color:{color};">\u25CF</span><span{titleStyle}> {title}: </span><span style="font-weight:bold;">{value}</span>'
-										.format({ color: getItem(colors, i), titleStyle: titleStyle, title: vis.metrics[i], value: value }));
+										.format({ color: getItem(colors, index), titleStyle: titleStyle, title: metric, value: value }));
 								}
 							} else {
 								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;

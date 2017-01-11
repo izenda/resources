@@ -2,10 +2,10 @@
 
   <!-- dashboard background -->
   <div izenda-dashboard-background background-color="toolbarController.izendaBackgroundColor"
-    background-image="toolbarController.izendaBackgroundImageUrl"
-    hue-rotate="toolbarController.hueRotate"
-    ng-show="toolbarController.dashboardsAllowedByLicense"
-    background-image-repeat="toolbarController.izendaBackgroundImageRepeat">
+       background-image="toolbarController.izendaBackgroundImageUrl"
+       hue-rotate="toolbarController.hueRotate"
+       ng-show="toolbarController.dashboardsAllowedByLicense"
+       background-image-repeat="toolbarController.izendaBackgroundImageRepeat">
   </div>
 
   <!-- notifications -->
@@ -25,13 +25,11 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
-        ng-click="toolbarController.closeScheduleDialog(false)"
-        ng-bind="'js_Cancel' | izendaLocale: 'Cancel'">
-      </button>
+              ng-click="toolbarController.closeScheduleDialog(false)"
+              ng-bind="'js_Cancel' | izendaLocale: 'Cancel'"></button>
       <button type="button" class="btn btn-izenda-dark izenda-width-100"
-        ng-click="toolbarController.closeScheduleDialog(true)"
-        ng-bind="'js_Ok' | izendaLocale: 'OK'">
-      </button>
+              ng-click="toolbarController.closeScheduleDialog(true)"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 
@@ -49,19 +47,17 @@
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
-        ng-click="toolbarController.closeShareDialog(false)"
-        ng-bind="'js_Cancel' | izendaLocale: 'Cancel'">
-      </button>
+              ng-click="toolbarController.closeShareDialog(false)"
+              ng-bind="'js_Cancel' | izendaLocale: 'Cancel'"></button>
       <button id="shareSaveButton" type="button" class="btn btn-izenda-dark izenda-width-100"
-        ng-click="toolbarController.closeShareDialog(true)"
-        ng-bind="'js_Ok' | izendaLocale: 'OK'">
-      </button>
+              ng-click="toolbarController.closeShareDialog(true)"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 
   <!-- send email -->
   <div izenda-bootstrap-modal opened="toolbarController.sendEmailState.opened"
-    ng-show="toolbarController.dashboardsAllowedByLicense">
+       ng-show="toolbarController.dashboardsAllowedByLicense">
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
@@ -72,19 +68,19 @@
     <div class="modal-body" ng-hide="toolbarController.sendEmailState.isLoading">
       <form ng-submit="toolbarController.hideEmailModal(true)">
         <div class="alert alert-danger" role="alert"
-          ng-show="toolbarController.sendEmailState.errorOccured">
+             ng-show="toolbarController.sendEmailState.errorOccured">
           <div ng-repeat="error in toolbarController.sendEmailState.errors"
-            ng-bind="error">
+               ng-bind="error">
           </div>
         </div>
         <span ng-bind="toolbarController.sendEmailState.type"></span>
         <div class="form-group">
           <label for="izendaDashboardModalSendEmail" class="col-sm-2 control-label"
-            ng-bind="'js_Email' | izendaLocale: 'Email'" bind-once>
+                 ng-bind="'js_Email' | izendaLocale: 'Email'" bind-once>
           </label>
           <div class="col-sm-10">
             <input type="text" class="form-control" id="izendaDashboardModalSendEmail"
-              ng-model="toolbarController.sendEmailState.email" placeholder="Email">
+                   ng-model="toolbarController.sendEmailState.email" placeholder="Email">
           </div>
         </div>
       </form>
@@ -98,62 +94,58 @@
     </div>
     <div class="modal-footer" ng-hide="toolbarController.sendEmailState.isLoading">
       <button type="button" class="btn btn-default" data-dismiss="modal"
-        ng-click="toolbarController.hideEmailModal(false)"
-        ng-bind="'js_close' | izendaLocale: 'Close'">
-      </button>
+              ng-click="toolbarController.hideEmailModal(false)"
+              ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       <button type="button" class="btn btn-izenda-dark"
-        ng-click="toolbarController.hideEmailModal(true)"
-        ng-bind="'js_Ok' | izendaLocale: 'OK'">
-      </button>
+              ng-click="toolbarController.hideEmailModal(true)"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 
   <!-- select background image modal dialog -->
   <div izenda-bootstrap-modal opened="toolbarController.selectBackgroundImageModalOpened"
-    ng-show="toolbarController.dashboardsAllowedByLicense">
+       ng-show="toolbarController.dashboardsAllowedByLicense">
     <div class="modal-body">
       <form>
         <div class="alert alert-info small" role="alert"
-          ng-bind="'js_BackgroundVisibleWarning' | izendaLocale: 'Background will be visible only in this browser'" bind-once>
+             ng-bind="'js_BackgroundVisibleWarning' | izendaLocale: 'Background will be visible only in this browser'" bind-once>
         </div>
         <div class="checkbox">
           <label>
             <input type="checkbox" ng-model="toolbarController.izendaBackgroundImageRepeat"
-              ng-true-value="false" ng-false-value="true"> stretch image
+                   ng-true-value="false" ng-false-value="true"> stretch image
           </label>
         </div>
         <div class="radio" ng-hide="!toolbarController.isStorageAvailable">
           <label>
             <input type="radio" name="a1" checked="checked"
-              ng-model="toolbarController.backgroundModalRadio" ng-value="'url'" />
+                   ng-model="toolbarController.backgroundModalRadio" ng-value="'url'" />
             <span ng-bind="'js_ImageUrl' | izendaLocale: 'Image url'" bind-once></span>
           </label>
         </div>
         <input type="text" class="form-control"
-          ng-model="toolbarController.izendaBackgroundImageUrl"
-          ng-disabled="toolbarController.backgroundModalRadio == 'file'" />
+               ng-model="toolbarController.izendaBackgroundImageUrl"
+               ng-disabled="toolbarController.backgroundModalRadio == 'file'" />
         <div class="radio" style="margin-top: 20px;"
-          ng-hide="!toolbarController.isStorageAvailable">
+             ng-hide="!toolbarController.isStorageAvailable">
           <label>
             <input type="radio" name="a1"
-              ng-model="toolbarController.backgroundModalRadio" ng-value="'file'" />
+                   ng-model="toolbarController.backgroundModalRadio" ng-value="'file'" />
             <span ng-bind="'js_OpenFile' | izendaLocale: 'Open file in your computer'" bind-once></span>
           </label>
         </div>
         <input id="izendaDashboardBackground" type="file" name="files[]"
-          ng-disabled="toolbarController.backgroundModalRadio == 'url'"
-          ng-hide="!toolbarController.isStorageAvailable" />
+               ng-disabled="toolbarController.backgroundModalRadio == 'url'"
+               ng-hide="!toolbarController.isStorageAvailable" />
       </form>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default" data-dismiss="modal"
-        ng-click="toolbarController.cancelBackgroundDialogHandler()"
-        ng-bind="'js_close' | izendaLocale: 'Close'">
-      </button>
+              ng-click="toolbarController.cancelBackgroundDialogHandler()"
+              ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       <button type="button" class="btn btn-izenda-dark"
-        ng-click="toolbarController.okBackgroundDialogHandler()"
-        ng-bind="'js_Ok' | izendaLocale: 'OK'">
-      </button>
+              ng-click="toolbarController.okBackgroundDialogHandler()"
+              ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
   </div>
 
@@ -168,13 +160,13 @@
         <ul class="nav navbar-nav iz-dash-dashboards-dropdown" ng-show="toolbarController.dashboardCategories.length">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown" ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
-              ng-if="!toolbarController.isIE8">
+               ng-if="!toolbarController.isIE8">
               <span class="glyphicon glyphicon-folder-open">
                 <b class="caret"></b>
               </span>
             </a>
             <a class="dropdown-toggle" data-toggle="dropdown" ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
-              ng-if="toolbarController.isIE8">
+               ng-if="toolbarController.isIE8">
               <span>
                 <img src="Resources/images/folder.png" />
                 <b class="caret"></b>
@@ -192,54 +184,56 @@
       <div class="collapse navbar-collapse hidden-xs hidden-sm">
         <!-- button bar -->
         <ul ng-class="toolbarController.buttonbarCollapsedClass"
-          class="nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened">
-          <li><a class="navbar-toggle" style="border-color: transparent; margin-top: 5px; margin-bottom: 5px;"
-            ng-click="toolbarController.showButtonBar()">
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </a></li>
+            class="nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened">
+          <li>
+            <a class="navbar-toggle" style="border-color: transparent; margin-top: 5px; margin-bottom: 5px;"
+               ng-click="toolbarController.showButtonBar()">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </a>
+          </li>
         </ul>
 
         <!-- IE8 button bar -->
         <ul ng-class="toolbarController.buttonbarClass"
-          ng-if="toolbarController.isIE8"
-          class="nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8">
+            ng-if="toolbarController.isIE8"
+            class="nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8">
           <li>
             <a ng-click="toolbarController.hideButtonBar()"
-              ng-attr-title="{{'js_HideButtons' | izendaLocale: 'Hide buttons'}}">
+               ng-attr-title="{{'js_HideButtons' | izendaLocale: 'Hide buttons'}}">
               <b>&lt;</b>
             </a>
           </li>
           <li ng-if="toolbarController.isDesignLinksAllowed">
             <a ng-attr-title="{{'js_CreateNewDashboard' | izendaLocale: 'Create new dashboard'}}"
-              ng-click="toolbarController.createNewDashboardHandler()">
+               ng-click="toolbarController.createNewDashboardHandler()">
               <img src="Resources/images/add-new.png" />
             </a>
           </li>
           <li>
             <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
-              ng-click="toolbarController.refreshDashboardHandler()">
+               ng-click="toolbarController.refreshDashboardHandler()">
               <img src="Resources/images/refresh-18.png" />
             </a>
           </li>
           <li>
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
-              ng-if="toolbarController.isIE8">
+               ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
+               ng-if="toolbarController.isIE8">
               <img src="Resources/images/floppy.png" />&nbsp;<b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
               <li>
                 <a ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
-                  ng-click="toolbarController.saveDashboardHandler(false)">
+                   ng-click="toolbarController.saveDashboardHandler(false)">
                   <img src="Resources/images/floppy.png" />
                   <span ng-bind="'js_SaveDashboard' | izendaLocale: 'Save dashboard'" bind-once></span>
                 </a>
               </li>
               <li>
                 <a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
-                  ng-click="toolbarController.saveDashboardHandler(true)">
+                   ng-click="toolbarController.saveDashboardHandler(true)">
                   <img src="Resources/images/floppy.png" />
                   <span ng-bind="'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'" bind-once></span>
                 </a>
@@ -323,6 +317,7 @@
               <span class="glyphicon glyphicon-plus"></span>
             </a>
           </li>
+
           <!-- refresh -->
           <li ng-if="toolbarController.autoRefreshIntervals.length == 0">
             <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
@@ -331,13 +326,32 @@
               <span class="glyphicon glyphicon-refresh"></span>
             </a>
           </li>
+
+          <!-- refresh with autorefresh intervals -->
           <li class="dropdown"
-              ng-if="toolbarController.autoRefreshIntervals.length != 0">
-            <a class="dropdown-toggle" data-toggle="dropdown" ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
-               ng-hide="toolbarController.galleryState.isGalleryEnabled">
-              <span class="glyphicon glyphicon-refresh">&nbsp;<b class="caret"></b></span>
+              ng-if="toolbarController.autoRefreshIntervals.length != 0"
+              ng-hide="toolbarController.galleryState.isGalleryEnabled">
+            <a class="dropdown-toggle" data-toggle="dropdown"
+               ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}">
+              <span class="glyphicon glyphicon-refresh"></span>
+              <sub style="color: greenyellow;"
+                    ng-style="toolbarController.getSelectedInterval() ? {} : {visibility: 'hidden'}">A</sub>
+              <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">
+              <li ng-show="toolbarController.getSelectedInterval()">
+                <a ng-click="toolbarController.cancelRefreshInterval()">
+                  <span class="glyphicon glyphicon-stop"></span>&nbsp;
+                  <span ng-bind="'js_StopRefresh' | izendaLocale: 'Cancel autorefresh'" bind-once></span>
+                </a>
+              </li>
+              <li>
+                <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
+                   ng-click="toolbarController.refreshDashboardHandler()">
+                  <span class="glyphicon glyphicon-refresh"></span>&nbsp;
+                  <span ng-bind="'js_Refresh' | izendaLocale: 'Refresh'" bind-once></span>
+                </a>
+              </li>
               <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
                 <a title="{{interval.name}}"
                    ng-class="{'selected-item': interval.selected}"
@@ -348,6 +362,31 @@
               </li>
             </ul>
           </li>
+          <!--
+    <li>
+      <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
+         ng-click="toolbarController.refreshDashboardHandler()">
+        <span class="glyphicon glyphicon-refresh"></span>
+      </a>
+    </li>
+    <li style="width: 10px;"
+        ng-if="toolbarController.autoRefreshIntervals.length != 0">
+      <a class="btn dropdown-toggle" data-toggle="dropdown"
+         style="width: 10px; padding: 2px 0 0 0;">
+        <span class="caret"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
+          <a title="{{interval.name}}"
+             ng-class="{'selected-item': interval.selected}"
+             ng-click="toolbarController.refreshDashboardHandler($index)">
+            <span class="glyphicon glyphicon-refresh"></span>&nbsp;
+            <span ng-bind="interval.name"></span>
+          </a>
+        </li>
+      </ul>
+    </li>
+    -->
           <!-- filters -->
           <li>
             <a ng-attr-title="{{'js_ShowDashboardFilters' | izendaLocale: 'Show dashboard filter'}}"
@@ -482,15 +521,15 @@
         <ul class="nav navbar-nav iz-dash-dashboards-dropdown" ng-show="toolbarController.dashboardCategories.length">
           <li class="dropdown">
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
-              ng-if="!toolbarController.isIE8">
+               ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
+               ng-if="!toolbarController.isIE8">
               <span class="glyphicon glyphicon-folder-open">
                 <b class="caret"></b>
               </span>
             </a>
             <a class="dropdown-toggle" data-toggle="dropdown"
-              ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
-              ng-if="toolbarController.isIE8">
+               ng-attr-title="{{'js_OpenDashboard' | izendaLocale: 'Open dashboard'}}"
+               ng-if="toolbarController.isIE8">
               <span>
                 <img src="Resources/images/folder.png" />
                 <b class="caret"></b>
@@ -504,13 +543,13 @@
 
         <!-- navbar dashboard tabs -->
         <div class="iz-dash-linkspanel-container"
-          ng-show="!toolbarController.isButtonBarVisible">
+             ng-show="!toolbarController.isButtonBarVisible">
           <div izenda-toolbar-links-panel toolbar-items="toolbarController.dashboardsInCurrentCategory"
-            toolbar-active-item="toolbarController.activeDashboard"
-            toolbar-active-item-change-counter="toolbarController.activeDashboardChangeCounter"
-            get-title="toolbarController.getToolbarItemTitle(arg0)"
-            equals-func="toolbarController.getToolbarItemsEquals(arg0, arg1)"
-            on-click="toolbarController.toolbarLoadDashboard(arg0)">
+               toolbar-active-item="toolbarController.activeDashboard"
+               toolbar-active-item-change-counter="toolbarController.activeDashboardChangeCounter"
+               get-title="toolbarController.getToolbarItemTitle(arg0)"
+               equals-func="toolbarController.getToolbarItemsEquals(arg0, arg1)"
+               on-click="toolbarController.toolbarLoadDashboard(arg0)">
           </div>
         </div>
       </div>

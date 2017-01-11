@@ -96,13 +96,14 @@ var izenda = izenda || {};
 		background.append("path")
 			.attr("transform", "translate(" + self.backgroundArcX + "," + self.backgroundArcY + ")")
 			.attr("d", self.backgroundArc);
-		background.append("text")
-			.attr("width", self.titleWidth)
+		background.append("g")
 			.attr("class", "izenda-vis-gauge-title")
-			.attr("x", self.titleX)
-			.attr("y", self.titleY)
-			.text(self.title)
-			.style("font-size", self.titleFontSize + "px");
+				.append("text")
+					.attr("width", self.titleWidth)
+					.attr("x", self.titleX)
+					.attr("y", self.titleY)
+					.text(self.title)
+					.style("font-size", self.titleFontSize + "px");
 
 		function wrap(text, width) {
 			text.each(function () {

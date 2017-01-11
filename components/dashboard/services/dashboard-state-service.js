@@ -7,8 +7,66 @@ angular
 		'$rootScope',
 		'$window',
 		'$log',
-		function ($rootScope, $window, $log) {
+		'$izendaLocale',
+		function ($rootScope, $window, $log, $izendaLocale) {
 			'use strict';
+
+			/**
+			 * Extract custom css rules
+			 */
+			function extractCustomCss(html) {
+				if (!angular.isFunction(CSSParser))
+					throw 'Css parser (cssParser.js) not found';
+				var startMarker = '/*CustomCssStart*/';
+				var endMarker = '/*CustomCssEnd*/'
+				var startIndex = html.indexOf(startMarker);
+				var endIndex = html.indexOf(endMarker);
+				if (startIndex < 0 || endIndex < 0 || startIndex > endIndex)
+					return null;
+				try {
+					var customCss = html.substring(startIndex + startMarker.length, endIndex);
+					var parser = new CSSParser();
+					var sheet = parser.parse(customCss, false, true);
+					return sheet;
+				} catch(e) {
+					return null;
+				}
+			}
+
+			/**
+			 * Inject custom css
+			 */
+			function injectCustomCss(html, customCss) {
+				var startMarker = '/*CustomCssStart*/';
+				var endMarker = '/*CustomCssEnd*/'
+				var startIndex = html.indexOf(startMarker);
+				var endIndex = html.indexOf(endMarker);
+				if (startIndex < 0 || endIndex < 0 || startIndex > endIndex)
+					return null;
+				var result = [
+					html.substring(0, startIndex),
+					startMarker,
+					customCss,
+					endMarker,
+					html.substring(endIndex + endMarker.length)
+				].join('');
+				return result;
+			}
+
+			/**
+			 * Change rules
+			 */
+			function replaceCssRules(styleSheet, selectorTextChangeFunction) {
+				var cssRules = styleSheet.cssRules;
+				cssRules.forEach(function (rule) {
+					if (rule.type === 1) {
+						var selector = rule.mSelectorText;
+						rule.mSelectorText = selectorTextChangeFunction(selector);
+					} else if (rule.type === 4) {
+						replaceCssRules(rule, selectorTextChangeFunction);
+					}
+				});
+			}
 
 			/////////////////////////////////////////
 			// tiles loaded:
@@ -29,12 +87,37 @@ angular
 			 */
 			var loadReportIntoContainer = function (htmlData, $container) {
 				try {
+					var tileId = $container.closest('.izenda-report-with-id').attr('reportid');
 					// clear previous content
 					$container.empty();
 
 					// load response to container
 					if (angular.isDefined(ReportScripting))
 						ReportScripting.loadReportResponse(htmlData, $container);
+
+					// replace CSS
+					var $customCss = $container.find('style[id=additionalStyle]');
+					if ($customCss.length > 0) {
+						var csshtml = $customCss.html();
+						var styleSheet = extractCustomCss(csshtml);
+						if (styleSheet) {
+							// replace rule selectors:
+							replaceCssRules(styleSheet, function (selector) {
+								var parts = selector.split(',');
+								var result = '';
+								parts.forEach(function (part, index) {
+									if (index > 0)
+										result += ', ';
+									result += '.izenda-report-with-id[reportid="' + tileId + '"] ' + part.trim();
+								});
+								return result;
+							});
+						}
+						var newCss = styleSheet.cssText();
+						var newHtml = injectCustomCss(csshtml, newCss);
+						$customCss.html(newHtml);
+					}
+
 					$container.find('[id$=_outerSpan]').css("display", "block");
 					// prepare content div
 					var divs$ = $container.find('div.DashPartBody, div.DashPartBodyNoScroll');

@@ -27,13 +27,17 @@ UrlSettingsPaths = {
 			? location
 			: base + '/' + (location ? location : '');
 	};
+	var getPathname = function (url) {
+		var l = document.createElement("a");
+		l.href = url;
+		return l.pathname;
+	};
 
 	if (typeof (blockNetworkActivity) == 'undefined' || !blockNetworkActivity) {
-		var urlBase = window.location.pathname.replace(/\/[^\/]+$/g, "");
+		var urlBase = (typeof resposeServerUrl === 'undefined' ? window.location.pathname : getPathname(resposeServerUrl)).replace(/\/[^\/]+$/g, '');
 		if (urlBase === '/')
 			urlBase = '';
-		var baseUrlFromServer = urlBase;
-		baseUrlFromServer += '/rs.aspx';
+		var baseUrlFromServer = urlBase + '/rs.aspx';
 
 		// request to response server: we need to get config synchronously before continue
 		var url = baseUrlFromServer + '?wscmd=reportviewerconfig';
@@ -45,7 +49,7 @@ UrlSettingsPaths = {
 				// create paths object:
 				UrlSettingsPaths = {
 					urlBase: urlBase,
-					urlRsPage: getPath(urlBase, 'rs.aspx'),
+					urlRsPage: getPath(urlBase, config.ResponseServerUrl),
 					urlDashboardDesigner: getPath(urlBase, config.DashboardDesignerUrl),
 					urlDashboardViewer: getPath(urlBase, config.DashboardViewerUrl),
 					urlInstantReport: getPath(urlBase, config.InstantReportUrl),

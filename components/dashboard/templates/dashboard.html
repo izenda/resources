@@ -75,7 +75,8 @@
       </div>
       <!-- repeat tiles -->
       <div tileid="{{tile.id}}"
-           class="iz-dash-tile"
+           reportid="{{tile.id}}"
+           class="iz-dash-tile izenda-report-with-id"
            data-hover="false"
            tile-report-full-name="{{tileController.reportFullName}}"
            ng-repeat="tile in dashboardController.tiles"
@@ -313,7 +314,8 @@
                       enabled="dashboardController.galleryState.isGalleryEnabled"
                       gallery-items="dashboardController.tiles"
                       is-full-screen="dashboardController.galleryState.isGalleryFullScreen"
-                      ng-model="dashboardController.galleryTileIndex">
+                      ng-model="dashboardController.galleryTileIndex"
+                      update-counter="dashboardController.galleryUpdateCounter">
       </izenda-gallery>
     </div>
   </div>

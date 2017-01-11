@@ -32,7 +32,9 @@ angular.module('izenda.common.compatibility').factory('$izendaUtil', [
 				var group = this;
 				angular.element.each(group.options, function () {
 					var option = this;
-					option.group = group.name !== '' ? group.name : undefined;
+					option.group = angular.isString(group.name) && group.name !== ''
+						? group.name
+						: undefined;
 					groups.push(option);
 				});
 			});

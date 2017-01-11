@@ -9,7 +9,6 @@
 <link rel="stylesheet" type="text/css" href="./Resources/css/shrinkable-grid.css" />
 
 <!-- Styles Internal -->
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=jQuery" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" /> 
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />

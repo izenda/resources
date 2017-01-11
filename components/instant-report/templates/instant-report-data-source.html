@@ -75,7 +75,8 @@
 
     <!-- distinct option -->
     <div class="ds-tree-item-distinct"
-         ng-show="!irDataSourceController.isDataSourcesLoading && !irDataSourceController.searchPanelOpened">
+         ng-show="!irDataSourceController.isDataSourcesLoading && !irDataSourceController.searchPanelOpened"
+         ng-if="$izendaInstantReportSettings.showDistinct">
       <label>
         <input type="checkbox" ng-model="irDataSourceController.options.distinct" />
         <span class="nobold"

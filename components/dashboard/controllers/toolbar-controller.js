@@ -90,14 +90,9 @@ function izendaToolbarController(
 	vm.refreshInterval = null;
 	vm.autoRefreshIntervals = [];
 	$izendaDashboardToolbarQuery.loadAutoRefreshIntervals().then(function (data) {
-		var isFirst = true;
 		angular.forEach(data, function (value, key) {
-			this.push({ name: key, value: value, selected: isFirst });
-			isFirst = false;
+			this.push({ name: key, value: value, selected: false });
 		}, vm.autoRefreshIntervals);
-		if (vm.autoRefreshIntervals.length > 0 && vm.autoRefreshIntervals[0].value >= 1) {
-			vm.refreshDashboardHandler(0, true);
-		}
 	});
 
 	vm.backgroundModalRadio = 'url';
@@ -257,25 +252,46 @@ function izendaToolbarController(
 		$izendaUrl.setIsNew();
 	};
 
+	vm.getSelectedInterval = function () {
+		var result = angular.element.grep(vm.autoRefreshIntervals, function (refreshInterval) {
+			return refreshInterval.selected;
+		});
+		return result.length > 0 ? result[0] : null;
+	};
+
+	/**
+	 * Stop current interval loop and unselect current interval in UI.
+	 */
+	vm.cancelRefreshInterval = function () {
+		if (angular.isArray(vm.autoRefreshIntervals)) {
+			vm.autoRefreshIntervals.forEach(function (refreshInterval) {
+				refreshInterval.selected = false;
+			});
+		}
+		if (vm.refreshInterval) {
+			clearInterval(vm.refreshInterval);
+			vm.refreshInterval = null;
+		}
+	};
+
 	/**
    * Refresh dashboard button handler.
    */
 	vm.refreshDashboardHandler = function (index, skipFirst) {
 		if (!skipFirst) {
-			$izendaEvent.queueEvent('dashboardRefreshEvent', [true, true]);
+			$izendaEvent.queueEvent('dashboardRefreshEvent', [false, true]);
 		}
 		if (typeof index != 'undefined') {
-			var interval = vm.autoRefreshIntervals[index].value;
-			var numberOfIntervals = vm.autoRefreshIntervals.length;
-			for (var i = 0; i < numberOfIntervals; ++i) {
-				vm.autoRefreshIntervals[i].selected = index === i;
-			}
-			clearInterval(vm.refreshInterval);
-			if (interval >= 1) {
-				interval *= 1000;
+			vm.cancelRefreshInterval();
+			// start selected interval
+			var selectedInterval = vm.autoRefreshIntervals[index];
+			selectedInterval.selected = true;
+			var intervalValue = selectedInterval.value;
+			if (intervalValue >= 1) {
+				intervalValue *= 1000;
 				vm.refreshInterval = setInterval(function () {
-					$izendaEvent.queueEvent('dashboardRefreshEvent', [true, true]);
-				}, interval);
+					$izendaEvent.queueEvent('dashboardRefreshEvent', [false, true]);
+				}, intervalValue);
 			}
 		}
 	};

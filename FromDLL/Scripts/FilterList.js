@@ -374,6 +374,10 @@ function CC_LoadValues(row) {
 		if (fullColumnName != '' && fullColumnName != '...') {
 			var cmd = CC_GetFilterCMD(row);
 			cmd += "&resultType=json";
+			var forRowIndex = '';
+			if (row && row.rowIndex)
+				forRowIndex = "&forRowIndex=" + row.rowIndex;
+			cmd += forRowIndex;
 			if (operatorName == "Equals_CheckBoxes")
 				EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, null,
 					function (responseResult) {

@@ -304,10 +304,6 @@
 		<div class="izenda-vis-clearfix"></div>
 		<div id="VIS_ID_TYPE_GALLERY" class="izenda-vis-gallery" style="display: none;">
 			<div id="VIS_ID_TYPE_CONTROL" class="izenda-vis-control izenda-vis-control-tile">
-				<div class="izenda-vis-control-tile-item" value="simple"><a href="javascript:void(0)" title="Simple Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/simple-style.png" /></a></div>
-				<div class="izenda-vis-control-tile-item" value="linear"><a href="javascript:void(0)" title="Linear Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/linear-style.png" /></a></div>
-				<div class="izenda-vis-control-tile-item" value="round"><a href="javascript:void(0)" title="Round Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/round-style.png" /></a></div>
-				<div class="izenda-vis-control-tile-item" value="trending"><a href="javascript:void(0)" title="Trending Style"><img src="Resources/Vis/Gauge/Auto Gauge/images/styles/trending-style.png" /></a></div>
 			</div>
 		</div>
 		<div id="VIS_ID_GEAR_GALLERY" class="izenda-vis-gallery" style="display: none;">
@@ -316,7 +312,6 @@
 	</div>
 </div>
 
-<script type="text/javascript" src="jquery-latest.js"></script>
 <script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript" src="gauge.base.js"></script>
@@ -543,7 +538,7 @@
 							jq$("#VIS_ID").append(gaugesBlock);
 						}
 
-						var gaugeDiv = $("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-round-gauge");
+						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-round-gauge");
 						gaugesBlock.append(gaugeDiv);
 
 						var gauge = new izenda.gauges.RoundGauge(gaugeDiv.get(0), name, s.props.gauge.round.size, s.props.gauge.round.width, data);
@@ -664,6 +659,16 @@
 		if (!isDateExist) {
 			jq$("#VIS_ID_TYPE_CONTROL div[value='trending']").hide();
 		}
+
+		//temp solution
+		var urlSettings = UrlSettings();
+		var typeControl = jq$('#VIS_ID_TYPE_CONTROL');
+		['Simple', 'Linear', 'Round', 'Trending'].forEach(function (e) {
+			var item = jq$('<div>').addClass('izenda-vis-control-tile-item').attr('value', e.toLowerCase())
+				.append(jq$('<a>').attr('href', 'javascript:void(0)').attr('title', e + ' Style')
+					.append(jq$('<img>').attr('src', (urlSettings.urlBase ? urlSettings.urlBase + '/' : '') + 'Resources/Vis/Gauge/Auto Gauge/images/styles/' + e.toLowerCase() + '-style.png')));
+			typeControl.append(item);
+		});
 
 		if (!s.props.gauge.style || s.props.gauge.style == "trending") {
 			s.props.gauge.style = (isDateExist) ? "trending" : "simple";

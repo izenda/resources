@@ -100,6 +100,7 @@ function IzendaDashboardController(
 	};
 	vm.galleryState = $izendaGalleryService.getGalleryState();
 	vm.galleryTileIndex = 0;
+	vm.galleryUpdateCounter = 0;
 
 	// is dashboard changing now.
 	vm.isChangingNow = false;
@@ -1033,7 +1034,13 @@ function IzendaDashboardController(
    * Refresh all tiles
    */
 	function refreshAllTiles(updateFromSource) {
-		$scope.$broadcast('tileRefreshEvent', [updateFromSource]);
+		if (!vm.galleryState.isGalleryEnabled) {
+			$scope.$broadcast('tileRefreshEvent', [updateFromSource]);
+		} else {
+			// trigger gallery update
+			vm.galleryUpdateCounter++;
+			$scope.$applyAsync();
+		}
 	}
 
 	////////////////////////////////////////////////////////

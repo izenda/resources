@@ -1,4 +1,7 @@
-﻿.svg-icon {
+﻿/* sometimes angular creates empty optgroups, so we need to hide it */
+/*optgroup:empty { display: none; }*/
+
+.svg-icon {
 	display: inline-block;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
@@ -788,7 +791,7 @@ a.collapse-link {
 	margin-top: 0;
 }
 
-#_ReportsDiv {
+div[id$="_ReportsDiv"] {
 	width: auto;
 }
 

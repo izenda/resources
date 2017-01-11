@@ -20,6 +20,7 @@ angular
 			'$izendaInstantReportPivots',
 			'$izendaInstantReportValidation',
 			'$izendaInstantReportStorage',
+			'$izendaInstantReportSettings',
 			InstantReportDataSourceController
 ]);
 
@@ -39,13 +40,15 @@ function InstantReportDataSourceController(
 			$izendaInstantReportQuery,
 			$izendaInstantReportPivots,
 			$izendaInstantReportValidation,
-			$izendaInstantReportStorage) {
+			$izendaInstantReportStorage,
+			$izendaInstantReportSettings) {
 	'use strict';
 	var vm = this;
 	var angularJq$ = angular.element;
 	$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 	$scope.$izendaCompatibility = $izendaCompatibility;
 	$scope.$izendaUrl = $izendaUrl;
+	$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
 	$scope.trustAsHtml = function (value) {
 		return $sce.trustAsHtml(value);
 	};
@@ -248,13 +251,7 @@ function InstantReportDataSourceController(
 	 * Update validation state and refresh if needed.
 	 */
 	vm.updateReportSetValidationAndRefresh = function () {
-		var validationResult = $izendaInstantReportValidation.validateReportSet();
-		if (validationResult) {
-			if (!$izendaCompatibility.isSmallResolution())
-				$izendaInstantReportStorage.getReportPreviewHtml();
-		} else {
-			$izendaInstantReportStorage.clearReportPreviewHtml();
-		}
+		$izendaInstantReportValidation.validateReportSetAndRefresh();
 	};
 
 	/**

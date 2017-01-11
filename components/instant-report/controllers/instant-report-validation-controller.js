@@ -42,11 +42,6 @@ function InstantReportValidationController(
 				} else {
 					vm.messages.push(message);
 				}
-				if (angular.isString(message.additionalActionType)) {
-					if (message.additionalActionType === 'TURN_OFF_DISTINCT') {
-						$izendaInstantReportStorage.getOptions().distinct = false;
-					}
-				}
 			});
 			
 		});

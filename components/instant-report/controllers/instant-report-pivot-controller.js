@@ -69,13 +69,7 @@ function InstantReportPivotsController(
 	vm.updateReportSetValidationAndRefresh = function () {
 		$izendaInstantReportStorage.clearReportPreviewHtml();
 		$izendaInstantReportStorage.applyAutoGroups(true);
-		var validationResult = $izendaInstantReportValidation.validateReportSet();
-		if (validationResult) {
-			if (!$izendaCompatibility.isSmallResolution())
-				$izendaInstantReportStorage.getReportPreviewHtml();
-		} else {
-			$izendaInstantReportStorage.clearReportPreviewHtml();
-		}
+		$izendaInstantReportValidation.validateReportSetAndRefresh();
 	};
 
 	/**

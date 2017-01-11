@@ -3,8 +3,9 @@
        ng-bind="createTileTitle(galleryItems[ngModel])"></div>
 </div>
 
-<div class="izenda-gallery-item izenda-gallery-opacity-transition"
+<div class="izenda-gallery-item izenda-gallery-opacity-transition izenda-report-with-id"
      ng-attr-tile-id="{{item.id}}"
+     reportid="{{item.id}}"
      ng-repeat="item in galleryItems"
      ng-class="enabled ? 'active' : ''"
      ng-style="getItemStyle($index)">

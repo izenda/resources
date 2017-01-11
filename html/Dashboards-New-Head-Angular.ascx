@@ -264,7 +264,7 @@
 
 <script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.min.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/ionrangeslider/ion.rangeSlider.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/perfect-scrollbar.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/jscssp/cssParser.js"></script>
 
 <!-- common -->
 <script type="text/javascript" src="Resources/components/common/module-definition.js"></script>

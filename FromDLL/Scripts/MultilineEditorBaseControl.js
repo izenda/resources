@@ -40,36 +40,29 @@ var ebc_rowRemoveHandlers = {};
 var ebc_selTable = new Array();
 var caCalendarsPoolIndex = 1000;
 
-function EBC_RegiserForUnusedRowsRemoving(tbl)
-{
+function EBC_RegiserForUnusedRowsRemoving(tbl) {
 	ebc_selTable.push(tbl);
 }
 
-function EBC_RegisterRowInsertHandler(table, handler)
-{
+function EBC_RegisterRowInsertHandler(table, handler) {
 	ebc_rowInsertHandlers[table.id] = handler;
 }
 
-function EBC_RegisterRowRemoveHandler(table, handler)
-{
+function EBC_RegisterRowRemoveHandler(table, handler) {
 	ebc_rowRemoveHandlers[table.id] = handler;
 }
 
-function EBC_InsertRow(table, n, newRow)
-{
+function EBC_InsertRow(table, n, newRow) {
 	var tb = table.tBodies[0], r = tb.rows;
-	if(newRow == null)
+	if (newRow == null)
 		newRow = r[0].cloneNode(true);
 	if (newRow.style["display"] == "none")
 		newRow.style["display"] = "";
-	
-	if(r.length <= n)
+
+	if (r.length <= n)
 		tb.appendChild(newRow);
 	else
 		tb.insertBefore(newRow, r[n]);
-	//for(i in newRow)
-	//	if(i.charAt(0) == '_')
-	//		newRow[i] = undefined;
 	newRow._table = table;
 	var filterNumber = EBC_GetInputByName(newRow, 'FilterNumber');
 	if (filterNumber != null && CC_RenumFilters != null)
@@ -77,35 +70,32 @@ function EBC_InsertRow(table, n, newRow)
 	return newRow;
 }
 
-function EBC_GetRow(elem)
-{
-	if(!elem)
+function EBC_GetRow(elem) {
+	if (!elem)
 		elem = window.event ? window.event.srcElement :
-		( ebc_mozillaEvent ? ( ebc_mozillaEvent.target || ebc_mozillaEvent ) : null );
+		(ebc_mozillaEvent ? (ebc_mozillaEvent.target || ebc_mozillaEvent) : null);
 	while (elem != null && elem.tagName != 'TR')
 		elem = elem.parentNode;
 	return elem;
 }
 
-function EBC_GetColumn(elem)
-{
-	if(!elem)
+function EBC_GetColumn(elem) {
+	if (!elem)
 		elem = window.event ? window.event.srcElement :
-		( ebc_mozillaEvent ? ( ebc_mozillaEvent.target || ebc_mozillaEvent ) : null );
+		(ebc_mozillaEvent ? (ebc_mozillaEvent.target || ebc_mozillaEvent) : null);
 	while (elem != null && elem.tagName != 'TD')
 		elem = elem.parentNode;
 	return elem;
 }
 
-function EBC_GetParentTable(row)
-{
-	if(row._table)
+function EBC_GetParentTable(row) {
+	if (row._table)
 		return row._table;
 	var elem;
 	elem = row.parentNode;
 	while (elem != null && elem.tagName != 'TABLE')
 		elem = elem.parentNode;
-	row._table=elem;
+	row._table = elem;
 	return elem;
 }
 
@@ -267,12 +257,11 @@ function EBC_FixCAControlsC(parentControl) {
 function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 	var rNumberForColne = 0;
 	if (rowNumberForClone != null)
-		rNumberForColne = rowNumberForClone ;
+		rNumberForColne = rowNumberForClone;
 	var table = EBC_GetParentTable(row);
 	var max = table.getAttribute("max");
 	var body = table.tBodies[0];
-	if (max == null || max > body.rows.length) 
-	{
+	if (max == null || max > body.rows.length) {
 		var caProcessNeeded = EBC_CheckCAControlsNeeded(row);
 		if (caProcessNeeded)
 			var pair = EBC_SecureCaControls(table.tBodies[0].rows[0]);
@@ -287,76 +276,69 @@ function EBC_internalInsertHandler(row, index, rowNumberForClone) {
 		newRow._table = table;
 		var savedAutogrouping = table.skipAutogrouping;
 		table.skipAutogrouping = true;
-		EBC_PrepareNewRow(newRow);
+		EBC_CleanupRow(newRow);
 		var handler = ebc_rowInsertHandlers[table.id];
 		if (handler != null)
 			handler(newRow);
 		newRow = EBC_InsertRow(table, index, newRow);
 		EBC_FixCAControlsC(newRow);
 		table.skipAutogrouping = savedAutogrouping;
+		newRow.ThisRowIsBeingAddedAsNew = false;
 		return newRow;
 	}
 	return null;
 }
 
-function EBC_InsertAboveHandler(e, rowNumberForClone)
-{
-	if(e) ebc_mozillaEvent = e;
+function EBC_InsertAboveHandler(e, rowNumberForClone) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	EBC_internalInsertHandler(row, row["sectionRowIndex"], rowNumberForClone);
 }
 
-function EBC_InsertBelowHandler(e, rowNumberForClone)
-{
-	if(e) ebc_mozillaEvent = e;
+function EBC_InsertBelowHandler(e, rowNumberForClone) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	EBC_internalInsertHandler(row, row["sectionRowIndex"] + 1, rowNumberForClone);
 }
 
-function EBC_MoveUpHandler(e, allowMoveLastRow)
-{
+function EBC_MoveUpHandler(e, allowMoveLastRow) {
 	var row;
-	if(e)
-	{
+	if (e) {
 		ebc_mozillaEvent = e;
 		row = EBC_GetRow(e.target);
 	}
 	else
 		row = EBC_GetRow();
-	if(row == null)
+	if (row == null)
 		return;
-	if(row["sectionRowIndex"] <= 0)
+	if (row["sectionRowIndex"] <= 0)
 		return;
 	var table = EBC_GetParentTable(row);
 	var body = table.tBodies[0];
-	if(!allowMoveLastRow && row["sectionRowIndex"]>=body.rows.length-1)
+	if (!allowMoveLastRow && row["sectionRowIndex"] >= body.rows.length - 1)
 		return;
-	body.insertBefore(row, body.rows[row["sectionRowIndex"]-1]);
+	body.insertBefore(row, body.rows[row["sectionRowIndex"] - 1]);
 }
 
-function EBC_MoveDownHandler(e, allowMoveLastRow)
-{
+function EBC_MoveDownHandler(e, allowMoveLastRow) {
 	var row;
-	if(e)
-	{
+	if (e) {
 		ebc_mozillaEvent = e;
 		row = EBC_GetRow(e.target);
 	}
 	else
 		row = EBC_GetRow();
-	if(row == null)
+	if (row == null)
 		return;
 	var table = EBC_GetParentTable(row);
 	var body = table.tBodies[0];
-	if(!allowMoveLastRow && row["sectionRowIndex"]>=body.rows.length-2 || row["sectionRowIndex"]>=body.rows.length-1)
+	if (!allowMoveLastRow && row["sectionRowIndex"] >= body.rows.length - 2 || row["sectionRowIndex"] >= body.rows.length - 1)
 		return;
 	body.insertBefore(body.rows[row["sectionRowIndex"] + 1], row);
 }
 
-function EBC_RemoveHandler(e)
-{
-	if(e)
-	{
+function EBC_RemoveHandler(e) {
+	if (e) {
 		ebc_mozillaEvent = e;
 		EBC_RemoveRow(EBC_GetRow(e.target));
 	}
@@ -364,16 +346,14 @@ function EBC_RemoveHandler(e)
 		EBC_RemoveRow(EBC_GetRow());
 }
 
-function EBC_RemoveAllRows(id)
-{
+function EBC_RemoveAllRows(id) {
 	var table = document.getElementById(id),
 	min = table.getAttribute("min") || 0,
 	body = table.tBodies[0],
 	rowCount = body.rows.length - min,
 	i = 0, ti = table.id, handler = ebc_rowRemoveHandlers[ti];
 	if (handler != null)
-		for (; i < rowCount; ++i)
-		{
+		for (; i < rowCount; ++i) {
 			body.removeChild(body.firstChild);
 			handler(ti);
 		}
@@ -382,17 +362,14 @@ function EBC_RemoveAllRows(id)
 			body.removeChild(body.firstChild);
 }
 
-function EBC_RemoveRow(row)
-{
-	EBC_RemoveRow_Internal(row,EBC_GetParentTable(row));
+function EBC_RemoveRow(row) {
+	EBC_RemoveRow_Internal(row, EBC_GetParentTable(row));
 }
 
-function EBC_RemoveRow_Internal(row, table)
-{
+function EBC_RemoveRow_Internal(row, table) {
 	var min = table.getAttribute("min");
 	var body = table.tBodies[0];
-	if (min == null || min < body.rows.length)
-	{
+	if (min == null || min < body.rows.length) {
 		body.removeChild(row);
 		var handler = ebc_rowRemoveHandlers[table.id];
 		if (handler != null)
@@ -401,18 +378,17 @@ function EBC_RemoveRow_Internal(row, table)
 }
 
 
-function EBC_RemoveNotLastRowHandler(selectName, e, force)
-{
-	if(e) ebc_mozillaEvent = e;
+function EBC_RemoveNotLastRowHandler(selectName, e, force) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	var table = EBC_GetParentTable(row);
 	var rowCount = table.rows.length;
 	var columnSelect = EBC_GetSelectByName(row, selectName);
 	if (columnSelect.value != '...' || force)
 		return EBC_RemoveRow_Internal(row, table);
-	var prevRow = (rowCount>2) ? table.rows[rowCount-2] : null;
+	var prevRow = (rowCount > 2) ? table.rows[rowCount - 2] : null;
 	var prevColumnSelect = prevRow == null ? null : EBC_GetSelectByName(prevRow, selectName);
-	if (row.rowIndex != rowCount - 1 || (prevColumnSelect!=null && prevColumnSelect.value=='...'))
+	if (row.rowIndex != rowCount - 1 || (prevColumnSelect != null && prevColumnSelect.value == '...'))
 		EBC_RemoveRow_Internal(row, table);
 }
 
@@ -423,11 +399,9 @@ function EBC_AddEmptyRow(row, rowNumberForClone) {
 	}
 }
 
-function EBC_RemoveUnusedRows(table, column)
-{
+function EBC_RemoveUnusedRows(table, column) {
 	var sel, cur, r = table.tBodies[0].rows, rowCount = r.length;
-	for (i = rowCount - 2; i >= 0; --i)
-	{
+	for (i = rowCount - 2; i >= 0; --i) {
 		cur = r[i];
 		sel = EBC_GetSelectByName(cur, column);
 		if (sel && sel.value == '...')
@@ -446,8 +420,7 @@ function EBC_RemoveAllUnusedRows() {
 	}
 }
 
-function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, expressionTypeName, whatFor)
-{
+function EBC_GetDataTypeGroup(row, columnName, functionName, formatName, expressionTypeName, whatFor) {
 	if (columnName == null)
 		columnName = 'Column';
 	if (formatName == null)
@@ -482,12 +455,12 @@ function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelec
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
 	var typeGroup = (formatSelect == null || whatFor == 'format') ? "" : formatSelect.getAttribute("TypeGroup");
-	
+
 	if ((!typeGroup || typeGroup == "None") && functionSel != null && functionSel.selectedIndex > -1)
 		typeGroup = (functionSel == null || whatFor == 'function') ? "" : functionSel.options[functionSel.selectedIndex].getAttribute("dataTypeGroup");
-		
-	if((!typeGroup || typeGroup=="None") && columnSel != null && columnSel.selectedIndex > -1)
-		typeGroup = columnSel==null ? "" : columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
+
+	if ((!typeGroup || typeGroup == "None") && columnSel != null && columnSel.selectedIndex > -1)
+		typeGroup = columnSel == null ? "" : columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
 	return typeGroup;
 }
 
@@ -518,7 +491,7 @@ function EBC_SetFormat(row, onlySimple, columnName, functionName, formatName) {
 			(onlySimple ? "&" + "onlySimple=true" : ""),
 		formatSelect,
 		true,
-		function() { EBC_SetSelectedIndexByValue(EBC_GetSelectByName(row, formatName), newValue) });
+		function () { EBC_SetSelectedIndexByValue(EBC_GetSelectByName(row, formatName), newValue) });
 }
 
 function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultAggregateFunction, onlyGroup, funcSelectName, includeGroup, forSubtotals, columnName, isExtraFunction, setDefaultIfPossible, forceEmptySelector) {
@@ -547,7 +520,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 		return;
 	var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', row);
 	var isOperation = false;
-	if(operationElem && operationElem.ElementExists() && !operationElem.isDefault())
+	if (operationElem && operationElem.ElementExists() && !operationElem.isDefault())
 		isOperation = true;
 	if (columnSel.selectedIndex >= 0) {
 		var option_ = columnSel.options[columnSel.selectedIndex];
@@ -575,7 +548,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 		var includeBlank = "true";
 		if (defaultAggregateFunction != null && defaultAggregateFunction != "None")
 			baseValue = defaultAggregateFunction;
-		if(defaultAggregateFunction != null && defaultAggregateFunction == "ForceNone")
+		if (defaultAggregateFunction != null && defaultAggregateFunction == "ForceNone")
 			baseValue = "None";
 		if (typeGroup != "" && !isOperation) {
 			if (mustGroupOrFunction) {
@@ -614,7 +587,7 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 				"&" + "onlyNumericResults=" + onlyNumericResults,
 			funcSelect,
 			true,
-			function() {
+			function () {
 				var funcSelect = EBC_GetSelectByName(row, funcSelectName);
 				row._ignoreDescriptor--;
 				if ((funcSelect.value == "None" || (setDefaultIfPossible && baseValue != null)) && option_.text != "..." && !forSubtotals) {

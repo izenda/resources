@@ -304,13 +304,7 @@ function InstantReportController(
 	 * Update validation state and refresh if needed.
 	 */
 	vm.updateReportSetValidationAndRefresh = function () {
-		var validationResult = $izendaInstantReportValidation.validateReportSet();
-		if (validationResult) {
-			if (!$izendaCompatibility.isSmallResolution())
-				$izendaInstantReportStorage.getReportPreviewHtml();
-		} else {
-			$izendaInstantReportStorage.clearReportPreviewHtml();
-		}
+		$izendaInstantReportValidation.validateReportSetAndRefresh();
 	};
 
 	/**

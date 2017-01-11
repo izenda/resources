@@ -355,8 +355,11 @@ function SC_OnExtraColumnChangedHandler(e, el, columnName) {
 			if (SC_mustGroupOrFunction[id] == undefined && EBC_GetSelectByName(EBC_GetParentTable(row).rows[0], 'ExtraFunction').value != 'None')
 				mustGroup = true;
 			EBC_SetFunctions(row, true, false, null, false, 'ExtraValueFunction', null, null, cName, null, null, true);
-
 			EBC_SetFormat(row, null, cName, 'ExtraFormat');
+			SC_ResetRowToDefault({
+				row: row,
+				strColumn: cName
+			});
 
 			var descriptionEdit = EBC_GetInputByName(row, 'ExtraDescription');
 			if (columnSel && descriptionEdit) {
@@ -366,12 +369,6 @@ function SC_OnExtraColumnChangedHandler(e, el, columnName) {
 				else if (!descriptionEdit.value)
 					descriptionEdit.value = colName;
 			}
-
-			SC_ColumnChangeContext = {};
-			SC_ColumnChangeContext.row = row;
-			SC_ColumnChangeContext.strColumn = cName;
-			SC_ColumnChangeContext.columnSel = columnSel;
-			SC_ResetRowToDefault(true);
 		}
 	}
 }
@@ -395,8 +392,6 @@ function SC_RemoveExtraColumn(event, id, force) {
 	}
 }
 
-var SC_ColumnChangeContext = {};
-
 function SC_OnColumnChangedHandler(e, el) {
 	if (typeof el != 'undefined' && el != null && typeof el.PreparingNewRow != 'undefined' && el.PreparingNewRow)
 		return;
@@ -415,7 +410,6 @@ function SC_OnColumnChangedHandler(e, el) {
 		row._ignoreDescriptor = 0;
 
 		var parentTable = EBC_GetParentTable(row);
-		var id = parentTable.id;
 		var savedAutogrouping = parentTable.skipAutogrouping;
 		parentTable.skipAutogrouping = true;
 
@@ -434,16 +428,35 @@ function SC_OnColumnChangedHandler(e, el) {
 			var showChangeRowCheckDialog = false;
 			var coefficientEditTemp = EBC_GetElementByName(row, "Coefficient", "TEXTAREA");
 
+			var context = {
+				row: row,
+				strColumn: strColumn,
+				strFunction: strFunction
+			};
+
 			if (oldValue != null && columnSel.options[columnSel.selectedIndex].value != oldValue) {
+				function ChangeRowCheckDialogResult(result) {
+					if (result == jsResources.OK) {
+						SC_ResetRowToDefault(context);
+					} else {
+						if (typeof oldValue != "undefined" && oldValue != null) {
+							EBC_SetSelectedIndexByValue(columnSel, oldValue);
+							if (oldValue == '' || oldValue == '...') {
+								SC_ResetRowToDefault(context);
+							}
+						}
+					}
+				}
+
 				if (columnSel.options[columnSel.selectedIndex].restrictselecting == "true") {
 					ReportingServices.showOk("This field cannot be selected.", function () {
-						SC_ChangeRowCheckDialogResult(jsResources.Cancel, id);
+						ChangeRowCheckDialogResult(jsResources.Cancel);
 					});
 					fieldCannotBeSelected = true;
 					showChangeRowCheckDialog = true;
 				}
 				else if (columnSel.options[columnSel.selectedIndex].value != "..." && coefficientEditTemp && coefficientEditTemp.value.trim().indexOf("example") != 0) {
-					ReportingServices.showConfirm("You will lose Expression data if you select a different field. Continue?", SC_ChangeRowCheckDialogResult);
+					ReportingServices.showConfirm("You will lose Expression data if you select a different field. Continue?", ChangeRowCheckDialogResult);
 					showChangeRowCheckDialog = true;
 				}
 			}
@@ -454,33 +467,11 @@ function SC_OnColumnChangedHandler(e, el) {
 				}
 
 				if (!isNotSelectedColumnSel && !fieldCannotBeSelected) {
-					var newRow = EBC_AddEmptyRow(row);
-					if (newRow) {
-						var newColumnSel = EBC_GetSelectByName(newRow, strColumn);
-						SC_ColumnChangeContext = {};
-						SC_ColumnChangeContext.row = newRow;
-						SC_ColumnChangeContext.strColumn = strColumn;
-						SC_ColumnChangeContext.columnSel = newColumnSel;
-						SC_ColumnChangeContext.strFunction = strFunction;
-						SC_ColumnChangeContext.oldValue = newColumnSel.getAttribute("oldValue");
-						SC_ColumnChangeContext.isNotSelectedColumnSel = true;
-						SC_ResetRowToDefault();
-						newRow.ThisRowIsBeingAddedAsNew = false;
-					}
+					EBC_AddEmptyRow(row);
 				}
-
 			}
-
-			SC_ColumnChangeContext = {};
-			SC_ColumnChangeContext.row = row;
-			SC_ColumnChangeContext.strColumn = strColumn;
-			SC_ColumnChangeContext.columnSel = columnSel;
-			SC_ColumnChangeContext.strFunction = strFunction;
-			SC_ColumnChangeContext.oldValue = oldValue;
-			SC_ColumnChangeContext.isNotSelectedColumnSel = isNotSelectedColumnSel;
-
 			if (!showChangeRowCheckDialog && !isSameValue) {
-				SC_ResetRowToDefault();
+				SC_ResetRowToDefault(context);
 			}
 		} finally {
 			row._scColumnChangeFired = false;
@@ -489,14 +480,22 @@ function SC_OnColumnChangedHandler(e, el) {
 	}
 }
 
-function SC_ResetRowToDefault(isExtraColumn) {
-	var row = SC_ColumnChangeContext.row,
-		columnSel = SC_ColumnChangeContext.columnSel,
-		strColumn = SC_ColumnChangeContext.strColumn,
-		strFunction = SC_ColumnChangeContext.strFunction,
-		isNotSelectedColumnSel = SC_ColumnChangeContext.isNotSelectedColumnSel;
+function SC_ResetRowToDefault(context) {
+	var row = context.row,
+		strColumn = context.strColumn,
+		strFunction = context.strFunction,
+		isExtraColumn = context.strColumn === 'ExtraValue',
+		emptyRow = context.emtpyRow;
 
-	var prefix = isExtraColumn ? 'exv' : '';
+	var prefix = isExtraColumn ? 'Extra' : '';
+	var columnSel = EBC_GetSelectByName(row, strColumn);
+	if (emptyRow) {
+		columnSel.PreparingNewRow = true;
+		columnSel.selectedIndex = 0;
+		columnSel.disabled = false;
+		columnSel.PreparingNewRow = false;
+	}
+	var isNotSelectedColumnSel = (columnSel.value == "" || columnSel.value == "..." || columnSel.selectedIndex == -1);
 
 	if (row && columnSel) {
 		if (EBC_IsRealChangedSelValue(columnSel)) {
@@ -526,7 +525,9 @@ function SC_ResetRowToDefault(isExtraColumn) {
 			descriptionEdit.value = "";
 			descriptionEdit.disabled = false;
 
-			EBC_SetDescription(row, true);
+			if (!emptyRow) {
+				EBC_SetDescription(row, true);
+			}
 		}
 
 		/* Function */
@@ -768,22 +769,6 @@ function SC_ResetRowToDefault(isExtraColumn) {
 
 		if (arithmeticOperationElem.ElementExists()) {
 			SC_SetAcceptableValues(row, arithmeticOperationElem);
-		}
-	}
-}
-
-function SC_ChangeRowCheckDialogResult(result) {
-	if (result == jsResources.OK) {
-		SC_ResetRowToDefault();
-	} else {
-		var row = SC_ColumnChangeContext.row,
-			columnSel = SC_ColumnChangeContext.columnSel,
-			oldValue = SC_ColumnChangeContext.oldValue;
-		if (row && columnSel && (typeof oldValue != "undefined" && oldValue != null)) {
-			EBC_SetSelectedIndexByValue(columnSel, oldValue);
-			if (oldValue == '' || oldValue == '...') {
-				SC_ResetRowToDefault();
-			}
 		}
 	}
 }
@@ -1196,6 +1181,7 @@ function SC_ClearRowInputs(row) {
 }
 
 function SC_InitNewRow(row) {
+
 	row.setAttribute("userChanged", "false");
 	SC_InitRow(row);
 	SC_ClearRowInputs(row);
@@ -1203,6 +1189,17 @@ function SC_InitNewRow(row) {
 	row._scColumnChangeFired = false;
 	row._scFunctionChangeFired = false;
 	row._scFormatChangeFired = false;
+
+	var strColumn = jq$(row).find('select[name$=_Column]').length > 0 ? 'Column' :
+	jq$(row).find('select[name$=_ExtraValue]').length > 0 ? 'ExtraValue' : null,
+	strFunction = jq$(row).find('select[name$=_Function]').length > 0 ? 'Function' :
+	jq$(row).find('select[name$=_ExtraValueFunction]') ? 'ExtraValueFunction' : null;
+	SC_ResetRowToDefault({
+		row: row,
+		strColumn: strColumn,
+		strFunction: strFunction,
+		emtpyRow: true
+	});
 }
 
 function SC_InitRow(row) {
@@ -1830,9 +1827,9 @@ function SC_CheckPropertiesModified(dialogRow) {
 							var childNode = element.firstChild;
 							if (childNode.nodeName == "INPUT") {
 								var cnName = childNode.getAttribute("name");
-								if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0 || cnName.indexOf('_exvLabelJustificationCurrentValue') >= 0) {
+								if (cnName.indexOf('_LabelJustificationCurrentValue') >= 0 || cnName.indexOf('_ExtraLabelJustificationCurrentValue') >= 0) {
 									result = (childNode.value != 'M');
-								} else if (cnName.indexOf('_JustificationCurrentValue') >= 0 || cnName.indexOf('_exvJustificationCurrentValue') >= 0) {
+								} else if (cnName.indexOf('_JustificationCurrentValue') >= 0 || cnName.indexOf('_ExtraJustificationCurrentValue') >= 0) {
 									result = (childNode.value != ' ' && childNode.value != String.fromCharCode(160));
 								}
 							}

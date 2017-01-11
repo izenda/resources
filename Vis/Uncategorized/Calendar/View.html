@@ -1222,7 +1222,7 @@ be a descendant of the grid when it is being dragged.
 		width: 90px;
 	}
 
-	#VIS_ID_CONTAINER .input-group-addon {
+	#VIS_ID_CONTAINER .izenda-input-group-addon {
 		font-size: 95%;
 		font-weight: normal;
 		color: #555555;
@@ -1268,7 +1268,7 @@ be a descendant of the grid when it is being dragged.
 		<div class="clearfix"></div>
 		<div id="VIS_ID_GEAR_GALLERY" class="gallery" style="display: none;">
 			<div class="property-control">
-				<label>Default date:<select id="VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT"></select><span style="display: none;"><input class="datepicker" id="VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT" type="text" /><span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></span></label>
+				<label>Default date:<select id="VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT"></select><span style="display: none;"><input class="datepicker" id="VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT" type="text" /><span class="izenda-input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></span></label>
 			</div>
 			<div class="property-control"><label><input type="checkbox" id="VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX" /> Dynamic font size</label></div>
 		</div>
@@ -1448,7 +1448,7 @@ be a descendant of the grid when it is being dragged.
 		if (!isImageRender) {
 			var converter = izenda.utils.date.formatConverter;
 			var dateFormatShort = izenda.commonSettings().dateFormatShort;
-			customDefaultDateInput.datepicker({
+			izenda.utils.date.datepicker(customDefaultDateInput, {
 				dateFormat: dateFormatShort ? converter.convert(dateFormatShort, converter.dotNet, converter.datepicker) : "mm/dd/yy",
 				clearBtn: true,
 				autoclose: true
@@ -1488,10 +1488,10 @@ be a descendant of the grid when it is being dragged.
 					}
 				});
 
-			customDefaultDateControl.find("span.input-group-addon")
+			customDefaultDateControl.find("span.izenda-input-group-addon")
 				.unbind("click")
 				.bind("click", function() {
-					if ($("#iz-ui-datepicker-div").is(":hidden"))
+					if (jq$(".izenda-datepicker").is(":hidden"))
 						customDefaultDateInput.datepicker("show");
 				});
 		}

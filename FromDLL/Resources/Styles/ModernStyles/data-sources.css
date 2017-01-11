@@ -883,7 +883,7 @@ tr.ReportFooter, tr.ReportFooter th {
 	border-right: 3px dotted #ccc;
 }
 
-#_ReportsDiv table .dataTable {
+div[id$="_ReportsDiv"] table .dataTable {
 	width: auto;
 }
 
