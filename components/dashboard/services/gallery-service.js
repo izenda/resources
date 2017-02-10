@@ -1,39 +1,43 @@
-﻿/**
- * Gallery service. Stores gallery variables
- */
-angular.module('izendaDashboard')
-	.factory('$izendaGalleryService', [function () {
-		'use strict';
+﻿define(['../../common/services/services'], function () {
 
-		var galleryState = {
-			isGalleryEnabled: false,
-			isPlayStarted: false,
-			isGalleryFullScreen: false,
-			playDelay: false,
-			isPlayRepeat: false
-		};
+	/**
+	 * Gallery service. Stores gallery variables
+	 */
+	angular.module('izendaDashboard')
+		.factory('$izendaGalleryService', [function () {
+			'use strict';
 
-		/**
-		 * Gallery state getter
-		 */
-		function getGalleryState() {
-			return galleryState;
-		}
+			var galleryState = {
+				isGalleryEnabled: false,
+				isPlayStarted: false,
+				isGalleryFullScreen: false,
+				playDelay: false,
+				isPlayRepeat: false
+			};
 
-		/**
-		 * Switch gallery state to its default value.
-		 */
-		function resetGalleryState() {
-			galleryState.isGalleryEnabled = false;
-			galleryState.isPlayStarted = false;
-			galleryState.isPlayRepeat = false;
-			galleryState.isGalleryFullScreen = false;
-			galleryState.playDelay = 5000;
-		}
+			/**
+			 * Gallery state getter
+			 */
+			function getGalleryState() {
+				return galleryState;
+			}
 
-		// public api
-		return {
-			getGalleryState: getGalleryState,
-			resetGalleryState: resetGalleryState
-		};
-	}]);
+			/**
+			 * Switch gallery state to its default value.
+			 */
+			function resetGalleryState() {
+				galleryState.isGalleryEnabled = false;
+				galleryState.isPlayStarted = false;
+				galleryState.isPlayRepeat = false;
+				galleryState.isGalleryFullScreen = false;
+				galleryState.playDelay = 5000;
+			}
+
+			// public api
+			return {
+				getGalleryState: getGalleryState,
+				resetGalleryState: resetGalleryState
+			};
+		}]);
+
+});

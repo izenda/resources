@@ -1,23 +1,17 @@
-﻿// Create dashboards angular module
-angular.module('izendaDashboard', [
-	'ngCookies',
-	'izenda.common.compatibility',
-	'izenda.common.query',
-	'izenda.common.ui',
-	'izendaFilters',
-	'impressjs'
-]);
-
-/**
- * Configuration and startup angular application
- */
-(function () {
-	'use strict';
+﻿define(function (require) {
+	// Create dashboards angular module
+	angular.module('izendaDashboard', [
+		'ngCookies',
+		'izenda.common.compatibility',
+		'izenda.common.query',
+		'izenda.common.ui',
+		'izendaFilters'
+	]);
 
 	/**
 	 * Create and configure modules
 	 */
-	function configureModules(configObject) {
+	var configureModules = function(configObject) {
 		// configure common ui module:
 		angular
 			.module('izenda.common.ui')
@@ -46,31 +40,37 @@ angular.module('izendaDashboard', [
 	/**
 	 * Bootstrap angular app:
 	 * window.urlSettings$ objects should be defined before this moment.
-	*/
-	angular.element(document).ready(function () {
-		// common settings promise:
-		var commonQuerySettingsLoader = new izendaCommonQuerySettingsLoader();
-		var commonQuerySettingsPromise = commonQuerySettingsLoader.loadSettings();
+	 */
+	var bootstrapDashboards = function () {
+		angular.element(document).ready(function () {
+			// common settings promise:
+			var commonSettingsLoader = require('../common/module-definition');
+			var commonQuerySettingsPromise = commonSettingsLoader.loadSettings();
 
-		// instant report settings promise:
-		var urlSettings = window.urlSettings$;
-		var rsPageUrl = urlSettings.urlRsPage;
-		var settingsUrl = rsPageUrl + '?wscmd=getDashboardSettings';
-		var dashboardsSettingsPromise = angular.element.get(settingsUrl);
+			// instant report settings promise:
+			var urlSettings = window.urlSettings$;
+			var rsPageUrl = urlSettings.urlRsPage;
+			var settingsUrl = rsPageUrl + '?wscmd=getDashboardSettings';
+			var dashboardsSettingsPromise = angular.element.get(settingsUrl);
 
-		// wait while all settings are loaded:
-		angular.element
-			.when(commonQuerySettingsPromise, dashboardsSettingsPromise)
-			.then(function (commonSettingsResult, dashboardsSettingsResult) {
+			// wait while all settings are loaded:
+			angular.element
+				.when(commonQuerySettingsPromise, dashboardsSettingsPromise)
+				.then(function (commonSettingsResult, dashboardsSettingsResult) {
 
-				// get instant report config object
-				var configObject = dashboardsSettingsResult[0];
+					// get instant report config object
+					var configObject = dashboardsSettingsResult[0];
 
-				// create and configure modules:
-				configureModules(configObject);
+					// create and configure modules:
+					configureModules(configObject);
 
-				// bootstrap application:
-				angular.bootstrap('#izendaDashboardMainContainer', ['izendaDashboard']);
-			});
-	});
-})();
+					// bootstrap application:
+					angular.bootstrap('#izendaDashboardMainContainer', ['izendaDashboard']);
+				});
+		});
+	};
+
+	return {
+		bootstrap: bootstrapDashboards
+	};
+});

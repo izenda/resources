@@ -648,18 +648,6 @@
 
 		var style, gauges = [];
 
-		var isDateExist = false;
-		for (var key in VIS_COLUMNS) {
-			if (VIS_COLUMNS[key].type == "DateTime") {
-				isDateExist = true;
-				break;
-			}
-		}
-
-		if (!isDateExist) {
-			jq$("#VIS_ID_TYPE_CONTROL div[value='trending']").hide();
-		}
-
 		//temp solution
 		var urlSettings = UrlSettings();
 		var typeControl = jq$('#VIS_ID_TYPE_CONTROL');
@@ -669,6 +657,18 @@
 					.append(jq$('<img>').attr('src', (urlSettings.urlBase ? urlSettings.urlBase + '/' : '') + 'Resources/Vis/Gauge/Auto Gauge/images/styles/' + e.toLowerCase() + '-style.png')));
 			typeControl.append(item);
 		});
+
+		var isDateExist = false;
+		for (var i = 0; i < VIS_COLUMNS.length; ++i) {
+			if (VIS_COLUMNS[i].type == "DateTime") {
+				isDateExist = true;
+				break;
+			}
+		}
+
+		if (!isDateExist) {
+			jq$("#VIS_ID_TYPE_CONTROL [value='trending']").hide();
+		}
 
 		if (!s.props.gauge.style || s.props.gauge.style == "trending") {
 			s.props.gauge.style = (isDateExist) ? "trending" : "simple";

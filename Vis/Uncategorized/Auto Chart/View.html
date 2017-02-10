@@ -289,6 +289,11 @@
 		border-collapse: separate;
 	}
 
+	#VIS_ID_CONTAINER .izenda-vis-autochart-label-link {
+		cursor: pointer;
+		text-decoration: underline;
+	}
+
 	.block {
 		display: block !important;
 	}
@@ -1151,7 +1156,7 @@
 					.bind("click", function (e) {
 						window.open(link, '_blank');
 					})
-					.css({ "cursor": "pointer", "text-decoration": "underline" })
+					.attr('class', 'izenda-vis-autochart-label-link')
 					.each(function() {
 						services.tipOn(this, "Open '" + s.chartOptions.usedData[index].name + "' a new tab/window");
 					});
@@ -1299,7 +1304,7 @@
 								return;
 						}
 					})
-					.css({ "cursor": "pointer", "text-decoration": "underline" })
+					.attr('class', 'izenda-vis-autochart-label-link')
 					.each(function() {
 						function getContext() {
 							return {
@@ -1637,11 +1642,10 @@
 			}
 
 			function legendItemClick(event) {
-				var that = this;
 				var min = null, max = null;
 				var zero = s.props.fromZero || (type == "pie" || stacked || percent);
 				s.props.visibility = s.chart.series.map(function (item) {
-					return item == that ? !item.visible : item.visible;
+					return item == event.target ? !item.visible : item.visible;
 				});
 				for (var i = 0; i < s.props.visibility.length; ++i) {
 					if (s.props.visibility[i]) {
@@ -1653,7 +1657,7 @@
 						}
 					}
 				}
-				that.yAxis.update({
+				event.target.yAxis.update({
 					min: zero ? 0 : min,
 					max: zero ? null : max,
 				});
@@ -1745,7 +1749,12 @@
 							marker: { fillOpacity: 0.5, lineColor: "rgba(0, 0, 0, 0.4)" }
 						},
 						series: {
-							events: { legendItemClick: legendItemClick },
+							events: {
+								legendItemClick: legendItemClick,
+								show: function () {
+									registerLabelEvents();
+								}
+							},
 							animation: { complete: function () { animationComplete = true; } }
 						}
 					},

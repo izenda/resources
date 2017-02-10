@@ -1,8 +1,10 @@
-﻿angular.module('izendaInstantReport').factory('$izendaInstantReportValidation', [
-	'$q',
-	'$izendaLocale',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportPivots',
+﻿define(['../../common/services/services', './instant-report-storage', './instant-report-pivot'], function () {
+
+	angular.module('izendaInstantReport').factory('$izendaInstantReportValidation', [
+		'$q',
+		'$izendaLocale',
+		'$izendaInstantReportStorage',
+		'$izendaInstantReportPivots',
 	'$izendaInstantReportSettings',
 	'$izendaCompatibility',
 	function ($q, $izendaLocale, $izendaInstantReportStorage, $izendaInstantReportPivots, $izendaInstantReportSettings, $izendaCompatibility) {
@@ -56,7 +58,7 @@
 					});
 				} else {
 					var havePivotCells = false;
-					angular.element.each(pivotCells, function() {
+					angular.element.each(pivotCells, function () {
 						var pivotCell = this;
 						if (angular.isObject(pivotCell))
 							havePivotCells = true;
@@ -175,3 +177,5 @@
 			validateReportSetAndRefresh: validateReportSetAndRefresh
 		};
 	}]);
+
+});

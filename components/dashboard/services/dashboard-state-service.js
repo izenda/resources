@@ -1,12 +1,14 @@
-﻿/**
- * Dashboard state service contains all event handles, which are common for dashboard controllers.
- */
-angular
-	.module('izendaDashboard')
-	.factory('$izendaDashboardState', [
-		'$rootScope',
-		'$window',
-		'$log',
+﻿define(['../../common/services/services'], function () {
+
+	/**
+	 * Dashboard state service contains all event handles, which are common for dashboard controllers.
+	 */
+	angular
+		.module('izendaDashboard')
+		.factory('$izendaDashboardState', [
+			'$rootScope',
+			'$window',
+			'$log',
 		'$izendaLocale',
 		function ($rootScope, $window, $log, $izendaLocale) {
 			'use strict';
@@ -28,7 +30,7 @@ angular
 					var parser = new CSSParser();
 					var sheet = parser.parse(customCss, false, true);
 					return sheet;
-				} catch(e) {
+				} catch (e) {
 					return null;
 				}
 			}
@@ -73,10 +75,10 @@ angular
 			/////////////////////////////////////////
 
 			var dashboardTilesLoaded = false;
-			var getDashboardTilesLoaded = function() {
+			var getDashboardTilesLoaded = function () {
 				return dashboardTilesLoaded;
 			};
-			var setDashboardTilesLoaded = function(loaded) {
+			var setDashboardTilesLoaded = function (loaded) {
 				dashboardTilesLoaded = loaded;
 			}
 
@@ -160,7 +162,7 @@ angular
 			/**
 			 * Window width getter
 			 */
-			var getWindowWidth = function() {
+			var getWindowWidth = function () {
 				return windowWidth;
 			};
 
@@ -198,3 +200,5 @@ angular
 				loadReportIntoContainer: loadReportIntoContainer
 			};
 		}]);
+
+});

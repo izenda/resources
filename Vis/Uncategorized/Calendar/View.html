@@ -1607,7 +1607,9 @@ be a descendant of the grid when it is being dragged.
 				eventAfterRender: function (event, element) {
 					var eventContainer = jq$(element.context).parent('.fc-event-container');
 					eventContainer.css('margin', '0 {right}px 0 2px'.format({ right: Math.floor(eventContainer.parent().width() * 0.025) }));
-					normalizeEventContent(eventContainer.find('.fc-content'));
+					eventContainer.find('.fc-content').each(function() {
+					  normalizeEventContent(jq$(this));
+					});
 				},
 				eventAfterAllRender: function (view) {
 					settings.props.currentView = view.type;

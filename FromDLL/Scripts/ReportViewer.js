@@ -859,21 +859,25 @@ function CheckIfReportExists(reportFullName) {
 function CheckedIfReportExists(returnObj, id) {
 	if (id != 'checkifreportexists' || returnObj == undefined || returnObj == null || returnObj.Value == null)
 		return;
-	if (returnObj.Value != 'retou_YES' && returnObj.Value != 'retou_NO') {
+	if (returnObj.Value != 'OK') {
 		alert('Unexpected response: ' + returnObj.Value);
 	}
 	else {
-		if (returnObj.Value == 'retou_NO') {
+		if (!returnObj.ReportExists) {
 			if (returnObj.AdditionalData != null && returnObj.AdditionalData.length > 0)
 				FinalizePreSaveRoutines(returnObj.AdditionalData[0]);
 			else
 				alert('Unexpected response: Field with validated report set name is empty');
 		}
 		else {
-			ReportingServices.showConfirm('ReportSet with specified name already exists. Are you sure to overwrite it?', function (result) {
-				if (result == jsResources.OK)
-					FinalizePreSaveRoutines(returnObj.AdditionalData[0]);
-			});
+			if (!returnObj.ReadOnly) {
+				ReportingServices.showConfirm('ReportSet with specified name already exists. Are you sure to overwrite it?', function (result) {
+					if (result == jsResources.OK)
+						FinalizePreSaveRoutines(returnObj.AdditionalData[0]);
+				});
+			}
+			else
+				ReportingServices.showOk('ReportSet with specified name already exists, and cannot be overwritten.');
 		}
 	}
 }
@@ -1153,7 +1157,8 @@ function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 	while (m = re.exec(location.search.substring(1))) {
 		var pName = decodeURIComponent(m[1]).toLowerCase();
 		queryParameters[pName] = decodeURIComponent(m[2]);
-		if (pName != 'rn')
+		var pNvalueParam = pName[0] == 'p' && (pName.indexOf('value', pName.length - 'value'.length) !== -1 || pName.indexOf('value2', pName.length - 'value2'.length) !== -1);
+		if (pName != 'rn' && !(pNvalueParam && invalidateInCache))
 			urlParams.push(pName + '=' + m[2]);
 	}
 

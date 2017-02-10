@@ -1,58 +1,62 @@
-﻿/**
- * Schedule control. Used for report schedule configuration
- */
-angular
-	.module('izenda.common.ui')
-	.controller('IzendaScheduleController', [
-		'$scope',
-		'$izendaLocale',
-		'$izendaSettings',
-		'$izendaScheduleService',
-		IzendaScheduleController]);
-
-function IzendaScheduleController($scope, $izendaLocale, $izendaSettings, $izendaScheduleService) {
-	'use strict';
-	var vm = this;
-
-	// add services references to scope for bindings:
-	$scope.$izendaSettings = $izendaSettings;
-	$scope.$izendaScheduleService = $izendaScheduleService;
-		
-	vm.scheduleConfig = $izendaScheduleService.getScheduleConfig();
-	vm.repeatTypes = $izendaScheduleService.getRepeatTypes();
-	vm.emailTypes = $izendaScheduleService.getEmailTypes();
-	vm.timezones = $izendaScheduleService.getTimezones();
-	vm.scheduleDateOpened = false;
-	vm.dateFormat = $izendaSettings.getDateFormat();
-	vm.culture = $izendaSettings.getCulture();
+﻿define(['../services/services', '../directive/directives'], function () {
 
 	/**
-	 * Initialize controller
+	 * Schedule control. Used for report schedule configuration
 	 */
-	vm.initialize = function () {
+	angular
+		.module('izenda.common.ui')
+		.controller('IzendaScheduleController', [
+			'$scope',
+			'$izendaLocale',
+			'$izendaSettings',
+			'$izendaScheduleService',
+			IzendaScheduleController]);
 
-		$scope.$watch('$izendaSettings.getDateFormat()', function (dateFormat) {
-			vm.dateFormat = dateFormat;
-		}, true);
+	function IzendaScheduleController($scope, $izendaLocale, $izendaSettings, $izendaScheduleService) {
+		'use strict';
+		var vm = this;
 
-		$scope.$watch('$izendaSettings.getCulture()', function (culture) {
-			vm.culture = culture;
-		});
+		// add services references to scope for bindings:
+		$scope.$izendaSettings = $izendaSettings;
+		$scope.$izendaScheduleService = $izendaScheduleService;
 
-		$scope.$watch('$izendaScheduleService.getScheduleConfig()', function (scheduleConfig) {
-			vm.scheduleConfig = scheduleConfig;
-		});
+		vm.scheduleConfig = $izendaScheduleService.getScheduleConfig();
+		vm.repeatTypes = $izendaScheduleService.getRepeatTypes();
+		vm.emailTypes = $izendaScheduleService.getEmailTypes();
+		vm.timezones = $izendaScheduleService.getTimezones();
+		vm.scheduleDateOpened = false;
+		vm.dateFormat = $izendaSettings.getDateFormat();
+		vm.culture = $izendaSettings.getCulture();
 
-		$scope.$watch('$izendaScheduleService.getRepeatTypes()', function (repeatTypes) {
-			vm.repeatTypes = repeatTypes;
-		});
+		/**
+		 * Initialize controller
+		 */
+		vm.initialize = function () {
 
-		$scope.$watch('$izendaScheduleService.getEmailTypes()', function (emailTypes) {
-			vm.emailTypes = emailTypes;
-		});
+			$scope.$watch('$izendaSettings.getDateFormat()', function (dateFormat) {
+				vm.dateFormat = dateFormat;
+			}, true);
 
-		$scope.$watch('$izendaScheduleService.getTimezones()', function (timezones) {
-			vm.timezones = timezones;
-		});
-	};
-}
+			$scope.$watch('$izendaSettings.getCulture()', function (culture) {
+				vm.culture = culture;
+			});
+
+			$scope.$watch('$izendaScheduleService.getScheduleConfig()', function (scheduleConfig) {
+				vm.scheduleConfig = scheduleConfig;
+			});
+
+			$scope.$watch('$izendaScheduleService.getRepeatTypes()', function (repeatTypes) {
+				vm.repeatTypes = repeatTypes;
+			});
+
+			$scope.$watch('$izendaScheduleService.getEmailTypes()', function (emailTypes) {
+				vm.emailTypes = emailTypes;
+			});
+
+			$scope.$watch('$izendaScheduleService.getTimezones()', function (timezones) {
+				vm.timezones = timezones;
+			});
+		};
+	}
+
+});

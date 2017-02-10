@@ -52,11 +52,6 @@
             </a>
           </li>
           <li>
-            <a ng-click="irController.setPreviewTop(irController.top)"
-               ng-show="irController.top > 0"
-               ng-bind="$izendaLocale.localeText('js_RecordCountFromOptions', 'Record count from options') + ': ' + irController.top"></a>
-          </li>
-          <li>
             <a ng-show="irController.settings.showAllInPreview" ng-click="irController.setPreviewTop()"
                ng-bind="'js_AllRecords' | izendaLocale: 'All records'">
             </a>

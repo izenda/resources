@@ -1,11 +1,16 @@
-﻿/**
- * Requirements: 
- *   izenda.common.compatibility
- *   izenda.common.query
- *   izenda.common.ui
- */
+﻿define(function (require) {
 
-angular.module('izendaFilters', [
-	'izenda.common.compatibility',
-	'izenda.common.query',
-	'izenda.common.ui']);
+	/**
+	 * Requirements: 
+	 *   izenda.common.compatibility
+	 *   izenda.common.query
+	 *   izenda.common.ui
+	 */
+
+	angular.module('izendaFilters', [
+		'izenda.common.compatibility',
+		'izenda.common.query',
+		'izenda.common.ui']);
+
+	return function () { };
+});

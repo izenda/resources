@@ -1,145 +1,149 @@
-﻿/**
- * Dashboard background directive. Used to set background color, image and hue rotate.
- */
-(function () {
-	'use strict';
+﻿define(['../../common/services/services', '../services/services'], function () {
 
-	// implementation
-	function izendaDashboardBackground($window) {
+	/**
+	 * Dashboard background directive. Used to set background color, image and hue rotate.
+	 */
+	(function () {
 		'use strict';
-		var _ = angular.element;
-		return {
-			restrict: 'A',
-			scope: {
-				backgroundColor: '=',
-				backgroundImage: '=',
-				backgroundImageRepeat: '=',
-				hueRotate: '='
-			},
-			link: function ($scope) {
-				var oldMouseX = 0;
-				var oldMouseY = 0;
-				var degree = 0;
 
-				// ensure background was added
-				var $background = _('body > .iz-dash-background');
-				var $dashboardsDiv = _('#izendaDashboardMainContainer');
-				if ($background.length === 0) {
-					$background = _('<div class="iz-dash-background"></div>');
-					_('body').prepend($background);
-				}
+		// implementation
+		function izendaDashboardBackground($window) {
+			'use strict';
+			var _ = angular.element;
+			return {
+				restrict: 'A',
+				scope: {
+					backgroundColor: '=',
+					backgroundImage: '=',
+					backgroundImageRepeat: '=',
+					hueRotate: '='
+				},
+				link: function ($scope) {
+					var oldMouseX = 0;
+					var oldMouseY = 0;
+					var degree = 0;
 
-				// Update background
-				var updateBackground = function () {
-					if ($scope.backgroundImageRepeat) {
-						$background.css('background-repeat', 'repeat');
-						$background.css('background-size', 'initial');
-					} else {
-						$background.css('background-repeat', '');
-						$background.css('background-size', '');
+					// ensure background was added
+					var $background = _('body > .iz-dash-background');
+					var $dashboardsDiv = _('#izendaDashboardMainContainer');
+					if ($background.length === 0) {
+						$background = _('<div class="iz-dash-background"></div>');
+						_('body').prepend($background);
 					}
-					if ($scope.backgroundColor)
-						$background.css('background-color', $scope.backgroundColor);
-					else
-						$background.css('background-color', '');
-					if ($scope.backgroundImage)
-						$background.css('background-image', 'url(' + $scope.backgroundImage + ')');
-					else
-						$background.css('background-image', '');
-				};
 
-				// set background position
-				var setBackgroundPosition = function () {
-					var newBackgroundTop = $dashboardsDiv.offset().top + 50 - _($window).scrollTop();
-					if (newBackgroundTop < 0) newBackgroundTop = 0;
-					$background.css({
-						'-moz-background-position-y': newBackgroundTop + 'px',
-						'-o-background-position-y': newBackgroundTop + 'px',
-						'background-position-y': newBackgroundTop + 'px'
-					});
-				};
+					// Update background
+					var updateBackground = function () {
+						if ($scope.backgroundImageRepeat) {
+							$background.css('background-repeat', 'repeat');
+							$background.css('background-size', 'initial');
+						} else {
+							$background.css('background-repeat', '');
+							$background.css('background-size', '');
+						}
+						if ($scope.backgroundColor)
+							$background.css('background-color', $scope.backgroundColor);
+						else
+							$background.css('background-color', '');
+						if ($scope.backgroundImage)
+							$background.css('background-image', 'url(' + $scope.backgroundImage + ')');
+						else
+							$background.css('background-image', '');
+					};
 
-				// Hue can use rotate
-				var isToggleHueRotateEnabled = function () {
-					var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
-					var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
-					var isFirefox = /Firefox/.test(navigator.userAgent);
-					return isChrome || isSafari || isFirefox;
-				}
+					// set background position
+					var setBackgroundPosition = function () {
+						var newBackgroundTop = $dashboardsDiv.offset().top + 50 - _($window).scrollTop();
+						if (newBackgroundTop < 0) newBackgroundTop = 0;
+						$background.css({
+							'-moz-background-position-y': newBackgroundTop + 'px',
+							'-o-background-position-y': newBackgroundTop + 'px',
+							'background-position-y': newBackgroundTop + 'px'
+						});
+					};
 
-				// Turn off background hue rotate
-				var resetRotate = function () {
-					clearTimeout($window.hueRotateTimeOut);
-					$background.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
-					$background.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
-					$background.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
-					$background.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
-					$background.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
-				};
+					// Hue can use rotate
+					var isToggleHueRotateEnabled = function () {
+						var isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+						var isSafari = /Safari/.test(navigator.userAgent) && /Apple Computer/.test(navigator.vendor);
+						var isFirefox = /Firefox/.test(navigator.userAgent);
+						return isChrome || isSafari || isFirefox;
+					}
 
-				// Run hue rotate
-				var rotate = function () {
-					if (!isToggleHueRotateEnabled())
-						return;
-					$background.css({ '-webkit-filter': 'hue-rotate(' + degree + 'deg)' });
-					$background.css({ '-moz-filter': 'hue-rotate(' + degree + 'deg)' });
-					$background.css({ '-o-filter': 'hue-rotate(' + degree + 'deg)' });
-					$background.css({ '-ms-filter': 'hue-rotate(' + degree + 'deg)' });
-					$background.css({ 'filter': 'hue-rotate(' + degree + 'deg)' });
-					$window.hueRotateTimeOut = setTimeout(function () {
-						var addPath;
-						var dx = ($window.mouseX - oldMouseX);
-						var dy = ($window.mouseY - oldMouseY);
-						addPath = Math.sqrt(dx * dx + dy * dy);
-						var wndPath = Math.sqrt($window.innerHeight * $window.innerHeight + $window.innerWidth * $window.innerWidth);
-						addPath = addPath * 360 / wndPath;
-						oldMouseX = $window.mouseX;
-						oldMouseY = $window.mouseY;
-						if (isNaN(addPath))
-							addPath = 0;
-						degree += 6 + addPath;
-						while (degree > 360)
-							degree -= 360;
-						rotate();
-					}, 100);
-				}
+					// Turn off background hue rotate
+					var resetRotate = function () {
+						clearTimeout($window.hueRotateTimeOut);
+						$background.css({ '-webkit-filter': 'hue-rotate(' + '0' + 'deg)' });
+						$background.css({ '-moz-filter': 'hue-rotate(' + '0' + 'deg)' });
+						$background.css({ '-o-filter': 'hue-rotate(' + '0' + 'deg)' });
+						$background.css({ '-ms-filter': 'hue-rotate(' + '0' + 'deg)' });
+						$background.css({ 'filter': 'hue-rotate(' + '0' + 'deg)' });
+					};
 
-				// run background
-				setBackgroundPosition();
-				_($window).scroll(function () {
+					// Run hue rotate
+					var rotate = function () {
+						if (!isToggleHueRotateEnabled())
+							return;
+						$background.css({ '-webkit-filter': 'hue-rotate(' + degree + 'deg)' });
+						$background.css({ '-moz-filter': 'hue-rotate(' + degree + 'deg)' });
+						$background.css({ '-o-filter': 'hue-rotate(' + degree + 'deg)' });
+						$background.css({ '-ms-filter': 'hue-rotate(' + degree + 'deg)' });
+						$background.css({ 'filter': 'hue-rotate(' + degree + 'deg)' });
+						$window.hueRotateTimeOut = setTimeout(function () {
+							var addPath;
+							var dx = ($window.mouseX - oldMouseX);
+							var dy = ($window.mouseY - oldMouseY);
+							addPath = Math.sqrt(dx * dx + dy * dy);
+							var wndPath = Math.sqrt($window.innerHeight * $window.innerHeight + $window.innerWidth * $window.innerWidth);
+							addPath = addPath * 360 / wndPath;
+							oldMouseX = $window.mouseX;
+							oldMouseY = $window.mouseY;
+							if (isNaN(addPath))
+								addPath = 0;
+							degree += 6 + addPath;
+							while (degree > 360)
+								degree -= 360;
+							rotate();
+						}, 100);
+					}
+
+					// run background
 					setBackgroundPosition();
-				});
-				updateBackground();
+					_($window).scroll(function () {
+						setBackgroundPosition();
+					});
+					updateBackground();
 
-				// watch bindings changed
-				$scope.$watch('backgroundColor', function () {
-					updateBackground();
-				});
-				$scope.$watch('backgroundImage', function () {
-					updateBackground();
-				});
-				$scope.$watch('backgroundImageRepeat', function () {
-					updateBackground();
-				});
-				$scope.$watch('hueRotate', function (newVal) {
-					if (newVal) {
-						rotate();
-					} else {
-						resetRotate();
-					}
-				});
-			}
+					// watch bindings changed
+					$scope.$watch('backgroundColor', function () {
+						updateBackground();
+					});
+					$scope.$watch('backgroundImage', function () {
+						updateBackground();
+					});
+					$scope.$watch('backgroundImageRepeat', function () {
+						updateBackground();
+					});
+					$scope.$watch('hueRotate', function (newVal) {
+						if (newVal) {
+							rotate();
+						} else {
+							resetRotate();
+						}
+					});
+				}
+			};
 		};
-	};
 
-	// definition
-	angular
-    .module('izendaDashboard')
-    .directive('izendaDashboardBackground', [
-      '$window',
-      izendaDashboardBackground
-    ]);
-})();
+		// definition
+		angular
+			.module('izendaDashboard')
+			.directive('izendaDashboardBackground', [
+				'$window',
+				izendaDashboardBackground
+			]);
+	})();
+
+});
 
 
 

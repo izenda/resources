@@ -1,49 +1,53 @@
-﻿/**
- * Instant report settings service.
- */
-angular.module('izendaInstantReport').factory('$izendaInstantReportSettings', [
-	'$izendaRsQuery',
-function ($izendaRsQuery) {
-
-	var settingsObject = null;
+﻿define(['../../common/services/services'], function () {
 
 	/**
-	 * Get instant report settings from server.
+	 * Instant report settings service.
 	 */
-	function getInstantReportSettings() {
-		return $izendaRsQuery.query('getInstantReportSettings', [], {
-			dataType: 'json',
-			cache: true
-		}, {
-			handler: function () {
-				return 'Failed to get instant report settings';
-			},
-			params: []
-		});
-	};
+	angular.module('izendaInstantReport').factory('$izendaInstantReportSettings', [
+		'$izendaRsQuery',
+	function ($izendaRsQuery) {
 
-	/**
-	 * Load settings and set settingsObject
-	 */
-	function initialize() {
-		getInstantReportSettings().then(function (resultObject) {
-			settingsObject = resultObject;
-		});
-	}
+		var settingsObject = null;
 
-	/**
-	 * Settings getter
-	 */
-	var getSettings = function() {
-		return settingsObject;
-	};
+		/**
+		 * Get instant report settings from server.
+		 */
+		function getInstantReportSettings() {
+			return $izendaRsQuery.query('getInstantReportSettings', [], {
+				dataType: 'json',
+				cache: true
+			}, {
+				handler: function () {
+					return 'Failed to get instant report settings';
+				},
+				params: []
+			});
+		};
 
-	// initialize service
-	initialize();
+		/**
+		 * Load settings and set settingsObject
+		 */
+		function initialize() {
+			getInstantReportSettings().then(function (resultObject) {
+				settingsObject = resultObject;
+			});
+		}
 
-	// public api
-	return {
-		getInstantReportSettings: getInstantReportSettings,
-		getSettings: getSettings
-	};
-}]);
+		/**
+		 * Settings getter
+		 */
+		var getSettings = function () {
+			return settingsObject;
+		};
+
+		// initialize service
+		initialize();
+
+		// public api
+		return {
+			getInstantReportSettings: getInstantReportSettings,
+			getSettings: getSettings
+		};
+	}]);
+
+});

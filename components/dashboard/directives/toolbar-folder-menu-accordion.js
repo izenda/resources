@@ -1,60 +1,64 @@
-﻿/**
- * Dashboard toolbar with ability to scroll. Used for navigation between dashboards.
- */
-(function() {
-  'use strict';
+﻿define(['../../common/services/services', '../services/services'], function () {
 
-  // implementation
-  function izendaToolbarFolderMenuAccordion($timeout, $izendaUrl) {
-    'use strict';
-    var _ = angular.element;
-    return {
-      restrict: 'A',
-      scope: {
-        categories: '='
-      },
-      templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/toolbar-folder-menu-accordion.html',
-      link: function ($scope, elem, attrs) {
+	/**
+	 * Dashboard toolbar with ability to scroll. Used for navigation between dashboards.
+	 */
+	(function () {
+		'use strict';
 
-        // add category 'in' class for currentCategory
-        $scope.getCategoryClass = function (index) {
-          return $scope.categories[index].name === $izendaUrl.getReportInfo().category ? 'in' : '';
-        };
+		// implementation
+		function izendaToolbarFolderMenuAccordion($timeout, $izendaUrl) {
+			'use strict';
+			var _ = angular.element;
+			return {
+				restrict: 'A',
+				scope: {
+					categories: '='
+				},
+				templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/toolbar-folder-menu-accordion.html',
+				link: function ($scope, elem, attrs) {
 
-        $scope.getCategoryItemClass = function(itemName) {
-          var isCurrentName = itemName === $izendaUrl.getReportInfo().fullName;
-          return isCurrentName ? 'active' : '';
-        };
+					// add category 'in' class for currentCategory
+					$scope.getCategoryClass = function (index) {
+						return $scope.categories[index].name === $izendaUrl.getReportInfo().category ? 'in' : '';
+					};
 
-        // remove category part from report name
-        $scope.extractReportName = function(fullName) {
-          return $izendaUrl.extractReportName(fullName);
-        };
+					$scope.getCategoryItemClass = function (itemName) {
+						var isCurrentName = itemName === $izendaUrl.getReportInfo().fullName;
+						return isCurrentName ? 'active' : '';
+					};
 
-        // navigate to dashboard
-        $scope.goToDashboard = function (dashboard) {
-	        $izendaUrl.setReportFullName(dashboard);
-        };
+					// remove category part from report name
+					$scope.extractReportName = function (fullName) {
+						return $izendaUrl.extractReportName(fullName);
+					};
 
-        // toggle accordion handler
-        $scope.toggleAccordion = function (index) {
-          var $categoryContainer = _(elem.children()[index]);
-          var $category = $categoryContainer.find('.category');
-          if ($category.hasClass('in'))
-            $category.removeClass('in');
-          else
-            $category.addClass('in');
-        };
-      }
-    };
-  }
+					// navigate to dashboard
+					$scope.goToDashboard = function (dashboard) {
+						$izendaUrl.setReportFullName(dashboard);
+					};
 
-  // definition
-  angular
-    .module('izendaDashboard')
-    .directive('izendaToolbarFolderMenuAccordion', [
-      '$timeout',
-      '$izendaUrl',
-      izendaToolbarFolderMenuAccordion
-    ]);
-})();
+					// toggle accordion handler
+					$scope.toggleAccordion = function (index) {
+						var $categoryContainer = _(elem.children()[index]);
+						var $category = $categoryContainer.find('.category');
+						if ($category.hasClass('in'))
+							$category.removeClass('in');
+						else
+							$category.addClass('in');
+					};
+				}
+			};
+		}
+
+		// definition
+		angular
+			.module('izendaDashboard')
+			.directive('izendaToolbarFolderMenuAccordion', [
+				'$timeout',
+				'$izendaUrl',
+				izendaToolbarFolderMenuAccordion
+			]);
+	})();
+
+});

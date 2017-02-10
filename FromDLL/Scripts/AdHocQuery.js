@@ -17,9 +17,10 @@ k();if("true"==a.slice(b,b+4))return b+=4,!0;if("false"==a.slice(b,b+5))return b
 a[0])&&":"==z()||k();c[a.slice(1)]=M(z())}return c}k()}return a},Q=function(a,b,e){e=P(a,b,e);e===v?delete a[b]:a[b]=e},P=function(a,b,e){var g=a[b],f;if("object"==typeof g&&g)if("[object Array]"==t.call(g))for(f=g.length;f--;)Q(g,f,e);else C(g,function(a){Q(g,a,e)});return e.call(a,b,g)};q.parse=function(a,c){var e,g;b=0;I=""+a;e=M(z());"$"!=z()&&k();b=I=null;return c&&"[object Function]"==t.call(c)?P((g={},g[""]=e,g),"",c):e}}}q.runInContext=K;return q}var J=typeof define==="function"&&define.amd,
 A="object"==typeof global&&global;!A||A.global!==A&&A.window!==A||(n=A);if("object"!=typeof exports||!exports||exports.nodeType||J){var N=n.JSON,B=K(n,n.JSON3={noConflict:function(){n.JSON=N;return B}});n.JSON={parse:B.parse,stringify:B.stringify}}else K(n,exports);J&&define(function(){return B})})(this);
 
+
 /**
-	 * Add url-encoded parameter to url string. Parameter adds only if parameter value is defined.
-	 */
+ * Add url-encoded parameter to url string. Parameter adds only if parameter value is defined.
+ */
 function appendParameterToUrl(url, parameterName, parameterValue) {
 	var modifiedUrl = url;
 	if (typeof (parameterValue) !== 'undefined') {
@@ -133,4 +134,17 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 			return retObj[0];
 		return retObj;
 	}
+}
+
+function getAppendedUrl(urlToAppend) {
+	if (typeof (window.izendaPageId$) !== 'undefined') {
+		if (urlToAppend.indexOf("?") == -1)
+			urlToAppend = urlToAppend + "?";
+		else {
+			if (urlToAppend[urlToAppend.length - 1] != '&' && urlToAppend[urlToAppend.length - 1] != '?')
+				urlToAppend = urlToAppend + "&";
+		}
+		urlToAppend = urlToAppend + 'izpid=' + window.izendaPageId$;
+	}
+	return urlToAppend;
 }

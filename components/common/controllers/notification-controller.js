@@ -1,96 +1,100 @@
-﻿/**
- * Show notification controller
- * it could be run by using $rootScope.$broadcast 'izendaShowNotificationEvent'
- * with 2 parameters: text and title.
- */
-angular
-	.module('izenda.common.ui')
-	.controller('IzendaNotificationController', [
-		'$rootScope',
-		'$scope',
-		IzendaNotificationController]);
-
-function IzendaNotificationController($rootScope, $scope) {
-	'use strict';
-	var vm = this;
-
-	vm.notificationsIdCounter = 1;
-	vm.notifications = [];
-
-	// private
-	var getNotificationById = function (id) {
-		var i = 0;
-		while (i < vm.notifications.length) {
-			var itm = vm.notifications[i];
-			if (itm.id === id) {
-				return itm;
-			}
-			i++;
-		}
-		return null;
-	};
+﻿define(['../services/services', '../directive/directives'], function () {
 
 	/**
-	 * Cancel notification item autohide
-		*/
-	vm.cancelNotificationTimeout = function (id) {
-		var itm = getNotificationById(id);
-		if (itm.timeoutId >= 0) {
-			clearTimeout(itm.timeoutId);
-			itm.timeoutId = -1;
-		}
-	};
-
-	/**
-	 * Close notification
+	 * Show notification controller
+	 * it could be run by using $rootScope.$broadcast 'izendaShowNotificationEvent'
+	 * with 2 parameters: text and title.
 	 */
-	vm.closeNotification = function (id) {
-		var i = 0;
-		while (i < vm.notifications.length) {
-			if (vm.notifications[i].id === id) {
-				vm.cancelNotificationTimeout(id);
-				vm.notifications.splice(i, 1);
-				$scope.$evalAsync();
-				return;
-			}
-			i++;
-		}
-	};
+	angular
+		.module('izenda.common.ui')
+		.controller('IzendaNotificationController', [
+			'$rootScope',
+			'$scope',
+			IzendaNotificationController]);
 
-	/**
-	 * Open notification
-	 */
-	vm.showNotification = function (title, text, icon) {
-		var nextId = vm.notificationsIdCounter++;
-		var iconClass = '';
-		if (angular.isString(icon)) {
-			if (icon === 'error') {
-				iconClass = 'glyphicon glyphicon-exclamation-sign';
+	function IzendaNotificationController($rootScope, $scope) {
+		'use strict';
+		var vm = this;
+
+		vm.notificationsIdCounter = 1;
+		vm.notifications = [];
+
+		// private
+		var getNotificationById = function (id) {
+			var i = 0;
+			while (i < vm.notifications.length) {
+				var itm = vm.notifications[i];
+				if (itm.id === id) {
+					return itm;
+				}
+				i++;
 			}
-		}
-		var objToShow = {
-			id: nextId,
-			title: title,
-			text: text,
-			iconClass: iconClass
+			return null;
 		};
-		objToShow.timeoutId = setTimeout(function () {
-			vm.closeNotification(objToShow.id);
-		}, 5000);
-		vm.notifications.push(objToShow);
-		$scope.$evalAsync();
-	};
 
-	$scope.$on('izendaShowNotificationEvent', function (event, args) {
-		if (args.length > 0) {
-			var title = args.length > 1 ? args[1] : '';
-			var text = args[0];
-			vm.showNotification(title, text);
-		}
-	});
+		/**
+		 * Cancel notification item autohide
+			*/
+		vm.cancelNotificationTimeout = function (id) {
+			var itm = getNotificationById(id);
+			if (itm.timeoutId >= 0) {
+				clearTimeout(itm.timeoutId);
+				itm.timeoutId = -1;
+			}
+		};
 
-	/**
-	 * Initialize controller
-	 */
-	vm.initialize = function () {};
-}
+		/**
+		 * Close notification
+		 */
+		vm.closeNotification = function (id) {
+			var i = 0;
+			while (i < vm.notifications.length) {
+				if (vm.notifications[i].id === id) {
+					vm.cancelNotificationTimeout(id);
+					vm.notifications.splice(i, 1);
+					$scope.$evalAsync();
+					return;
+				}
+				i++;
+			}
+		};
+
+		/**
+		 * Open notification
+		 */
+		vm.showNotification = function (title, text, icon) {
+			var nextId = vm.notificationsIdCounter++;
+			var iconClass = '';
+			if (angular.isString(icon)) {
+				if (icon === 'error') {
+					iconClass = 'glyphicon glyphicon-exclamation-sign';
+				}
+			}
+			var objToShow = {
+				id: nextId,
+				title: title,
+				text: text,
+				iconClass: iconClass
+			};
+			objToShow.timeoutId = setTimeout(function () {
+				vm.closeNotification(objToShow.id);
+			}, 5000);
+			vm.notifications.push(objToShow);
+			$scope.$evalAsync();
+		};
+
+		$scope.$on('izendaShowNotificationEvent', function (event, args) {
+			if (args.length > 0) {
+				var title = args.length > 1 ? args[1] : '';
+				var text = args[0];
+				vm.showNotification(title, text);
+			}
+		});
+
+		/**
+		 * Initialize controller
+		 */
+		vm.initialize = function () { };
+	}
+
+});

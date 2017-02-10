@@ -1,110 +1,20 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
-<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
-<script type="text/javascript" src="Resources/js/main.js"></script>
-<script type="text/javascript">
-  ensureIzPidProcessed();
-  window.angularPageId$ = (new Date()).getTime().toString();
-</script>
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/jquery.minicolors.css" />
-<link rel="stylesheet" type="text/css" href="Resources/css/ModernStyles/perfect-scrollbar.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/vendor/ionrangeslider/ion.rangeSlider.skinHTML5.css" />
 <!-- old styles -->
-<link rel="stylesheet" type="text/css" href="./Resources/css/shrinkable-grid.css" />
+<link rel="stylesheet" type="text/css" href="Resources/css/shrinkable-grid.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=ModalDialogStyle" />
 <!-- new styles -->
 <link rel="stylesheet" type="text/css" href="Resources/components/common/css/common.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/filter/css/filters.css" />
 <link rel="stylesheet" type="text/css" href="Resources/components/dashboard/css/dashboard.css" />
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
-
-<script type="text/javascript" src="./rs.aspx?js=ModernScripts.jquery.nicescroll.min"></script>
-<script type="text/javascript">
-  window.jQueryTemp = null;
-  if (window.jQuery)
-    window.jQueryTemp = window.jQuery;
-  window.jQuery = jq$;
-</script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-animate.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-aria.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-cookies.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-loader.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-messages.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-resource.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-route.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-sanitize.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/TweenMax.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/angular-1.5.6/angular-impress.js"></script>
-<script type="text/javascript">
-  if (window.jQueryTemp)
-    window.jQuery = window.jQueryTemp;
-</script>
-
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
-<script type="text/javascript">
-  window.urlSettings$ = UrlSettings();
-</script>
-<script type="text/javascript" src="rs.aspx?js=Utility"></script>
-<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
-<script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
-<script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
-<script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
-<script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
-<script type="text/javascript" src="rs.aspx?js=ReportViewer"></script>
-<script type="text/javascript" src="rs.aspx?js=AdHocToolbarNavigation"></script>
-<script type="text/javascript" src="rs.aspx?js=moment"></script>
-<script type="text/javascript" src="rs.aspx?js=HtmlOutputReportResults"></script>
-<script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
-<script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
-<script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
-<script type="text/javascript" src="rs.aspx?js=ReportingServices"></script>
-<script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
-<script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
-<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
-
-<!-- datetime -->
-<link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
-<script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap3-typeahead.min.js"></script>
-
 <link rel="stylesheet" type="text/css" href="rs.aspx?css=jquery-ui-timepicker-addon" />
-<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
-
-<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
-<script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
-
-<script>
-  // legacy code: needed for correct report old scripts work
-  var urlSettings = window.urlSettings$;
-  var url = urlSettings.urlRsPage + '?wscmd=reportviewerconfig&wsarg0=0&wsarg1=0&wsarg2=' + encodeURIComponent(urlSettings.reportInfo.fullName);
-  url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
-  url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
-  jq$.ajax(url, {
-    dataType: 'json'
-  }).done(function (returnObj) {
-    nrvConfig = returnObj;
-    nrvConfig.serverDelimiter = '?';
-    if (nrvConfig.ResponseServerUrl.indexOf('?') >= 0)
-      nrvConfig.serverDelimiter = '&';
-    var delimiter = '';
-    if (urlSettings.urlRsPage.lastIndexOf(nrvConfig.serverDelimiter) !== urlSettings.urlRsPage.length - 1)
-      delimiter = nrvConfig.serverDelimiter;
-    responseServer = new AdHoc.ResponseServer(urlSettings.urlRsPage + delimiter, 0);
-    responseServerWithDelimeter = responseServer.ResponseServerUrl;
-  });
-</script>
-
-<!-- Utils Resources -->
-<script type="text/javascript" src="./Resources/components/vendor/custom/msie-detect.js"></script>
-<script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>
-<script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
-<script type="text/javascript" src="./Resources/js/shrinkable-grid.js"></script>
+<link rel="stylesheet" type="text/css" href="Resources/components/vendor/bootstrap/css/bootstrap-datetimepicker.min.css" />
 <style type="text/css">
   .izenda-toolbar {
     display: none !important;
@@ -261,60 +171,47 @@
       margin: 0px;
     }
 </style>
-
-<script type="text/javascript" src="Resources/components/vendor/jquery.minicolors.min.js"></script>
-<script type="text/javascript" src="Resources/components/vendor/ionrangeslider/ion.rangeSlider.js"></script>
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+<script type="text/javascript">
+  ensureIzPidProcessed();
+  window.angularPageId$ = (new Date()).getTime().toString();
+</script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.purl"></script>
+<script type="text/javascript" src="rs.aspx?js=ModernScripts.url-settings"></script>
+<script type="text/javascript">
+  window.urlSettings$ = UrlSettings();
+</script>
+<script type="text/javascript" src="rs.aspx?js=Utility"></script>
+<script type="text/javascript" src="rs.aspx?js=AdHocServer"></script>
+<script type="text/javascript" src="rs.aspx?js=NumberFormatter"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlCharts"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlChartsPieLabels"></script>
+<script type="text/javascript" src="rs.aspx?js=htmlcharts-more"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlChartsFunnel"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportViewer"></script>
+<script type="text/javascript" src="rs.aspx?js=AdHocToolbarNavigation"></script>
+<script type="text/javascript" src="rs.aspx?js=moment"></script>
+<script type="text/javascript" src="rs.aspx?js=HtmlOutputReportResults"></script>
+<script type="text/javascript" src="rs.aspx?js=EditorBaseControl"></script>
+<script type="text/javascript" src="rs.aspx?js=MultilineEditorBaseControl"></script>
+<script type="text/javascript" src="rs.aspx?js=GaugeControl"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportingServices"></script>
+<script type="text/javascript" src="rs.aspx?js=ReportScripting"></script>
+<script type="text/javascript" src="rs.aspx?js=CustomScripts"></script>
+<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
+<script type="text/javascript" src="Resources/components/vendor/moment/moment-with-locales.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="Resources/components/vendor/bootstrap/js/bootstrap3-typeahead.min.js"></script>
+<script type="text/javascript" src="rs.aspx?js=jquery-ui-timepicker-addon"></script>
+<script type="text/javascript" src="rs.aspx?js=datepicker.langpack"></script>
+<script type="text/javascript" src="rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+<script type="text/javascript" src="./Resources/js/ReportViewerFilters.js"></script>
+<script type="text/javascript" src="./Resources/js/FieldProperties.js"></script>
+<script type="text/javascript" src="./Resources/js/shrinkable-grid.js"></script>
 <script type="text/javascript" src="Resources/components/vendor/jscssp/cssParser.js"></script>
 
-<!-- common -->
-<script type="text/javascript" src="Resources/components/common/module-definition.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/url-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/event-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/localization-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/compatibility-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/rs-query-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/common-query-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/settings-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/ping-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/schedule-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/services/share-service.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/utility.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/color-picker.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/toggle-button.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/datetime-picker.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/select-checkboxes.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/bootstrap-modal.js"></script>
-<script type="text/javascript" src="Resources/components/common/directive/switcher.js"></script>
-<script type="text/javascript" src="Resources/components/common/controllers/select-report-name-controller.js"></script>
-<script type="text/javascript" src="Resources/components/common/controllers/select-report-controller.js"></script>
-<script type="text/javascript" src="Resources/components/common/controllers/schedule-controller.js"></script>
-<script type="text/javascript" src="Resources/components/common/controllers/share-controller.js"></script>
-<script type="text/javascript" src="Resources/components/common/controllers/notification-controller.js"></script>
-
-<!-- filters -->
-<script type="text/javascript" src="Resources/components/filter/module-definition.js"></script>
-<script type="text/javascript" src="Resources/components/filter/services/filters-query-service.js"></script>
-<!--<script type="text/javascript" src="Resources/components/filter/controllers/filters-controller.js"></script>-->
-<!-- Use old filters : -->
-<script type="text/javascript" src="Resources/components/custom/controllers/filters-legacy-controller.js"></script>
-<!-- HERE IS EXAMPLE FOR CONTROL CUSTOMIZATION: -->
-<!--<script type="text/javascript" src="Resources/components/custom/controllers/filters-custom-controller.js"></script>-->
-
-<!-- dashboard -->
-<script type="text/javascript" src="Resources/components/dashboard/module-definition.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/services/background-service.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/services/dashboard-query-service.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/services/gallery-service.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/services/toolbar-query-service.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/services/dashboard-state-service.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-links-panel.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/directives/dashboard-background.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/directives/gallery.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/directives/tile-top-slider.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/directives/toolbar-folder-menu-accordion.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/controllers/tile-controller.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/controllers/dashboard-controller.js"></script>
-<script type="text/javascript" src="Resources/components/dashboard/controllers/toolbar-controller.js"></script>
+<!-- load and run instant report application -->
+<script src="Resources/components/vendor/requirejs/require.js" data-main="Resources/components/dashboard/module-loader.js"></script>
 
 <script runat="server">
     protected override void OnInit(EventArgs e)
@@ -325,7 +222,7 @@
       if (Page.Request.Params["clear"] != null)
       {
         AdHocContext.CurrentReportSet = ReportSet.InitializeNew();
-        Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "#?new");
+        Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "#!?new");
       }
 
       if (Page.Request.Params["rn"] != null)
@@ -347,7 +244,7 @@
         if (!izpidFound)
           baseUrl = Utility.AppendIzPidParameter(baseUrl);
 
-        Response.Redirect(baseUrl + "#/" + report.Replace("\\", "%5c"));
+        Response.Redirect(baseUrl + "#!/" + report.Replace("\\", "%5c"));
       }
     }
 </script>

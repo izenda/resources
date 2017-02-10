@@ -11,12 +11,8 @@
   <!-- dashboard toolbar -->
   <div ng-include="'Resources/components/dashboard/templates/toolbar.html'"></div>
   
-
   <!-- filters panel -->
-  <div ng-include="'Resources/components/custom/templates/filters-legacy.html'"></div>
-  <!--<div ng-include="'Resources/components/filter/templates/filters.html'"></div>-->
-  <!-- HERE IS EXAMPLE FOR CONTROL CUSTOMIZATION: -->
-  <!--<div ng-include="'Resources/components/custom/filters-custom-template.html'"></div>-->
+  <div ng-include="'Resources/components/filter/templates/filters-legacy.html'"></div>
 
   <!-- dashboard body -->
   <div ng-include="'Resources/components/dashboard/templates/dashboard.html'"></div>

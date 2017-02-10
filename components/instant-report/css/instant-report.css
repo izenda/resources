@@ -376,7 +376,7 @@ a.collapse-link {
 	font-size: 1.2em;
 	line-height: 1em;
 	text-align: left;
-	direction: rtl;
+	/*direction: rtl;*/
 	white-space: nowrap;
 	overflow: hidden;
 }

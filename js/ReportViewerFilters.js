@@ -768,18 +768,17 @@ function CC_CustomFilterPageValueReceived() {
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
 	var notRefreshFilters = isLastFilter || nrvConfig && nrvConfig.CascadeFilterValues == false;
 	var onChangeCmd = notRefreshFilters ? '' : 'onchange="CommitFiltersData(false);"';
-	var onKeyUpDownCmd = notRefreshFilters ? '' : 'onkeyup="TextFilterInputKeyUp();" onkeydown="TextFilterInputKeyDown();"';
 	var result = '';
 	switch (cType) {
 		case 1:
 			if (value == '...') value = '';
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
 			break;
 		case 2:
 			if (values[0] == '...') values[0] = '';
 			if (values[1] == '...') values[1] = '';
-			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
-			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onKeyUpDownCmd + ' />';
+			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
+			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
 			break;
 		case 3:
 			result += '<select style="width:100%;" id="ndbfc' + index + '" ' + onChangeCmd + '>';
@@ -832,7 +831,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			break;
 		case 7:
 			if (value == '...') value = '';
-			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onKeyUpDownCmd + '>' + value + '</textarea>';
+			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onChangeCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
 			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; overflow-y:auto; overflow-x:hidden; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';
@@ -884,17 +883,6 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result = '';
 	}
 	return result;
-}
-
-var textFilterInputTimer;
-function TextFilterInputKeyUp() {
-	if (textFilterInputTimer != null)
-		clearTimeout(textFilterInputTimer);
-	textFilterInputTimer = setTimeout(function () { CommitFiltersData(false); }, 1000);
-}
-function TextFilterInputKeyDown() {
-	if (textFilterInputTimer != null)
-		clearTimeout(textFilterInputTimer);
 }
 
 /**

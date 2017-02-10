@@ -153,8 +153,8 @@
                     <span ng-switch-when="select_multiple">
                       <select class="iz-inst-filter-input"
                               ng-model="filter.values" multiple
-                              ng-change="filtersController.onCurrentValueChange(filter)">
-                        <option ng-repeat="existentValue in filter.existentValues" value="{{existentValue.value}}">{{existentValue.text}}</option>
+                              ng-change="filtersController.onCurrentValueChange(filter)"
+                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues">
                       </select>
                     </span>
 

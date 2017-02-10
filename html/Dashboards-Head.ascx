@@ -2,6 +2,8 @@
 <%@ Import Namespace="Izenda.AdHoc" %>
 
 <title>Dashboards</title>
+<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
+
 <script runat="server">
     public string getDashboardViewer()
     {
@@ -12,9 +14,6 @@
         return AdHocSettings.DashboardDesignerUrl;
     }
 </script>
-<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
-
-
 <% if (AdHocContext.DashboardsAllowed)
    { %>
 
