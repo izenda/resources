@@ -130,7 +130,7 @@ function TabStrip_EnableDisableTab(strControlName, index, enable)
 
 function TabStrip_WaitCursor(element)
 {
-	ReportingServices.showLoading(responseServerWithDelimeter);
+	ReportingServices.showLoading();
 }
 
 function TabStrip_ToggleTab(strControlName, strTabName, tabIndex, runEvent, pause)

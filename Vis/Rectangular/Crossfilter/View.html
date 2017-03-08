@@ -82,442 +82,441 @@
 </style>
 
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script src="crossfilter.v1.min.js"></script>
 <script src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS[0].type == 'DateTime';
-		}
+	(function init() {
+		var services = window.ReportingServices;
 
-		var width = 720, height = 500;
-
-		var util = window.ReportScripting, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, input: validate }))
-			return;
-
-		VIS_CONTEXT.UTC2Local = true;
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		width = vis.getWidth();
-		height = vis.getHeight();
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: { d3: true, svg: true },
+			validate: function (columns, rows) {
+				return columns[0].type == 'DateTime';
+			},
+			localTimeCorrection: true,
+			unlimitedHeight: true,
+			draw: draw
+		});
 
 		var items = vis.getItems();
+		function draw() {
+			var visDiv = d3.select(vis.element.get(0));
+			visDiv.append('div')
+				.attr('id', 'VIS_ID_CHARTS');
+			visDiv.append('div')
+				.attr('id', 'VIS_ID_RECORDS_INFO')
+				.html('<span id="VIS_ID_RECORDS_ACTIVE">-</span> of <span id="VIS_ID_RECORDS_TOTAL">-</span> records selected');
+			visDiv.append('div')
+				.attr('id', 'VIS_ID_LISTS')
+				.html('<table id="VIS_ID_REPORT_LIST" class="ReportTable"></table>');
 
-		jq$('#VIS_ID').width(width);
+			function processData() {
+				var formatNumber = d3.format(',d'),
+					formatDate = d3.time.format('%B %d, %Y');
 
-		var visDiv = d3.select("#VIS_ID");
-		visDiv.append("div")
-			.attr("id", "VIS_ID_CHARTS");
-		visDiv.append("div")
-			.attr("id", "VIS_ID_RECORDS_INFO")
-			.html("<span id=\"VIS_ID_RECORDS_ACTIVE\">-</span> of <span id=\"VIS_ID_RECORDS_TOTAL\">-</span> records selected");
-		visDiv.append("div")
-			.attr("id", "VIS_ID_LISTS")
-			.html("<table id=\"VIS_ID_REPORT_LIST\" class=\"ReportTable\"></table>");
+				var charts = [];
 
-		function processData() {
-			var formatNumber = d3.format(",d"),
-				formatDate = d3.time.format("%B %d, %Y");
+				var cross = crossfilter(items);
+				var crossAll = cross.groupAll();
 
-			var charts = [];
+				var nestByDate, dateIndex, date;
 
-			var cross = crossfilter(items);
-			var crossAll = cross.groupAll();
+				for (var i = 0; i < VIS_COLUMNS.length; i++) {
+					var text = VIS_COLUMNS[i].name + ' (' + VIS_COLUMNS[i].sqlType.toLowerCase() + ')';
 
-			var nestByDate, dateIndex, date;
+					var min = d3.min(items, function (d) { return vis.itemValue(d, i); }),
+						max = d3.max(items, function (d) { return vis.itemValue(d, i); });
 
-			for (var i = 0; i < VIS_COLUMNS.length; i++) {
-				var text = VIS_COLUMNS[i].name + " (" + VIS_COLUMNS[i].sqlType.toLowerCase() + ")";
-
-				var min = d3.min(items, function (d) { return vis.unitValue(d, i); }),
-					max = d3.max(items, function (d) { return vis.unitValue(d, i); });
-
-				switch (VIS_COLUMNS[i].sqlType.toLowerCase()) {
-					case "numeric":
-					case "real":
-					case "money":
-						charts.push(new function () {
-							var field = this.field = i;
-
-							this.width = 200;
-							max = min + (max - min) * (this.width + 8) / this.width;
-
-							this.id = VIS_COLUMNS[field].name.replace(/\s/g, '-').toLowerCase();
-							this.text = text;
-							this.dimension = cross.dimension(function (d) { return vis.unitValue(d, field); });
-							this.group = this.dimension.group(function (d) {
-								var iv = (max - min) / 20;
-								return min + Math.floor((d - min) / iv) * iv;
-							});
-
-							this.chart = barChart()
-								.dimension(this.dimension)
-								.group(this.group)
-								.x(d3.scale.linear()
-									.domain([min, max])
-									.rangeRound([0, this.width]));
-						});
-						break;
-					case "date":
-					case "datetime":
-						charts.push((new function () {
-							var field = this.field = i;
-
-							this.width = 900;
-							max = new Date(min.getTime() + (max.getTime() - min.getTime()) * (this.width + 8) / this.width);
-
-							this.id = VIS_COLUMNS[field].name.replace(/\s/g, '-').toLowerCase();
-							this.text = text;
-							this.dimension = date = cross.dimension(function (d) { return vis.unitValue(d, field); });
-							this.group = this.dimension.group(function (d) {
-								var iv = (max.getTime() - min.getTime()) / 90;
-								return new Date(min.getTime() + Math.floor((d.getTime() - min.getTime()) / iv) * iv);
-							});
-							nestByDate = d3.nest()
-								.key(function (d) { return d3.time.day(vis.unitValue(d, dateIndex = field)); });
-
-							this.chart = barChart()
-								.dimension(this.dimension)
-								.group(this.group)
-								.round(d3.time.day.round)
-								.x(d3.time.scale()
-									.domain([min, max])
-									.rangeRound([0, this.width]));
-
-
-							this.chart.filter([
-								new Date(new Date(min.getTime() + 1 / 3 * (max.getTime() - min.getTime())).setHours(0)),
-								new Date(new Date(min.getTime() + 2 / 3 * (max.getTime() - min.getTime())).setHours(24))
-							]);
-						}));
-
-						if (d3.max(items, function (d) { d = vis.unitValue(d, i); return d.getHours() * 60 + d.getMinutes(); }) > 0) {
-							charts.push((new function () {
+					switch (VIS_COLUMNS[i].sqlType.toLowerCase()) {
+						case 'numeric':
+						case 'real':
+						case 'money':
+							charts.push(new function () {
 								var field = this.field = i;
 
 								this.width = 200;
+								max = min + (max - min) * (this.width + 8) / this.width;
 
-								this.hour = cross.dimension(function (d) { d = vis.unitValue(d, i); return d.getHours() + d.getMinutes() / 60; });
-								this.hours = this.hour.group(Math.floor);
-
-								this.id = (VIS_COLUMNS[field].name + " Time").replace(/\s/g, '-').toLowerCase();
+								this.id = VIS_COLUMNS[field].name.replace(/\s/g, '-').toLowerCase();
 								this.text = text;
+								this.dimension = cross.dimension(function (d) { return vis.itemValue(d, field); });
+								this.group = this.dimension.group(function (d) {
+									var iv = (max - min) / 20;
+									return min + Math.floor((d - min) / iv) * iv;
+								});
 
 								this.chart = barChart()
-									.dimension(this.hour)
-									.group(this.hours)
+									.dimension(this.dimension)
+									.group(this.group)
 									.x(d3.scale.linear()
-										.domain([0, 24])
+										.domain([min, max])
 										.rangeRound([0, this.width]));
-							}));
-						}
-						break;
-					default:
-						util.logger.log("Unsupported field type: " + text);
-						break;
-				}
-			}
-
-			var chartList = d3.select("#VIS_ID_CHARTS").selectAll(".chart").data(charts);
-			chartList.enter().append("div")
-				.attr("id", function (d) { return d.id; })
-				.attr("class", "chart")
-				.style("width", function (d) { return (d.width + 20) + "px"; })
-				.append("div")
-					.attr("class", "title")
-					.text(function (d) { return d.text; });
-			chartList.each(function (d) { d.chart.on("brush", renderAll).on("brushend", renderAll); });
-
-			var reportList = d3.select("#VIS_ID_REPORT_LIST").data([function (list) {
-				var byDate = nestByDate.entries(date.top(40));
-
-				list.each(function () {
-					var date = d3.select(this).selectAll(".ReportHeader")
-						.data(byDate, function (d) { return d.key; });
-
-					date.enter().append("tr")
-						.attr("class", "ReportHeader")
-						.append("td")
-							.attr("align", "center")
-							.attr("colspan", VIS_COLUMNS.length - 1)
-							.text(function (d) {
-								return formatDate(vis.unitValue(d.values[0], dateIndex));
 							});
+							break;
+						case 'date':
+						case 'datetime':
+							charts.push((new function () {
+								var field = this.field = i;
+								this.width = 900;
+								max = new Date(min.getTime() + (max.getTime() - min.getTime()) * (this.width + 8) / this.width);
 
-					date.exit().remove();
-					d3.selectAll("#VIS_ID_REPORT_LIST .ReportItem, #VIS_ID_REPORT_LIST .AlternatingItem").remove();
+								this.id = VIS_COLUMNS[field].name.replace(/\s/g, '-').toLowerCase();
+								this.text = text;
+								this.dimension = date = cross.dimension(function (d) { return vis.itemValue(d, field); });
+								this.group = this.dimension.group(function (d) {
+									var iv = (max.getTime() - min.getTime()) / 90;
+									return new Date(min.getTime() + Math.floor((d.getTime() - min.getTime()) / iv) * iv);
+								});
+								nestByDate = d3.nest()
+									.key(function (d) { return d3.time.day(vis.itemValue(d, dateIndex = field)); });
 
-					date.order().selectAll(".ReportHeader")
-						.data(function (d) { return d.values; }, function (d) { return d.index; })
-						.call(function (selection) {
-							for (var i = 0; i < selection.length; i++) {
-								var tr = selection[i].parentNode,
-									d = tr.__data__;
-								for (var j = 0; j < d.values.length; j++) {
-									var tr2 = document.createElement("tr");
-									tr.parentNode.insertBefore(tr2, tr.nextSibling);
-									tr2.className = (d.values.length - j) % 2 == 0 ? "AlternatingItem" : "ReportItem";
+								var minDay = new Date(min.getTime());
+								minDay.setHours(0, 0, 0, 0);
+								var maxDay = new Date(max.getTime());
+								maxDay.setDate(maxDay.getDate() + 1);
+								maxDay.setHours(0, 0, 0, 0);
 
-									for (var k = 1; k < VIS_COLUMNS.length; k++) {
-										var td = document.createElement("td");
-										td.appendChild(document.createTextNode(d.values[j][VIS_COLUMNS[k].name]));
-										tr2.appendChild(td);
+								this.chart = barChart()
+									.dimension(this.dimension)
+									.group(this.group)
+									.round(d3.time.day.round)
+									.x(d3.time.scale()
+										.domain([minDay, maxDay])
+										.rangeRound([0, this.width]));
+
+								this.chart.filter([
+									new Date(new Date(minDay.getTime() + 1 / 3 * (maxDay.getTime() - minDay.getTime())).setHours(0)),
+									new Date(new Date(minDay.getTime() + 2 / 3 * (maxDay.getTime() - minDay.getTime())).setHours(24))
+								]);
+							}));
+
+							if (d3.max(items, function (d) { d = vis.itemValue(d, i); return d.getHours() * 60 + d.getMinutes(); }) > 0) {
+								charts.push((new function () {
+									var field = this.field = i;
+
+									this.width = 200;
+									
+									this.hour = cross.dimension(function (d) { d = vis.itemValue(d, i); return d.getHours() + d.getMinutes() / 60; });
+									this.hours = this.hour.group(Math.floor);
+
+									this.id = (VIS_COLUMNS[field].name + ' Time').replace(/\s/g, '-').toLowerCase();
+									this.text = text;
+
+									this.chart = barChart()
+										.dimension(this.hour)
+										.group(this.hours)
+										.x(d3.scale.linear()
+											.domain([0, 24])
+											.rangeRound([0, this.width]));
+								}));
+							}
+							break;
+						default:
+							izenda.logger.log('Unsupported field type: ' + text);
+							break;
+					}
+				}
+
+				var chartList = d3.select('#VIS_ID_CHARTS').selectAll('.chart').data(charts);
+				chartList.enter().append('div')
+					.attr('id', function (d) { return d.id; })
+					.attr('class', 'chart')
+					.style('width', function (d) { return (d.width + 20) + 'px'; })
+					.append('div')
+						.attr('class', 'title')
+						.text(function (d) { return d.text; });
+				chartList.each(function (d) { d.chart.on('brush', renderAll).on('brushend', renderAll); });
+
+				var reportList = d3.select('#VIS_ID_REPORT_LIST').data([function (list) {
+					var byDate = nestByDate.entries(date.top(40));
+
+					list.each(function () {
+						var date = d3.select(this).selectAll('.ReportHeader')
+							.data(byDate, function (d) { return d.key; });
+
+						date.enter().append('tr')
+							.attr('class', 'ReportHeader')
+							.append('td')
+								.attr('align', 'center')
+								.attr('colspan', VIS_COLUMNS.length - 1)
+								.text(function (d) {
+									return formatDate(vis.itemValue(d.values[0], dateIndex));
+								});
+
+						date.exit().remove();
+						d3.selectAll('#VIS_ID_REPORT_LIST .ReportItem, #VIS_ID_REPORT_LIST .AlternatingItem').remove();
+
+						date.order().selectAll('.ReportHeader')
+							.data(function (d) { return d.values; }, function (d) { return d.index; })
+							.call(function (selection) {
+								for (var i = 0; i < selection.length; i++) {
+									var tr = selection[i].parentNode,
+										d = tr.__data__;
+									for (var j = 0; j < d.values.length; j++) {
+										var tr2 = document.createElement('tr');
+										tr.parentNode.insertBefore(tr2, tr.nextSibling);
+										tr2.className = (d.values.length - j) % 2 == 0 ? 'AlternatingItem' : 'ReportItem';
+
+										for (var k = 1; k < VIS_COLUMNS.length; k++) {
+											var td = document.createElement('td');
+											td.appendChild(document.createTextNode(d.values[j][VIS_COLUMNS[k].name]));
+											tr2.appendChild(td);
+										}
 									}
 								}
-							}
-						});
-				});
-			}]);
+							});
+					});
+				}]);
 
-			d3.select("#VIS_ID_RECORDS_TOTAL").text(formatNumber(cross.size()));
+				d3.select('#VIS_ID_RECORDS_TOTAL').text(formatNumber(cross.size()));
 
-			function renderAll() {
-				chartList.each(function (method) {
-					d3.select(this).call(method.chart);
-				});
-
-				reportList.each(function (method) {
-					d3.select(this).call(method);
-				});
-
-				d3.select("#VIS_ID_RECORDS_ACTIVE").text(formatNumber(crossAll.value()));
-			}
-
-			renderAll();
-
-			function barChart() {
-				if (!barChart.id) {
-					barChart.id = 0;
-				}
-
-				var margin = { top: 10, right: 10, bottom: 20, left: 10 },
-					x, y = d3.scale.linear().range([100, 0]),
-					id = barChart.id++,
-					axis = d3.svg.axis().orient("bottom"),
-					brush = d3.svg.brush(),
-					brushDirty, dimension, group, round;
-
-				function chart(div) {
-					var width = x.range()[1],
-						height = y.range()[0];
-
-					y.domain([0, group.top(1)[0].value]);
-
-					div.each(function () {
-						var div = d3.select(this), g = div.select("g");
-
-						if (g.empty()) {
-							div.select(".title").append("span")
-								.attr("id", "VIS_ID_CHART_RESET_" + id)
-								.on("click", function() {
-									charts[id].chart.filter(null);
-									renderAll();
-								})
-								.attr("class", "reset")
-								.text("reset")
-								.style({
-									"cursor": "pointer",
-									"display": "none"
-								});
-
-							g = div.append("svg")
-								.attr("width", width + margin.left + margin.right)
-								.attr("height", height + margin.top + margin.bottom)
-								.append("g")
-								.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-							g.append("clipPath")
-								.attr("id", "VIS_ID_CHART_CLIP_" + id)
-								.append("rect")
-								.attr("width", width)
-								.attr("height", height);
-
-							g.selectAll(".bar")
-								.data(["background", "foreground"])
-								.enter().append("path")
-								.attr("class", function (d) { return d + " bar"; })
-								.datum(group.all());
-
-							g.selectAll(".foreground.bar")
-								.attr("clip-path", "url(#VIS_ID_CHART_CLIP_" + id + ")");
-
-							g.append("g")
-								.attr("class", "axis")
-								.attr("transform", "translate(0," + height + ")")
-								.call(axis);
-
-							var ticks = [];
-							g.select("g.axis")
-								.selectAll("g.tick")
-								.each(function () {
-									ticks.push([this.getBoundingClientRect(), this]);
-								});
-
-							function intersected(i1, i2) {
-								return ticks[i1][0].right - ticks[i2][0].left > -(ticks[i1][0].width) / 4;
-							}
-							for (i = 1; i < ticks.length; i++) {
-								if (i < ticks.length - 1 && intersected(i, i + 1)) {
-									d3.select(ticks[i][1]).remove();
-									ticks.splice(i, 1);
-								}
-								else if (i == ticks.length - 1 && intersected(i - 1, i)) {
-									d3.select(ticks[i][1]).remove();
-									ticks.splice(i, 1);
-								}
-							}
-
-							// Initialize the brush component with pretty resize handles.
-							var gBrush = g.append("g").attr("class", "brush").call(brush);
-							gBrush.selectAll("rect").attr("height", height);
-							gBrush.selectAll(".resize").append("path").attr("d", resizePath);
-						}
-
-						// Only redraw the brush if set externally.
-						if (brushDirty) {
-							brushDirty = false;
-							g.selectAll(".brush").call(brush);
-							div.select("#VIS_ID_CHART_RESET_" + id).style("display", brush.empty() ? "none" : "");
-							if (brush.empty()) {
-								g.selectAll("#VIS_ID_CHART_CLIP_" + id + " rect")
-									.attr("x", 0)
-									.attr("width", width);
-							} else {
-								var extent = brush.extent();
-								g.selectAll("#VIS_ID_CHART_CLIP_" + id + " rect")
-									.attr("x", x(extent[0]))
-									.attr("width", x(extent[1]) - x(extent[0]));
-							}
-						}
-
-						g.selectAll(".bar").attr("d", barPath);
+				function renderAll() {
+					chartList.each(function (method) {
+						d3.select(this).call(method.chart);
 					});
 
-					function barPath(groups) {
-						var path = [], i = -1, d;
-						while (++i < groups.length) {
-							d = groups[i];
-							path.push("M", x(d.key), ",", height, "V", y(d.value), "h9V", height);
-						}
-						return path.join("");
-					}
-					function resizePath(d) {
-						var e = +(d == "e"),
-							x = e ? 1 : -1,
-							y = height / 3;
-						return "M" + (.5 * x) + "," + y
-							+ "A6,6 0 0 " + e + " " + (6.5 * x) + "," + (y + 6)
-							+ "V" + (2 * y - 6)
-							+ "A6,6 0 0 " + e + " " + (.5 * x) + "," + (2 * y)
-							+ "Z"
-							+ "M" + (2.5 * x) + "," + (y + 8)
-							+ "V" + (2 * y - 8)
-							+ "M" + (4.5 * x) + "," + (y + 8)
-							+ "V" + (2 * y - 8);
-					}
+					reportList.each(function (method) {
+						d3.select(this).call(method);
+					});
+
+					d3.select('#VIS_ID_RECORDS_ACTIVE').text(formatNumber(crossAll.value()));
 				}
 
-				brush.on("brushstart.chart", function () {
-					var chart = d3.select(this.parentNode.parentNode.parentNode);
-					chart.select("#VIS_ID_CHART_RESET_" + id).style("display", "");
-				});
-				brush.on("brush.chart", function () {
-					var g = d3.select(this.parentNode),
-							extent = brush.extent();
-					if (round) {
-						g.select(".brush")
-						.call(brush.extent(extent = extent.map(round)))
-						.selectAll(".resize")
-						.style("display", null);
+				renderAll();
+
+				function barChart() {
+					if (!barChart.id) {
+						barChart.id = 0;
 					}
-					g.select("#VIS_ID_CHART_CLIP_" + id + " rect")
-						.attr("x", x(extent[0]))
-						.attr("width", x(extent[1]) - x(extent[0]));
-					dimension.filterRange(extent);
-				});
-				brush.on("brushend.chart", function () {
-					if (brush.empty()) {
+
+					var margin = { top: 10, right: 10, bottom: 20, left: 10 },
+						x, y = d3.scale.linear().range([100, 0]),
+						id = barChart.id++,
+						axis = d3.svg.axis().orient('bottom'),
+						brush = d3.svg.brush(),
+						brushDirty, dimension, group, round;
+
+					function chart(div) {
+						var width = x.range()[1],
+							height = y.range()[0];
+
+						y.domain([0, group.top(1)[0].value]);
+
+						div.each(function () {
+							var div = d3.select(this), g = div.select('g');
+
+							if (g.empty()) {
+								div.select('.title').append('span')
+									.attr('id', 'VIS_ID_CHART_RESET_' + id)
+									.on('click', function () {
+										charts[id].chart.filter(null);
+										renderAll();
+									})
+									.attr('class', 'reset')
+									.text('reset')
+									.style({
+										'cursor': 'pointer',
+										'display': 'none'
+									});
+
+								g = div.append('svg')
+									.attr('width', width + margin.left + margin.right)
+									.attr('height', height + margin.top + margin.bottom)
+									.append('g')
+									.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+								g.append('clipPath')
+									.attr('id', 'VIS_ID_CHART_CLIP_' + id)
+									.append('rect')
+									.attr('width', width)
+									.attr('height', height);
+
+								g.selectAll('.bar')
+									.data(['background', 'foreground'])
+									.enter().append('path')
+									.attr('class', function (d) { return d + ' bar'; })
+									.datum(group.all());
+
+								g.selectAll('.foreground.bar')
+									.attr('clip-path', 'url(#VIS_ID_CHART_CLIP_' + id + ')');
+
+								g.append('g')
+									.attr('class', 'axis')
+									.attr('transform', 'translate(0,' + height + ')')
+									.call(axis);
+
+								var ticks = [];
+								g.select('g.axis')
+									.selectAll('g.tick')
+									.each(function () {
+										ticks.push([this.getBoundingClientRect(), this]);
+									});
+
+								function intersected(i1, i2) {
+									return ticks[i1][0].right - ticks[i2][0].left > -(ticks[i1][0].width) / 4;
+								}
+								for (i = 1; i < ticks.length; i++) {
+									if (i < ticks.length - 1 && intersected(i, i + 1)) {
+										d3.select(ticks[i][1]).remove();
+										ticks.splice(i, 1);
+									}
+									else if (i == ticks.length - 1 && intersected(i - 1, i)) {
+										d3.select(ticks[i][1]).remove();
+										ticks.splice(i, 1);
+									}
+								}
+
+								// Initialize the brush component with pretty resize handles.
+								var gBrush = g.append('g').attr('class', 'brush').call(brush);
+								gBrush.selectAll('rect').attr('height', height);
+								gBrush.selectAll('.resize').append('path').attr('d', resizePath);
+							}
+
+							// Only redraw the brush if set externally.
+							if (brushDirty) {
+								brushDirty = false;
+								g.selectAll('.brush').call(brush);
+								div.select('#VIS_ID_CHART_RESET_' + id).style('display', brush.empty() ? 'none' : '');
+								if (brush.empty()) {
+									g.selectAll('#VIS_ID_CHART_CLIP_' + id + ' rect')
+										.attr('x', 0)
+										.attr('width', width);
+								} else {
+									var extent = brush.extent();
+									g.selectAll('#VIS_ID_CHART_CLIP_' + id + ' rect')
+										.attr('x', x(extent[0]))
+										.attr('width', x(extent[1]) - x(extent[0]));
+								}
+							}
+
+							g.selectAll('.bar').attr('d', barPath);
+						});
+
+						function barPath(groups) {
+							var path = [], i = -1, d;
+							while (++i < groups.length) {
+								d = groups[i];
+								path.push('M', x(d.key), ',', height, 'V', y(d.value), 'h9V', height);
+							}
+							return path.join('');
+						}
+						function resizePath(d) {
+							var e = +(d == 'e'),
+								x = e ? 1 : -1,
+								y = height / 3;
+							return 'M' + (.5 * x) + ',' + y
+								+ 'A6,6 0 0 ' + e + ' ' + (6.5 * x) + ',' + (y + 6)
+								+ 'V' + (2 * y - 6)
+								+ 'A6,6 0 0 ' + e + ' ' + (.5 * x) + ',' + (2 * y)
+								+ 'Z'
+								+ 'M' + (2.5 * x) + ',' + (y + 8)
+								+ 'V' + (2 * y - 8)
+								+ 'M' + (4.5 * x) + ',' + (y + 8)
+								+ 'V' + (2 * y - 8);
+						}
+					}
+
+					brush.on('brushstart.chart', function () {
 						var chart = d3.select(this.parentNode.parentNode.parentNode);
-						chart.select("#VIS_ID_CHART_RESET_" + id).style("display", "none");
-						chart.select("#VIS_ID_CHART_CLIP_" + id + " rect").attr("x", null).attr("width", "100%");
-						dimension.filterAll();
-					}
-				});
+						chart.select('#VIS_ID_CHART_RESET_' + id).style('display', '');
+					});
+					brush.on('brush.chart', function () {
+						var g = d3.select(this.parentNode),
+								extent = brush.extent();
+						if (round) {
+							g.select('.brush')
+							.call(brush.extent(extent = extent.map(round)))
+							.selectAll('.resize')
+							.style('display', null);
+						}
+						g.select('#VIS_ID_CHART_CLIP_' + id + ' rect')
+							.attr('x', x(extent[0]))
+							.attr('width', x(extent[1]) - x(extent[0]));
+						dimension.filterRange(extent);
+					});
+					brush.on('brushend.chart', function () {
+						if (brush.empty()) {
+							var chart = d3.select(this.parentNode.parentNode.parentNode);
+							chart.select('#VIS_ID_CHART_RESET_' + id).style('display', 'none');
+							chart.select('#VIS_ID_CHART_CLIP_' + id + ' rect').attr('x', null).attr('width', '100%');
+							dimension.filterAll();
+						}
+					});
 
-				chart.margin = function (_margin) {
-					if (!arguments.length) {
+					chart.margin = function (_margin) {
+						if (!arguments.length) {
 							return margin;
-					}
-					margin = _margin;
-					return chart;
-				};
-				chart.x = function (_x) {
-					if (!arguments.length) {
+						}
+						margin = _margin;
+						return chart;
+					};
+					chart.x = function (_x) {
+						if (!arguments.length) {
 							return x;
-					}
-					x = _x;
-					axis.scale(x);
-					brush.x(x);
-					return chart;
-				};
-				chart.y = function (_y) {
-					if (!arguments.length) {
+						}
+						x = _x;
+						axis.scale(x);
+						brush.x(x);
+						return chart;
+					};
+					chart.y = function (_y) {
+						if (!arguments.length) {
 							return y;
-					}
-					y = _y;
-					return chart;
-				};
-				chart.dimension = function (_dimension) {
-					if (!arguments.length) {
+						}
+						y = _y;
+						return chart;
+					};
+					chart.dimension = function (_dimension) {
+						if (!arguments.length) {
 							return dimension;
-					}
-					dimension = _dimension;
-					return chart;
-				};
-				chart.filter = function (_filter) {
-					if (_filter) {
-						brush.extent(_filter);
-						dimension.filterRange(_filter);
-					} else {
-						brush.clear();
-						dimension.filterAll();
-					}
-					brushDirty = true;
-					return chart;
-				};
-				chart.group = function (_group) {
-					if (!arguments.length) {
+						}
+						dimension = _dimension;
+						return chart;
+					};
+					chart.filter = function (_filter) {
+						if (_filter) {
+							brush.extent(_filter);
+							dimension.filterRange(_filter);
+						} else {
+							brush.clear();
+							dimension.filterAll();
+						}
+						brushDirty = true;
+						return chart;
+					};
+					chart.group = function (_group) {
+						if (!arguments.length) {
 							return group;
-					}
-					group = _group;
-					return chart;
-				};
-				chart.round = function (_round) {
-					if (!arguments.length) {
+						}
+						group = _group;
+						return chart;
+					};
+					chart.round = function (_round) {
+						if (!arguments.length) {
 							return round;
-					}
-					round = _round;
-					return chart;
-				};
+						}
+						round = _round;
+						return chart;
+					};
 
-				return d3.rebind(chart, brush, "on");
+					return d3.rebind(chart, brush, 'on');
+				}
 			}
+
+			processData();
 		}
 
-		processData();
+		draw();
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			jq$("#VIS_ID").empty();
-		});
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

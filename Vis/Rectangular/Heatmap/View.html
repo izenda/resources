@@ -1,28 +1,14 @@
 ﻿<style type="text/css">
-	@font-face {
-		font-family: 'Open Sans';
-		font-style: normal;
-		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(rs.aspx?font=Fonts.OpenSans.woff) format('woff');
-	}
-
-	@font-face {
-		font-family: 'Open Sans';
-		font-style: normal;
-		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(rs.aspx?font=Fonts.OpenSans-Semibold.woff) format('woff');
-	}
-
-	#VIS_ID_CONTAINER text {
+	#VIS_ID_CONTAINER #VIS_ID text {
 		font-size: 11px;
 		pointer-events: none;
 	}
 
-	#VIS_ID_CONTAINER svg {
+	#VIS_ID_CONTAINER #VIS_ID svg {
 		overflow: hidden;
 	}
 
-	#VIS_ID_CONTAINER rect {
+	#VIS_ID_CONTAINER #VIS_ID rect {
 		fill: none;
 		pointer-events: all;
 		cursor: pointer;
@@ -30,21 +16,14 @@
 		stroke-width: 2px;
 	}
 
-	#VIS_ID_CONTAINER .property-control {
-		color: black;
-	}
-
-	#VIS_ID_CONTAINER .property-control select {
-		font-family: Verdana, Arial, Geneva, sans-serif;
-	}
-
-	#VIS_ID_CONTAINER .chart {
+	#VIS_ID_CONTAINER .izenda-vis-heatmap-chart {
 		display: block;
 		margin: auto;
 		margin: 0;
+		overflow: hidden;
 	}
 
-	#VIS_ID_CONTAINER .label {
+	#VIS_ID_CONTAINER .izenda-vis-heatmap-label {
 		stroke: #000000;
 		fill: #000000;
 		stroke-width: 0;
@@ -54,494 +33,376 @@
 		font-weight: normal;
 	}
 
-	#VIS_ID_CONTAINER .parent .label {
+	#VIS_ID_CONTAINER .izenda-vis-heatmap-parent .izenda-vis-heatmap-label {
 		font-size: 12px;
 		stroke: #fff;
 		fill: #fff;
 	}
 
-	#VIS_ID_CONTAINER .child .label {
+	#VIS_ID_CONTAINER .izenda-vis-heatmap-child .izenda-vis-heatmap-label {
 		font-size: 11px;
 	}
 
-	#VIS_ID_CONTAINER .cell {
+	#VIS_ID_CONTAINER .izenda-vis-heatmap-cell {
 		font-size: 11px;
 		cursor: pointer;
-	}
-
-	#VIS_ID_CONTAINER .clearfix:after {
-		content: "";
-		clear: both;
-		display: table;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL {
-		float: left;
-		display: inline-block;
-		padding-bottom: 2px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL text {
-		font-weight: 600;
-		fill: #fff;
-		font-family: 'Open Sans', sans-serif;
-		font-size: 12px;
-		pointer-events: none;
-	}
-
-	#VIS_ID_CONTAINER .hint {
-		font-size: 12px;
-		color: #999;
-		height: 30px;
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .hint span {
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER .hint select {
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
-		float: right;
-		position: relative;
-		right: 0;
-		opacity: 0;
-	}
-
-	#VIS_ID_CONTAINER .select-control {
-		padding-top: 2px;
-	}
-
-	#VIS_ID_CONTAINER .property-control {
-		display: inline-block;
 	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_BREADCRUMBS_PANEL"></div>
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control select-control">
-				<span>Metrics:</span>
-				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		var width = 720, height = 500;
+	(function init() {
+		var services = window.ReportingServices;
 
-		var util = window.ReportScripting, services = window.ReportingServices, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
-			return;
-
-		var visRoot = {},
-			b = { w: 75, h: 30, s: 3, t: 10 };
-
-		var vs = util.container("VIS_ID"),
-			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
-
-		window.visState = window.visState || {};
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
-			init: true,
-		});
-		if (!s.props) {
-			try {
-				s.props = JSON.parse(VIS_CONTEXT.props);
-			} catch (e) {
-				s.props = {};
-				util.logger.error(e);
+		(function () {
+			/* Backward Compatibility Section */
+			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
+				var props = {};
+				try {
+					var oldProps = JSON.parse(VIS_CONTEXT.props);
+					props['Metric'] = oldProps['metric'];
+					props['NodePath'] = oldProps['nodePath'];
+				} catch (e) {
+					props = {};
+				}
+				VIS_CONTEXT.props = JSON.stringify(props);
 			}
-		}
+		})();
 
-		var css = "";
-		if (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) {
-			css += "body { margin: 0px; font-family: 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; }"
-				+ "#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL { opacity: 1 !important; display: none !important; }"
-				+ "#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL { display: none !important; }";
-		}
-		if (window.utility.ie() > -1)
-			css += "#VIS_ID_CONTAINER .label { overflow: auto !important; text-overflow: inherit !important; }";
-		services.updateStyle("iz-heatmap-fix", css);
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		vis.collectTree();
-		visRoot = vis.traverseTree();
-
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		var defaultColorScheme = d3.scale.category20c();
-
+		var colors = d3.scale.category20c(), u = {}, n = [],
+			headerColor = '#555555', allColor = colors('All');
 		function color(d) {
-			return defaultColorScheme(d.parent.name);
-		}
-
-		jq$("#VIS_ID_HOLDER").width(width);
-
-		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-		function getPath(d) {
-			return d && d.parent ? getPath(d.parent) + '/' + d.name : "";
-		}
-
-		function store() {
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.find('option:selected').text()
-			});
-			vis.setProps(s.props);
-		}
-
-		function restore() {
-			if (typeof s.props == "object" && s.props.metric) {
-				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
-				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
+			if (typeof d == 'string') {
+				return colors(d);
+			} else if (d.name == 'All') {
+				return allColor;
+			} else if (d.children) {
+				return headerColor;
+			} else if (d.parent) {
+				return colors(d.parent.name);
 			}
+			return '#000000';
 		}
 
-		metricSelect.find("option").remove();
-		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: { d3: true, svg: true },
+			dataLayout: 'tree',
+			draw: draw
 		});
 
-		metricSelect
-			.unbind("change")
-			.bind("change", function () {
-				var value = this.value;
-				store();
-				treemap.value(function (d) { return vis.unitValue(d, value); }).nodes(root);
-				zoom(node);
-			});
-
-		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL"),
-			propertiesPanelWidth = propertiesPanel[0].offsetWidth,
-			breadcrumbWidthOffset = 10,
-			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
-		vis.createBreadcrumb({
-			selector: "#VIS_ID_BREADCRUMBS_PANEL",
-			width: breadcrumbWidth,
-			bounds: b,
-			colors: defaultColorScheme,
-			showRoot: true,
-			onclick: function (d) { zoom(d); },
-			root: null,
-			showLabel: false,
-			hidden: true,
-			isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
+		vis.initHeader({
+			breadcrumbs: {
+				root: null,
+				showRoot: true,
+				showLabel: false,
+				hidden: true,
+				getColor: color,
+				clickable: true,
+				isLast: function (d) { return !d.children || !d.children.length || !d.children[0].children || !d.children[0].children.length; }
+			},
+			metrics: [{
+				name: 'Metric',
+				onChangeCallback: function () { }
+			}]
 		});
 
-		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
+		var subscriptions = [];
+		function draw() {
+			subscriptions.forEach(function (subscription) { subscription.remove(); });
 
-		vis.container
-			.unbind("mouseenter")
-			.bind("mouseenter", function () {
-				vis.breadcrumb.show();
-				propertiesPanel.stop().animate({ opacity: 1 });
-			})
-			.unbind("mouseleave")
-			.bind("mouseleave", function () {
-				vis.breadcrumb.hide();
-				propertiesPanel.stop().animate({ opacity: 0 });
-			});
+			var visRoot = vis.traverseTree();
 
-		s.init = false;
+			var width = vis.getWidth();
+			var height = vis.getHeight();
 
-		var heightWithOffset = height - (isImageRender ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight()));
-
-		var root, node,
-			x = d3.scale.linear().range([0, width]),
-			y = d3.scale.linear().range([0, heightWithOffset]),
-			totalSize = 0;
-
-		var treemap = d3.layout.treemap()
-			.round(false)
-			.size([width, heightWithOffset])
-			.sticky(true)
-			.sort(function (a, b) { return a.value - b.value; })
-			.value(function (d) { return vis.unitValue(d, vis.metrics[0]); });
-
-		var g = d3.select("#VIS_ID")
-			.append("div")
-				.attr("class", "chart")
-				.style("width", width + "px")
-				.style("height", heightWithOffset + "px")
-				.style("overflow", "hidden")
-			.append("svg:svg")
-				.attr("width", width)
-				.attr("height", heightWithOffset)
-			.append("svg:g");
-
-		vs.height(height);
-
-		var svg = d3.select("#VIS_ID div.chart svg");
-		var labelBox = util.labelBBox(svg, "X",
-			function (pane) {
-				return pane.append("g").attr("class", "cell parent")
-					.append("svg").attr("class", "clip")
-					.append("text").attr("class", "label");
-			});
-
-		var headerHeight = labelBox.height,
-			headerOffset = -labelBox.y,
-			headerColor = "#555";
-
-		function getDuration() {
-			return d3.event && d3.event.altKey ? 7500 : 750;
-		}
-
-		function idealTextColor(bgColor) {
-			function getRgbComponents(c) {
-				return {
-					R: parseInt(c.substring(1, 3), 16),
-					G: parseInt(c.substring(3, 5), 16),
-					B: parseInt(c.substring(5, 7), 16)
-				};
+			function getPath(d) {
+				return d && d.parent ? getPath(d.parent) + '/' + d.name : '';
 			}
 
-			var nThreshold = 105;
-			var components = getRgbComponents(bgColor);
-			var bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
-			return ((255 - bgDelta) < nThreshold) ? "#000000" : "#ffffff";
-		}
+			var root, node,
+				x = d3.scale.linear().range([0, vis.width]),
+				y = d3.scale.linear().range([0, vis.height]),
+				totalSize = 0;
 
-		function isParent(droot, d) {
-			return d == droot
-				|| d.parent == droot
-				|| (d.parent && d.parent.parent == droot);
-		}
+			var treemap = d3.layout.treemap()
+				.round(false)
+				.size([vis.width, vis.height])
+				.sticky(true)
+				.sort(function (a, b) { return a.value - b.value; })
+				.value(function (d) { return vis.itemValue(d, vis.metrics[0]); });
 
-		function isParent2(droot, d) {
-			return isParent(droot, d)
-				|| (d.parent && d.parent.parent == droot && d.parent.parent.parent == droot);
-		}
+			var chart = d3.select(vis.element.get(0))
+				.append('div')
+					.attr('class', 'izenda-vis-heatmap-chart')
+					.style('width', vis.width + 'px')
+					.style('height', vis.height + 'px');
 
-		function isLeaf(d) {
-			return !d.children;
-		}
+			var svg = chart.append('svg:svg')
+					.attr('width', vis.width)
+					.attr('height', vis.height);
+			var g = svg.append('svg:g');
 
-		function execBreadcrumb(d, total) {
-			var percentage = (100 * d.value / total).toPrecision(3),
-				percentageString = percentage < 0.1 ? "< 0.1%" : percentage + "%";
-
-			if (!isImageRender) {
-				vis.updateBreadcrumb(d, { label: percentageString });
-				store();
-			}
-		}
-
-		function zoom(d, init) {
-			(treemap || this.treemap)
-				.padding(function (d2, i) { return [((0 < i && d.depth - 1 < i && i < d.depth + 3) ? headerHeight / (heightWithOffset / d.dy) : 0), 0, 0, 0]; })
-				.nodes(d);
-
-			execBreadcrumb(d, totalSize);
-
-			// moving the next two lines above treemap layout messes up padding of zoom result
-			var kx = width / d.dx;
-			var ky = heightWithOffset / d.dy;
-			var level = d;
-
-			x.domain([d.x, d.x + d.dx]);
-			y.domain([d.y, d.y + d.dy]);
-
-			var tran = g.selectAll("g.cell")
-				.transition().duration(init ? 0 : getDuration())
-				.attr("transform", function (d2) { return "translate(" + x(d2.x) + "," + y(d2.y) + ")"; })
-				.each("start", function () {
-					d3.select(this).select("label")
-						.style("display", "none");
-				})
-				.each("end", function (d2, i2) {
-					if (!i2 && (level !== root)) {
-						g.selectAll(".cell.child")
-							.filter(function (d3) { return d3.parent === node; })  // only get the children for selected group
-							.select(".label")
-							.style("display", "")
-							.style("fill", function (d3) { return idealTextColor(color(d3)); });
-					}
-				})
-				.call(util.endAll, function () { });
-
-			tran.select(".clip")
-				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); });
-
-			tran.select(".label")
-				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
-				.text(function (d2) {
-					var actualHeight = isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy));
-					if (actualHeight < 13)
-						return '';
-					var textWidth = kx * d2.dx - 15.0;
-					var textString = d2.name;
-					this.textContent = textString;
-					var textBBox = util.labelBBox(svg, textString, null);
-					if (textWidth <= textBBox.width) {
-						for (var x = textString.length - 3; x > 0; x -= 3) {
-							if (this.getSubStringLength(0, x) <= textWidth) {
-								this.textContent = textString.substring(0, x) + "...";
-								return this.textContent;
-							}
-						}
-						textBBox = util.labelBBox(svg, this.textContent, null);
-						if (textBBox.width < 15)
-							return '';
-						return "...";
-					}
-					return d2.name;
+			var labelBox = izenda.visualization.labelBBox(svg, 'X',
+				function (pane) {
+					return pane.append('g').attr('class', 'izenda-vis-heatmap-cell izenda-vis-heatmap-parent')
+						.append('svg').attr('class', 'clip')
+						.append('text').attr('class', 'izenda-vis-heatmap-label');
 				});
 
-			tran.select(".child .label")
-				.attr("x", function (d2) { return kx * d2.dx / 2; })
-				.attr("y", function (d2) { return ky * d2.dy / 2; });
+			var headerHeight = labelBox.height,
+				headerOffset = -labelBox.y;
 
-			tran.select("rect")
-				.attr("width", function (d2) { return Math.max(0.01, (kx * d2.dx)); })
-				.attr("height", function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
-				.style("fill", function (d2) { return isParent2(d, d2) && d2.children ? headerColor : d2.parent ? color(d2) : ""; });
+			function getDuration() {
+				return d3.event && d3.event.altKey ? 7500 : 750;
+			}
 
-			totalSize = d3.select(tran.node()).datum().value;
-			node = d;
-
-			if (d3.event)
-				d3.event.stopPropagation();
-		}
-
-		function processData(data) {
-			function trace(node, i) {
-				if (node && node.children) {
-					var index = node.children.findIndex(function (e) {
-						return e.name == s.props.nodePath[vis.indexes[i]];
-					});
-					if (index > -1)
-						return trace(node.children[index], i + 1);
+			function idealTextColor(bgColor) {
+				function getRgbComponents(c) {
+					return {
+						R: parseInt(c.substring(1, 3), 16),
+						G: parseInt(c.substring(3, 5), 16),
+						B: parseInt(c.substring(5, 7), 16)
+					};
 				}
 
-				return node;
+				var nThreshold = 105;
+				var components = getRgbComponents(bgColor);
+				var bgDelta = (components.R * 0.299) + (components.G * 0.587) + (components.B * 0.114);
+				return ((255 - bgDelta) < nThreshold) ? '#000000' : '#ffffff';
 			}
 
-			function parentSetup(parents) {
-				// create parent cells
-				var cells = g.selectAll("g.cell.parent")
-					.data(parents, function (d) { return "p-" + getPath(d); });
-
-				var clips = cells.enter().append("g")
-					.attr("class", "cell parent")
-					.on("click", function (d) { zoom(d); })
-					.append("svg")
-					.attr("class", "clip")
-					.attr("width", function (d) { return Math.max(0.01, d.dx); })
-					.attr("height", headerHeight);
-				clips.append("rect")
-					.attr("width", function (d) { return Math.max(0.01, d.dx); })
-					.attr("height", headerHeight);
-				clips.append('text')
-					.attr("class", "label")
-					.attr("transform", "translate(3, " + (headerOffset) + ")")
-					.attr("width", function (d) { return Math.max(0.01, d.dx); })
-					.attr("height", headerHeight)
-					.text(function (d) { return d.name; });
-
-				// update transition
-				var tran = cells.transition().duration(getDuration());
-				tran.select(".cell")
-					.attr("transform", function (d) { return "translate(" + d.dx + "," + d.y + ")"; });
-				tran.select("rect")
-					.attr("width", function (d) { return Math.max(0.01, d.dx); })
-					.attr("height", headerHeight);
-				tran.select(".label")
-					.attr("transform", "translate(3, 13)")
-					.attr("width", function (d) { return Math.max(0.01, d.dx); })
-					.attr("height", headerHeight)
-					.text(function (d) { return d.name; });
-				cells.exit().remove();
+			function isParent(droot, d) {
+				return d == droot
+					|| d.parent == droot
+					|| (d.parent && d.parent.parent == droot);
 			}
 
-			function chindrenSetup(chindren) {
-				var cells = g.selectAll("g.cell.child")
-					.data(chindren, function (d) { return "c-" + getPath(d); });
-
-				var clips = cells.enter().append("g")
-					.attr("class", "cell child")
-					.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; })
-					.on("click", function (d) { return zoom(node == d.parent ? root : d.parent); })
-					.append("svg")
-					.attr("class", "clip");
-				clips.append("rect")
-					.style("fill", function (d) { return d.parent ? color(d) : ""; })
-					.each(function (d) { services.tipOn(this, d, { nested: true, exclusion: ["link"] }); });
-				clips.append("text")
-					.attr("class", "label")
-					.attr("x", function (d) { return d.dx / 2; })
-					.attr("y", function (d) { return d.dy / 2; })
-					.attr("dy", ".35em")
-					.attr("text-anchor", "middle")
-					.text(function (d) { return d.name; });
-				// update transition
-				var tran = cells.transition().duration(getDuration());
-				tran.select(".cell")
-					.attr("transform", function (d) { return "translate(" + d.x + "," + d.y + ")"; });
-				tran.select("rect")
-					.attr("width", function(d) { return Math.max(0.01, d.dx); })
-					.attr("height", function (d) { return d.dy; })
-					.style("fill", function (d) { return d.parent ? color(d) : ""; });
-				tran.select(".label")
-					.attr('x', function (d) { return d.dx / 2; })
-					.attr('y', function (d) { return d.dy / 2; })
-					.attr("dy", ".35em")
-					.attr("text-anchor", "middle")
-					.text(function (d) { return d.name; });
-				cells.exit().remove();
+			function isLeaf(d) {
+				return !d.children;
 			}
 
-			node = root = data;
+			function execBreadcrumb(d, total) {
+				var percentage = (100 * d.value / total).toPrecision(3),
+					percentageString = percentage < 0.1 ? '< 0.1%' : percentage + '%';
 
-			var nodes = treemap.nodes(root);
-			parentSetup(nodes.filter(function (d) { return d.children; }));
-			chindrenSetup(nodes.filter(function (d) { return isLeaf(d); }));
-
-			var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
-			existNodePath = (s.props.nodePath && s.props.nodePath.length && s.props.nodePath.length > 0), bcNode = null;
-			if (isBackRender && existNodePath) {
-				bcNode = trace(data, 0);
+				if (!vis.isImageRender) {
+					vis.updateBreadcrumb(d, { label: percentageString });
+				}
 			}
 
-			vis.updateBreadcrumbContext({ root: root });
-			zoom(node, true);
+			function zoom(d, init) {
+				(treemap || this.treemap)
+					.padding(function (d2, i) { return [((0 < i && d.depth - 1 < i && i < d.depth + 3) ? headerHeight / (vis.height / d.dy) : 0), 0, 0, 0]; })
+					.nodes(d);
 
-			restore();
+				execBreadcrumb(d, totalSize);
 
-			treemap.value(function (d) { return vis.unitValue(d, metricSelect.find('option:selected').text()); }).nodes(root);
+				// moving the next two lines above treemap layout messes up padding of zoom result
+				var kx = vis.width / d.dx;
+				var ky = vis.height / d.dy;
+				var level = d;
 
-			zoom(node, true);
+				x.domain([d.x, d.x + d.dx]);
+				y.domain([d.y, d.y + d.dy]);
 
-			if (isBackRender && existNodePath) {
-				zoom(bcNode, true);
+				var tran = g.selectAll('g.izenda-vis-heatmap-cell')
+					.transition().duration(init ? 0 : getDuration())
+					.attr('transform', function (d2) { return 'translate(' + x(d2.x) + ',' + y(d2.y) + ')'; })
+					.each('start', function () {
+						d3.select(this).select('.izenda-vis-heatmap-label')
+							.style('visibility', 'hidden');
+					})
+					.each('end', function (d2, i2) {
+						d3.select(this).select('.izenda-vis-heatmap-label')
+							.style('visibility', 'visible');
+					});
+
+				tran.select('.clip')
+					.attr('width', function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+					.attr('height', function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); });
+
+				tran.select('.izenda-vis-heatmap-label')
+					.attr('width', function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+					.attr('height', function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
+					.text(function (d2) {
+						var actualHeight = isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy));
+						if (actualHeight < 13)
+							return '';
+						var textWidth = kx * d2.dx - 15.0;
+						var textString = d2.name;
+						this.textContent = textString;
+						var textBBox = izenda.visualization.labelBBox(svg, textString, null);
+						if (textWidth <= textBBox.width) {
+							for (var x = textString.length - 3; x > 0; x -= 3) {
+								if (this.getSubStringLength(0, x) <= textWidth) {
+									this.textContent = textString.substring(0, x) + '...';
+									return this.textContent;
+								}
+							}
+							textBBox = izenda.visualization.labelBBox(svg, this.textContent, null);
+							if (textBBox.width < 15)
+								return '';
+							return '...';
+						}
+						return d2.name;
+					});
+
+				tran.select('.izenda-vis-heatmap-child .izenda-vis-heatmap-label')
+					.attr('x', function (d2) { return kx * d2.dx / 2; })
+					.attr('y', function (d2) { return ky * d2.dy / 2; });
+
+				tran.select('rect')
+					.attr('width', function (d2) { return Math.max(0.01, (kx * d2.dx)); })
+					.attr('height', function (d2) { return isParent(d, d2) && d2.children ? headerHeight : Math.max(0.01, (ky * d2.dy)); })
+					.style('fill', color);
+
+				totalSize = d3.select(tran.node()).datum().value;
+				node = d;
+
+				if (d3.event)
+					d3.event.stopPropagation();
 			}
 
-			if (!isImageRender) {
-				s.props.nodePath = undefined;
-				store();
+			subscriptions.push(vis.events.subscribe('MetricChange', function (value) {
+				treemap.value(function (d) { return vis.itemValue(d, value); }).nodes(root);
+				zoom(node);
+			}));
+
+			subscriptions.push(vis.events.subscribe('BreadcrumbClick', function (d) {
+				zoom(d);
+			}));
+
+			function processData(data) {
+				function trace(node, i) {
+					if (node && node.children) {
+						var index = node.children.findIndex(function (e) {
+							return e.name == vis.getProperty('NodePath')[vis.indexes[i]];
+						});
+						if (index > -1)
+							return trace(node.children[index], i + 1);
+					}
+
+					return node;
+				}
+
+				function parentSetup(parents) {
+					// create parent cells
+					var cells = g.selectAll('g.izenda-vis-heatmap-cell.izenda-vis-heatmap-parent')
+						.data(parents, function (d) { return 'p-' + getPath(d); });
+
+					var clips = cells.enter().append('g')
+						.attr('class', 'izenda-vis-heatmap-cell izenda-vis-heatmap-parent')
+						.on('click', function (d) { zoom(d); })
+						.append('svg')
+						.attr('class', 'clip')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', headerHeight);
+					clips.append('rect')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', headerHeight);
+					clips.append('text')
+						.attr('class', 'izenda-vis-heatmap-label')
+						.attr('transform', 'translate(3, ' + (headerOffset) + ')')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', headerHeight)
+						.text(function (d) { return d.name; });
+
+					// update transition
+					var tran = cells.transition().duration(getDuration());
+					tran.select('.izenda-vis-heatmap-cell')
+						.attr('transform', function (d) { return 'translate(' + d.dx + ',' + d.y + ')'; });
+					tran.select('rect')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', headerHeight);
+					tran.select('.izenda-vis-heatmap-label')
+						.attr('transform', 'translate(3, 13)')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', headerHeight)
+						.text(function (d) { return d.name; });
+					cells.exit().remove();
+				}
+
+				function chindrenSetup(chindren) {
+					var cells = g.selectAll('g.izenda-vis-heatmap-cell.izenda-vis-heatmap-child')
+						.data(chindren, function (d) { return 'c-' + getPath(d); });
+
+					var clips = cells.enter().append('g')
+						.attr('class', 'izenda-vis-heatmap-cell izenda-vis-heatmap-child')
+						.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; })
+						.on('click', function (d) { return zoom(node == d.parent ? root : d.parent); })
+						.append('svg')
+						.attr('class', 'clip');
+					clips.append('rect')
+						.style('fill', color)
+						.each(function (d) { services.tipOn(this, d, { nested: true, exclusion: ['link'] }); });
+					clips.append('text')
+						.attr('class', 'izenda-vis-heatmap-label')
+						.attr('x', function (d) { return d.dx / 2; })
+						.attr('y', function (d) { return d.dy / 2; })
+						.attr('dy', '.35em')
+						.attr('text-anchor', 'middle')
+						.text(function (d) { return d.name; });
+					// update transition
+					var tran = cells.transition().duration(getDuration());
+					tran.select('.izenda-vis-heatmap-cell')
+						.attr('transform', function (d) { return 'translate(' + d.x + ',' + d.y + ')'; });
+					tran.select('rect')
+						.attr('width', function (d) { return Math.max(0.01, d.dx); })
+						.attr('height', function (d) { return d.dy; })
+						.style('fill', color);
+					tran.select('.izenda-vis-heatmap-label')
+						.attr('x', function (d) { return d.dx / 2; })
+						.attr('y', function (d) { return d.dy / 2; })
+						.attr('dy', '.35em')
+						.attr('text-anchor', 'middle')
+						.text(function (d) { return d.name; });
+					cells.exit().remove();
+				}
+
+				node = root = data;
+
+				var nodes = treemap.nodes(root);
+				parentSetup(nodes.filter(function (d) { return d.children; }));
+				chindrenSetup(nodes.filter(function (d) { return isLeaf(d); }));
+
+				var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
+				nodePathProperty = vis.getProperty('NodePath'),
+				existNodePath = (nodePathProperty && nodePathProperty.length && nodePathProperty.length > 0), bcNode = null;
+				if (isBackRender && existNodePath) {
+					bcNode = trace(data, 0);
+				}
+
+				vis.updateBreadcrumbContext({ root: root });
+				zoom(node, true);
+
+				treemap.value(function (d) { return vis.itemValue(d, vis.metrics[0]); }).nodes(root);
+
+				zoom(node, true);
+
+				if (isBackRender && existNodePath) {
+					zoom(bcNode, true);
+				}
+
+				if (!vis.isImageRender) {
+					vis.setProperty('NodePath', null);
+				}
 			}
+
+			processData(visRoot);
 		}
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			jq$("#VIS_ID").empty();
-		});
+		draw();
 
-		processData(visRoot);
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

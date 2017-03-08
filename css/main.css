@@ -4,7 +4,7 @@
 
 @font-face {
 	font-family: "SourceSansProRegular";
-	src: url("../../rs.aspx?font=Fonts.SourceSansPro-Regular.otf");
+	src: url("###RS###font=Fonts.SourceSansPro-Regular.otf");
 }
 
 html, body {
@@ -295,7 +295,7 @@ a span.plus {
 
 .header {
 	background-color: #fff;
-  /* background: url(../../rs.aspx?image=ModernImages.header-gradient.png) 0 bottom repeat-x; */
+  /* background: url(###RS###image=ModernImages.header-gradient.png) 0 bottom repeat-x; */
   position: relative;
   z-index: 2;
 }
@@ -471,11 +471,11 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
   position: absolute;
   right: 8px;
   top: 6px;
-  background: url(../../rs.aspx?image=ModernImages.search-gray.png) 0 0 no-repeat;
+  background: url(###RS###image=ModernImages.search-gray.png) 0 0 no-repeat;
 }
 .RL_CancelSearchIcon {
 	right: 30px;
-	background: url(../../rs.aspx?image=ModernImages.clear-dark.png) 0 0 no-repeat;
+	background: url(###RS###image=ModernImages.clear-dark.png) 0 0 no-repeat;
 	height: 16px;
 	width: 16px;
 	cursor: pointer;
@@ -788,21 +788,21 @@ tr.ReportFooter td {
   opacity: .75;
 }
 .iz-ui-tabs-panel div.thumb .thumb-remove {
-  background-image: url(../../rs.aspx?image=ModernImages.remove-icon.png);
+  background-image: url(###RS###image=ModernImages.remove-icon.png);
   top: 0;
 }
 .iz-ui-tabs-panel div.thumb .thumb-edit {
-  background-image: url(../../rs.aspx?image=ModernImages.edit-icon.png);
+  background-image: url(###RS###image=ModernImages.edit-icon.png);
   right: 0px;
   bottom: 0px;
 }
 .iz-ui-tabs-panel div.thumb .thumb-print {
-  background-image: url(../../rs.aspx?image=ModernImages.print-icon.png);
+  background-image: url(###RS###image=ModernImages.print-icon.png);
   right: 28px;
   bottom: 0px;
 }
 .iz-ui-tabs-panel div.thumb .thumb-template {
-  background-image: url(../../rs.aspx?image=ModernImages.template-icon.png);
+  background-image: url(###RS###image=ModernImages.template-icon.png);
   right: 56px;
   bottom: 0px;
 }
@@ -921,23 +921,23 @@ tr.ReportFooter td {
 }
 .iz-ui-tabs-panel div.thumb:hover .thumb-remove,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
-  background-image: url(../../rs.aspx?image=ModernImages.remove-icon.png);
+  background-image: url(###RS###image=ModernImages.remove-icon.png);
 }
 .iz-ui-tabs-panel div.thumb:hover .thumb-edit,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-edit {
-  background-image: url(../../rs.aspx?image=ModernImages.edit-icon.png);
+  background-image: url(###RS###image=ModernImages.edit-icon.png);
   right: 0px;
   top: auto;
 }
 .iz-ui-tabs-panel div.thumb:hover .thumb-print,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-print {
-  background-image: url(../../rs.aspx?image=ModernImages.print-icon.png);
+  background-image: url(###RS###image=ModernImages.print-icon.png);
   right: 28px;
   top: auto;
 }
 .iz-ui-tabs-panel div.thumb:hover .thumb-template,
 .iz-ui-tabs-panel div.thumb.no-hover .thumb-template {
-  background-image: url(../../rs.aspx?image=ModernImages.template-icon.png);
+  background-image: url(###RS###image=ModernImages.template-icon.png);
   right: 56px;
   top: auto;
 }
@@ -1005,7 +1005,7 @@ tr.ReportFooter td {
   padding-top: 0;
 }
 .yaselect-current {
-  background: url("../../rs.aspx?image=ModernImages.select-arrows.png") no-repeat 100% 50%;
+  background: url("###RS###image=ModernImages.select-arrows.png") no-repeat 100% 50%;
   text-indent: 4px;
   white-space: nowrap;
 }

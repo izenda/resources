@@ -144,19 +144,19 @@
                    ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
                    ng-click="tileController.showConfirmDelete()"
                    ng-if="tileController.isEditAllowed()">
-                  <img src="Resources/images/remove-18.png" class="img-responsive" />
+                  <img src="./rp.aspx?extres=images.remove-18.png" class="img-responsive" />
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
                    ng-click="tileController.deleteTile()"
                    ng-if="tileController.isEditAllowed()">
-                  <img src="Resources/images/tile/confirm-delete.png" />
+                  <img src="./rp.aspx?extres=images.tile.confirm-delete.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
                         ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
                    ng-click="tileController.hideConfirmDelete()"
                    ng-if="tileController.isEditAllowed()">
-                  <img src="Resources/images/tile/turn-back.png" />
+                  <img src="./rp.aspx?extres=images.tile.turn-back.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
                         ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
                 </a>
@@ -190,41 +190,41 @@
                      ng-show="!tileController.isOneColumnView() && tileController.isPrintTileVisible() && !tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_PrintTileReport' | izendaLocale: 'Print tile report'}}"
                      ng-click="tileController.printTile()">
-                    <img class="img-responsive" src="Resources/images/back-tile/print.png" />
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.print.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn"
                      ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_ExportTileToExcel' | izendaLocale: 'Export tile report to Excel'}}"
                      ng-click="tileController.exportToExcel()">
-                    <img class="img-responsive" src="Resources/images/back-tile/excel.png" />
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.excel.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" 
                      ng-show="!tileController.isTileEmpty() && tileController.isDesignLinksAllowed && tileController.hasReadOnlyRightsOrMore()">
                   <a ng-attr-title="{{'js_OpenTileInDesigner' | izendaLocale: 'Open tile report in designer'}}"
                      ng-click="tileController.fireReportEditorLink()">
-                    <img class="img-responsive" src="Resources/images/back-tile/edit.png" />
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.edit.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" 
                      ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_OpenTileInViewer' | izendaLocale: 'Open tile report in viewer'}}"
                      ng-click="tileController.fireReportViewerLink()">
-                    <img class="img-responsive" src="Resources/images/back-tile/view.png" />
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.view.png" />
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn" 
                      ng-show="!tileController.isTileEmpty() && tileController.hasLockedRightsOrMore()">
                   <a ng-attr-title="{{'js_ReloadTile' | izendaLocale: 'Reload tile from its source'}}"
                      ng-click="tileController.flipFront(true, true)">
-                    <img class="img-responsive" src="Resources/images/back-tile/reload.png">
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.reload.png">
                   </a>
                 </div>
                 <div class="iz-dash-tile-fb-toolbtn">
                   <a ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
                      ng-click="tileController.selectReportPart()">
-                    <img class="img-responsive" src="Resources/images/back-tile/add.png">
+                    <img class="img-responsive" src="./rp.aspx?extres=images.back-tile.add.png">
                   </a>
                 </div>
               </div>
@@ -275,22 +275,22 @@
                 <a class="title-button title-button-remove button2"
                    ng-attr-title="{{'js_ShowTile' | izendaLocale: 'Show tile'}}"
                    ng-click="tileController.flipFront(tileController.tileSizeChanged)">
-                  <img src="Resources/images/turn-18.png" class="img-responsive" />
+                  <img src="./rp.aspx?extres=images.turn-18.png" class="img-responsive" />
                 </a>
                 <a class="title-button title-button-remove button1"
                    ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
                    ng-click="tileController.showConfirmDelete()">
-                  <img src="Resources/images/remove-18.png" class="img-responsive" />
+                  <img src="./rp.aspx?extres=images.remove-18.png" class="img-responsive" />
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getConfirmDeleteClass()"
                    ng-click="tileController.deleteTile()">
-                  <img src="Resources/images/tile/confirm-delete.png" />
+                    <img src="./rp.aspx?extres=images.tile.confirm-delete.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
                         ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
                 </a>
                 <a ng-class="tileController.deleteConfirmClass + ' ' + tileController.getCancelDeleteClass()"
                    ng-click="tileController.hideConfirmDelete()">
-                  <img src="Resources/images/tile/turn-back.png" />
+                  <img src="./rp.aspx?extres=images.tile.turn-back.png" />
                   <span ng-if="tileController.getWidth() > 1" class="text-lowercase"
                         ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
                 </a>

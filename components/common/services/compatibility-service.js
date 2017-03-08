@@ -124,6 +124,13 @@
 				return allowed;
 			};
 
+			var isSaveAllowed = function () {
+				var rights = getRights();
+				var allowed = [rightFullAccess].indexOf(rights) >= 0;
+				allowed = allowed && !checkIsIe8();
+				return allowed;
+			};
+
 			var isShowSaveControls = function () {
 				return getShowSaveControls();
 			};
@@ -143,6 +150,11 @@
 			};
 
 			return {
+				RIGHT_FULL_ACCESS: rightFullAccess,
+				RIGHT_READ_ONLY: rightReadOnly,
+				RIGHT_VIEW_ONLY: rightViewOnly,
+				RIGHT_LOCKED: rightLocked,
+				RIGHT_NONE: rightNone,
 				checkIE: checkIE,
 				checkIsIe8: checkIsIe8,
 				checkIsLteIe10: checkIsLteIe10,
@@ -154,6 +166,7 @@
 				isHtml5FullScreenSupported: isHtml5FullScreenSupported,
 				isEditAllowed: isEditAllowed,
 				isFullAccess: isFullAccess,
+				isSaveAllowed: isSaveAllowed,
 				isSaveAsAllowed: isSaveAsAllowed,
 				isFiltersEditAllowed: isFiltersEditAllowed,
 				setRights: setRights,

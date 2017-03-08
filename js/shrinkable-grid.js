@@ -75,7 +75,7 @@
 			row$.after(newRow$);
 
 			// Add show/hide control to the target row
-			row$.find('td:first').prepend('<img class="inner-grid-toggle-control" onclick="ToggleInnerGrid(this)" src="rs.aspx?image=plus.gif"/>');
+			row$.find('td:first').prepend('<img class="inner-grid-toggle-control" onclick="ToggleInnerGrid(this)" src="rp.aspx?image=plus.gif"/>');
 		}
 	});
 }
@@ -109,7 +109,7 @@ function ToggleInnerGrid(element) {
 }
 
 function ToggleControlIcon(element) {
-	var baseUrl = 'rs.aspx?image=';
+	var baseUrl = 'rp.aspx?image=';
 	var src = jq$(element).attr('src').toString();
 	if (src.indexOf('plus.gif', src.length - 'plus.gif'.length) !== -1)
 		jq$(element).attr('src', baseUrl + 'minus.gif');
@@ -136,6 +136,6 @@ jq$(window).resize(function () {
 });
 
 jq$(document).ready(function () {
-	if (typeof (ReportScripting) != 'undefined' && ReportScripting.postRenderHandlers != undefined)
-		ReportScripting.postRenderHandlers.push(function () { ToggleReportGrids(); });
+	if (typeof (izenda.report) != 'undefined' && izenda.report.postRenderHandlers != undefined)
+		izenda.report.postRenderHandlers.push(function () { ToggleReportGrids(); });
 });

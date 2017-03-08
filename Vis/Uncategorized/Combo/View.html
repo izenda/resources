@@ -1,148 +1,91 @@
 ﻿<div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript">
-	(function(H) {
-		var addEvent = H.addEvent;
-
-		H.wrap(H.Chart.prototype, 'init', function(proceed) {
-			proceed.apply(this, Array.prototype.slice.call(arguments, 1));
-
-			var chart = this,
-				legend = chart.legend,
-				options = chart.legend.options,
-				isDragging,
-				downX, downY,
-				optionsX, optionsY,
-				currentX, currentY;
-
-			if (!options.draggable)
-				return;
-
-			legend.box.css({ cursor: 'move' });
-
-			addEvent(legend.box.element, 'mousedown', function(e) {
-				e = chart.pointer.normalize(e);
-				downX = e.chartX;
-				downY = e.chartY;
-				optionsX = options.x;
-				optionsY = options.y;
-				currentX = legend.group.attr('translateX');
-				currentY = legend.group.attr('translateY');
-				isDragging = true;
-			});
-			addEvent(chart.container, 'mousemove', function(e) {
-				if (!isDragging)
-					return;
-
-				e = chart.pointer.normalize(e);
-				var draggedX = e.chartX - downX,
-				    draggedY = e.chartY - downY;
-
-				options.x = optionsX + draggedX;
-				options.y = optionsY + draggedY;
-
-				if (chart.pointer.selectionMarker)
-					chart.pointer.selectionMarker = chart.pointer.selectionMarker.destroy();
-			});
-
-			addEvent(document, 'mouseup', function() {
-				isDragging = false;
-			});
-		});
-	}(Highcharts));
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS.length > 1
-				&& !VIS_COLUMNS.slice(1).some(function(o) { return !util.isMetric(o); });
-		}
-
-		var width = 720, height = 500;
-
-		var util = window.ReportScripting, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		function getItem(list, index) {
-			return list[index % list.length];
-		}
-
-		function getFormatter(i) {
-		  return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, VIS_COLUMNS[i].name); };
-		}
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { input: validate }))
-			return;
+	(function init() {
+		var services = window.ReportingServices;
 
 		var colors = ['#2f7ed8', '#8bbc21', '#0d233a', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a'];
 
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: {},
+			validate: function (columns, rows) {
+				return columns.length > 1
+					&& !columns.slice(1).some(function (o) { return !izenda.visualization.isMetric(o); });
+			},
+			draw: draw
+		});
 
-		var rows = vis.getRows(true),
-			columns = util.exchangeAxes(rows),
-			items = vis.getItems();
+		function draw() {
+			function getItem(list, index) {
+				return list[index % list.length];
+			}
 
-		width = vis.getWidth();
-		height = vis.getHeight();
+			function getFormatter(i) {
+				return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, VIS_COLUMNS[i].name); };
+			}
 
-		jq$('#VIS_ID').width(width).height(height);
+			var rows = vis.getRows(true),
+				columns = izenda.visualization.exchangeAxes(rows),
+				items = vis.getItems();
 
-		var yaxis = [], series = [];
-		for (var i = 1; i < VIS_COLUMNS.length; i++) {
-			yaxis.push({
-			  labels: {
-			    style: { color: getItem(colors, i - 1) },
-			    formatter: getFormatter(i)
-			  },
-				title: {
-					text: null,
-					style: { color: getItem(colors, i-1) }
+			var yaxis = [], series = [];
+			for (var i = 1; i < VIS_COLUMNS.length; i++) {
+				yaxis.push({
+					labels: {
+						style: { color: getItem(colors, i - 1) },
+						formatter: getFormatter(i)
+					},
+					title: {
+						text: null,
+						style: { color: getItem(colors, i - 1) }
+					},
+					opposite: i % 2 == 1
+				});
+				series.push({
+					name: VIS_COLUMNS[i].name,
+					type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline',
+					color: getItem(colors, i - 1),
+					yAxis: i - 1,
+					data: columns[i]
+				});
+			}
+
+			var options = {
+				title: { text: VIS_CONTEXT.title },
+				xAxis: [{ categories: jq$.map(vis.getRows(false), function (row) { return row[0]; }) }],
+				yAxis: yaxis,
+				legend: {
+					enabled: true
 				},
-				opposite: i % 2 == 1
-			});
-			series.push({
-				name: VIS_COLUMNS[i].name,
-				type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline',
-				color: getItem(colors, i-1),
-				yAxis: i - 1,
-				data: columns[i]
-			});
+				series: series,
+				credits: { enabled: false },
+				tooltip: {
+					shared: true,
+					formatter: function () {
+						var html = [];
+						html.push('<span style="font-size: 10px;">' + this.x + '</span>');
+						jq$.each(this.points, function (i, point) {
+							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+							html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
+						});
+						return html.join('<br/>');
+					}
+				}
+			};
+
+			vis.subscribeImageRenderer(options);
+			vis.element.highcharts(options);
 		}
 
-		var options = {
-			//chart: { zoomType: 'xy' },
-			title: { text: VIS_CONTEXT.title },
-			xAxis: [{ categories:jq$.map(vis.getRows(false), function(row) { return row[0]; }) }],
-			yAxis: yaxis,
-			legend: {
-				enabled: true
-			},
-			series: series,
-			credits: { enabled: false },
-			tooltip: {
-				shared: true,
-				formatter: function () {
-					var html = [];
-					html.push('<span style="font-size: 10px;">' + this.x + '</span>');
-					jq$.each(this.points, function (i, point) {
-						var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
-						html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
-					});
-					return html.join("<br/>");
-				}
-			}
-		};
-		vis.subscribeImageRenderer(options);
-		jq$('#VIS_ID').highcharts(options);
+		draw();
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			var highchart = jq$('#VIS_ID').highcharts();
-			if (highchart) {
-				highchart.destroy();
-			}
-			jq$("#VIS_ID").empty();
-		});
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

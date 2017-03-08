@@ -59,7 +59,7 @@
         </ul>
       </li>
       <!-- save -->
-      <li class="dropdown" ng-if="irController.settings.showSaveControls"
+      <li class="dropdown" ng-if="irController.settings.showSaveControls && (irController.rights.isSaveAllowed || irController.rights.isSaveAsAllowed)"
           ng-class="irController.isValid ? '' : 'disabled'">
         <a ng-attr-title="{{'js_SaveReport' | izendaLocale: 'Save report'}}"
            class="dropdown-toggle"
@@ -70,7 +70,7 @@
           <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-          <li>
+          <li ng-if="irController.rights.isSaveAllowed">
             <a ng-click="irController.saveReport(false)">
               <span class="glyphicon svg-icon icon-16 save"></span>
               &nbsp;
@@ -80,7 +80,7 @@
                     ng-bind="'js_SaveChangesMessage' | izendaLocale: 'Save changes to the report for everyone it is shared with'" bind-once></span>
             </a>
           </li>
-          <li>
+          <li ng-if="irController.rights.isSaveAsAllowed">
             <a ng-click="irController.saveReport(true)">
               <span class="glyphicon svg-icon icon-16 save"></span>
               &nbsp;
@@ -117,7 +117,7 @@
           <li ng-if="!$izendaCompatibility.isSmallResolution()">
             <a ng-click="irController.printReport('html')"
                ng-show="(irController.settings.allowedPrintEngine === 'Html' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml') && irController.isSynchronized">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.print-32.png" alt="">
+              <img class="icon-16" src="rp.aspx?image=ModernImages.print-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_PrintHTML' | izendaLocale: 'Print HTML'" bind-once></b>
               <br />
@@ -128,7 +128,7 @@
           <li>
             <a ng-click="irController.printReport('pdf')"
                ng-show="(irController.settings.allowedPrintEngine === 'Html2Pdf' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml') && irController.isSynchronized">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.pdf-32.png" alt="">
+              <img class="icon-16" src="rp.aspx?image=ModernImages.pdf-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_HTML2PDF' | izendaLocale: 'HTML-powered PDF'" bind-once></b>
               <br />
@@ -152,7 +152,7 @@
         <ul class="dropdown-menu">
           <li>
             <a ng-click="irController.exportReport('excel')">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.xls-32.png" alt="" />
+              <img class="icon-16" src="rp.aspx?image=ModernImages.xls-32.png" alt="" />
               &nbsp;
               <b ng-bind="'js_ExportToExcel' | izendaLocale: 'Export to Excel'" bind-once></b>
               <br />
@@ -162,7 +162,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('word')">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.word-32.png" alt="">
+              <img class="icon-16" src="rp.aspx?image=ModernImages.word-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_WordDocument' | izendaLocale: 'Word document'" bind-once></b>
               <br />
@@ -172,7 +172,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('csv')">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.csv-32.png" alt="">
+              <img class="icon-16" src="rp.aspx?image=ModernImages.csv-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_CSV' | izendaLocale: 'CSV'" bind-once></b>
               <br />
@@ -182,7 +182,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('xml')">
-              <img class="icon-16" src="rs.aspx?image=ModernImages.xml-32.png" alt="">
+              <img class="icon-16" src="rp.aspx?image=ModernImages.xml-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_XML' | izendaLocale: 'XML'" bind-once></b>
               <br />

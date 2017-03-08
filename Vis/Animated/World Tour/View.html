@@ -1,8 +1,4 @@
 ﻿<style type="text/css">
-	#VIS_ID_CONTAINER {
-		overflow: hidden;
-	}
-
 	#VIS_ID_CONTAINER #VIS_ID {
 		position: relative;
 	}
@@ -16,62 +12,10 @@
 		right: 0;
 		text-align: center;
 	 }
-
-	#VIS_ID_CONTAINER .property-control {
-		color: black;
-	}
-
-	#VIS_ID_CONTAINER .property-control select {
-		font-family: Verdana, Arial, Geneva, sans-serif;
-	}
-
-	#VIS_ID_CONTAINER .clearfix:after {
-		content: "";
-		clear: both;
-		display: table;
-	}
-
-	#VIS_ID_CONTAINER .hint {
-		font-size: 12px;
-		color: #999;
-		height: 30px;
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .hint span {
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER .hint select {
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
-		float: right;
-		position: relative;
-		right: 0;
-	}
-
-	#VIS_ID_CONTAINER .select-control {
-		padding-top: 2px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
-		display: inline-block;
-	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control select-control">
-				<span>Metrics:</span>
-				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script src="d3.v3.min.js" type="text/javascript"></script>
@@ -80,385 +24,344 @@
 <script src="izenda.world.country.names.js" type="text/javascript"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS.length > 1
-				&& VIS_COLUMNS[0].type == 'String'
-				&& !VIS_COLUMNS.slice(1).some(function(o) { return !util.isMetric(o); });
-		}
+	(function init() {
+		var services = window.ReportingServices;
 
-		var width = 720, height = 500;
-
-		var metricValue;
-
-		var util = window.ReportScripting, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		function shortName(name) {
-			switch (name) {
-				case "United Kingdom":
-					return "UK";
-				case "United States":
-					return "USA";
-				case "Venezuela, Bolivarian Republic of":
-					return "Venezuela";
-				default:
-					return name;
+		(function () {
+			/* Backward Compatibility Section */
+			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
+				var props = {};
+				try {
+					var oldProps = JSON.parse(VIS_CONTEXT.props);
+					props['Metric'] = oldProps['metric'];
+				} catch (e) {
+					props = {};
+				}
+				VIS_CONTEXT.props = JSON.stringify(props);
 			}
-		}
+		})();
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, canvas: true, animation: true, input: validate }))
-			return;
-
-		var vs = util.container("VIS_ID"),
-			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
-
-		window.visState = window.visState || {};
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
-			init: true,
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: { d3: true, svg: true, animation: true },
+			validate: function (columns, rows) {
+				return columns.length > 1
+					&& columns[0].type == 'String'
+					&& !columns.slice(1).some(function (o) { return !izenda.visualization.isMetric(o); });
+			},
+			draw: draw
 		});
-		if (!s.props) {
-			try {
-				s.props = JSON.parse(VIS_CONTEXT.props);
-			} catch (e) {
-				s.props = {};
-				util.logger.error(e);
-			}
-		}
 
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		d3.select("#VIS_ID").append("div")
-			.attr("id", "VIS_ID_LABEL");
-
-		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
-		var heightWithOffset = height - propertiesPanel.outerHeight();
-		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
-		vis.container
-			.unbind("mouseenter")
-			.bind("mouseenter", function () {
-				propertiesPanel.stop().animate({ opacity: 1 });
-			})
-			.unbind("mouseleave")
-			.bind("mouseleave", function () {
-				propertiesPanel.stop().animate({ opacity: 0 });
-			});
-
-		s.init = false;
-
-		jq$("#VIS_ID").width(width).height(heightWithOffset);
-
-		function validateControls() {
-			metricValue = metricSelect.find('option:selected').text();
-		}
-
-		function store() {
-			validateControls();
-
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.find('option:selected').text()
-			});
-
-			vis.setProps(s.props);
-		}
-
-		function restore() {
-			if (typeof s.props == "object" && s.props.metric) {
-				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
-				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
-			}
-		}
-
-		var items = [], i, j, item, stopped = false;
-		for (i = 0; i < VIS_ROWS.length; i++) {
+		var items = [],item = {};
+		for (var i = 0; i < vis.rows.length; i++) {
 			items.push(item = {});
-			for (j = 0; j < VIS_ROWS[i].length; j++) {
-				vis.unitValue(item, j, { ri: i });
+			for (var j = 0; j < vis.rows[i].length; j++) {
+				vis.itemValue(item, j, { ri: i });
 			}
 		}
 
 		vis.metrics = [];
-		for (var i = 1; i < VIS_COLUMNS.length; ++i) {
-			vis.metrics.push(VIS_COLUMNS[i].name);
+		for (var i = 1; i < vis.columns.length; ++i) {
+			vis.metrics.push(vis.columns[i].name);
 		}
 
-		metricSelect.find("option").remove();
-		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
+		vis.initHeader({
+			metrics: [{
+				name: 'Metric',
+				onChangeCallback: function () {
+					stopped = true;
+					vis.redraw();
+				}
+			}]
 		});
 
-		restore();
-
-		metricSelect
-			.unbind("change")
-			.bind("change", function () {
-				jq$("#VIS_ID canvas").remove();
-				store();
-				ExecuteVIS_ID();
-			});
-		validateControls();
-
-		var margin = { top: 5, right: 5, bottom: 5, left: 5 },
-			minDimension = Math.min(width - margin.left - margin.right, heightWithOffset - margin.top - margin.bottom),
-			center = [margin.left + (width - margin.left - margin.right) / 2, margin.top + (heightWithOffset - margin.top - margin.bottom) / 2];
-
-		var projection = d3.geo.orthographic()
-			.scale(minDimension / 2)
-			.clipAngle(90)
-			.translate(center);
-
-		var graticule = d3.geo.graticule();
-
-		var m0 = null, m1= null, o0;
-		function mousedown() {
+		izenda.visualization.registerResize('VIS_ID', init, function () {
 			stopped = true;
-			m0 = trackballAngles(d3.mouse(canvas.node()));
-			o0 = projection.rotate();
-			d3.event.preventDefault();
-			title.style('visibility', 'hidden');
-		}
-		function mousemove() {
-			if (!m0)
-				return;
+			vis.clear();
+		});
 
-			m1 = trackballAngles(d3.mouse(canvas.node()));
-			var o1 = [o0[0] + (m1[0] - m0[0]), o0[1] + (m1[1] - m0[1])];
-
-			projection.rotate(o1);
-			draw();
-		}
-		function mouseup() {
-			if (m0 && (!m1 || m0[0] == m1[0] && m0[1] == m1[1])) {
-				title.style('visibility', 'visible');
-				stopped = false;
-				transition();
-			}
-
-			if (m0) {
-				mousemove();
-				m0 = null;
-				m1 = null;
-			}
-		}
-
-		var canvas = d3.select("#VIS_ID").append("canvas")
-			.attr("width", width)
-			.attr("height", heightWithOffset)
-			.on("mousedown", mousedown)
-			.on("mousemove", mousemove)
-			.on("mouseup", mouseup)
-			.on("touchstart", mousedown)
-			.on("touchmove", mousemove)
-			.on("touchend", mouseup);
-
-		function trackballAngles(pt) {
-			// based on http://www.opengl.org/wiki/Trackball
-			// given a click at (x,y) in canvas coords on the globe (trackball),
-			// calculate the spherical coordianates for the point as a rotation around
-			// the vertical and horizontal axes
-			var r = projection.scale();
-			var c = projection.translate();
-			var x = pt[0] - c[0], y = -(pt[1] - c[1]), ss = x * x + y * y;
-
-			var z = r * r > 2 * ss ? Math.sqrt(r * r - ss) : r * r / 2 / Math.sqrt(ss);
-
-			var lambda = Math.atan2(x, z) * 180 / Math.PI;
-			var phi = Math.atan2(y, z) * 180 / Math.PI;
-			return [lambda, phi];
-		}
-
-		var context = canvas.node().getContext("2d");
-
-		var path = d3.geo.path()
-			.projection(projection)
-			.context(context);
-		var labelFactor = 0.06;
-		var title = d3.select("#VIS_ID_LABEL")
-			.style({
-				"top": (center[1] + minDimension * labelFactor) + "px",
-				"text-shadow": "0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white",
-				"font-size": (minDimension * labelFactor) + "px",
-				"visibility": "visible"
-			});
-
-		var land, grid, countries = [], countriesInReportOrder = [], borders, min, max;
-
-		function equalsString(a, b, ci) {
-			return ci ? a.toUpperCase() === b.toUpperCase() : a === b;
-		}
+		var stopped = false;
 
 		function draw() {
-			context.clearRect(0, 0, width, heightWithOffset);
+			stopped = false;
+			function shortName(name) {
+				switch (name) {
+					case 'United Kingdom':
+						return 'UK';
+					case 'United States':
+						return 'USA';
+					case 'Venezuela, Bolivarian Republic of':
+						return 'Venezuela';
+					default:
+						return name;
+				}
+			}
 
-			context.beginPath();
-			path({ type: "Sphere" });
-			context.lineWidth = 3;
-			context.strokeStyle = "#000";
-			context.stroke();
-			context.fillStyle = "#fff";
-			context.fill();
+			d3.select(vis.element.get(0)).append('div')
+				.attr('id', 'VIS_ID_LABEL');
 
-			projection.clipAngle(180);
+			var metricValue = vis.getProperty('Metric');
 
-			context.beginPath();
-			path(land);
-			context.fillStyle = "rgba(222,235,247,1)";
-			context.fill();
+			var margin = { top: 5, right: 5, bottom: 5, left: 5 },
+				minDimension = Math.min(vis.width - margin.left - margin.right, vis.height - margin.top - margin.bottom),
+				center = [margin.left + (vis.width - margin.left - margin.right) / 2, margin.top + (vis.height - margin.top - margin.bottom) / 2];
 
-			context.beginPath();
-			path(grid);
-			context.lineWidth = .5;
-			context.strokeStyle = "rgba(119,119,119,.5)";
-			context.stroke();
+			var projection = d3.geo.orthographic()
+				.scale(minDimension / 2)
+				.clipAngle(90)
+				.translate(center);
 
-			projection.clipAngle(90);
+			var graticule = d3.geo.graticule();
 
-			context.beginPath();
-			path(land);
-			context.fillStyle = "rgba(222,235,247)";
-			context.fill();
-			context.lineWidth = .5;
-			context.strokeStyle = "#000";
-			context.stroke();
+			var m0 = null, m1 = null, o0;
+			function mousedown() {
+				stopped = true;
+				m0 = trackballAngles(d3.mouse(canvas.node()));
+				o0 = projection.rotate();
+				d3.event.preventDefault();
+				title.style('visibility', 'hidden');
+			}
+			function mousemove() {
+				if (!m0)
+					return;
 
-			context.strokeStyle = "#fff";
-			context.lineWidth = 1;
-			context.beginPath();
-			path(borders);
-			context.stroke();
+				m1 = trackballAngles(d3.mouse(canvas.node()));
+				var o1 = [o0[0] + (m1[0] - m0[0]), o0[1] + (m1[1] - m0[1])];
 
-			context.strokeStyle = "rgb(20,20,20)";
-			context.lineWidth = 0.5;
-			context.beginPath();
-			path(country);
-			context.stroke();
+				projection.rotate(o1);
+				drawEarth();
+			}
+			function mouseup() {
+				if (m0 && (!m1 || m0[0] == m1[0] && m0[1] == m1[1])) {
+					title.style('visibility', 'visible');
+					stopped = false;
+					transition();
+				}
 
-			for (var i = 0; i < countries.length; i++) {
-				var country = countries[i];
+				if (m0) {
+					mousemove();
+					m0 = null;
+					m1 = null;
+				}
+			}
+
+			var canvas = d3.select('#VIS_ID').append('canvas')
+				.attr('width', vis.width)
+				.attr('height', vis.height)
+				.on('mousedown', mousedown)
+				.on('mousemove', mousemove)
+				.on('mouseup', mouseup)
+				.on('touchstart', mousedown)
+				.on('touchmove', mousemove)
+				.on('touchend', mouseup);
+
+			function trackballAngles(pt) {
+				// based on http://www.opengl.org/wiki/Trackball
+				// given a click at (x,y) in canvas coords on the globe (trackball),
+				// calculate the spherical coordianates for the point as a rotation around
+				// the vertical and horizontal axes
+				var r = projection.scale();
+				var c = projection.translate();
+				var x = pt[0] - c[0], y = -(pt[1] - c[1]), ss = x * x + y * y;
+
+				var z = r * r > 2 * ss ? Math.sqrt(r * r - ss) : r * r / 2 / Math.sqrt(ss);
+
+				var lambda = Math.atan2(x, z) * 180 / Math.PI;
+				var phi = Math.atan2(y, z) * 180 / Math.PI;
+				return [lambda, phi];
+			}
+
+			var context = canvas.node().getContext('2d');
+
+			var path = d3.geo.path()
+				.projection(projection)
+				.context(context);
+			var labelFactor = 0.06;
+			var title = d3.select('#VIS_ID_LABEL')
+				.style({
+					'top': (center[1] + minDimension * labelFactor) + 'px',
+					'text-shadow': '0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white, 0px 0px 8px white',
+					'font-size': (minDimension * labelFactor) + 'px',
+					'visibility': 'visible'
+				});
+
+			var land, grid, countries = [], countriesInReportOrder = [], borders, min, max;
+
+			function equalsString(a, b, ci) {
+				return ci ? a.toUpperCase() === b.toUpperCase() : a === b;
+			}
+
+			function drawEarth() {
+				context.clearRect(0, 0, vis.width, vis.height);
 
 				context.beginPath();
-				path(country);
-
-				if (country.id == countriesInReportOrder[countryIndex].id) {
-					country.lastValue = vis.unitValue(items[itemIndex], metricValue);
-				}
-
-				if (typeof country.lastValue === 'undefined') {
-					for (var j = items.length - 1; j >= 0; j--) {
-						if (equalsString(vis.unitValue(items[j], 0), shortName(country.name), true)) {
-							country.lastValue = vis.unitValue(items[j], metricValue);
-						}
-					}
-				}
-
-				var v = country.lastValue;
-				var c = util.getMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
-				context.fillStyle = util.getRgb(c);
+				path({ type: 'Sphere' });
+				context.lineWidth = 3;
+				context.strokeStyle = '#000';
+				context.stroke();
+				context.fillStyle = '#fff';
 				context.fill();
 
-				if (country.id == countriesInReportOrder[countryIndex].id) {
-					context.save();
+				projection.clipAngle(180);
 
-					path(country);
-					context.clip();
+				context.beginPath();
+				path(land);
+				context.fillStyle = 'rgba(222,235,247,1)';
+				context.fill();
+
+				context.beginPath();
+				path(grid);
+				context.lineWidth = .5;
+				context.strokeStyle = 'rgba(119,119,119,.5)';
+				context.stroke();
+
+				projection.clipAngle(90);
+
+				context.beginPath();
+				path(land);
+				context.fillStyle = 'rgba(222,235,247)';
+				context.fill();
+				context.lineWidth = .5;
+				context.strokeStyle = '#000';
+				context.stroke();
+
+				context.strokeStyle = '#fff';
+				context.lineWidth = 1;
+				context.beginPath();
+				path(borders);
+				context.stroke();
+
+				context.strokeStyle = 'rgb(20,20,20)';
+				context.lineWidth = 0.5;
+				context.beginPath();
+				path(country);
+				context.stroke();
+
+				for (var i = 0; i < countries.length; i++) {
+					var country = countries[i];
 
 					context.beginPath();
-					context.lineWidth = 2;
-					context.shadowColor = "rgb(20,20,20)";
-					context.strokeStyle = "rgb(20,20,20)";
-					context.shadowBlur = 20;
 					path(country);
-					context.stroke();
 
-					context.restore();
-				}
-			}
-		}
-
-		function checkStop() {
-			return stopped || !document.getElementById('VIS_ID');
-		}
-
-		var countryIndex = -1,
-			itemIndex = 0;
-
-		function transition() {
-			if (checkStop() || !countriesInReportOrder.length) {
-				return;
-			}
-
-			canvas.transition()
-				.duration(1000)
-				.each("start", function () {
-					var item = items[itemIndex];
-					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
-					var name = vis.unitValue(item, 0);
-					var val = vis.unitValue(item, metricValue);
-					if (itemIndex == 0 || !equalsString(name, shortName(countriesInReportOrder[countryIndex].name), true)) {
-						countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
+					if (country.id == countriesInReportOrder[countryIndex].id) {
+						country.lastValue = vis.itemValue(items[itemIndex], metricValue);
 					}
-					title.text(shortName(name) + " (" + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ")");
-				})
-				.tween("rotate", function () {
-					var p = d3.geo.centroid(countriesInReportOrder[countryIndex]),
-						r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
-					return function(t) {
-						if (checkStop()) {
-							return;
-						}
-						projection.rotate(r(t));
-						draw();
-					};
-				})
-				.transition()
-				.each("end", function () {
-					itemIndex = (itemIndex + 1) % items.length;
-					transition();
-				});
-		}
 
-		function startTransition(world, names) {
-			land = topojson.feature(world, world.objects.land);
-			grid = graticule();
-			var features = topojson.feature(world, world.objects.countries).features
-				.filter(function (feature) { return names.some(function (n) { return feature.id == n.id && (feature.name = n.name); }); });
-			var lastItemName = null;
-			items.map(function (item) { return vis.unitValue(item, 0); })
-				.filter(function (name) { return name !== lastItemName && (lastItemName = name); })
-				.forEach(function (name) {
-					for (var i = 0; i < features.length; ++i) {
-						var feature = features[i];
-						if (equalsString(shortName(feature.name), name, true)) {
-							countriesInReportOrder.push(feature);
-							if (!countries.some(function (c) { c.id == feature.id })) {
-								countries.push(feature);
+					if (typeof country.lastValue === 'undefined') {
+						for (var j = items.length - 1; j >= 0; j--) {
+							if (equalsString(vis.itemValue(items[j], 0), shortName(country.name), true)) {
+								country.lastValue = vis.itemValue(items[j], metricValue);
 							}
-							return;
 						}
 					}
-				});
 
-			borders = topojson.mesh(world, world.objects.countries, function(a, b) { return a !== b; });
-			if (countriesInReportOrder.length > 0) {
-				min = d3.min(items, function (item) { return item.support[metricValue].o; });
-				max = d3.max(items, function (item) { return item.support[metricValue].o; });
-				if (Math.abs(max - min) < 0.0000001) {
-					max = min + 1;
+					var v = country.lastValue;
+					var c = izenda.utils.color.getColorMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
+					context.fillStyle = izenda.utils.color.getRgbFromArray(c);
+					context.fill();
+
+					if (country.id == countriesInReportOrder[countryIndex].id) {
+						context.save();
+
+						path(country);
+						context.clip();
+
+						context.beginPath();
+						context.lineWidth = 2;
+						context.shadowColor = 'rgb(20,20,20)';
+						context.strokeStyle = 'rgb(20,20,20)';
+						context.shadowBlur = 20;
+						path(country);
+						context.stroke();
+
+						context.restore();
+					}
 				}
-				transition();
-			} else {
-				draw();
 			}
+
+			function checkStop() {
+				return stopped || !document.getElementById('VIS_ID') || vis.element.is(':hidden');
+			}
+
+			var countryIndex = -1,
+				itemIndex = 0;
+
+			function transition() {
+				if (checkStop() || !countriesInReportOrder.length) {
+					return;
+				}
+
+				canvas.transition()
+					.duration(1000)
+					.each('start', function () {
+						var item = items[itemIndex];
+						var fieldFormatter = vis.columns.find(function (d) { return d.name == metricValue; }).formatter;
+						var name = vis.itemValue(item, 0);
+						var val = vis.itemValue(item, metricValue);
+						if (itemIndex == 0 || !equalsString(name, shortName(countriesInReportOrder[countryIndex].name), true)) {
+							countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
+						}
+						title.text(shortName(name) + ' (' + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ')');
+					})
+					.tween('rotate', function () {
+						var p = d3.geo.centroid(countriesInReportOrder[countryIndex]),
+								r = d3.interpolate(projection.rotate(), [-p[0], -p[1]]);
+							return function (t) {
+								if (checkStop()) {
+									return;
+								}
+								projection.rotate(r(t));
+								drawEarth();
+							};
+					})
+					.transition()
+					.each('end', function () {
+						itemIndex = (itemIndex + 1) % items.length;
+						transition();
+					});
+			}
+
+			function startTransition(world, names) {
+				land = topojson.feature(world, world.objects.land);
+				grid = graticule();
+				var features = topojson.feature(world, world.objects.countries).features
+					.filter(function (feature) { return names.some(function (n) { return feature.id == n.id && (feature.name = n.name); }); });
+				var lastItemName = null;
+				items.map(function (item) { return vis.itemValue(item, 0); })
+					.filter(function (name) { return name !== lastItemName && (lastItemName = name); })
+					.forEach(function (name) {
+						for (var i = 0; i < features.length; ++i) {
+							var feature = features[i];
+							if (equalsString(shortName(feature.name), name, true)) {
+								countriesInReportOrder.push(feature);
+								if (!countries.some(function (c) { c.id == feature.id })) {
+									countries.push(feature);
+								}
+								return;
+							}
+						}
+					});
+				borders = topojson.mesh(world, world.objects.countries, function (a, b) { return a !== b; });
+				if (countriesInReportOrder.length > 0) {
+					min = d3.min(items, function (item) { return item.support[metricValue].o; });
+					max = d3.max(items, function (item) { return item.support[metricValue].o; });
+					if (Math.abs(max - min) < 0.0000001) {
+						max = min + 1;
+					}
+					transition();
+				} else {
+					drawEarth();
+				}
+			}
+
+			startTransition(izenda.world.m110, izenda.world.country.names);
 		}
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			stopped = true;
-			jq$("#VIS_ID").empty();
-		});
+		draw();
 
-		startTransition(izenda.world.m110, izenda.world.country.names);
 	})();
 </script>

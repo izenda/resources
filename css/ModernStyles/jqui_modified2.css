@@ -81,9 +81,9 @@
 
 /* Interaction Cues
 ----------------------------------*/
-.iz-db-ui-state-highlight, .iz-db-ui-widget-content .iz-db-ui-state-highlight, .iz-db-ui-widget-header .iz-db-ui-state-highlight  {border: 1px solid #fad42e; background: #fbec88 url(rs.aspx?image=jQuery.iz-db-ui-bg_flat_55_fbec88_40x100.png) 50% 50% repeat-x; }
+.iz-db-ui-state-highlight, .iz-db-ui-widget-content .iz-db-ui-state-highlight, .iz-db-ui-widget-header .iz-db-ui-state-highlight  {border: 1px solid #fad42e; background: #fbec88 url(###RS###image=jQuery.iz-db-ui-bg_flat_55_fbec88_40x100.png) 50% 50% repeat-x; }
 .iz-db-ui-state-highlight a, .iz-db-ui-widget-content .iz-db-ui-state-highlight a,.iz-db-ui-widget-header .iz-db-ui-state-highlight a {  }
-.iz-db-ui-state-error, .iz-db-ui-widget-content .iz-db-ui-state-error, .iz-db-ui-widget-header .iz-db-ui-state-error {border: 1px solid #cd0a0a; background: #fef1ec url(rs.aspx?image=jQuery.iz-db-ui-bg_glass_95_fef1ec_1x400.png) 50% 50% repeat-x; }
+.iz-db-ui-state-error, .iz-db-ui-widget-content .iz-db-ui-state-error, .iz-db-ui-widget-header .iz-db-ui-state-error {border: 1px solid #cd0a0a; background: #fef1ec url(###RS###image=jQuery.iz-db-ui-bg_glass_95_fef1ec_1x400.png) 50% 50% repeat-x; }
 .iz-db-ui-state-error a, .iz-db-ui-widget-content .iz-db-ui-state-error a, .iz-db-ui-widget-header .iz-db-ui-state-error a {  }
 .iz-db-ui-state-error-text, .iz-db-ui-widget-content .iz-db-ui-state-error-text, .iz-db-ui-widget-header .iz-db-ui-state-error-text {  }
 .iz-db-ui-priority-primary, .iz-db-ui-widget-content .iz-db-ui-priority-primary, .iz-db-ui-widget-header .iz-db-ui-priority-primary { font-weight: bold; }
@@ -94,14 +94,14 @@
 ----------------------------------*/
 
 /* states and images */
-.iz-db-ui-icon { width: 16px; height: 16px; background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_469bdd_256x240.png); }
-/*.iz-db-ui-widget-content .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_469bdd_256x240.png); }*/
-.iz-db-ui-widget-header .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_d8e7f3_256x240.png); }
-/*.iz-db-ui-state-default .iz-db-ui-icon { background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_6da8d5_256x240.png); }*/
-/*.iz-db-ui-state-hover .iz-db-ui-icon, .iz-db-ui-state-focus .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_217bc0_256x240.png); }*/
-.iz-db-ui-state-active .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_f9bd01_256x240.png); }
-.iz-db-ui-state-highlight .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_2e83ff_256x240.png); }
-.iz-db-ui-state-error .iz-db-ui-icon, .iz-db-ui-state-error-text .iz-db-ui-icon {background-image: url(rs.aspx?image=jQuery.iz-db-ui-icons_cd0a0a_256x240.png); }
+.iz-db-ui-icon { width: 16px; height: 16px; background-image: url(###RS###image=jQuery.iz-db-ui-icons_469bdd_256x240.png); }
+/*.iz-db-ui-widget-content .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_469bdd_256x240.png); }*/
+.iz-db-ui-widget-header .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_d8e7f3_256x240.png); }
+/*.iz-db-ui-state-default .iz-db-ui-icon { background-image: url(###RS###image=jQuery.iz-db-ui-icons_6da8d5_256x240.png); }*/
+/*.iz-db-ui-state-hover .iz-db-ui-icon, .iz-db-ui-state-focus .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_217bc0_256x240.png); }*/
+.iz-db-ui-state-active .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_f9bd01_256x240.png); }
+.iz-db-ui-state-highlight .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_2e83ff_256x240.png); }
+.iz-db-ui-state-error .iz-db-ui-icon, .iz-db-ui-state-error-text .iz-db-ui-icon {background-image: url(###RS###image=jQuery.iz-db-ui-icons_cd0a0a_256x240.png); }
 
 /* positioning */
 .iz-db-ui-icon-carat-1-n { background-position: 0 0; }

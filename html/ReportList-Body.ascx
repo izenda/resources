@@ -11,7 +11,7 @@
                         <input id="RL_QuickSearchBox" type="text" onblur="RL_BlurSearch(this);" onfocus="RL_FocusSearch(this);" onkeyup="RL_SearchInputStartTimeout(this.value.toLowerCase());" value="Search" lang-value="js_Search" />
                         <span class="RL_CancelSearchIcon" onclick="var sb = document.getElementById('RL_QuickSearchBox'); sb.value = ''; searchKeyword = ''; RL_BlurSearch(sb); RL_SearchReports();"></span>
                         <span class="search-icon"></span>
-                        <img id="RL_SearchingIcon" lang-title="js_Searching" lang-alt="js_Searching" title="Searching..." alt="Searching..." style="height: 16px; width: 16px; border-width: 0px; position: relative; top: 3px; display: none;" src="rs.aspx?image=searching-icon.gif" />
+                        <img id="RL_SearchingIcon" lang-title="js_Searching" lang-alt="js_Searching" title="Searching..." alt="Searching..." style="height: 16px; width: 16px; border-width: 0px; position: relative; top: 3px; display: none;" src="./rp.aspx?image=searching-icon.gif" />
                     </div>
 
                     <h2 lang-text="js_Categories">Categories</h2>
@@ -29,7 +29,7 @@
                 <div class="right-panel">
                     <div id="loadingDiv" style="width: 100%; text-align: center;">
                         <div id="loadingWord" style="font-size: 20px; color: #1D5987; font-family: Verdana,Arial,Helvetica,sans-serif; font-weight: normal !important; font-size: 20px; font-style: normal;" lang-text="js_Loading">Loading...</div>
-                        <img style="padding-top: 40px;" id="loadingImg" alt="" src='rs.aspx?image=loading.gif' />
+                        <img style="padding-top: 40px;" id="loadingImg" alt="" src='rp.aspx?image=loading.gif' />
                     </div>
                     <div id="reportListDiv" style="visibility: hidden;">
                     </div>

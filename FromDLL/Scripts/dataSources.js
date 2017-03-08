@@ -90,10 +90,10 @@ function FillProperty(data) {
   selectBox.style.display = 'none';
   applyBtn.style.display = 'none';
   snImg.style.display = '';
-  snImg.src = 'rs.aspx?image=jQuery.cross.png';
+  snImg.src = 'rp.aspx?image=jQuery.cross.png';
   if (data == null || data.length == 'undefined' || data.length < 2)
     return;
-  snImg.src = 'rs.aspx?image=jQuery.check.png';
+  snImg.src = 'rp.aspx?image=jQuery.check.png';
   applyBtn.style.display = '';
   var startInd = 0;
   var value = data[startInd];
@@ -487,7 +487,7 @@ function FullListSent(returnObj, id) {
 function RenderFullDsList(list) {
   var jsd = '{"data": [';
   for (var dbCnt = 0; dbCnt < list.length; dbCnt++) {
-    jsd += '{"data":{"title":"' + list[dbCnt].Na + '"}, "attr":{"id" : "rootnode' + dbCnt + '"}, "state":"open", "icon":"./rs.aspx?image=DataSources.db.gif", "children" :[';
+    jsd += '{"data":{"title":"' + list[dbCnt].Na + '"}, "attr":{"id" : "rootnode' + dbCnt + '"}, "state":"open", "icon":"./rp.aspx?image=DataSources.db.gif", "children" :[';
     var tables = '';
     var views = '';
     var sps = '';
@@ -512,9 +512,9 @@ function RenderFullDsList(list) {
         sps += nodeLine;
       }
     }
-    jsd += '{"data":{"title":"Tables"}, "attr":{"id" : "tablenode' + dbCnt + '"}, "icon":"./rs.aspx?image=DataSources.ds.gif", "children" :[' + tables + ']},';
-    jsd += '{"data":{"title":"Views"}, "attr":{"id" : "viewnode' + dbCnt + '"}, "icon":"./rs.aspx?image=DataSources.ds.gif", "children" :[' + views + ']},';
-    jsd += '{"data":{"title":"Stored procedures"}, "attr":{"id" : "spsnode' + dbCnt + '"}, "icon":"./rs.aspx?image=DataSources.sp.gif", "children" :[' + sps + ']}]}';
+    jsd += '{"data":{"title":"Tables"}, "attr":{"id" : "tablenode' + dbCnt + '"}, "icon":"./rp.aspx?image=DataSources.ds.gif", "children" :[' + tables + ']},';
+    jsd += '{"data":{"title":"Views"}, "attr":{"id" : "viewnode' + dbCnt + '"}, "icon":"./rp.aspx?image=DataSources.ds.gif", "children" :[' + views + ']},';
+    jsd += '{"data":{"title":"Stored procedures"}, "attr":{"id" : "spsnode' + dbCnt + '"}, "icon":"./rp.aspx?image=DataSources.sp.gif", "children" :[' + sps + ']}]}';
     if (dbCnt < list.length - 1)
       jsd += ',';
   }

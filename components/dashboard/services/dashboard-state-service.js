@@ -94,8 +94,7 @@
 					$container.empty();
 
 					// load response to container
-					if (angular.isDefined(ReportScripting))
-						ReportScripting.loadReportResponse(htmlData, $container);
+					izenda.report.loadReportResponse(htmlData, $container);
 
 					// replace CSS
 					var $customCss = $container.find('style[id=additionalStyle]');

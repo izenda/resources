@@ -56,7 +56,7 @@
 .iz-db-ui-widget { font-family: Verdana,Arial,sans-serif; font-size: 0.9em; }
 .iz-db-ui-widget .iz-db-ui-widget { font-size: 1em; }
 .iz-db-ui-widget input, .iz-db-ui-widget select, .iz-db-ui-widget textarea, .iz-db-ui-widget button { font-family: Verdana,Arial,sans-serif; font-size: 1em; }
-.iz-db-ui-widget-content { border: 1px solid #aaaaaa; background: #ffffff url(images/ui-bg_glass_75_ffffff_1x400.png) 50% 50% repeat-x; color: #222222; }
+.iz-db-ui-widget-content { border: 1px solid #aaaaaa; background: #ffffff url(###RS###image=ModernImages.ui-bg_glass_75_ffffff_1x400.png) 50% 50% repeat-x; color: #222222; }
 .iz-db-ui-widget-content a { color: #222222; }
 .iz-db-ui-widget-header { /*background: #dddddd;*/ color: #222222; font-weight: bold; }
 .iz-db-ui-widget-header a { color: #222222; }
@@ -73,9 +73,9 @@
 
 /* Interaction Cues
 ----------------------------------*/
-.iz-db-ui-state-highlight, .iz-db-ui-widget-content .iz-db-ui-state-highlight, .iz-db-ui-widget-header .iz-db-ui-state-highlight  {border: 1px solid #fcefa1; background: #fbf9ee url(images/ui-bg_glass_55_fbf9ee_1x400.png) 50% 50% repeat-x; color: #363636; }
+.iz-db-ui-state-highlight, .iz-db-ui-widget-content .iz-db-ui-state-highlight, .iz-db-ui-widget-header .iz-db-ui-state-highlight  {border: 1px solid #fcefa1; background: #fbf9ee url(###RS###image=ModernImages.ui-bg_glass_55_fbf9ee_1x400.png) 50% 50% repeat-x; color: #363636; }
 .iz-db-ui-state-highlight a, .iz-db-ui-widget-content .iz-db-ui-state-highlight a,.iz-db-ui-widget-header .iz-db-ui-state-highlight a { color: #363636; }
-.iz-db-ui-state-error, .iz-db-ui-widget-content .iz-db-ui-state-error, .iz-db-ui-widget-header .iz-db-ui-state-error {border: 1px solid #cd0a0a; background: #fef1ec url(images/ui-bg_inset-soft_95_fef1ec_1x100.png) 50% bottom repeat-x; color: #cd0a0a; }
+.iz-db-ui-state-error, .iz-db-ui-widget-content .iz-db-ui-state-error, .iz-db-ui-widget-header .iz-db-ui-state-error {border: 1px solid #cd0a0a; background: #fef1ec url(###RS###image=ModernImages.ui-bg_inset-soft_95_fef1ec_1x100.png) 50% bottom repeat-x; color: #cd0a0a; }
 .iz-db-ui-state-error a, .iz-db-ui-widget-content .iz-db-ui-state-error a, .iz-db-ui-widget-header .iz-db-ui-state-error a { color: #cd0a0a; }
 .iz-db-ui-state-error-text, .iz-db-ui-widget-content .iz-db-ui-state-error-text, .iz-db-ui-widget-header .iz-db-ui-state-error-text { color: #cd0a0a; }
 .iz-db-ui-priority-primary, .iz-db-ui-widget-content .iz-db-ui-priority-primary, .iz-db-ui-widget-header .iz-db-ui-priority-primary { font-weight: bold; }
@@ -86,14 +86,14 @@
 ----------------------------------*/
 
 /* states and images */
-.iz-db-ui-icon { width: 16px; height: 16px; background-image: url(images/ui-icons_222222_256x240.png); }
-.iz-db-ui-widget-content .iz-db-ui-icon {background-image: url(images/ui-icons_222222_256x240.png); }
-.iz-db-ui-widget-header .iz-db-ui-icon {background-image: url(images/ui-icons_222222_256x240.png); }
-.iz-db-ui-state-default .iz-db-ui-icon { background-image: url(images/ui-icons_888888_256x240.png); }
-.iz-db-ui-state-hover .iz-db-ui-icon, .iz-db-ui-state-focus .iz-db-ui-icon {background-image: url(images/ui-icons_454545_256x240.png); }
-.iz-db-ui-state-active .iz-db-ui-icon {background-image: url(images/ui-icons_454545_256x240.png); }
-.iz-db-ui-state-highlight .iz-db-ui-icon {background-image: url(images/ui-icons_2e83ff_256x240.png); }
-.iz-db-ui-state-error .iz-db-ui-icon, .iz-db-ui-state-error-text .iz-db-ui-icon {background-image: url(images/ui-icons_cd0a0a_256x240.png); }
+.iz-db-ui-icon { width: 16px; height: 16px; background-image: url(###RS###image=ModernImages.ui-icons_222222_256x240.png); }
+.iz-db-ui-widget-content .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_222222_256x240.png); }
+.iz-db-ui-widget-header .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_222222_256x240.png); }
+.iz-db-ui-state-default .iz-db-ui-icon { background-image: url(###RS###image=ModernImages.ui-icons_888888_256x240.png); }
+.iz-db-ui-state-hover .iz-db-ui-icon, .iz-db-ui-state-focus .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_454545_256x240.png); }
+.iz-db-ui-state-active .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_454545_256x240.png); }
+.iz-db-ui-state-highlight .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_2e83ff_256x240.png); }
+.iz-db-ui-state-error .iz-db-ui-icon, .iz-db-ui-state-error-text .iz-db-ui-icon {background-image: url(###RS###image=ModernImages.ui-icons_cd0a0a_256x240.png); }
 
 /* positioning */
 .iz-db-ui-icon-carat-1-n { background-position: 0 0; }
@@ -283,8 +283,8 @@
 .iz-db-ui-corner-all, .iz-db-ui-corner-bottom, .iz-db-ui-corner-right, .iz-db-ui-corner-br { -moz-border-radius-bottomright: 4px; -webkit-border-bottom-right-radius: 4px; -khtml-border-bottom-right-radius: 4px; border-bottom-right-radius: 4px; }*/
 
 /* Overlays */
-.iz-db-ui-widget-overlay { background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); }
-.iz-db-ui-widget-shadow { margin: -8px 0 0 -8px; padding: 8px; background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); -moz-border-radius: 8px; -khtml-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; }/*!
+.iz-db-ui-widget-overlay { background: #aaaaaa url(###RS###image=ModernImages.ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); }
+.iz-db-ui-widget-shadow { margin: -8px 0 0 -8px; padding: 8px; background: #aaaaaa url(###RS###image=ModernImages.ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x; opacity: .30;filter:Alpha(Opacity=30); -moz-border-radius: 8px; -khtml-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; }/*!
  * jQuery UI Resizable 1.8.21
  *
  * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)

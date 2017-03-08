@@ -157,32 +157,32 @@ function ChangeTopRecords(recsNum, updateReportData) {
 	if (recsNum == 1) {
 		uvcVal = '1';
 		jq$('#resNumLi0').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'row-1.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'row-1.png';
 	}
 	if (recsNum == 10) {
 		uvcVal = '10';
 		jq$('#resNumLi1').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10.png';
 	}
 	if (recsNum == 100) {
 		uvcVal = '100';
 		jq$('#resNumLi2').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-100.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-100.png';
 	}
 	if (recsNum == 1000) {
 		uvcVal = '1000';
 		jq$('#resNumLi3').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-1000.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-1000.png';
 	}
 	if (recsNum == 10000) {
 		uvcVal = '10000';
 		jq$('#resNumLi5').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10000.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10000.png';
 	}
 	if (recsNum == -1) {
 		uvcVal = '-1';
 		jq$('#resNumLi4').addClass('selected');
-		resNumImg.src = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-all.png';
+		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-all.png';
 	}
 	if (updateReportData) {
 		SetTopRecords(uvcVal);
@@ -306,7 +306,7 @@ function RefreshFieldsList() {
 		fRow.append(fNameCell);
 
 		var fPropsCell = jq$('<td>');
-		fPropsCell.attr('style', 'width:15px; opacity:0; cursor:pointer; background-image:url(rs.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;');
+		fPropsCell.attr('style', 'width:15px; opacity:0; cursor:pointer; background-image:url(rp.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;');
 		fPropsCell.attr('onmouseover', 'this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}');
 		fPropsCell.attr('onmouseout', 'this.style.opacity=0;');
 		fPropsCell.attr('onclick', 'ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);');
@@ -351,7 +351,7 @@ function RefreshFieldsList() {
 			}
 			fieldOpt += '<td><label style="cursor:pointer;' + lColor + '" for="' + idPrefix + '">' + dataSources[cds].Columns[fCnt].FriendlyName + '</label></td>';
 			if (!dataSources[cds].Columns[fCnt].Hidden)
-				fieldOpt += '<td onmouseover="javascript:this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0;" onclick="javascript:ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);" width="15" style="opacity:0; cursor:pointer; background-image:url(rs.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;"></td>';
+				fieldOpt += '<td onmouseover="javascript:this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0;" onclick="javascript:ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);" width="15" style="opacity:0; cursor:pointer; background-image:url(rp.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;"></td>';
 			fieldOpt += "</tr>";
 			if (dataSources[cds].Columns[fCnt].Selected > -1) {
 				var selectedHtml = new Object();
@@ -1092,6 +1092,8 @@ function GotReportViewerConfig(returnObj, id) {
 		delimiter = nrvConfig.serverDelimiter;
 	responseServer = new AdHoc.ResponseServer(urlSettings.urlRsPage + delimiter, 0);
 	responseServerWithDelimeter = responseServer.ResponseServerUrl;
+	resourcesProvider = new AdHoc.ResourcesProvider(urlSettings.urlRpPage + delimiter, 0);
+	resourcesProviderWithDelimeter = resourcesProvider.ResourcesProviderUrl;
 	if (nrvConfig.UseBulkCsv) {
 		var csvExportBtn = document.getElementById('csvExportBtn');
 		if (csvExportBtn != null)
@@ -1175,7 +1177,7 @@ function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 function GotRenderedReportSet(returnObj, id) {
 	if (id != 'getrenderedreportset' || !returnObj)
 		return;
-	ReportScripting.loadReportResponse(returnObj, "#renderedReportDiv");
+	izenda.report.loadReportResponse(returnObj, "#renderedReportDiv");
 
 	AdHoc.Utility.InitGaugeAnimations(null, null, false);
 	// Dirty workaround for IE8

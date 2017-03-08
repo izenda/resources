@@ -11,6 +11,13 @@ var makeFiltersFloat;
 var refreshFiltersLastGUID = '';
 var useGetRenderedReportSetForFilters = true;
 
+(function (ns) {
+	ns.reportViewerFilter = ns.reportViewerFilter || {};
+
+	ns.reportViewerFilter.datepickerReadyToShow = true;
+
+})(window.izenda || (window.izenda = {}));
+
 function ToggleFilters() {
 	var filtersBodyDiv$ = jq$('#filtersBodyDiv');
 	if (filtersBodyDiv$.css('visibility') == 'hidden') {
@@ -440,11 +447,12 @@ function RefreshFilters(returnObj) {
 		if (typeof nirConfig.ShowTimeInFilterPickers != 'undefined' && nirConfig.ShowTimeInFilterPickers != null && nirConfig.ShowTimeInFilterPickers != '')
 			showTimeInFilterPickers = nirConfig.ShowTimeInFilterPickers;
 	}
+	izenda.reportViewerFilter.datepickerReadyToShow = true;
 	for (var cc = 0; cc < calendars.length; cc++) {
 		if (showTimeInFilterPickers) {
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq("destroy");
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq({
-				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
+				buttonImage: urlSettings.urlRpPage + '?image=calendar_icon.png',
 				showOn: "both",
 				buttonImageOnly: true,
 				altRedirectFocus: false,
@@ -452,6 +460,7 @@ function RefreshFilters(returnObj) {
 				timeInput: true,
 				dateFormat: dateFormatString,
 				onClose: function () {
+					izenda.reportViewerFilter.datepickerReadyToShow = false;
 					if (this.getAttribute('autoSetEndDay') == '1') {
 						var enteredDate = jq$(this).datetimepickerJq("getDate");
 						if (typeof enteredDate != 'undefined' && enteredDate != null && enteredDate.getHours() + enteredDate.getMinutes() + enteredDate.getSeconds() <= 0) {
@@ -462,6 +471,21 @@ function RefreshFilters(returnObj) {
 					setTimeout(function () {
 						CommitFiltersData(false);
 					}, 401);
+				},
+				beforeShow: function (e, o) {
+					function waitReadyToShow() {
+						setTimeout(function () {
+							if (izenda.reportViewerFilter.datepickerReadyToShow) {
+								jq$("#" + o.id).datetimepickerJq('show');
+							} else {
+								waitReadyToShow();
+							}
+						}, 100);
+					}
+					if (!izenda.reportViewerFilter.datepickerReadyToShow) {
+						waitReadyToShow();
+						return false;
+					}
 				}
 			});
 		}
@@ -469,13 +493,29 @@ function RefreshFilters(returnObj) {
 			jq$(document.getElementById(calendars[cc])).datepicker("destroy");
 			jq$(document.getElementById(calendars[cc])).datepicker({
 				dateFormat: dateFormatString,
-				buttonImage: urlSettings.urlRsPage + '?image=calendar_icon.png',
+				buttonImage: urlSettings.urlRpPage + '?image=calendar_icon.png',
 				showOn: "both",
 				buttonImageOnly: true,
 				onClose: function () {
+					izenda.reportViewerFilter.datepickerReadyToShow = false;
 					setTimeout(function () {
 						CommitFiltersData(false);
 					}, 401);
+				},
+				beforeShow: function (e, o) {
+					function waitReadyToShow() {
+						setTimeout(function () {
+							if (izenda.reportViewerFilter.datepickerReadyToShow) {
+								jq$("#" + o.id).datepicker('show');
+							} else {
+								waitReadyToShow();
+							}
+						}, 100);
+					}
+					if (!izenda.reportViewerFilter.datepickerReadyToShow) {
+						waitReadyToShow();
+						return false;
+					}
 				}
 			});
 		}
@@ -1139,10 +1179,10 @@ CC_FillCombobox = function (selectedValues, node, row) {
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
-		var responseServerUrl = urlSettings.urlRsPage + '?';
+		var responseServerUrl = urlSettings.urlRpPage + '?';
 		// From ReportViewer.js
 		if (typeof nrvConfig != 'undefined')
-			responseServerUrl = nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter;
+			responseServerUrl = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter;
 		cValid.html('<nobr>' + displayText + '<img src="' + responseServerUrl + 'image=icon-blue-x.gif" class="chunkX"></nobr>');
 		selectedValues.append(cValid);
 		cValid.find(".chunkX").click(function () {

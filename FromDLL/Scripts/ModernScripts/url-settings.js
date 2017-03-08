@@ -9,6 +9,7 @@
 UrlSettingsPaths = {
 	urlBase: '/',
 	urlRsPage: '',
+	urlRpPage: '',
 	urlDashboardDesigner: '',
 	urlDashboardViewer: '',
 	urlInstantReport: '',
@@ -50,6 +51,7 @@ UrlSettingsPaths = {
 				UrlSettingsPaths = {
 					urlBase: urlBase,
 					urlRsPage: getPath(urlBase, config.ResponseServerUrl),
+					urlRpPage: getPath(urlBase, config.ResourcesProviderUrl),
 					urlDashboardDesigner: getPath(urlBase, config.DashboardDesignerUrl),
 					urlDashboardViewer: getPath(urlBase, config.DashboardViewerUrl),
 					urlInstantReport: getPath(urlBase, config.InstantReportUrl),

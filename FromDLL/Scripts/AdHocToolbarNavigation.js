@@ -371,7 +371,7 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 				action = action.replace("__old_tplrep_name__", oldValue.replace(/ /g, "+"));
 				ChangeFormAction(formId, action);
 				pause(100);
-				ReportingServices.showLoading(null, { title: jsResources.Saving });
+				ReportingServices.showLoading({ title: jsResources.Saving });
 				pause(100);
 				var mvcHack = document.getElementsByName("AdHoc_SaveOrSaveAsButtonPressed")[0];
 				if (mvcHack != null)

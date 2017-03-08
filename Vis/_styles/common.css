@@ -1,0 +1,293 @@
+﻿@font-face {
+	font-family: 'Open Sans';
+	font-style: normal;
+	font-weight: 400;
+	src: local('Open Sans'), local('OpenSans'), url(./rp.aspx?font=Fonts.OpenSans.woff) format('woff');
+}
+
+.izenda-clearfix:after {
+	content: "";
+	clear: both;
+	display: table;
+}
+
+.izenda-input-icon {
+	font-size: 95%;
+	font-weight: normal;
+	color: #555555;
+	cursor: pointer;
+	border: 1px solid #a9a9a9;
+	border-left: none;
+	box-sizing: border-box;
+	display: inline-block;
+	height: 20px;
+	padding-left: 3px;
+	padding-right: 2px;
+	text-align: center;
+	vertical-align: bottom;
+}
+
+.izenda-left {
+	float: left !important;
+}
+
+.izenda-vis-container {
+	overflow: hidden;
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
+.izenda-vis-header {
+	height: 30px;
+	padding-bottom: 2px;
+}
+
+.izenda-vis-breadcrumbs-bar {
+	display: inline-block;
+	float: left;
+}
+
+.izenda-vis-breadcrumbs-bar text {
+	fill: #fff;
+	font-family: 'Open Sans', sans-serif;
+	font-weight: 600;
+	font-size: 12px;
+	pointer-events: none;
+}
+
+.izenda-vis-properties-bar {
+	float: right;
+	font-size: 12px;
+	height: 30px;
+	position: absolute;
+	right: 0;
+	width: auto;
+}
+
+.izenda-vis-property {
+	color: black;
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.izenda-vis-property:not(:first-child) {
+	margin-left: 5px;
+}
+
+.izenda-vis-property label {
+	color: #000000;
+	display: inline-block;
+	font-size: 13px;
+	font-weight: normal;
+}
+
+.izenda-vis-property-datepicker {
+	padding: 1px 4px;
+	width: 90px;
+	height: 14px;
+}
+
+.izenda-vis-property-checkbox input[type=checkbox] {
+	vertical-align: top;
+}
+
+.izenda-vis-property-select {
+	padding-top: 2px;
+}
+
+.izenda-vis-property-select label {
+	margin-right: 5px;
+}
+
+.izenda-vis-property-select select {
+	font-family: Verdana, Arial, Geneva, sans-serif;
+	width: auto;
+}
+
+.izenda-print .izenda-vis-property-select select {
+	border: 0 !important;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+}
+
+.izenda-print .izenda-vis-property-select select::-ms-expand {
+	display: none;
+}
+
+.izenda-vis-property-slider .ui-slider,
+.izenda-vis-property-slider .iz-ui-slider
+{
+	background-color: #ffffff;
+	border: 1px solid #aaaaaa;
+	border-radius: 5px;
+	display: inline-block;
+	height: 4px;
+	width: 200px;
+	margin-left: 12px;
+	margin-bottom: 1px;
+	position: relative;
+}
+
+.izenda-vis-property-slider .ui-slider-handle,
+.izenda-vis-property-slider .iz-ui-slider-handle {
+	background-color: #eaeaea !important;
+	border: 1px solid #aaaaaa;
+	border-radius: 50%;
+	height: 12px;
+	width: 12px;
+	position: absolute;
+	top: 0;
+	margin: -0.4em;
+	cursor: pointer;
+}
+
+.izenda-vis-property-buttongroup {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	display: inline-block;
+}
+
+.izenda-vis-property-buttongroup ul {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+	padding-left: 10px;
+}
+
+.izenda-vis-property-buttongroup li {
+	color: #999;
+	font-family: Verdana, Arial, Geneva, sans-serif;
+	font-size: 12px;
+	cursor: pointer;
+	float: left;
+	padding: 2px 5px;
+	border-top: solid 1px #CCC;
+	border-bottom: solid 1px #CCC;
+	border-left: solid 1px #CCC;
+	background: #f9f9f9;
+	margin: 0 0;
+}
+
+.izenda-vis-property-buttongroup li:first-of-type {
+	border-radius: 2px 0 0 2px;
+}
+
+.izenda-vis-property-buttongroup li:last-of-type {
+	border-right: solid 1px #CCC;
+	border-radius: 0 2px 2px 0;
+}
+
+.izenda-vis-property-buttongroup li.izenda-selected {
+	color: #000;
+	background: #e9e9e9;
+	border-color: #AAA;
+	box-shadow: inset 0px 0px 1px rgba(0,0,0,0.2);
+}
+
+.izenda-vis-property-selector {
+	cursor: pointer;
+	display: inline-block;
+	height: 27px;
+	width: 24px;
+	vertical-align: top;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.izenda-icon-refresh {
+	background: url('./rp.aspx?extres=Vis._images.refresh.png') no-repeat center center;
+}
+
+.izenda-icon-refresh:hover {
+	background: url('./rp.aspx?extres=Vis._images.refresh.hover.png') no-repeat center center;
+}
+
+.izenda-icon-refresh.izenda-vis-property-selector-active {
+	background: url('./rp.aspx?extres=Vis._images.refresh.selected.png') no-repeat center center;
+}
+
+.izenda-icon-palette {
+	background: url('./rp.aspx?extres=Vis._images.palette.png') no-repeat center center;
+}
+
+.izenda-icon-palette:hover {
+	background: url('./rp.aspx?extres=Vis._images.palette.hover.png') no-repeat center center;
+}
+
+.izenda-icon-palette.izenda-vis-property-selector-active {
+	background: url('./rp.aspx?extres=Vis._images.palette.selected.png') no-repeat center center;
+}
+
+.izenda-icon-type {
+	background: url('./rp.aspx?extres=Vis._images.type.png') no-repeat center center;
+}
+
+.izenda-icon-type:hover {
+	background: url('./rp.aspx?extres=Vis._images.type.hover.png') no-repeat center center;
+}
+
+.izenda-icon-type.izenda-vis-property-selector-active {
+	background: url('./rp.aspx?extres=Vis._images.type.selected.png') no-repeat center center;
+}
+
+.izenda-icon-gear {
+	background: url('./rp.aspx?extres=Vis._images.gear.png') no-repeat center center;
+}
+
+.izenda-icon-gear:hover {
+	background: url('./rp.aspx?extres=Vis._images.gear.hover.png') no-repeat center center;
+}
+
+.izenda-icon-gear.izenda-vis-property-selector-active {
+	background: url('./rp.aspx?extres=Vis._images.gear.selected.png') no-repeat center center;
+}
+
+.izenda-vis-property-panel {
+	overflow: hidden;
+}
+
+.izenda-vis-property-panel .izenda-vis-property {
+	display: block;
+	margin-bottom: 6px;
+	margin-top: 6px;
+	margin-left: 0px;
+}
+
+.izenda-vis-property-gallery-item {
+	margin: 4px;
+	text-indent: 0;
+	border: 1px solid #AAA;
+	opacity: 0.7;
+	display: inline-block;
+	box-sizing: content-box;
+	cursor: pointer;
+}
+
+.izenda-vis-property-gallery-item:hover {
+	opacity: 1;
+}
+
+.izenda-vis-property-gallery-item-placeholder {
+	width: 100%;
+	height: 100%;
+}
+
+.izenda-vis-property-gallery-item.izenda-vis-property-gallery-item-active {
+	opacity: 1;
+	margin: 2px;
+	border: 3px solid #9FD5B7;
+}
+
+.izenda-vis-property-gallery-item-cell {
+	width: 16px;
+	height: 16px;
+	margin-top: 3px;
+	margin-left: 3px;
+}

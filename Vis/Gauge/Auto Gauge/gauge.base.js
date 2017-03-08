@@ -239,22 +239,22 @@ izenda.utils = izenda.utils || {};
 				options[j] = defaultOptions[j];
 			}
 		}
+		that.load(fontFamily, options);
+		//if (!options.glyphs && "fonts" in doc) {
+		//	doc.fonts.load("1em " + fontFamily).then(function () {
+		//		options.success();
 
-		if (!options.glyphs && "fonts" in doc) {
-			doc.fonts.load("1em " + fontFamily).then(function () {
-				options.success();
+		//		win.clearTimeout(timeout);
+		//	});
 
-				win.clearTimeout(timeout);
-			});
-
-			if (options.timeout) {
-				timeout = win.setTimeout(function () {
-					options.error();
-				}, options.timeout);
-			}
-		} else {
-			that.load(fontFamily, options);
-		}
+		//	if (options.timeout) {
+		//		timeout = win.setTimeout(function () {
+		//			options.error();
+		//		}, options.timeout);
+		//	}
+		//} else {
+		//	that.load(fontFamily, options);
+		//}
 	};
 
 	var FontFaceOnload = function (fontFamily, options) {

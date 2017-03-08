@@ -355,7 +355,7 @@
 		 * Hue rotate toolbar btn icon
 		 */
 		vm.getHueRotateBtnImageUrl = function () {
-			return 'Resources/images/color' + (!vm.hueRotate ? '-bw' : '') + '.png';
+			return $izendaUrl.settings.urlRpPage + '?extres=images.color' + (!vm.hueRotate ? '-bw' : '') + '.png';
 		};
 
 		/**

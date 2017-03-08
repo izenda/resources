@@ -49,6 +49,7 @@ var quantityOfCallsInvalidate = 0;
 var UseDefaultDialogs = false;
 var currentRequests = 0;
 var responseServer;
+var resourcesProvider;
 var descriptions = new Array();
 var tablesSave = {};
 
@@ -56,9 +57,10 @@ function urldecode(s) {
   return decodeURIComponent(s).replace(/\+/g, ' ');
 }
 
-function EBC_Init(responseServerUrl, count, timeOut) {
+function EBC_Init(responseServerUrl, count, timeOut, resourcesProviderUrl) {
 	quantityOfCallsInvalidate = count;
 	responseServer = new AdHoc.ResponseServer(responseServerUrl, timeOut);
+	resourcesProvider = new AdHoc.ResourcesProvider(resourcesProviderUrl, timeOut);
 	AdHoc.ResponseServer.RegisterBeforeSubmitHandler("EBC_RenameControls()");
 	AdHoc.ResponseServer.RegisterAfterSubmitHandler("EBC_RenameControls(true)");
 }
@@ -854,11 +856,13 @@ function EBC_PopulateDescriptions(fields) {
 		if ((field.func != 'None' && field.func != 'GROUP' || field.coefficient != null && field.coefficient != "") && field.description != '' && field.description != null) {
 			calcField.description = field.description;
 			calcField.datatype = (field.expressionType && field.expressionType != '...') ? field.expressionType : field.datatype;
+			calcField.fldId = field.fldId;
 			descriptions.push(calcField);
 		}
 		else if (field.operationElem == '~' && (i + 1 < fields.length) && (fields[i + 1].operationElem != '~')) {
 			calcField.description = field.description;
 			calcField.datatype = field.datatype;
+			calcField.fldId = field.fldId;
 			descriptions.push(calcField);
 		}
 	}

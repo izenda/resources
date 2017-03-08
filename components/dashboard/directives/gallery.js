@@ -280,7 +280,7 @@
 							var loadingHtml =
 								'<div class="izenda-vcentered-container" style="margin-top:-40px">' +
 									'<div class="izenda-vcentered-item">' +
-										'<img class="img-responsive" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+										'<img class="img-responsive" src="' + $izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 									'</div>' +
 								'</div>';
 							$tile.append(loadingHtml);

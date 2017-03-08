@@ -68,7 +68,7 @@ function GC_OnTableListChangedHandler(id, tables)
 		additionalData = "<option disabled=''>------</option>";
 		for(var j = 0; j < descriptions.length; j++) {
 			var calcField = descriptions[j];
-			additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+			additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
 		}
 	}
 	for (var i = 0; i < body.rows.length; i++)
@@ -136,7 +136,7 @@ function GC_OnColumnChangedHandler(e)
 			
 	var rowFunc = EBC_GetSelectByName(row, 'Function');
 	jq$(rowFunc).removeAttr('disabled');
-	if (columnSel.options[columnSel.selectedIndex].value.indexOf('Desciption!') == 0)
+	if (columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
 		jq$(rowFunc).attr('disabled', 'true');
 			
 	EBC_SetFunctions(row, false, row["sectionRowIndex"] != 1);
@@ -186,7 +186,7 @@ function GC_OnColumnChangedHandler(e)
 		else {
 			if (selField != null)
 			    selField.disabled = false;
-			if (selFunc != null && selField.options[selField.selectedIndex].value.indexOf('Desciption!') == -1)
+			if (selFunc != null && selField.options[selField.selectedIndex].value.indexOf(calcFieldPrefix) == -1)
 				selFunc.disabled = false;
 			if (i == disableAfterIndex && selField != null)
 			{

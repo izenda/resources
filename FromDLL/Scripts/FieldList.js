@@ -168,6 +168,7 @@ function SC_GetFieldsList(id, columnName, functionName) {
 		var columnSel = EBC_GetSelectByName(body.rows[i], columnName);
 		var funcSelect = EBC_GetSelectByName(body.rows[i], functionName);
 		var descriptionEdit = EBC_GetInputByName(body.rows[i], 'Description');
+		var fldIdEdit = EBC_GetInputByName(body.rows[i], 'FldId');
 		var operationElem = new AdHoc.MultivaluedCheckBox('ArithmeticOperation', body.rows[i]);
 		var coefficientEdit = EBC_TextAreaByName(body.rows[i], 'Coefficient');
 		var expressionTypeElem = EBC_GetSelectByName(body.rows[i], 'ExpressionType');
@@ -192,6 +193,8 @@ function SC_GetFieldsList(id, columnName, functionName) {
 				}
 				if (descriptionEdit != null)
 					field.description = descriptionEdit.value;
+				if (fldIdEdit != null)
+					field.fldId = fldIdEdit.value;
 				if (coefficientEdit != null) {
 					field.coefficient = "";
 					var coefVal = coefficientEdit.value;
@@ -770,6 +773,10 @@ function SC_ResetRowToDefault(context) {
 		if (arithmeticOperationElem.ElementExists()) {
 			SC_SetAcceptableValues(row, arithmeticOperationElem);
 		}
+
+		var fldIdEdit = EBC_GetInputByName(row, prefix + "FldId");
+		if (fldIdEdit)
+			fldIdEdit.value = GenerateGuid();
 	}
 }
 

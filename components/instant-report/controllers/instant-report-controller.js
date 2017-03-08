@@ -14,6 +14,7 @@
 			'$log',
 			'$izendaUrl',
 			'$izendaLocale',
+			'$izendaSettings',
 			'$izendaCompatibility',
 			'$izendaInstantReportStorage',
 			'$izendaInstantReportPivots',
@@ -32,6 +33,7 @@
 			$log,
 			$izendaUrl,
 			$izendaLocale,
+			$izendaSettings,
 			$izendaCompatibility,
 			$izendaInstantReportStorage,
 			$izendaInstantReportPivots,
@@ -82,6 +84,13 @@
 		};
 
 		vm.exportProgress = null;
+
+		vm.effectiveRights = $izendaCompatibility.getRights();
+		_updateReportSetRightVariables();
+
+		/**
+		 * Wait message header for export and print
+		 */
 		vm.getWaitMessageHeaderText = function () {
 			if (vm.exportProgress === 'export') {
 				return $izendaLocale.localeText('js_ExportingInProgress', 'Exporting in progress.');
@@ -91,6 +100,10 @@
 			}
 			return '';
 		}
+
+		/**
+		 * Wait message for export and print
+		 */
 		vm.getWaitMessageText = function () {
 			if (vm.exportProgress === 'export') {
 				return $izendaLocale.localeText('js_FinishExporting', 'Please wait till export is completed...');
@@ -378,7 +391,7 @@
 				var rsReportName = reportSet.reportName;
 				var rsReportCategory = reportSet.reportCategory;
 				if (angular.isString(rsReportCategory) && rsReportCategory !== '')
-					rsReportName = rsReportCategory + '\\' + rsReportName;
+					rsReportName = rsReportCategory + $izendaSettings.getCategoryCharacter() + rsReportName;
 
 				// show result message
 				var errorMessage = null;
@@ -539,6 +552,13 @@
 				}
 			});
 
+			$scope.$watch('$izendaCompatibility.getRights()', function (value, prevValue) {
+				if (value === prevValue)
+					return;
+				vm.effectiveRights = value;
+				_updateReportSetRightVariables();
+			});
+
 			//
 			$scope.$on('changeVisualizationProperties', function (event, args) {
 				$izendaInstantReportStorage.getReportSet().charts[0].properties = args[0];
@@ -646,6 +666,15 @@
 			var delta = $izendaCompatibility.isSmallResolution() ? 30 : 73;
 			$root.height(jq$(window).height() - $root.offset().top - delta);
 		};
+
+		function _updateReportSetRightVariables() {
+			vm.rights = {};
+			vm.rights.isFiltersEditAllowed = $izendaCompatibility.isFiltersEditAllowed();
+			vm.rights.isFullAccess = $izendaCompatibility.isFullAccess();
+			vm.rights.isEditAllowed = $izendaCompatibility.isEditAllowed();
+			vm.rights.isSaveAsAllowed = $izendaCompatibility.isSaveAsAllowed();
+			vm.rights.isSaveAllowed = $izendaCompatibility.isSaveAllowed();
+		}
 	}
 
 });

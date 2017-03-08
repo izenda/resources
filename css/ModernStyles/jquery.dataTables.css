@@ -201,10 +201,10 @@ table.dataTable tr.even td.sorting_3 { background-color: #DEF0FF; }
 	/*background: url('../images/sort_both.png') no-repeat center right;*/
 }
 .sorting_asc {
-	 background: url('../../../rs.aspx?image=ModernImages.sort_asc.png') no-repeat center right;
+	 background: url('###RS###image=ModernImages.sort_asc.png') no-repeat center right;
 }
 .sorting_desc {
-	background: url('../../../rs.aspx?image=ModernImages.sort_desc.png') no-repeat center right;
+	background: url('###RS###image=ModernImages.sort_desc.png') no-repeat center right;
 }
 
 .sorting_asc_disabled { background: url('../images/sort_asc_disabled.png') no-repeat center right; }

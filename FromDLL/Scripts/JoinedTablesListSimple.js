@@ -2,6 +2,7 @@
 var JTCS_categoryComboId = new Array();
 var JTCS_recentComboId = new Array();
 var JTCS_lastAllowed = new Array();
+var JTCS_maxAllowed = new Array();
 var JTCS_oldTablesHash = new Array();
 var JTCS_initialTfns = new Array();
 var JTCS_initialTexts = new Array();
@@ -134,6 +135,9 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 	var dsList = document.getElementById(JTCS_dsListId[id]);
 	if (dsList == null)
 		return;
+	var maxAllowed = 1000;
+	if (JTCS_maxAllowed[id])
+		maxAllowed = JTCS_maxAllowed[id];
 	var dsArr = dsList.getElementsByTagName('input');
 
 	var allDatasources = new Array();
@@ -174,7 +178,7 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 	var selectedDatasources = document.getElementById(selectedDatasourcesId);
 	if (selectedDatasources == null)
 		return;
-
+	var allowAddMore = maxAllowed > checkedDatasources.length;
 	if (checkedDatasources.length == 0) {
 		for (var i = 0; i < allDatasources.length; i++) {
 			allDatasources[i].CanBeExcludedOrAdded = true;
@@ -214,9 +218,9 @@ function JTCS_UpdateDatasourcesAvailability(id, fromPopular) {
 		for (var i = 0; i < ribBeweenCheckedAndUnchecked.length; i++) {
 			if (ribBeweenCheckedAndUnchecked[i][0] in allDatasources && ribBeweenCheckedAndUnchecked[i][1] in allDatasources) {
 				if (!allDatasources[ribBeweenCheckedAndUnchecked[i][0]].Checked)
-					allDatasources[ribBeweenCheckedAndUnchecked[i][0]].CanBeExcludedOrAdded = true;
+					allDatasources[ribBeweenCheckedAndUnchecked[i][0]].CanBeExcludedOrAdded = allowAddMore;
 				if (!allDatasources[ribBeweenCheckedAndUnchecked[i][1]].Checked)
-					allDatasources[ribBeweenCheckedAndUnchecked[i][1]].CanBeExcludedOrAdded = true;
+					allDatasources[ribBeweenCheckedAndUnchecked[i][1]].CanBeExcludedOrAdded = allowAddMore;
 			}
 		}
 	}
@@ -281,7 +285,7 @@ function JTCS_UpdateControls(id, dsListId, initialDatasources) {
 
 var JTCS_Init_executes = false;
 
-function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasources) {
+function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasources, maxAllowed) {
 	JTCS_Init_executes = true;
 	var m = document.getElementById('JTCS_DataSourceTabModeHF');
 	if (m != null)
@@ -290,6 +294,7 @@ function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasour
 	JTCS_recentComboId[id] = recentComboId;
 	JTCS_dsListId[id] = dsListId;
 	JTCS_lastAllowed[id] = null;
+	JTCS_maxAllowed[id] = maxAllowed;
 	JTCS_oldTablesHash[id] = '';
 	JTCS_PrepareTabStrip(id);
 	//if (typeof (DisableEnableTabsFrom) != 'undefined' && typeof (firstDisabledTabIndex) != 'undefined')

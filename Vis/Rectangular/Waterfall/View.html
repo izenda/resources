@@ -1,98 +1,90 @@
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS.length > 1 && util.isMetric(VIS_COLUMNS[1]);
-		}
+	(function init() {
+		var services = window.ReportingServices;
 
-		var width = 720, height = 500;
-
-		var util = window.ReportScripting, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { input: validate }))
-			return;
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		var rows = vis.getRows(true),
-			columns = util.exchangeAxes(rows),
-			items = vis.getItems();
-
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		jq$('#VIS_ID').width(width).height(height);
-
-		var wfData = new Array();
-		for (var i = 0; i < columns[0].length; i++) {
-			wfData[wfData.length] = new Object();
-			wfData[wfData.length - 1].name = columns[0][i];
-			wfData[wfData.length - 1].y = columns[1][i];
-		}
-
-		var options = {
-			chart: { type: 'waterfall' },
-			title: { text: VIS_CONTEXT.title },
-			xAxis: {
-				type: 'category',
-				title: { text: VIS_COLUMNS[0].name }
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: {},
+			validate: function (columns, rows) {
+				return columns.length > 1 && izenda.visualization.isMetric(columns[1]);
 			},
-			yAxis: {
-				title: { text: VIS_COLUMNS[1].name }
-			},
-			legend: { enabled: false },
-			series: [{
-				name: VIS_COLUMNS[1].name,
-				upColor: Highcharts.getOptions().colors[2],
-				color: Highcharts.getOptions().colors[3],
-				data: wfData,
-				dataLabels: {
-					enabled: true,
-					formatter: function () {
-						return vis.unitLabel(items[this.point.index], 1);
-					},
-					style: {
-						color: '#FFFFFF',
-						fontWeight: 'bold'
-					}
-				},
-				pointPadding: 0
-			}],
-			credits: { enabled: false },
-			tooltip: {
-				formatter: function () {
-					var point = this, html = ['<span style="font-size: 10px;">' + point.key + '</span>'];
-					var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
-					html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
-					return html.join("<br/>");
-				}
-			}
-		};
-
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			var highchart = jq$('#VIS_ID').highcharts();
-			if (highchart) {
-				highchart.destroy();
-			}
-			jq$("#VIS_ID").empty();
+			draw: draw
 		});
 
-		jq$('#VIS_ID').highcharts(options);
+		function draw() {
+			var rows = vis.getRows(true),
+				columns = izenda.visualization.exchangeAxes(rows),
+				items = vis.getItems();
 
-		var sideOffset = 6,
-			rects = jq$('#VIS_ID_CONTAINER .highcharts-series rect'),
-			labels = jq$('#VIS_ID_CONTAINER .highcharts-data-labels text');
+			var wfData = new Array();
+			for (var i = 0; i < columns[0].length; i++) {
+				wfData[wfData.length] = new Object();
+				wfData[wfData.length - 1].name = columns[0][i];
+				wfData[wfData.length - 1].y = columns[1][i];
+			}
 
-		for (var i = 0; i < rects.length; ++i) {
-			if (labels[i].getBBox().width + sideOffset > ~~rects[i].getAttribute('width') || labels[i].getBBox().height > ~~rects[i].getAttribute('height')) {
-				labels[i].style.visibility = 'hidden';
+			var options = {
+				chart: { type: 'waterfall' },
+				title: { text: VIS_CONTEXT.title },
+				xAxis: {
+					type: 'category',
+					title: { text: VIS_COLUMNS[0].name }
+				},
+				yAxis: {
+					title: { text: VIS_COLUMNS[1].name }
+				},
+				legend: { enabled: false },
+				series: [{
+					name: VIS_COLUMNS[1].name,
+					upColor: Highcharts.getOptions().colors[2],
+					color: Highcharts.getOptions().colors[3],
+					data: wfData,
+					dataLabels: {
+						enabled: true,
+						formatter: function () {
+							return vis.itemLabel(items[this.point.index], 1);
+						},
+						style: {
+							color: '#FFFFFF',
+							fontWeight: 'bold'
+						}
+					},
+					pointPadding: 0
+				}],
+				credits: { enabled: false },
+				tooltip: {
+					formatter: function () {
+						var point = this, html = ['<span style="font-size: 10px;">' + point.key + '</span>'];
+						var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+						html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
+						return html.join('<br/>');
+					}
+				}
+			};
+
+			vis.element.highcharts(options);
+
+			var sideOffset = 6,
+				rects = jq$('#VIS_ID_CONTAINER .highcharts-series rect'),
+				labels = jq$('#VIS_ID_CONTAINER .highcharts-data-labels text');
+
+			for (var i = 0; i < rects.length; ++i) {
+				if (labels[i].getBBox().width + sideOffset > ~~rects[i].getAttribute('width') || labels[i].getBBox().height > ~~rects[i].getAttribute('height')) {
+					labels[i].style.visibility = 'hidden';
+				}
 			}
 		}
+
+		draw();
+
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

@@ -449,12 +449,12 @@ table.dashboard-part-table > tbody > tr > td{
   background-image: url(###RS###image=ModernImages.remove-icon.png);
 }
 .iz-db-ui-tabs-panel div.thumb:hover .thumb-edit {
-  background-image: url(rs.aspx?image=ModernImages.edit-icon.png);
+  background-image: url(###RS###image=ModernImages.edit-icon.png);
   right: 0px;
   top: 192px;
 }
 .iz-db-ui-tabs-panel div.thumb:hover .thumb-print {
-  background-image: url(rs.aspx?image=ModernImages.print-icon.png);
+  background-image: url(###RS###image=ModernImages.print-icon.png);
   right: 28px;
   top: 192px;
 }

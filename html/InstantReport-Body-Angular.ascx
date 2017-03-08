@@ -185,61 +185,71 @@
   <div class="iz-inst-main-panel"
     style="margin-left: 554px" data-style="margin-left: 554px"
     ng-if="!$izendaCompatibility.isSmallResolution()">
-    <div ng-include="'Resources/components/instant-report/templates/instant-report-main-toolbar.html'"
-      data-izenda-fit-absolute-element="top">
-    </div>
 
-    <!-- loading message -->
-    <div class="izenda-vcentered-container" ng-show="irController.isLoading">
-      <div class="izenda-vcentered-item">
-        <img class="img-responsive" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
-             ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}"/>
-      </div>
-    </div>
+    <table style="width: 100%; height: 100%;">
+      <tr>
+        <td>
+          <div ng-include="'Resources/components/instant-report/templates/instant-report-main-toolbar.html'"
+            data-izenda-fit-absolute-element="top">
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td style="height: 100%; position: relative;">
+          <!-- loading message -->
+          <div class="izenda-vcentered-container">
+            <div class="izenda-vcentered-item" ng-show="irController.isLoading">
+              <img class="img-responsive" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
+                ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
+            </div>
+            <!-- main panel body for full view -->
+            <div class="iz-inst-mainpanel-body" ng-class="irController.activeField && irController.isLeftPanelBodyActive(0) ? 'show-options-panel' : ''"
+              ng-hide="irController.isLoading"
+              delta-top="20"
+              izenda-fit-absolute-element>
+              <!-- filters controller -->
+              <div ng-include="'Resources/components/instant-report/templates/instant-report-filters.html'"></div>
 
-    <!-- main panel body for full view -->
-    <div class="iz-inst-mainpanel-body" ng-class="irController.activeField && irController.isLeftPanelBodyActive(0) ? 'show-options-panel' : ''"
-      ng-hide="irController.isLoading"
-      delta-top="20"
-      izenda-fit-absolute-element>
-      <!-- filters controller -->
-      <div ng-include="'Resources/components/instant-report/templates/instant-report-filters.html'"></div>
+              <!-- pivots controller -->
+              <div ng-include="'Resources/components/instant-report/templates/instant-report-pivots.html'"></div>
 
-      <!-- pivots controller -->
-      <div ng-include="'Resources/components/instant-report/templates/instant-report-pivots.html'"></div>
+              <!-- validation controller -->
+              <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
 
-      <!-- validation controller -->
-      <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
+              <div class="iz-inst-preview-root-container"
+                droppable-accept=".datasource-field"
+                on-drop="irController.addFieldToReport(arg0)"
+                izenda-instant-report-field-droppable>
+                <izenda-report-viewer class="iz-inst-preview-container"
+                  html-text="irController.previewHtml"
+                  report-set-options="irController.reportSetOptions"
+                  empty-text="''"
+                  allow-col-reorder="true"
+                  allowed-columns-for-reorder="irController.getAllowedColumnsForReorder()"
+                  allow-col-remove="true"
+                  droppable-accept=".datasource-field"
+                  current-insert-column-order="irController.currentInsertColumnOrder"
+                  on-reorder="irController.columnReordered(arg0, arg1, arg2)"
+                  on-header-click="irController.selectedColumn(arg0)"
+                  on-remove="irController.removeColumn(arg0)"
+                  on-paging-click="irController.onPagingClick(arg0, arg1)">
+              </izenda-report-viewer>
+              </div>
+            </div>
+          </div>
 
-      <div class="iz-inst-preview-root-container"
-        droppable-accept=".datasource-field"
-        on-drop="irController.addFieldToReport(arg0)"
-        izenda-instant-report-field-droppable>
-        <izenda-report-viewer class="iz-inst-preview-container"
-          html-text="irController.previewHtml"
-          report-set-options="irController.reportSetOptions"
-          empty-text="''"
-          allow-col-reorder="true"
-          allowed-columns-for-reorder="irController.getAllowedColumnsForReorder()"
-          allow-col-remove="true"
-          droppable-accept=".datasource-field"
-          current-insert-column-order="irController.currentInsertColumnOrder"
-          on-reorder="irController.columnReordered(arg0, arg1, arg2)"
-          on-header-click="irController.selectedColumn(arg0)"
-          on-remove="irController.removeColumn(arg0)"
-          on-paging-click="irController.onPagingClick(arg0, arg1)">
-        </izenda-report-viewer>
-      </div>
-    </div>
+          <!-- field options for full view-->
+          <div ng-include="'Resources/components/instant-report/templates/instant-report-field-options.html'"></div>
 
-    <!-- field options for full view-->
-    <div ng-include="'Resources/components/instant-report/templates/instant-report-field-options.html'"></div>
+        </td>
+      </tr>
+    </table>
   </div>
 
   <!-- refresh preview button for mobile view -->
   <div ng-if="$izendaCompatibility.isSmallResolution()"
     class="btn iz-inst-matherial-refresh btn-izenda-dark"
-       ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
+    ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
     ng-click="irController.applyChangesMobile()">
     <span class="glyphicon"
       ng-class="irController.leftPanel.previousPanelId === irController.leftPanel.activeItem ? 'glyphicon-refresh' : 'glyphicon-share-alt horizontal-mirror'"></span>
@@ -248,7 +258,7 @@
   <!-- splashscreen -->
   <div ng-show="irController.reportLoadingIndicatorIsVisible"
     text="$izendaInstantReportStorage.getPreviewSplashText()"
-    loading-indicator-url="{{$izendaUrl.settings.urlRsPage}}?image=ModernImages.loading-grid.gif"
+    loading-indicator-url="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
     parent-selector=".iz-inst-mainpanel-body"
     izenda-splash-screen>
   </div>

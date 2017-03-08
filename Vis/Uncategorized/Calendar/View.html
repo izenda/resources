@@ -580,7 +580,7 @@ temporary rendered events).
 	#VIS_ID_CONTAINER .fc-event .fc-value {
 		color: #4c4c4c;
 		background-color: #ffffff;
-		font-size: 25px;
+		font-size: 24px;
 		overflow: hidden;
 		text-align: center;
 		padding-left: 10px;
@@ -1107,139 +1107,29 @@ be a descendant of the grid when it is being dragged.
 
 <style>
 	@font-face {
+		font-family: 'Open Sans';
+		font-style: normal;
+		font-weight: 400;
+		src: local('Open Sans'), local('OpenSans'), url(./rp.aspx?font=Fonts.OpenSans.woff) format('woff');
+	}
+
+	@font-face {
 		font-family: 'Glyphicons Halflings';
-		src: url('rs.aspx?font=Fonts.glyphicons-halflings-regular.eot');
-		src: url('rs.aspx?font=Fonts.glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'),url('rs.aspx?font=Fonts.glyphicons-halflings-regular.woff2') format('woff2'),url('rs.aspx?font=Fonts.glyphicons-halflings-regular.woff') format('woff'),url('rs.aspx?font=Fonts.glyphicons-halflings-regular.ttf') format('truetype'),url('rs.aspx?image=ModernImages.glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
+		src: url('./rp.aspx?font=Fonts.glyphicons-halflings-regular.eot');
+		src: url('./rp.aspx?font=Fonts.glyphicons-halflings-regular.eot?#iefix') format('embedded-opentype'),url('./rp.aspx?font=Fonts.glyphicons-halflings-regular.woff2') format('woff2'),url('./rp.aspx?font=Fonts.glyphicons-halflings-regular.woff') format('woff'),url('./rp.aspx?font=Fonts.glyphicons-halflings-regular.ttf') format('truetype'),url('./rp.aspx?image=ModernImages.glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg');
 	}
 
-	#VIS_ID_CONTAINER {
-		overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER .clearfix:after {
-		content: "";
-		clear: both;
-		display: table;
-	}
-
-	#VIS_ID_CONTAINER .hint {
-		font-size: 12px;
-		color: #999999;
-		height: 30px;
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .hint span {
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
-		float: right;
-		position: relative;
-		right: 0;
-		opacity: 0;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .selector {
-		display: inline-block;
-		height: 27px;
-		width: 21px;
-		padding-top: 7px;
-		margin-left: 2px;
-		cursor: pointer;
-		-webkit-touch-callout: none;
-		-webkit-user-select: none;
-		-khtml-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Calendar/images/gear.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Calendar/images/gear.hover.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Calendar/images/gear.selected.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER .gallery {
-		background: #eeeeee;
-		border: 1px solid #d4d4d4;
-		margin-top: 1px;
-		padding: 9px;
-		overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control {
-		display: block;
-		height: 13px;
-		margin-bottom: 20px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control:last-child {
-		margin-bottom: 10px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control input[type=checkbox] {
-		width: 13px;
-		height: 13px;
+	#VIS_ID_CONTAINER #VIS_ID {
 		padding: 0;
-		margin: 0;
-		vertical-align: bottom;
-		position: relative;
-		top: -1px;
-		*overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control select {
-		font-family: Verdana, Arial, Geneva, sans-serif;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control label {
-		font-size: 13px;
-		color: #000000;
-		display: inline-block;
-		font-weight: normal;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control input,
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control select {
-		width: auto;
-		border: 1px solid #a9a9a9;
-		font-size: 95%;
-		margin-left: 3px;
-		height: 20px;
-		box-sizing: border-box;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_GEAR_GALLERY .property-control input.datepicker {
-		padding: 1px 4px;
-		width: 90px;
-	}
-
-	#VIS_ID_CONTAINER .izenda-input-group-addon {
-		font-size: 95%;
-		font-weight: normal;
-		color: #555555;
-		cursor: pointer;
-		border: 1px solid #a9a9a9;
-		border-left: none;
-		box-sizing: border-box;
-		display: inline-block;
-		height: 20px;
-		padding-left: 3px;
-		padding-right: 2px;
-		text-align: center;
-		vertical-align: bottom;
+		font-family: 'Open Sans', sans-serif;
+		font-size: 14px;
 	}
 
 	#VIS_ID_CONTAINER .glyphicon {
 		font-family: 'Glyphicons Halflings';
+	}
+
+	#VIS_ID_CONTAINER .glyphicon-calendar {
 		position: relative;
 		top: 2px;
 	}
@@ -1248,386 +1138,291 @@ be a descendant of the grid when it is being dragged.
 		content: "\e109";
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID {
-		margin: 10px;
-		padding: 0;
-		font-family: "Lucida Grande",Helvetica,Arial,Verdana,sans-serif;
-		font-size: 14px;
-	}
-
 	#VIS_ID_CONTAINER #VIS_ID_CALENDAR {
 		margin: 0 auto;
 	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-		</div>
-		<div class="clearfix"></div>
-		<div id="VIS_ID_GEAR_GALLERY" class="gallery" style="display: none;">
-			<div class="property-control">
-				<label>Default date:<select id="VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT"></select><span style="display: none;"><input class="datepicker" id="VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT" type="text" /><span class="izenda-input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span></span></label>
-			</div>
-			<div class="property-control"><label><input type="checkbox" id="VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX" /> Dynamic font size</label></div>
-		</div>
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript" src="moment.min.js"></script>
 <script type="text/javascript" src="fullcalendar.min.js"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS.length > 2 && VIS_COLUMNS[2].type == 'DateTime';
-		}
+	(function init() {
+		var services = window.ReportingServices;
 
-		var width = 720, height = 500;
-		var colorScheme = ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28f43", "#77a1e5", "#c42525", "#a6c96a", "#d86524", "#707cd3"],
+		(function () {
+			/* Backward Compatibility Section */
+			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('defaultDateType') > 0) {
+				var props = {};
+				try {
+					var oldProps = JSON.parse(VIS_CONTEXT.props);
+					props['DefaultDateType'] = oldProps['defaultDateType'];
+					props['CustomDefaultDate'] = oldProps['customDefaultDate'];
+					props['DynamicFontSize'] = oldProps['dynamicFontSize'];
+					props['CurrentView'] = oldProps['currentView'];
+				} catch (e) {
+					props = {};
+				}
+				VIS_CONTEXT.props = JSON.stringify(props);
+			}
+		})();
+
+		var colorScheme = ['#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce', '#492970', '#f28f43', '#77a1e5', '#c42525', '#a6c96a', '#d86524', '#707cd3'],
 			u = {}, n = [];
 
-		var util = window.ReportScripting, services = window.ReportingServices, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { input: validate }))
-			return;
-
-		var isImageRender = VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic || isThumbnails;
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		width = vis.getWidth();
-
-		var events = [];
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: {},
+			validate: function (columns, rows) {
+				return columns.length > 2 && columns[2].type == 'DateTime';
+			},
+			defaultProperties: {
+				CustomDefaultDate: null,
+				DefaultDateType: 'MinDate',
+				CurrentView: 'month',
+				DynamicFontSize: false
+			},
+			unlimitedHeight: true,
+			draw: draw
+		});
 
 		var isEmbedded = jq$('#VIS_ID').parents('[id*=_EXPAND_GALLERY_CONTAINER]').length > 0;
-
-		window.visState = window.visState || {};
-		var settings = window.visState.VIS_ID || (window.visState.VIS_ID = {
-			galleryIsOpen: false,
-			props: jq$.extend({
-				customDefaultDate: null,
-				defaultDateType: 'MinDate',
-				currentView: 'month'
-			}, JSON.parse(VIS_CONTEXT.props)),
-		});
 
 		function color(item) {
 			var name = item[VIS_COLUMNS[0].name];
 			return colorScheme[((u[name] || (u[name] = n.push(name))) - 1) % colorScheme.length];
 		}
 
-		function getDateWithZeroTimeZone(date) {
-			return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-		}
+		vis.initHeader({
+			selectors: [{
+				icon: 'gear',
+				initPanel: function (panel) {
+					var defaultDateControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-select');
+					var customDefaultDateInput = jq$('<input>').attr('type', 'text')
+						.addClass('izenda-vis-property-datepicker');
 
-		function getDateWithCurrentTimeZone(date) {
-			return new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-		}
+					var defaultDateTypeSelect = jq$('<select>').css('margin-left', '5px')
+							.append('<option value="MinDate">Min Date</option>')
+							.append('<option value="MaxDate">Max Date</option>')
+							.append('<option value="CustomDate">Custom Date</option>')
+							.append('<option value="CurrentDate">Current Date</option>');
+					defaultDateTypeSelect
+						.bind('change', function () {
+							if (this.value == 'CustomDate') {
+								customDefaultDateControl.show();
+								var date = customDefaultDateInput.datepicker('getDate');
+								if (Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime())) {
+									vis.setProperty('DefaultDateType', this.value);
+									vis.redraw();
+								}
+							} else {
+								customDefaultDateControl.hide();
+								vis.setProperty('DefaultDateType', this.value);
+								vis.redraw();
+							}
+						});
+					defaultDateTypeSelect.val(vis.getProperty('DefaultDateType'));
 
-		function ISOString(date) {
-			return date.toISOString();
-		}
-
-		function ISODateString(date) {
-			var isoString = ISOString(date);
-			return isoString.substr(0, 10);
-		}
-
-		function store() {
-			var customDefaultDate = customDefaultDateInput.datepicker('getDate');
-			if (customDefaultDate) {
-				settings.props.customDefaultDate = getDateWithZeroTimeZone(customDefaultDate).getTime();
-			}
-			settings.props.defaultDateType = defaultDateTypeSelect.val();
-			settings.props.dynamicFontSize = dynamicFontSizeCheckbox.is(":checked");
-			if (!isEmbedded) {
-				vis.setProps(settings.props);
-			}
-		}
-
-		function restore() {
-			defaultDateTypeSelect.val(settings.props.defaultDateType);
-			if (settings.props.defaultDateType == "CustomDate") {
-				customDefaultDateInput.datepicker('setDate', getDateWithCurrentTimeZone(new Date(settings.props.customDefaultDate)));
-				customDefaultDateControl.show();
-			}
-			dynamicFontSizeCheckbox.prop("checked", settings.props.dynamicFontSize);
-		}
-
-		var galleryManager = (function () {
-			var container = util.container("VIS_ID");
-			var manager = {
-				storage: {},
-				init: function(id, context) {
-					var gallery = {
-						id: id,
-						node: container.find(id),
-						show: function () {
-							manager.hideAll();
-							gallery.node.slideDown({ duration: 300 });
-							container.find(gallery.id + "_SELECTOR").addClass("ws_selthumb");
-							settings.galleryIsOpen = true;
-						},
-						hide: function() {
-							gallery.node.slideUp({ duration: 200 });
-							container.find(gallery.id + "_SELECTOR").removeClass("ws_selthumb");
-							settings.galleryIsOpen = false;
-						}
-					};
-
-					gallery.node.width(width - 20)
-						.css({ "z-index": 1 });
-
-					container.find(gallery.id + "_SELECTOR")
-						.unbind("click")
-						.bind("click", function () {
-							if (gallery.node.is(":visible"))
-								gallery.hide();
-							else
-								gallery.show();
+					var converter = izenda.utils.date.formatConverter;
+					var dateFormatShort = izenda.commonSettings().dateFormatShort;
+					izenda.utils.date.datepicker(customDefaultDateInput, {
+						dateFormat: dateFormatShort ? converter.convert(dateFormatShort, converter.dotNet, converter.datepicker) : "mm/dd/yy",
+						clearBtn: true,
+						autoclose: true
+					});
+					customDefaultDateInput
+						.unbind('change')
+						.bind('change', function (e) {
+							var date = customDefaultDateInput.datepicker('getDate');
+							if (Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime())) {
+								izenda.utils.date.applyTimezoneOffset(date, -date.getTimezoneOffset());
+								vis.setProperty('DefaultDateType', 'CustomDate');
+								vis.setProperty('CustomDefaultDate', date.getTime());
+								vis.redraw();
+							}
 						});
 
-					manager.storage[id] = gallery;
-				},
-				hideAll: function() {
-					util.enumerateFields(manager.storage, function (gallery) {
-						gallery.hide();
-					});
-				}
-			};
-			return manager;
-		})();
+					defaultDateControl.append(jq$('<label>')
+						.append('Default date:')
+						.append(defaultDateTypeSelect)
+						.append(jq$('<span>').css('display', 'none').css('margin-left', '5px')
+							.append(customDefaultDateInput)
+							.append(jq$('<span>').addClass('izenda-input-icon')
+							.append(jq$('<span>').addClass('glyphicon glyphicon-calendar')))));
 
-		function toggleSelectorVisibility(id, visible) {
-			var selector = vs.find(id);
-			if (visible) {
-				selector.show();
-			} else {
-				selector.hide();
-			}
-		}
 
-		var vs = util.container("VIS_ID");
-		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
-		vis.container
-			.unbind("mouseenter")
-			.bind("mouseenter", function () {
-				propertiesPanel.stop().animate({ opacity: 1 }, {
-					duration: 500
-				});
-			})
-			.unbind("mouseleave")
-			.bind("mouseleave", function () {
-				if (settings.galleryIsOpen)
-					return;
+					var dynamicFontSizeControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-checkbox')
+						.append(jq$('<label>')
+							.append(jq$('<input>').attr('type', 'checkbox').attr('checked', !!vis.getProperty('DynamicFontSize'))
+								.bind('change', function () {
+									vis.setProperty('DynamicFontSize', this.checked);
+									vis.redraw();
+								}))
+							.append('Dynamic font size'));
 
-				propertiesPanel.stop().animate({ opacity: 0 }, {
-					duration: 500,
-				});
-			});
+					panel
+						.append(defaultDateControl)
+						.append(dynamicFontSizeControl);
 
-		if (!VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards)
-			galleryManager.init("#VIS_ID_GEAR_GALLERY");
-		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
-
-		var defaultDateTypeSelect = vs.find("#VIS_ID_PROPERTY_DEFAULTDATETYPE_SELECT");
-		defaultDateTypeSelect.find("option").remove().end()
-			.append('<option value="MinDate">Min Date</option>')
-			.append('<option value="MaxDate">Max Date</option>')
-			.append('<option value="CustomDate">Custom Date</option>')
-			.append('<option value="CurrentDate">Current Date</option>');
-
-		var customDefaultDateInput = vs.find("#VIS_ID_PROPERTY_CUSTOMDEFAULTDATE_INPUT"),
-			customDefaultDateControl = customDefaultDateInput.parent();
-		var dynamicFontSizeCheckbox = vs.find('#VIS_ID_PROPERTY_DYNAMICFONTSIZE_CHECKBOX');
-
-		if (!isImageRender) {
-			var converter = izenda.utils.date.formatConverter;
-			var dateFormatShort = izenda.commonSettings().dateFormatShort;
-			izenda.utils.date.datepicker(customDefaultDateInput, {
-				dateFormat: dateFormatShort ? converter.convert(dateFormatShort, converter.dotNet, converter.datepicker) : "mm/dd/yy",
-				clearBtn: true,
-				autoclose: true
-			});
-
-			defaultDateTypeSelect
-				.unbind("change")
-				.bind("change", function() {
-					if (this.value == "CustomDate") {
+					var customDefaultDateControl = customDefaultDateInput.parent();
+					if (vis.getProperty('DefaultDateType') == 'CustomDate') {
+						var date = new Date(vis.getProperty('CustomDefaultDate'));
+						izenda.utils.date.applyTimezoneOffset(date, date.getTimezoneOffset());
+						customDefaultDateInput.datepicker('setDate', date);
 						customDefaultDateControl.show();
-						var date = customDefaultDateInput.datepicker('getDate');
-						if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
-							store();
-							ExecuteVIS_ID();
-						}
-					} else {
-						customDefaultDateControl.hide();
-						store();
-						ExecuteVIS_ID();
 					}
-				});
+					customDefaultDateControl.find('span.izenda-input-icon')
+						.bind('click', function () {
+							if (jq$('#iz-ui-datepicker-div').is(':hidden'))
+								customDefaultDateInput.datepicker('show');
+						});
+				},
+				visibility: !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards
+			}]
+		});
 
-			dynamicFontSizeCheckbox
-				.unbind("change")
-				.bind("change", function () {
-					store();
-					ExecuteVIS_ID();
-				});
+		function draw() {
+			var events = [];
+			var defaultDate = null,
+				items = vis.getItems(),
+				twoDateFields = vis.columns.length > 3 && vis.columns[3].type == 'DateTime';
 
-			customDefaultDateInput
-				.unbind("change")
-				.bind("change", function (e, t) {
-					var date = customDefaultDateInput.datepicker('getDate');
-					if (Object.prototype.toString.call(date) === "[object Date]" && !isNaN(date.getTime())) {
-						store();
-						ExecuteVIS_ID();
+			for (var i = 0; i < items.length; ++i) {
+				var item = items[i],
+					startDate = vis.itemValue(item, vis.columns[2].name),
+					endDate = twoDateFields ? vis.itemValue(item, vis.columns[3].name) : null,
+					title = item[vis.columns[0].name],
+					value = vis.itemValue(item, vis.columns[1].name),
+					formattedValue = item[vis.columns[1].name];
+				if (vis.columns[0].url) {
+					var link = vis.itemValue(item, 0, { sf: vis.fields.link });
+					if (link) {
+						var linkControl = jq$('<a>', {
+							href: link,
+						}).addClass('izenda-fc-link-title').html(title);
+						title = linkControl[0].outerHTML;
 					}
-				});
-
-			customDefaultDateControl.find("span.izenda-input-group-addon")
-				.unbind("click")
-				.bind("click", function() {
-					if (jq$(".izenda-datepicker").is(":hidden"))
-						customDefaultDateInput.datepicker("show");
-				});
-		}
-
-		restore();
-
-		var defaultDate = null,
-			items = vis.getItems(),
-			twoDateFields = VIS_COLUMNS.length > 3 && VIS_COLUMNS[3].type == 'DateTime';
-
-		for (var i = 0; i < items.length; ++i) {
-			var item = items[i],
-				startDate = vis.unitValue(item, VIS_COLUMNS[2].name),
-				endDate = twoDateFields ? vis.unitValue(item, VIS_COLUMNS[3].name) : null,
-				title = item[VIS_COLUMNS[0].name],
-				value = vis.unitValue(item, VIS_COLUMNS[1].name),
-				formattedValue = item[VIS_COLUMNS[1].name];
-			if (VIS_COLUMNS[0].url) {
-				var link = vis.unitValue(item, 0, { sf: vis.fields.link });
-				if (link) {
-					var linkControl = jq$('<a>', {
-						href: link,
-					}).addClass('izenda-fc-link-title').html(title);
-					title = linkControl[0].outerHTML;
 				}
-			}
 
-			if (startDate == null || isNaN(startDate.valueOf())) {
-				continue;
-			}
+				if (startDate == null || isNaN(startDate.valueOf())) {
+					continue;
+				}
 
-			if (endDate == null || isNaN(endDate.valueOf())) {
-				endDate = null;
-			}
+				if (endDate == null || isNaN(endDate.valueOf())) {
+					endDate = null;
+				}
 
-			if (defaultDate == null || ((settings.props.defaultDateType == "MinDate" && startDate.getTime() < defaultDate.getTime())
-					|| (settings.props.defaultDateType == "MaxDate" && startDate.getTime() > defaultDate.getTime()))) {
+				if (defaultDate == null || ((vis.getProperty('DefaultDateType') == 'MinDate' && startDate.getTime() < defaultDate.getTime())
+						|| (vis.getProperty('DefaultDateType') == 'MaxDate' && startDate.getTime() > defaultDate.getTime()))) {
 					defaultDate = startDate;
+				}
+
+				var event = {
+					item: item,
+					title: title,
+					value: value,
+					formattedValue: formattedValue
+				};
+
+				if (!twoDateFields || endDate == null) {
+					event.start = izenda.utils.date.getISODateString(startDate);
+				} else {
+					event.start = izenda.utils.date.getISOString(startDate);
+					event.end = izenda.utils.date.getISOString(endDate);
+				}
+
+				events.push(event);
 			}
 
-			var event = {
-				item: item,
-				title: title,
-				value: value,
-				formattedValue: formattedValue
-			};
-
-			if (!twoDateFields || endDate == null) {
-				event.start = ISODateString(startDate);
-			} else {
-				event.start = ISOString(startDate);
-				event.end = ISOString(endDate);
+			if (vis.getProperty('DefaultDateType') == 'CustomDate') {
+				defaultDate = new Date(vis.getProperty('CustomDefaultDate'));
+			} else if (!defaultDate || vis.getProperty('DefaultDateType') == 'CurrentDate') {
+				var date = new Date();
+				izenda.utils.date.applyTimezoneOffset(date, -date.getTimezoneOffset());
+				defaultDate = date;
 			}
 
-			events.push(event);
-		}
+			function normalizeEventContent(contentDiv) {
+				var valueDiv = contentDiv.find('.fc-value'),
+					valueSpan = valueDiv.find('span:first-child');
 
-		if (settings.props.defaultDateType == "CustomDate") {
-			defaultDate = new Date(settings.props.customDefaultDate);
-		} else if (!defaultDate || settings.props.defaultDateType == "CurrentDate") {
-			defaultDate = getDateWithZeroTimeZone(new Date);
-		}
+				var fontSize = 24;
+				if (isSetSpecificFontSize) {
+					valueDiv.css('font-size', '30px');
+					fontSize = 30;
+				}
 
-		function normalizeEventContent(contentDiv) {
-			var valueDiv = contentDiv.find('.fc-value'),
-				valueSpan = valueDiv.find('span:first-child');
-
-			var fontSize = 24;
-			if (isSetSpecificFontSize) {
-				valueDiv.css('font-size', '30px');
-				fontSize = 30;
+				izenda.utils.html.adjustTextBlockInContainer(contentDiv, valueSpan, {
+					useDynamicFontSize: vis.getProperty('DynamicFontSize'),
+					maxFontSize: fontSize,
+					target: valueDiv
+				});
 			}
 
-			izenda.utils.html.adjustTextBlockInContainer(contentDiv, valueSpan, {
-				useDynamicFontSize: settings.props.dynamicFontSize,
-				maxFontSize: fontSize,
-				target: valueDiv
-			});
-		}
-
-		var valueField = VIS_COLUMNS[1],
-				isNumValue = ['Numeric', 'Real', 'Money'].indexOf(valueField.sqlType) > -1,
-				isSetSpecificFontSize = !(VIS_CONTEXT.toStatic || VIS_CONTEXT.toImage) && isNumValue;
-		jq$(document).ready(function () {
-			jq$("#VIS_ID").empty();
-			jq$('#VIS_ID').append("<div id='VIS_ID_CALENDAR'></div>");
-			jq$('#VIS_ID_CALENDAR').width(width - 20);
-			jq$('#VIS_ID_CALENDAR').fullCalendar({
-				header: {
-					left: 'prev,next today',
-					center: 'title',
-					right: 'month,agendaWeek,agendaDay'
-				},
-				defaultDate: ISODateString(defaultDate),
-				defaultView: settings.props.currentView,
-				editable: false,
-				slotEventOverlap: false,
-				eventLimit: true,
-				events: events,
-				eventRender: function (event, element) {
-					var eventColor = color(event.item);
-					element.context.style.borderColor = eventColor;
-					element.context.innerHTML = ('<div class="fc-content">' +
-						'<table><tr>' +
-						'<td><div class="fc-title" style="background-color: {color};">{title}</div></td>' +
-						'</tr><tr>' + 
-						'<td class="fc-value-cell "><div class="fc-value"><span>{value}</span><span class="fc-placeholder"></span></div></td>' +
-						'</tr></table>' +
-						'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue });
-					services.tipOn(element.context, '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
-						.format({ color: color(event.item), title: event.title, value: event.formattedValue }));
-				},
-				eventAfterRender: function (event, element) {
-					var eventContainer = jq$(element.context).parent('.fc-event-container');
-					eventContainer.css('margin', '0 {right}px 0 2px'.format({ right: Math.floor(eventContainer.parent().width() * 0.025) }));
-					eventContainer.find('.fc-content').each(function() {
-					  normalizeEventContent(jq$(this));
-					});
-				},
-				eventAfterAllRender: function (view) {
-					settings.props.currentView = view.type;
-					store();
-
-					jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
-						var popover = jq$('#VIS_ID .fc-more-popover');
-						popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
-						popover.find('.fc-content').each(function () {
+			var valueField = VIS_COLUMNS[1],
+					isNumValue = ['Numeric', 'Real', 'Money'].indexOf(valueField.sqlType) > -1,
+					isSetSpecificFontSize = !vis.isExportToImage && isNumValue;
+			jq$(document).ready(function () {
+				jq$('#VIS_ID').empty();
+				jq$('#VIS_ID').append('<div id="VIS_ID_CALENDAR"></div>');
+				jq$('#VIS_ID_CALENDAR').width(vis.width - 20);
+				jq$('#VIS_ID_CALENDAR').fullCalendar({
+					header: {
+						left: 'prev,next today',
+						center: 'title',
+						right: 'month,agendaWeek,agendaDay'
+					},
+					defaultDate: izenda.utils.date.getISODateString(defaultDate),
+					defaultView: vis.getProperty('CurrentView'),
+					editable: false,
+					slotEventOverlap: false,
+					eventLimit: true,
+					events: events,
+					eventRender: function (event, element) {
+						var eventColor = color(event.item);
+						element.context.style.borderColor = eventColor;
+						element.context.innerHTML = ('<div class="fc-content">' +
+							'<table><tr>' +
+							'<td><div class="fc-title" style="background-color: {color};">{title}</div></td>' +
+							'</tr><tr>' +
+							'<td class="fc-value-cell "><div class="fc-value"><span>{value}</span><span class="fc-placeholder"></span></div></td>' +
+							'</tr></table>' +
+							'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue });
+						services.tipOn(element.context, '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
+							.format({ color: color(event.item), title: event.title, value: event.formattedValue }));
+					},
+					eventAfterRender: function (event, element) {
+						var eventContainer = jq$(element.context).parent('.fc-event-container');
+						eventContainer.css('margin', '0 {right}px 0 2px'.format({ right: Math.floor(eventContainer.parent().width() * 0.025) }));
+						eventContainer.find('.fc-content').each(function() {
 							normalizeEventContent(jq$(this));
 						});
-					});
-				}
-			});
-		});
+					},
+					eventAfterAllRender: function (view) {
+						vis.setProperty('CurrentView', view.type);
 
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			jq$("#VIS_ID").empty();
-		});
+						jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
+							var popover = jq$('#VIS_ID .fc-more-popover');
+							popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
+							popover.find('.fc-content').each(function () {
+								normalizeEventContent(jq$(this));
+							});
+						});
+					}
+				});
+			});
+		}
+
+		draw();
+
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

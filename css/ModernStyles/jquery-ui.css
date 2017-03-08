@@ -674,7 +674,7 @@ html, body{background-color:#ffffff;}
 /* General */
 .iz-ui-icon, .iz-ui-widget-content .iz-ui-icon, .iz-ui-widget-header .iz-ui-icon  {background-image:url(###RS###image=ModernImages.iz-ui-icons_d4d4d4_0.png)}
 .iz-ui-icon-light, .iz-ui-widget-content .iz-ui-icon-light, .iz-ui-widget-header .iz-ui-icon-light  {background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png)}
-.iz-ui-state-default .iz-ui-icon {background-image:url(images/ui-icons_525252_0.png)}
+.iz-ui-state-default .iz-ui-icon {background-image:url(###RS###image=ModernImages.ui-icons_525252_0.png)}
 .iz-ui-state-active .iz-ui-icon, .iz-ui-state-hover .iz-ui-icon{background-image:url(###RS###image=ModernImages.iz-ui-icons_ffffff_0.png);}
 .iz-ui-widget-overlay{background:#ffffff;}
 .iz-ui-widget-content{color:#525252;}
@@ -736,7 +736,7 @@ html, body{background-color:#ffffff;}
 
 /* Highlight */
 .iz-ui-state-highlight{border-color:#efdca9;color:#525252;background:#efdca9;}
-.iz-ui-state-highlight .iz-ui-icon{background-image:url(images/ui-icons_525252_0.png);}
+.iz-ui-state-highlight .iz-ui-icon{background-image:url(###RS###image=ModernImages.ui-icons_525252_0.png);}
 
 /* Error */
 .iz-ui-state-error{border-color:#c31d1d;color:#ffffff;background:#c31d1d;}

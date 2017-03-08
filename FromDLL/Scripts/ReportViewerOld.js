@@ -181,32 +181,32 @@ function ChangeTopRecords(recsNum) {
     if (recsNum == 1) {
         uvcVal = '1';
         $('#resNumLi0').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'row-1.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'row-1.png';
     }
     if (recsNum == 10) {
         uvcVal = '10';
         $('#resNumLi1').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'rows-10.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'rows-10.png';
     }
     if (recsNum == 100) {
         uvcVal = '100';
         $('#resNumLi2').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'rows-100.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'rows-100.png';
     }
     if (recsNum == 1000) {
         uvcVal = '1000';
         $('#resNumLi3').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'rows-1000.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'rows-1000.png';
     }
     if (recsNum == 10000) {
         uvcVal = '10000';
         $('#resNumLi5').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'rows-10000.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'rows-10000.png';
     }    
     if (recsNum == -1) {
         uvcVal = '-1';
         $('#resNumLi4').addClass('selected');
-        resNumImg.src = 'rs.aspx?image=ModernImages.' + 'rows-all.png';
+        resNumImg.src = 'rp.aspx?image=ModernImages.' + 'rows-all.png';
     }
     var fieldWithPCId = document.getElementById('previewControlIdFor2ver');
     var contId = fieldWithPCId.value;

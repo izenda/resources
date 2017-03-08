@@ -2,7 +2,6 @@
 <%@ Import Namespace="Izenda.AdHoc" %>
 
 <title>Dashboards</title>
-<script type="text/javascript" src="rs.aspx?js=AdHocQuery"></script>
 
 <script runat="server">
     public string getDashboardViewer()
@@ -18,31 +17,31 @@
    { %>
 
 <!-- Styles Resources -->
-<link rel="stylesheet" type="text/css" href="./Resources/css/report-list-modal.css" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.report-list-modal.css" />
 
 <!-- Styles Internal -->
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jquery-ui-1.8.21.custom2" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.custom_dashboard" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=DashboardViewer" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=ModernStyles.jqui_modified2" />
-<link rel="stylesheet" type="text/css" href="rs.aspx?css=tagit" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui-1.8.21.custom2" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.custom_dashboard" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?css=DashboardViewer" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jqui_modified2" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?css=tagit" />
   
 <!-- jQuery Core -->
-<script type="text/javascript" src="rs.aspx?js=jQuery.jq"></script>
-<script type="text/javascript" src="rs.aspx?js=jQuery.jqui"></script>
+<script type="text/javascript" src="./rp.aspx?js=jQuery.jq"></script>
+<script type="text/javascript" src="./rp.aspx?js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="./rs.aspx?js=jQuery.jq_db"></script>
-<script type="text/javascript" src="./rs.aspx?js=jQuery.jqui_db"></script>
+<script type="text/javascript" src="./rp.aspx?js=jQuery.jq_db"></script>
+<script type="text/javascript" src="./rp.aspx?js=jQuery.jqui_db"></script>
 
-<script type="text/javascript" src="rs.aspx?js=jQuery.DashboardViewer"></script>	
-<script type="text/javascript" src="rs.aspx?js=jQuery.NewDashboardControls"></script>	
-<script type="text/javascript" src="rs.aspx?js=ModernScripts.jquery.blockUI"></script>
-<script type="text/javascript" src="rs.aspx?js=tag-it"></script>
+<script type="text/javascript" src="./rp.aspx?js=jQuery.DashboardViewer"></script>	
+<script type="text/javascript" src="./rp.aspx?js=jQuery.NewDashboardControls"></script>	
+<script type="text/javascript" src="./rp.aspx?js=ModernScripts.jquery.blockUI"></script>
+<script type="text/javascript" src="./rp.aspx?js=tag-it"></script>
 
 <!-- Utils Resources -->
-<script type="text/javascript" src="./Resources/js/ContentRefreshIntervals.js"></script>
-<script type="text/javascript" src="./rs.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+<script type="text/javascript" src="./rp.aspx?extres=js.ContentRefreshIntervals.js"></script>
+<script type="text/javascript" src="./rp.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <style type="text/css">
 	.izenda-toolbar {

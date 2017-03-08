@@ -761,17 +761,17 @@ a.collapse-link {
 	}*/
 
 .iz-inst-mainpanel-body {
-	position: absolute;
 	overflow: auto;
+	padding: 17px;
+	position: absolute;
 	bottom: 0;
-	top: 70px;
-	padding: 0 17px 0 16px;
+	top: 0;
 	left: 0;
 	right: 0;
 }
 
 	.iz-inst-mainpanel-body.show-options-panel {
-		bottom: 310px;
+		bottom: 260px;
 	}
 
 .iz-inst-mobile .iz-inst-mainpanel-body {

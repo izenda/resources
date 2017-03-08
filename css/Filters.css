@@ -5,7 +5,7 @@
 .comboboxTreeMultyselect .textArea .showHide {
 	width: 13px;
 	height: 13px;
-	background: url("../../rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+	background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
 	cursor: pointer;
 	float: right;
 	margin-top: 5px;
@@ -35,15 +35,15 @@
 	display: inline-block;
 	width: 13px;
 	height: 13px;
-	background: url("../../rs.aspx?image=treeArrows.png") no-repeat scroll -26px 0 transparent;
+	background: url("###RS###image=treeArrows.png") no-repeat scroll -26px 0 transparent;
 }
 
 .comboboxTreeMultyselect .tree .haschild >.collapse {
-	background: url("../../rs.aspx?image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+	background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
 }
 
 .comboboxTreeMultyselect .tree .collapsed >.collapse {
-	background: url("../../rs.aspx?image=treeArrows.png") no-repeat scroll 0 0 transparent;}
+	background: url("###RS###image=treeArrows.png") no-repeat scroll 0 0 transparent;}
 	
 .comboboxTreeMultyselect .textArea {
 	

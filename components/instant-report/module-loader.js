@@ -3,9 +3,11 @@
 
 	// require configuration
 	require.config({
-		baseUrl: 'Resources/components',
+		baseUrl: '###RS###extres=components',
+		waitSeconds: 0,
 		paths: {
-			'angular': 'vendor/angular-1.6.0/angular.min'
+			'moment': 'vendor/moment/moment-with-locales.min',
+			'angular': 'vendor/angular-1.6.1/angular.min'
 		},
 		shim: {
 			angular: {
@@ -24,25 +26,29 @@
 		// load report viewer config (used for legacy js code)
 		loaderUtils.loadReportViewerConfig().then(function () {
 			loaderUtils.storeDefaultJquery(); // we need to set jq$ as default jQuery object, because angularjs use default jquery.
-			require(['angular'], function (angular) {
-				window.angular = angular;
-				loaderUtils.restoreDefaultJquery(); // restore default jQuery object after loading
+			require([
+				'angular',
+				'moment',
+				'vendor/jscssp/cssParser',
+				'vendor/bootstrap/js/bootstrap-datetimepicker.min'], function (angular) {
+					window.angular = angular;
+					loaderUtils.restoreDefaultJquery(); // restore default jQuery object after loading
 
-				// load module definitions
-				require(['common/module-definition', 'instant-report/module-definition'], function (commonSettingsLoader, instantReportBootstrapper) {
-					// load javascripts
-					require([
-						'common/services/services',
-						'common/directive/directives',
-						'common/controllers/controllers',
-						'instant-report/services/services',
-						'instant-report/directive/directives',
-						'instant-report/controllers/controllers'], function () {
-							// start instant reports application
-							instantReportBootstrapper.bootstrap();
-						});
+					// load module definitions
+					require(['common/module-definition', 'instant-report/module-definition'], function (commonSettingsLoader, instantReportBootstrapper) {
+						// load javascripts
+						require([
+							'common/services/services',
+							'common/directive/directives',
+							'common/controllers/controllers',
+							'instant-report/services/services',
+							'instant-report/directive/directives',
+							'instant-report/controllers/controllers'], function () {
+								// start instant reports application
+								instantReportBootstrapper.bootstrap();
+							});
+					});
 				});
-			});
 		});
 	});
 })();

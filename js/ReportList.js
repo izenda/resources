@@ -65,6 +65,7 @@ function RL_SearchInputStartTimeout(searchString) {
 //Exchange data with server and list rendering methods--------------------------------------------
 var UseDefaultDialogs = false;
 var responseServer;
+var resourcesProvider;
 var nrlConfigObj;
 var currentThId = 0;
 
@@ -96,6 +97,7 @@ function AcceptConfig(returnObj, id) {
 		return;
 	}
 	responseServer = new AdHoc.ResponseServer(nrlConfigObj.ResponseServerUrl, nrlConfigObj.TimeOut);
+	resourcesProvider = new AdHoc.ResourcesProvider(nrlConfigObj.ResourcesProviderUrl, nrlConfigObj.TimeOut);
 	var reportDesignerLink = jq$("#newReportLink");
 	var dashboardDesignerLink = jq$("#newDashboardLink");
 	if (reportDesignerLink != null) {
@@ -245,7 +247,7 @@ function AcceptReports(returnObj, id, parameters) {
 
 	var catsUsed = [];
 	var subcatMarginBase = 30;
-	var expandIconUrl = responseServer.ResponseServerUrl + 'image=ModernImages.collapse.png';
+	var expandIconUrl = resourcesProvider.ResourcesProviderUrl + 'image=ModernImages.collapse.png';
 	var subcatVisibilityTemplate = 'display:list-item;';
 	if (nrlConfigObj.ExpandCategorizedReports != true)
 		subcatVisibilityTemplate = 'display:none;';

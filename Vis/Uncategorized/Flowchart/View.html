@@ -2,38 +2,6 @@
 	#VIS_ID_CONTAINER svg {
 		overflow: hidden;
 	}
-	#VIS_ID_CONTAINER .hint {
-		font-size: 12px;
-		color: #999;
-		height: 30px;
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .property-control {
-		color: black;
-	}
-
-	#VIS_ID_CONTAINER .property-control select {
-		font-family: Verdana, Arial, Geneva, sans-serif;
-	}
-
-	#VIS_ID_CONTAINER .hint span {
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER .hint select {
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL {
-		float: right;
-		position: relative;
-		right: 0;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
-		display: inline-block;
-	}
 
 	#VIS_ID_CONTAINER .node rect {
 		stroke: #333;
@@ -52,178 +20,130 @@
 	}
 </style>
 
-
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint">
-			<div class="property-control">
-				<span>Metrics:</span>
-				<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
-			</div>
-		</div>
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 <script type="text/javascript" src="dagre-d3.min.js"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		var width = 720, height = 500;
+	(function init() {
+		var services = window.ReportingServices;
 
-		var util = window.ReportScripting, services = window.ReportingServices, vis;
+		(function () {
+			/* Backward Compatibility Section */
+			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
+				var props = {};
+				try {
+					var oldProps = JSON.parse(VIS_CONTEXT.props);
+					props['Metric'] = oldProps['metric'];
+				} catch (e) {
+					props = {};
+				}
+				VIS_CONTEXT.props = JSON.stringify(props);
+			}
+		})();
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true }))
-			return;
-
-		var root,
-			vs = util.container("VIS_ID"),
-			metricSelect = vs.find("#VIS_ID_PROPERTY_METRIC_SELECT");
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		window.visState = window.visState || {};
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
-			init: true,
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: { d3: true, svg: true },
+			dataLayout: 'graph',
+			draw: draw
 		});
-		if (!s.props) {
-			try {
-				s.props = JSON.parse(VIS_CONTEXT.props);
-			} catch (e) {
-				s.props = {};
-				util.logger.error(e);
-			}
-		}
-
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		if (utility.ie() > 0)
-			services.updateStyle("izenda-VIS_ID-style", ".edgePath path { fill: none !important; }");
-
-		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
-		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
-		vis.container
-			.unbind("mouseenter")
-			.bind("mouseenter", function () {
-				propertiesPanel.stop().animate({ opacity: 1 });
-			})
-			.unbind("mouseleave")
-			.bind("mouseleave", function () {
-				propertiesPanel.stop().animate({ opacity: 0 });
-			});
-
-		s.init = false;
-
-		function store() {
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.find('option:selected').text()
-			});
-
-			vis.setProps(s.props);
-		}
-
-		function restore() {
-			if (typeof s.props == "object" && s.props.metric) {
-				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
-				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
-			}
-		}
-
-		vis.collectGraph();
-
-		vis.metrics = vis.metrics.reverse();
 
 		if (!vis.metrics.length) {
-			jq$("#VIS_ID").text("No metric found");
-			return;
+			throw new izenda.error.ChartSetUpError('No metric found!');
 		}
 
-		metricSelect.find("option").remove();
-		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
+		vis.initHeader({
+			metrics: [{
+				name: 'Metric',
+				onChangeCallback: function () { }
+			}]
 		});
 
-		restore();
+		var subscriptions = [];
+		function draw() {
+			subscriptions.forEach(function (subscription) { subscription.remove(); });
 
-		s.spendField = vis.metrics[metricSelect.find("option:selected").index()];
+			if (utility.ie() > 0)
+				services.updateStyle('izenda-VIS_ID-style', '.edgePath path { fill: none !important; }');
 
-		var names = [];
-			
-		function safename(name) {
-			return util.wordwrap(name, 15);
+
+			var spendField = vis.getProperty('Metric');
+
+			var names = [];
+
+			function safename(name) {
+				return izenda.visualization.wordwrap(name, 15);
+			}
+
+			for (var i = 0, label; i < vis.edges.length; i++) {
+				if (names.indexOf(label = safename(vis.itemLabel(vis.edges[i], 0))) < 0)
+					names.push(label);
+				if (names.indexOf(label = safename(vis.itemLabel(vis.edges[i], 1))) < 0)
+					names.push(label);
+			}
+
+			var g = new dagreD3.graphlib.Graph().setGraph({});
+
+			names.forEach(function (name) { g.setNode(name, { label: name }); });
+
+			for (var i = 0; i < vis.edges.length; i++) {
+				g.setEdge(safename(vis.itemLabel(vis.edges[i], 0)), safename(vis.itemLabel(vis.edges[i], 1)), { label: vis.itemValue(vis.edges[i], spendField), lineInterpolate: 'basis' });
+			}
+
+			g.nodes().forEach(function (v) {
+				var node = g.node(v);
+				node.rx = node.ry = 10;
+			});
+
+			var svg = d3.select(vis.element.get(0))
+				.append('svg:svg')
+					.attr('width', vis.width)
+					.attr('height', vis.height),
+				inner = svg.append('svg:g');
+
+			var zoom = d3.behavior.zoom().on('zoom', function () {
+				inner.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+			});
+			svg.call(zoom);
+
+			var render = new dagreD3.render();
+
+			render(inner, g);
+
+			var initialScale = 0.75;
+			zoom
+				.translate([(svg.attr('width') - g.graph().width * initialScale) / 2, 20])
+				.scale(initialScale)
+				.event(svg);
+			svg.attr('height', g.graph().height * initialScale + 40);
+
+			subscriptions.push(vis.events.subscribe('MetricChange', function () {
+				var value = vis.getProperty('Metric');
+
+				inner
+					.selectAll('g.edgeLabel')
+					.each(function (element, index) {
+						var text = vis.itemValue(vis.edges[index], value);
+						var result = izenda.visualization.labelBBox(d3.select(this).select('g.label'), text);
+
+						d3.select(this).select('div').html(text);
+						d3.select(this)
+							.selectAll(function () { return this.getElementsByTagName('foreignObject'); })
+							.attr('width', result.width);
+					});
+			}));
 		}
 
-		for (var i = 0, label; i < vis.edges.length; i++) {
-			if (names.indexOf(label = safename(vis.unitLabel(vis.edges[i], 0))) < 0)
-				names.push(label);
-			if (names.indexOf(label = safename(vis.unitLabel(vis.edges[i], 1))) < 0)
-				names.push(label);
-		}
+		draw();
 
-		var g = new dagreD3.graphlib.Graph().setGraph({});
-
-		names.forEach(function (name) { g.setNode(name, { label: name }); });
-
-		for (var i = 0; i < vis.edges.length; i++) {
-			g.setEdge(safename(vis.unitLabel(vis.edges[i], 0)), safename(vis.unitLabel(vis.edges[i], 1)), { label: vis.unitValue(vis.edges[i], s.spendField), lineInterpolate: 'basis' });
-		}
-
-		g.nodes().forEach(function (v) {
-			var node = g.node(v);
-			node.rx = node.ry = 10;
-		});
-
-		var svg = d3.select("#VIS_ID")
-			.append("svg:svg")
-				.attr("width", width)
-				.attr("height", height),
-			inner = svg.append("svg:g");
-
-		var zoom = d3.behavior.zoom().on("zoom", function () {
-			inner.attr("transform", "translate(" + d3.event.translate + ")" + "scale(" + d3.event.scale + ")");
-		});
-		svg.call(zoom);
-
-		var render = new dagreD3.render();
-
-		render(inner, g);
-
-		var initialScale = 0.75;
-		zoom
-			.translate([(svg.attr("width") - g.graph().width * initialScale) / 2, 20])
-			.scale(initialScale)
-			.event(svg);
-		svg.attr("height", g.graph().height * initialScale + 40);
-
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			jq$("#VIS_ID").empty();
-		});
-
-		function processData() {
-			metricSelect
-				.unbind("change")
-				.bind("change", function () {
-					s.spendField = this.value;
-
-					inner
-						.selectAll("g.edgeLabel")
-						.each(function (element, index) {
-							var text = vis.unitValue(vis.edges[index], s.spendField);
-							var result = util.labelBBox(d3.select(this).select("g.label"), text);
-
-							d3.select(this).select("div").html(text);
-							d3.select(this)
-								.selectAll(function () { return this.getElementsByTagName("foreignObject"); })
-								.attr("width", result.width);
-						});
-
-					store();
-					update(root);
-				});
-		}
-
-		processData();
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

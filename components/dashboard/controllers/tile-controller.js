@@ -888,7 +888,7 @@
 					$t.find('.frame').removeClass('hidden');
 					$t.find('.flippy-front, .flippy-back').addClass('flipInY');
 					$animates.find('.flippy-front,.flippy-back').css('background-color', '');
-					if ($scope.dashboardController.checkTileIntersects(tile) || $scope.dashboardController.checkTileMovedToOuterSpace($t)) {
+					if ($scope.dashboardController.checkTileIntersects(tile)) {
 						// revert if intersects
 						$currentTileUi.animate({
 							left: ui.originalPosition.left,
@@ -904,6 +904,21 @@
 						});
 					} else {
 						var isFlippyBack = $t.find('.flippy-back').is(':visible');
+
+						// fix out of bounds positions.
+						var tp = $t.position();
+						if (tp.left + $t.width() > $scope.dashboardController.tileWidth * 12) {
+							$currentTileUi.width($scope.dashboardController.tileWidth * 12 - tp.left);
+						}
+						if (tp.left < 0) {
+							$t.width($t.width() + tp.left);
+							$t.css('left', 0);
+						}
+						if (tp.top < 0) {
+							$t.height($t.height() + tp.top);
+							$t.css('top', 0);
+						}
+
 						vm.tileSizeChanged = $currentTileUi.width() != ui.originalSize.width || $currentTileUi.height() != ui.originalSize.height;
 						vm.updateTileParameters();
 						$rootScope.$broadcast('stopEditTileEvent', [{
@@ -1022,7 +1037,7 @@
 				// splash screen
 				var loadingHtml = '<div class="izenda-vcentered-container">' +
 					'<div class="izenda-vcentered-item">' +
-					'<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+					'<img class="img-responsive" src="' + vm.izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 					'</div>' +
 					'</div>';
 				$body.html(loadingHtml);

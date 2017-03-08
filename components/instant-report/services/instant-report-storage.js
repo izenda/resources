@@ -206,7 +206,7 @@
 					return null;
 				var result = '';
 				if (!isUncategorized(category)) {
-					result += category + '\\';
+					result += category + $izendaSettings.getCategoryCharacter();
 				}
 				result += name;
 				return result;
@@ -904,7 +904,7 @@
 							});
 							return;
 						}
-						table.enabled = table.active || foreignKeyTables.indexOf(table.sysname) >= 0;
+						table.enabled = table.active || (foreignKeyTables.indexOf(table.sysname) >= 0 && $izendaInstantReportSettings.maxAllowedTables > currentActiveTables.length);
 						category.enabled |= table.enabled;
 						angular.element.each(table.fields, function () {
 							var field = this;
@@ -1605,9 +1605,11 @@
 				var reportSetToSend = createReportSetConfigForSend();
 				return $q(function (resolve) {
 					$izendaInstantReportQuery.saveReportSet(reportSetToSend).then(function (result) {
-						var reportSetFullName = getReportSetFullName();
-						if (angular.isString(reportSetFullName))
-							$izendaUrl.setReportFullName(reportSetFullName);
+						if (angular.isString(result) && result.toLowerCase() === 'ok') {
+							var reportSetFullName = getReportSetFullName();
+							if (angular.isString(reportSetFullName))
+								$izendaUrl.setReportFullName(reportSetFullName);
+						}
 						resolve(result);
 					});
 				});
@@ -2625,6 +2627,9 @@
 					promises.push($izendaScheduleService.loadScheduleData());
 					promises.push($izendaShareService.loadShareData({ defaultShareConfig: true }));
 
+					// set full access for new report:
+					$izendaCompatibility.setRights($izendaCompatibility.RIGHT_FULL_ACCESS);
+
 					// load default table if defined
 					if (angular.isString($izendaInstantReportSettings.defaultTable)) {
 						var table = getTableBySysname($izendaInstantReportSettings.defaultTable);
@@ -2677,6 +2682,7 @@
 						}
 						resetDataSources();
 						reportSet = angular.extend(reportSet, reportSetConfig);
+						$izendaCompatibility.setRights(reportSet.options.effectiveRights);
 						// update top
 						if (reportSet.options.top < 0)
 							reportSet.options.top = '';
@@ -2722,6 +2728,11 @@
 								var field = getFieldBySysName(sysname, true);
 								if (!angular.isObject(field))
 									$log.error('Field ' + sysname + ' not found in datasources');
+
+								if (activeField.description) {
+									field.isDescriptionSetManually = true;
+									field.description = activeField.description;
+								}
 
 								var isFieldMultiple = addedFieldSysNames.indexOf(sysname) >= 0;
 								if (!isFieldMultiple) {

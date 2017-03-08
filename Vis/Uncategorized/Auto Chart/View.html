@@ -1,267 +1,35 @@
 <style type="text/css">
-	@font-face {
-		font-family: 'Open Sans';
-		font-style: normal;
-		font-weight: 400;
-		src: local('Open Sans'), local('OpenSans'), url(rs.aspx?font=Fonts.OpenSans.woff) format('woff');
-	}
-
-	@font-face {
-		font-family: 'Open Sans';
-		font-style: normal;
-		font-weight: 600;
-		src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url(rs.aspx?font=Fonts.OpenSans-Semibold.woff) format('woff');
-	}
-
-	#VIS_ID_CONTAINER {
-		overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER .clearfix:after {
-		content: "";
-		clear: both;
-		display: table;
-	}
-
-	#VIS_ID_CONTAINER .hint {
-		font-size: 12px;
-		color: #999;
-		margin: 2px;
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .hint select {
-		width: auto;
-	}
-
-	#VIS_ID_CONTAINER .hint label {
-		/* http://stackoverflow.com/questions/306252/how-to-align-checkboxes-and-their-labels-consistently-cross-browsers */
-		display: block;
-		padding-left: 15px;
-		text-indent: -15px;
-		cursor: pointer;
-		display: inline-block;
-	}
-
-	#VIS_ID_CONTAINER .hint span,
-	#VIS_ID_CONTAINER .hint ul {
-		vertical-align: middle;
-	}
-
-	#VIS_ID_CONTAINER .hint input[type=checkbox] {
-		width: 13px;
-		height: 13px;
-		padding: 0;
-		margin: 0;
-		vertical-align: bottom;
-		position: relative;
-		top: -1px;
-		*overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER .property-control {
-		color: black;
-	}
-
-	#VIS_ID_CONTAINER .property-control select {
-		font-family: Verdana, Arial, Geneva, sans-serif;
-	}
-
-	#VIS_ID_CONTAINER .property-control .navigation {
-		margin: 0;
-		padding: 0;
-		list-style-type: none;
-		display: inline-block;
-	}
-
-	#VIS_ID_CONTAINER .property-control .navigation li {
-		color: #999;
-		font-family: Verdana, Arial, Geneva, sans-serif;
-		font-size: 12px;
-		cursor: pointer;
-		float: left;
-		padding: 2px 5px;
-		border-top: solid 1px #CCC;
-		border-bottom: solid 1px #CCC;
-		border-left: solid 1px #CCC;
-		background: #f9f9f9;
-		margin: 0 0;
-	}
-
-	#VIS_ID_CONTAINER .property-control .navigation li:first-of-type {
-		border-radius: 2px 0 0 2px;
-	}
-
-	#VIS_ID_CONTAINER .property-control .navigation li:last-of-type {
-		border-right: solid 1px #CCC;
-		border-radius: 0 2px 2px 0;
-	}
-
-	#VIS_ID_CONTAINER .property-control .navigation li.selected {
-		color: #000;
-		background: #e9e9e9;
-		border-color: #AAA;
-		box-shadow: inset 0px 0px 1px rgba(0,0,0,0.2);
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL {
-		padding-bottom: 2px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_BREADCRUMBS_PANEL text {
-		font-weight: 600;
-		fill: #fff;
-		font-family: 'Open Sans', sans-serif;
-		font-size: 12px;
-		pointer-events: none;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .selector {
-		display: inline-block;
-		height: 27px;
-		width: 24px;
-		cursor: pointer;
-		-webkit-touch-callout: none;
-		-webkit-user-select: none;
-		-khtml-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
-		user-select: none;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL .property-control {
-		display: inline-block;
-	}
-	
-	#VIS_ID_CONTAINER .property-control label {
-		font-weight: normal;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.hover.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_REFRESH_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/refresh.selected.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.hover.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_PALETTE_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/palette.selected.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.hover.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_TYPE_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/type.selected.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR:hover {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.hover.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PROPERTIES_PANEL #VIS_ID_GEAR_GALLERY_SELECTOR.ws_selthumb {
-		background: url('Resources/Vis/Uncategorized/Auto Chart/icons/gear.selected.png') no-repeat center center;
-	}
-
-	#VIS_ID_CONTAINER .gallery {
-		overflow: hidden;
-	}
-
-	#VIS_ID_CONTAINER .gallery .gallery-item {
-		width: 98px;
-		height: 59px;
-		margin: 4px;
-		text-indent: 0;
-		border: 1px solid #AAA;
-		opacity: 0.7;
-		display: inline-block;
-		box-sizing: content-box;
-		cursor: pointer;
-	}
-
-	#VIS_ID_CONTAINER .gallery .gallery-item img {
-		width: 98px;
-		height: 59px;
-	}
-
-	#VIS_ID_CONTAINER .gallery .gallery-item .placeholder {
-		width: 100%;
-		height: 100%;
-	}
-
-	#VIS_ID_CONTAINER .gallery .gallery-item:hover {
-		opacity: 1;
-	}
-
-	#VIS_ID_CONTAINER .gallery .gallery-item.ws_selthumb {
-		opacity: 1;
-		margin: 2px;
-		border: 3px solid #9FD5B7;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PALETTE_GALLERY .gallery-item {
-		width: 117px;
-		height: 41px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_PALETTE_GALLERY .gallery-item .cell {
-		width: 16px;
-		height: 16px;
-		margin-top: 3px;
-		margin-left: 3px;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_BACKGROUND {
+	#VIS_ID_CONTAINER .izenda-vis-autochart-expand-panel .izenda-vis-autochart-expand-panel-background {
 		padding: 1px;
 		background-color: black;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_LABEL {
+	#VIS_ID_CONTAINER .izenda-vis-autochart-expand-panel .izenda-vis-autochart-expand-panel-label {
 		display: block;
 		height: 18px;
-		font-family: tahoma;
 		font-size: 12px;
 		padding-left: 5px;
 		line-height: 18px;
-		/*background-color: white;*/
 		color: white;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON {
+	#VIS_ID_CONTAINER .izenda-vis-autochart-expand-panel .izenda-vis-autochart-expand-panel-close-button {
 		float: right;
 		cursor: pointer;
 		display: block;
 		padding: 0 4px;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID_EXPAND_GALLERY #VIS_ID_EXPAND_GALLERY_CONTAINER {
-		/*display: inline-block;*/
+	#VIS_ID_CONTAINER .izenda-vis-autochart-expand-panel .izenda-vis-autochart-expand-panel-container {
 		max-height: 300px;
 		overflow: auto;
-		width: 100% /*auto*/;
+		width: 100%;
 		background-color: white;
+	}
+
+	#VIS_ID_CONTAINER .izenda-vis-autochart-label-link {
+		cursor: pointer;
+		text-decoration: underline;
 	}
 
 	#VIS_ID_CONTAINER div.highcharts-tooltip {
@@ -272,101 +40,23 @@
 		display: none;
 	}
 
-	#VIS_ID_CONTAINER span.tooltip-wrapper {
+	#VIS_ID_CONTAINER span.izenda-vis-autochart-tooltip-content {
 		background-color: #ffffff !important;
 		display: inline-block;
-		padding-top: 8px;
-		padding-left: 8px;
-		padding-right: 7px;
-		padding-bottom: 7px;
+		padding: 8px;
 		-ms-border-radius: 4px;
 		border-radius: 4px;
+		border-collapse: separate;
 		border-width: 1px;
 		border-style: solid;
 		-webkit-box-shadow: 0 0 4px 0 #565656;
 		-ms-box-shadow: 0 0 4px 0 #565656;
 		box-shadow: 0 0 4px 0 #565656;
-		border-collapse: separate;
-	}
-
-	#VIS_ID_CONTAINER .izenda-vis-autochart-label-link {
-		cursor: pointer;
-		text-decoration: underline;
-	}
-
-	.block {
-		display: block !important;
-	}
-
-	.left {
-		float: left !important;
 	}
 </style>
+
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID_BREADCRUMBS_PANEL" style="float: left; display: inline-block;"></div>
-		<div id="VIS_ID_PROPERTIES_PANEL" class="hint" style="float:right; position: relative; right: 0; display: table;">
-			<div style="display: table-cell; vertical-align: middle;">
-				<div id="VIS_ID_REFRESH_SELECTOR" class="selector">&nbsp;</div>
-			</div>
-			<div style="display: table-cell; vertical-align: middle;">
-				<div id="VIS_ID_PALETTE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			</div>
-			<div style="display: table-cell; vertical-align: middle;">
-				<div id="VIS_ID_TYPE_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			</div>
-			<div style="display: table-cell; vertical-align: middle;">
-				<div id="VIS_ID_GEAR_GALLERY_SELECTOR" class="selector">&nbsp;</div>
-			</div>
-			<div style="display: table-cell; vertical-align: top; padding-top: 2px;">
-				<div class="property-control">
-					<span>Metrics:</span>
-					<span><select id="VIS_ID_PROPERTY_METRIC_SELECT"></select></span>
-					<span><select id="VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"></select></span>
-				</div>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-		<div id="VIS_ID_PALETTE_GALLERY" class="gallery" style="display: none;">
-			<div id="VIS_ID_PALETTE_CONTROL" class="property-control"></div>
-			<div class="property-control hint"><label><input type="checkbox" id="VIS_ID_PROPERTY_MUTLICOLOR_CHECKBOX" checked="checked" /> Multi-Color metric</label></div>
-		</div>
-		<div id="VIS_ID_TYPE_GALLERY" class="gallery" style="display: none;">
-			<div id="VIS_ID_TYPE_CONTROL" class="property-control"></div>
-		</div>
-		<div id="VIS_ID_GEAR_GALLERY" class="gallery" style="display: none;">
-			<div class="property-control hint"><label><input type="checkbox" id="VIS_ID_PROPERTY_ZERO_CHECKBOX" checked="" /> Start at Zero</label></div>
-			<div class="property-control hint">
-				<span>Subreport mode</span>
-				<ul id="VIS_ID_SUBREPORT_MODE" class="navigation">
-					<li val="EmbeddedDetail">Expand</li>
-					<li val="DetailLink">Link</li>
-					<li val="DetailLinkNewWindow">New Tab</li>
-					<li val="DetailLinkPopup">Popup</li>
-				</ul>
-			</div>
-			<div class="property-control hint"><label>Combine bottom, % <input type="text" id="VIS_ID_PROPERTY_COMBINE_ITEMS" value="5" /></label></div>
-			<div class="property-control hint">
-				<span>Line chart step mode</span>
-				<ul id="VIS_ID_LINESTEP_MODE" class="navigation">
-					<li val="">None</li>
-					<li val="left">Left</li>
-					<li val="center">Center</li>
-					<li val="right">Right</li>
-				</ul>
-			</div>
-		</div>
-		<div id="VIS_ID" style="overflow: hidden"></div>
-		<div id="VIS_ID_EXPAND_GALLERY" class="gallery" style="display: none;">
-			<div id="VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON">
-				<img id="VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE" src="Resources/Vis/Uncategorized/Auto Chart/icons/close.min.png" />
-			</div>
-			<div id="VIS_ID_EXPAND_GALLERY_BACKGROUND">
-				<div id="VIS_ID_EXPAND_GALLERY_LABEL"></div>
-				<div id="VIS_ID_EXPAND_GALLERY_CONTAINER"></div>
-			</div>
-		</div>
-	</div>
+	<div id="VIS_ID" style="overflow: hidden"></div>
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
@@ -376,77 +66,87 @@
 	var virgin = true;
 
 	var types = (function () {
-		return [
+		return jq$.each([
 			{
 				title: "Area",
 				name: "area",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/area.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.area.min.png"
 			}, {
 				title: "Area - Spline",
 				name: "areaspline",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/area-spline.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.area-spline.min.png"
 			}, {
 				title: "Bar",
 				name: "bar",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/bar.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar.min.png"
 			}, {
 				title: "Bar - Stacked",
 				name: "bar-stacked",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/bar-stacked.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar-stacked.min.png"
 			}, {
 				title: "Bar - %",
 				name: "bar-stacked-percent",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/bar-percent.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar-percent.min.png"
 			}, {
 				title: "Bubble",
 				name: "bubble",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/bubble.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bubble.min.png"
 			}, {
 				title: "Column",
 				name: "column",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/column.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column.min.png"
 			}, {
 				title: "Column - Stacked",
 				name: "column-stacked",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/column-stacked.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column-stacked.min.png"
 			}, {
 				title: "Column - %",
 				name: "column-stacked-percent",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/column-percent.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column-percent.min.png"
 			}, {
 				title: "Funnel",
 				name: "funnel",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/funnel.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.funnel.min.png"
 			}, {
 				title: "Scatter",
 				name: "scatter",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/scatter.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.scatter.min.png"
 			}, {
 				title: "Line",
 				name: "line",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/line.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line.min.png"
 			}, {
 				title: "Line - Spline",
 				name: "spline",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/line-spline.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline.min.png"
 			}, {
 				title: "Line - Polar",
 				name: "line-polar",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/line-polar.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-polar.min.png"
 			}, {
 				title: "Line - Spline - Polar",
 				name: "spline-polar",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/line-spline-polar.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline-polar.min.png"
 			}, {
 				title: "Pie",
 				name: "pie",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/pie.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.pie.min.png"
 			}, {
 				title: "Pie - Donut",
 				name: "pie-donut",
-				thumbnail: "Resources/Vis/Uncategorized/Auto Chart/chart-types/pie-donut.min.png"
+				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.pie-donut.min.png"
 			}
-		];
+		], function (index, type) {
+			jq$.extend(type, {
+				is: function (pattern) { return !!type.name.match(new RegExp(pattern, 'g')); },
+				isStacked: function () { return !!type.name.match(/-stacked/g); },
+				isPercent: function () { return !!type.name.match(/-percent/g); },
+				isPolar: function () { return !!type.name.match(/-polar/g); },
+				isDonut: function () { return !!type.name.match(/-donut/g); },
+				isSpline: function () { return !!type.name.match(/spline/g); },
+				getGeneralType: function () { return type.name.replace(/-.+/g,''); }
+			})
+		});
 	})();
 
 	var palettes = (function () {
@@ -511,1381 +211,1256 @@
 		];
 	})();
 
-	(function ExecuteVIS_ID() {
+	(function init() {
 		var urlSettings = UrlSettings();
-		var width = 720, height = 500;
-		var util = window.ReportScripting, services = window.ReportingServices, vis,
-			isThumbnails = (document.URL === 'about:blank');
+		var services = window.ReportingServices;
 
-		window.visState = window.visState || {};
-		var s = window.visState.VIS_ID || (window.visState.VIS_ID = {
-			options: undefined,
-			chartOptions: undefined,
-			visibility: undefined,
-			force: { type: true, metric: false },
-			props: undefined,
-			init: true,
-			hideTimeout: undefined,
-			combineBottom: 5
+		(function () {
+			/* Backward Compatibility Section */
+			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
+				var props = {};
+				try {
+					var oldProps = JSON.parse(VIS_CONTEXT.props);
+					props['Metric'] = oldProps['metric'];
+					props['MetricExtra'] = oldProps['metric2'];
+					props['Palette'] = Number(oldProps['palette']) || 0;
+					props['Type'] = Number(oldProps['type']) || 6;
+					props['LineStepMode'] = oldProps['lineStepMode'];
+					props['SubreportMode'] = oldProps['subreportMode'];
+					props['CombineBottom'] = Number(oldProps['combineBottom']) || 5;
+					props['NodePath'] = oldProps['nodePath'];
+					props['MultiColor'] = oldProps['colored'];
+					props['FromZero'] = oldProps['fromZero'];
+					props['Visibility'] = oldProps['visibility'];
+				} catch (e) {
+					props = {};
+				}
+				VIS_CONTEXT.props = JSON.stringify(props);
+			}
+		})();
+
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: {},
+			defaultProperties: {
+				Type: 6,
+				Palette: 0,
+				Metric: 'All',
+				CombineBottom: 5,
+				SubreportMode: 'DetailLinkPopup',
+				LineStepMode: '',
+				NodePath: []
+			},
+			dataLayout: 'tree',
+			draw: draw
 		});
 
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS))
-			return;
+		var root = vis.traverseTree(function (context) {
+			if (!context.node.hasOwnProperty('id')) {
+				context.node['label'] = vis.columns[context.fi].name;
+			}
+		});
+
+		var colors = palettes[vis.getProperty('Palette')].colors;
 
 		function getItem(list, index) {
 			return list[index % list.length];
 		}
 
-		function toggleHeaderVisibility(visible) {
-			jq$('#VIS_ID_PROPERTIES_PANEL').css("display", visible ? "" : "none");
-			jq$('#VIS_ID_BREADCRUMBS_PANEL').css("display", visible ? "" : "none");
+		function isReportHasSubreportFields() {
+			return vis.columns.findIndex(function (el) { return typeof el.drilldownstyle == "string"; }) > -1;
 		}
 
-		function initSelector(id, context) {
-			vs.find(id)
-				.unbind("click")
-				.bind("click", context.onClick);
+		function isShowFromZeroControl(type) {
+			return !type.is('pie') && !type.isStacked() && !type.isPercent();
 		}
 
-		function toggleSelectorVisibility(id, visible) {
-			var selector = vs.find(id);
-			if (visible) {
-				selector.show();
-			} else {
-				selector.hide();
-			}
+		function isShowLineStepControl(type) {
+			return ((type.is('line') && !type.isPolar()) || type.is('area')) && !type.isSpline();
 		}
-
-		var galleries = {};
-
-		function initGallery(id, context) {
-			galleries[id] = {
-				gallery: vs.find(id)
-					.width(width)
-					.css({ "z-index": 1 }),
-				context: context,
-				t: undefined
-			};
-
-			jq$.extend(galleries[id].context, {
-				show: function () {
-					hideGalleries(id);
-					dropGalleryTimeout(id);
-					showGallery(id);
-					galleries[id].gallery.bind("mouseenter", function () {
-						dropGalleryTimeout(id);
-						galleries[id].gallery.bind("mouseleave", function () { setGalleryTimeout(id, context.hideTimeout); });
-					});
-				},
-				hide: function () {
-					dropGalleryTimeout(id);
-					hideGallery(id);
-				}
-			});
-
-			initSelector(id + "_SELECTOR", {
-				onClick: function () {
-					if (galleries[id].gallery.is(":visible"))
-						galleries[id].context.hide();
-					else
-						galleries[id].context.show();
-				}
-			});
-		}
-
-		function showGallery(id) {
-			var context = galleries[id].context;
-			if (context && typeof context.init == "function") {
-				context.init.call(vs.find(id)[0]);
-			}
-			if (context && typeof context.onShow == "function") {
-				context.onShow();
-			}
-			vs.find(id).slideDown({ duration: 300 });
-			vs.find(id + "_SELECTOR").addClass("ws_selthumb");
-		}
-
-		function hideGallery(id) {
-			var context = galleries[id].context;
-			vs.find(id).slideUp({ duration: 200 });
-			vs.find(id + "_SELECTOR").removeClass("ws_selthumb");
-			if (context && typeof context.onHide == "function") {
-				context.onHide();
-			}
-		}
-
-		function hideGalleries(id) {
-			util.enumerateFields(galleries, function (obj, galleryId) {
-				if (galleryId != id) {
-					dropGalleryTimeout(galleryId);
-					hideGallery(galleryId);
-				}
-			});
-		}
-
-		function setGalleryTimeout(id, timeout) {
-			dropGalleryTimeout(id);
-			if (!timeout) {
-				return;
-			}
-			galleries[id].t = setTimeout(function () {
-				galleries[id].gallery
-					.unbind("mouseenter")
-					.unbind("mouseleave");
-				hideGallery(id);
-			}, timeout);
-		}
-
-		function dropGalleryTimeout(id) {
-			if (galleries[id].t) {
-				clearTimeout(galleries[id].t);
-			}
-		}
-
-		function updateRefreshButton() {
-			var t = types[s.props.type].name,
-				m = metricSelect.find('option:selected').text(),
-				zoom = s.props.zoom,
-				zoommed = typeof zoom != "undefined" && typeof zoom[t] != "undefined" && typeof zoom[t][m] != "undefined";
-			toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", zoommed);
-			return zoommed;
-		}
-
-		function initStrip(id, context) {
-			vs.find(id).find("li")
-				.unbind("click")
-				.bind("click", function () {
-					vs.find(id).find("li").removeClass("selected");
-					jq$(this).addClass("selected");
-
-					if (typeof context.onclick == "function")
-						context.onclick();
-				});
-		}
-
-		function getStripValue(id) {
-			return vs.find(id).find("li.selected").attr("val");
-		}
-
-		function setStripValue(id, value) {
-			if (getStripValue(id) == value) {
-				return;
-			}
-			vs.find(id).find("li.selected").removeClass("selected");
-			vs.find(id).find("li[val='" + util.escape(value) + "']").addClass("selected");
-		}
-
-		function recreate() {
-			vs.find("#VIS_ID").empty();
-			vs.find("#VIS_ID_BREADCRUMBS_PANEL").empty();
-
-			store();
-			ExecuteVIS_ID();
-		}
-
-		function recall() {
-			s.chart.destroy();
-			recreate();
-		}
-
-		function validateControls() {
-			type = types[s.props.type].name;
-			if (stacked = !!type.match(stackedRx))
-				type = type.replace(stackedRx, "");
-			if (percent = !!type.match(percentRx))
-				type = type.replace(percentRx, "");
-			if (donut = !!type.match(donutRx))
-				type = type.replace(donutRx, "");
-			if (polar = !!type.match(polarRx))
-				type = type.replace(polarRx, "");
-
-			if (type == "funnel" || type == "pie") {
-				metricSelect.add(metricExtraSelect).find("option").each(function(i, el) {
-					if (vis.unitValue(totals, this.value) == 0)
-						this.setAttribute("disabled", "disabled");
-				});
-			}
-
-			var safeMetric = metricSelect.find("option[value!=All]:not([disabled]):eq(0)").text();
-
-			if ((type == "funnel" || type == "pie") && metricSelect[0].options[metricSelect[0].selectedIndex].hasAttribute("disabled"))
-				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + safeMetric + '"]').index();
-
-			if (type == "bubble" && metricSelect.find('option:selected').text() == metricExtraSelect.find('option:selected').text())
-				metricSelect.get(0).selectedIndex = metricSelect.find('option[value="All"]').index();
-
-			if (s.force.type || s.force.metric) {
-				if ((type.match(pieRx) || type.match(funnelRx)) && metricSelect.find('option:selected').text() == "All")
-					metricSelect.get(0).selectedIndex = metricSelect.find('option[value="' + safeMetric + '"]').index();
-			}
-
-			metricValue = metricSelect.find('option:selected').text();
-			metricExtraValue = metricExtraSelect.find('option:selected').text();
-
-			metricExtraSelect.parents("span:eq(0)").css("display", type == "bubble" ? "inline-block" : "none");
-			coloredSelect.parents(".property-control:eq(0)").css("display", metricValue != "All" ? "block" : "none");
-
-			s.force.metric = s.force.metric2 = s.force.type = false;
-
-			s.props.colored = coloredSelect.size() > 0 ? coloredSelect.prop("checked") : true;
-			s.props.fromZero = zeroCheckbox.size() > 0 ? zeroCheckbox.prop("checked") : false;
-			s.props.subreportMode = getStripValue("#VIS_ID_SUBREPORT_MODE");
-			s.props.lineStepMode = getStripValue("#VIS_ID_LINESTEP_MODE");
-			s.props.combineBottom = combBottom.size() > 0 && combBottom.val() ? combBottom.val() : 5;
-		}
-
-		function store() {
-			validateControls();
-
-			if (s.props.metric != "All")
-				delete s.props.visibility;
-			jq$.extend(s.props = (s.props || {}), {
-				"metric": metricSelect.find('option:selected').text(),
-				"metric2": metricExtraSelect.find('option:selected').text()
-			});
-			if (!isEmbedded) {
-				vis.setProps(s.props);
-			}
-		}
-
-		function restore() {
-			if (typeof s.props != "object") {
-				return;
-			}
-
-			colors = palettes[s.props.palette].colors;
-
-			if (s.props.metric) {
-				var metricIndex = metricSelect.find('option[value="' + s.props.metric + '"]').index();
-				metricSelect.get(0).selectedIndex = metricIndex >= 0 ? metricIndex : 0;
-			}
-			if (s.props.metric2) {
-				var metricExtraIndex = metricExtraSelect.find('option[value="' + s.props.metric2 + '"]').index();
-				metricExtraSelect.get(0).selectedIndex = metricExtraIndex >= 0 ? metricExtraIndex : 0;
-			}
-
-			coloredSelect.prop("checked", !!s.props.colored);
-			zeroCheckbox.prop("checked", !!s.props.fromZero);
-			combBottom.prop("value", s.props.combineBottom || 5);
-
-			setStripValue("#VIS_ID_SUBREPORT_MODE", typeof s.props.subreportMode == "string"
-				? s.props.subreportMode
-				: vs.find("#VIS_ID_SUBREPORT_MODE").find("li:eq(0)").attr("val")
-			);
-			setStripValue("#VIS_ID_LINESTEP_MODE", typeof s.props.lineStepMode == "string"
-				? s.props.lineStepMode
-				: vs.find("#VIS_ID_LINESTEP_MODE").find("li:eq(0)").attr("val")
-			);
-		}
-
-		function adjustimages() {
-			var $gallery = vs.find("#VIS_ID_EXPAND_GALLERY").css({ display: "table", width: "auto" }),
-					$galleryBackground = vs.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND").css({ "width": "" }),
-					$galleryContainer = vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER"),
-					bounds = {};
-			var scrollable = services.fitScollable($gallery.find("#VIS_ID_EXPAND_GALLERY_CONTAINER"), { maxWidth: width, maxHeight: 300 }, bounds);
-
-			if (scrollable) {
-				if (utility.isNumber(bounds.width) ? " width: " + bounds.width + "px;" : null)
-					$galleryBackground.width(bounds.width);
-				if (utility.isNumber(bounds.height) ? " height: " + bounds.height + "px;" : null)
-					$galleryContainer.height(bounds.height - 17);
-			}
-
-			var xpos = egOptions.cx - $gallery.width() / 2;
-			if (xpos + $gallery.width() > width)
-				xpos = width - $gallery.width();
-
-			$gallery.css({
-				margin: "0 auto 0 " + (xpos < 0 ? 0 : xpos) + "px"
-			});
-		}
-
-		var metricValue,
-			metricExtraValue,
-			colors, type,
-			stacked, stackedRx = /-stacked/g,
-			percent, percentRx = /-percent/g,
-			donut, donutRx = /-donut/g,
-			polar, polarRx = /-polar/g,
-			pieRx = /^pie/g,
-			funnelRx = /^funnel/g,
-			animationComplete = false;
-
-		var subreported = VIS_COLUMNS.findIndex(function (el) { return typeof el.drilldownstyle == "string"; }) > -1,
-			isEmbedded = jq$('#VIS_ID').parents('[id*=_EXPAND_GALLERY_CONTAINER]').length > 0;
-
-		var vs = util.container("VIS_ID"),
-			metricSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_SELECT"),
-			metricExtraSelect = vs.find("select#VIS_ID_PROPERTY_METRIC_EXTRA_SELECT"),
-			coloredSelect = vs.find("input#VIS_ID_PROPERTY_MUTLICOLOR_CHECKBOX"),
-			zeroCheckbox = vs.find("input#VIS_ID_PROPERTY_ZERO_CHECKBOX"),
-			combBottom = vs.find("input#VIS_ID_PROPERTY_COMBINE_ITEMS");
-
-		if (VIS_COLUMNS.findIndex(function (el) { return el.drilldownstyle == "EmbeddedDetail"; }) > -1) {
-			vs.text("Embedded subreports not supported with Visualizations");
-			return;
-		}
-
-		if (!s.props) {
-			try {
-				s.props = JSON.parse(VIS_CONTEXT.props);
-				s.props.type = (jq$.isNumeric(s.props.type)) ? Number(s.props.type) : types.findIndex(function (item) { return item.name === "column"; });
-				s.props.palette = (jq$.isNumeric(s.props.palette)) ? Number(s.props.palette) : palettes.findIndex(function (item) { return item.name === "default"; });
-			} catch (e) {
-			}
-		}
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		vs.find("#VIS_ID").width(width);
-
-		jq$('#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE').remove();
-
-		function showInsufficientWidth(width, height) {
-			var insufficientWidthMessage = '<div id="#VIS_ID_INSUFFICIENT_WIDTH_MESSAGE" style="width: ' + (width - 20) + 'px; height: ' + (height - 20) + 'px; text-align: center; font-size: 16px; padding: 10px;"><span style="position: relative; top: 45%;">Insufficient Width</span></div>';
-			jq$('#VIS_ID').html(insufficientWidthMessage);
-		}
-
-		vis.collectTree();
-
-		var totals = vis.traverseTree(function (context) {
-			if (!context.node.hasOwnProperty("id")) {
-				context.node["label"] = VIS_COLUMNS[context.fi].name;
-			}
-		});
 
 		var totalSize = 0;
-		for (var i = 0; i < vis.items.length; i++)
+		for (var i = 0; i < vis.items.length; i++) {
 			totalSize += vis.items[i].y;
-
-		metricSelect.find("option").remove().end()
-			.append('<option value="All">All</option>');
-		metricExtraSelect.find("option").remove().end()
-			.append('<option value="empty"></option>');
-		jq$.each(vis.metrics, function (i, el) {
-			metricSelect.append("<option value='" + el + "'>" + el + "</option>");
-			metricExtraSelect.append("<option value='" + el + "'>" + el + "</option>");
-		});
-
-		restore();
-
-		coloredSelect
-			.unbind("change")
-			.bind("change", recall);
-		zeroCheckbox
-			.unbind("change")
-			.bind("change", recall);
-		metricSelect
-			.unbind("change")
-			.bind("change", function () {
-				s.force.metric = true;
-				recall();
-			});
-		metricExtraSelect
-			.unbind("change")
-			.bind("change", function () {
-				s.force.metric2 = true;
-				recall();
-			});
-		combBottom
-			.unbind("change")
-			.bind("change", function () {
-				s.props.combineBottom = combBottom.val();
-				recall();
-			});
-		validateControls();
-
-		var egOptions;
-		initGallery("#VIS_ID_EXPAND_GALLERY", egOptions = {
-			onclick: function () { },
-			onShow: adjustimages,
-			onHide: function () {
-				delete egOptions.shownIndex;
-				if (egOptions.style == "EmbeddedDetail") {
-					jq$(s.chart.renderer.box).find("[class=expandtools]").remove();
-					vs.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html("");
-				}
-			}
-		});
-		initGallery("#VIS_ID_GEAR_GALLERY", {
-			onclick: function () {
-				recall();
-			},
-			hideTimeout: 1000
-		});
-		initGallery("#VIS_ID_TYPE_GALLERY", {
-			init: function () {
-				if (jq$(this).find(".gallery-item").size() > 0) {
-					return;
-				}
-				var typeControl = vs.find("#VIS_ID_TYPE_CONTROL"),
-					setTypeControlValue = function (index) {
-						typeControl.find(".ws_selthumb").removeClass("ws_selthumb");
-						typeControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
-					};
-				jq$.each(types, function (i, type) {
-					var item = jq$('<div></div>')
-						.attr("index", i)
-						.addClass("gallery-item")
-						.bind("click", function () {
-							s.force.type = true;
-							s.props.type = ~~jq$(this).attr("index");
-							setTypeControlValue(s.props.type);
-							recall();
-						});
-					var titlebox = jq$('<a></a>')
-						.attr("title", type.title)
-						.attr("href", "javascript:void(0)");
-					var placeholder = jq$('<div></div>')
-						.attr("class", "placeholder");
-					item.append(titlebox);
-					titlebox.append(placeholder);
-					placeholder.append(jq$('<img></img>')
-						.attr("src", (urlSettings.urlBase ? urlSettings.urlBase + '/' : '') + type.thumbnail)
-					);
-					typeControl.append(item);
-					setTypeControlValue(s.props.type);
-				});
-			},
-			hideTimeout: 1000
-		});
-		initGallery("#VIS_ID_PALETTE_GALLERY", {
-			init: function () {
-				if (jq$(this).find(".gallery-item").size() > 0) {
-					return;
-				}
-				var paletteControl = vs.find("#VIS_ID_PALETTE_CONTROL"),
-					setPaletteControlValue = function (index) {
-						paletteControl.find(".ws_selthumb").removeClass("ws_selthumb");
-						paletteControl.find(".gallery-item[index=" + index + "]").addClass("ws_selthumb");
-					};
-				jq$.each(palettes, function (i, palette) {
-					var item = jq$('<div></div>')
-						.attr("index", i)
-						.addClass("gallery-item")
-						.bind("click", function () {
-							s.props.palette = ~~jq$(this).attr("index");
-							setPaletteControlValue(s.props.palette);
-							recall();
-						});
-					var titlebox = jq$('<a></a>')
-						.attr("title", palette.title)
-						.attr("href", "javascript:void(0)");
-					var placeholder = jq$('<div></div>')
-						.attr("class", "placeholder");
-					item.append(titlebox);
-					titlebox.append(placeholder);
-					jq$.each(palette.colors, function (i, color) {
-						placeholder.append(jq$('<div></div>')
-							.attr("class", "left cell")
-							.css({
-								"background-color": color
-							})
-						);
-					});
-					paletteControl.append(item);
-					setPaletteControlValue(s.props.palette);
-				});
-			},
-			hideTimeout: 1000
-		});
-		initSelector("#VIS_ID_REFRESH_SELECTOR", {
-			onClick: function () {
-				if (typeof s.chart == "undefined") {
-					return;
-				}
-				s.chart.zoomOut();
-			}
-		});
-		initStrip("#VIS_ID_SUBREPORT_MODE", {
-			onclick: recall
-		});
-		initStrip("#VIS_ID_LINESTEP_MODE", {
-			onclick: recall
-		});
-
-		if (vis.isInstantReports) {
-			s.init = false;
-			s.hideTimeout = 3000;
 		}
 
-		var propertiesPanel = jq$("#VIS_ID_PROPERTIES_PANEL");
-
-		var fromZero = (type != "pie" && !stacked && !percent);
-		vs.find("#VIS_ID_PROPERTY_ZERO_CHECKBOX").parents("div:eq(0)")
-			.css("display", fromZero ? "block" : "none");
-		vs.find("#VIS_ID_SUBREPORT_MODE").parents("div:eq(0)")
-			.css("display", subreported ? "block" : "none");
-		vs.find("#VIS_ID_LINESTEP_MODE").parents("div:eq(0)")
-			.css("display", (type == "line" && !polar) || type == "area" ? "block" : "none");
-
-		var rounded = (type == "pie" || type == "pie-donut");
-
-		vs.find("#VIS_ID_PROPERTY_COMBINE_ITEMS").parents("div:eq(0)")
-			.css("display", rounded ? "block" : "none");
-
-		toggleSelectorVisibility("#VIS_ID_GEAR_GALLERY_SELECTOR", (!VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards) && (fromZero || subreported || rounded));
-		toggleSelectorVisibility("#VIS_ID_PALETTE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
-		toggleSelectorVisibility("#VIS_ID_TYPE_GALLERY_SELECTOR", !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards);
-		toggleSelectorVisibility("#VIS_ID_REFRESH_SELECTOR", false);
-
-		var propertiesPanelWidth = propertiesPanel[0].offsetWidth,
-			breadcrumbWidthOffset = 10,
-			breadcrumbWidth = width - (breadcrumbWidthOffset + propertiesPanelWidth);
-		vis.createBreadcrumb({
-			selector: "#VIS_ID_BREADCRUMBS_PANEL",
-			width: breadcrumbWidth,
-			bounds: { w: 75, h: 30, s: 3, t: 10 },
-			getColor: function () { return getItem(colors, 0); },
-			showRoot: true,
-			onclick: function (d) {
-				if (typeof d.parent != "undefined")
-					clicked(d, d.label + ": " + d.name);
-				else
-					clicked();
+		vis.initHeader({
+			breadcrumbs: {
+				root: root,
+				total: totalSize,
+				showRoot: true,
+				showLabel: true,
+				hidden: true,
+				hideTimeout: vis.isInstantReports ? 3000 : null,
+				getColor: function (d) { return getItem(colors, 0); },
+				clickable: true
 			},
-			root: totals,
-			showLabel: true,
-			total: totalSize,
-			hidden: !!s.init,
-			hideTimeout: s.hideTimeout
-		});
-
-		propertiesPanel.css({ opacity: !s.init ? 1 : 0 });
-		vis.container
-			.unbind("mouseenter")
-			.bind("mouseenter", function () {
-				vis.breadcrumb.show();
-				propertiesPanel.stop().animate({ opacity: 1 });
-			})
-			.unbind("mouseleave")
-			.bind("mouseleave", function () {
-				vis.breadcrumb.hide();
-				propertiesPanel.stop().animate({ opacity: 0 });
-			});
-
-		s.init = false;
-
-		vis.hideBreadcrumb();
-
-		function execBreadcrumb(d) {
-			if (isThumbnails) {
-				return;
-			}
-
-			if (metricValue == "All") {
-				vis.updateBreadcrumb(d, { label: "" });
-			} else {
-				var currentTotal = vis.unitValue(totals, metricValue);
-				var percentage = (currentTotal != 0) ? (100 * vis.unitValue(d, metricValue) / currentTotal).toPrecision(3) : 100;
-				vis.updateBreadcrumb(d, { label: percentage < 0.1 ? "< 0.1%" : percentage + "%" });
-			}
-		}
-
-		function registerLabelEvents() {
-			var urlSettings = UrlSettings();
-
-			function fixPosition(pos, fix) {
-				pos.left += fix.left;
-				pos.top += fix.top;
-			}
-
-			function rotate(index, onCoplite) {
-				function normalize(angle) {
-					if (angle < 0)
-						angle = (angle % 360) + 360;
-					else if (angle >= 360)
-						angle = angle % 360;
-					return angle;
-				}
-
-				function fixDelta(angle) {
-					if (angle > 180)
-						angle = angle - 360;
-					else if (angle < -180)
-						angle = angle + 360;
-					return angle;
-				}
-
-				var vf = 0, v1 = 0, vc = 0;
-				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-					var v = vis.unitValue(s.chartOptions.usedData[i], metricValue);
-					if (i < index)
-						v1 += v;
-					else if (i == index)
-						vc = v;
-					vf += v;
-				}
-
-				var angle = normalize(180 - (360 / vf) * (vc / 2 + v1)),
-					delta = fixDelta(angle - s.angle),
-					time = Math.abs(delta),
-					tick = 0,
-					tickCount = (time / 5) | 0;
-
-				if (angle == s.angle) {
-					onCoplite();
-					return;
-				}
-
-				var timer = setInterval(function () {
-					tick++;
-					s.chart.series[0].update({ startAngle: normalize(s.angle + delta * (tick / tickCount)) });
-
-					claimLabels();
-					registerLabels();
-
-					if (tick >= tickCount) {
-						clearInterval(timer);
-						s.angle = normalize(angle);
-						onCoplite();
-						return;
+			metrics: [{
+				name: 'Metric',
+				defaultValue: 'All',
+				onChangeCallback: function () {
+					var type = types[vis.getProperty('Type')];
+					if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
+						vis.setMetricValue('Metric', 'All');
 					}
-				}, time / tickCount);
-			}
 
-			function registerLink(index, name, link) {
-				var itemAxisLabel = jq$(elements[index]);
-				if (itemAxisLabel.text() != name)
-					return;
-
-				itemAxisLabel
-					.bind("click", function (e) {
-						window.open(link, '_blank');
-					})
-					.attr('class', 'izenda-vis-autochart-label-link')
-					.each(function() {
-						services.tipOn(this, "Open '" + s.chartOptions.usedData[index].name + "' a new tab/window");
-					});
-			}
-			function register(index, name, subreportlink) {
-				var style = s.props.subreportMode;
-				if (style == "EmbeddedDetail" && (vis.isDashboards || s.isVml))
-					style = "DetailLinkPopup";
-
-				var itemAxisLabel = jq$(elements[index]);
-				if (itemAxisLabel.text() != name)
-					return;
-
-				itemAxisLabel
-					.bind("click", function() {
-						function getContext() {
-							return {
-								element: elements[index],
-								css: { "background-color": s.chartOptions.usedColors[index] },
-								mode: "popup",
-								//offset: { x: 3, y: 3 },
-								style: "sharp",
-								color: s.chartOptions.usedColors[index],
-								maxWidth: 1000,
-								maxHeight: 500,
-								orientation: "right|50%",
-								showGlyph: true,
-								overlay: true, overlayStyle: "pointer-events: none",
-								title: s.chartOptions.usedData[index].name,
-								showCaption: false,
-								glyphSize: 6
-							};
+					if (vis.getProperty('Metric') != 'All') {
+						vis.setProperty('Visibility', null);
+					}
+					vis.redraw();
+				},
+				onCreateCallback: function (control) {
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value];
+						control.find('option').each(function (i, el) {
+							if (el.value == 'All' || vis.itemValue(root, el.value) == 0) {
+								jq$(el).prop('disabled', type.is('pie|funnel'));
+							}
+						});
+						if (type.is('pie|funnel') && vis.getProperty('Metric') == 'All' || control.find('option:selected')[0].hasAttribute('disabled')) {
+							var safeMetric = control.find('option[value!=All]:not([disabled]):eq(0)').text();
+							vis.setMetricValue('Metric', safeMetric);
 						}
 
-						var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="rs.aspx?image=loading.gif" />',
-							rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
-							rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + "&mw=1&paging=0&reportonly=1";
+						if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
+							vis.setMetricValue('Metric', 'All');
+						}
+					}).raise(vis.getProperty('Type'));
+				}
+			}, {
+				name: 'MetricExtra',
+				defaultValue: 'empty',
+				onChangeCallback: function () {
+					var type = types[vis.getProperty('Type')];
+					if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
+						vis.setMetricValue('Metric', 'All');
+					}
+					vis.redraw();
+				},
+				onCreateCallback: function (control) {
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value],
+								visibility = type.is('bubble');
+						control.css('display', visibility ? '' : 'none');
+					}).raise(vis.getProperty('Type'));
+				}
+			}],
+			selectors: [{
+				name: 'Refresh',
+				icon: 'refresh',
+				onClickCallback: function () {
+					vis.events.publish('RefreshClick');
+				},
+				visibility: false
+			}, {
+				icon: 'palette',
+				initPanel: function (panel) {
+					var galleryControl = jq$('<div>').addClass('izenda-vis-property');
 
-						switch (style) {
-							case "DetailLink":
-								window.location.href = rvSubreportlink;
-								break;
-							case "DetailLinkNewWindow":
-								window.open(rvSubreportlink, '_blank');
-								break;
-							case "EmbeddedDetail":
-								if (egOptions.shownIndex == index) {
-									egOptions.hide();
-									return;
-								}
-								delete egOptions.shownIndex;
-								jq$(s.chart.renderer.box).find("[class=expandtools]").remove();
+					var setGalleryControlValue = function (index) {
+						galleryControl.find('.izenda-vis-property-gallery-item-active').removeClass('izenda-vis-property-gallery-item-active');
+						galleryControl.find('.izenda-vis-property-gallery-item[index=\'' + index + '\']').addClass('izenda-vis-property-gallery-item-active');
+					};
 
-								services.showTip(loadImage, getContext());
-								jq$.get(rsSubreportlinkForPopup, function (html) {
-									function finish() {
-										s.chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
-											.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
-											.add();
-										if (y < s.chart.chartHeight - 20)
-											s.chart.renderer.path(['M', egOptions.cx, y, 'L', egOptions.cx, s.chart.chartHeight - 20])
+					jq$.each(palettes, function (i, palette) {
+						var item = jq$('<div>')
+							.attr('index', i)
+							.addClass('izenda-vis-property-gallery-item')
+							.css({
+								'width': '117px',
+								'height': '41px'
+							})
+							.bind('mousedown', function () {
+								setGalleryControlValue(~~jq$(this).attr('index'));
+							})
+							.bind('click', function () {
+								vis.setProperty('Palette', ~~jq$(this).attr('index'));
+								vis.redraw();
+							});
+
+						var placeholder = jq$('<div>').addClass('izenda-vis-property-gallery-item-placeholder');
+						jq$.each(palette.colors, function (i, color) {
+							placeholder.append(jq$('<div>')
+								.attr('class', 'izenda-left izenda-vis-property-gallery-item-cell')
+								.css({
+									'background-color': color
+								})
+							);
+						});
+
+						var titlebox = jq$('<a>')
+							.attr('title', palette.title)
+							.attr('href', 'javascript:void(0)')
+							.append(placeholder);
+						item.append(titlebox);
+
+						galleryControl.append(item);
+					});
+					setGalleryControlValue(vis.getProperty('Palette'));
+
+					var multiColorControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-checkbox').css("display", vis.getProperty('Metric') != "All" ? "block" : "none")
+							.append(jq$('<label>')
+								.append(jq$('<input>').attr('type', 'checkbox').attr("checked", !!vis.getProperty('MultiColor'))
+									.bind("change", function () {
+										vis.setProperty('MultiColor', this.checked);
+										vis.redraw();
+									}))
+								.append('Multi-Color metric'));
+
+					vis.events.subscribe('MetricChange', function (value) {
+						multiColorControl.css('display', value != 'All' ? 'block' : 'none');
+					}).raise(vis.getProperty('Metric'));
+
+					panel
+						.append(galleryControl)
+						.append(multiColorControl);
+				},
+				onCreateCallback: function (control) {
+					var visibility = !vis.context.isDashboard || vis.context.showVisPropertiesInDashboards;
+					control.css('display', visibility ? '' : 'none');
+				}
+			}, {
+				icon: 'type',
+				initPanel: function (panel) {
+					var galleryControl = jq$('<div>').addClass('izenda-vis-property');
+
+					var setGalleryControlValue = function (index) {
+						galleryControl.find('.izenda-vis-property-gallery-item-active').removeClass('izenda-vis-property-gallery-item-active');
+						galleryControl.find('.izenda-vis-property-gallery-item[index=\'' + index + '\']').addClass('izenda-vis-property-gallery-item-active');
+					};
+
+					jq$.each(types, function (i, type) {
+						var item = jq$('<div>')
+							.attr('index', i)
+							.addClass('izenda-vis-property-gallery-item')
+							.bind('mousedown', function () {
+								setGalleryControlValue(~~jq$(this).attr('index'));
+							})
+							.bind('click', function () {
+								vis.setProperty('Type', ~~jq$(this).attr('index'));
+								vis.redraw();
+							});
+
+						var placeholder = jq$('<div>').addClass('izenda-vis-property-gallery-item-placeholder');
+						placeholder.append(jq$('<img>')
+							.css({
+								'width': '98px',
+								'height': '59px'
+							})
+							.attr("src", type.thumbnail));
+
+						var titlebox = jq$('<a>')
+							.attr('title', type.title)
+							.attr('href', 'javascript:void(0)')
+							.append(placeholder);
+						item.append(titlebox);
+
+						galleryControl.append(item);
+					});
+					setGalleryControlValue(vis.getProperty('Type'));
+
+					panel.append(galleryControl);
+				},
+				onCreateCallback: function (control) {
+					var visibility = !vis.context.isDashboard || vis.context.showVisPropertiesInDashboards;
+					control.css('display', visibility ? '' : 'none');
+				}
+			}, {
+				icon: 'gear',
+				initPanel: function (panel) {
+					var fromZeroControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-checkbox')
+						.append(jq$('<label>')
+							.append(jq$('<input>').attr('type', 'checkbox').attr('checked', !!vis.getProperty('FromZero'))
+								.bind('change', function () {
+									vis.setProperty('FromZero', this.checked);
+									vis.redraw();
+								}))
+							.append('Start at Zero'));
+
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value];
+						fromZeroControl.css('display', isShowFromZeroControl(type) ? 'block' : 'none')
+					}).raise(vis.getProperty('Type'));
+
+					panel.append(fromZeroControl);
+
+					var subreportModeControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-buttongroup')
+						.css('display', isReportHasSubreportFields() ? 'block' : 'none')
+						.append(jq$('<label>').text('Subreport mode'))
+						.append(jq$('<ul>')
+							.append(jq$('<li>').attr('val', 'EmbeddedDetail').text('Expand'))
+							.append(jq$('<li>').attr('val', 'DetailLink').text('Link'))
+							.append(jq$('<li>').attr('val', 'DetailLinkNewWindow').text('New Tab'))
+							.append(jq$('<li>').attr('val', 'DetailLinkPopup').text('Popup')));
+					subreportModeControl.find('li')
+						.bind('click', function () {
+							if (!jq$(this).hasClass('izenda-selected')) {
+								subreportModeControl.find('li').removeClass('izenda-selected');
+								jq$(this).addClass('izenda-selected');
+								vis.setProperty('SubreportMode', jq$(this).attr('val'));
+								vis.redraw();
+							}
+						});
+					subreportModeControl.find('li[val="' + vis.getProperty('SubreportMode') + '"]').addClass('izenda-selected');
+					panel.append(subreportModeControl);
+
+					var combineBottomControl = jq$('<div>').addClass('izenda-vis-property')
+						.append(jq$('<label>')
+							.append('Combine bottom, %')
+							.append(jq$('<input>').attr('type', 'text').attr('value', vis.getProperty('CombineBottom'))
+								.bind('change', function () {
+									vis.setProperty('CombineBottom', this.value ? this.value : 5);
+									vis.redraw();
+								})));
+
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value];
+						combineBottomControl.css('display', type.is('pie') ? 'block' : 'none')
+					}).raise(vis.getProperty('Type'));
+
+					panel.append(combineBottomControl);
+
+					var lineStepModeControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-buttongroup')
+						.append(jq$('<label>').text('Line chart step mode'))
+						.append(jq$('<ul>')
+							.append(jq$('<li>').attr('val', '').text('None'))
+							.append(jq$('<li>').attr('val', 'left').text('Left'))
+							.append(jq$('<li>').attr('val', 'center').text('Center'))
+							.append(jq$('<li>').attr('val', 'right').text('Right')));
+					lineStepModeControl.find('li')
+						.bind('click', function () {
+							if (!jq$(this).hasClass('izenda-selected')) {
+								lineStepModeControl.find('li').removeClass('izenda-selected');
+								jq$(this).addClass('izenda-selected');
+								vis.setProperty('LineStepMode', jq$(this).attr('val'));
+								vis.redraw();
+							}
+						});
+					lineStepModeControl.find('li[val="' + vis.getProperty('LineStepMode') + '"]').addClass('izenda-selected');
+
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value];
+						lineStepModeControl.css('display', isShowLineStepControl(type) ? 'block' : 'none');
+					}).raise(vis.getProperty('Type'));
+
+					panel.append(lineStepModeControl);
+				},
+				onCreateCallback: function (control) {
+					vis.events.subscribe('TypeChange', function (value) {
+						var type = types[value];
+						var visibility = (!vis.context.isDashboard || vis.context.showVisPropertiesInDashboards)
+							&& (isShowFromZeroControl(type) || isShowLineStepControl(type) || isReportHasSubreportFields() || (type.is('pie')));
+						control.css('display', visibility ? '' : 'none');
+					}).raise(vis.getProperty('Type'));
+				}
+			}]
+		});
+
+		var subscriptions = [];
+		function draw() {
+			subscriptions.forEach(function (subscription) { subscription.remove(); });
+			var options = null;
+			var chartOptions = null;
+			var chart = null;
+			var _angle = 0;
+			var isVml = false;
+
+			vis.container.find('.izenda-vis-autochart-expand-panel').remove();
+
+			colors = palettes[vis.getProperty('Palette')].colors;
+
+			var type = types[vis.getProperty('Type')];
+
+			var metricValue = vis.getProperty('Metric');
+			var metricExtraValue = vis.getProperty('MetricExtra');
+
+			var animationComplete = false;
+
+			subscriptions.push(vis.events.subscribe('BreadcrumbClick', function (d) {
+				if (typeof d.parent != 'undefined') {
+					clicked(d, d.label + ': ' + d.name);
+				} else {
+					clicked();
+				}
+			}));
+
+			subscriptions.push(vis.events.subscribe('RefreshClick', function () {
+				if (typeof chart != 'undefined') {
+					chart.zoomOut();
+				}
+			}));
+
+			function updateRefreshButton() {
+				var t = type.name,
+					m = vis.getProperty('Metric'),
+					zoom = vis.getProperty('Zoom'),
+					zoommed = typeof zoom != 'undefined' && typeof zoom[t] != 'undefined' && typeof zoom[t][m] != 'undefined';
+				vis.toggleSelectorVisibility('Refresh', zoommed);
+				return zoommed;
+			}
+
+			function execBreadcrumb(d) {
+				if (vis.isThumbnails) {
+					return;
+				}
+				if (metricValue == 'All') {
+					vis.updateBreadcrumb(d, { label: '' });
+				} else {
+					var currentTotal = vis.itemValue(root, metricValue);
+					var percentage = (currentTotal != 0) ? (100 * vis.itemValue(d, metricValue) / currentTotal).toPrecision(3) : 100;
+					vis.updateBreadcrumb(d, { label: percentage < 0.1 ? '< 0.1%' : percentage + '%' });
+
+				}
+			}
+
+			function registerLabelEvents() {
+				function fixPosition(pos, fix) {
+					pos.left += fix.left;
+					pos.top += fix.top;
+				}
+
+				function registerLink(index, name, link) {
+					var itemAxisLabel = jq$(elements[index]);
+					if (type.is('pie') && itemAxisLabel.text() != name)
+						return;
+
+					itemAxisLabel
+						.bind('click', function (e) {
+							window.open(link, '_blank');
+						})
+						.attr('class', 'izenda-vis-autochart-label-link')
+						.each(function () {
+							services.tipOn(this, "Open '" + chartOptions.usedData[index].name + "' a new tab/window");
+						});
+				}
+				function register(index, name, subreportlink) {
+					var style = vis.getProperty('SubreportMode');
+					if (style == 'EmbeddedDetail' && (vis.isDashboards || isVml))
+						style = 'DetailLinkPopup';
+
+					var shownIndex = null;
+					var itemAxisLabel = jq$(elements[index]);
+
+					if (type.is('pie') && itemAxisLabel.text() != name)
+						return;
+
+					itemAxisLabel
+						.bind('click', function () {
+							function getContext() {
+								return {
+									element: elements[index],
+									css: { 'background-color': chartOptions.usedColors[index] },
+									mode: 'popup',
+									style: 'sharp',
+									color: chartOptions.usedColors[index],
+									maxWidth: 1000,
+									maxHeight: 500,
+									orientation: 'right|50%',
+									showGlyph: true,
+									overlay: true, overlayStyle: 'pointer-events: none',
+									title: chartOptions.usedData[index].name,
+									showCaption: false,
+									glyphSize: 6
+								};
+							}
+							var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="./rp.aspx?image=loading.gif" />',
+								rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
+								rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + '&mw=1&paging=0&reportonly=1';
+
+							switch (style) {
+								case 'DetailLink':
+									window.location.href = rvSubreportlink;
+									break;
+								case 'DetailLinkNewWindow':
+									window.open(rvSubreportlink, '_blank');
+									break;
+								case 'EmbeddedDetail':
+									function rotate(index, onCoplite) {
+										function normalize(angle) {
+											if (angle < 0)
+												angle = (angle % 360) + 360;
+											else if (angle >= 360)
+												angle = angle % 360;
+											return angle;
+										}
+										function fixDelta(angle) {
+											if (angle > 180)
+												angle = angle - 360;
+											else if (angle < -180)
+												angle = angle + 360;
+											return angle;
+										}
+
+										var vf = 0, v1 = 0, vc = 0;
+										for (var i = 0; i < chartOptions.usedData.length; i++) {
+											var v = vis.itemValue(chartOptions.usedData[i], metricValue);
+											if (i < index)
+												v1 += v;
+											else if (i == index)
+												vc = v;
+											vf += v;
+										}
+
+										var angle = normalize(180 - (360 / vf) * (vc / 2 + v1)),
+											delta = fixDelta(angle - _angle),
+											time = Math.abs(delta),
+											tick = 0,
+											tickCount = (time / 5) | 0;
+
+										if (angle == _angle) {
+											onCoplite();
+											return;
+										}
+
+										var timer = setInterval(function () {
+											tick++;
+											chart.series[0].update({ startAngle: normalize(_angle + delta * (tick / tickCount)) });
+
+											claimLabels();
+											registerLabels();
+
+											if (tick >= tickCount) {
+												clearInterval(timer);
+												_angle = normalize(angle);
+												onCoplite();
+												return;
+											}
+										}, time / tickCount);
+									}
+									function adjustimages() {
+										var bounds = {};
+										var scrollable = services.fitScollable(expandContainer, { maxWidth: vis.width, maxHeight: 300 }, bounds);
+
+										expandPanel.css({ display: 'table', width: 'auto' });
+										expandBackground.css({ 'width': '' });
+
+										if (scrollable) {
+											if (utility.isNumber(bounds.width))
+												expandBackground.width(bounds.width);
+											if (utility.isNumber(bounds.height))
+												expandContainer.height(bounds.height - 17);
+										}
+
+										var xpos = cx - expandPanel.width() / 2;
+										if (xpos + expandPanel.width() > vis.width)
+											xpos = vis.width - expandPanel.width();
+
+										expandPanel.css({
+											margin: '0 auto 0 ' + (xpos < 0 ? 0 : xpos) + 'px'
+										});
+									}
+									function removeExpandPanel() {
+										jq$(chart.renderer.box).find('[class=expandtools]').remove();
+										vis.container.find('.izenda-vis-autochart-expand-panel').remove();
+									}
+
+									removeExpandPanel();
+									if (shownIndex == index) {
+										shownIndex = null;
+										return;
+									}
+									shownIndex = null;
+
+									var expandPanel = jq$('<div>').addClass('izenda-vis-autochart-expand-panel').css('display', 'none');
+									var expandCloseImage = jq$('<img>').attr('src', './rp.aspx?extres=Vis.Uncategorized.Auto Chart.icons.close.min.png');
+									var expandCloseButton = jq$('<div>').addClass('izenda-vis-autochart-expand-panel-close-button')
+										.append(expandCloseImage);
+									expandPanel.append(expandCloseButton);
+									var expandLabel = jq$('<div>').addClass('izenda-vis-autochart-expand-panel-label');
+									var expandContainer = jq$('<div>').addClass('izenda-vis-autochart-expand-panel-container');
+									var expandBackground = jq$('<div>').addClass('izenda-vis-autochart-expand-panel-background')
+										.append(expandLabel)
+										.append(expandContainer);
+									expandPanel.append(expandBackground);
+									vis.container.append(expandPanel);
+
+									var cx = -1;
+									var uc = chartOptions.usedColors[index];
+
+									services.showTip(loadImage, getContext());
+									jq$.get(rsSubreportlinkForPopup, function (html) {
+										var x, y, w, pos = { left: 0, top: 0 };
+										cx = -1;
+
+										function finish() {
+											chart.renderer.path(['M', x - 2, y, 'L', x + w + 2, y])
 												.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
 												.add();
-										s.chart.renderer.path(['M', egOptions.cx - 10, s.chart.chartHeight, egOptions.cx + 10, s.chart.chartHeight, egOptions.cx, s.chart.chartHeight - 10, 'Z'])
-											.attr({ 'fill': uc, 'class': 'expandtools' })
-											.add();
+											if (y < chart.chartHeight - 20)
+												chart.renderer.path(['M', cx, y, 'L', cx, chart.chartHeight - 20])
+													.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
+													.add();
+											chart.renderer.path(['M', cx - 10, chart.chartHeight, cx + 10, chart.chartHeight, cx, chart.chartHeight - 10, 'Z'])
+												.attr({ 'fill': uc, 'class': 'expandtools' })
+												.add();
 
-										services.hideTip();
-										vs.find("#VIS_ID_EXPAND_GALLERY")
-											.css("border-color", uc)
-											.find("#VIS_ID_EXPAND_GALLERY_CONTAINER").html(util.filterReport(html, vs.find("#VIS_ID_EXPAND_GALLERY"), {
-												maxWidth: vs.find("#VIS_ID").width(),
+											services.hideTip();
+
+											expandPanel.css('border-color', uc);
+											expandBackground.css('background-color', uc);
+
+											expandContainer.html(izenda.report.filterReport(html, expandPanel, {
+												maxWidth: vis.element.width(),
 												maxHeight: 500
-											}, adjustimages))
-										.end()
-											.find("#VIS_ID_EXPAND_GALLERY_BACKGROUND")
-											.css("background-color", uc)
-										.end()
-											.find("#VIS_ID_EXPAND_GALLERY_CLOSE_BUTTON")
-											/*.width(util.scrollSize().width)*/
-											.unbind("click")
-											.bind("click", function () {
-												egOptions.hide();
-											})
-											.find("#VIS_ID_EXPAND_GALLERY_CLOSE_IMAGE")
-												.css("padding-left", ((services.scrollSize().width - 15) / 2) | 0)
-											.end()
-										.end()
-											.find("#VIS_ID_EXPAND_GALLERY_LABEL")
-											.css("margin-right", services.scrollSize().width + "px")
-											.text(s.chartOptions.usedData[index].name);
+											}, adjustimages));
 
-										egOptions.shownIndex = index;
-										egOptions.show();
-										egOptions.style = style;
+											expandCloseButton.bind('click', function () {
+												removeExpandPanel()
+											});
 
-										ReportScripting.registerPostRenderHandlers();
-									}
+											expandCloseImage.css('padding-left', ((services.scrollSize().width - 15) / 2) | 0);
+											expandLabel.css('margin-right', services.scrollSize().width + 'px')
+												.text(chartOptions.usedData[index].name);
 
-									var x, y, w,
-										pos = { left: 0, top: 0 };
-									egOptions.cx = -1;
+											shownIndex = index;
+											adjustimages();
 
-									var uc = s.chartOptions.usedColors[index];
+											izenda.report.registerPostRenderHandlers();
+										}
 
-									if (isPie) {
-										rotate(index, function () {
-											var le = elements[index],
-												$le = jq$(le);
-											fixPosition(pos, $le.position());
-											fixPosition(pos, $le.parents().eq(0).position());
-											fixPosition(pos, $le.parents().eq(1).position());
+										if (type.is('pie')) {
+											rotate(index, function () {
+												var le = elements[index], $le = jq$(le);
+												fixPosition(pos, $le.position());
+												fixPosition(pos, $le.parents().eq(0).position());
+												fixPosition(pos, $le.parents().eq(1).position());
 
-											x = pos.left;
-											y = pos.top + le.clientHeight;
-											w = le.clientWidth;
-											egOptions.cx = x + w / 2;
+												x = pos.left;
+												y = pos.top + le.clientHeight;
+												w = le.clientWidth;
+												cx = x + w / 2;
 
+												finish();
+											});
+										} else if (type.is('funnel')) {
+											var element = elements[index].parentNode;
+											var xforms = element.transform.baseVal;
+											var firstXForm = xforms.getItem(0);
+											if (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE) {
+												var firstX = firstXForm.matrix.e;
+												var firstY = firstXForm.matrix.f;
+
+												var box = elements[index].getBBox();
+												x = box.x + firstX + 10;
+												y = box.y + firstY + 10 + box.height;
+												w = box.width;
+												cx = x + w / 2;
+												finish();
+												
+											}
+										} else {
+											var box = elements[index].getBBox();
+											x = box.x;
+											y = box.y + box.height;
+											w = box.width;
+											cx = x + w / 2;
 											finish();
-										});
-									} else {
-										var le = elements[index];
-										x = le.offsetLeft;
-										y = le.offsetTop + le.offsetHeight;
-										w = le.offsetWidth;
-										egOptions.cx = x + w / 2;
-										finish();
-									}
-								});
-								break;
-							case "DetailLinkPopup":
-								services.showTip(loadImage, getContext());
-								jq$.get(rsSubreportlinkForPopup, function (html) {
-									services.showTip(util.filterReport(html), utility.defaults(getContext(), {
-										showCaption: true, 
-										showClose: true,
-										orientation: "right|10%",
-										resizable: true,
+										}
+									});
+									break;
+								case 'DetailLinkPopup':
+									services.showTip(loadImage, getContext());
+									jq$.get(rsSubreportlinkForPopup, function (html) {
+										services.showTip(izenda.report.filterReport(html), utility.defaults(getContext(), {
+											showCaption: true,
+											showClose: true,
+											orientation: 'right|10%',
+											resizable: true,
 										movable: true,
-										onshow: ReportScripting.registerPostRenderHandlers
-									}, true));
-								});
-								break;
-							default:
-								return;
-						}
-					})
-					.attr('class', 'izenda-vis-autochart-label-link')
-					.each(function() {
-						function getContext() {
-							return {
-								color: s.chartOptions.usedColors[index],
-								style: "sharp",
-								orientation: "right|50%",
-								showCaption: false,
-								showGlyph: true,
-								glyphSize: 5
-							};
-						}
-						var name = s.chartOptions.usedData[index].name;
-						if (style == "DetailLink")
-							services.tipOn(this, "Navigate to '" + name + "'", getContext());
-						else if (style == "DetailLinkNewWindow")
-							services.tipOn(this, "Open '" + name + "' a new tab/window", getContext());
-						else if (style == "DetailLinkPopup")
-							services.tipOn(this, "Open '" + name + "' in popup", getContext());
-						else if (style == "EmbeddedDetail")
-							services.tipOn(this, "Open '" + name + "' in expand panel", getContext());
-					});
-			}
+										onshow: izenda.report.registerPostRenderHandlers
+										}, true));
+									});
+									break;
+								default:
+									return;
+							}
+						})
+						.attr('class', 'izenda-vis-autochart-label-link')
+						.each(function() {
+								function getContext() {
+									return {
+										color: chartOptions.usedColors[index],
+										style: 'sharp',
+										orientation: 'right|50%',
+										showCaption: false,
+										showGlyph: true,
+										glyphSize: 5
+									};
+								}
+								var name = chartOptions.usedData[index].name;
+								if (style == 'DetailLink')
+									services.tipOn(this, "Navigate to '" + name + "'", getContext());
+								else if (style == 'DetailLinkNewWindow')
+									services.tipOn(this, "Open '" + name + "' a new tab/window", getContext());
+								else if (style == 'DetailLinkPopup')
+									services.tipOn(this, "Open '" + name + "' in popup", getContext());
+								else if (style == 'EmbeddedDetail')
+									services.tipOn(this, "Open '" + name + "' in expand panel", getContext());
+						});
+				}
 
-			function claimLabels() {
-				elements = [];
-				if (isPie) {
-					vs.find('div.highcharts-data-labels span').each(function () {
-						elements.push(this);
-					});
-				}
-				else if (isFunnel) {
-					util.disperseFunnelLabels(s.chart.renderer.box);
-					var container = vis.container.find('.highcharts-container svg');
-					container.find('.highcharts-data-labels tspan').each(function () {
-						izenda.utils.html.adjustTextBlockInContainer(container, this);
-					});
-				}
-				else {
-					for (var f in s.chart.xAxis[0].ticks) {
-						if (s.chart.xAxis[0].ticks[f].label)
-							elements.push(s.chart.xAxis[0].ticks[f].label.element);
+				function claimLabels() {
+					elements = [];
+					if (type.is('pie')) {
+						vis.container.find('div.highcharts-data-labels span').each(function () {
+							elements.push(this);
+						});
+					}
+					else if (type.is('funnel')) {
+						izenda.visualization.disperseFunnelLabels(chart.renderer.box);
+						vis.container.find('.highcharts-data-labels text').each(function () {
+							elements.push(this);
+							izenda.utils.html.adjustTextBlockInContainer(vis.container, jq$(this).find('tspan').last());
+						});
+					}
+					else {
+						for (var f in chart.xAxis[0].ticks) {
+							if (chart.xAxis[0].ticks[f].label) {
+								elements.push(chart.xAxis[0].ticks[f].label.element);
+							}
+						}
 					}
 				}
-			}
 
-			function registerLabels() {
-				for (var i = 0; i < s.chartOptions.usedData.length; i++) {
-					var nodeData = s.chartOptions.usedData[i],
-							columnIndex = VIS_COLUMNS.findIndex(function (d) { return d.name == nodeData.label; }),
-							name = nodeData.name,
-							link = vis.unitValue(nodeData, columnIndex, { sf: vis.fields.link });
-					if (VIS_COLUMNS[columnIndex].target) {
-						if (vis.unitValue(nodeData, columnIndex, { sf: vis.fields.formatted }) !== "") {
-							register(i, name, link);
+				function registerLabels() {
+					for (var i = 0; i < chartOptions.usedData.length; i++) {
+						var nodeData = chartOptions.usedData[i],
+								columnIndex = vis.columns.findIndex(function (d) { return d.name == nodeData.label; }),
+								name = nodeData.name,
+								link = vis.itemValue(nodeData, columnIndex, { sf: vis.fields.link });
+						if (vis.itemValue(nodeData, columnIndex, { sf: vis.fields.formatted }) !== "") {
+							if (vis.columns[columnIndex].target) {
+								register(i, name, link);
+							} else if (vis.columns[columnIndex].url) {
+								registerLink(i, name, link);
+							}
 						}
-					} else if (VIS_COLUMNS[columnIndex].url) {
-						registerLink(i, name, link);
 					}
 				}
+
+				var elements;
+				claimLabels();
+				registerLabels();
 			}
 
-			var elements, isPie = type == "pie", isFunnel = type == "funnel";
-			claimLabels();
-			registerLabels();
-		}
+			function clicked(data, name, index) {
+				var d, subtitle;
+				if (typeof index != 'undefined') {
+					if (!data[index].children)
+						return;
 
-		function clicked(data, name, index) {
-			var d, subtitle;
-			if (typeof index != "undefined") {
-				if (!data[index].children)
-					return;
-
-				d = data[index];
-				subtitle = data[index].children ? name : "";
-			} else if (typeof data != "undefined") {
-				d = data;
-				subtitle = name;
-			} else {
-				d = totals;
-				subtitle = "";
-			}
-
-			recreateChart({ data: d, title: metricValue, subtitle: subtitle });
-			store();
-		}
-
-		var yAxisMins, yAxisMaxs;
-		function getSeries(data, yaxis, series) {
-			yAxisMins = new Array(vis.metrics.length);
-			yAxisMaxs = new Array(vis.metrics.length);
-			var value;
-			for (var i = 0; i < data.length; i++) {
-				for (var j = 0; j < vis.metrics.length; j++) {
-					value = vis.unitValue(data[i], vis.metrics[j]);
-					var visibility = !s.props.visibility || (j < s.props.visibility.length && s.props.visibility[j]);
-
-					if (typeof yAxisMaxs[j] == "undefined" || yAxisMaxs[j] < value)
-						yAxisMaxs[j] = value;
-					if (visibility && (typeof yAxisMaxs.All == "undefined" || yAxisMaxs.All < value))
-						yAxisMaxs.All = value;
-
-					if (typeof yAxisMins[j] == "undefined" || yAxisMins[j] > value)
-						yAxisMins[j] = value;
-					if (visibility && (typeof yAxisMins.All == "undefined" || yAxisMins.All > value))
-						yAxisMins.All = value;
+					d = data[index];
+					subtitle = data[index].children ? name : '';
+				} else if (typeof data != 'undefined') {
+					d = data;
+					subtitle = name;
+				} else {
+					d = root;
+					subtitle = '';
 				}
+
+				recreateChart({ data: d, title: metricValue, subtitle: subtitle });
 			}
 
-			var zero = !!s.props.fromZero || (type == "pie" || stacked || percent);
-			if (metricValue != "All") {
-				yaxis.push({
-					labels: { style: { color: getItem(colors, 0) } },
-					title: { text: null },
-					min: zero ? 0 : yAxisMins[vis.metrics.indexOf(metricValue)],
-					max: zero ? null : yAxisMaxs[vis.metrics.indexOf(metricValue)],
-					gridLineInterpolation: polar ? 'polygon' : null
-				});
-				series.push(getSerie(data, vis.metrics.indexOf(metricValue)));
-			} else {
-				var seriesCount = vis.metrics.length;
-				for (var i = 0; i < seriesCount; i++) {
+			var yAxisMins, yAxisMaxs;
+			function getSeries(data, yaxis, series) {
+				yAxisMins = new Array(vis.metrics.length);
+				yAxisMaxs = new Array(vis.metrics.length);
+				var value;
+				for (var i = 0; i < data.length; i++) {
+					for (var j = 0; j < vis.metrics.length; j++) {
+						value = vis.itemValue(data[i], vis.metrics[j]);
+						var visibility = !vis.getProperty('Visibility') || (j < vis.getProperty('Visibility').length && vis.getProperty('Visibility')[j]);
+
+						if (typeof yAxisMaxs[j] == 'undefined' || yAxisMaxs[j] < value)
+							yAxisMaxs[j] = value;
+						if (visibility && (typeof yAxisMaxs.All == 'undefined' || yAxisMaxs.All < value))
+							yAxisMaxs.All = value;
+
+						if (typeof yAxisMins[j] == 'undefined' || yAxisMins[j] > value)
+							yAxisMins[j] = value;
+						if (visibility && (typeof yAxisMins.All == 'undefined' || yAxisMins.All > value))
+							yAxisMins.All = value;
+					}
+				}
+
+				var zero = vis.getProperty('FromZero') || (type.is('pie') || type.isStacked() || type.isPercent());
+				if (metricValue != 'All') {
 					yaxis.push({
 						labels: { style: { color: getItem(colors, 0) } },
 						title: { text: null },
-						min: zero ? 0 : yAxisMins.All,
-						max: zero ? null : yAxisMaxs.All,
-						gridLineInterpolation: polar ? 'polygon' : null
+						min: zero ? 0 : yAxisMins[vis.metrics.indexOf(metricValue)],
+						max: zero ? null : yAxisMaxs[vis.metrics.indexOf(metricValue)],
+						gridLineInterpolation: type.isPolar() ? 'polygon' : null
 					});
-					var serie = getSerie(data, i);
-					serie.index = !stacked ? i : seriesCount - i - 1;
+					var serie = getSerie(data, vis.metrics.indexOf(metricValue));
+					serie.index = 0;
 					series.push(serie);
-				}
-			}
-		}
-
-		var isCombineBottom = false;
-		function getSerie(data, index) {
-			var pieFamily = (type == "pie" || type == "pie-donut");
-			if (pieFamily) {
-				data = data.slice(0);
-				data.quickSort(function (a, b) { return vis.unitValue(b, vis.metrics[index]) < vis.unitValue(a, vis.metrics[index]); });
-			}
-			s.chartOptions.usedData = data;
-			s.chartOptions.usedColors = new Array(data.length);
-
-			var single = metricValue != "All",
-				items = [];
-			var sum = 0, total = 0;
-
-			jq$.each(data, function (i, d) { total += vis.unitValue(d, vis.metrics[index]); });
-
-			var bottom = total * s.props.combineBottom / 100.;
-
-			var bIndex = data.length;
-			if (pieFamily) {
-				while (bIndex > 0) {
-					var cv = vis.unitValue(data[bIndex - 1], vis.metrics[index]);
-					if (sum + cv <= bottom) {
-						sum += cv;
-						bIndex--;
-					} else
-						break;
+				} else {
+					var seriesCount = vis.metrics.length;
+					for (var i = 0; i < seriesCount; i++) {
+							yaxis.push({
+								labels: { style: { color: getItem(colors, 0) } },
+								title: { text: null },
+								min: zero ? 0 : yAxisMins.All,
+								max: zero ? null : yAxisMaxs.All,
+								gridLineInterpolation: type.isPolar() ? 'polygon' : null
+							});
+						var serie = getSerie(data, i);
+						serie.index = !type.isStacked() ? i : seriesCount - i - 1;
+						series.push(serie);
+						}
 				}
 			}
 
-			for (var i = 0; (i < data.length && !pieFamily) || i < bIndex; i++) {
-				var val = vis.unitValue(data[i], vis.metrics[index]);
+			var isCombineBottom = false;
+			function getSerie(data, index) {
+				if (type.is('pie')) {
+					data = data.slice(0);
+					data.quickSort(function (a, b) { return vis.itemValue(b, vis.metrics[index]) < vis.itemValue(a, vis.metrics[index]); });
+				}
+				chartOptions.usedData = data;
+				chartOptions.usedColors = new Array(data.length);
 
-				var pc = !single
-					? getItem(colors, index)
-					: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
+				var single = metricValue != 'All',
+					items = [];
+				var sum = 0, total = 0;
 
-				items.push({
-					name: data[i].name,
-					yAxis: i,
-					y: val,
-					data: data,
-					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, { min: yAxisMins[index], max: yAxisMaxs[index], value: Math.abs(val), factor: single ? 0.7 : 0.15 }) : pc,
-					colorByPoint: false
-				});
+				jq$.each(data, function (i, d) { total += vis.itemValue(d, vis.metrics[index]); });
 
-				if (type == "bubble" && metricExtraValue != "empty")
-					items[i].z = vis.unitValue(data[i], vis.metrics[vis.metrics.indexOf(metricExtraValue)]);
-			}
+				var bottom = total * vis.getProperty('CombineBottom') / 100.;
 
-			if (sum > 0) {
-				var pc = !single
-					? getItem(colors, index)
-					: s.props.colored ? getItem(colors, i) : getItem(colors, 0);
+				var bIndex = data.length;
+				if (type.is('pie')) {
+					while (bIndex > 0) {
+						var cv = vis.itemValue(data[bIndex - 1], vis.metrics[index]);
+						if (sum + cv <= bottom) {
+							sum += cv;
+							bIndex--;
+						} else
+							break;
+					}
+				}
+
+				for (var i = 0; (i < data.length && !type.is('pie')) || i < bIndex; i++) {
+					var val = vis.itemValue(data[i], vis.metrics[index]);
+
+					var pc = !single
+						? getItem(colors, index)
+						: vis.getProperty('MultiColor') ? getItem(colors, i) : getItem(colors, 0);
+
+					items.push({
+						name: data[i].name,
+						yAxis: i,
+						y: val,
+						data: data,
+						color: chartOptions.usedColors[i] = (!vis.getProperty('MultiColor')) ? izenda.visualization.getHighchartsColor(pc, { min: yAxisMins[index], max: yAxisMaxs[index], value: Math.abs(val), factor: single ? 0.7 : 0.15 }) : pc,
+						colorByPoint: false
+					});
+
+					if (type.is('bubble') && metricExtraValue != 'empty')
+						items[i].z = vis.itemValue(data[i], vis.metrics[vis.metrics.indexOf(metricExtraValue)]);
+				}
+
+				if (sum > 0) {
+					var pc = !single
+						? getItem(colors, index)
+						: vis.getProperty('MultiColor') ? getItem(colors, i) : getItem(colors, 0);
 				isCombineBottom = true;
 				var actualData = data.slice(0, bIndex);
 				actualData.push({ name: 'Others', label: data[i].label });
-				items.push({
-					name: 'Others',
-					yAxis: i,
-					y: sum,
+					items.push({
+						name: 'Others',
+						yAxis: i,
+						y: sum,
 					data: actualData,
-					others: true,
-					color: s.chartOptions.usedColors[i] = (!s.props.colored) ? util.getColor(pc, {
-						min: yAxisMins[index],
-						max: yAxisMaxs[index],
-						value: sum,
-						factor: single ? 0.7 : 0.15
-					}) : pc,
-					colorByPoint: false
-				});
-			}
-
-			// Workaround for zero values with "minPointLength" option in case of column and bar charts.
-			if (type == 'column' || type == 'bar') {
-				for (var i = items.length - 1; i >= 0; --i) {
-					if (items[i].y == 0)
-						items[i].y = null;
+						others: true,
+						color: chartOptions.usedColors[i] = (!vis.getProperty('MultiColor')) ? izenda.visualization.getHighchartsColor(pc, {
+							min: yAxisMins[index],
+							max: yAxisMaxs[index],
+							value: sum,
+							factor: single ? 0.7 : 0.15
+						}) : pc,
+						colorByPoint: false
+					});
 				}
-			}
 
-			return {
-				name: vis.metrics[index],
-				type: type,
-				data: items,
-				colorByPoint: false,
-				pointPlacement: polar ? 'on' : null
-			};
-		}
-
-		function recreateChart(o) {
-			animationComplete = false;
-			if (egOptions && egOptions.hide)
-				egOptions.hide();
-
-			var yaxis = [],
-				series = [],
-				t = types[s.props.type].name,
-				m = metricSelect.find('option:selected').text(),
-				zoom = s.props.zoom;
-			isCombineBottom = false;
-			getSeries((s.chartOptions = o).data.children, yaxis, series);
-
-			if (s.options.series && s.options.series.length) {
-				for (var i = 0; i < s.options.series.length; i++)
-					s.options.series[i] = series[i];
-			} else {
-				s.options.series = series;
-			}
-
-			function setSeriesProperty(series, index, name, value) {
-				var seriesCount = series.length;
-				for (var i = 0; i < seriesCount; ++i) {
-					var serie = series[i];
-					if (serie.index == index) {
-						serie[name] = value;
-						return;
+				// Workaround for zero values with "minPointLength" option in case of column and bar charts.
+				if (type.is('column|bar')) {
+					for (var i = items.length - 1; i >= 0; --i) {
+						if (items[i].y == 0)
+							items[i].y = null;
 					}
 				}
-			}
 
-			if (s.props.visibility && s.props.visibility.length > 0)
-				for (var i = 0; i < Math.min(s.props.visibility.length, s.options.series.length) ; i++)
-					setSeriesProperty(s.options.series, i, 'visible', s.props.visibility[i]);
-			if (typeof s.props.lineStepMode == "string" && ((type == "line" && !polar) || type == "area"))
-				for (var i = 0; i < s.options.series.length; i++)
-					setSeriesProperty(s.options.series, i, 'step', s.props.lineStepMode);
-
-			s.options.plotOptions.series.stacking = stacked ? (percent ? "percent" : "normal") : null;
-			s.options.plotOptions.pie.innerSize = donut ? "55%" : 0;
-			s.options.plotOptions[type].cursor = (vis.breadcrumb.isLast(s.chartOptions.data) || !util.supports.svg()) ? 'auto' : 'pointer';
-			s.options.title.text = "";
-			s.options.subtitle.text = "";
-			s.options.yAxis = yaxis[0];
-
-			s.options.yAxis.events = {
-				setExtremes: function (e) {
-					var z = s.props.zoom = s.props.zoom || {};
-					z[t] = z[t] || {};
-					if (typeof e.min == 'undefined' && typeof e.max == 'undefined')
-						delete z[t][m];
-					else
-						z[t][m] = { min: e.min, max: e.max };
-
-					store();
-					updateRefreshButton();
-				}
-			};
-
-			execBreadcrumb(o.data);
-			vs.find("#VIS_ID").height(height - (VIS_CONTEXT.toImage ? 0 : Math.max(vis.container.find("#VIS_ID_PROPERTIES_PANEL").outerHeight(), vis.container.find("#VIS_ID_BREADCRUMBS_PANEL").outerHeight(), vis.container.find(".clearfix").outerHeight())));
-			try {
-				new Highcharts.Chart(s.options, function (chart) {
-					s.chart = chart;
-					s.isVml = vs.find("shape").size() > 0;
-					s.isSvg = vs.find("svg").size() > 0;
-					registerLabelEvents();
-
-					if (updateRefreshButton())
-						s.chart.yAxis[0].setExtremes(zoom[t][m].min, zoom[t][m].max);
-
-					if (type != "pie" && !vs.find("div.highcharts-data-labels").prev().is("div.highcharts-tooltip"))
-						return;
-
-					var html;
-					vs.find("div.highcharts-data-labels").insertBefore(vs.find("div.highcharts-data-labels").prev());
-					vs.find("div.highcharts-tooltip")
-						.css({
-							"margin-top": "1px",
-							"margin-left": "1px",
-							"border-radius": "2px",
-							"background-color": "rgba(255,255,255,0.7)"
-						})
-						.watch('visibility', function () {
-							var $span = vs.find("div.highcharts-tooltip > span");
-							if (html != $span.html()) {
-								html = $span.html();
-								vs.find("div.highcharts-tooltip").width($span.width() + 15)
-									.height($span.height() + 15);
-							}
-						});
-					vs.find("#VIS_ID").css("height", "");
-				});
-				if (isCombineBottom) {
-					vis.container.find('.highcharts-series path:last-child').css('cursor', 'default');
-				}
-			} catch (err) {
-				if (/Highcharts\serror\s#19/.test(err)) {
-					showInsufficientWidth(width, height);
-					toggleHeaderVisibility(false);
-				}
-			}
-		}
-
-		function processData() {
-			function itemClick() {
-				if (!util.supports.svg())
-					return undefined;
-				return clicked(this.data, this.data[this.x].label + ": " + this.name, this.x);
-			}
-
-			function legendItemClick(event) {
-				var min = null, max = null;
-				var zero = s.props.fromZero || (type == "pie" || stacked || percent);
-				s.props.visibility = s.chart.series.map(function (item) {
-					return item == event.target ? !item.visible : item.visible;
-				});
-				for (var i = 0; i < s.props.visibility.length; ++i) {
-					if (s.props.visibility[i]) {
-						if (min == null || min > yAxisMins[i]) {
-							min = yAxisMins[i];
-						}
-						if (max == null || max < yAxisMaxs[i]) {
-							max = yAxisMaxs[i];
-						}
-					}
-				}
-				event.target.yAxis.update({
-					min: zero ? 0 : min,
-					max: zero ? null : max,
-				});
-				store();
-			}
-
-			jq$(function () {
-				function trace(node, i, childIndex) {
-					if (node && node.children) {
-						var index = node.children.findIndex(function (e) {
-							return e.name == s.props.nodePath[vis.indexes[i]];
-						});
-						if (index > -1)
-							return trace(node.children[index], i + 1, index);
-					}
-
-					return node;
-				}
-
-				vs.find("#VIS_ID").width(width);
-				vs.find("#VIS_ID_HOLDER").width(width);
-
-				s.options = {
-					chart: {
-						polar: polar,
-						zoomType: "y",
-						renderTo: 'VIS_ID',
-						resetZoomButton: { theme: { display: 'none' } },
-						forceSize: true
-					},
-					colors: colors,
-					title: { text: metricValue },
-					subtitle: { text: null },
-					xAxis: {
-						type: 'category',
-						tickmarkPlacement: polar ? 'on' : 'between',
-						lineWidth: polar ? 0 : 1
-					},
-					legend: {
-						enabled: true,
-						reversed: stacked
-					},
-					plotOptions: {
-						column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
-						line: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						spline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						scatter: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
-						bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
-						funnel: {
-						  width: "60%",
-							center: ["40%", "50%"],
-							cursor: 'pointer', 
-							point: { events: { click: itemClick } }, 
-							dataLabels: { 
-								enabled: true
-							} },
-						pie: {
-							size: "75%",
-							cursor: 'pointer',
-							point: {
-								events: {
-									click: itemClick,
-									mouseOut: function () { if (animationComplete) this.slice(false); },
-									mouseOver: function () { if (animationComplete) this.slice(true); }
-								}
-							},
-							dataLabels: {
-								enabled: true,
-								useHTML: true,
-								formatter: function () { return this.point.name; }
-							},
-							slicedOffset: 20,
-							center: ["50%", "50%"],
-							startAngle: s.angle = 0,
-							states: {
-								hover: {
-									halo: false
-								}
-							}
-						},
-						bubble: {
-							cursor: 'pointer',
-							point: { events: { click: itemClick } },
-							dataLabels: { enabled: false },
-							minSize: 5,
-							maxSize: 40,
-							marker: { fillOpacity: 0.5, lineColor: "rgba(0, 0, 0, 0.4)" }
-						},
-						series: {
-							events: {
-								legendItemClick: legendItemClick,
-								show: function () {
-									registerLabelEvents();
-								}
-							},
-							animation: { complete: function () { animationComplete = true; } }
-						}
-					},
-					tooltip: {
-						useHTML: true,
-						formatter: function () {
-							var html = [];
-							var d = this.point.data[this.point.x];
-							html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
-							if (metricValue == "All") {
-								var n = 0, m = 1;
-								if (type == 'column' && stacked) {
-									n = vis.metrics.length - 1; m = -1;
-								}
-								for (var i = 0; i < vis.metrics.length; i++) {
-									var index = (i - n) * m,
-											metric = vis.metrics[index];
-									var value = this.point.others ? this.point.y : vis.unitValue(d, metric);
-									var titleStyle = index == this.series._i ? ' style="font-weight:bold;"' : '';
-									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metric; }).formatter;
-									if (fieldFormatter) value = fieldFormatter(value, d, vis, metric);
-									html.push('<span style="color:{color};">\u25CF</span><span{titleStyle}> {title}: </span><span style="font-weight:bold;">{value}</span>'
-										.format({ color: getItem(colors, index), titleStyle: titleStyle, title: metric, value: value }));
-								}
-							} else {
-								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
-								if (type == "pie") {
-									var total = 0;
-									for (var i = 0; i < this.point.data.length; i++)
-										total += vis.unitValue(this.point.data[i], metricValue);
-									var value = this.point.others ? this.point.y : vis.unitValue(d, metricValue);
-									var rawValue = value;
-									if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
-									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value} ({percentage}%)</span>'
-										.format({ color: this.color, title: metricValue, value: value, percentage: (Math.round(1000 * rawValue / total) / 10) }));
-								} else if (type == "bubble" && metricExtraValue != "empty") {
-									var value1 = vis.unitValue(d, metricValue);
-									var value2 = vis.unitValue(d, metricExtraValue);
-
-									if (fieldFormatter) {
-										value1 = fieldFormatter(value1, d, vis, metricValue);
-										value2 = fieldFormatter(value2, d, vis, metricExtraValue);
-									}
-
-									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
-										.format({ color: getItem(colors, metricSelect.get(0).selectedIndex - 1), title: metricValue, value: value1 }));
-									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
-										.format({ color: getItem(colors, metricExtraSelect.get(0).selectedIndex - 1), title: metricExtraValue, value: value2 }));
-								} else {
-									var value = vis.unitValue(d, metricValue);
-									if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
-									html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
-										.format({ color: this.color, title: metricValue, value: value }));
-								}
-							}
-							return "<span style=\"border-color: " + this.point.color + ";\" class=\"tooltip-wrapper\">" + html.join("<br/>") + "</span>";
-						},
-						backgroundColor: null,
-					},
-					credits: { enabled: false }
+				return {
+					name: vis.metrics[index],
+					type: type.getGeneralType(),
+					data: items,
+					colorByPoint: false,
+					pointPlacement: type.isPolar() ? 'on' : null
 				};
-				if (!polar && ["bar", "funnel", "pie"].indexOf(type) < 0) {
-					utility.defaults(s.options, { xAxis: {
-						labels: { autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90] }
-					}});
+			}
+
+			function recreateChart(o) {
+				animationComplete = false;
+
+				var yaxis = [],
+					series = [],
+					t = type.name,
+					m = vis.getProperty('Metric'),
+					zoom = vis.getProperty('Zoom');
+				getSeries((chartOptions = o).data.children, yaxis, series);
+
+				var visibility = vis.getProperty('Visibility');
+				var lineStepMode = vis.getProperty('LineStepMode');
+
+				if (options.series && options.series.length) {
+					for (var i = 0; i < options.series.length; i++)
+						options.series[i] = series[i];
+				} else {
+					options.series = series;
 				}
-				vis.subscribeImageRenderer(s.options);
 
-				var node = undefined;
-				if ((VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) && s.props.nodePath && s.props.nodePath.length > 0) {
-					node = trace(totals, 0, undefined);
-					node = !node ? node : vis.breadcrumb.fixd(node);
+				function setSeriesProperty(series, index, name, value) {
+					var seriesCount = series.length;
+					for (var i = 0; i < seriesCount; ++i) {
+						var serie = series[i];
+						if (serie.index == index) {
+							serie[name] = value;
+							return;
+						}
+					}
 				}
 
-				recreateChart(s.chartOptions
-					? s.chartOptions
-					: typeof node != "undefined" ? { data: node, title: metricValue, subtitle: null } : { data: totals, title: metricValue, subtitle: null }
-				);
+				if (visibility && visibility.length > 0)
+					for (var i = 0; i < Math.min(visibility.length, options.series.length) ; i++)
+						setSeriesProperty(options.series, i, 'visible', visibility[i]);
 
-				var $container = jq$("#VIS_ID div.highcharts-container"),
-				containerWidth = $container.width(),
-				containerOffsetLeft = $container.offset().left;
-				$container.find('div.highcharts-data-labels span').each(function () {
-					var label = jq$(this),
-					leftDx = 7,
-					labelWidth = label.width(),
-					labelOffsetLeft = label.offset().left;
-					if (labelOffsetLeft < containerOffsetLeft) {
-						var dx = containerOffsetLeft - labelOffsetLeft;
-						label.css({
-							'left': dx + leftDx,
-							'width': (labelWidth - dx) + 'px',
-							'overflow': 'hidden',
-							'text-overflow': 'ellipsis'
-						});
-					} else if (containerOffsetLeft + containerWidth < labelOffsetLeft + labelWidth) {
-						var dx = (labelOffsetLeft + labelWidth) - (containerOffsetLeft + containerWidth);
-						label.css({
-							'width': (labelWidth - dx) + 'px',
-							'overflow': 'hidden',
-							'text-overflow': 'ellipsis'
+				if (typeof lineStepMode == 'string' && isShowLineStepControl(type))
+					for (var i = 0; i < options.series.length; i++)
+						setSeriesProperty(options.series, i, 'step', lineStepMode);
+
+				options.plotOptions.series.stacking = type.isStacked() ? (type.isPercent() ? 'percent' : 'normal') : null;
+				options.plotOptions.pie.innerSize = type.isDonut() ? '55%' : 0;
+				options.plotOptions[type.getGeneralType()].cursor = (vis.breadcrumb.isLast(chartOptions.data) || !izenda.supports.svg()) ? 'auto' : 'pointer';
+				options.title.text = '';
+				options.subtitle.text = '';
+				options.yAxis = yaxis[0];
+
+				options.yAxis.events = {
+					setExtremes: function (e) {
+						vis.setProperty('Zoom', vis.getProperty('Zoom') || {});
+						var z = vis.getProperty('Zoom');
+						z[t] = z[t] || {};
+						if (typeof e.min == 'undefined' && typeof e.max == 'undefined')
+							delete z[t][m];
+						else
+							z[t][m] = { min: e.min, max: e.max };
+
+						updateRefreshButton();
+					}
+				};
+
+				execBreadcrumb(o.data);
+
+				try {
+					if (chart) {
+						chart.destroy();
+					}
+
+					new Highcharts.Chart(options, function (highchart) {
+						chart = highchart;
+						isVml = vis.container.find('shape').size() > 0;
+						registerLabelEvents();
+
+						if (updateRefreshButton())
+							chart.yAxis[0].setExtremes(zoom[t][m].min, zoom[t][m].max);
+
+						if (!type.is('pie') && !vis.container.find('div.highcharts-data-labels').prev().is('div.highcharts-tooltip'))
+							return;
+
+						var html;
+						vis.container.find('div.highcharts-data-labels').insertBefore(vis.container.find('div.highcharts-data-labels').prev());
+						vis.container.find('div.highcharts-tooltip')
+							.css({
+								'margin-top': '1px',
+								'margin-left': '1px',
+								'border-radius': '2px',
+								'background-color': 'rgba(255,255,255,0.7)'
+							})
+							.watch('visibility', function () {
+								var $span = vis.container.find('div.highcharts-tooltip > span');
+								if (html != $span.html()) {
+									html = $span.html();
+									vis.container.find('div.highcharts-tooltip').width($span.width() + 15)
+										.height($span.height() + 15);
+								}
+							});
+					});
+					if (isCombineBottom) {
+						vis.container.find('.highcharts-series path:last-child').css('cursor', 'default');
+					}
+				} catch (err) {
+					if (/Highcharts\serror\s#19/.test(err)) {
+						throw new izenda.error.ChartError('Insufficient container width.');
+					}
+				}
+			}
+
+			function processData() {
+				function itemClick() {
+					if (!izenda.supports.svg())
+						return undefined;
+					return clicked(this.data, this.data[this.x].label + ": " + this.name, this.x);
+				}
+
+				function legendItemClick(event) {
+					var min = null, max = null;
+					var zero = vis.getProperty('FromZero') || (type.is('pie') || type.isStacked() || type.isPercent());
+					var visibility = chart.series.map(function (item) {
+						return item == event.target ? !item.visible : item.visible;
+					});
+
+					vis.setProperty('Visibility', visibility);
+					for (var i = 0; i < visibility.length; ++i) {
+						if (visibility[i]) {
+							if (min == null || min > yAxisMins[i]) {
+								min = yAxisMins[i];
+							}
+							if (max == null || max < yAxisMaxs[i]) {
+								max = yAxisMaxs[i];
+							}
+						}
+					}
+					event.target.yAxis.update({
+						min: zero ? 0 : min,
+						max: zero ? null : max,
+					});
+				}
+
+				jq$(function () {
+					function trace(node, i, childIndex) {
+						if (node && node.children) {
+							var index = node.children.findIndex(function (e) {
+								return e.name == vis.getProperty('NodePath')[vis.indexes[i]];
+							});
+							if (index > -1)
+								return trace(node.children[index], i + 1, index);
+						}
+
+						return node;
+					}
+
+					options = {
+						chart: {
+							polar: type.isPolar(),
+							zoomType: 'y',
+							renderTo: 'VIS_ID',
+							resetZoomButton: { theme: { display: 'none' } },
+							forceSize: true
+						},
+						colors: colors,
+						title: { text: metricValue },
+						subtitle: { text: null },
+						xAxis: {
+							type: 'category',
+							tickmarkPlacement: type.isPolar() ? 'on' : 'between',
+							lineWidth: type.isPolar() ? 0 : 1
+						},
+						legend: {
+						enabled: true,
+						reversed: type.isStacked()
+						},
+						plotOptions: {
+							column: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
+							line: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+							spline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+							scatter: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+							area: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+							areaspline: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false } },
+							bar: { cursor: 'pointer', point: { events: { click: itemClick } }, dataLabels: { enabled: false }, minPointLength: 2 },
+							funnel: {
+								width: "60%",
+								center: ["40%", "50%"],
+								cursor: 'pointer', 
+								point: { events: { click: itemClick } },
+								dataLabels: { 
+									enabled: true
+								}
+							},
+							pie: {
+								size: '75%',
+								cursor: 'pointer',
+								point: {
+									events: {
+										click: itemClick,
+										mouseOut: function () { if (animationComplete) this.slice(false); },
+										mouseOver: function () { if (animationComplete) this.slice(true); }
+									}
+								},
+								dataLabels: {
+									enabled: true,
+									useHTML: true,
+									formatter: function () { return this.point.name; }
+								},
+								slicedOffset: 20,
+								center: ['50%', '50%'],
+								startAngle: _angle = 0,
+								states: {
+									hover: {
+										halo: false
+									}
+								}
+							},
+							bubble: {
+								cursor: 'pointer',
+								point: { events: { click: itemClick } },
+								dataLabels: { enabled: false },
+								minSize: 5,
+								maxSize: 40,
+								marker: { fillOpacity: 0.5, lineColor: 'rgba(0, 0, 0, 0.4)' }
+							},
+							series: {
+								events: {
+									legendItemClick: legendItemClick,
+									show: function () {
+										registerLabelEvents();
+									}
+								},
+								animation: { complete: function () { animationComplete = true; } }
+							}
+						},
+						tooltip: {
+							useHTML: true,
+							formatter: function () {
+								var html = [];
+								var d = this.point.data[this.point.x];
+								html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
+								if (metricValue == 'All') {
+									var n = 0, m = 1;
+									if (type.is('column') && type.isStacked()) {
+										n = vis.metrics.length - 1; m = -1;
+									}
+									for (var i = 0; i < vis.metrics.length; i++) {
+										var index = (i - n) * m,
+												metric = vis.metrics[index];
+										var value = this.point.others ? this.point.y : vis.itemValue(d, metric);
+										var titleStyle = index == this.series._i ? ' style="font-weight:bold;"' : '';
+										var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metric; }).formatter;
+										if (fieldFormatter) value = fieldFormatter(value, d, vis, metric);
+											html.push('<span style="color:{color};">\u25CF</span><span{titleStyle}> {title}: </span><span style="font-weight:bold;">{value}</span>'
+												.format({ color: getItem(colors, index), titleStyle: titleStyle, title: metric, value: value }));
+									}
+								} else {
+									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
+									if (type.is('pie')) {
+										var total = 0;
+										for (var i = 0; i < this.point.data.length; i++)
+											total += vis.itemValue(this.point.data[i], metricValue);
+										var value = this.point.others ? this.point.y : vis.itemValue(d, metricValue);
+										var rawValue = value;
+										if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
+										html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value} ({percentage}%)</span>'
+											.format({ color: this.color, title: metricValue, value: value, percentage: (Math.round(1000 * rawValue / total) / 10) }));
+									} else if (type.is('bubble') && metricExtraValue != 'empty') {
+										var value1 = vis.itemValue(d, metricValue);
+										var value2 = vis.itemValue(d, metricExtraValue);
+
+										if (fieldFormatter) {
+											value1 = fieldFormatter(value1, d, vis, metricValue);
+											value2 = fieldFormatter(value2, d, vis, metricExtraValue);
+										}
+
+										html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+											.format({ color: getItem(colors, vis.container.find('select[name="Metric"]').get(0).selectedIndex - 1), title: metricValue, value: value1 }));
+										html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+											.format({ color: getItem(colors, vis.container.find('select[name="MetricExtra"]').get(0).selectedIndex - 1), title: metricExtraValue, value: value2 }));
+									} else {
+										var value = vis.itemValue(d, metricValue);
+										if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);
+										html.push('<span style="color:{color};">\u25CF</span><span> {title}: </span><span style="font-weight:bold;">{value}</span>'
+											.format({ color: this.color, title: metricValue, value: value }));
+									}
+								}
+								return '<span style="border-color: ' + this.point.color + ';" class="izenda-vis-autochart-tooltip-content">' + html.join('<br/>') + '</span>';
+							},
+							backgroundColor: null,
+						},
+						credits: { enabled: false }
+					};
+					if (!type.isPolar() && !type.is('bar|funnel|pie')) {
+						utility.defaults(options, {
+							xAxis: {
+								labels: { autoRotation: [-10, -20, -30, -40, -50, -60, -70, -80, -90] }
+							}
 						});
 					}
+					vis.subscribeImageRenderer(options);
+
+					var node = undefined;
+					if ((VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) && vis.getProperty('NodePath') && vis.getProperty('NodePath').length > 0) {
+						node = trace(root, 0, undefined);
+						node = !node ? node : vis.breadcrumb.fixd(node);
+					}
+
+					recreateChart(chartOptions
+						? chartOptions
+						: typeof node != 'undefined' ? { data: node, title: metricValue, subtitle: null } : { data: root, title: metricValue, subtitle: null }
+					);
+
+					var $container = jq$('#VIS_ID div.highcharts-container'),
+					containerWidth = $container.width(),
+					containerOffsetLeft = $container.offset().left;
+					$container.find('div.highcharts-data-labels span').each(function () {
+						var label = jq$(this),
+						leftDx = 7,
+						labelWidth = label.width(),
+						labelOffsetLeft = label.offset().left;
+						if (labelOffsetLeft < containerOffsetLeft) {
+							var dx = containerOffsetLeft - labelOffsetLeft;
+							label.css({
+								'left': dx + leftDx,
+								'width': (labelWidth - dx) + 'px',
+								'overflow': 'hidden',
+								'text-overflow': 'ellipsis'
+							});
+						} else if (containerOffsetLeft + containerWidth < labelOffsetLeft + labelWidth) {
+							var dx = (labelOffsetLeft + labelWidth) - (containerOffsetLeft + containerWidth);
+							label.css({
+								'width': (labelWidth - dx) + 'px',
+								'overflow': 'hidden',
+								'text-overflow': 'ellipsis'
+							});
+						}
+					});
 				});
-			});
-		}
-
-		function checkRhd(initWidth, callCnt) {
-			if (callCnt >= 10)
-				return;
-			if (jq$('#rightHelpDiv').width() == initWidth)
-				setTimeout(function () { checkRhd(initWidth, callCnt + 1); }, 100);
-			else
-				recreate();
-		}
-
-		var iw = jq$('#rightHelpDiv').width();
-		if (vis.isInstantReports && virgin) {
-			virgin = false;
-			setTimeout(function () { checkRhd(iw, 1); }, 100);
-		}
-
-		processData();
-
-		util.registerResize("VIS_ID", recreate, function () {
-			var highchart = jq$('#VIS_ID').highcharts();
-			if (highchart) {
-				highchart.destroy();
 			}
-			jq$("#VIS_ID").empty();
-			s.init = true;
-		});
+
+			function checkRhd(initWidth, callCnt) {
+				if (callCnt >= 10)
+					return;
+				if (jq$('#rightHelpDiv').width() == initWidth)
+					setTimeout(function () { checkRhd(initWidth, callCnt + 1); }, 100);
+				else
+					init();
+			}
+
+			var iw = jq$('#rightHelpDiv').width();
+			if (vis.isInstantReports && virgin) {
+				virgin = false;
+				setTimeout(function () { checkRhd(iw, 1); }, 100);
+			}
+
+			processData();
+		}
+
+		draw();
+
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();
 </script>

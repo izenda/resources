@@ -53,7 +53,7 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 				additionalData = "<option disabled=''>------</option>";
 				for (var i = 0; i < descriptions.length; i++) {
 						var calcField = descriptions[i];
-						additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+						additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
 				}
 		}
 		var rows = null;
@@ -76,7 +76,7 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 				var row = rows[i];
 				var columnSel = EBC_GetSelectByName(row, selectName);
 				var value = columnSel.getAttribute("oldValue");
-				if (value == "" || value == null || value.indexOf('Desciption!') == 0)
+				if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
 						value = EBC_GetSelectValue(columnSel);
 				columnSel.value = value;
 				//columnSel.setAttribute("oldValue", null);
@@ -973,7 +973,7 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 	var endInputs = document.getElementsByName(id + "_bcEndDateJQ");
 	if (showTimeInPicker) {
 		jq$(eqInputs).datetimepickerJq({
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true,
 			altRedirectFocus: false,
@@ -982,7 +982,7 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 			dateFormat: dateFormatString
 		});
 		jq$(startInputs).datetimepickerJq({
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true,
 			altRedirectFocus: false,
@@ -992,7 +992,7 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 		});
 		jq$(endInputs).attr('autoSetEndDay', '1');
 		jq$(endInputs).datetimepickerJq({
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true,
 			altRedirectFocus: false,
@@ -1011,19 +1011,19 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 	else {
 		jq$(eqInputs).datepicker({
 			dateFormat: dateFormatString,
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true
 		});
 		jq$(startInputs).datepicker({
 			dateFormat: dateFormatString,
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true
 		});
 		jq$(endInputs).datepicker({
 			dateFormat: dateFormatString,
-			buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+			buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 			showOn: "both",
 			buttonImageOnly: true
 		});
@@ -1589,7 +1589,7 @@ CC_FillCombobox = function (selectedValues, node, row) {
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
-		cValid.html('<nobr>' + displayText + '<img src="rs.aspx?image=icon-blue-x.gif" class="chunkX"></nobr>');
+		cValid.html('<nobr>' + displayText + '<img src="rp.aspx?image=icon-blue-x.gif" class="chunkX"></nobr>');
 		selectedValues.append(cValid);
 		cValid.find(".chunkX").click(function () {
 			cValid.remove();

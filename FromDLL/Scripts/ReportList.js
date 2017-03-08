@@ -34,10 +34,12 @@
 |___________________________________________________________________|
 */
 
-function RL_UpdateToFolder(folder, responseServerUrl, timeOut)
+function RL_UpdateToFolder(folder, responseServerUrl, timeOut, resourcesProviderUrl)
 {
 	if (typeof(responseServer) == 'undefined')
 		responseServer = new AdHoc.ResponseServer(responseServerUrl, timeOut);
+	if (typeof (resourcesProvider) == 'undefined')
+		resourcesProvider = new AdHoc.ResourcesProvider(resourcesProviderUrl, timeOut);
 	if(typeof(RC_SetCategory)!='undefined')
 		RC_SetCategory(folder);
 	if (typeof (RC_SetCategory2) != 'undefined')

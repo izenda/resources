@@ -191,7 +191,7 @@ function EBC_FixCAControlsC(parentControl) {
 			}
 			if (ebc_jqShowTimeInPicker) {
 				jq$(child).datetimepickerJq({
-					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+					buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 					showOn: "both",
 					buttonImageOnly: true,
 					altRedirectFocus: false,
@@ -212,7 +212,7 @@ function EBC_FixCAControlsC(parentControl) {
 			else {
 				jq$(child).datepicker({
 					dateFormat: ebc_jqDateFormat,
-					buttonImage: responseServer.ResponseServerUrl + 'image=calendar_icon.png',
+					buttonImage: resourcesProvider.ResourcesProviderUrl + 'image=calendar_icon.png',
 					showOn: "both",
 					buttonImageOnly: true
 				});

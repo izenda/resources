@@ -1,38 +1,36 @@
 ﻿<style type="text/css">
-	#VIS_ID_CONTAINER {
-		overflow: hidden;
+	#VIS_ID text {
+		font-family: 'Helvetica Neue', sans-serif;
+		font-size: 12px;
 	}
 
-	 #VIS_ID_CONTAINER text {
-		 font: 10px sans-serif;
-	 }
-
-	#VIS_ID_CONTAINER .dot {
-		stroke: #fff;
+	#VIS_ID_CONTAINER .izenda-vis-timebubble-dot {
+		stroke: #ffffff;
 		fill-opacity: 0.8;
 	}
 
-	#VIS_ID_CONTAINER .axis path,
-	#VIS_ID_CONTAINER .axis line {
+	#VIS_ID_CONTAINER .izenda-vis-timebubble-axis path,
+	#VIS_ID_CONTAINER .izenda-vis-timebubble-axis line {
 		fill: none;
 		stroke: #000;
 		shape-rendering: crispEdges;
 	}
 
-	#VIS_ID_CONTAINER .label {
+	#VIS_ID_CONTAINER .izenda-vis-timebubble-label {
 		fill: #777;
 	}
 
-	#VIS_ID_CONTAINER .year.label {
-		font: 500 72px "Helvetica Neue";
+	#VIS_ID .izenda-vis-timebubble-year.izenda-vis-timebubble-label {
+		font-size: 72px;
+		font-weight: 500;
 		fill: #ddd;
 	}
 
-	#VIS_ID_CONTAINER .year.label.active {
+	#VIS_ID .izenda-vis-timebubble-year.izenda-vis-timebubble-label.izenda-vis-timebubble-active {
 		fill: #aaa;
 	}
 
-	#VIS_ID_CONTAINER .overlay {
+	#VIS_ID_CONTAINER .izenda-vis-timebubble-overlay {
 		fill: none;
 		cursor: ew-resize;
 		pointer-events: all;
@@ -40,209 +38,203 @@
 </style>
 
 <div id="VIS_ID_CONTAINER">
-	<div id="VIS_ID_HOLDER">
-		<div id="VIS_ID"></div>
-	</div>
+	<div id="VIS_ID"></div>
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
 
 <script type="text/javascript">
-	(function ExecuteVIS_ID() {
-		function validate() {
-			return VIS_COLUMNS.length > 4
-				&& VIS_COLUMNS[1].type == 'DateTime'
-				&& /\d{4}\s+-\s+\d{2}/.test(VIS_ROWS[0][1].f)
-				&& util.isMetric(VIS_COLUMNS[2])
-				&& util.isMetric(VIS_COLUMNS[3])
-				&& util.isMetric(VIS_COLUMNS[4]);
-		}
-		function getRange(ci) {
-			return [vis.unitValue(vis.min, ci), vis.unitValue(vis.max, ci)];
-		}
-		function isEmpty(range) {
-			return range[0] == range[1];
-		}
+	(function init() {
+		var services = window.ReportingServices;
 
-		var width = 720, height = 500;
-
-		var util = window.ReportScripting, services = window.ReportingServices, vis,
-			isThumbnails = (document.URL === 'about:blank');
-
-		if (!util.validate("VIS_ID", VIS_FORMJSASTATUS, VIS_CONTEXT, VIS_ROWS, { d3: true, svg: true, animation: true, input: validate }))
-			return;
-
-		VIS_CONTEXT.UTC2Local = true;
-
-		vis = new util("VIS_ID", VIS_FORMJSASTATUS, VIS_COLUMNS, VIS_ROWS, VIS_CONTEXT);
-
-		width = vis.getWidth();
-		height = vis.getHeight();
-
-		vis.collectMonthlyData();
-
-		jq$("#VIS_ID").width(width).height(height);
-
-		var margin = { top: 19.5, right: 19.5, bottom: 19.5, left: 39.5 };
-
-		var x = function(d) { return vis.unitValue(d, 3); };
-		var y = function (d) { return vis.unitValue(d, 2); };
-		var radius = function(d) { return vis.unitValue(d, 4); };
-		var color = function(d) { return vis.unitValue(d, 0); };
-		var key = function(d) { return vis.unitValue(d, 0); };
-
-		var order = function(a, b) { return radius(b) - radius(a); };
-
-		var svg = d3.select("#VIS_ID").append("svg")
-			.attr("width", width)
-			.attr("height", height)
-			.append("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-		var widthWithOffset = width - margin.left - margin.right,
-			heightWithOffset = height - margin.top - margin.bottom, r;
-
-		var xScale = d3.scale.log().domain(getRange(3)).range([0, widthWithOffset]).clamp(true),
-			yScale = d3.scale.linear().domain(getRange(2)).range([heightWithOffset, 0]).clamp(true),
-			radiusScale = d3.scale.sqrt().domain(r = getRange(4)).range(isEmpty(r) ? [5, 5] : [5, 40]).clamp(true),
-			colorScale = d3.scale.category10();
-
-		var xAxis = d3.svg.axis().orient("bottom").scale(xScale).ticks(12, d3.format(",d"));
-		svg.append("g")
-			.attr("class", "x axis")
-			.attr("transform", "translate(0," + heightWithOffset + ")")
-			.call(xAxis);
-		svg.append("text")
-			.attr("class", "x label")
-			.attr("text-anchor", "end")
-			.attr("x", widthWithOffset)
-			.attr("y", heightWithOffset - 6)
-			.text(VIS_COLUMNS[3].name);
-
-		var yAxis = d3.svg.axis().scale(yScale).orient("left");
-		svg.append("g")
-			.attr("class", "y axis")
-			.call(yAxis);
-		svg.append("text")
-			.attr("class", "y label")
-			.attr("text-anchor", "end")
-			.attr("y", 6)
-			.attr("dy", ".75em")
-			.attr("transform", "rotate(-90)")
-			.text(VIS_COLUMNS[2].name);
-
-		var label = svg.append("text")
-			.attr("class", "year label")
-			.attr("text-anchor", "end")
-			.attr("y", heightWithOffset - 24)
-			.attr("x", widthWithOffset)
-			.text(util.renderDate(vis.unitValue(vis.min, 1)));
-
-		function processData() {
-			var bisect = d3.bisector(function (d) { return d[0]; });
-
-			var dot = svg.append("g")
-				.attr("class", "dots")
-				.selectAll(".dot")
-				.data(interpolateData(util.renderDate(vis.unitValue(vis.min, 1))))
-				.enter().append("circle")
-					.attr("class", "dot")
-					.style("fill", function (d) { return colorScale(color(d)); })
-					.each(function(d) {
-						var data = {};
-						jq$.each(d, function (key, value) {
-							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
-							data[key] = fieldFormatter ? fieldFormatter(value, d, vis, key) : value + '';
-						});
-						services.tipOn(this, data);
-					})
-					.call(position)
-					.sort(order);
-
-			var box = label.node().getBBox();
-
-			var overlay = svg.append("rect")
-				.attr("class", "overlay")
-				.attr("x", box.x)
-				.attr("y", box.y)
-				.attr("width", box.width)
-				.attr("height", box.height)
-				.on("mouseover", enableInteraction);
-
-			function position(dot) {
-				dot.attr("cx", function (d) { return xScale(x(d)); })
-					.attr("cy", function (d) { return yScale(y(d)); })
-					.attr("r", function (d) { return radiusScale(radius(d)); });
-			}
-
-			function enableInteraction() {
-				var yearScale = d3.scale.linear()
-					.domain([0, util.getMonthOffset(vis.unitValue(vis.min, 1), vis.unitValue(vis.max, 1))])
-					.range([box.x + 10, box.x + box.width - 10])
-					.clamp(true);
-
-				svg.transition().duration(0);
-
-				overlay
-					.on("mouseover", function () { label.classed("active", true); })
-					.on("mouseout", function () { label.classed("active", false); })
-					.on("mousemove", function () { displayYear(yearScale.invert(d3.mouse(this)[0])); })
-					.on("touchmove", function () { displayYear(yearScale.invert(d3.mouse(this)[0])); });
-			}
-
-			function tweenYear() {
-				var year = d3.interpolateNumber(0, util.getMonthOffset(vis.unitValue(vis.min, 1), vis.unitValue(vis.max, 1)));
-				return function (t) { displayYear(year(t)); };
-			}
-
-			function displayYear(year) {
-				dot.data(interpolateData(year), key).call(position).sort(order);
-				label.text(function () {
-					var d = new Date(vis.unitValue(vis.min, 1).getTime());
-					d.setMonth(d.getMonth() + Math.round(year));
-					return util.renderDate(d);
-				});
-			}
-
-			function interpolateData(year) {
-				return vis.items.map(function(d) {
-					function safeNumber(value) {
-						return (typeof value != "undefined" && !isNaN(value)) ? value : 0;
-					}
-
-					var result = {};
-					vis.unitLabel(result, 0, { value: safeNumber(vis.unitValue(d, 0)) });
-					vis.unitLabel(result, 2, { value: safeNumber(interpolateValues(vis.unitValue(d, 2), year)) });
-					vis.unitLabel(result, 3, { value: safeNumber(interpolateValues(vis.unitValue(d, 3), year)) });
-					vis.unitLabel(result, 4, { value: safeNumber(interpolateValues(vis.unitValue(d, 4), year)) });
-					return result;
-				});
-			}
-
-			function interpolateValues(values, year) {
-				var i = bisect.left(values, year, 0, values.length - 1),
-					a = values[i], result = a[1];
-				if (i > 0) {
-					var b = values[i - 1],
-						t = (year - a[0]) / (b[0] - a[0]);
-					result = a[1] * (1 - t) + b[1] * t;
-				}
-				return result;
-			}
-
-			setTimeout(function () {
-				svg.transition()
-					.duration(30000)
-					.ease("linear")
-					.tween("year", tweenYear)
-					.each("end", enableInteraction);
-			}, 3000);
-		}
-
-		processData();
-
-		util.registerResize("VIS_ID", ExecuteVIS_ID, function () {
-			jq$("#VIS_ID").empty();
+		var vis = new izenda.visualization({
+			id: 'VIS_ID',
+			rows: VIS_ROWS,
+			columns: VIS_COLUMNS,
+			context: VIS_CONTEXT,
+			status: VIS_FORMJSASTATUS,
+			requirements: { d3: true, svg: true, animation: true },
+			validate: function (columns, rows) {
+				return columns.length > 4
+					&& columns[1].type == 'DateTime'
+					&& /\d{4}\s+-\s+\d{2}/.test(rows[0][1].f)
+					&& izenda.visualization.isMetric(columns[2])
+					&& izenda.visualization.isMetric(columns[3])
+					&& izenda.visualization.isMetric(columns[4]);
+			},
+			localTimeCorrection: true,
+			dataLayout: 'monthlydata',
+			draw: draw
 		});
+
+		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
+
+		function draw() {
+			function getRange(ci) {
+				return [vis.itemValue(vis.min, ci), vis.itemValue(vis.max, ci)];
+			}
+			function isEmpty(range) {
+				return range[0] == range[1];
+			}
+
+			var margin = { top: 19.5, right: 19.5, bottom: 29.5, left: 49.5 };
+
+			var x = function (d) { return vis.itemValue(d, 3); };
+			var y = function (d) { return vis.itemValue(d, 2); };
+			var radius = function (d) { return vis.itemValue(d, 4); };
+			var color = function (d) { return vis.itemValue(d, 0); };
+			var key = function (d) { return vis.itemValue(d, 0); };
+
+			var order = function (a, b) { return radius(b) - radius(a); };
+
+			var svg = d3.select('#VIS_ID').append('svg')
+				.attr('width', vis.width)
+				.attr('height', vis.height)
+				.append('g')
+					.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+
+			var widthWithOffset = vis.width - margin.left - margin.right,
+				heightWithOffset = vis.height - margin.top - margin.bottom, r;
+
+			var xScale = d3.scale.log().domain(getRange(3)).range([0, widthWithOffset]).clamp(true),
+				yScale = d3.scale.linear().domain(getRange(2)).range([heightWithOffset, 0]).clamp(true),
+				radiusScale = d3.scale.sqrt().domain(r = getRange(4)).range(isEmpty(r) ? [5, 5] : [5, 40]).clamp(true),
+				colorScale = d3.scale.category10();
+
+			var xAxis = d3.svg.axis().orient('bottom').scale(xScale).ticks(12, d3.format(',d'));
+			svg.append('g')
+				.attr('class', 'izenda-vis-timebubble-axis')
+				.attr('transform', 'translate(0,' + heightWithOffset + ')')
+				.call(xAxis);
+			svg.append('text')
+				.attr('class', 'izenda-vis-timebubble-label')
+				.attr('text-anchor', 'end')
+				.attr('x', widthWithOffset)
+				.attr('y', heightWithOffset - 6)
+				.text(VIS_COLUMNS[3].name);
+
+			var yAxis = d3.svg.axis().scale(yScale).orient('left');
+			svg.append('g')
+				.attr('class', 'izenda-vis-timebubble-axis')
+				.call(yAxis);
+			svg.append('text')
+				.attr('class', 'izenda-vis-timebubble-label')
+				.attr('text-anchor', 'end')
+				.attr('y', 6)
+				.attr('dy', '.75em')
+				.attr('transform', 'rotate(-90)')
+				.text(VIS_COLUMNS[2].name);
+
+			var label = svg.append('text')
+				.attr('class', 'izenda-vis-timebubble-year izenda-vis-timebubble-label')
+				.attr('text-anchor', 'end')
+				.attr('y', heightWithOffset - 24)
+				.attr('x', widthWithOffset)
+				.text(izenda.utils.date.renderDate(vis.itemValue(vis.min, 1)));
+
+			function processData() {
+				var bisect = d3.bisector(function (d) { return d[0]; });
+
+				var dot = svg.append('g')
+					.selectAll('.izenda-vis-timebubble-dot')
+					.data(interpolateData(izenda.utils.date.renderDate(vis.itemValue(vis.min, 1))))
+					.enter().append('circle')
+						.attr('class', 'izenda-vis-timebubble-dot')
+						.style('fill', function (d) { return colorScale(color(d)); })
+						.each(function (d) {
+							var data = {};
+							jq$.each(d, function (key, value) {
+								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+								data[key] = fieldFormatter ? fieldFormatter(value, d, vis, key) : value + '';
+							});
+							services.tipOn(this, data);
+						})
+						.call(position)
+						.sort(order);
+
+				var box = label.node().getBBox();
+
+				var overlay = svg.append('rect')
+					.attr('class', 'izenda-vis-timebubble-overlay')
+					.attr('x', box.x)
+					.attr('y', box.y)
+					.attr('width', box.width)
+					.attr('height', box.height)
+					.on('mouseover', enableInteraction);
+
+				function position(dot) {
+					dot.attr('cx', function (d) { return xScale(x(d)); })
+						.attr('cy', function (d) { return yScale(y(d)); })
+						.attr('r', function (d) { return radiusScale(radius(d)); });
+				}
+
+				function enableInteraction() {
+					var yearScale = d3.scale.linear()
+						.domain([0, izenda.utils.date.getMonthOffset(vis.itemValue(vis.min, 1), vis.itemValue(vis.max, 1))])
+						.range([box.x + 10, box.x + box.width - 10])
+						.clamp(true);
+
+					svg.transition().duration(0);
+
+					overlay
+						.on('mouseover', function () { label.classed('izenda-vis-timebubble-active', true); })
+						.on('mouseout', function () { label.classed('izenda-vis-timebubble-active', false); })
+						.on('mousemove', function () { displayYear(yearScale.invert(d3.mouse(this)[0])); })
+						.on('touchmove', function () { displayYear(yearScale.invert(d3.mouse(this)[0])); });
+				}
+
+				function tweenYear() {
+					var year = d3.interpolateNumber(0, izenda.utils.date.getMonthOffset(vis.itemValue(vis.min, 1), vis.itemValue(vis.max, 1)));
+					return function (t) { displayYear(year(t)); };
+				}
+
+				function displayYear(year) {
+					dot.data(interpolateData(year), key).call(position).sort(order);
+					label.text(function () {
+						var d = new Date(vis.itemValue(vis.min, 1).getTime());
+						d.setMonth(d.getMonth() + Math.round(year));
+						return izenda.utils.date.renderDate(d);
+					});
+				}
+
+				function interpolateData(year) {
+					return vis.items.map(function (d) {
+						function safeNumber(value) {
+							return (typeof value != 'undefined' && !isNaN(value)) ? value : 0;
+						}
+
+						var result = {};
+						vis.itemLabel(result, 0, { value: vis.itemValue(d, 0) });
+						vis.itemLabel(result, 2, { value: safeNumber(interpolateValues(vis.itemValue(d, 2), year)) });
+						vis.itemLabel(result, 3, { value: safeNumber(interpolateValues(vis.itemValue(d, 3), year)) });
+						vis.itemLabel(result, 4, { value: safeNumber(interpolateValues(vis.itemValue(d, 4), year)) });
+						return result;
+					});
+				}
+
+				function interpolateValues(values, year) {
+					var i = bisect.left(values, year, 0, values.length - 1),
+						a = values[i], result = a[1];
+					if (i > 0) {
+						var b = values[i - 1],
+							t = (year - a[0]) / (b[0] - a[0]);
+						result = a[1] * (1 - t) + b[1] * t;
+					}
+					return result;
+				}
+
+				setTimeout(function () {
+					svg.transition()
+						.duration(30000)
+						.ease('linear')
+						.tween('year', tweenYear)
+						.each('end', enableInteraction);
+				}, 3000);
+			}
+
+			processData();
+		}
+
+		draw();
 	})();
 </script>

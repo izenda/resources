@@ -375,11 +375,11 @@ table[cellpadding="10"] > thead > tr > td, table[cellpadding="10"] > tbody > tr 
   position: absolute;
   right: 8px;
   top: 6px;
-  background: url(rs.aspx?image=ModernImages.search-gray.png) 0 0 no-repeat;
+  background: url(###RS###image=ModernImages.search-gray.png) 0 0 no-repeat;
 }
 .RL_CancelSearchIcon {
 	right: 30px;
-	background: url(../../rs.aspx?image=ModernImages.clear-dark.png) 0 0 no-repeat;
+	background: url(###RS###image=ModernImages.clear-dark.png) 0 0 no-repeat;
 	height: 16px;
 	width: 16px;
 	cursor: pointer;
@@ -671,12 +671,12 @@ tr.ReportFooter td {
   top: 0;
 }
 .iz-ui-tabs-panel div.thumb .thumb-edit {
-  background-image: url(rs.aspx?image=ModernImages.edit-icon.png);
+  background-image: url(###RS###image=ModernImages.edit-icon.png);
   right: 0px;
   bottom: 0px;
 }
 .iz-ui-tabs-panel div.thumb .thumb-print {
-  background-image: url(rs.aspx?image=ModernImages.print-icon.png);
+  background-image: url(###RS###image=ModernImages.print-icon.png);
   right: 28px;
   bottom: 0px;
 }
@@ -809,12 +809,12 @@ tr.ReportFooter td {
   background-image: url(###RS###image=ModernImages.remove-icon.png);
 }
 .ui-tabs-panel div.thumb:hover .thumb-edit {
-  background-image: url(rs.aspx?image=ModernImages.edit-icon.png);
+  background-image: url(###RS###image=ModernImages.edit-icon.png);
   right: 0px;
   top: 192px;
 }
 .ui-tabs-panel div.thumb:hover .thumb-print {
-  background-image: url(rs.aspx?image=ModernImages.print-icon.png);
+  background-image: url(###RS###image=ModernImages.print-icon.png);
   right: 28px;
   top: 192px;
 }

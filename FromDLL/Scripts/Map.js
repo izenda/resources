@@ -68,7 +68,7 @@ function MC_OnTableListChangedHandler(id, tables) {
 		additionalData = "<option disabled=''>------</option>";
 		for (var j = 0; j < descriptions.length; j++) {
 			var calcField = descriptions[j];
-			additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+			additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
 		}
 	}
 	var sel = document.getElementById(id + '_CountryState');
@@ -252,19 +252,19 @@ function DMC_FieldsChanged(id) {
 		DMC_CheckFieldAllowed(sel);
 		var shadingValueSelected = (sel.value != '...' && sel.value != 'None');
 		var shadingFunctionControl = document.getElementById(id + '_ShadingFunction');
-		var shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		var shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith(calcFieldPrefix);
 		if (!shadingValueSelected && shadingFunctionSelected) {
 			DMC_SelectValue(id, '_ShadingFunction', 0);
-			shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+			shadingFunctionSelected = (shadingFunctionControl.value != '...' && shadingFunctionControl.value != 'None') || sel.value.startsWith(calcFieldPrefix);
 		}
 		sel = document.getElementById(id + '_DotSizeValue');
 		DMC_CheckFieldAllowed(sel);
 		var dotValueSelected = (sel.value != '...' && sel.value != 'None');
 		var dotFunctionControl = document.getElementById(id + '_DotFunction');
-		var dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+		var dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith(calcFieldPrefix);
 		if (!dotValueSelected && dotFunctionSelected) {
 			DMC_SelectValue(id, '_DotFunction', 0);
-			dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith('Desciption!');
+			dotFunctionSelected = (dotFunctionControl.value != '...' && dotFunctionControl.value != 'None') || sel.value.startsWith(calcFieldPrefix);
 		}
 		if (!(countryStateSelected || citySelected || postalSelected || longitudeSelected || latitudeSelected || shadingValueSelected || shadingFunctionSelected || dotValueSelected || dotFunctionSelected)) {
 			if (DMC_wasMapType == '...') {
@@ -314,7 +314,7 @@ function DMC_OnValueColumnChanged(e, columnID, functionID) {
 
 	var rowFunc = EBC_GetSelectByName(row, functionID);
 	jq$(rowFunc).removeAttr('disabled');
-	if (e.options[e.selectedIndex].value.indexOf('Desciption!') == 0) {
+	if (e.options[e.selectedIndex].value.indexOf(calcFieldPrefix) == 0) {
 		jq$(rowFunc).attr('disabled', 'true');
 		defaultAggregateFunction = "ForceNone";
 		tryToSetDefaultFunction = true;

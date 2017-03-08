@@ -421,7 +421,7 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 				additionalData = "<option disabled=''>------</option>";
 				for(var j = 0; j < descriptions.length; j++) {
 					var calcField = descriptions[j];
-					additionalData = additionalData + '<option value="Desciption!' + calcField.description + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+					additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
 				}
 			}
 			if(numericOnly)
@@ -683,7 +683,7 @@ function CHC_OnColumnChangedHandler(e)
 
 		var rowFunc = EBC_GetSelectByName(row, 'Function');
 		jq$(rowFunc).removeAttr('disabled');
-		if (columnSel.options[columnSel.selectedIndex].value.indexOf('Desciption!') == 0)
+		if (columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
 		{
 			jq$(rowFunc).attr('disabled', 'true');
 			defaultAggregateFunction = "ForceNone";
