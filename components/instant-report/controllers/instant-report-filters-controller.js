@@ -16,6 +16,7 @@
 				'$izendaCompatibility',
 				'$izendaInstantReportQuery',
 				'$izendaInstantReportStorage',
+				'$izendaInstantReportValidation',
 				InstantReportFiltersController
 	]);
 
@@ -31,7 +32,8 @@
 				$izendaSettings,
 				$izendaCompatibility,
 				$izendaInstantReportQuery,
-				$izendaInstantReportStorage) {
+				$izendaInstantReportStorage,
+				$izendaInstantReportValidation) {
 		'use strict';
 		$scope.$izendaLocale = $izendaLocale;
 		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
@@ -54,12 +56,13 @@
 		vm.addFilter = function (fieldSysName) {
 			$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
 				if (filter.field !== null && !filter.field.allowedInFilters) {
-					$rootScope.$broadcast('izendaShowNotificationEvent',
-						[$izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.')]);
+					var errorText = $izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.');
+					$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
 					return;
 				}
 				$izendaInstantReportStorage.getFilters().push(filter);
 				filter.initialized = true;
+				$izendaInstantReportValidation.validateReportSet();
 				$izendaInstantReportStorage.setFilterOperator(filter, null).then(function () {
 					$scope.$applyAsync();
 				});
@@ -105,6 +108,7 @@
 			var count = allfilters.length;
 			var index = $izendaInstantReportStorage.getFilters().indexOf(filter);
 			$izendaInstantReportStorage.removeFilter(filter);
+			$izendaInstantReportValidation.validateReportSet();
 			if (count === 0)
 				return;
 
@@ -125,11 +129,12 @@
 		/**
 		 * Handler when field selected
 		 */
-		vm.updateFilterOperators = function (filter) {
+		vm.onFilterFieldChange = function (filter) {
 			if (!filter.initialized)
 				return;
 			filter.values = [];
 			filter.currentValue = '';
+			$izendaInstantReportValidation.validateReportSet();
 			$izendaInstantReportStorage.loadFilterFormats(filter);
 			$izendaInstantReportStorage.setFilterOperator(filter).then(function () {
 				$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter);
@@ -144,7 +149,7 @@
 		/**
 		 * Prepare filter values and existing values
 		 */
-		vm.updateFilterValues = function (filter) {
+		vm.onFilterOperatorChange = function (filter) {
 			filter.values = [];
 			var asyncPromise = $q(function (resolve) {
 				var operatorType = $izendaInstantReportStorage.getFieldFilterOperatorValueType(filter.operator);
@@ -349,7 +354,8 @@
 				vm.options = options;
 			});
 
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables()', function (newActiveFields, oldActiveFields) {
+			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields, oldActiveFields) {
+
 				// sync collection elements:
 				// add:
 				angular.element.each(newActiveFields, function () {
@@ -359,7 +365,7 @@
 					}
 					var found = false;
 					angular.element.each(vm.activeFields, function () {
-						if (this.sysname === newActiveField.sysname)
+						if (this == newActiveField)
 							found = true;
 					});
 					if (!found)
@@ -371,7 +377,7 @@
 					var field = vm.activeFields[i];
 					var found = false;
 					for (var j = 0; j < newActiveFields.length; j++) {
-						if (newActiveFields[j].sysname === field.sysname)
+						if (newActiveFields[j] == field)
 							found = true;
 					}
 					if (!found)

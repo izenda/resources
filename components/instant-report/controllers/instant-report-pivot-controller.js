@@ -24,7 +24,7 @@
 		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 
 		vm.panelOpened = false; // pivot panel state
-		vm.activeFields = $izendaInstantReportStorage.getAllFieldsInActiveTables();
+		vm.activeFields = $izendaInstantReportStorage.getAllFieldsInActiveTables(true);
 		vm.pivotColumn = $izendaInstantReportPivots.getPivotColumn();
 		vm.pivotOptions = $izendaInstantReportPivots.getPivotOptions();
 		vm.cellValues = $izendaInstantReportPivots.getCellValues();
@@ -252,7 +252,7 @@
 			});
 
 			// listen for active field items
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables()', function (newActiveFields) {
+			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields) {
 				// add:
 				var countOfChanges = 0;
 				angular.element.each(newActiveFields, function () {

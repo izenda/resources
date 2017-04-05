@@ -12,7 +12,8 @@
 				isPlayStarted: false,
 				isGalleryFullScreen: false,
 				playDelay: false,
-				isPlayRepeat: false
+				isPlayRepeat: false,
+				hasTiles: false
 			};
 
 			/**
@@ -31,6 +32,7 @@
 				galleryState.isPlayRepeat = false;
 				galleryState.isGalleryFullScreen = false;
 				galleryState.playDelay = 5000;
+				galleryState.hasTiles = false;
 			}
 
 			// public api

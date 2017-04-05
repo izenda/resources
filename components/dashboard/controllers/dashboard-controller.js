@@ -109,6 +109,7 @@
 
 		// dashboard tiles
 		vm.tiles = [];
+		vm.galleryTiles = [];
 		vm.tileWidth = 0;
 		vm.tileHeight = 0;
 
@@ -256,6 +257,18 @@
 		////////////////////////////////////////////////////////
 		// scope functions:
 		////////////////////////////////////////////////////////
+
+		/**
+		 * Does dashboard contain non empty tiles?
+		 */
+		vm.updateGalleryTiles = function (tiles) {
+			var tilesCollection = angular.isArray(tiles) ? tiles : vm.tiles;
+			// remove empty tiles for gallery view:
+			vm.galleryTiles = tilesCollection.filter(function (tile) {
+				return !!tile.reportName;
+			});
+			vm.galleryState.hasTiles = vm.galleryTiles.length > 0;
+		}
 
 		/**
 		 * Check if one column view required
@@ -933,8 +946,12 @@
 			$izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
 				if (data.Value !== 'OK') {
 					// handle save error:
-					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
-						' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value]);
+					var errorText = $izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
+						' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value;
+					$rootScope.$broadcast('izendaShowMessageEvent', [
+							errorText,
+							$izendaLocale.localeText('js_Error', 'Error'),
+							'danger']);
 				} else {
 					var n = $izendaUrl.getReportInfo().name, c = $izendaUrl.getReportInfo().category;
 					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved')]);
@@ -1188,6 +1205,12 @@
 				if (newVal) {
 					$izendaEvent.queueEvent('refreshFilters', [], true);
 				}
+			});
+
+			$scope.$watchCollection(angular.bind(vm, function (name) {
+				return this.tiles;
+			}), function (newCollection) {
+				vm.updateGalleryTiles(newCollection);
 			});
 
 			// watch for gallery state change.

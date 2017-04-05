@@ -5,14 +5,16 @@
 	 * this is singleton
 	 */
 	angular.module('izendaInstantReport').factory('$izendaInstantReportQuery', [
+		'$rootScope',
 		'$q',
 		'$http',
 		'$log',
 		'$window',
+		'$izendaLocale',
 		'$izendaUrl',
 		'$izendaSettings',
 		'$izendaRsQuery',
-	function ($q, $http, $log, $window, $izendaUrl, $izendaSettings, $izendaRsQuery) {
+	function ($rootScope, $q, $http, $log, $window, $izendaLocale, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 		'use strict';
 
 		var requestList = [];
@@ -111,7 +113,7 @@
 		 * Search fields in datasources (returns range of values [from, to])
 		 */
 		function findInDatasources(searchString, from, to) {
-			var params = [searchString];
+			var params = [encodeURIComponent(searchString)];
 			if (angular.isNumber(from) && angular.isNumber(to))
 				params = params.concat(from, to);
 			return $izendaRsQuery.query('findfields', params, {
@@ -139,7 +141,7 @@
 				params: [reportFullName]
 			});
 		}
-		
+
 		/**
 		 * Cancel all running preview queries. All queries will be rejected.
 		 */
@@ -147,7 +149,7 @@
 			var i = 0;
 			for (var i = 0; i < requestList.length; i++) {
 				var request = requestList[i];
-				request.canceller.resolve();
+				request.canceller.resolve('Cancelled!');
 			}
 			requestList = [];
 		};
@@ -157,9 +159,6 @@
 		 */
 		function getReportSetPreviewQueued(reportSetConfig) {
 			cancelAllPreviewQueries();
-
-			// we will return this deferred object:
-			var resolver = $q.defer();
 
 			// prepare params
 			var paramsArray = [
@@ -173,7 +172,7 @@
 			if (typeof (window.angularPageId$) !== 'undefined')
 				paramsArray.push('anpid=' + window.angularPageId$);
 
-			// create request config
+			var resolver = $q.defer();
 			var canceller = $q.defer();
 			var req = {
 				method: 'POST',
@@ -192,16 +191,21 @@
 				resolver: resolver
 			});
 
-			// run query
-			$http(req).then(function (response) {
-				resolver.resolve(response.data);
-			}, function (response) {
-				if (response.status > 0) {
-					// handle errors:
-					$rootScope.$broadcast('izendaShowNotificationEvent', ['Failed to load preview from server', 'Error']);
-				}
-				resolver.reject(response.data);
-			});
+			var requestPromise = $http(req);
+			requestPromise
+				.then(function successCallback(response) {
+					resolver.resolve(response.data);
+				}, function errorCallback(response) {
+					if (response.config.timeout.$$state.value !== 'Cancelled!') {
+						//handle errors:
+						var errorText = $izendaLocale.localeText('js_FailedToLoadPreview', 'Failed to load preview.');
+						$rootScope.$broadcast('izendaShowMessageEvent', [
+									errorText,
+									$izendaLocale.localeText('js_Error', 'Error'),
+									'danger']);
+						resolver.reject(response.data);
+					}
+				});
 			return resolver.promise;
 		}
 
@@ -531,7 +535,7 @@
 			});
 		};
 
-		function getFieldOperatorList(field, dataTypeGroup) {
+		function getFieldOperatorList(field, tablesString, dataTypeGroup) {
 			if (!angular.isObject(field))
 				throw 'Field should be object.';
 			var typeGroup = getCurrentTypeGroup(field, dataTypeGroup);
@@ -539,6 +543,7 @@
 				'cmd': 'GetOptionsByPath',
 				'p': 'OperatorList',
 				'typeGroup': typeGroup,
+				'tables': tablesString,
 				'colFullName': field.sysname,
 				'resultType': 'json'
 			}, {
@@ -609,7 +614,6 @@
 					tableNames.push(this.sysname);
 				});
 				queryParams['tbl0'] = tableNames.join('\'');
-				queryParams['clear'] = 1;
 				if (angular.isString(filterLogic) && filterLogic.trim() !== '') {
 					queryParams['filterLogic'] = filterLogic;
 				}

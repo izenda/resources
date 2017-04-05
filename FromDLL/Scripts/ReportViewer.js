@@ -99,7 +99,7 @@ function FieldsDataSent(returnObj, id) {
 }
 //------------------------------------------------------------------------------------------------------------------
 
-//Common interface----------------------------------------------------------------------------------------------------
+//Common interface--------------------------------------------------------------------------------------------------
 function DetectCurrentDs(dbName) {
 	var newValue = -1;
 	for (var index = 0; index < dataSources.length; index++) {
@@ -204,40 +204,93 @@ function TopRecordsSet(returnObj, id) {
 	GetRenderedReportSet(false);
 }
 
+/**
+ * Update used and remaining fields lists html.
+ */
 function RefreshFieldsList() {
-	var remainingHtml = "<table>";
-	var usedHtml = "<table width=\"100%\">";
-	var uCnt = 0;
-	var rCnt = 0;
-	var cdsBegin = currentDatasource;
-	var cdsEnd = currentDatasource + 1;
-	if (currentDatasource == -1) {
-		cdsBegin = 0;
-		cdsEnd = dataSources.length;
+	function _createColumnControlRow(checkboxAttrs, labelFor, labelText) {
+		var $row = jq$('<tr>');
+		// append checkbox:
+		var $checkCell = jq$('<td></td>')
+			.css('width', '15px');
+		var $checkbox = jq$('<input>')
+			.attr('type', 'checkbox');
+		for (var key in checkboxAttrs)
+			if (checkboxAttrs.hasOwnProperty(key))
+				$checkbox.attr(key, checkboxAttrs[key]);
+		$checkCell.append($checkbox);
+		$row.append($checkCell);
+
+		// append label
+		var $nameCell = jq$('<td></td>');
+		var $label = jq$('<label></label>')
+			.css('cursor', 'pointer')
+			.attr('for', labelFor)
+			.text(labelText);
+		$nameCell.append($label);
+
+		$row.append($nameCell);
+		return $row;
+	};
+
+	function _createColumnControlRowSelected(index, description) {
+		// create basic row
+		var checkboxAttrs = {
+			'id': 'ufcb' + index,
+			'fInd': index
+		};
+		if (wereChecked.length > index && wereChecked[index] == true)
+			checkboxAttrs['checked'] = 'checked';
+		var $row = _createColumnControlRow(checkboxAttrs, 'ufcb' + index, description);
+		$row.hover(function () {
+			this.children[2].style.opacity = 0.5;
+		}, function () {
+			this.children[2].style.opacity = 0;
+		});
+		// append properties button
+		var $fPropsCell = jq$('<td>');
+		$fPropsCell.css({
+			'width': '15px',
+			'opacity': 0,
+			'cursor': 'pointer',
+			'background-image': 'url(rp.aspx?image=gear.gif)',
+			'background-repeat': 'no-repeat',
+			'background-position': '0px 4px'
+		}).on('mouseover', function (event) {
+			this.style.opacity = 1;
+			var e = event ? event : window.event;
+			if (e) {
+				e.cancelBubble = true;
+				if (e.stopPropagation)
+					e.stopPropagation();
+			}
+		}).on('mouseout', function () {
+			this.style.opacity = 0;
+		}).on('click', function () {
+			ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);
+		});
+		$row.append($fPropsCell);
+		return $row;
+	}
+
+	function _createColumnControlRowDs(dbName, friendlyName, globalColNum, fieldIndex, dsIndex, description) {
+		var checkboxAttrs = {
+			'id': 'rfcb' + globalColNum,
+			'fInd': fieldIndex,
+			'dsInd': dsIndex,
+			'value': dbName
+		};
+		if (description)
+			checkboxAttrs['desc'] = description;
+		return _createColumnControlRow(checkboxAttrs, 'rfcb' + globalColNum, friendlyName);
 	}
 
 	// Fill available data sources table
-	var selectedColumns = new Array();
-	for (var i = 0; i < fieldsList.length; i++)
-		selectedColumns.push(fieldsList[i].DbName);
-	var dsTable = jq$('<table>');
-	dsTable.css('width', '100%');
+	var selectedColumns = fieldsList.map(function (field) {
+		return field.DbName;
+	});
 
-	var GetColumnControlRow = function (dbName, friendlyName, globalColNum, fieldIndex, dsIndex, description) {
-		var dsRow = jq$('<tr>');
-		var dsCheckCell = jq$('<td>');
-		dsCheckCell.css('width', '15px');
-		var dsCheckbox = jq$('<input>');
-		dsCheckbox.attr('type', 'checkbox').attr('id', 'rfcb' + globalColNum).attr('fInd', fieldIndex).attr('dsInd', dsIndex).attr('value', dbName);
-		if (description)
-			dsCheckbox.attr('desc', description);
-		dsCheckCell.append(dsCheckbox);
-		dsRow.append(dsCheckCell);
-		var dsNameCell = jq$('<td>');
-		dsNameCell.html('<label style="cursor:pointer;" for="rfcb' + globalColNum + '">' + friendlyName + '</label>');
-		dsRow.append(dsNameCell);
-		return dsRow;
-	};
+	var $dsTable = jq$('<table></table>').css('width', '100%');
 
 	var globalColNum = 0;
 	for (var i = 0; i < dataSources.length; i++) {
@@ -251,7 +304,7 @@ function RefreshFieldsList() {
 			dsHeaderCell.css('font-weight', 'bold');
 			dsHeaderCell.css('text-align', 'center');
 			dsHeaderRow.append(dsHeaderCell);
-			dsTable.append(dsHeaderRow);
+			$dsTable.append(dsHeaderRow);
 		}
 
 		var additionalFieldsWereRemoved = [];
@@ -264,134 +317,44 @@ function RefreshFieldsList() {
 
 		for (var col = 0; col < dataSources[i].Columns.length; col++) {
 			if (!dataSources[i].Columns[col].Hidden) {
-				var dsRow = null;
+				var $dsRow = null;
 
 				for (var rfi = 0; rfi < fieldsWereRemoved.length; rfi++)
 					if (fieldsWereRemoved[rfi].column == dataSources[i].Columns[col].DbName) {
-						dsRow = GetColumnControlRow(fieldsWereRemoved[rfi].column, fieldsWereRemoved[rfi].description, globalColNum, col, i, fieldsWereRemoved[rfi].description);
-						dsTable.append(dsRow);
+						$dsRow = _createColumnControlRowDs(fieldsWereRemoved[rfi].column, fieldsWereRemoved[rfi].description, globalColNum, col, i,
+									fieldsWereRemoved[rfi].description);
+						$dsTable.append($dsRow);
 						globalColNum++;
 					}
 
-				if (dsRow == null && selectedColumns.indexOf(dataSources[i].Columns[col].DbName) < 0
-					&& additionalFieldsWereRemoved.indexOf(dataSources[i].Columns[col].DbName) < 0) {
-					dsRow = GetColumnControlRow(dataSources[i].Columns[col].DbName, dataSources[i].Columns[col].FriendlyName, globalColNum, col, i);
-					dsTable.append(dsRow);
+				if ($dsRow == null && selectedColumns.indexOf(dataSources[i].Columns[col].DbName) < 0
+							&& additionalFieldsWereRemoved.indexOf(dataSources[i].Columns[col].DbName) < 0) {
+					$dsRow = _createColumnControlRowDs(dataSources[i].Columns[col].DbName, dataSources[i].Columns[col].FriendlyName, globalColNum, col, i);
+					$dsTable.append($dsRow);
 					globalColNum++;
 				}
 			}
 		}
 	}
+	jq$('#remainingFieldsSel').empty();
+	jq$('#remainingFieldsSel').append($dsTable);
 
 	// Fill selected Fields
-	var fieldsTable = jq$('<table>');
-	fieldsTable.css('width', '100%');
+	var $fieldsTable = jq$('<table>').css('width', '100%');
 	for (var i = 0; i < fieldsList.length; i++) {
 		if (fieldsList[i].Hidden == true)
 			continue;
-		var fRow = jq$('<tr>');
-		fRow.attr('onmouseover', 'this.children[2].style.opacity=0.5;');
-		fRow.attr('onmouseout', 'this.children[2].style.opacity=0;');
-
-		var checkedText = '';
-		if (wereChecked.length > i && wereChecked[i] == true)
-			checkedText = ' checked="checked"';
-		var fCheckCell = jq$('<td>');
-		fCheckCell.css('width', '15px');
-		fCheckCell.html('<input type="checkbox" id="ufcb' + i + '" fInd="' + i + '" value="' + fieldsList[i].DbName + '"' + checkedText + ' />');
-		fRow.append(fCheckCell);
-
-		var fNameCell = jq$('<td>');
-		fNameCell.html('<label style="cursor:pointer;" for="ufcb' + i + '">' + fieldsList[i].Description + '</label>');
-		fRow.append(fNameCell);
-
-		var fPropsCell = jq$('<td>');
-		fPropsCell.attr('style', 'width:15px; opacity:0; cursor:pointer; background-image:url(rp.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;');
-		fPropsCell.attr('onmouseover', 'this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}');
-		fPropsCell.attr('onmouseout', 'this.style.opacity=0;');
-		fPropsCell.attr('onclick', 'ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);');
-		fRow.append(fPropsCell);
-
-		fieldsTable.append(fRow);
+		var $row = _createColumnControlRowSelected(i, fieldsList[i].Description);
+		$fieldsTable.append($row);
 	}
+	jq$('#usedFieldsSel').empty();
+	jq$('#usedFieldsSel').append($fieldsTable);
 
-	var selectedFields = new Array();
-	for (var cds = cdsBegin; cds < cdsEnd; cds++) {
-		for (var fCnt = 0; fCnt < dataSources[cds].Columns.length; fCnt++) {
-			var idPrefix;
-			var trActions;
-			if (dataSources[cds].Columns[fCnt].Selected > -1) {
-				idPrefix = 'ufcb' + uCnt;
-				uCnt++;
-				trActions = ' onmouseover="javascript:this.children[2].style.opacity=0.5;" onmouseout="javascript:this.children[2].style.opacity=0;"';
-			}
-			else {
-				idPrefix = 'rfcb' + rCnt;
-				rCnt++;
-				trActions = '';
-			}
-			var wasChecked = '';
-			for (var index = 0; index < wereChecked.length; index++) {
-				if (wereChecked[index] == dataSources[cds].Columns[fCnt].DbName) {
-					wasChecked = ' checked="checked"';
-					break;
-				}
-			}
-			var clickProcess = '';
-			if (dataSources[cds].Columns[fCnt].Selected > -1)
-				clickProcess = 'onchange="javascript:var fpButton = document.getElementById(\'fpButton\'); if (GetSelectedFieldInd() >= 0) {jq$(fpButton).removeClass(\'disabled\');} else {jq$(fpButton).addClass(\'disabled\');}"';
-			var lColor = '';
-			var fieldOpt = '';
-			if (!dataSources[cds].Columns[fCnt].Hidden) {
-				fieldOpt += '<tr' + trActions + '><td width="15"><input type="checkbox" id="' + idPrefix + '" cdsInd="' + cds + '" fInd="' + fCnt + '" value="' + dataSources[cds].Columns[fCnt].DbName + '"' + wasChecked + clickProcess + ' /></td>';
-			}
-			else {
-				fieldOpt += '<tr style="display:none;"' + trActions + '><td width="15"><input type="checkbox" id="' + idPrefix + '" cdsInd="' + cds + '" fInd="' + fCnt + '" value="' + dataSources[cds].Columns[fCnt].DbName + '" disabled="disabled" /></td>';
-				lColor = 'color:#808080;';
-			}
-			fieldOpt += '<td><label style="cursor:pointer;' + lColor + '" for="' + idPrefix + '">' + dataSources[cds].Columns[fCnt].FriendlyName + '</label></td>';
-			if (!dataSources[cds].Columns[fCnt].Hidden)
-				fieldOpt += '<td onmouseover="javascript:this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0;" onclick="javascript:ShowFieldPropertiesForField(this.parentElement.children[0].children[0]);" width="15" style="opacity:0; cursor:pointer; background-image:url(rp.aspx?image=gear.gif); background-repeat:no-repeat; background-position:0px 4px;"></td>';
-			fieldOpt += "</tr>";
-			if (dataSources[cds].Columns[fCnt].Selected > -1) {
-				var selectedHtml = new Object();
-				selectedHtml.Text = fieldOpt;
-				selectedHtml.OrderNum = dataSources[cds].Columns[fCnt].Selected;
-				selectedFields[selectedFields.length] = selectedHtml;
-			}
-			else
-				remainingHtml += fieldOpt;
-		}
-	}
-	for (var ind1 = 0; ind1 < selectedFields.length - 1; ind1++) {
-		for (var ind2 = ind1 + 1; ind2 < selectedFields.length; ind2++) {
-			if (selectedFields[ind1].OrderNum > selectedFields[ind2].OrderNum) {
-				var tmpText = selectedFields[ind1].Text;
-				var tmpOrder = selectedFields[ind1].OrderNum;
-				selectedFields[ind1].Text = selectedFields[ind2].Text;
-				selectedFields[ind1].OrderNum = selectedFields[ind2].OrderNum;
-				selectedFields[ind2].Text = tmpText;
-				selectedFields[ind2].OrderNum = tmpOrder;
-			}
-		}
-	}
-	for (var index = 0; index < selectedFields.length; index++)
-		usedHtml += selectedFields[index].Text;
-	usedHtml += '</table>';
-	remainingHtml += '</table>';
-	var remaining = document.getElementById('remainingFieldsSel');
-	var used = document.getElementById('usedFieldsSel');
-	//remaining.innerHTML = remainingHtml;
-	jq$('#remainingFieldsSel').html(dsTable);
-
-	//used.innerHTML = usedHtml;
-	jq$('#usedFieldsSel').html(fieldsTable);
-
-	var fpButton = document.getElementById('fpButton');
+	var $fpButton = jq$('#fpButton');
 	if (wereChecked.length != 1)
-		jq$(fpButton).addClass('disabled');
+		$fpButton.addClass('disabled');
 	else
-		jq$(fpButton).removeClass('disabled');
+		$fpButton.removeClass('disabled');
 	if (typeof filtersDataObtained != 'undefined' && filtersDataObtained && fieldsDataObtained)
 		CheckShowAddFilterControls();
 }
@@ -400,7 +363,8 @@ function updateFields() {
 	var usageData = new Object();
 	usageData.Fields = new Array();
 	for (var i = 0; i < fieldsList.length; i++) {
-		var usedField = fieldsList[i];
+		var usedField = jq$.extend({}, fieldsList[i]);
+		usedField.Description = encodeURIComponent(usedField.Description);
 		usageData.Fields.push(usedField);
 	}
 
@@ -621,6 +585,15 @@ function RemoveUsedFields() {
 			description: fieldFullProperties.Description,
 			properties: fieldFullProperties
 		});
+
+		if (typeof (RemoveFilterByUid) === 'function') {
+			var func = fieldFullProperties.AggregateFunction;
+			var expression = fieldFullProperties.Expression;
+			var description = fieldFullProperties.Description;
+			if ((func != 'None' && func != 'GROUP' || expression != null && expression != "") && description != '' && description != null) {
+				RemoveFilterByFieldGuid(fieldFullProperties.GUID);
+			}
+		}
 
 		fieldsList.splice(toRemoveIndex, 1);
 
@@ -1150,7 +1123,6 @@ function ApplySecurityOptions() {
 
 function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 	jq$('#renderedReportDiv').html(GetLoadingHtml());
-
 	var requestString = 'wscmd=getrenderedreportset',
 		urlParams = [],
 		queryParameters = {},

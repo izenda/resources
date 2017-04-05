@@ -41,7 +41,6 @@ var ebc_wait = {};
 var ebc_controls = new Array();
 var ebc_tableInfo = null;
 var ebc_constraintsInfo = null;
-var ebc_parsedValues = null;
 var ebc_mozillaEvent;
 var ebc_controlsRenamed = false;
 var ebc_cancelSubmiting = false;
@@ -159,24 +158,18 @@ function EBC_internalSetSubmitHandler() {
 function EBC_OnServerResponse(url, xmlHttpRequest, arg, additionalData) {
 	currentRequests--;
 	if (xmlHttpRequest.status == 200) {
-		var data = xmlHttpRequest.responseText, wait = ebc_wait[arg.path + arg.params],
-			contentType = xmlHttpRequest.getResponseHeader('Content-Type');
-		if (!data || data.match(/^<opt(?:ion|group)/)) {
-			if (EBC_SetData != null)
-				EBC_SetData(arg.path + arg.params, data, additionalData);
-		} else if (contentType && contentType.match(/application\/json/)) {
-			data = JSON.parse(data);
-			ebc_data[arg.path + arg.params] = data;
-			ebc_wait[arg.path + arg.params] = null;
-		} else if (data.match(/^<table/)
-			|| data.indexOf("###USEPAGE###") != -1) {
-			ebc_data[arg.path + arg.params] = data;
-			ebc_wait[arg.path + arg.params] = null;
+		var data = xmlHttpRequest.responseText, wait = ebc_wait[arg.path + arg.params];
+		if(data.trim() === '')
+			data = '{}';
+		data = JSON.parse(data);
+
+		if (data.length != null && data.length > 0 && data[0].options != null) {
+			EBC_SetData(arg.path + arg.params, data, additionalData);
 		} else {
 			ebc_data[arg.path + arg.params] = data;
 			ebc_wait[arg.path + arg.params] = null;
-			eval(data);
 		}
+
 		if (currentRequests == 0) {
 			if (window.ebc_disableEnableFunctions)
 				for (var i = 0; i < ebc_disableEnableFunctions.length; i++)
@@ -242,7 +235,7 @@ function EBC_CallServer(path, params, async, callbackFunction, additionalData) {
 		for (var i = 0; i < ebc_disableEnableFunctions.length; i++)
 			ebc_disableEnableFunctions[i](false);
 
-	var paramsProcessed = params.replace("=" + "&", "&");
+	var paramsProcessed = params.replace("=&", "&");
 	var commandParams =
 		'p=' + encodeURIComponent(path) + "&" + paramsProcessed +
 		(quantityOfCallsInvalidate == 0 ? "" : "&" + "r=" + quantityOfCallsInvalidate);
@@ -310,9 +303,11 @@ function EBC_LoadData(path, params, sel, async, callbackFunction, additionalData
 	}
 	var data = ebc_data[path + params];
 	if (data != null) {
-		if (additionalData != null)
-			data = data + additionalData;
-		sel = EBC_SetSelectContent(sel, data);
+		var contentData = data;
+		if (additionalData != null) {
+			contentData = contentData.concat(additionalData);
+		}
+		sel = EBC_SetSelectContent(sel, contentData);
 		if (sel != null)
 			sel.Loading = false;
 		if (callbackFunction)
@@ -351,13 +346,18 @@ function EBC_LoadData(path, params, sel, async, callbackFunction, additionalData
 }
 
 function EBC_SetData(path, data, additionalData) {
-	var totalData = data;
-	if (additionalData != null)
-		totalData = totalData + additionalData;
 	ebc_data[path] = data;
 	var objs = ebc_wait[path];
 	if (objs == null)
 		return;
+
+	var contentData = [];
+	if (data != null) {
+		contentData = data;
+	}
+	if (additionalData != null) {
+		contentData = contentData.concat(additionalData);
+	}
 
 	ebc_wait[path] = null;
 	for (var i = 0; i < objs.length; i++) {
@@ -366,7 +366,7 @@ function EBC_SetData(path, data, additionalData) {
 		var sel = objs[i].sel;
 		if (objs[i].urlKey != sel.urlKey)
 			continue;
-		sel = EBC_SetSelectContent(sel, totalData);
+		sel = EBC_SetSelectContent(sel, contentData);
 		if (sel != null)
 			sel.Loading = false;
 	}
@@ -375,26 +375,31 @@ function EBC_SetData(path, data, additionalData) {
 function EBC_LoadTableInfo() {
 	if (ebc_tableInfo != null)
 		return;
-	responseServer.ExecuteCommand("GetKeysInfo", "", true, function (url, xmlHttpRequest) {
-		if (xmlHttpRequest.status == 200)
-			eval(xmlHttpRequest.responseText);
-	});
+
+	var requestString = 'wscmd=getkeysinfo';
+	AjaxRequest('./rs.aspx', requestString, function (returnObj, id) {
+		if (id != 'getkeysinfo' || typeof returnObj === 'undefined' || returnObj == null)
+			return;
+		if (returnObj.tableKeysInfo == null)
+			return;
+		if (EBC_SetTableInfo != null)
+			EBC_SetTableInfo(returnObj.tableKeysInfo);
+	}, null, 'getkeysinfo');
 }
 
 function EBC_LoadConstraints() {
 	if (ebc_constraintsInfo != null)
 		return;
-	responseServer.ExecuteCommand("GetConstraintsInfo", "", false, function (url, xmlHttpRequest) {
-		if (xmlHttpRequest.status == 200)
-			eval(xmlHttpRequest.responseText);
-	});
-}
 
-function EBC_AnalyzeCopyPaste(values) {
-	responseServer.ExecuteCommandOnData("AnalyzeCopyPaste", "", false, function (url, xmlHttpRequest) {
-		if (xmlHttpRequest.status == 200)
-			eval(xmlHttpRequest.responseText);
-	}, "", "", values);
+	var requestString = 'wscmd=getconstraintslist&wsarg0=advanced';
+	AjaxRequest('./rs.aspx', requestString, function (returnObj, id) {
+		if (id != 'getconstraintslist' || typeof returnObj === 'undefined' || returnObj == null)
+			return;
+		if (returnObj.Data == null)
+			return;
+		if (EBC_SetConstraintsInfo != null)
+			EBC_SetConstraintsInfo(returnObj.Data);
+	}, null, 'getconstraintslist', null, false);
 }
 
 function EBC_SetTableInfo(info) {
@@ -403,10 +408,6 @@ function EBC_SetTableInfo(info) {
 
 function EBC_SetConstraintsInfo(info) {
 	ebc_constraintsInfo = info;
-}
-
-function EBC_SetParsedValues(info) {
-	ebc_parsedValues = info;
 }
 
 function EBC_GetSelectValue(sel) {
@@ -429,20 +430,49 @@ function EBC_GetSelectValue(sel) {
 	return result;
 }
 
-function EBC_SetSelectContent(sel, content) {
+function EBC_SetSelectContent(sel, data) {
 	if (sel == null)
 		return;
 
+	var jqSelect = jq$(sel);
 	var value = EBC_GetSelectValue(sel);
-	var fieldIndex = jq$(sel).find(':selected').attr('fieldIndex');
-	jq$(sel).html(content);
-	if (sel.name != undefined && sel.name != null &&
+	var fieldIndex = jqSelect.find(':selected').attr('fieldIndex');
+
+	jqSelect.empty();
+	for (var i = 0; i < data.length; ++i) {
+		var group = data[i];
+		var jqOptionsContainer = jqSelect;
+		if (group.name != "") {
+			var jqOptionGroup = jq$('<optgroup></optgroup>').attr('label', group.name);
+			jqOptionsContainer.append(jqOptionGroup);
+			qOptionsContainer = jqOptionGroup;
+		}
+		for (var j = 0; j < group.options.length; ++j) {
+			var option = group.options[j];
+			var jqOption = jq$('<option></option>');
+			for (var item in option) {
+				if (option.hasOwnProperty(item)) {
+					if (item === 'text') {
+						jqOption.text(option[item]);
+					} else if (typeof option[item] === 'boolean') {
+						jqOption.prop(item, option[item]);
+					} else {
+						jqOption.attr(item, option[item]);
+					}
+				}
+			}
+			jqOptionsContainer.append(jqOption);
+		}
+	}
+
+	var optionState = jqSelect.html();
+	if (typeof sel.name !== 'undefined' && sel.name != null &&
 		sel.name.indexOf("PivotFunction", sel.name.length - "PivotFunction".length) == -1) {
 		EBC_SetSelectedIndexByValue(sel, value);
-		if (fieldIndex != null && sel.value != value)
-			jq$(sel).val(jq$(sel).find('option[fieldIndex="' + fieldIndex + '"]').val());
-		var isFilterValueSelect = jq$(sel).attr('name') && jq$(sel).attr('name').indexOf('SelectValue', jq$(sel).attr('name').length - 'SelectValue'.length) != -1;
-		if (!isFilterValueSelect || jq$(sel).html() != jq$("<select>").html(content).html()) {
+		if (typeof fieldIndex !== 'undefined' && fieldIndex != null && sel.value != value)
+			jqSelect.val(jqSelect.find('option[fieldIndex="' + fieldIndex + '"]').val());
+		var isFilterValueSelect = jqSelect.attr('name') && jqSelect.attr('name').indexOf('SelectValue', jqSelect.attr('name').length - 'SelectValue'.length) != -1;
+		if (!isFilterValueSelect || jqSelect.html() != optionState) {
 			if (!sel.PreparingNewRow) {
 				EBC_FireOnChange(sel);
 			}
@@ -459,7 +489,7 @@ function EBC_CleanupRow(row) {
 		var el = elems[i];
 		el.PreparingNewRow = true;
 		if (el.name == null) {
-			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
+			EBC_SetSelectContent(el, [{ name: '', options: [{ value: '...', text: 'Loading ...' }]}]);
 			el.PreparingNewRow = false;
 			break;
 		}
@@ -475,6 +505,7 @@ function EBC_CleanupRow(row) {
 		}
 		else if (el.name.lastIndexOf('_' + prefix + 'ExpressionType') > 1) {
 			el.selectedIndex = 0;
+			el.disabled = true;
 		}
 		else if (el.name.lastIndexOf('_' + prefix + 'ConditionOperator') > 1) {
 			el.selectedIndex = 0;
@@ -483,7 +514,7 @@ function EBC_CleanupRow(row) {
 			el.selectedIndex = 0;
 		}
 		else {
-			EBC_SetSelectContent(el, '<option value=\'...\'>Loading ...</option>');
+			EBC_SetSelectContent(el, [{ name: '', options: [{ value: '...', text: 'Loading ...' }] }]);
 		}
 		el.PreparingNewRow = false;
 	}

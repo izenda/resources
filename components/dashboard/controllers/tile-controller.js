@@ -46,6 +46,7 @@
 			'$izendaDashboardQuery',
 			'$izendaEvent',
 			'$izendaLocale',
+			'$izendaUtil',
 			'$izendaDashboardState',
 			'$izendaDashboardSettings',
 			izendaTileController]);
@@ -69,13 +70,13 @@
 		$izendaDashboardQuery,
 		$izendaEvent,
 		$izendaLocale,
+		$izendaUtil,
 		$izendaDashboardState,
 		$izendaDashboardSettings) {
 
 		'use strict';
 
 		$scope.animationCompleted = false;
-		var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 		var vm = this;
 		vm.izendaUrl = $izendaUrl;
@@ -339,24 +340,24 @@
 					return;
 				var rpInfo = args[1];
 				var fName = rpInfo.Name;
-				if (rpInfo.Category != null && rpInfo.Category !== '' && rpInfo.Category.toLowerCase() !== UNCATEGORIZED.toLowerCase())
+				if (!$izendaUtil.isUncategorized(rpInfo.Category))
 					fName = rpInfo.Category + $izendaSettings.getCategoryCharacter() + fName;
 
 				var nameparts = rpInfo.Name.split('@');
 				var name = nameparts[0];
 				var part = nameparts[1];
 
-				// check if tile already exist
-				var found = false;
-				var tiles = $scope.dashboardController.tiles;
-				for (var i = 0; i < tiles.length; i++) {
-					var tile = tiles[i];
-					if (tile.reportCategory === rpInfo.Category && tile.reportPartName === part && tile.reportName === name)
-						found = true;
-				}
+				var isTileInDashboard = $scope.dashboardController.tiles.filter(function (tile) {
+					return tile.reportPartName === part
+							&& tile.reportName === name
+							&& ((tile.reportCategory === rpInfo.Category)
+								|| ($izendaUtil.isUncategorized(tile.reportCategory) && $izendaUtil.isUncategorized(rpInfo.Category)));
+				}).length > 0;
 
-				if (found) {
-					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSelectReportPart', 'Can\'t select report part because dashboard already contains tile with that report.')]);
+				if (isTileInDashboard) {
+					var errorText = $izendaLocale.localeText('js_CantSelectReportPart',
+						'Can\'t select report part because dashboard already contains tile with that report.');
+					$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
 					return;
 				}
 
@@ -365,7 +366,7 @@
 				angular.extend(vm, vm.izendaUrl.extractReportPartNames(fName, true));
 				vm.title = rpInfo.Title;
 				vm.reportNameWithCategory = vm.reportName;
-				if (vm.reportCategory != null && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase())
+				if (!$izendaUtil.isUncategorized(vm.reportCategory))
 					vm.reportNameWithCategory = vm.reportCategory + $izendaSettings.getCategoryCharacter() + vm.reportNameWithCategory;
 
 				if (rpInfo.IsLocked)
@@ -469,7 +470,7 @@
 		*/
 		vm.getSourceReportName = function () {
 			var result = vm.reportName;
-			if (vm.reportCategory && vm.reportCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
+			if (!$izendaUtil.isUncategorized(vm.reportCategory)) {
 				result = vm.reportCategory + $izendaSettings.getCategoryCharacter() + result;
 			}
 			return result;
@@ -489,7 +490,12 @@
 			if (!vm.isSourceReportDeleted) {
 				$window.open(vm.getReportViewerLink(), '_blank');
 			} else {
-				$rootScope.$broadcast('izendaShowNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+				var errorText = $izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" doesn\'t exist.');
+				errorText = errorText.replaceAll(/\{0\}/, vm.getSourceReportName());
+				$rootScope.$broadcast('izendaShowMessageEvent', [
+							errorText,
+							$izendaLocale.localeText('js_Error', 'Error'),
+							'danger']);
 			}
 		};
 
@@ -510,7 +516,12 @@
 			if (!vm.isSourceReportDeleted) {
 				$window.location.href = vm.getReportEditorLink();
 			} else {
-				$rootScope.$broadcast('izendaShowNotificationEvent', ['Source report "' + vm.getSourceReportName() + '" doesn\'t exist.']);
+				var errorText = $izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" not exist.');
+				errorText = errorText.replaceAll(/\{0\}/, vm.getSourceReportName());
+				$rootScope.$broadcast('izendaShowMessageEvent', [
+							errorText,
+							$izendaLocale.localeText('js_Error', 'Error'),
+							'danger']);
 			}
 		};
 
@@ -667,6 +678,11 @@
 		// tile functions:
 		////////////////////////////////////////////////////////
 
+		function updateGalleryState() {
+			// update "hasTiles" variable
+			$scope.dashboardController.updateGalleryTiles();
+		}
+
 		/**
 		* Update parent collection. Should be called when tile change ends.
 		*/
@@ -700,6 +716,7 @@
 					}
 				}
 			}
+			updateGalleryState();
 		};
 
 		/**

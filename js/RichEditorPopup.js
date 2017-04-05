@@ -2,31 +2,6 @@
 var RE_EditorsParamsList = new Array();
 var RE_ContentSections = null;
 
-function RE_AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
-	var thisRequestObject;
-	if (window.XMLHttpRequest)
-		thisRequestObject = new XMLHttpRequest();
-	else if (window.ActiveXObject)
-		thisRequestObject = new ActiveXObject('Microsoft.XMLHTTP');
-	thisRequestObject.requestId = id;
-	thisRequestObject.dtk = dataToKeep;
-	thisRequestObject.onreadystatechange = RE_ProcessRequest;
-	thisRequestObject.open('POST', url, true);
-	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-	thisRequestObject.send(parameters);
-
-	function RE_ProcessRequest() {
-		if (thisRequestObject.readyState == 4) {
-			if (thisRequestObject.status == 200 && callbackSuccess) {
-				callbackSuccess(thisRequestObject.responseText, thisRequestObject.requestId, thisRequestObject.dtk);
-			}
-			else if (callbackError) {
-				callbackError(thisRequestObject);
-			}
-		}
-	}
-}
-
 // Prevent jQuery UI dialog from blocking focusin
 jq$(document).on('focusin', function (e) {
 	if (jq$(e.target).closest(".mce-window, .moxman-window").length) {
@@ -70,10 +45,11 @@ function RE_TerminateRichEditor(editor) {
 }
 
 function RE_EditorContentSent(returnObj, id, editorParamsObj) {
-	if (id != 'tinymceresource_setcontentdata')
+	if (id != 'tinymceresource_setcontentdata' || typeof returnObj === 'undefined' || returnObj == null)
 		return;
+	var returnValue = returnObj.Value === "OK" ? returnObj.AdditionalData[0] : returnObj.Value;
 	if (typeof editorParamsObj.ContentSaveRequestCallback != 'undefined' && editorParamsObj.ContentSaveRequestCallback != null)
-		editorParamsObj.ContentSaveRequestCallback(returnObj);
+		editorParamsObj.ContentSaveRequestCallback(returnValue);
 	RE_TerminateRichEditor(tinymce.get(editorParamsObj.EditorId));
 }
 
@@ -84,7 +60,7 @@ function RE_SaveRichEditorContent(editor, deleteForm) {
 		editorParamsObj.ContentSaveCallback(content);
 	if (typeof editorParamsObj.ContentRequestMsg != 'undefined' && editorParamsObj.ContentRequestMsg != null && editorParamsObj.ContentRequestMsg != '') {
 		var requestString = 'wscmd=tinymceresource&wsarg0=setcontentdata&wsarg1=' + encodeURIComponent(editorParamsObj.ContentRequestMsg) + '&wsarg2=' + encodeURIComponent(content);
-		RE_AjaxRequest('./rs.aspx', requestString, RE_EditorContentSent, null, 'tinymceresource_setcontentdata', editorParamsObj);
+		AjaxRequest('./rs.aspx', requestString, RE_EditorContentSent, null, 'tinymceresource_setcontentdata', editorParamsObj);
 	}
 	else
 		RE_TerminateRichEditor(editor);
@@ -255,10 +231,12 @@ function RE_InitToolbarItems(editor) {
 }
 
 function RE_AcceptEditorContent(returnObj, id, paramsObj) {
-	if (id != 'tinymceresource_getcontentdata' || returnObj == undefined || returnObj == null)
+	if (id != 'tinymceresource_getcontentdata' || typeof returnObj === 'undefined' || returnObj == null)
 		return;
-	paramsObj.ContentData = returnObj;
-	RE_InstantiateRichEditor(paramsObj);
+	if (returnObj.Value === "OK") {
+		paramsObj.ContentData = returnObj.AdditionalData[0];
+		RE_InstantiateRichEditor(paramsObj);
+	}
 }
 
 function RE_PrepareEditorContent(paramsObj) {
@@ -266,7 +244,7 @@ function RE_PrepareEditorContent(paramsObj) {
 		RE_InstantiateRichEditor(paramsObj);
 	else {
 		var requestString = 'wscmd=tinymceresource&wsarg0=getcontentdata&wsarg1=' + encodeURIComponent(paramsObj.ContentRequestMsg);
-		RE_AjaxRequest('./rs.aspx', requestString, RE_AcceptEditorContent, null, 'tinymceresource_getcontentdata', paramsObj);
+		AjaxRequest('./rs.aspx', requestString, RE_AcceptEditorContent, null, 'tinymceresource_getcontentdata', paramsObj);
 	}
 }
 
@@ -290,7 +268,7 @@ function RE_ShowRichEditor(targetSelector, width, height, contentData, contentRe
 	paramsObj.ContentSaveRequestCallback = contentSaveRequestCallback;
 	if (!RE_EditorScriptsLoaded) {
 	  var requestString = 'wscmd=tinymceresource&wsarg0=editorcorejs&wsarg1=advlist,anchor,autolink,charmap,codemagic,colorpicker,contextmenu,directionality,fullscreen,hr,image,importcss,insertdatetime,layer,legacyoutput,link,lists,nonbreaking,noneditable,pagebreak,paste,preview,save,searchreplace,jqueryspellchecker,tabfocus,table,template,textcolor,textpattern,visualchars,wordcount,repeater';
-	    RE_AjaxRequest('./rp.aspx', requestString, RE_InjectEditorScripts, null, 'tinymceresource_editorcorejs', paramsObj);
+	    AjaxRequest('./rp.aspx', requestString, RE_InjectEditorScripts, null, 'tinymceresource_editorcorejs', paramsObj);
 	}
 	else
 		RE_PrepareEditorContent(paramsObj);

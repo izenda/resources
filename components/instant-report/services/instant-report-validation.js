@@ -124,6 +124,15 @@
 				});
 			}
 
+			// stored procedure parameters validation
+			if (!$izendaInstantReportStorage.isAllSpParametersAssigned()) {
+				validation.isValid = false;
+				validation.messages.push({
+					type: 'info',
+					text: $izendaLocale.localeText('js_spParameterIsRequired', 'Please specify values for your stored procedure parameters in the filters.')
+				});
+			}
+
 			// distinct validation
 			if ($izendaInstantReportSettings.showDistinct && options.distinct && binaryFields.length > 0) {
 				var binaryFieldsString = binaryFields.map(function (bField) {

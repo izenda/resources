@@ -1,6 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
-<title>Dashboards</title>
+<title>Instant Report</title>
+<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.common.css.vendor-override.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModalDialogStyle" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=tagit" />

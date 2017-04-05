@@ -71,7 +71,7 @@
 		 * Fires when description was set manually.
 		 */
 		vm.onDescriptionWasSet = function () {
-			vm.field.isDescriptionSetManually = vm.field.description !== '';
+			$izendaInstantReportStorage.applyDescription(vm.field);
 		};
 
 		/**

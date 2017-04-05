@@ -65,10 +65,18 @@ function MC_OnTableListChangedHandler(id, tables) {
 	tablesSave[id] = tables;
 	var additionalData = null;
 	if (descriptions != null && descriptions.length > 0) {
-		additionalData = "<option disabled=''>------</option>";
-		for (var j = 0; j < descriptions.length; j++) {
-			var calcField = descriptions[j];
-			additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+		additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }] }];
+		for (var i = 0; i < descriptions.length; i++) {
+			var calcField = descriptions[i];
+			var option = {
+				value: calcFieldPrefix + calcField.fldId,
+				text: '[' + calcField.description + '] (calc)',
+				fieldIndex: calcField.fieldIndex
+			};
+			if (calcField.datatype != null) {
+				option.datatype = calcField.datatype;
+			}
+			additionalData[0].options.push(option);
 		}
 	}
 	var sel = document.getElementById(id + '_CountryState');

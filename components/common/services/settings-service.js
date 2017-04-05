@@ -14,7 +14,7 @@
 			var defaultDateFormat = {
 				longDate: 'dddd, MMMM DD, YYYY',
 				longTime: 'h:mm:ss A',
-				shortDate: 'M/D/YYYY',
+				shortDate: 'MM/DD/YYYY',
 				shortTime: 'h:mm A',
 				timeFormatForInnerIzendaProcessing: 'HH:mm:ss', // this time format used in method DateLocToUs for saving filters.
 				showTimeInFilterPickers: false
@@ -33,6 +33,20 @@
 			var getDefaultDateFormat = function () {
 				return defaultDateFormat;
 			};
+
+			/**
+			 * Default format string (en-US). This format used for sending dates to the server.
+			 * @param customDateFormatString {string}. Alternative date format if required.
+			 */
+			var getDefaultDateFormatString = function (customDateFormatString) {
+				var showTime = $izendaCommonSettings.showTimeInFilterPickers;
+				var timeFormatString = showTime ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '';
+				var dateFormatString = defaultDateFormat.shortDate;
+				if (angular.isString(customDateFormatString) && customDateFormatString.trim() !== '') {
+					dateFormatString = customDateFormatString;
+				}
+				return dateFormatString + timeFormatString;
+			}
 
 			/**
 			 * Convert .net date time format string to momentjs format string.
@@ -105,6 +119,7 @@
 			// public API
 			return {
 				getDefaultDateFormat: getDefaultDateFormat,
+				getDefaultDateFormatString: getDefaultDateFormatString,
 				getCommonSettings: getCommonSettings,
 				getDateFormat: getDateFormat,
 				getCulture: getCulture,

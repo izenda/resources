@@ -1,4 +1,4 @@
-﻿<%@ Control Language="C#" AutoEventWireup="true" %>
+﻿<%@ Control Language="C#" AutoEventWireup="true"%>
 
 <%@ Import Namespace="Izenda.AdHoc" %>
 <%@ Register TagPrefix="cc1" Namespace="Izenda.Web.UI" Assembly="Izenda.AdHoc" %>

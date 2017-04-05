@@ -577,7 +577,11 @@
 						if (result === 'OK') {
 							$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_EmailWasSent', 'Email  was sent')]);
 						} else {
-							$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email')]);
+							var errorText = $izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email');
+							$rootScope.$broadcast('izendaShowMessageEvent', [
+										errorText,
+										$izendaLocale.localeText('js_Error', 'Error'),
+										'danger']);
 						}
 						$scope.$applyAsync();
 					});
@@ -597,13 +601,21 @@
 			return re.test(email);
 		}
 
+		/*
+		 * Is current dashboard already saved
+		 */
+		vm.isSendEmailLinkAllowed = function () {
+			return vm.activeDashboard && vm.activeDashboard.fullName;
+		}
+
 		/**
 		 * Send dashboard via email
 		 */
 		vm.sendEmail = function (type) {
 			if (type === 'Link') {
-				if (vm.activeDashboard == null || !vm.activeDashboard.fullName) {
-					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard'), 'Error', 'danger']);
+				if (!vm.isSendEmailLinkAllowed()) {
+					var errorText = $izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard');
+					$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
 					return;
 				}
 				var redirectUrl = '?subject=' + encodeURIComponent(vm.activeDashboard.fullName) + '&body=' + encodeURIComponent(location);

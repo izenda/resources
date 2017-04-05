@@ -17,7 +17,6 @@ k();if("true"==a.slice(b,b+4))return b+=4,!0;if("false"==a.slice(b,b+5))return b
 a[0])&&":"==z()||k();c[a.slice(1)]=M(z())}return c}k()}return a},Q=function(a,b,e){e=P(a,b,e);e===v?delete a[b]:a[b]=e},P=function(a,b,e){var g=a[b],f;if("object"==typeof g&&g)if("[object Array]"==t.call(g))for(f=g.length;f--;)Q(g,f,e);else C(g,function(a){Q(g,a,e)});return e.call(a,b,g)};q.parse=function(a,c){var e,g;b=0;I=""+a;e=M(z());"$"!=z()&&k();b=I=null;return c&&"[object Function]"==t.call(c)?P((g={},g[""]=e,g),"",c):e}}}q.runInContext=K;return q}var J=typeof define==="function"&&define.amd,
 A="object"==typeof global&&global;!A||A.global!==A&&A.window!==A||(n=A);if("object"!=typeof exports||!exports||exports.nodeType||J){var N=n.JSON,B=K(n,n.JSON3={noConflict:function(){n.JSON=N;return B}});n.JSON={parse:B.parse,stringify:B.stringify}}else K(n,exports);J&&define(function(){return B})})(this);
 
-
 /**
  * Add url-encoded parameter to url string. Parameter adds only if parameter value is defined.
  */
@@ -38,6 +37,32 @@ function appendParameterToUrl(url, parameterName, parameterValue) {
 	return modifiedUrl;
 }
 
+if (!String.prototype.trim) {
+	(function () {
+		String.prototype.trim = function () {
+			return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
+		};
+	})();
+}
+
+(function (ns) {
+	ns.izenda = ns.izenda || {};
+
+	// Dates are written in the Microsoft JSON format, e.g. "\/Date(1198908717056)\/".
+	var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
+
+	ns.izenda.JSONParserExtension = function (key, value) {
+		if (typeof value === 'string') {
+			var result = reMsAjax.exec(value);
+			if (result) {
+				var b = result[1].split(/[-+,.]/);
+				return new Date(b[0] ? +b[0] : 0 - +b[1]);
+			}
+		}
+		return value;
+	};
+})(window);
+
 /**
  * Ajax request function.
  * @param {string} query url.
@@ -47,7 +72,7 @@ function appendParameterToUrl(url, parameterName, parameterValue) {
  * @id {string} query id.
  * @dataToKeep {object} context object which could be accessed in callback.
  */
-function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep) {
+function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataToKeep, async) {
 	// global variable "blockNetworkActivity" could be used to cancel all requests.
 	if (typeof blockNetworkActivity != 'undefined' && blockNetworkActivity)
 		return;
@@ -58,6 +83,10 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	else if (window.ActiveXObject)
 		thisRequestObject = new ActiveXObject('Microsoft.XMLHTTP');
 
+	if (typeof async === 'undefined' || async == null) {
+		async = true;
+	}
+
 	thisRequestObject.requestId = id;
 	thisRequestObject.dtk = dataToKeep;
 	thisRequestObject.onreadystatechange = _processRequest; // query completed handler
@@ -67,7 +96,7 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
 
 	// run query:
-	thisRequestObject.open('POST', url, true);
+	thisRequestObject.open('POST', url, async);
 	thisRequestObject.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
 	thisRequestObject.send(parameters);
 
@@ -76,64 +105,47 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	 */
 	function _processRequest() {
 		if (thisRequestObject.readyState == 4) {
-			if (thisRequestObject.status == 200 && callbackSuccess) {
+			if (thisRequestObject.status == 200) {
+				if (!callbackSuccess)
+					return;
 				var toRet;
-				if (['getrenderedreportset', 'getcrsreportpartpreview', 'renderedreportpart'].indexOf(thisRequestObject.requestId) >= 0) {
+				if (['getrenderedreportset', 'getcrsreportpartpreview', 'renderedreportpart', 'tinymceresource_editorcorejs'].indexOf(thisRequestObject.requestId) >= 0) {
 					// process non json requests
 					toRet = thisRequestObject.responseText;
 				} else {
 					// process json requests
-					toRet = _deserializeJson();
+					var responseText = thisRequestObject.responseText;
+					if (responseText.trim() == '') {
+						responseText = '{}';
+					}
+					toRet = JSON.parse(responseText, izenda.JSONParserExtension);
 				}
 				callbackSuccess(toRet, thisRequestObject.requestId, thisRequestObject.dtk);
 			}
-			else if (callbackError) {
+			else if (callbackError)
 				callbackError(thisRequestObject);
-			}
+			else
+				defaultCallbackError(thisRequestObject);
 		}
 	}
+}
 
-	/**
-	 * Deserialize json from "responseText" request property
-	 */
-	function _deserializeJson() {
-		var responseText = thisRequestObject.responseText;
-		while (responseText.indexOf('"\\/Date(') >= 0) {
-			responseText = responseText.replace('"\\/Date(', 'eval(new Date(');
-			responseText = responseText.replace(')\\/"', '))');
+function defaultCallbackError(responseObject)
+{
+	var msg = "Error occurred on server side. ";
+	if (responseObject && responseObject.status && responseObject.statusText)
+		msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
+	msg += '<br /><br />Page will be reloaded when you click "OK"';
+	if (responseObject.responseText) {
+		var excInd = responseObject.responseText.indexOf('[Exception]:');
+		if (excInd >= 0) {
+			var stacktrace = responseObject.responseText.substr(excInd);
+			msg += '<br /><br /><div style="cursor:text;text-align:left;width:800px;white-space:normal;">The information below will help to identify problem if you pass it to support:<br /><span style="font-size:9px;">' +
+				stacktrace.substr(0, stacktrace.length - 5).replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
+				'</span></div>';
 		}
-		if (responseText.charAt(0) != '[' && responseText.charAt(0) != '{')
-			responseText = '{' + responseText + '}';
-		var isArray = true;
-		var isHtml = false;
-		if (responseText.charAt(0) != '[') {
-			responseText = '[' + responseText + ']';
-			isArray = false;
-		}
-		var retObj;
-		try {
-			retObj = eval(responseText);
-		}
-		catch (e) {
-			retObj = null;
-		}
-		if (retObj == null) {
-			try {
-				isHtml = true;
-				retObj = eval(thisRequestObject.responseText);
-			}
-			catch (e) {
-				retObj = null;
-			}
-		}
-		if (retObj == null)
-			return null;
-		if (isHtml)
-			return retObj;
-		if (!isArray)
-			return retObj[0];
-		return retObj;
 	}
+	ReportingServices.showOk(msg, function () { location.reload(); });
 }
 
 function getAppendedUrl(urlToAppend) {

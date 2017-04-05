@@ -217,9 +217,13 @@ function GetFiltersDataToCommit() {
 		filterObj.FieldFilter = filtersData[index].FieldFilter;
 		filterObj.OperatorValue = filtersData[index].OperatorValue;
 		filterObj.AliasTable = filtersData[index].AliasTable;
-		filterObj.Alias = filtersData[index].Alias;
-		if (!filtersData[index].Removed && !filtersData[index].ClearValue && filtersData[index].GUID != "")
+		filterObj.Alias = encodeURIComponent(filtersData[index].Alias);
+		if (!filtersData[index].Removed && !filtersData[index].ClearValue && filtersData[index].GUID != "") {
 			filterObj.Values = GetFilterValues(index, filtersData).slice(1);
+			if (filterObj.Values && filterObj.Values.length)
+				for (var j = 0; j < filterObj.Values.length; j++)
+					filterObj.Values[j] = encodeURIComponent(filterObj.Values[j]);
+		}
 		else
 			filterObj.Values = [""];
 		dataToCommit[index] = filterObj;
@@ -251,8 +255,12 @@ function GetSubreportsFiltersDataToCommit() {
 			filterObj.IsSubreportFilter = true;
 			filterObj.SubreportName = subreportsFiltersData[i].SubreportFullName;
 			filterObj.AliasTable = subreportsFiltersData[i].AliasTable;
-			if (!filter.Removed)
+			if (!filter.Removed) {
 				filterObj.Values = GetFilterValues(index, subreportsFiltersData[i].FiltersData.Filters, filter.GUID).slice(1);
+				if (filterObj.Values && filterObj.Values.length)
+					for (var j = 0; j < filterObj.Values.length; j++)
+						filterObj.Values[j] = encodeURIComponent(filterObj.Values[j]);
+			}
 			dataToCommit[globalIndex] = filterObj;
 			globalIndex++;
 		}
@@ -266,6 +274,29 @@ function GetSubreportsFiltersDataToCommit() {
 */
 function s4() {
 	return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+}
+
+function RemoveFilterByFieldGuid(fieldGuid) {
+	for (var index = 0; index < filtersData.length; index++) {
+		var filter = filtersData[index];
+		if (filter.FieldGuid == fieldGuid) {
+			var uid = filter.Uid;
+			filter.Removed = true;
+			for (var i = 0; i < fieldsList.length; i++)
+				if (fieldsList[i].DbName == filter.ColumnName)
+					fieldsList[i].FilterOperator = '';
+			var filterDiv = document.getElementById(uid);
+			if (filterDiv != null)
+				filterDiv.style.visibility = 'hidden';
+			break;
+		}
+	}
+
+	var updateReportSet = true;
+	// Instant Report page
+	if (typeof nirConfig != 'undefined' && nirConfig != null)
+		updateReportSet = false;
+	CommitFiltersData(updateReportSet);
 }
 
 function RemoveFilterByUid(uid) {
@@ -557,10 +588,12 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.show();
 	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
 
+	var escapedDescription = jq$("<div>").text(filter.Description).html();
+
 	var mouseOverScript = 'if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage= \'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } if(this.children[3]) { this.children[2].style.opacity=0.5; this.children[3].style.backgroundImage=\'url(\\\'\' + this.children[3].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
-						+ filter.Description
+						+ escapedDescription
 						+ ' - '
 						+ filter.OperatorFriendlyName
 						+ '\';'
@@ -574,7 +607,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	var mouseOutScript = 'for(var index = 2; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
-						+ filter.Description
+						+ escapedDescription
 						+ '\';';
 	if (!isSimpleFilter) {
 		filterContent.find('.filterHeader').attr('onmouseover', mouseOverScript);
@@ -591,7 +624,8 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	if (isSimpleFilter)
 		filterContent.find('.filterTitle, .filterTitleContainer').attr('onmouseover', '');
 	filterContent.find('.filterTitle').prop('id', divsId);
-	filterContent.find('.filterTitle').html(filter.Description + ' - ' + filter.OperatorFriendlyName);
+	var escapedDescription = jq$("<div>").text(filter.Description).html();
+	filterContent.find('.filterTitle').text(escapedDescription + ' - ' + filter.OperatorFriendlyName);
 	var filterInnerContent = GenerateFilterControl(isSimpleFilter ? filter.GUID : index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == filters.length - 1 && !hasFilterLogic);
 	filterContent.find('.filterInnerContent').append(filterInnerContent);
 	if (filter.Required)
@@ -853,7 +887,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			if (values[0] == '...') values[0] = '';
 			if (values[1] == '...') values[1] = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
-			onChangeCmd = '';
+			onChangeCmd = 'onchange="javascript:checkDatesInterval(this);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
 			result += '<br />';

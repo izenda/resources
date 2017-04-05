@@ -50,24 +50,31 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 		var table = document.getElementById(id);
 		var additionalData = null;
 		if (descriptions != null && descriptions.length > 0) {
-				additionalData = "<option disabled=''>------</option>";
-				for (var i = 0; i < descriptions.length; i++) {
-						var calcField = descriptions[i];
-						additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+			additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }]}];
+			for (var i = 0; i < descriptions.length; i++) {
+				var calcField = descriptions[i];
+				var option = {
+					value: calcFieldPrefix + calcField.fldId,
+					text: '[' + calcField.description + '] (calc)',
+					fieldIndex: calcField.fieldIndex
+				};
+				if(calcField.datatype != null){
+					option.datatype = calcField.datatype;
 				}
+				additionalData[0].options.push(option);
+			}
 		}
 		var rows = null;
 		if (row != null) {
 				rows = new Array();
 				rows.push(row);
 				CC_oldData = null;
-		}
-		else
-				rows = jq$(table.tBodies[0]).find("tr");
+		} else
+			rows = jq$(table.tBodies[0]).find("tr");
 
 		var cc_newData = path + options + "&" + "filterList=true";
 		if (additionalData != null)
-				cc_newData = cc_newData + additionalData;
+			cc_newData = cc_newData + JSON.stringify(additionalData);
 
 		if (CC_oldData == cc_newData)
 				return;
@@ -79,8 +86,6 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 				if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
 						value = EBC_GetSelectValue(columnSel);
 				columnSel.value = value;
-				//columnSel.setAttribute("oldValue", null);
-				// not async because response getting after the next column sending request
 				EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
 		}
 }
@@ -614,15 +619,10 @@ function CC_InitRow(row) {
 	if (column != null)
 		column.setAttribute("oldValue", "");
 	var operatorSel = EBC_GetSelectByName(row, 'Operator');
-	//var selectValueSel = EBC_GetSelectByName(row, 'SelectValue');
 	var timePeriodSel = EBC_GetSelectByName(row, 'TimePeriod');
 	var id = EBC_GetParentTable(row).id;
 	if (cc_paths[id] != null) {
-		var url = cc_paths[id];
 		CC_LoadColumns(id, cc_paths[id].path, cc_paths[id].options, null, row);
-		//EBC_LoadData("CombinedColumnList", "tables=" + url, columnSel);
-
-		//CC_LoadColumns(id, cc_paths[id].path, cc_paths[id].options);
 	}
 
 	var tables = "tables=" + tablesSave[id];
@@ -1036,9 +1036,9 @@ function CC_Init(id, s, allowNewFilters, dateFormatString, showTimeInPicker) {
 	CC_FirstTimeOperatorUpdated = true;
 	CC_allowNewFilters = allowNewFilters;
 	EBC_RegisterControl(id);
-	EBC_SetData('@CC/Empty', '<option value=\'...\'>...</option>');
+	EBC_SetData('@CC/Empty', [{ name: '', options: [{ value: '...', text: '...' }]}]);
 	if (cc_paths[id] != null)
-		EBC_SetData(cc_paths[id].path + cc_paths[id].options, '<option value=\'...\'>...</option>');
+		EBC_SetData(cc_paths[id].path + cc_paths[id].options, [{ name: '', options: [{ value: '...', text: '...' }] }]);
 
 	table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, CC_InitNewRow);
@@ -1127,7 +1127,7 @@ function CC_CustomFilterPageValueReceived() {
 }
 
 function CC_ShowPopupFilterResponse(data) {
-	if (data.indexOf("###USEPAGE###") != -1) {
+	if (data.userpage != null) {
 		var row = EBC_GetRow(wasEqualsPopupEvent);
 		CC_CurrentRowForCustomFilterPage = row;
 		var columnEditId = row.parentNode.parentNode.id + "_EditColumnId";
@@ -1136,7 +1136,7 @@ function CC_ShowPopupFilterResponse(data) {
 		var valueEditId = row.parentNode.parentNode.id + "_EditValueId";
 		var valueEdit = document.getElementById(valueEditId);
 		valueEdit.value = EBC_GetInputByName(row, "Edit1").value;
-		var file = data.substring(13, data.length - 3);
+		var file = data.userpage;
 		ReportingServices.showModal("<iframe src=\"" + file + "?valueeditid=" + valueEditId + "&columneditid=" + columnEditId + "\" name=\"CustomAspx\" width=\"290\" height=\"530\"></iframe>");
 		return;
 	}

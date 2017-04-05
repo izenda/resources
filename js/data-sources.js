@@ -57,25 +57,6 @@ function CurrentRn() {
 	return reportName;
 }
 
-function ExistingReportSetInit() {
-	var crn = CurrentRn();
-	if (crn == '')
-		return;
-	var requestString = 'wscmd=reversereportset';
-	requestString += '&wsarg0=' + encodeURIComponent(crn);
-	AjaxRequest('./rs.aspx', requestString, ReversedReportSet, null, 'reversereportset');
-}
-
-function ReversedReportSet(returnObj, id) {
-	if (id != 'reversereportset' || returnObj == undefined || returnObj == null)
-		return;
-	if (returnObj.Value == "OK") {
-		alert('ok');
-	}
-	else
-		alert("Error: " + returnObj.Value);
-}
-
 function initDataSources(url) {
 	databaseSchema = jq$.getValues(url);
 	if (databaseSchema != null) {
@@ -287,7 +268,7 @@ function renderField(tableIndex, fieldObj) {
 	var fid = createFieldIdentifier(tableIndex, fieldsIndex);
 	fieldObj.domId = fid;
 	var html = " \
-					<a class='field' href='#" + fieldObj.name + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldObj.sysname + "' typeGroup='" + fieldObj.typeGroup + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
+					<a class='field' href='#" + fieldObj.name + "' sorder='-1' locked='false' id='" + fid + "' fieldId='" + fieldObj.sysname + "' typeGroup='" + fieldObj.typeGroup + "' tableIndex='" + tableIndex + "' fieldIndex='" + fieldsIndex + "' onmouseup='FiClick(" + tableIndex + ", " + fieldsIndex + ", false, false)'> \
 						<span class='preview-image'></span> \
 						<span class='checkbox' style='margin-top: 3px; margin-right: 6px;'></span> \
 						<span class='field-name' style=''>" + fieldObj.name + "</span> \
@@ -1054,10 +1035,10 @@ function initDraggable() {
 						|| event.pageY < rTableOffset.top || event.pageY > rTableOffset.top + h)
 						return;
 				fieldDragged$.attr('sorder', 1);
-				var helperAttr = fieldDragged$.attr('onmouseup');
-				if (helperAttr != null) {
-					var helper2 = helperAttr.replace('FiClick', 'FiClickForcedDrag');
-					eval(helper2);
+				var tableIndex = Number(fieldDragged$.attr('tableIndex'));
+				var fieldIndex = Number(fieldDragged$.attr('fieldIndex'));
+				if (!isNaN(tableIndex) && !isNaN(fieldIndex)) {
+					FiClickForcedDrag(tableIndex, fieldIndex, false, false);
 				}
 			}
 			if (updateOnDrag)
@@ -1440,16 +1421,16 @@ function initFieldsDsp(nwid, onInitComplete) {
 function FieldsInfoGot(returnObj, id, furtherWorkData) {
 	if (id != 'getfieldsinfo' || returnObj == undefined || returnObj == null)
 		return;
-	if (returnObj.length == 1 && typeof returnObj[0] != 'undefined' && returnObj[0] != null && typeof returnObj[0].fields != 'undefined' && returnObj[0].fields != null) {
+	if (returnObj.fields != null) {
 		for (var catCnt = 0; catCnt < databaseSchema.length; catCnt++) {
 			for (var tabCnt = 0; tabCnt < databaseSchema[catCnt].tables.length; tabCnt++) {
 				if (databaseSchema[catCnt].tables[tabCnt].sysname == furtherWorkData.TableFullName && databaseSchema[catCnt].tables[tabCnt].fields == 'LAZIED') {
-					databaseSchema[catCnt].tables[tabCnt].fields = returnObj[0].fields;
+					databaseSchema[catCnt].tables[tabCnt].fields = returnObj.fields;
 					break;
 				}
 			}
 		}
-		finalizeInitFieldsDsp(furtherWorkData.ContentDiv, furtherWorkData.WillBeTableIndex, returnObj[0].fields, furtherWorkData.onInitComplete);
+		finalizeInitFieldsDsp(furtherWorkData.ContentDiv, furtherWorkData.WillBeTableIndex, returnObj.fields, furtherWorkData.onInitComplete);
 	}
 }
 

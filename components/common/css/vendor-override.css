@@ -1,0 +1,13 @@
+/*!
+ * Overriding Bootstrap v3.3.5 (bootstrap.min.css)
+ */
+ 
+@font-face {
+	font-family:'Glyphicons Halflings';
+	src:url('###RS###font=Fonts.glyphicons-halflings-regular.eot');
+	src:url('###RS###font=Fonts.glyphicons-halflings-regular.eot') format('embedded-opentype'),
+		url('###RS###font=Fonts.glyphicons-halflings-regular.woff2') format('woff2'),
+		url('###RS###font=Fonts.glyphicons-halflings-regular.woff') format('woff'),
+		url('###RS###font=Fonts.glyphicons-halflings-regular.ttf') format('truetype'),
+		url('###RS###font=Fonts.glyphicons-halflings-regular.svg#glyphicons_halflingsregular') format('svg')
+}

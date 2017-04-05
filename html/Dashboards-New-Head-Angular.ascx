@@ -1,6 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
+<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.common.css.vendor-override.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.ModernStyles.jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.vendor.ionrangeslider.ion.rangeSlider.css" />

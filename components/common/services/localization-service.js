@@ -33,7 +33,6 @@
 				}
 				return result;
 			};
-
 			IzLocal.LocalizePage();
 		}]);
 

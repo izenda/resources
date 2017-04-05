@@ -98,12 +98,12 @@ function TabStrip_EnableDisableTab(strControlName, index, enable)
 	var tab = objTabsRow.cells[index].firstChild;
 
 	var currentLink = document.getElementById('continueBtn' + (index - 1));
-
+	var pcn = tab.getAttribute('prevClassName');
 	if(enable)
 	{
-		if(tab.prevClassName!=null)
-			tab.className = tab.prevClassName;
-		tab.prevClassName = null;
+		if(pcn!=null)
+			tab.className = pcn;
+		tab.setAttribute('prevClassName', null);
 		if (currentLink!=null)
 			currentLink.style["display"] = "";
 	}
@@ -120,8 +120,8 @@ function TabStrip_EnableDisableTab(strControlName, index, enable)
 			if (onMouseOver != null && onMouseOver != "")
 				TabStrip_ToggleTab(strControlName, strControlName+"_tab0", 0, true, false);
 		}
-		if(tab.prevClassName==null)
-			tab.prevClassName = tab.className;
+		if(pcn==null)
+			tab.setAttribute('prevClassName', tab.className);
 		tab.className = "DisabledTab";
 		if (currentLink!=null)
 			currentLink.style["display"] = "none";
@@ -181,7 +181,7 @@ function TabStrip_ToggleTab(strControlName, strTabName, tabIndex, runEvent, paus
 				if (objActiveTab)
 				{
 					objActiveTab.className = "InactiveTab";
-					objActiveTab.prevClassName = objActiveTab.className;
+					objActiveTab.setAttribute('prevClassName', objActiveTab.className);
 				}
 			}
 		}

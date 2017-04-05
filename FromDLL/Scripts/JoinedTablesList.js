@@ -921,14 +921,18 @@ function JTC_Init(id, autoJoinOnRenderedRows, tablesHash, allowDomainJoin, joine
 	EBC_RegisterControl(id);
 	table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, JTC_InitRow);
-	EBC_SetData('@JTC/Empty', '<option value=\'...\'>...</option>');
-	EBC_SetData('@JTC/JoinTypes', 
-		'<option value="...">...</option>'+
-		'<option value=INNER>' + jsResources.JoinInner + '</option>' +
-		'<option value=CROSS_JOIN>' + jsResources.JoinCross + '</option>' +
-		'<option value=LEFT_OUTER>' + jsResources.JoinLeft + '</option>' +
-		'<option value=RIGHT_OUTER>' + jsResources.JoinRight + '</option>' +
-		'<option value=FULL_OUTER>' + jsResources.JoinFull + '</option>' +
-		(allowDomainJoin ? '<option value=DOMAIN>' + jsResources.Domain + '</option>' : ''));
+	EBC_SetData('@JTC/Empty', [{ name: '', options: [{ value: '...', text: '...' }] }]);
+	var joinTypesOptions = [{name: '', options: [
+		{ value: '...', text: '...' },
+		{ value: 'INNER', text: jsResources.JoinInner },
+		{ value: 'CROSS_JOIN', text: jsResources.JoinCross },
+		{ value: 'LEFT_OUTER', text: jsResources.JoinLeft },
+		{ value: 'RIGHT_OUTER', text: jsResources.JoinRight },
+		{ value: 'FULL_OUTER', text: jsResources.JoinFull }
+	]}];
+	if (allowDomainJoin) {
+		joinTypesOptions[0].options.push({ value: 'DOMAIN', text: jsResources.Domain });
+	}
+	EBC_SetData('@JTC/JoinTypes', joinTypesOptions);
 	JTC_InitRows(id);
 }

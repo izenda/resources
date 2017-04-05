@@ -80,21 +80,20 @@
                          ng-attr-placeholder="{{'js_FilterDesc' | izendaLocale: 'Filter description'}}"
                          ng-model="filter.description" />
                 </div>
-
                 <div class="iz-inst-small-panel-line form-group-sm">
                   <select class="form-control iz-inst-filter-input"
-                          ng-options="field as field.name group by field.tableName for field in filtersController.activeFields"
+                          ng-options="field as field.name group by field.additionalGroup for field in filtersController.activeFields"
                           ng-model="filter.field"
-                          ng-change="filtersController.updateFilterOperators(filter)"></select>
+                          ng-change="filtersController.onFilterFieldChange(filter)"></select>
                 </div>
                 <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null">
-                  <select class="iz-inst-filter-input"
+                  <select class="form-control iz-inst-filter-input"
                           ng-options="operator as operator.text group by operator.groupName for operator in filter.operators"
                           ng-model="filter.operator"
-                          ng-change="filtersController.updateFilterValues(filter)"></select>
+                          ng-change="filtersController.onFilterOperatorChange(filter)"></select>
                 </div>
                 <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null && filtersController.options.showFiltersInReportDescription">
-                  <select class="iz-inst-filter-input"
+                  <select class="form-control iz-inst-filter-input"
                           ng-options="format as format.text group by format.group for format in filter.titleFormats"
                           ng-model="filter.titleFormat"></select>
                 </div>
@@ -104,15 +103,15 @@
 
                     <!-- one value -->
                     <span ng-switch-when="oneValue">
-                      <input type="text" class="iz-inst-filter-input" ng-model="filter.values[0]"
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[0]"
                              ng-change="filtersController.onCurrentValueChange(filter)" />
                     </span>
 
                     <!-- two values -->
                     <span ng-switch-when="twoValues">
-                      <input type="text" class="iz-inst-filter-input" ng-model="filter.values[0]"
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[0]"
                              ng-change="filtersController.onCurrentValueChange(filter)" />
-                      <input type="text" class="iz-inst-filter-input" ng-model="filter.values[1]"
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[1]"
                              ng-change="filtersController.onCurrentValueChange(filter)" />
                     </span>
 
@@ -125,7 +124,7 @@
                     <!-- autocomplete -->
                     <span ng-switch-when="Equals_Autocomplete">
                       <input type="text" name="autocomplete-filter"
-                             class="iz-inst-filter-input" refresh="true"
+                             class="form-control iz-inst-filter-input" refresh="true"
                              autocomplete-items="filter.existentValues"
                              update-autocomplete-items="filtersController.updateAutoCompleteItems(filter, arg0)"
                              ng-change="filtersController.onCurrentValueChange(filter)"
@@ -135,7 +134,7 @@
 
                     <!-- select -->
                     <span ng-switch-when="select">
-                      <select class="iz-inst-filter-input"
+                      <select class="form-control iz-inst-filter-input"
                               ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
                               ng-model="filter.values[0]"
                               ng-change="filtersController.onCurrentValueChange(filter)"></select>
@@ -143,15 +142,15 @@
 
                     <!-- select field -->
                     <span ng-switch-when="field">
-                      <select class="iz-inst-filter-input"
-                              ng-options="field as field.name group by field.tableSysname for field in filtersController.activeFields"
+                      <select class="form-control iz-inst-filter-input"
+                              ng-options="field as field.name group by field.additionalGroup for field in filtersController.activeFields"
                               ng-model="filter.values[0]"
                               ng-change="filtersController.onCurrentValueChange(filter)"></select>
                     </span>
 
                     <!-- select multiple -->
                     <span ng-switch-when="select_multiple">
-                      <select class="iz-inst-filter-input"
+                      <select class="form-control iz-inst-filter-input"
                               ng-model="filter.values" multiple
                               ng-change="filtersController.onCurrentValueChange(filter)"
                               ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues">
@@ -215,7 +214,7 @@
 
                     <!-- in time period -->
                     <span ng-switch-when="inTimePeriod">
-                      <select class="iz-inst-filter-input"
+                      <select class="form-control iz-inst-filter-input"
                               ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
                               ng-model="filter.values[0]"
                               ng-change="filtersController.onCurrentValueChange(filter)"></select>

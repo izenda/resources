@@ -4,7 +4,8 @@
 	 * Utility functions.
 	 */
 	angular.module('izenda.common.compatibility').factory('$izendaUtil', [
-		function () {
+		'$izendaLocale',
+		function ($izendaLocale) {
 
 			/**
 			 * Create human readable variable name version
@@ -22,6 +23,15 @@
 						return text.toUpperCase();
 					});
 				return result;
+			};
+
+			/**
+			 * Check whether "uncategorized" category or not.
+			 */
+			var isUncategorized = function (category) {
+				if (!category || !angular.isString(category))
+					return true;
+				return category.toLowerCase() == $izendaLocale.localeText('js_Uncategorized', 'Uncategorized').toLowerCase();
 			};
 
 			/**
@@ -61,7 +71,8 @@
 			return {
 				humanizeVariableName: humanizeVariableName,
 				convertOptionsByPath: convertOptionsByPath,
-				getOptionByValue: getOptionByValue
+				getOptionByValue: getOptionByValue,
+				isUncategorized: isUncategorized
 			}
 		}]);
 

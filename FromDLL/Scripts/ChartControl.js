@@ -250,15 +250,7 @@ function CHC_Init(id, ct, advancedEnabledId)
 	if ((chartTypes[id]==null) || (chartTypes[id]=="...")) 
 		chartTypes[id] = '';
 	EBC_RegisterControl(id);
-	
-	//var table = document.getElementById(id);
-	//var body = table.tBodies[0];
-	//var count = body.rows.length;
-	//for (var i = 0; i < count; i++)
-	//{
-	//	var funcField = EBC_GetSelectByName(body.rows[i], 'Function');
-	//	EBC_LoadData('FunctionList', null, funcField);
-	//}
+
 	var table = document.getElementById(id+'_radio');
 	var selChoice = EBC_GetSelectByName(table, 'choice');
 	selChoice.options[0].value = chartTypes[id];
@@ -418,10 +410,18 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 			var additionalData = null;
 			if(descriptions != null && descriptions.length > 0)
 			{
-				additionalData = "<option disabled=''>------</option>";
-				for(var j = 0; j < descriptions.length; j++) {
+				additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }] }];
+				for (var j = 0; j < descriptions.length; j++) {
 					var calcField = descriptions[j];
-					additionalData = additionalData + '<option value="' + calcFieldPrefix + calcField.fldId + '"' + (calcField.datatype != null ? (' datatype="' + calcField.datatype + '"') : '') + ' fieldIndex="' + calcField.fieldIndex + '">[' + calcField.description + '] (calc)</option>';
+					var option = {
+						value: calcFieldPrefix + calcField.fldId,
+						text: '[' + calcField.description + '] (calc)',
+						fieldIndex: calcField.fieldIndex
+					};
+					if (calcField.datatype != null) {
+						option.datatype = calcField.datatype;
+					}
+					additionalData[0].options.push(option);
 				}
 			}
 			if(numericOnly)

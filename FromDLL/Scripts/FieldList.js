@@ -52,6 +52,24 @@ var fieldValueChecked = {};
 var groupByMonthName;
 var SC_onMultivaluedCheckBoxValueChangedHandlers = {};
 
+function SC_EnableDisableExpression(sender) {
+	var senderRow = EBC_GetRow(sender);
+	if (!senderRow)
+		return;
+	var table = EBC_GetParentTable(senderRow);
+	if (!table || table.rows.length <= senderRow.rowIndex + 1)
+		return;
+	var etRow = table.rows[senderRow.rowIndex + 1];
+	if (!etRow)
+		return;
+	var etSel = EBC_GetSelectByName(etRow, "ExpressionType");
+	if (!etSel)
+		return;
+	etSel.disabled = sender.value.length <= 0 || sender.value.indexOf('example:') == 0;
+	if (etSel.disabled)
+		EBC_SetSelectedIndexByValue(etSel, '...');
+}
+
 function SC_OnDrillDownChange(obj) {
 	if (obj == null)
 		return;
@@ -316,11 +334,6 @@ function SC_OnTableListChangedHandler(id, tables, loadFields, extraColumn) {
 	}
 	else
 		SC_LoadColumns(id, "CombinedColumnList", "ignoreSort=true&tables=" + tables);
-	//EBC_LoadData(
-	//	"CombinedColumnList", 
-	//	"tables=" + tables +
-	//	"&" + "ignoreSort=true",
-	//	null);
 }
 
 function SC_OnExtraColumnChangedHandler(e, el, columnName) {
@@ -748,7 +761,7 @@ function SC_ResetRowToDefault(context) {
 		var expressionTypeSelect = EBC_GetSelectByName(row, prefix + "ExpressionType");
 		if (expressionTypeSelect) {
 			expressionTypeSelect.selectedIndex = 0;
-			expressionTypeSelect.disabled = false;
+			expressionTypeSelect.disabled = true;
 		}
 
 		/* Group By Expression */
@@ -1243,7 +1256,7 @@ function SC_Init(id, checked, mustGroupOrFunction, a, g) {
 	fieldValueChecked[id] = checked;
 	SC_mustGroupOrFunction[id] = mustGroupOrFunction;
 	EBC_RegisterControl(id);
-	EBC_SetData('@SC/Empty', '<option value=\'...\'>...</option>');
+	EBC_SetData('@SC/Empty', [{ name: '', options: [{ value: '...', text: '...' }]}]);
 	var table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, SC_InitNewRow);
 	var body = table.tBodies[0];

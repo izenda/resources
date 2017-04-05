@@ -10,6 +10,7 @@
 
   <!-- notifications -->
   <div ng-include="'Resources/components/common/templates/notification.html'"></div>
+  <div ng-include="'Resources/components/common/templates/message.html'"></div>
 
   <!-- schedule dialog -->
   <div izenda-bootstrap-modal opened="toolbarController.scheduleModalOpened">
@@ -253,7 +254,7 @@
             </a>
           </li>
           <!-- presentation mode -->
-          <li ng-show="!toolbarController.isOneColumnView()">
+          <li ng-show="!toolbarController.isOneColumnView() && toolbarController.galleryState.hasTiles">
             <a ng-attr-title="{{'js_PresentationMode' | izendaLocale: 'Presentation mode'}}"
                ng-click="toolbarController.toggleGalleryMode(true)"
                ng-hide="toolbarController.galleryState.isGalleryEnabled">

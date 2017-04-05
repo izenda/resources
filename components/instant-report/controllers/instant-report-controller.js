@@ -287,6 +287,7 @@
 			$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
 				$izendaInstantReportStorage.getFilters().push(filter);
 				filter.initialized = true;
+				$izendaInstantReportValidation.validateReportSet();
 				$izendaInstantReportStorage.setFilterOperator(filter, null).then(function () {
 					$scope.$applyAsync();
 				});
@@ -472,19 +473,10 @@
 		/**
 		 * Sync current settings and set report set as current report set.
 		 */
-		vm.syncReportSetAndEval = function (applyPreviewTop, evalCode) {
+		vm.syncReportSetAndEval = function (applyPreviewTop) {
 			vm.isSynchronized = false;
 			return $q(function (resolve, reject) {
 				$izendaInstantReportStorage.setReportSetAsCrs(applyPreviewTop).then(function () {
-					if (angular.isString(evalCode)) {
-						try {
-							eval(evalCode);
-							resolve();
-						} catch (error) {
-							$log.error('Can\'t eval code: "' + evalCode + '". Error: ', error);
-							reject();
-						}
-					}
 					vm.isSynchronized = true;
 					$scope.$applyAsync();
 				});

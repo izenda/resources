@@ -89,10 +89,10 @@
 							}
 						}
 					}
-
-					var helperAttr = fieldDragged$.attr('onmouseup');
-					if (helperAttr != null) {
-						eval(helperAttr.replace('FiClick', 'FiClickForcedDrag'));
+					var tableIndex = Number(fieldDragged$.attr('tableIndex'));
+					var fieldIndex = Number(fieldDragged$.attr('fieldIndex'));
+					if (!isNaN(tableIndex) && !isNaN(fieldIndex)) {
+						FiClickForcedDrag(tableIndex, fieldIndex, false, false);
 					}
 				},
 				'fnRemoveCallback': function (evt, index) {
@@ -104,9 +104,11 @@
 								var itmId = th$.attr('itmId');
 								var itm$ = jq$('#' + itmId);
 								itm$.attr('sorder', '-1');
-								var helperAttr = itm$.attr('onmouseup');
-								if (helperAttr != null)
-									eval(helperAttr.replace('FiClick', 'FiClickForcedDrag'));
+								var tableIndex = Number(fieldDragged$.attr('tableIndex'));
+								var fieldIndex = Number(fieldDragged$.attr('fieldIndex'));
+								if (!isNaN(tableIndex) && !isNaN(fieldIndex)) {
+									FiClickForcedDrag(tableIndex, fieldIndex, false, false);
+								}
 								itm$.removeClass('checked');
 							}
 				}

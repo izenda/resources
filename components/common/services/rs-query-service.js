@@ -161,7 +161,10 @@
 						errorText = $izendaLocale.localeText('localeVariable', 'An unknown error occurred.');
 					}
 					if (resolver.$izendaRsQueryCancelled) {
-						$rootScope.$broadcast('izendaShowNotificationEvent', [errorText, 'Error']);
+						$rootScope.$broadcast('izendaShowMessageEvent', [
+							errorText,
+							$izendaLocale.localeText('js_Error', 'Error'),
+							'danger']);
 						resolver.reject(errorText);
 					}
 				});

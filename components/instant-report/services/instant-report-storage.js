@@ -167,6 +167,7 @@
 
 			var activeTables = [];
 			var activeFields = [];
+			var calcFields = [];
 			var activeCheckedFields = [];
 			var constaints = [];
 			var vgStyles = null;
@@ -193,30 +194,34 @@
 				return $izendaInstantReportQuery.getFieldFilterOperatorValueType(operator);
 			};
 
-			var isUncategorized = function (categoryName) {
-				return !angular.isString(categoryName)
-					|| categoryName.trim() === ''
-					|| categoryName.toLowerCase() === UNCATEGORIZED.toLowerCase();
-			};
-
-			var getReportSetFullName = function () {
+			var _getReportSetFullName = function () {
 				var category = reportSet.reportCategory;
 				var name = reportSet.reportName;
 				if (!angular.isString(name) || name.trim() === '')
 					return null;
 				var result = '';
-				if (!isUncategorized(category)) {
+				if (!$izendaUtil.isUncategorized(category)) {
 					result += category + $izendaSettings.getCategoryCharacter();
 				}
 				result += name;
 				return result;
 			};
 
-			var getNextId = function () {
+			var _getNextId = function () {
 				return nextId++;
 			};
 
-			var getNextOrder = function () {
+			var _guid = function () {
+				function s4() {
+					return Math.floor((1 + Math.random()) * 0x10000)
+						.toString(16)
+						.substring(1);
+				}
+				return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+					s4() + '-' + s4() + s4() + s4();
+			};
+
+			var _getNextOrder = function () {
 				return orderCounter++;
 			};
 
@@ -392,7 +397,10 @@
 				return null;
 			};
 
-			var getAllTables = function () {
+			/**
+			 * Get all tables in all datasources
+			 */
+			var _getAllTables = function () {
 				var result = [];
 				angular.element.each(getDataSources(), function () {
 					var category = this;
@@ -410,19 +418,20 @@
 				return activeTables;
 			};
 
-			/**
-			 * Find field by sysname
-			 */
-			var getFieldBySysName = function (sysname, findInAllTables) {
+			var _getField = function (propertyName, propertyValue, findInAllTables) {
+				if (propertyValue && propertyValue.indexOf('fldId|') === 0) {
+					var calcField = getCalcField(propertyValue);
+					return calcField;
+				}
 				var result = null;
 				var tablesCollection = (typeof (findInAllTables) === 'boolean' && findInAllTables)
-					? getAllTables()
+					? _getAllTables()
 					: getActiveTables();
 				angular.element.each(tablesCollection, function () {
 					if (this.lazy)
 						return;
 					angular.element.each(this.fields, function () {
-						if (this.sysname === sysname)
+						if (this[propertyName] === propertyValue)
 							result = this;
 					});
 				});
@@ -430,10 +439,37 @@
 			};
 
 			/**
+			 * Find field by sysname
+			 */
+			var getFieldBySysName = function (sysname, findInAllTables) {
+				return _getField('sysname', sysname, findInAllTables);
+			};
+
+			/**
+			 * Find field by guid
+			 */
+			var getCalcField = function (calcFieldId) {
+				var result = null
+				calcFields.forEach(function (calcField) {
+					if (calcField.sysname === calcFieldId)
+						result = calcField;
+				});
+				return result;
+			};
+
+			/**
 			 * Get checked and not checked fields in active tables;
 			 */
-			var getAllFieldsInActiveTables = function () {
-				return activeFields;
+			var getAllFieldsInActiveTables = function (appendCalcFields) {
+				activeFields.forEach(function (field) {
+					field.additionalGroup = field.tableName;
+				});
+				if (!appendCalcFields)
+					return activeFields;
+				calcFields.forEach(function (field) {
+					field.additionalGroup = $izendaLocale.localeText('js_calcFields', 'Calculated Fields');
+				});
+				return activeFields.concat(calcFields);
 			};
 
 			/**
@@ -518,6 +554,13 @@
 			var isFieldGrouped = function (field) {
 				var compareWithValue = EMPTY_FIELD_GROUP_OPTION.value;
 				return field.groupByFunction.value.toLowerCase() !== compareWithValue.toLowerCase();
+			}
+
+			/**
+			 * Check if field grouped and not 'group' function is applied.
+			 */
+			var isFieldGroupedWithFunction = function (field) {
+				return isFieldGrouped(field) && field.groupByFunction.value.toLowerCase() !== 'group'
 			}
 
 			/**
@@ -941,7 +984,71 @@
 				});
 			};
 
+			/**
+			 * Check is calc field exist
+			 */
+			var _isCalcFieldExist = function (calcFieldId) {
+				for (var i = 0; i < calcFields.length; i++) {
+					if (calcFieldId === calcFields[i].sysname)
+						return true;
+				}
+				return false;
+			};
 
+			/**
+			 * Update calc field properties
+			 */
+			var _updateCalcField = function (field, calcField) {
+				calcField.name = '[' + field.description + '] (calc)'
+			};
+
+			/**
+			 * Create calc field
+			 */
+			var _createCalcField = function (field) {
+				var result = angular.copy(field);
+				result.sysname = 'fldId|' + field.guid;
+				_updateCalcField(field, result);
+				return result;
+			};
+
+			/**
+			 * Sync calc fields
+			 */
+			var _syncCalcFieldsArray = function () {
+				var newCalcFields = [];
+				// remove old calc fields
+				calcFields.forEach(function (calcField) {
+					var foundField = null;
+					var fieldGuid = calcField.sysname.substring(6);
+					eachActiveFields(function (field) {
+						if (fieldGuid === field.guid)
+							foundField = field;
+					});
+					var isExpressionSet = foundField
+								&& angular.isString(foundField.expression)
+								&& foundField.expression.trim() !== ''
+								&& foundField.expressionType !== EMPTY_EXPRESSION_TYPE;
+					if (foundField && (isFieldGroupedWithFunction(foundField) || isExpressionSet)) {
+						newCalcFields.push(calcField);
+						_updateCalcField(foundField, calcField);
+					}
+				});
+				calcFields = newCalcFields;
+
+				// add new
+				eachActiveFields(function (field) {
+					var isExpressionSet = angular.isString(field.expression)
+								&& field.expression.trim() !== ''
+								&& field.expressionType !== EMPTY_EXPRESSION_TYPE;
+
+					// if field grouped and it is not simple 'GROUP' or it has expression
+					if (!_isCalcFieldExist('fldId|' + field.guid) && (isFieldGroupedWithFunction(field) || isExpressionSet)) {
+						var calcField = _createCalcField(field);
+						calcFields.push(calcField);
+					}
+				});
+			};
 
 			/**
 			 * Create active tables array
@@ -964,6 +1071,7 @@
 						}
 					});
 				});
+				_syncCalcFieldsArray();
 			}
 
 			/**
@@ -1005,7 +1113,7 @@
 
 				// if table checked state false -> true:
 				if (hasCheckedFields && !table.active)
-					table.order = getNextOrder();
+					table.order = _getNextOrder();
 				// set table active
 				table.active = restrictTableUncheck || hasCheckedFields || !table.enabled;
 
@@ -1132,6 +1240,7 @@
 				fieldObject.groupBySubtotalFunctionOptions = [];
 				fieldObject.subtotalExpression = '';
 				fieldObject.allowedInFilters = true;
+				fieldObject.isSpParameter = false;
 				fieldObject.sort = null;
 				fieldObject.italic = false;
 				fieldObject.columnGroup = '';
@@ -1157,10 +1266,21 @@
 				angular.extend(fieldObject, defaultValues);
 			};
 
-			var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup, fieldType, fieldSqlType, allowedInFilters) {
-				var fieldObject = {};
-				resetFieldObject(fieldObject, {
-					id: getNextId(),
+			var _createFieldObject = function (fieldProperties) {
+				var fieldObject = {
+					id: _getNextId()
+				};
+				resetFieldObject(fieldObject, fieldProperties);
+				return fieldObject;
+			}
+
+			/**
+			 * Create field object.
+			 */
+			var createFieldObject = function (fieldName, tableId, tableSysname, tableName, fieldSysname, fieldTypeGroup,
+						fieldType, fieldSqlType, allowedInFilters, isSpParameter) {
+				var fieldObject = _createFieldObject({
+					guid: _guid(),
 					parentId: tableId,
 					name: fieldName,
 					tableSysname: tableSysname,
@@ -1169,7 +1289,8 @@
 					typeGroup: fieldTypeGroup,
 					type: fieldType,
 					sqlType: fieldSqlType,
-					allowedInFilters: allowedInFilters
+					allowedInFilters: allowedInFilters,
+					isSpParameter: isSpParameter
 				});
 				return fieldObject;
 			};
@@ -1178,6 +1299,8 @@
 			 * Copy field object state
 			 */
 			var copyFieldObject = function (from, to, replaceName) {
+				to.id = from.id;
+				to.guid = from.guid;
 				to.isInitialized = from.isInitialized;
 				to.parentId = from.parentId;
 				to.tableSysname = from.tableSysname;
@@ -1261,7 +1384,7 @@
 			var convertAndAddFields = function (tableObject, fields) {
 				angular.element.each(fields, function (i, field) {
 					var fieldObject = createFieldObject(field.name, tableObject.id, tableObject.sysname, tableObject.name, field.sysname,
-						field.typeGroup, field.type, field.sqlType, field.allowedInFilters);
+						field.typeGroup, field.type, field.sqlType, field.allowedInFilters, field.isSpParameter == "True");
 					autoUpdateFieldDescription(fieldObject);
 					tableObject.fields.push(fieldObject);
 				});
@@ -1279,7 +1402,7 @@
 				var uncategorized = null;
 				angular.element.each(dataSources, function (iCategory, category) {
 					var categoryObject = {
-						id: getNextId(),
+						id: _getNextId(),
 						name: category.DataSourceCategory,
 						tables: [],
 						visible: true,
@@ -1290,11 +1413,12 @@
 					// iterate tables
 					angular.element.each(category.tables, function (tableName, table) {
 						var tableObject = {
-							id: getNextId(),
+							id: _getNextId(),
 							order: 0,
 							parentId: categoryObject.id,
 							name: table.name,
 							sysname: table.sysname,
+							tableType: table.tableType,
 							fields: [],
 							visible: true,
 							active: false,
@@ -1313,7 +1437,7 @@
 						categoryObject.tables.push(tableObject);
 					});
 
-					if (isUncategorized(categoryObject.name) && $izendaInstantReportSettings.moveUncategorizedToLastPostion) {
+					if ($izendaUtil.isUncategorized(categoryObject.name) && $izendaInstantReportSettings.moveUncategorizedToLastPostion) {
 						uncategorized = categoryObject;
 					} else {
 						result.push(categoryObject);
@@ -1333,6 +1457,7 @@
 
 			var createFieldObjectForSend = function (field) {
 				return {
+					guid: field.guid,
 					sysname: field.sysname,
 					description: field.description ? field.description : $izendaUtil.humanizeVariableName(field.name),
 					format: field.format,
@@ -1445,26 +1570,29 @@
 					// prepare filter values to send
 					var preparedValues = filter.values;
 					// date string created according to format which used in "internal static string DateLocToUs(string date)":
-					var dateformat = $izendaSettings.getDateFormat();
-					var defaultDateFormat = $izendaSettings.getDefaultDateFormat();
-					var dateFormatString = defaultDateFormat.shortDate +
-						(dateformat.showTimeInFilterPickers ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '');
 					var valueType = getFieldFilterOperatorValueType(filter.operator);
 					if (valueType === 'select_multiple' || valueType === 'select_popup' || valueType === 'select_checkboxes') {
 						preparedValues = [filter.values.join(',')];
 					} else if (valueType === 'field' && filter.values.length === 1 && filter.values[0] !== null) {
 						preparedValues = [filter.values[0].sysname];
 					} else if (valueType === 'twoDates') {
-						var momentObj1 = moment(filter.values[0]),
-								momentObj2 = moment(filter.values[1]);
+
+						var momentObj1 = null,
+								momentObj2 = null;
+						if (filter.values[0])
+							momentObj1 = moment(filter.values[0]);
+						if (filter.values[1])
+							momentObj2 = moment(filter.values[1]);
 						preparedValues = [
-							momentObj1.isValid() ? momentObj1.format(dateFormatString) : null,
-							momentObj2.isValid() ? momentObj2.format(dateFormatString) : null
+							momentObj1 && momentObj1.isValid() ? momentObj1.format($izendaSettings.getDefaultDateFormatString()) : null,
+							momentObj2 && momentObj2.isValid() ? momentObj2.format($izendaSettings.getDefaultDateFormatString()) : null
 						];
 					} else if (valueType === 'oneDate') {
-						var momentObj = moment(filter.values[0]);
+						var momentObj = null;
+						if (filter.values[0])
+							momentObj = moment(filter.values[0]);
 						preparedValues = [
-							momentObj.isValid() ? momentObj.format(dateFormatString) : null
+							momentObj && momentObj.isValid() ? momentObj.format($izendaSettings.getDefaultDateFormatString()) : null
 						];
 					}
 
@@ -1484,6 +1612,7 @@
 					});
 					if (isBlank)
 						filterObj.values = [];
+
 					reportSetConfig.filters.push(filterObj);
 				});
 
@@ -1531,7 +1660,7 @@
 						return;
 					}
 					$izendaInstantReportQuery.getFieldsInfo(table.sysname).then(function (data) {
-						convertAndAddFields(table, data[0].fields);
+						convertAndAddFields(table, data.fields);
 						resolve(true);
 					});
 				});
@@ -1599,14 +1728,14 @@
 				}
 				rs.reportName = nameToSave;
 				rs.reportCategory = categoryToSave;
-				if (isUncategorized(rs.reportCategory)) {
+				if ($izendaUtil.isUncategorized(rs.reportCategory)) {
 					rs.reportCategory = '';
 				}
 				var reportSetToSend = createReportSetConfigForSend();
 				return $q(function (resolve) {
 					$izendaInstantReportQuery.saveReportSet(reportSetToSend).then(function (result) {
 						if (angular.isString(result) && result.toLowerCase() === 'ok') {
-							var reportSetFullName = getReportSetFullName();
+							var reportSetFullName = _getReportSetFullName();
 							if (angular.isString(reportSetFullName))
 								$izendaUrl.setReportFullName(reportSetFullName);
 						}
@@ -1686,7 +1815,7 @@
 				setReportSetAsCrs().then(function () {
 					var url = $izendaUrl.settings.urlReportDesigner;
 					if (angular.isString(reportSet.reportName) && reportSet.reportName !== '')
-						url += '?rn=' + getReportSetFullName() + '&tab=Fields';
+						url += '?rn=' + _getReportSetFullName() + '&tab=Fields';
 					else
 						url += '?tab=Fields';
 					$window.location.href = getAppendedUrl(url);
@@ -1782,7 +1911,7 @@
 
 				// check: is filter refer to field which in active table.
 				if (filter.field !== null) {
-					var aFields = getAllFieldsInActiveTables();
+					var aFields = getAllFieldsInActiveTables(true);
 					var found = false;
 					var filterField = filter.field;
 					angular.element.each(aFields, function () {
@@ -1823,11 +1952,38 @@
 			};
 
 			/**
+			 * Check all stored procedure parameters assigned in filters
+			 */
+			var isAllSpParametersAssigned = function () {
+				var filters = getFilters();
+				var spParamFields = getAllFieldsInActiveTables().filter(function (field) {
+					return field.isSpParameter;
+				});
+				if (spParamFields.length == 0)
+					return true;
+
+				var foundUnassignedParam = false;
+				spParamFields.forEach(function (field) {
+					var found = false;
+					filters.forEach(function (filter) {
+						if (filter.field && filter.field === field)
+							found = true;
+					});
+					if (!found)
+						foundUnassignedParam = true;
+				});
+				return !foundUnassignedParam;
+			};
+
+			/**
 			 * Get filter operator list for field
 			 */
 			var getFieldFilterOperatorList = function (field) {
 				return $q(function (resolve) {
-					$izendaInstantReportQuery.getFieldOperatorList(field).then(function (data) {
+					var tablesParam = getActiveTables().map(function (table) {
+						return table.sysname;
+					}).join(',');
+					$izendaInstantReportQuery.getFieldOperatorList(field, tablesParam).then(function (data) {
 						var result = [];
 						angular.element.each(data, function () {
 							var groupName = this.name ? this.name : undefined;
@@ -1856,6 +2012,7 @@
 						resolve(filter);
 						return;
 					}
+
 					getFieldFilterOperatorList(filter.field).then(function (result) {
 						// select filter operator to apply
 						var operatorNameToApply = null;
@@ -1872,13 +2029,10 @@
 						if (operatorType === 'field') {
 							filter.values = [getFieldBySysName(filter.values[0])];
 						} else if (operatorType === 'oneDate' || operatorType === 'twoDates') {
-							var dateformat = $izendaSettings.getDateFormat();
-							var defaultDateFormat = $izendaSettings.getDefaultDateFormat();
-							var dateFormatString = defaultDateFormat.shortDate +
-								(dateformat.showTimeInFilterPickers ? ' ' + defaultDateFormat.timeFormatForInnerIzendaProcessing : '');
 							var valueDates = [];
 							angular.element.each(filter.values, function () {
-								var parsedDate = moment(this, dateFormatString, true);
+								// accept both formats MM/DD/YYYY and M/D/YYYY
+								var parsedDate = moment(this, [$izendaSettings.getDefaultDateFormatString(), $izendaSettings.getDefaultDateFormatString('M/D/YYYY')], true);
 								if (parsedDate.isValid())
 									valueDates.push(parsedDate._d);
 							});
@@ -1980,7 +2134,8 @@
 					// load existent values
 					var operatorType = getFieldFilterOperatorValueType(filter.operator);
 					if (['select', 'Equals_Autocomplete', 'select_multiple', 'select_popup', 'select_checkboxes'].indexOf(operatorType) >= 0) {
-						$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true, reportSet.filterOptions.filterLogic)
+						setReportSetAsCrs(false).then(function () {
+							$izendaInstantReportQuery.getExistentValuesList(getActiveTables(), constraintFilters, filter, true, reportSet.filterOptions.filterLogic)
 							.then(function (data) {
 								filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
 								syncValues(filter);
@@ -1990,6 +2145,7 @@
 								filter.initialized = true;
 								resolve(filter);
 							});
+						});
 					} else if (operatorType === 'inTimePeriod') {
 						$izendaInstantReportQuery.getPeriodList().then(function (data) {
 							filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
@@ -2075,6 +2231,11 @@
 				var filterObject = angular.extend({}, $injector.get('izendaFilterObjectDefaults'));
 				// set field
 				var field = getFieldBySysName(fieldSysName);
+				if (fieldSysName && fieldSysName.indexOf('fldId|') === 0) {
+					field = getCalcField(fieldSysName);
+				} else
+					field = getFieldBySysName(fieldSysName);
+
 				filterObject.field = field;
 				if (angular.isDefined(values)) {
 					filterObject.values = values;
@@ -2158,7 +2319,7 @@
 			 * Check current active tables and remove filters which connected to non-active fields
 			 */
 			var syncFilters = function () {
-				var aFields = getAllFieldsInActiveTables();
+				var aFields = getAllFieldsInActiveTables(true);
 				var filters = getFilters();
 
 				// find filters to remove
@@ -2183,26 +2344,19 @@
 			};
 
 			/**
-			 * Parse filter custom temlpate string
-			 * format: "###USEPAGE###http://.../CustomFilters/CustomFilterTemplate.aspx###"
-			 */
-			var parseFilterCustomTemplate = function (templateString) {
-				if (angular.isString(templateString) && templateString.indexOf("###USEPAGE###") != -1) {
-					return templateString.substring(13, templateString.length - 3);
-				}
-				return templateString;
-			};
-
-			/**
 			 * Load custom template for popup filter.
 			 */
 			var getPopupFilterCustomTemplate = function (filter) {
 				return $q(function (resolve) {
 					var field = filter.field;
+					if (!filter.field) {
+						resolve();
+						return;
+					}
 					var table = getTableById(field.parentId);
 					$izendaInstantReportQuery.getExistentPopupValuesList(field, table).then(function (data) {
-						if (angular.isString(data))
-							filter.customPopupTemplateUrl = parseFilterCustomTemplate(data);
+						if (data.userpage != null)
+							filter.customPopupTemplateUrl = data.userpage;
 						else
 							filter.customPopupTemplateUrl = null;
 						resolve();
@@ -2321,14 +2475,21 @@
 			};
 
 			/**
+			 * Create auto description.
+			 */
+			var _generateDescription = function (field) {
+				if (isFieldGrouped(field) && field.groupByFunction.value.toLowerCase() !== 'group')
+					return field.groupByFunction.text + ' (' + $izendaUtil.humanizeVariableName(field.name) + ')';
+				else
+					return $izendaUtil.humanizeVariableName(field.name);
+			}
+
+			/**
 			 * Refresh field description
 			 */
 			var autoUpdateFieldDescription = function (field) {
 				if (!field.isDescriptionSetManually) {
-					if (isFieldGrouped(field) && field.groupByFunction.value.toLowerCase() !== 'group')
-						field.description = field.groupByFunction.text + ' (' + $izendaUtil.humanizeVariableName(field.name) + ')';
-					else
-						field.description = $izendaUtil.humanizeVariableName(field.name);
+					field.description = _generateDescription(field);
 				}
 			};
 
@@ -2348,6 +2509,8 @@
 				// auto update description
 				autoUpdateFieldDescription(field);
 
+				_syncCalcFieldsArray();
+
 				// validate
 				validateReport();
 			};
@@ -2356,7 +2519,9 @@
 			 * Update functions, formats after expression typegroup was changed
 			 */
 			var onExpressionTypeGroupApplyed = function (field) {
-				loadGroupFunctionsAndFormatsToField(field, field.groupByFunction.value, field.format.value, field.groupBySubtotalFunction.value);
+				loadGroupFunctionsAndFormatsToField(field, field.groupByFunction.value, field.format.value, field.groupBySubtotalFunction.value).then(function () {
+					_syncCalcFieldsArray();
+				});
 			}
 
 			/**
@@ -2387,7 +2552,7 @@
 						return;
 					}
 					field.checked = angular.isDefined(value) ? value : !field.checked;
-					field.order = getNextOrder();
+					field.order = _getNextOrder();
 
 					// update state of datasources tree
 					updateParentFoldersAndTables(field, false, restrictTableUncheck);
@@ -2438,7 +2603,7 @@
 						return;
 					}
 					table.active = !table.active;
-					table.order = getNextOrder();
+					table.order = _getNextOrder();
 
 					if (!table.active) {
 						// deactivate all table fields
@@ -2461,39 +2626,73 @@
 				});
 			};
 
-			/**
-			 * Add more than one same field to report
-			 */
-			var addAnotherField = function (field, needToSelect) {
+			var _prepareParentFieldForMultipleFields = function (field) {
 				var parentField = field;
 				if (parentField.multipleColumns.length === 0) {
+					// if field has no multiple fields:
 					var copyField = parentField = angular.copy(field);
 					copyField.isMultipleColumns = true;
 					copyField.multipleColumnsCounter = 1;
 					copyField.multipleColumns.push(field);
-					// set copy field instead of original field.
 					var table = getTableById(field.parentId);
 					var fieldIndex = table.fields.indexOf(field);
 					table.fields[fieldIndex] = copyField;
-
-					if (needToSelect) {
-						unselectAllFields();
-						field.selected = true;
-						setCurrentActiveField(field);
-					}
 				}
+				return parentField;
+			}
+
+			/**
+			 * Add ready-to-use another field (no need to clone parent field)
+			 */
+			var addExactAnotherField = function (field, anotherFieldProperties) {
+				var anotherField = _createFieldObject(anotherFieldProperties);
+				// add to parent field.
+				var parentField = _prepareParentFieldForMultipleFields(field);
+				parentField.multipleColumns.push(anotherField);
+				parentField.multipleColumnsCounter++;
+				anotherField.parentFieldId = parentField.id;
+				anotherField.parentId = parentField.parentId;
+				anotherField.name = parentField.name + parentField.multipleColumnsCounter;
+				anotherField.tableSysname = parentField.tableSysname;
+				anotherField.tableName = parentField.tableName;
+				anotherField.sysname = parentField.sysname;
+				anotherField.typeGroup = parentField.typeGroup;
+				anotherField.type = parentField.type;
+				anotherField.sqlType = parentField.sqlType;
+				anotherField.allowedInFilters = parentField.allowedInFilters;
+				anotherField.isDescriptionSetManually = true;
+				return anotherField;
+			};
+
+			/**
+			 * Add more than one same field to report
+			 */
+			var addAnotherField = function (field, needToSelect) {
+				var parentField = _prepareParentFieldForMultipleFields(field);
 
 				// add another field to parentField
-				var anotherField = createFieldObject(parentField.name + (parentField.multipleColumnsCounter++), parentField.parentId, parentField.tableSysname, parentField.tableName,
-					parentField.sysname, parentField.typeGroup, parentField.type, parentField.sqlType);
-				anotherField.order = getNextOrder();
+				parentField.multipleColumnsCounter++;
+				var anotherField = createFieldObject(parentField.name + parentField.multipleColumnsCounter, parentField.parentId,
+					parentField.tableSysname, parentField.tableName, parentField.sysname, parentField.typeGroup,
+					parentField.type, parentField.sqlType, parentField.isSpParameter);
+				if (parentField.description)
+					anotherField.description = parentField.description + ' ' + (parentField.multipleColumns.length + 1);
+				anotherField.allowedInFilters = parentField.allowedInFilters;
+				anotherField.order = _getNextOrder();
+				anotherField.guid = _guid();
 				anotherField.parentFieldId = parentField.id;
 
 				initializeField(anotherField).then(function () {
 					applyAutoGroups();
-					autoUpdateFieldDescription(anotherField);
 				});
 				parentField.multipleColumns.push(anotherField);
+
+				// select if needed
+				if (needToSelect) {
+					unselectAllFields();
+					anotherField.selected = true;
+					setCurrentActiveField(anotherField);
+				}
 
 				return anotherField;
 			};
@@ -2506,6 +2705,10 @@
 				var subtotalFunctionValue = fieldConfig.groupBySubtotalFunction.value;
 				var formatValue = fieldConfig.format.value;
 				angular.extend(field, fieldConfig);
+				// remove column group from description: 'field description@column group'
+				if (field.description.lastIndexOf('@') > 0 && field.columnGroup) {
+					field.description = field.description.substring(0, field.description.lastIndexOf('@'));
+				}
 				if (field.order > orderCounter)
 					orderCounter = field.order + 1;
 
@@ -2515,9 +2718,23 @@
 				});
 
 				loadGroupFunctionsAndFormatsToField(field, functionValue, formatValue, subtotalFunctionValue).then(function (f) {
-					autoUpdateFieldDescription(f);
+					if (fieldConfig.description) {
+						// if description differs from the default generated description: mark it as "set manually"
+						f.isDescriptionSetManually = fieldConfig.description !== _generateDescription(f);
+						f.description = fieldConfig.description;
+					} else
+						autoUpdateFieldDescription(f);
 					f.isInitialized = true;
 				});
+			}
+
+			var applyDescription = function (field) {
+				var autoDescription = _generateDescription(field);
+				if (!field.description)
+					field.isDescriptionSetManually = false;
+				else
+					field.isDescriptionSetManually = field.description !== autoDescription;
+				_syncCalcFieldsArray();
 			}
 
 			/**
@@ -2694,7 +2911,7 @@
 							var table = getTableBySysname(tableObj.sysname);
 							var loadFieldPromise = loadLazyFields(table);
 							table.active = true;
-							table.order = getNextOrder();
+							table.order = _getNextOrder();
 							lazyPromises.push(loadFieldPromise);
 						});
 
@@ -2729,23 +2946,25 @@
 								if (!angular.isObject(field))
 									$log.error('Field ' + sysname + ' not found in datasources');
 
-								if (activeField.description) {
-									field.isDescriptionSetManually = true;
-									field.description = activeField.description;
-								}
-
 								var isFieldMultiple = addedFieldSysNames.indexOf(sysname) >= 0;
 								if (!isFieldMultiple) {
+									field.guid = activeField.guid;
 									loadReportField(field, activeField);
 									field.checked = true;
 									updateParentFoldersAndTables(field, true);
 									addedFieldSysNames.push(sysname);
 								} else {
-									var anotherField = addAnotherField(field);
+									var anotherField = addExactAnotherField(field, activeField);
+									anotherField.guid = activeField.guid;
+									if (activeField.description) {
+										anotherField.isDescriptionSetManually = true;
+										anotherField.description = activeField.description;
+									}
 									loadReportField(anotherField, activeField);
 									anotherField.checked = true;
 								}
 							});
+							_syncCalcFieldsArray();
 
 							// initialization promises
 							var promises = [];
@@ -2860,7 +3079,7 @@
 					return a.order - b.order;
 				});
 				angular.element.each(vgFields, function () {
-					this.order = getNextOrder();
+					this.order = _getNextOrder();
 				});
 				var nonVgFields = angular.element.grep(activeFields, function (f) {
 					return !f.isVgUsed;
@@ -2869,7 +3088,7 @@
 					return a.order - b.order;
 				});
 				angular.element.each(nonVgFields, function () {
-					this.order = getNextOrder();
+					this.order = _getNextOrder();
 				});
 			};
 
@@ -2937,19 +3156,19 @@
 				var i;
 				if (fromIndex < toIndex) {
 					for (i = 0; i < fromIndex; i++)
-						activeFieldsSorted[i].order = getNextOrder();
+						activeFieldsSorted[i].order = _getNextOrder();
 					for (i = fromIndex + 1; i <= toIndex; i++)
-						activeFieldsSorted[i].order = getNextOrder();
-					fromElement.order = getNextOrder();
+						activeFieldsSorted[i].order = _getNextOrder();
+					fromElement.order = _getNextOrder();
 					for (i = toIndex + 1; i < activeFieldsSorted.length; i++)
-						activeFieldsSorted[i].order = getNextOrder();
+						activeFieldsSorted[i].order = _getNextOrder();
 				} else {
 					for (i = 0; i < toIndex; i++)
-						activeFieldsSorted[i].order = getNextOrder();
-					fromElement.order = getNextOrder();
+						activeFieldsSorted[i].order = _getNextOrder();
+					fromElement.order = _getNextOrder();
 					for (i = toIndex; i < activeFieldsSorted.length; i++)
 						if (i !== fromIndex)
-							activeFieldsSorted[i].order = getNextOrder();
+							activeFieldsSorted[i].order = _getNextOrder();
 				}
 				updateVisualGroupFieldOrders();
 			};
@@ -3052,6 +3271,7 @@
 				createFieldObject: createFieldObject,
 				copyFieldObject: copyFieldObject,
 				applyFieldChecked: applyFieldChecked,
+				applyDescription: applyDescription,
 				applyFieldSelected: applyFieldSelected,
 				applyTableActive: applyTableActive,
 				addAnotherField: addAnotherField,
@@ -3065,6 +3285,7 @@
 				applyVisualGroup: applyVisualGroup,
 				isBinaryField: isBinaryField,
 				isActiveFieldsContainsBinary: isActiveFieldsContainsBinary,
+				isAllSpParametersAssigned: isAllSpParametersAssigned,
 				updateVisualGroupFieldOrders: updateVisualGroupFieldOrders,
 				swapFields: swapFields,
 				moveFieldToPosition: moveFieldToPosition,

@@ -52,7 +52,7 @@
 
 		(function () {
 			/* Backward Compatibility Section */
-			if (VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
+			if (VIS_CONTEXT.props && VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
 				var props = {};
 				try {
 					var oldProps = JSON.parse(VIS_CONTEXT.props);
