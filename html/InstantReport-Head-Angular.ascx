@@ -36,6 +36,8 @@
 <script type="text/javascript" src="./rp.aspx?js=datepicker.langpack"></script>
 <script type="text/javascript" src="./rp.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
 <script type="text/javascript" src="./rp.aspx?js=tag-it"></script>
+<script type="text/javascript" src="./rp.aspx?extres=js.shrinkable-grid.js"></script>
+
 
 <!-- load and run instant report application -->
 <script src="./rp.aspx?extres=components.vendor.requirejs.require.js" data-main="./rp.aspx?extres=components.instant-report.module-loader.js"></script>

@@ -741,6 +741,8 @@
 				},
 				distance: 10,
 				start: function (event, ui) {
+					// turn off window resize handler
+					$izendaDashboardState.turnOffWindowResizeHandler();
 					$rootScope.$broadcast('startEditTileEvent', [{
 						tileId: vm.id,
 						actionName: 'drag'
@@ -846,6 +848,9 @@
 						}]);
 					});
 					$scope.$allFlippies.css('background-color', '');
+
+					// turn on window resize handler
+					$izendaDashboardState.turnOnWindowResizeHandler();
 				}
 			});
 		}
@@ -862,6 +867,9 @@
 				/*containment: 'parent',*/
 				handles: 'n, e, s, w, se',
 				start: function (event, ui) {
+					// turn off window resize handler
+					$izendaDashboardState.turnOffWindowResizeHandler();
+
 					$rootScope.$broadcast('startEditTileEvent', [{
 						tileId: vm.id,
 						actionName: 'resize'
@@ -947,6 +955,8 @@
 
 					$getReport($t).removeClass('hidden');
 					$t.css('opacity', 1);
+					// turn on window resize handler
+					$izendaDashboardState.turnOnWindowResizeHandler();
 				}
 			});
 			vm.state.resizableHandlerStarted = true;

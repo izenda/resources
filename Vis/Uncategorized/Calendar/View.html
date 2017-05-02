@@ -1369,7 +1369,7 @@ be a descendant of the grid when it is being dragged.
 
 			var valueField = VIS_COLUMNS[1],
 					isNumValue = ['Numeric', 'Real', 'Money'].indexOf(valueField.sqlType) > -1,
-					isSetSpecificFontSize = !vis.isExportToImage && isNumValue;
+					isSetSpecificFontSize = !vis.context.isExportToImage && isNumValue;
 			jq$(document).ready(function () {
 				jq$('#VIS_ID').empty();
 				jq$('#VIS_ID').append('<div id="VIS_ID_CALENDAR"></div>');

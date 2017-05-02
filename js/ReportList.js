@@ -158,6 +158,11 @@ function IsSameSubcategory(original, refCategory, refSubcategories) {
 }
 
 function AcceptReports(returnObj, id, parameters) {
+	// replace '\\' to '\' because url in tag <a> doesn't need double slashes
+	function _fixReportNameForATag(reportName) {
+		return reportName.replaceAll(/\\\\/, '\\');
+	}
+
 	if (id != 'reportlistdatalite' || returnObj == undefined || returnObj == null ||
 		  returnObj.ReportSets == undefined || returnObj.ReportSets == null) {
 		jq$("#RL_SearchingIcon").css("display", "none");
@@ -310,7 +315,7 @@ function AcceptReports(returnObj, id, parameters) {
 			var fullName = report.Name;
 			if (report.Category != null && report.Category != '')
 				fullName = report.Category + nrlConfigObj.CategoryCharacter + fullName;
-			directLink = linkTemplate + report.UrlEncodedName;
+			directLink = linkTemplate + _fixReportNameForATag(report.UrlEncodedName);
 			printLink = "\'rs.aspx?rn=" + report.UrlEncodedName + "&print=1\'";
 			designLink = designTemplate[0] + report.UrlEncodedName + designTemplate[1];
 			deleteLink = 'javascript:RL_DeleteNew(\'' + IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?')
@@ -371,7 +376,7 @@ function AcceptReports(returnObj, id, parameters) {
 		report = returnObj.Recent[index];
 		viewTemplate = report.Dashboard ? nrlConfigObj.DashboardViewTemplate : nrlConfigObj.ReportViewTemplate;
 		viewLink = viewTemplate[0] + report.UrlEncodedName + viewTemplate[1];
-		directLink = getAppendedUrl((report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + report.UrlEncodedName);
+		directLink = getAppendedUrl((report.Dashboard ? nrlConfigObj.DashboardLinkTemplate : nrlConfigObj.ReportLinkTemplate) + _fixReportNameForATag(report.UrlEncodedName));
 		recentContent += '<li><a onclick="javascript:var evt=event||window.event;if((evt.which==null&&evt.button<2)||(evt.which!=null&&evt.which<2)){' + viewLink + 'if(evt.preventDefault){evt.preventDefault();}else{evt.returnValue=false;}return false;}" href="' + directLink + '">' + report.Name + '</a></li>';
 	}
 	recentContent += '</ul>';

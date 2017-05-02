@@ -3,10 +3,9 @@
 	angular.module('izenda.common.query').factory('$izendaSettings', [
 		'$log',
 		'$q',
-		'$izendaRsQuery',
 		'$izendaLocale',
 		'$izendaCommonSettings',
-		function ($log, $q, $izendaRsQuery, $izendaLocale, $izendaCommonSettings) {
+		function ($log, $q, $izendaLocale, $izendaCommonSettings) {
 			'use strict';
 
 			var settings = $izendaCommonSettings;

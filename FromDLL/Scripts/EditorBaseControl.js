@@ -53,7 +53,7 @@ var descriptions = new Array();
 var tablesSave = {};
 
 function urldecode(s) {
-  return decodeURIComponent(s).replace(/\+/g, ' ');
+	return decodeURIComponent(s).replace(/\+/g, ' ');
 }
 
 function EBC_Init(responseServerUrl, count, timeOut, resourcesProviderUrl) {
@@ -159,7 +159,7 @@ function EBC_OnServerResponse(url, xmlHttpRequest, arg, additionalData) {
 	currentRequests--;
 	if (xmlHttpRequest.status == 200) {
 		var data = xmlHttpRequest.responseText, wait = ebc_wait[arg.path + arg.params];
-		if(data.trim() === '')
+		if (data.trim() === '')
 			data = '{}';
 		data = JSON.parse(data);
 
@@ -489,7 +489,7 @@ function EBC_CleanupRow(row) {
 		var el = elems[i];
 		el.PreparingNewRow = true;
 		if (el.name == null) {
-			EBC_SetSelectContent(el, [{ name: '', options: [{ value: '...', text: 'Loading ...' }]}]);
+			EBC_SetSelectContent(el, [{ name: '', options: [{ value: '...', text: 'Loading ...' }] }]);
 			el.PreparingNewRow = false;
 			break;
 		}
@@ -576,10 +576,10 @@ function EBC_FireOnChange(sel) {
 }
 
 function EBC_IsUserEvent() {
-	if(isNetscape)
-		return (ebc_mozillaEvent==null || ebc_mozillaEvent.propertyName!='1');
+	if (isNetscape)
+		return (ebc_mozillaEvent == null || ebc_mozillaEvent.propertyName != '1');
 	else
-		return (event==null || event.propertyName!='1');
+		return (event == null || event.propertyName != '1');
 }
 
 // Sets selected index of SELECT control by option's value.
@@ -884,7 +884,7 @@ function EBC_PopulateDescriptions(fields) {
 		var field = fields[i];
 		calcField = new Array();
 		calcField.fieldIndex = field.index;
-		if ((field.func != 'None' && field.func != 'GROUP' || field.coefficient != null && field.coefficient != "") && field.description != '' && field.description != null) {
+		if ((field.func != 'None' && field.func != '...' && field.func != 'GROUP' || field.coefficient != null && field.coefficient != "") && field.description != '' && field.description != null) {
 			calcField.description = field.description;
 			calcField.datatype = (field.expressionType && field.expressionType != '...') ? field.expressionType : field.datatype;
 			calcField.fldId = field.fldId;

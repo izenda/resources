@@ -171,7 +171,7 @@
 					.text(function (d) { return d.name; })
 					.style('fill-opacity', 1e-6);
 
-				var nodeUpdate = node.applyTransition(!vis.isImageRender, duration)
+				var nodeUpdate = node.applyTransition(!vis.context.isImageRender, duration)
 					.attr('transform', function (d) { return 'translate(' + d.y + ',' + d.x + ')'; });
 
 				nodeUpdate.select('circle')
@@ -187,7 +187,7 @@
 
 				nodeUpdate.select('text').style('fill-opacity', 1);
 
-				var nodeExit = node.exit().applyTransition(!vis.isImageRender, duration)
+				var nodeExit = node.exit().applyTransition(!vis.context.isImageRender, duration)
 					.attr('transform', function () { return 'translate(' + source.y + ',' + source.x + ')'; })
 					.remove();
 
@@ -217,17 +217,17 @@
 					.style('stroke-width', getStrokeWidth)
 					.style('stroke-opacity', getStrokeOpacity)
 					.style('stroke-linecap', 'round')
-					.applyTransition(!vis.isImageRender, duration)
+					.applyTransition(!vis.context.isImageRender, duration)
 					.attr('d', diagonal);
 
-				var linkUpdate = link.applyTransition(!vis.isImageRender, duration)
+				var linkUpdate = link.applyTransition(!vis.context.isImageRender, duration)
 					.attr('d', diagonal);
 
 				linkUpdate
 					.style('stroke-width', getStrokeWidth)
 					.style('stroke-opacity', getStrokeOpacity);
 
-				link.exit().applyTransition(!vis.isImageRender, duration)
+				link.exit().applyTransition(!vis.context.isImageRender, duration)
 					.attr('d', function () {
 						var o = { x: source.x, y: source.y };
 						return diagonal({ source: o, target: o });

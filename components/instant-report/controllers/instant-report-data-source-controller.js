@@ -13,7 +13,6 @@
 				'$q',
 				'$log',
 				'$sce',
-				'$location',
 				'$anchorScroll',
 				'$izendaUrl',
 				'$izendaLocale',
@@ -34,7 +33,6 @@
 				$q,
 				$log,
 				$sce,
-				$location,
 				$anchorScroll,
 				$izendaUrl,
 				$izendaLocale,
@@ -100,6 +98,7 @@
 		vm.turnOffSearch = function (resetSearchResults) {
 			vm.searchPanelOpened = false;
 			if (resetSearchResults) {
+				$izendaUrl.setHash('');
 				vm.searchString = '';
 				vm.searchResults = [];
 				previousResultsCount = null;
@@ -122,7 +121,7 @@
 			if (clearResults) {
 				vm.searchResults = [];
 				previousResultsCount = null;
-				$location.hash('anchorSearchResultsTop');
+				$izendaUrl.setHash('anchorSearchResultsTop');
 			}
 			if (previousResultsCount === 0) {
 				vm.searchQueryRunning = false;
@@ -403,7 +402,7 @@
 					vm.selectField(field);
 					$scope.$applyAsync();
 				}
-				$location.hash('anchor' + tableSysName);
+				$izendaUrl.setHash('anchor' + tableSysName);
 			});
 		};
 

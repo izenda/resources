@@ -225,7 +225,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.SimpleGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Simple.Size'), data);
 						gauges.push(gauge);
-						gauge.render(!vis.isImageRender);
+						gauge.render(!vis.context.isImageRender);
 					},
 					postDrawAll: function () {
 						wrapGaugesInTable();
@@ -293,7 +293,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.LinearGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Linear.Mode'), vis.getProperty('Styles.Linear.Size'), data);
 						gauges.push(gauge);
-						gauge.render(!vis.isImageRender);
+						gauge.render(!vis.context.isImageRender);
 					},
 					postDrawAll: function () {
 						wrapGaugesInTable();
@@ -372,7 +372,7 @@
 
 						var gauge = new izenda.gauges.RoundGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Round.Size'), vis.getProperty('Styles.Round.Width'), data);
 						gauges.push(gauge);
-						gauge.render(!vis.isImageRender);
+						gauge.render(!vis.context.isImageRender);
 					},
 					postDrawAll: function () { },
 					destroy: function () {
@@ -425,7 +425,7 @@
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.TrendingGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Trending.Size'), data);
 						gauges.push(gauge);
-						gauge.render(!vis.isImageRender);
+						gauge.render(!vis.context.isImageRender);
 					},
 					postDrawAll: function () {
 
@@ -695,7 +695,7 @@
 		}
 
 		function waitFontFaceOnLoadAndDraw() {
-			if ((style.name == "simple" || style.name == "linear" || style.name == "trending") && !vis.isImageRender) {
+			if ((style.name == "simple" || style.name == "linear" || style.name == "trending") && !vis.context.isImageRender) {
 				FontFaceOnload('Open Sans Condensed', {
 					success: function () {
 						try {

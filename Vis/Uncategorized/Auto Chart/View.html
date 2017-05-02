@@ -256,7 +256,21 @@
 				NodePath: []
 			},
 			dataLayout: 'tree',
-			draw: draw
+			draw: draw,
+			beforeDraw: function () {
+				var type = types[vis.getProperty('Type')];
+				var metric = vis.getProperty('Metric');
+				var nodePath = vis.getProperty('NodePath');
+				if (!vis.breadcrumb.shown) {
+					vis.breadcrumb.show();
+				}
+				if (type.is('pie|funnel') && vis.itemValue(root, metric) == 0) {
+					if (!(nodePath && nodePath.length > 0)) {
+						vis.breadcrumb.hide();
+					}
+					vis.abort('No Data to Display');
+				}
+			}
 		});
 
 		var root = vis.traverseTree(function (context) {
@@ -295,19 +309,26 @@
 				showRoot: true,
 				showLabel: true,
 				hidden: true,
-				hideTimeout: vis.isInstantReports ? 3000 : null,
+				hideTimeout: vis.context.isInstantReports ? 3000 : null,
 				getColor: function (d) { return getItem(colors, 0); },
-				clickable: true
+				clickable: true,
+				onCreateCallback: function () {
+					vis.events.subscribe('MetricChange', vis.resetBreadcrumb);
+					vis.events.subscribe('MetricExtraChange', vis.resetBreadcrumb);
+					vis.events.subscribe('TypeChange', vis.resetBreadcrumb);
+					vis.events.subscribe('PaletteChange', vis.resetBreadcrumb);
+					vis.events.subscribe('MultiColorChange', vis.resetBreadcrumb);
+					vis.events.subscribe('FromZeroChange', vis.resetBreadcrumb);
+					vis.events.subscribe('SubreportModeChange', vis.resetBreadcrumb);
+					vis.events.subscribe('CombineBottomChange', vis.resetBreadcrumb);
+					vis.events.subscribe('LineStepModeChange', vis.resetBreadcrumb);
+				}
 			},
 			metrics: [{
 				name: 'Metric',
-				defaultValue: 'All',
+				predefinedOptions: vis.metrics.length > 1 ? [{ value: 'All', text: 'All' }] : [],
+				defaultValue: vis.metrics.length > 1 ? 'All' : null,
 				onChangeCallback: function () {
-					var type = types[vis.getProperty('Type')];
-					if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
-						vis.setMetricValue('Metric', 'All');
-					}
-
 					if (vis.getProperty('Metric') != 'All') {
 						vis.setProperty('Visibility', null);
 					}
@@ -317,28 +338,25 @@
 					vis.events.subscribe('TypeChange', function (value) {
 						var type = types[value];
 						control.find('option').each(function (i, el) {
-							if (el.value == 'All' || vis.itemValue(root, el.value) == 0) {
+							if (el.value == 'All') {
 								jq$(el).prop('disabled', type.is('pie|funnel'));
 							}
 						});
 						if (type.is('pie|funnel') && vis.getProperty('Metric') == 'All' || control.find('option:selected')[0].hasAttribute('disabled')) {
-							var safeMetric = control.find('option[value!=All]:not([disabled]):eq(0)').text();
-							vis.setMetricValue('Metric', safeMetric);
-						}
-
-						if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
-							vis.setMetricValue('Metric', 'All');
+							var firstEnabledOption = control.find('option[value!=All]:not([disabled]):eq(0)');
+							if (firstEnabledOption.length) {
+								vis.setMetricValue('Metric', firstEnabledOption.val());
+							} else {
+								vis.abort('No Data to Display');
+							}
 						}
 					}).raise(vis.getProperty('Type'));
 				}
 			}, {
 				name: 'MetricExtra',
+				predefinedOptions: [{ value: 'empty', text: '' }],
 				defaultValue: 'empty',
 				onChangeCallback: function () {
-					var type = types[vis.getProperty('Type')];
-					if (type.is('bubble') && vis.getProperty('Metric') == vis.getProperty('MetricExtra')) {
-						vis.setMetricValue('Metric', 'All');
-					}
 					vis.redraw();
 				},
 				onCreateCallback: function (control) {
@@ -377,10 +395,10 @@
 							.bind('mousedown', function () {
 								setGalleryControlValue(~~jq$(this).attr('index'));
 							})
-							.bind('click', function () {
+							.bind('click', vis.safeWrapper(function () {
 								vis.setProperty('Palette', ~~jq$(this).attr('index'));
 								vis.redraw();
-							});
+							}));
 
 						var placeholder = jq$('<div>').addClass('izenda-vis-property-gallery-item-placeholder');
 						jq$.each(palette.colors, function (i, color) {
@@ -405,10 +423,10 @@
 					var multiColorControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-checkbox').css("display", vis.getProperty('Metric') != "All" ? "block" : "none")
 							.append(jq$('<label>')
 								.append(jq$('<input>').attr('type', 'checkbox').attr("checked", !!vis.getProperty('MultiColor'))
-									.bind("change", function () {
+									.bind("change", vis.safeWrapper(function () {
 										vis.setProperty('MultiColor', this.checked);
 										vis.redraw();
-									}))
+									})))
 								.append('Multi-Color metric'));
 
 					vis.events.subscribe('MetricChange', function (value) {
@@ -440,10 +458,10 @@
 							.bind('mousedown', function () {
 								setGalleryControlValue(~~jq$(this).attr('index'));
 							})
-							.bind('click', function () {
+							.bind('click', vis.safeWrapper(function () {
 								vis.setProperty('Type', ~~jq$(this).attr('index'));
 								vis.redraw();
-							});
+							}));
 
 						var placeholder = jq$('<div>').addClass('izenda-vis-property-gallery-item-placeholder');
 						placeholder.append(jq$('<img>')
@@ -475,10 +493,10 @@
 					var fromZeroControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-checkbox')
 						.append(jq$('<label>')
 							.append(jq$('<input>').attr('type', 'checkbox').attr('checked', !!vis.getProperty('FromZero'))
-								.bind('change', function () {
+								.bind('change', vis.safeWrapper(function () {
 									vis.setProperty('FromZero', this.checked);
 									vis.redraw();
-								}))
+								})))
 							.append('Start at Zero'));
 
 					vis.events.subscribe('TypeChange', function (value) {
@@ -497,14 +515,14 @@
 							.append(jq$('<li>').attr('val', 'DetailLinkNewWindow').text('New Tab'))
 							.append(jq$('<li>').attr('val', 'DetailLinkPopup').text('Popup')));
 					subreportModeControl.find('li')
-						.bind('click', function () {
+						.bind('click', vis.safeWrapper(function () {
 							if (!jq$(this).hasClass('izenda-selected')) {
 								subreportModeControl.find('li').removeClass('izenda-selected');
 								jq$(this).addClass('izenda-selected');
 								vis.setProperty('SubreportMode', jq$(this).attr('val'));
 								vis.redraw();
 							}
-						});
+						}));
 					subreportModeControl.find('li[val="' + vis.getProperty('SubreportMode') + '"]').addClass('izenda-selected');
 					panel.append(subreportModeControl);
 
@@ -512,10 +530,10 @@
 						.append(jq$('<label>')
 							.append('Combine bottom, %')
 							.append(jq$('<input>').attr('type', 'text').attr('value', vis.getProperty('CombineBottom'))
-								.bind('change', function () {
+								.bind('change', vis.safeWrapper(function () {
 									vis.setProperty('CombineBottom', this.value ? this.value : 5);
 									vis.redraw();
-								})));
+								}))));
 
 					vis.events.subscribe('TypeChange', function (value) {
 						var type = types[value];
@@ -532,14 +550,14 @@
 							.append(jq$('<li>').attr('val', 'center').text('Center'))
 							.append(jq$('<li>').attr('val', 'right').text('Right')));
 					lineStepModeControl.find('li')
-						.bind('click', function () {
+						.bind('click', vis.safeWrapper(function () {
 							if (!jq$(this).hasClass('izenda-selected')) {
 								lineStepModeControl.find('li').removeClass('izenda-selected');
 								jq$(this).addClass('izenda-selected');
 								vis.setProperty('LineStepMode', jq$(this).attr('val'));
 								vis.redraw();
 							}
-						});
+						}));
 					lineStepModeControl.find('li[val="' + vis.getProperty('LineStepMode') + '"]').addClass('izenda-selected');
 
 					vis.events.subscribe('TypeChange', function (value) {
@@ -581,11 +599,7 @@
 			var animationComplete = false;
 
 			subscriptions.push(vis.events.subscribe('BreadcrumbClick', function (d) {
-				if (typeof d.parent != 'undefined') {
-					clicked(d, d.label + ': ' + d.name);
-				} else {
-					clicked();
-				}
+				clicked(d);
 			}));
 
 			subscriptions.push(vis.events.subscribe('RefreshClick', function () {
@@ -604,7 +618,7 @@
 			}
 
 			function execBreadcrumb(d) {
-				if (vis.isThumbnails) {
+				if (vis.context.isThumbnails) {
 					return;
 				}
 				if (metricValue == 'All') {
@@ -639,7 +653,7 @@
 				}
 				function register(index, name, subreportlink) {
 					var style = vis.getProperty('SubreportMode');
-					if (style == 'EmbeddedDetail' && (vis.isDashboards || isVml))
+					if (style == 'EmbeddedDetail' && (vis.context.isDashboards || isVml))
 						style = 'DetailLinkPopup';
 
 					var shownIndex = null;
@@ -649,7 +663,7 @@
 						return;
 
 					itemAxisLabel
-						.bind('click', function () {
+						.bind('click', vis.safeWrapper(function () {
 							function getContext() {
 								return {
 									element: elements[index],
@@ -878,7 +892,7 @@
 								default:
 									return;
 							}
-						})
+						}))
 						.attr('class', 'izenda-vis-autochart-label-link')
 						.each(function() {
 								function getContext() {
@@ -947,23 +961,18 @@
 				registerLabels();
 			}
 
-			function clicked(data, name, index) {
-				var d, subtitle;
+			function clicked(data, index) {
+				var d;
 				if (typeof index != 'undefined') {
 					if (!data[index].children)
 						return;
-
 					d = data[index];
-					subtitle = data[index].children ? name : '';
 				} else if (typeof data != 'undefined') {
 					d = data;
-					subtitle = name;
 				} else {
 					d = root;
-					subtitle = '';
 				}
-
-				recreateChart({ data: d, title: metricValue, subtitle: subtitle });
+				recreateChart({ data: d });
 			}
 
 			var yAxisMins, yAxisMaxs;
@@ -1107,14 +1116,18 @@
 			}
 
 			function recreateChart(o) {
+				chartOptions = o;
 				animationComplete = false;
+				execBreadcrumb(chartOptions.data);
+
+				vis.beforeDraw();
 
 				var yaxis = [],
 					series = [],
 					t = type.name,
 					m = vis.getProperty('Metric'),
 					zoom = vis.getProperty('Zoom');
-				getSeries((chartOptions = o).data.children, yaxis, series);
+				getSeries(chartOptions.data.children, yaxis, series);
 
 				var visibility = vis.getProperty('Visibility');
 				var lineStepMode = vis.getProperty('LineStepMode');
@@ -1166,8 +1179,6 @@
 					}
 				};
 
-				execBreadcrumb(o.data);
-
 				try {
 					if (chart) {
 						chart.destroy();
@@ -1214,9 +1225,9 @@
 
 			function processData() {
 				function itemClick() {
-					if (!izenda.supports.svg())
-						return undefined;
-					return clicked(this.data, this.data[this.x].label + ": " + this.name, this.x);
+					if (izenda.supports.svg()) {
+						clicked(this.data, this.x);
+					}
 				}
 
 				function legendItemClick(event) {
@@ -1404,13 +1415,13 @@
 
 					var node = undefined;
 					if ((VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic) && vis.getProperty('NodePath') && vis.getProperty('NodePath').length > 0) {
-						node = trace(root, 0, undefined);
+						node = trace(root, 0);
 						node = !node ? node : vis.breadcrumb.fixd(node);
 					}
 
 					recreateChart(chartOptions
 						? chartOptions
-						: typeof node != 'undefined' ? { data: node, title: metricValue, subtitle: null } : { data: root, title: metricValue, subtitle: null }
+						: typeof node !== 'undefined' ? { data: node } : { data: root }
 					);
 
 					var $container = jq$('#VIS_ID div.highcharts-container'),
@@ -1451,7 +1462,7 @@
 			}
 
 			var iw = jq$('#rightHelpDiv').width();
-			if (vis.isInstantReports && virgin) {
+			if (vis.context.isInstantReports && virgin) {
 				virgin = false;
 				setTimeout(function () { checkRhd(iw, 1); }, 100);
 			}
@@ -1459,7 +1470,7 @@
 			processData();
 		}
 
-		draw();
+		vis.draw();
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

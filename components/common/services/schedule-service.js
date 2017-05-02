@@ -85,7 +85,13 @@
 			var loadScheduleData = function (customScheduleConfig) {
 				return $q(function (resolve) {
 					reset();
-					$izendaCommonQuery.getScheduleData(moment(new Date()).utcOffset()).then(function (scheduleData) {
+					// calculate current timezone std offset:
+					var rightNow = new Date();
+					var jan1 = new Date(rightNow.getFullYear(), 0, 1, 0, 0, 0, 0);
+					var temp = jan1.toGMTString();
+					var jan2 = new Date(temp.substring(0, temp.lastIndexOf(" ")));
+					var std_time_offset = (jan1 - jan2) / (1000 * 60);
+					$izendaCommonQuery.getScheduleData(std_time_offset).then(function (scheduleData) {
 						scheduleData.Date = moment(scheduleData.DateString, 'YYYY-MM-DD HH:mm:ss')._d;
 						if (angular.isObject(customScheduleConfig)) {
 							setScheduleConfig(angular.extend({}, customScheduleConfig));

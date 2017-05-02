@@ -170,15 +170,20 @@
 			 */
 			var turnOnWindowResizeHandler = function () {
 				windowResizeOptions.timeoutId = null;
-				windowResizeOptions.previousWidth = angular.element($window).width();
+				windowResizeOptions.previousWidth = $window.innerWidth;
 				var resizeCompleted = function () {
-					if (windowResizeOptions.previousWidth !== angular.element($window).width()) {
-						windowWidth = angular.element($window).width();
+					if (windowResizeOptions.previousWidth !== $window.innerWidth) {
+						windowWidth = $window.innerWidth;
 						$rootScope.$applyAsync();
 					}
-					windowResizeOptions.previousWidth = angular.element($window).width();
+					angular.element('body').css('overflow', '');
+					windowResizeOptions.previousWidth = $window.innerWidth;
 				};
 				angular.element($window).on('resize.dashboard', function () {
+					var overflowValue = angular.element('body').css('overflow');
+					if (overflowValue !== 'hidden') {
+						angular.element('body').css('overflow', 'hidden');
+					}
 					if (windowResizeOptions.timeoutId != null) {
 						clearTimeout(windowResizeOptions.timeoutId);
 						windowResizeOptions.timeoutId = null;
@@ -186,6 +191,10 @@
 					windowResizeOptions.timeoutId = setTimeout(resizeCompleted, 200);
 				});
 			};
+
+			function turnOffWindowResizeHandler() {
+				angular.element($window).off('resize.dashboard');
+			}
 
 			// INITIALIZE:
 
@@ -196,7 +205,9 @@
 				getDashboardTilesLoaded: getDashboardTilesLoaded,
 				setDashboardTilesLoaded: setDashboardTilesLoaded,
 				getWindowWidth: getWindowWidth,
-				loadReportIntoContainer: loadReportIntoContainer
+				loadReportIntoContainer: loadReportIntoContainer,
+				turnOnWindowResizeHandler: turnOnWindowResizeHandler,
+				turnOffWindowResizeHandler: turnOffWindowResizeHandler
 			};
 		}]);
 

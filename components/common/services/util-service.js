@@ -26,12 +26,19 @@
 			};
 
 			/**
+			 * Get "Uncategorized" category localized name.
+			 */
+			var getUncategorized = function () {
+				return $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+			};
+
+			/**
 			 * Check whether "uncategorized" category or not.
 			 */
 			var isUncategorized = function (category) {
 				if (!category || !angular.isString(category))
 					return true;
-				return category.toLowerCase() == $izendaLocale.localeText('js_Uncategorized', 'Uncategorized').toLowerCase();
+				return category.toLowerCase() == getUncategorized().toLowerCase();
 			};
 
 			/**
@@ -72,6 +79,7 @@
 				humanizeVariableName: humanizeVariableName,
 				convertOptionsByPath: convertOptionsByPath,
 				getOptionByValue: getOptionByValue,
+				getUncategorized: getUncategorized,
 				isUncategorized: isUncategorized
 			}
 		}]);

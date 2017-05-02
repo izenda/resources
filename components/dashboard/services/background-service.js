@@ -8,15 +8,12 @@
 	.factory('$izendaBackground', ['$log', '$cookies', function ($log, $cookies) {
 		'use strict';
 
-		/**
-		* Get cookie by name
-		*/
 		function getCookie(name) {
-			return $cookies[name];
+			return $cookies.get(name);
 		};
 
 		function setCookie(name, value) {
-			$cookies[name] = value;
+			$cookies.put(name, value);
 		}
 
 		function setBackgroundColor(color) {
@@ -33,7 +30,7 @@
 
 		function getBackgroundRepeat() {
 			var izendaBackgroundImageRepeat = getCookie('izendaBackgroundImageRepeat');
-			return izendaBackgroundImageRepeat;
+			return izendaBackgroundImageRepeat === 'true';
 		}
 
 		function setBackgroundRepeat(value) {

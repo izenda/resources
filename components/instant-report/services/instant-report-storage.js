@@ -54,6 +54,7 @@
 						addBookmarkForVg: false,
 						pageBreakAfterVg: false,
 						minimizeGridWidth: true,
+						enableResponsiveGrid: true,
 						vgStyle: 'CommaDelimited'
 					}
 				},

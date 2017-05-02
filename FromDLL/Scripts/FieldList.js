@@ -642,7 +642,7 @@ function SC_ResetRowToDefault(context) {
 		var separatorCheckbox = EBC_GetElementByName(row, prefix + "Separator", "INPUT");
 		if (separatorCheckbox) {
 			separatorCheckbox.checked = false;
-			separatorCheckbox.disabled = false;
+			separatorCheckbox.disabled = true;
 		}
 
 		/* Sort (z-a) */
@@ -1748,6 +1748,7 @@ function SC_OnVisualGroupsCheckedHandler(e) {
 	var masterCheckbox = EBC_GetElementByName(row, 'Master', 'INPUT');
 	var invisibleCheckbox = EBC_GetElementByName(row, 'Invisible', 'INPUT');
 	var pageBreakCheckbox = EBC_GetElementByName(row, 'BreakPage', 'INPUT');
+	var separatorCheckbox = EBC_GetElementByName(row, 'Separator', 'INPUT');
 	if (masterCheckbox != null && masterCheckbox.checked) {
 		if (orderCheckbox != null && !orderCheckbox.checked && orderDescCheckbox != null && !orderDescCheckbox.checked) {
 			orderCheckbox.checked = true;
@@ -1760,6 +1761,10 @@ function SC_OnVisualGroupsCheckedHandler(e) {
 	if (pageBreakCheckbox != null) {
 		pageBreakCheckbox.checked = false;
 		pageBreakCheckbox.disabled = !masterCheckbox.checked;
+	}
+	if (separatorCheckbox != null) {
+		separatorCheckbox.checked = false;
+		separatorCheckbox.disabled = !masterCheckbox.checked;
 	}
 	SC_CheckPropertiesModified(row);
 }

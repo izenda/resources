@@ -623,6 +623,7 @@
 					if (vm.tiles[i].id == tileid)
 						idx = i;
 				vm.tiles.splice(idx, 1);
+				updateTileContainerSize();
 				sync().then(function () {
 					$izendaEvent.queueEvent('refreshFilters', [], true);
 				});
@@ -1068,11 +1069,13 @@
 		////////////////////////////////////////////////////////
 		// tile container functions:
 		////////////////////////////////////////////////////////
-
+		vm.initialRootWidth = vm.getRoot().width();
 		function updateTileSize() {
 			var $tileContainer = vm.getTileContainer();
-			var parentWidth = vm.getRoot().width();
+			var parentWidth = vm.initialRootWidth;
 			var width = Math.floor(parentWidth / 12) * 12;
+			width -= 24;
+
 			$tileContainer.width(width);
 			vm.tileWidth = width / 12;
 			vm.tileHeight = vm.tileWidth > 100 ? vm.tileWidth : 100;
@@ -1197,7 +1200,6 @@
 
 			// initialize events
 			vm.initializeEventHandlers();
-
 			// all tiles added:
 			$scope.$watch(angular.bind(vm, function (name) {
 				return this.tilesAnimationCompleted;
@@ -1228,6 +1230,9 @@
 			}, true);
 			// watch for dashboard resize:
 			$scope.$watch('izendaDashboardState.getWindowWidth()', function (newWidth) {
+				angular.element('body').css('overflow', 'hidden');
+				vm.initialRootWidth = vm.getRoot().width();
+				angular.element('body').css('overflow', '');
 				updateSize();
 			});
 

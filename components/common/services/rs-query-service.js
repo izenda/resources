@@ -149,9 +149,11 @@
 					}
 				}, function (response) {
 					// handle error
+					var needToReject = true;
 					var config = response.config;
 					var errorText;
 					if (resolver.errorOptions != null) {
+						needToReject = false;
 						errorText = resolver.errorOptions.handler.apply(response, resolver.errorOptions.params);
 					} else if (response.message) {
 						errorText = response.message;
@@ -165,7 +167,8 @@
 							errorText,
 							$izendaLocale.localeText('js_Error', 'Error'),
 							'danger']);
-						resolver.reject(errorText);
+						if (needToReject)
+							resolver.reject(errorText);
 					}
 				});
 				return resolver.promise;

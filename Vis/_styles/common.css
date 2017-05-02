@@ -63,6 +63,7 @@
 	position: absolute;
 	right: 0;
 	width: auto;
+	opacity: inherit;
 }
 
 .izenda-vis-property {
@@ -290,4 +291,30 @@
 	height: 16px;
 	margin-top: 3px;
 	margin-left: 3px;
+}
+
+.izenda-vis-notification-container {
+	display: table;
+	height: 100%;
+	width: 100%;
+	text-align: center;
+}
+
+.izenda-vis-notification-message {
+	display: table-cell;
+	vertical-align: middle;
+	color: #4e4e4e;
+	text-transform: uppercase;
+	font-size: 16px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+.izenda-vis-notification-details {
+	font-size: 12px;
+}
+
+.izenda-vis-notification-message a,
+.izenda-vis-notification-message a:hover,
+.izenda-vis-notification-message a:visited {
+	color: #1c4e89;
 }
