@@ -138,20 +138,22 @@
 				var nodeEnter = node.enter().append('svg:g')
 					.attr('class', 'izenda-vis-tree-node')
 					.attr('transform', function () { return 'translate(' + source.y0 + ',' + source.x0 + ')'; })
-					.each(function (d) {
-
-						services.tipOn(this, d, {
+					.on('mouseover', function (d) {
+						var metric = vis.getProperty('Metric');
+						if (d.depth == 0 && isNaN(vis.itemValue(d, metric)))
+							return;
+						services.showTip(d, {
+							mode: 'tooltip',
+							containerStyle: 'text-align: left;',
 							nested: true,
 							exclusion: ['id', 'x0', 'y0', '_children', 'children', 'link', 'numChildren', 'linkColor'],
 							pass: function (obj, v) {
-								var exclusion = [], metric = vis.getProperty('Metric');
-								for (var j = 0; j < vis.metrics.length; j++) {
-									if (vis.metrics[j] != metric)
-										exclusion.push(vis.metrics[j]);
-								}
-								return exclusion.indexOf(v) < 0;
+								return (v === metric && !isNaN(vis.itemValue(obj, metric))) || vis.metrics.indexOf(v) < 0;
 							}
 						});
+					})
+					.on('mouseout', function (d) {
+						services.hideTip();
 					});
 
 				nodeEnter.append('svg:circle')
@@ -264,8 +266,10 @@
 				for (var i = 0; i < nodes.length; i++) {
 					if (nodes[i].depth > 0) {
 						var value = vis.itemValue(nodes[i], spendField), level = levels[nodes[i].depth - 1];
-						level.max = Math.max(level.max, value);
-						level.sum += value;
+						if (!isNaN(value)) {
+							level.max = Math.max(level.max, value);
+							level.sum += value;
+						}
 					}
 				}
 

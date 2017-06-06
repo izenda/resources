@@ -21,6 +21,8 @@
 										'</label>' +
 										'</div>',
 					link: function ($scope, elem, attrs) {
+						elem.addClass('izenda-select-checkboxes');
+
 						$scope.$watch('existentValues', function () {
 							$scope.$parent.$eval(attrs.ngChange);
 						}, true);

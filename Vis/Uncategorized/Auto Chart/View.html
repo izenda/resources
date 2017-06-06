@@ -60,7 +60,6 @@
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
-<script type="text/javascript" src="jquery.watch.min.js"></script>
 
 <script type="text/javascript">
 	var virgin = true;
@@ -264,7 +263,11 @@
 				if (!vis.breadcrumb.shown) {
 					vis.breadcrumb.show();
 				}
-				if (type.is('pie|funnel') && vis.itemValue(root, metric) == 0) {
+				var hasValues = metric === 'All' ? izenda.utils.array.any(vis.metrics, function (item) {
+					return !isNaN(vis.itemValue(root, item));
+				}) : !isNaN(vis.itemValue(root, metric));
+				if ((type.is('pie|funnel') && vis.itemValue(root, metric) == 0)
+					|| !hasValues) {
 					if (!(nodePath && nodePath.length > 0)) {
 						vis.breadcrumb.hide();
 					}
@@ -297,10 +300,7 @@
 			return ((type.is('line') && !type.isPolar()) || type.is('area')) && !type.isSpline();
 		}
 
-		var totalSize = 0;
-		for (var i = 0; i < vis.items.length; i++) {
-			totalSize += vis.items[i].y;
-		}
+		var totalSize = vis.itemValue(root, vis.getProperty('Metric'));
 
 		vis.initHeader({
 			breadcrumbs: {
@@ -796,7 +796,11 @@
 									var uc = chartOptions.usedColors[index];
 
 									services.showTip(loadImage, getContext());
-									jq$.get(rsSubreportlinkForPopup, function (html) {
+									AjaxRequest(rsSubreportlinkForPopup, null, function (returnObj, id) {
+										if (id != 'getrenderedreportset' || typeof returnObj === 'undefined' || returnObj == null)
+											return;
+										var html = returnObj;
+
 										var x, y, w, pos = { left: 0, top: 0 };
 										cx = -1;
 
@@ -874,20 +878,28 @@
 											cx = x + w / 2;
 											finish();
 										}
-									});
+									}, function (responseObject) {
+										izenda.error.defaultCallbackError(responseObject, true);
+									}, 'getrenderedreportset');
 									break;
 								case 'DetailLinkPopup':
 									services.showTip(loadImage, getContext());
-									jq$.get(rsSubreportlinkForPopup, function (html) {
+									AjaxRequest(rsSubreportlinkForPopup, null, function (returnObj, id) {
+										if (id != 'getrenderedreportset' || typeof returnObj === 'undefined' || returnObj == null)
+											return;
+										var html = returnObj;
 										services.showTip(izenda.report.filterReport(html), utility.defaults(getContext(), {
 											showCaption: true,
 											showClose: true,
 											orientation: 'right|10%',
 											resizable: true,
-										movable: true,
-										onshow: izenda.report.registerPostRenderHandlers
+											movable: true,
+											onshow: izenda.report.registerPostRenderHandlers
 										}, true));
-									});
+									}, function (responseObject) {
+										izenda.error.defaultCallbackError(responseObject, true);
+									}, 'getrenderedreportset');
+
 									break;
 								default:
 									return;
@@ -979,11 +991,14 @@
 			function getSeries(data, yaxis, series) {
 				yAxisMins = new Array(vis.metrics.length);
 				yAxisMaxs = new Array(vis.metrics.length);
-				var value;
+
 				for (var i = 0; i < data.length; i++) {
 					for (var j = 0; j < vis.metrics.length; j++) {
-						value = vis.itemValue(data[i], vis.metrics[j]);
+						var value = vis.itemValue(data[i], vis.metrics[j]);
 						var visibility = !vis.getProperty('Visibility') || (j < vis.getProperty('Visibility').length && vis.getProperty('Visibility')[j]);
+
+						if (isNaN(value))
+							continue;
 
 						if (typeof yAxisMaxs[j] == 'undefined' || yAxisMaxs[j] < value)
 							yAxisMaxs[j] = value;
@@ -1058,6 +1073,9 @@
 				for (var i = 0; (i < data.length && !type.is('pie')) || i < bIndex; i++) {
 					var val = vis.itemValue(data[i], vis.metrics[index]);
 
+					if (isNaN(val) && type.is('pie|funnel'))
+						continue;
+
 					var pc = !single
 						? getItem(colors, index)
 						: vis.getProperty('MultiColor') ? getItem(colors, i) : getItem(colors, 0);
@@ -1079,14 +1097,14 @@
 					var pc = !single
 						? getItem(colors, index)
 						: vis.getProperty('MultiColor') ? getItem(colors, i) : getItem(colors, 0);
-				isCombineBottom = true;
-				var actualData = data.slice(0, bIndex);
-				actualData.push({ name: 'Others', label: data[i].label });
+					isCombineBottom = true;
+					var actualData = data.slice(0, bIndex);
+					actualData.push({ name: 'Others', label: data[i].label });
 					items.push({
 						name: 'Others',
 						yAxis: i,
 						y: sum,
-					data: actualData,
+						data: actualData,
 						others: true,
 						color: chartOptions.usedColors[i] = (!vis.getProperty('MultiColor')) ? izenda.visualization.getHighchartsColor(pc, {
 							min: yAxisMins[index],
@@ -1191,27 +1209,6 @@
 
 						if (updateRefreshButton())
 							chart.yAxis[0].setExtremes(zoom[t][m].min, zoom[t][m].max);
-
-						if (!type.is('pie') && !vis.container.find('div.highcharts-data-labels').prev().is('div.highcharts-tooltip'))
-							return;
-
-						var html;
-						vis.container.find('div.highcharts-data-labels').insertBefore(vis.container.find('div.highcharts-data-labels').prev());
-						vis.container.find('div.highcharts-tooltip')
-							.css({
-								'margin-top': '1px',
-								'margin-left': '1px',
-								'border-radius': '2px',
-								'background-color': 'rgba(255,255,255,0.7)'
-							})
-							.watch('visibility', function () {
-								var $span = vis.container.find('div.highcharts-tooltip > span');
-								if (html != $span.html()) {
-									html = $span.html();
-									vis.container.find('div.highcharts-tooltip').width($span.width() + 15)
-										.height($span.height() + 15);
-								}
-							});
 					});
 					if (isCombineBottom) {
 						vis.container.find('.highcharts-series path:last-child').css('cursor', 'default');
@@ -1350,7 +1347,7 @@
 							useHTML: true,
 							formatter: function () {
 								var html = [];
-								var d = this.point.data[this.point.x];
+								var d = this.point.data[this.point.yAxis];
 								html = ['<span style="font-size:11px">' + (this.point.others ? this.point.name : d.name) + '</span>'];
 								if (metricValue == 'All') {
 									var n = 0, m = 1;
@@ -1361,6 +1358,8 @@
 										var index = (i - n) * m,
 												metric = vis.metrics[index];
 										var value = this.point.others ? this.point.y : vis.itemValue(d, metric);
+										if (isNaN(value))
+											continue;
 										var titleStyle = index == this.series._i ? ' style="font-weight:bold;"' : '';
 										var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metric; }).formatter;
 										if (fieldFormatter) value = fieldFormatter(value, d, vis, metric);
@@ -1371,8 +1370,12 @@
 									var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == metricValue; }).formatter;
 									if (type.is('pie')) {
 										var total = 0;
-										for (var i = 0; i < this.point.data.length; i++)
-											total += vis.itemValue(this.point.data[i], metricValue);
+										for (var i = 0; i < this.point.data.length; i++) {
+											var val = vis.itemValue(this.point.data[i], metricValue);
+											if (!isNaN(val)) {
+												total += val;
+											}
+										}
 										var value = this.point.others ? this.point.y : vis.itemValue(d, metricValue);
 										var rawValue = value;
 										if (fieldFormatter) value = fieldFormatter(value, d, vis, metricValue);

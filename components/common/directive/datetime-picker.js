@@ -9,10 +9,10 @@
 			'$izendaCompatibility',
 			function ($window, $timeout, $izendaLocale, $izendaCompatibility) {
 				return {
-					restrict: 'EA',
-					require: 'ngModel',
+					restrict: 'A',
+					require: 'ngModel', // get a hold of NgModelController
 					scope: {
-						ngModel: '=',
+						model: '=ngModel',
 						ngDisabled: '=',
 						dateFormat: '=',
 						locale: '=',
@@ -28,6 +28,7 @@
 								'<span class="glyphicon-calendar glyphicon"></span>' +
 							'</span>',
 					link: function ($scope, elem, attrs, ngModelCtrl) {
+						var uid = Math.trunc(Math.random() * 1000000);
 						var $input = elem.children('input,.izenda-date-picker-inline');
 						var $btn = elem.children('.input-group-addon');
 						var isSmallResolution = $izendaCompatibility.isSmallResolution();
@@ -37,25 +38,30 @@
 						}
 
 						/**
-						 * Set date value
+						 * Set date to the picker
 						 */
 						function setDate(newDate) {
-							if (angular.isUndefined(newDate) || newDate === null || newDate === '')
+							if (!newDate)
 								getPicker().date(null);
 							else if (angular.isDate(newDate))
-								getPicker().date(getUpdatedDateValue($scope.ngModel, newDate, $scope.datepart));
+								getPicker().date(getUpdatedDateValue($scope.model, newDate, $scope.datepart));
 							else if (angular.isString(newDate))
-								getPicker().date(getUpdatedDateValue($scope.ngModel, new Date(newDate), $scope.datepart));
+								getPicker().date(getUpdatedDateValue($scope.model, new Date(newDate), $scope.datepart));
 							else
 								throw 'Unknown date type: ' + typeof (newDate);
 						}
 
+						/**
+						 * Create new date object based on baseDate with updated from the newDate date or time or both.
+						 * @param {Date} baseDate current date
+						 * @param {Date} newDate updated date
+						 * @param {string} datepart what part will be updated: '"date"|"time"|"datetime"'
+						 */
 						function getUpdatedDateValue(baseDate, newDate, datepart) {
-							var currDate = baseDate;
-							if (!currDate) {
-								currDate = newDate;
-								return currDate;
+							if (!baseDate) {
+								return new Date(newDate);
 							}
+							var currDate = new Date(baseDate); // clone base date
 							if (datepart.indexOf('date') >= 0) {
 								currDate.setFullYear(newDate.getFullYear());
 								currDate.setMonth(newDate.getMonth());
@@ -70,7 +76,7 @@
 						}
 
 						/**
-						 * Enable/Disable
+						 * Enable/Disable picker
 						 */
 						function setDisabled(isDisabled) {
 							if (isDisabled) {
@@ -81,7 +87,7 @@
 						}
 
 						/**
-						 * Apply format
+						 * Apply date format in the picker
 						 */
 						function setFormat(format) {
 							if (!angular.isString(format))
@@ -91,7 +97,7 @@
 						}
 
 						/**
-						 * Apply locale
+						 * Apply locale in the picker
 						 */
 						function setLocale(locale) {
 							if (!angular.isString(locale))
@@ -99,7 +105,7 @@
 							getPicker().locale(locale);
 						}
 
-						// initialize datetime picker
+						// create date picker config json
 						var config = {};
 						if ($scope.showAdditionalButtons === 'true') {
 							config = {
@@ -108,7 +114,6 @@
 							};
 						}
 						angular.extend(config, {
-							//debug: true,
 							locale: $scope.locale,
 							inline: isSmallResolution,
 							widgetParent: isSmallResolution ? null : angular.element($scope.htmlContainerSelector),
@@ -133,7 +138,10 @@
 								nextCentury: $izendaLocale.localeText('js_NextCentury', 'Next Century')
 							}
 						});
+						// create picker
 						$scope.dateTimePicker = $input.datetimepicker(config);
+
+						// date picker 'on show' handler
 						$input.on('dp.show', function (e) {
 							if (isSmallResolution)
 								return;
@@ -144,7 +152,9 @@
 								left: $input.offset().left - $widget.parent().offset().left
 							});
 						});
-						angular.element($window).on('resize.dp', function (e) {
+
+						// window resize handler
+						angular.element($window).on('resize.dp' + uid, function (e) {
 							if (isSmallResolution)
 								return;
 							var $widget = angular.element($scope.htmlContainerSelector + ' > .bootstrap-datetimepicker-widget');
@@ -154,12 +164,6 @@
 							}, 10);
 						});
 
-						$input.on('dp.change', function (e) {
-							if (e.date)
-								ngModelCtrl.$setViewValue(getUpdatedDateValue($scope.ngModel, e.date.toDate(), $scope.datepart));
-							else
-								ngModelCtrl.$setViewValue(null);
-						});
 						$btn.on('click', function () {
 							if (!$scope.ngDisabled) {
 								$input.focus();
@@ -170,25 +174,43 @@
 						$scope.$watch('ngDisabled', function (newVal) {
 							setDisabled(newVal);
 						});
-						$scope.$watch('ngModel', function (newVal) {
-							setDate(newVal);
-						});
+
 						$scope.$watch('dateFormat', function (newVal) {
 							setFormat(newVal);
 						});
 						$scope.$watch('locale', function (newVal) {
 							setLocale(newVal);
 						});
-						if (angular.isString(attrs.ngChange))
-							ngModelCtrl.$viewChangeListeners.push(function () {
-								$scope.$eval(attrs.ngChange);
-							});
 
 						// initialize values
 						setDisabled($scope.ngDisabled);
 						setFormat($scope.dateFormat);
 						setLocale($scope.locale);
-						setDate($scope.ngModel);
+
+						if (ngModelCtrl) {
+							$scope.$watch('model', function (newVal) {
+								setDate(newVal);
+							});
+
+							$timeout(function () {
+								ngModelCtrl.$render = function () {
+									setDate(ngModelCtrl.$viewValue);
+								}
+							});
+
+							$input.on('dp.change', function (e) {
+								var newDateValue = e.date ? getUpdatedDateValue($scope.model, e.date.toDate(), $scope.datepart) : null;
+								ngModelCtrl.$setViewValue(newDateValue);
+							});
+						}
+
+						// destructor
+						$scope.$on('$destroy', function () {
+							angular.element($window).off('resize.dp' + uid);
+							var picker = getPicker();
+							if (picker)
+								getPicker().destroy();
+						});
 					}
 				};
 			}

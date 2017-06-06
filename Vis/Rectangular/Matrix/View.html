@@ -142,7 +142,7 @@
 				// Adds items to the chart.
 				for (i = 0; i < vis.items.length; i++) {
 					g.append('g').selectAll('.izenda-vis-matrix-item')
-						.data(vis.itemValue(vis.items[i], 2).filter(function (e) { return e[1] != undefined; }))
+						.data(vis.itemValue(vis.items[i], 2).filter(function (e) { return typeof e[1] !== 'undefined' && !isNaN(e[1]); }))
 						.enter().append('rect')
 						.attr('x', function (d) {
 							// Calculates an item position by date.

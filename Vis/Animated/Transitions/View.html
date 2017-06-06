@@ -136,7 +136,7 @@
 				return d[0];
 			}
 			function getDataPrice(d) {
-				return d[1];
+				return !isNaN(d[1]) ? d[1] : 0;
 			}
 			function getDataSum(d) {
 				return d.sum;
@@ -154,7 +154,8 @@
 				return vis.itemValue(d, 0);
 			}
 			function getLabel(d) {
-				return getItemKey(d) + ' (' + getDataMax(d) + ')';
+				var value = getDataMax(d);
+				return value != 0 ? getItemKey(d) + ' (' + value + ')' : '';
 			}
 			function getValueKey(d) {
 				return d[2];
@@ -784,7 +785,6 @@
 								startAngle: a * (Math.PI / 2 - y0 / r) + (1 - a) * d.startAngle,
 								endAngle: a * (Math.PI / 2) + (1 - a) * d.endAngle
 							};
-
 						path.attr('transform', 'translate(' + xx + ',' + yy + ')');
 						path.attr('d', arc(f));
 						text.attr('transform', 'translate(' + arc.centroid(f) + ')translate(' + xx + ',' + yy + ')rotate(' + ((f.startAngle + f.endAngle) / 2 + 3 * Math.PI / 2) * 180 / Math.PI + ')');

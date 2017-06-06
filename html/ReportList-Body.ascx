@@ -8,8 +8,8 @@
                 <div class="left-panel">
 
                     <div class="search-panel">
-                        <input id="RL_QuickSearchBox" type="text" onblur="RL_BlurSearch(this);" onfocus="RL_FocusSearch(this);" onkeyup="RL_SearchInputStartTimeout(this.value.toLowerCase());" value="Search" lang-value="js_Search" />
-                        <span class="RL_CancelSearchIcon" onclick="var sb = document.getElementById('RL_QuickSearchBox'); sb.value = ''; searchKeyword = ''; RL_BlurSearch(sb); RL_SearchReports();"></span>
+                        <input id="RL_QuickSearchBox" type="text" value="Search" lang-value="js_Search" />
+                        <span class="RL_CancelSearchIcon"></span>
                         <span class="search-icon"></span>
                         <img id="RL_SearchingIcon" lang-title="js_Searching" lang-alt="js_Searching" title="Searching..." alt="Searching..." style="height: 16px; width: 16px; border-width: 0px; position: relative; top: 3px; display: none;" src="./rp.aspx?image=searching-icon.gif" />
                     </div>

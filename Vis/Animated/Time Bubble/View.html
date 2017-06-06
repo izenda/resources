@@ -70,8 +70,11 @@
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 
 		function draw() {
+			function safeNumber(value) {
+				return (typeof value != 'undefined' && !isNaN(value)) ? value : 0;
+			}
 			function getRange(ci) {
-				return [vis.itemValue(vis.min, ci), vis.itemValue(vis.max, ci)];
+				return [safeNumber(vis.itemValue(vis.min, ci)), safeNumber(vis.itemValue(vis.max, ci))];
 			}
 			function isEmpty(range) {
 				return range[0] == range[1];
@@ -79,9 +82,9 @@
 
 			var margin = { top: 19.5, right: 19.5, bottom: 29.5, left: 49.5 };
 
-			var x = function (d) { return vis.itemValue(d, 3); };
-			var y = function (d) { return vis.itemValue(d, 2); };
-			var radius = function (d) { return vis.itemValue(d, 4); };
+			var x = function (d) { return safeNumber(vis.itemValue(d, 3)); };
+			var y = function (d) { return safeNumber(vis.itemValue(d, 2)); };
+			var radius = function (d) { return safeNumber(vis.itemValue(d, 4)); };
 			var color = function (d) { return vis.itemValue(d, 0); };
 			var key = function (d) { return vis.itemValue(d, 0); };
 
@@ -141,15 +144,21 @@
 					.enter().append('circle')
 						.attr('class', 'izenda-vis-timebubble-dot')
 						.style('fill', function (d) { return colorScale(color(d)); })
-						.each(function (d) {
+						.call(position)
+						.on('mouseover', function (d) {
 							var data = {};
 							jq$.each(d, function (key, value) {
-								var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == key; }).formatter;
+								var fieldFormatter = vis.columns.find(function (d) { return d.name == key; }).formatter;
 								data[key] = fieldFormatter ? fieldFormatter(value, d, vis, key) : value + '';
 							});
-							services.tipOn(this, data);
+							services.showTip(data, {
+								mode: 'tooltip',
+								containerStyle: 'text-align: left;'
+							});
 						})
-						.call(position)
+						.on('mouseout', function (d) {
+							services.hideTip();
+						})
 						.sort(order);
 
 				var box = label.node().getBBox();
@@ -199,10 +208,6 @@
 
 				function interpolateData(year) {
 					return vis.items.map(function (d) {
-						function safeNumber(value) {
-							return (typeof value != 'undefined' && !isNaN(value)) ? value : 0;
-						}
-
 						var result = {};
 						vis.itemLabel(result, 0, { value: vis.itemValue(d, 0) });
 						vis.itemLabel(result, 2, { value: safeNumber(interpolateValues(vis.itemValue(d, 2), year)) });

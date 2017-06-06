@@ -28,11 +28,14 @@
 			for (var i = 0; i < columns[0].length; i++) {
 				wfData[wfData.length] = new Object();
 				wfData[wfData.length - 1].name = columns[0][i];
-				wfData[wfData.length - 1].y = columns[1][i];
+				wfData[wfData.length - 1].y = !isNaN(columns[1][i]) ? columns[1][i] : null;
 			}
 
 			var options = {
-				chart: { type: 'waterfall' },
+				chart: {
+					type: 'waterfall',
+					renderTo: 'VIS_ID'
+				},
 				title: { text: VIS_CONTEXT.title },
 				xAxis: {
 					type: 'category',
@@ -70,7 +73,7 @@
 				}
 			};
 
-			vis.element.highcharts(options);
+			new Highcharts.Chart(options);
 
 			var sideOffset = 6,
 				rects = jq$('#VIS_ID_CONTAINER .highcharts-series rect'),

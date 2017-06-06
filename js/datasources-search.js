@@ -259,7 +259,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	 */
 	function runAutocompleteSearch(searchString) {
 		openAutocomplete(true);
-		getData(searchString, false).done(function (searchResults) {
+		getData(searchString, false, function (searchResults) {
 			fillAutocomplete(searchResults);
 		});
 	}
@@ -275,7 +275,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 		}
 		openAutocomplete(true);
 		controls.$searchAutocomplete.append('<div class="izenda-autocomplete-loading">Finding results for "' + searchString + '"...</div>');
-		getData(searchString, true).done(function (searchResults) {
+		getData(searchString, true, function (searchResults) {
 			hideAutocomplete();
 			applySearch({
 				isFieldSearch: false,
@@ -298,7 +298,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 	/**
 	 * Find data for autocomplete
 	 */
-	var getData = function (text, getAllResults) {
+	var getData = function (text, getAllResults, callback) {
 		var queryParams = [
 			'wscmd=findfields',
 			'wsarg0=' + encodeURIComponent(text),
@@ -306,7 +306,16 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			'wsarg2=' + (getAllResults ? 100000 : 49),
 			'wsarg3=false'
 		];
-		return jq$.get('./rs.aspx?' + queryParams.join('&'));
+		var url = './rs.aspx?' + queryParams.join('&');
+		AjaxRequest(url, null, function (returnObj, id) {
+			if (typeof callback === 'function') {
+				callback(returnObj);
+			}
+		}, function (responseObject) {
+			var stacktrace = izenda.error.extractStackTrace(responseObject);
+			var message = responseObject.status + ": " + responseObject.statusText + "\r\n" + stacktrace;
+			izenda.logger.error(message);
+		});
 	}
 
 	/**

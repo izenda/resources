@@ -648,20 +648,6 @@ tr.ReportFooter td {
   background-color: #d4d4d4;
 }
 
-.expand-collapse-category-icon {
-    padding-right: 6px;
-    padding-left: 12px;
-}
-
-.expand-collapse-category-icon {
-    cursor: pointer;
-}
-
-.blue-panel a.category-expander {
-    padding-left: 0px;
-    display: inline-block;
-}
-
 .left-panel {
   margin: 0;
   padding-top: 16px;
@@ -1309,4 +1295,43 @@ a.button.default:active, a.button.default:active:hover {
 	color: #333333;
 	background-color: #e6e6e6;
 	border-color: #adadad;
+}
+
+/* ReportList */
+
+.izenda-category-item:hover {
+	background-color: #e7e7e7;
+}
+
+.izenda-category-item-selected,
+.izenda-category-item-selected:hover {
+	background-color: #d4d4d4;
+}
+
+.izenda-category-item a {
+	cursor: pointer;
+}
+
+.izenda-category-item-empty a {
+	cursor: default;
+}
+
+.izenda-category-item:hover a,
+.izenda-category-item-selected a {
+	color: #000000;
+}
+
+.izenda-category-item a:hover {
+	background-color: initial;
+}
+
+.izenda-category-item-expand a {
+	padding-left: 34px;
+}
+
+.izenda-category-item-expand .izenda-category-expand-icon {
+	cursor: pointer;
+	height: 28px;
+	width: 34px;
+	position: absolute;
 }

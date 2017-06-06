@@ -63,6 +63,42 @@ if (!String.prototype.trim) {
 	};
 })(window);
 
+(function (ns) {
+	ns.error = ns.error || {};
+
+	ns.error.extractStackTrace = function (responseObject) {
+		var stacktrace = '';
+		if (responseObject.responseText) {
+			var excInd = responseObject.responseText.indexOf('Exception]:');
+			if (excInd >= 0) {
+				var excStart = responseObject.responseText.lastIndexOf('[', excInd);
+				if (excStart < 0)
+					excStart = 0;
+				stacktrace = responseObject.responseText.substring(excStart, responseObject.responseText.length - 5);
+			}
+		}
+		return stacktrace;
+	};
+
+	ns.error.defaultCallbackError = function (responseObject, preventReloading) {
+		var msg = "Error occurred on server side. ";
+		if (responseObject && responseObject.status && responseObject.statusText)
+			msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
+		if (!preventReloading)
+			msg += '<br /><br />Page will be reloaded when you click "OK"';
+		if (responseObject.responseText) {
+			var stacktrace = izenda.error.extractStackTrace(responseObject);
+			if (stacktrace) {
+				msg += '<br /><br /><div style="cursor:text;text-align:left;width:800px;white-space:normal;">The information below will help to identify problem if you pass it to support:<br /><span style="font-size:9px;">' +
+					stacktrace.replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
+					'</span></div>';
+			}
+		}
+		ReportingServices.showOk(msg, function () { if (!preventReloading) { location.reload(); } });
+	};
+
+})(window.izenda || (window.izenda = {}));
+
 /**
  * Ajax request function.
  * @param {string} query url.
@@ -125,27 +161,9 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 			else if (callbackError)
 				callbackError(thisRequestObject);
 			else
-				defaultCallbackError(thisRequestObject);
+				izenda.error.defaultCallbackError(thisRequestObject);
 		}
 	}
-}
-
-function defaultCallbackError(responseObject)
-{
-	var msg = "Error occurred on server side. ";
-	if (responseObject && responseObject.status && responseObject.statusText)
-		msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
-	msg += '<br /><br />Page will be reloaded when you click "OK"';
-	if (responseObject.responseText) {
-		var excInd = responseObject.responseText.indexOf('[Exception]:');
-		if (excInd >= 0) {
-			var stacktrace = responseObject.responseText.substr(excInd);
-			msg += '<br /><br /><div style="cursor:text;text-align:left;width:800px;white-space:normal;">The information below will help to identify problem if you pass it to support:<br /><span style="font-size:9px;">' +
-				stacktrace.substr(0, stacktrace.length - 5).replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
-				'</span></div>';
-		}
-	}
-	ReportingServices.showOk(msg, function () { location.reload(); });
 }
 
 function getAppendedUrl(urlToAppend) {

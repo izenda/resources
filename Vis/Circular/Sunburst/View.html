@@ -103,13 +103,21 @@
 			subscriptions.forEach(function (subscription) { subscription.remove(); });
 
 			var currentMetric = vis.getProperty('Metric');
-			var expText = 'of ' + currentMetric + ' value';
-
+			var nodePathProperty = vis.getProperty('NodePath');
 			var root = vis.traverseTree(function (context) {
 				if (context.isLeaf) {
 					context.node['size'] = vis.itemValue(context.node, currentMetric);
 				}
 			});
+			if (isNaN(vis.itemValue(root, currentMetric))) {
+				if (!(nodePathProperty && nodePathProperty.length > 0)) {
+					vis.breadcrumb.hide();
+				}
+				vis.abort('No Data to Display');
+			}
+
+			var expText = 'of ' + currentMetric + ' value';
+
 			var current = root;
 			var zoomLock = {};
 			var zoomEnabled = false;
@@ -195,14 +203,19 @@
 				.style('fill', getColor)
 				.style('opacity', 1)
 				.style('cursor', 'pointer')
-				.each(function (d) { services.tipOn(this, d); })
+				.each(function (d) {
+					services.tipOn(this, d, {
+						pass: function (obj, v) {
+							return !isNaN(vis.itemValue(obj, v)) || vis.metrics.indexOf(v) < 0;
+						}
+					});
+				})
 				.on('mouseover', mouseover)
 				.on('mouseout', mouseout)
 				.on('click', zoom);
 
 			var isBackRender = (VIS_CONTEXT.toImage || VIS_CONTEXT.toStatic),
-					nodePathProeprty = vis.getProperty('NodePath'),
-					existNodePath = (nodePathProeprty && nodePathProeprty.length && nodePathProeprty.length > 0);
+					existNodePath = (nodePathProperty && nodePathProperty.length && nodePathProperty.length > 0);
 			if (isBackRender && existNodePath) {
 				cx = 0; cy = 1;
 			} else {
@@ -405,7 +418,7 @@
 			}));
 		}
 
-		draw();
+		vis.draw();
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

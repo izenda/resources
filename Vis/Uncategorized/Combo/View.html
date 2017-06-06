@@ -28,7 +28,7 @@
 			}
 
 			function getFormatter(i) {
-				return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, VIS_COLUMNS[i].name); };
+				return function () { return VIS_COLUMNS[i].formatter(this.value, null, null, vis.columns[i].name); };
 			}
 
 			var rows = vis.getRows(true),
@@ -36,7 +36,7 @@
 				items = vis.getItems();
 
 			var yaxis = [], series = [];
-			for (var i = 1; i < VIS_COLUMNS.length; i++) {
+			for (var i = 1; i < vis.columns.length; i++) {
 				yaxis.push({
 					labels: {
 						style: { color: getItem(colors, i - 1) },
@@ -50,7 +50,7 @@
 				});
 				series.push({
 					name: VIS_COLUMNS[i].name,
-					type: i <= Math.ceil(VIS_COLUMNS.length / 3) ? 'column' : 'spline',
+					type: i <= Math.ceil(vis.columns.length / 3) ? 'column' : 'spline',
 					color: getItem(colors, i - 1),
 					yAxis: i - 1,
 					data: columns[i]
@@ -58,7 +58,10 @@
 			}
 
 			var options = {
-				title: { text: VIS_CONTEXT.title },
+				chart: {
+					renderTo: 'VIS_ID'
+				},
+				title: { text: vis.context.title },
 				xAxis: [{ categories: jq$.map(vis.getRows(false), function (row) { return row[0]; }) }],
 				yAxis: yaxis,
 				legend: {
@@ -72,7 +75,7 @@
 						var html = [];
 						html.push('<span style="font-size: 10px;">' + this.x + '</span>');
 						jq$.each(this.points, function (i, point) {
-							var fieldFormatter = VIS_COLUMNS.find(function (d) { return d.name == point.series.name; }).formatter;
+							var fieldFormatter = vis.columns.find(function (d) { return d.name == point.series.name; }).formatter;
 							html.push('<span style="color:' + point.series.color + ';">\u25CF</span> ' + point.series.name + ': <b>' + (fieldFormatter ? fieldFormatter(point.y, items[point.point.index], vis, point.series.name) : point.y) + '</b>');
 						});
 						return html.join('<br/>');
@@ -81,7 +84,7 @@
 			};
 
 			vis.subscribeImageRenderer(options);
-			vis.element.highcharts(options);
+			new Highcharts.Chart(options);
 		}
 
 		draw();

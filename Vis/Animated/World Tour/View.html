@@ -259,7 +259,7 @@
 						}
 					}
 
-					var v = country.lastValue;
+					var v = !isNaN(country.lastValue) ? country.lastValue : 0;
 					var c = izenda.utils.color.getColorMix([33, 113, 181], [198, 219, 239], (v - min) / (max - min));
 					context.fillStyle = izenda.utils.color.getRgbFromArray(c);
 					context.fill();
@@ -305,7 +305,11 @@
 						if (itemIndex == 0 || !equalsString(name, shortName(countriesInReportOrder[countryIndex].name), true)) {
 							countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
 						}
-						title.text(shortName(name) + ' (' + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ')');
+						var label = shortName(name);
+						if (!isNaN(val)) {
+							label += ' (' + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ')';
+						}
+						title.text(label);
 					})
 					.tween('rotate', function () {
 						var p = d3.geo.centroid(countriesInReportOrder[countryIndex]),

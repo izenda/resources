@@ -79,14 +79,14 @@
 
 			var names = [];
 
-			function safename(name) {
+			function safeName(name) {
 				return izenda.visualization.wordwrap(name, 15);
 			}
 
 			for (var i = 0, label; i < vis.edges.length; i++) {
-				if (names.indexOf(label = safename(vis.itemLabel(vis.edges[i], 0))) < 0)
+				if (names.indexOf(label = safeName(vis.itemLabel(vis.edges[i], 0))) < 0)
 					names.push(label);
-				if (names.indexOf(label = safename(vis.itemLabel(vis.edges[i], 1))) < 0)
+				if (names.indexOf(label = safeName(vis.itemLabel(vis.edges[i], 1))) < 0)
 					names.push(label);
 			}
 
@@ -95,7 +95,15 @@
 			names.forEach(function (name) { g.setNode(name, { label: name }); });
 
 			for (var i = 0; i < vis.edges.length; i++) {
-				g.setEdge(safename(vis.itemLabel(vis.edges[i], 0)), safename(vis.itemLabel(vis.edges[i], 1)), { label: vis.itemValue(vis.edges[i], spendField), lineInterpolate: 'basis' });
+				var edge = vis.edges[i];
+				var labelValue = vis.itemValue(edge, spendField);
+				if (!isNaN(labelValue)) {
+					var columnFormatter = vis.columns.find(function (d) { return d.name == spendField; }).formatter;
+					labelValue = columnFormatter ? columnFormatter(labelValue, edge, vis, spendField) : labelValue;
+				} else {
+					labelValue = '';
+				}
+				g.setEdge(safeName(vis.itemLabel(edge, 0)), safeName(vis.itemLabel(edge, 1)), { label: labelValue, lineInterpolate: 'basis' });
 			}
 
 			g.nodes().forEach(function (v) {
@@ -123,7 +131,6 @@
 				.translate([(svg.attr('width') - g.graph().width * initialScale) / 2, 20])
 				.scale(initialScale)
 				.event(svg);
-			svg.attr('height', g.graph().height * initialScale + 40);
 
 			subscriptions.push(vis.events.subscribe('MetricChange', function () {
 				var value = vis.getProperty('Metric');

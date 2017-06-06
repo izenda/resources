@@ -225,8 +225,8 @@
 							break;
 					}
 				}
-
-				var chartList = d3.select('#VIS_ID_CHARTS').selectAll('.chart').data(charts);
+				var availableCharts = jq$.grep(charts, function (chart) { return chart.field == 0 || chart.group.size() > 0});
+				var chartList = d3.select('#VIS_ID_CHARTS').selectAll('.chart').data(availableCharts);
 				chartList.enter().append('div')
 					.attr('id', function (d) { return d.id; })
 					.attr('class', 'chart')

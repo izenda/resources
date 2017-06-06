@@ -1,22 +1,4 @@
 // Copyright (c) 2005-2013 Izenda, L.L.C. - ALL RIGHTS RESERVED    
-jq$.extend({
-	getValues: function (url) {
-		var result = null;
-		jq$.ajax({
-			url: url,
-			type: 'get',
-			dataType: 'json',
-			async: false,
-			success: function (data) {
-				result = data;
-			},
-			error: function (data) {
-				alert("Can't load (" + url + "). ERROR: " + JSON.stringify(data));
-			}
-		});
-		return result;
-	}
-});
 
 var currentPreview = null;
 var tInd = 0;
@@ -58,32 +40,36 @@ function CurrentRn() {
 }
 
 function initDataSources(url) {
-	databaseSchema = jq$.getValues(url);
-	if (databaseSchema != null) {
-		var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);
-		jq$(".database").remove();
-		tInd = 0;
-		var html = "";
-		for (var i = 0; i < databaseSchema.length; i++)
-			html += renderDatabase(databaseSchema[i], i);
-		jq$(html).prependTo("#databases");
-		NDS_Init();
+	AjaxRequest(url, null, function (returnObj, id) {
+		if (id != 'getjsonschema' || typeof returnObj === 'undefined' || returnObj == null)
+			return;
+		databaseSchema = returnObj;
+		if (databaseSchema != null) {
+			var datasourcesSearch = new IzendaDatasourcesSearch(databaseSchema);
+			jq$(".database").remove();
+			tInd = 0;
+			var html = "";
+			for (var i = 0; i < databaseSchema.length; i++)
+				html += renderDatabase(databaseSchema[i], i);
+			jq$(html).prependTo("#databases");
+			NDS_Init();
 
-		setTimeout(function () {
-			var length = databaseSchema.length;
-			for (var i = 0; i < length; i++) {
-				var dbh = document.getElementById('rdbh' + i);
-				if (typeof dbh != 'undefined' && dbh != null) {
-					dbh = jq$(dbh);
-					initializeTables(dbh);
-					if (length == 1) {
-						dbh.toggleClass("opened", animationTime);
-						setTimeout(DsDomChanged, animationTime + 100);
+			setTimeout(function () {
+				var length = databaseSchema.length;
+				for (var i = 0; i < length; i++) {
+					var dbh = document.getElementById('rdbh' + i);
+					if (typeof dbh != 'undefined' && dbh != null) {
+						dbh = jq$(dbh);
+						initializeTables(dbh);
+						if (length == 1) {
+							dbh.toggleClass("opened", animationTime);
+							setTimeout(DsDomChanged, animationTime + 100);
+						}
 					}
 				}
-			}
-		}, 100);
-	};
+			}, 100);
+		};
+	}, null, 'getjsonschema', null, false);
 }
 
 function renderDatabase(database, key) {

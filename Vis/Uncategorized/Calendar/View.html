@@ -1205,6 +1205,8 @@ be a descendant of the grid when it is being dragged.
 			selectors: [{
 				icon: 'gear',
 				initPanel: function (panel) {
+					if (vis.context.isImageRender)
+						return;
 					var defaultDateControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-select');
 					var customDefaultDateInput = jq$('<input>').attr('type', 'text')
 						.addClass('izenda-vis-property-datepicker');

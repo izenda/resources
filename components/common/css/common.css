@@ -1,10 +1,17 @@
-﻿/* checkboxes directive */
-
-.no-side-paddings {
+﻿.no-side-paddings {
 	padding-left: 0;
 	padding-right: 0;
 }
 
+.izenda-cursor-pointer {
+	cursor: pointer;
+}
+
+.ui-datepicker {
+	display: none;
+}
+
+/* izenda-select-checkboxes directive */
 .izenda-select-checkboxes {
 	height: 100px;
 	overflow: auto;
@@ -13,20 +20,20 @@
 	background-color: #fff;
 }
 
-.izenda-select-checkboxes-label {
-	cursor: pointer;
-	font-weight: normal;
-	width: 100%;
-}
-
-	.izenda-select-checkboxes-label:hover {
-		background-color: #f3f3f3;
-		background-color: rgba(0, 0, 0, 0.05);
+	.izenda-select-checkboxes .izenda-select-checkboxes-label {
+		cursor: pointer;
+		font-weight: normal;
+		width: 100%;
 	}
 
-	.izenda-select-checkboxes-label > span {
-		margin-left: 5px;
-	}
+		.izenda-select-checkboxes .izenda-select-checkboxes-label:hover {
+			background-color: #f3f3f3;
+			background-color: rgba(0, 0, 0, 0.05);
+		}
+
+		.izenda-select-checkboxes .izenda-select-checkboxes-label > span {
+			margin-left: 5px;
+		}
 
 /* toggle button directive */
 
@@ -73,9 +80,7 @@
 	max-width: 100%;
 }
 
-.izenda-cursor-pointer {
-	cursor: pointer;
-}
+/* date picker directive */
 
 .izenda-date-picker-inline {
 	width: 100%;
@@ -366,12 +371,14 @@
 	cursor: move;
 }
 
-.izenda-col-reorder-helper .report-header-remove-column-btn {
-	display: none !important;
-}
+	.izenda-col-reorder-helper .report-header-remove-column-btn {
+		display: none !important;
+	}
 
 .izenda-col-reorder-hidden {
 	display: none !important;
 }
 
-.ui-helper-hidden-accessible { display:none; }
+.ui-helper-hidden-accessible {
+	display: none;
+}

@@ -221,6 +221,8 @@
 						});
 					},
 					draw: function (name, data) {
+						if (isNaN(data.items[0].value))
+							return;
 						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-simple-gauge").css("float", "left");
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.SimpleGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Simple.Size'), data);
@@ -289,6 +291,8 @@
 						});
 					},
 					draw: function (name, data) {
+						if (isNaN(data.items[0].value))
+							return;
 						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-linear-gauge").css("float", "left");
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.LinearGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Linear.Mode'), vis.getProperty('Styles.Linear.Size'), data);
@@ -362,6 +366,9 @@
 						});
 					},
 					draw: function (name, data) {
+						if (isNaN(data.items[0].value) || isNaN(data.items.length > 1 && data.items[1].value) || isNaN(typeof data.max === 'object' && data.max.value))
+							return;
+
 						if (gauges.length % gaugesPerBlock == 0) {
 							gaugesBlock = jq$("<div></div>").css("float", "left");
 							jq$("#VIS_ID").append(gaugesBlock);
@@ -421,6 +428,11 @@
 						});
 					},
 					draw: function (name, data) {
+						data = jq$.grep(data, function (item) {
+							return !isNaN(item.items[0].value);
+						});
+						if (data.length == 0)
+							return;
 						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-trending-gauge").css("float", "left");
 						jq$("#VIS_ID").append(gaugeDiv);
 						var gauge = new izenda.gauges.TrendingGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Trending.Size'), data);

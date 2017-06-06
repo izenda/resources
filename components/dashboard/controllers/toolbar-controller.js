@@ -479,11 +479,18 @@
 			}
 
 			// calculate current dashboard name
+			var currentDashboardName = vm.reportInfo.fullName;
 			var currentDashboardFullName = vm.reportInfo.fullName;
-			if (!currentDashboardFullName) {
-				currentDashboardFullName = vm.dashboardConfig.defaultDashboardName;
-				if (currentDashboardFullName && currentCategoryName !== '')
+			if (!currentDashboardName) {
+				currentDashboardName = currentDashboardFullName = vm.dashboardConfig.defaultDashboardName;
+				if (currentDashboardFullName && currentCategoryName) {
 					currentDashboardFullName = currentCategoryName + $izendaSettings.getCategoryCharacter() + currentDashboardFullName;
+					if (currentCategoryName.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
+						// for "Uncategorized\report name" currentDashboardName will be "report name"
+						// for "Category\report name" currentDashboardName will be the same
+						currentDashboardName = currentDashboardFullName;
+					}
+				}
 			}
 
 			angular.element.each(vm.dashboardCategories, function () {
@@ -497,13 +504,13 @@
 							text: $izendaUrl.extractReportName(dashboard)
 						};
 						vm.dashboardsInCurrentCategory.push(dashboardObj);
+
+						if (vm.reportInfo.isNew)
+							return;
 						// set active dashboard
-						if (!vm.reportInfo.isNew) {
-							if ((currentDashboardFullName && dashboard === currentDashboardFullName)
-								|| (!currentDashboardFullName && iDashboard === 0)) {
-								vm.activeDashboard = dashboardObj;
-								$izendaUrl.setReportFullName(dashboard);
-							}
+						if ((currentDashboardName && dashboard === currentDashboardName) || (!currentDashboardName && iDashboard === 0)) {
+							vm.activeDashboard = dashboardObj;
+							$izendaUrl.setReportFullName(dashboard);
 						}
 					});
 				}
@@ -579,9 +586,9 @@
 						} else {
 							var errorText = $izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email');
 							$rootScope.$broadcast('izendaShowMessageEvent', [
-										errorText,
-										$izendaLocale.localeText('js_Error', 'Error'),
-										'danger']);
+								errorText,
+								$izendaLocale.localeText('js_Error', 'Error'),
+								'danger']);
 						}
 						$scope.$applyAsync();
 					});
@@ -730,7 +737,7 @@
 			 */
 			$scope.$on('selectedNewReportNameEvent', function (event, args) {
 				var dashboardName = args[0],
-						dashboardCategory = args[1];
+					dashboardCategory = args[1];
 				var fullName = dashboardName;
 				if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
 					fullName = dashboardCategory + $izendaSettings.getCategoryCharacter() + dashboardName;

@@ -172,8 +172,12 @@
 				loc.links[origin].push({ sourceID: origin, targetID: destination, sourceGeo: originGeo, targetGeo: destinationGeo });
 				loc.links[destination].push({ sourceID: destination, targetID: origin, sourceGeo: destinationGeo, targetGeo: originGeo });
 
-				loc.points[origin].count += vis.itemValue(items[link.ri], metrics[selectedMetric].ci);
-				loc.points[destination].count += vis.itemValue(items[link.ri], metrics[selectedMetric].ci);
+				var itemValue = vis.itemValue(items[link.ri], metrics[selectedMetric].ci);
+				if(isNaN(itemValue)){
+					itemValue = 0;
+				}
+				loc.points[origin].count += itemValue;
+				loc.points[destination].count += itemValue;
 
 				loc.points[origin].coord = [originGeo[0], originGeo[1]];
 				loc.points[destination].coord = [destinationGeo[0], destinationGeo[1]];

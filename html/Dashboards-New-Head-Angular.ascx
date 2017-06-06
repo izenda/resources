@@ -3,7 +3,7 @@
 <title>Dashboards</title>
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.common.css.vendor-override.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.ModernStyles.jquery.minicolors.css" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.vendor.jquery-minicolors.jquery.minicolors.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.vendor.ionrangeslider.ion.rangeSlider.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.vendor.ionrangeslider.ion.rangeSlider.skinHTML5.css" />
 <!-- old styles -->
@@ -185,10 +185,9 @@
 <script type="text/javascript" src="./rp.aspx?js=Utility"></script>
 <script type="text/javascript" src="./rp.aspx?js=AdHocServer"></script>
 <script type="text/javascript" src="./rp.aspx?js=NumberFormatter"></script>
-<script type="text/javascript" src="./rp.aspx?js=HtmlCharts"></script>
-<script type="text/javascript" src="./rp.aspx?js=HtmlChartsPieLabels"></script>
-<script type="text/javascript" src="./rp.aspx?js=htmlcharts-more"></script>
-<script type="text/javascript" src="./rp.aspx?js=HtmlChartsFunnel"></script>
+<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.highcharts"></script>
+<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.highcharts-more"></script>
+<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.modules.funnel"></script>
 <script type="text/javascript" src="./rp.aspx?js=ReportViewer"></script>
 <script type="text/javascript" src="./rp.aspx?js=AdHocToolbarNavigation"></script>
 <script type="text/javascript" src="./rp.aspx?js=moment"></script>

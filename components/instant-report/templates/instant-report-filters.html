@@ -205,11 +205,10 @@
 
                     <!-- select checkboxes -->
                     <span ng-switch-when="select_checkboxes">
-                      <span class="izenda-select-checkboxes"
-                            existent-values="filter.existentValues"
+                      <izenda-select-checkboxes existent-values="filter.existentValues"
                             ng-model="filter.values"
-                            ng-change="filtersController.onCurrentValueChange(filter)"
-                            izenda-select-checkboxes></span>
+                            ng-change="filtersController.onCurrentValueChange(filter)">
+                      </izenda-select-checkboxes>
                     </span>
 
                     <!-- in time period -->

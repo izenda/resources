@@ -109,6 +109,9 @@
 				for (i = 0; i < metrics.length; i++) {
 					for (j = 0; j < items.length; j++) {
 						var value = vis.itemValue(items[j], metrics[i].name);
+						if (isNaN(value)) {
+							value = 0;
+						}
 						metrics[i].max = Math.max(metrics[i].max, value);
 						metrics[i].sum += value;
 					}
@@ -232,7 +235,9 @@
 							y = projection([d[0], d[1]])[1];
 						return 'translate(' + x + ',' + y + ')';
 					})
-					.each(function (d) { services.tipOn(this, d); });
+					.each(function (d) {
+						services.tipOn(this, d);
+					});
 
 				nodeEnter.append('svg:circle')
 					.attr('r', 1e-6)
