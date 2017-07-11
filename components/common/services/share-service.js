@@ -1,4 +1,4 @@
-﻿define(['./common-query-service'], function () {
+﻿izendaRequire.define(['angular', './common-query-service'], function (angular) {
 
 	/**
 	 * Service used for store data in share control

@@ -1,4 +1,4 @@
-﻿define([
+﻿izendaRequire.define([
 	'./instant-report-pivot',
 	'./instant-report-query',
 	'./instant-report-settings',

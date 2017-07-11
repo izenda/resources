@@ -1,5 +1,5 @@
-﻿define(['../../common/services/services', './instant-report-query', './instant-report-settings',
-	'./instant-report-pivot', './instant-report-visualization'], function () {
+﻿izendaRequire.define(['angular', 'moment', '../../common/services/services', './instant-report-query', './instant-report-settings',
+	'./instant-report-pivot', './instant-report-visualization'], function (angular, moment) {
 
 		(function () {
 			/**
@@ -25,13 +25,16 @@
 					hideGrid: false,
 					top: '',
 					previewTop: 100,
+					imageAlign: 'L',
 					title: '',
 					titleAlign: 'L',
 					description: '',
 					descriptionAlign: 'L',
 					headerAndFooter: {
 						reportHeader: '',
+						reportHeaderAlign: 'L',
 						reportFooter: '',
+						reportFooterAlign: 'L',
 						pageHeader: ''
 					},
 					style: {
@@ -1028,8 +1031,7 @@
 					});
 					var isExpressionSet = foundField
 								&& angular.isString(foundField.expression)
-								&& foundField.expression.trim() !== ''
-								&& foundField.expressionType !== EMPTY_EXPRESSION_TYPE;
+								&& foundField.expression.trim() !== '';
 					if (foundField && (isFieldGroupedWithFunction(foundField) || isExpressionSet)) {
 						newCalcFields.push(calcField);
 						_updateCalcField(foundField, calcField);
@@ -1040,8 +1042,7 @@
 				// add new
 				eachActiveFields(function (field) {
 					var isExpressionSet = angular.isString(field.expression)
-								&& field.expression.trim() !== ''
-								&& field.expressionType !== EMPTY_EXPRESSION_TYPE;
+								&& field.expression.trim() !== '';
 
 					// if field grouped and it is not simple 'GROUP' or it has expression
 					if (!_isCalcFieldExist('fldId|' + field.guid) && (isFieldGroupedWithFunction(field) || isExpressionSet)) {
@@ -1251,7 +1252,7 @@
 				fieldObject.valueRange = '';
 				fieldObject.width = '';
 				fieldObject.labelJustification = 'M';
-				fieldObject.valueJustification = 'J';
+				fieldObject.valueJustification = ' ';
 				fieldObject.visible = true;
 				fieldObject.gradient = false;
 				fieldObject.bold = false;
@@ -2526,6 +2527,14 @@
 			}
 
 			/**
+			 * Update calc fields collection when expression was changed.
+			 * @param {any} field - target field.
+			 */
+			var onExpressionApplyed = function (field) {
+				_syncCalcFieldsArray();
+			};
+
+			/**
 			 * Update Ui and show preview
 			 */
 			var updateUiStateAndRefreshPreview = function () {
@@ -3182,6 +3191,23 @@
 				return previewSplashText;
 			};
 
+			var hasAggregateFormats = function () {
+				if (!activeCheckedFields) return false;
+				var aggregateFormats = [
+					"PercentOfGroup",
+					"PercentOfGroupWithRounding",
+					"Gauge",
+					"GaugeVariable",
+					"GaugeDashboard"
+				]; 
+				for (var i = 0; i < activeCheckedFields.length; i++) {
+					var field = activeCheckedFields[i];
+					if(!field || !field.format || !field.format.value) continue;
+					if (aggregateFormats.indexOf(field.format.value) >= 0) return true;
+				}
+				return false;
+			};
+
 			// initialize:
 			$log.debug('Start instant report initialize');
 			isPageInitialized = false;
@@ -3279,6 +3305,7 @@
 				removeAnotherField: removeAnotherField,
 				onFieldFunctionApplyed: onFieldFunctionApplyed,
 				onExpressionTypeGroupApplyed: onExpressionTypeGroupApplyed,
+				onExpressionApplyed: onExpressionApplyed,
 				applyFieldSort: applyFieldSort,
 				applyFieldItalic: applyFieldItalic,
 				applyFieldVisible: applyFieldVisible,
@@ -3316,7 +3343,8 @@
 				loadFilterFormats: loadFilterFormats,
 				getPreviewSplashVisible: getPreviewSplashVisible,
 				getPreviewSplashText: getPreviewSplashText,
-				getPopupFilterCustomTemplate: getPopupFilterCustomTemplate
+				getPopupFilterCustomTemplate: getPopupFilterCustomTemplate,
+				hasAggregateFormats: hasAggregateFormats
 			};
 		}]);
 

@@ -885,15 +885,21 @@ function EBC_PopulateDescriptions(fields) {
 		calcField = new Array();
 		calcField.fieldIndex = field.index;
 		if ((field.func != 'None' && field.func != '...' && field.func != 'GROUP' || field.coefficient != null && field.coefficient != "") && field.description != '' && field.description != null) {
-			calcField.description = field.description;
+			calcField.description = field.description; 
 			calcField.datatype = (field.expressionType && field.expressionType != '...') ? field.expressionType : field.datatype;
 			calcField.fldId = field.fldId;
+			calcField.initialDataType = field.initialDataType;
+			calcField.dataTypeGroup = field.dataTypeGroup;
+			calcField.expressionType = field.expressionType;
 			descriptions.push(calcField);
 		}
 		else if (field.operationElem == '~' && (i + 1 < fields.length) && (fields[i + 1].operationElem != '~')) {
 			calcField.description = field.description;
 			calcField.datatype = field.datatype;
 			calcField.fldId = field.fldId;
+			calcField.initialDataType = field.initialDataType;
+			calcField.dataTypeGroup = field.dataTypeGroup;
+			calcField.expressionType = field.expressionType;
 			descriptions.push(calcField);
 		}
 	}

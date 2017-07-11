@@ -46,9 +46,23 @@
     <div class="ds-tree-item-body" collapsed="!irFormatController.optGroups['headerAndFooter'].opened" izenda-bootstrap-collapse>
       <div class="container-fluid">
         <div class="form-group">
+          <label class="nobold" 
+                 ng-bind="'js_ReportHeaderImage' | izendaLocale: 'Report header image'" bind-once></label>
+          <span izenda-align-switcher ng-model="irFormatController.options.imageAlign"
+                ng-attr-title="{{'js_SelectReportHeaderImageAlign' | izendaLocale: 'Select report header image align'}}"></span>
+        </div>
+        <div class="form-group">
+          <label for="izInstFormatReportHeader" class="nobold"
+                 ng-bind="'js_ReportHeader' | izendaLocale: 'Report header'" bind-once></label>
+          <span izenda-align-switcher ng-model="irFormatController.options.headerAndFooter.reportHeaderAlign"
+                ng-attr-title="{{'js_SelectReportHeaderAlign' | izendaLocale: 'Select report header align'}}"></span>
+          <textarea class="form-control noresize multiline-input" id="izInstFormatReportHeader" rows="2"
+                    ng-model="irFormatController.options.headerAndFooter.reportHeader"></textarea>
+        </div>
+        <div class="form-group">
           <label for="izInstFormatTitle" class="nobold"
                  ng-bind="'js_Title' | izendaLocale: 'Title'" bind-once></label>
-          <span izenda-align-switcher ng-model="irFormatController.options.titleAlign" 
+          <span izenda-align-switcher ng-model="irFormatController.options.titleAlign"
                 ng-attr-title="{{'js_SelectTitleAlign' | izendaLocale: 'Select title align'}}"></span>
           <textarea class="form-control noresize multiline-input" id="izInstFormatTitle" rows="2"
                     ng-model="irFormatController.options.title"></textarea>
@@ -56,30 +70,28 @@
         <div class="form-group">
           <label for="izInstFormatDescription" class="nobold"
                  ng-bind="'js_Description' | izendaLocale: 'Description'" bind-once></label>
-          <span izenda-align-switcher ng-model="irFormatController.options.descriptionAlign" 
+          <span izenda-align-switcher ng-model="irFormatController.options.descriptionAlign"
                 ng-attr-title="{{'js_SelectDescAlign' | izendaLocale: 'Select description align'}}"></span>
           <textarea class="form-control noresize multiline-input" id="izInstFormatDescription" rows="2"
                     ng-model="irFormatController.options.description"></textarea>
         </div>
         <div class="form-group">
-          <label for="izInstFormatReportHeader" class="nobold"
-                 ng-bind="'js_ReportHeader' | izendaLocale: 'Report header'" bind-once></label>
-          <textarea class="form-control noresize multiline-input" id="izInstFormatReportHeader" rows="2"
-                    ng-model="irFormatController.options.headerAndFooter.reportHeader"></textarea>
-
           <label for="izInstFormatPageHeader" class="nobold"
                  ng-bind="'js_PageHeader' | izendaLocale: 'Page header'" bind-once></label>
           <textarea class="form-control noresize multiline-input" id="izInstFormatPageHeader" rows="2"
                     ng-model="irFormatController.options.headerAndFooter.pageHeader"></textarea>
-
+        </div>
+        <div class="form-group">
           <label for="izInstFormatReportFooter" class="nobold"
                  ng-bind="'js_ReportFooter' | izendaLocale: 'Report footer'" bind-once></label>
+          <span izenda-align-switcher ng-model="irFormatController.options.headerAndFooter.reportFooterAlign"
+                ng-attr-title="{{'js_SelectReportFooterAlign' | izendaLocale: 'Select report footer align'}}"></span>
           <textarea class="form-control noresize multiline-input" id="izInstFormatReportFooter" rows="2"
                     ng-model="irFormatController.options.headerAndFooter.reportFooter"></textarea>
         </div>
         <div class="checkbox">
           <label>
-            <input type="checkbox" ng-model="irFormatController.options.showFiltersInReportDescription"/>
+            <input type="checkbox" ng-model="irFormatController.options.showFiltersInReportDescription" />
             <span ng-bind="'js_ShowReportParameters' | izendaLocale: 'Show Filters In Report Description'" bind-once></span>
           </label>
         </div>
@@ -201,8 +213,7 @@
             <div class="col-xs-12">
               <button type="button" class="btn btn-izenda-dark"
                       ng-click="irFormatController.restoreDefaultColors()"
-                      ng-bind="'js_RestoreDefaultColors' | izendaLocale: 'Restore default colors'">
-              </button>
+                      ng-bind="'js_RestoreDefaultColors' | izendaLocale: 'Restore default colors'"></button>
             </div>
           </div>
         </div>
@@ -232,31 +243,31 @@
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.showPageNumber"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.showPageNumber" />
                   <span ng-bind="'js_ShowPageNumber' | izendaLocale: 'Show page number'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.showDateAndTime"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.showDateAndTime" />
                   <span ng-bind="'js_ShowDateAndTime' | izendaLocale: 'Show date and time'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.usePagination"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.usePagination" />
                   <span ng-bind="'js_UsePagination' | izendaLocale: 'Use pagination'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.addBookmarkForVg"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.addBookmarkForVg" />
                   <span ng-bind="'js_AddBookmarkForVisualGroup' | izendaLocale: 'Add bookmark for each visual group'" bind-once></span>
                 </label>
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.pageBreakAfterVg"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.pageBreakAfterVg" />
                   <span ng-bind="'js_PageBreakAfterVisualGroups' | izendaLocale: 'Page Break After Visual Groups (PDF)'" bind-once></span>
                 </label>
               </div>
@@ -269,7 +280,7 @@
               </div>
               <div class="checkbox">
                 <label>
-                  <input type="checkbox" ng-model="irFormatController.options.page.minimizeGridWidth"/>
+                  <input type="checkbox" ng-model="irFormatController.options.page.minimizeGridWidth" />
                   <span ng-bind="'js_MinimizeGridWidth' | izendaLocale: 'Minimize Grid Width'" bind-once></span>
                 </label>
               </div>
@@ -311,7 +322,7 @@
                 <div class="ds-tree-item-header">
                   <span class="ds-tree-item-header-text"
                         ng-bind="($index + 1) + '. ' + drillDownField.name"></span>
-                  <span class="ds-multiple-button" 
+                  <span class="ds-multiple-button"
                         ng-attr-title="{{'js_RemoveField' | izendaLocale: 'Remove field'}}"
                         ng-click="irFormatController.removeDrilldownField(drillDownField)"
                         izenda-stop-propagation>
@@ -334,8 +345,7 @@
                       ng-model="irFormatController.selectedDrilldownField"></select>
               <button type="button" class="btn btn-default" ng-click="irFormatController.addDrilldown()"
                       ng-disabled="irFormatController.selectedDrilldownField === null"
-                      ng-bind="'js_AddDrilldownKey' | izendaLocale: 'Add drilldown field'">
-              </button>
+                      ng-bind="'js_AddDrilldownKey' | izendaLocale: 'Add drilldown field'"></button>
             </div>
           </div>
         </div>

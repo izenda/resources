@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 
 	angular.module('izendaInstantReport').controller('InstantReportPivotsController', [
 				'$rootScope',

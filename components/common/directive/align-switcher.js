@@ -1,4 +1,4 @@
-﻿define(['../services/services'], function () {
+﻿izendaRequire.define(['angular', '../services/services'], function (angular) {
 
 	/**
 	 * Izenda align switcher control. Possible values: 'left', 'right' and 'middle'
@@ -19,12 +19,12 @@
 					},
 					template: izendaAlignSwitcherTemplate,
 					link: function ($scope, element, attrs) {
-						var itemsArray = ['L', 'M', 'R', 'J'];
+						var itemsArray = ['L', 'M', 'R', ' '];
 						var shortcuts = {
 							'L': 'glyphicon-align-left',
 							'M': 'glyphicon-align-center',
 							'R': 'glyphicon-align-right',
-							'J': 'glyphicon-align-justify'
+							' ': 'glyphicon-none'
 						};
 
 						var validateValue = function () {

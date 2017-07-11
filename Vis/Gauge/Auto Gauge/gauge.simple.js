@@ -145,19 +145,38 @@
 				.attr("fill", self._calcColorByRegions(self.data.items[0].value, jq$.grep([self.data.low, self.data.high, self.data.target], function (n, i) { return (typeof n != 'undefined'); })))
 				.style("font-size", self.valueFontSize + "px");
 
-		if (formatedValue !== formatedBigValue) {
-			value.on("mouseover", function(d) {
-				value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
-					value.text(formatedValue);
-					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
-				});
-			}).on("mouseout", function(d) {
-				value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 0).each("end", function() {
-					value.text(formatedBigValue);
-					value.transition().duration(self.valueOnHoverAnimationDuration).style("opacity", 1);
-				});
+
+		d3.select(self.parent).style('position', 'relative');
+
+		var front = d3.select(self.parent).append('div')
+			.style({
+				'position': 'absolute',
+				'top': 0,
+				'left': 0,
+				'opacity': 0.01,
+				'background-color': 'white',
+				'width': '100%',
+				'height': '100%',
+				'z-index': 100
 			});
-		}
+
+		var services = window.ReportingServices;
+		front.on('mouseover', function (e) {
+			services.showTip(formatedValue, context = {
+				element: value[0][0],
+				style: 'sharp',
+				mode: 'tooltip',
+				tipStyle: izenda.utils.string.format('border: none; box-shadow: 2px 2px 5px 0px #7c7c7c; padding: 2px; font-family: \'Open Sans Condensed\', sans-serif; font-size: {fontSize}px; padding: 0px {padding}px',
+					{
+						fontSize: self.valueFontSize / 3,
+						padding: self.width * 0.08 / 3
+					})
+			});
+		});
+
+		front.on('mouseout', function (e) {
+			services.hideTip();
+		});
 
 		if (typeof self.data.units != 'undefined') {
 			enter.append("g")
@@ -169,11 +188,8 @@
 				.style("font-size", self.unitsFontSize + "px");
 		}
 
-		svg.attr("width", (enter.node().getBBox().width > self.width) ? enter.node().getBBox().width : self.width)
-			.attr("height", self.height)
-			.style({
-				padding: "0px " + (self.width * 0.08) + "px"
-			});
+		svg.attr("width", self.width)
+			.attr("height", self.height);
 
 		if (dynamic) {
 			var currentValue = 0;

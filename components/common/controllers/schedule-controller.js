@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 
 	/**
 	 * Schedule control. Used for report schedule configuration

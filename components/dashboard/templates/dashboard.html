@@ -89,9 +89,6 @@
         <div class="animate-flip">
           <div class="flippy flippy-front animated fast">
             <div class="frame">
-              <div ng-show="tileController.description != null && tileController.description != ''"
-                   class="iz-dash-tile-description" ng-bind="tileController.description">
-              </div>
               <div style="cursor: pointer;" class="iz-dash-select-report-front-container"
                    ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
                    ng-hide="tileController.reportFullName != null"
@@ -100,20 +97,24 @@
                   <span class="glyphicon glyphicon-plus"></span>
                 </a>
               </div>
+              <div ng-show="tileController.description != null && tileController.description != ''"
+                   class="iz-dash-tile-description"
+                   ng-bind="tileController.description">
+              </div>
               <div class="report" name="preview_control_container"
-                   ng-hide="tileController.isReportDivHidden()">
+                  ng-hide="tileController.isReportDivHidden()">
               </div>
             </div>
             <div class="title-container" style="height: 35px; overflow: hidden;">
               <div class="title">
                 <span class="title-text">
                   <a ng-if="tileController.isTitleSet()"
-                     class="db-title-repname" title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     class="db-title-repname" title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.title"></a>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}"
                      ng-bind="tileController.getConvertedReportCategory()"></a>
 
@@ -121,14 +122,14 @@
 
                   <a ng-if="!tileController.isTitleSet() && tileController.reportName != null"
                      class="db-title-repname"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.reportName"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet() && tileController.reportPartName != null"
                      class="db-title-repname"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.reportPartName"></a>
                 </span>
@@ -249,26 +250,26 @@
                 <span class="title-text">
                   <a ng-if="tileController.isTitleSet()"
                      class="db-title-repname"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.title"></a>
 
                   <a ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      href="{{tileController.izendaUrl.settings.urlReportList}}#{{tileController.getConvertedReportCategory()}}"
                      ng-bind="tileController.getConvertedReportCategory()"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.getConvertedReportCategory() != null && tileController.reportName != ''">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                      class="db-title-repname"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.reportName"></a>
 
                   <span ng-if="!tileController.isTitleSet() && tileController.reportPartName != null">/</span>
                   <a ng-if="!tileController.isTitleSet()"
                      class="db-title-repname"
-                     title="{{tileController.getConvertedReportCategory()}}\{{tileController.reportName}}\{{tileController.reportPartName}}"
+                     title="{{tileController.getTitleText()}}"
                      ng-click="tileController.fireReportViewerLink()"
                      ng-bind="tileController.reportPartName"></a>
                 </span>

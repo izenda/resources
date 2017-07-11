@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services'], function () {
+﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
 
 	angular
 	.module('izendaFilters')
@@ -121,7 +121,7 @@
 			_('#updateBtnP > a').click(function (event) {
 				event.preventDefault();
 				CommitFiltersData(true);
-				$izendaEvent.queueEvent('dashboardRefreshEvent', [false, false, ], false);
+				$izendaEvent.queueEvent('dashboardRefreshEvent', [false, false], false);
 			});
 
 			// watch for location change: we can set dashboard when location is changing

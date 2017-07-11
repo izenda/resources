@@ -174,6 +174,22 @@ function SC_CallOnColumnFunctionChangeHandlers(id, columnName, functionName) {
 			handlers[i].func(handlers[i].id, fields);
 	}
 }
+function SC_GetSelectedFormats(id){
+	var formats = new Array();
+	var table = document.getElementById(id);
+	var body = table.tBodies[0];
+	for (var i = 0; i < body.rows.length; i++) {
+		var row = body.rows[i];
+		var formatSel = EBC_GetSelectByName(row, 'Format');
+		if (!formatSel || !formatSel.options) continue;
+		var formatSelctedOption = formatSel.options[formatSel.selectedIndex];
+		if (formatSelctedOption != null){
+			var format = formatSelctedOption.value;
+			if(format) formats.push(format);
+		}
+	}
+	return formats;
+}
 function SC_GetFieldsList(id, columnName, functionName) {
 	if (columnName == null)
 		columnName = 'Column';
@@ -193,8 +209,11 @@ function SC_GetFieldsList(id, columnName, functionName) {
 
 		if (columnSel != null) {
 			var columnSelValue = columnSel.value;
-			if (columnSelValue != '...') {
+			if (columnSelValue !== '...') {
 				var field = {};
+				var selectedColumn = columnSel.options[columnSel.selectedIndex];
+				if (selectedColumn != null)
+					field.initialDataType = selectedColumn.getAttribute("datatype");
 				if (operationElem.ElementExists()) {
 					if (operationElem.valueElement.value.trim() == "")
 						field.operationElem = '~';
@@ -205,9 +224,15 @@ function SC_GetFieldsList(id, columnName, functionName) {
 				field.column = columnSelValue;
 				if (funcSelect != null) {
 					field.func = funcSelect.value;
-					var option = funcSelect.options[funcSelect.selectedIndex];
-					if (option != null)
-						field.datatype = option.getAttribute("datatype");
+					var selectedFunc = funcSelect.options[funcSelect.selectedIndex];
+					if (selectedFunc != null){
+						field.datatype = selectedFunc.getAttribute("datatype");
+						field.dataTypeGroup = selectedFunc.getAttribute("dataTypeGroup");
+
+						if ((!field.dataTypeGroup || field.dataTypeGroup === "None") && columnSel.selectedIndex > -1)
+							field.dataTypeGroup = selectedColumn.getAttribute("dataTypeGroup");
+					}
+						
 				}
 				if (descriptionEdit != null)
 					field.description = descriptionEdit.value;

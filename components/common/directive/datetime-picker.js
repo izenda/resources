@@ -1,4 +1,4 @@
-﻿define(['../services/services'], function () {
+﻿izendaRequire.define(['angular', 'bootstrap-datetimepicker', '../services/services'], function (angular) {
 
 	(function () {
 		'use strict';

@@ -1,4 +1,4 @@
-﻿define(['./localization-service', './rs-query-service'], function () {
+﻿izendaRequire.define(['angular', './localization-service', './rs-query-service'], function (angular) {
 
 	angular.module('izenda.common.query').factory('$izendaSettings', [
 		'$log',

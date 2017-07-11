@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services'], function () {
+﻿izendaRequire.define(['angular', 'moment', '../../common/services/services'], function (angular, moment) {
 
 	/**
 	 * Izenda query service which provides dashboard specific queries

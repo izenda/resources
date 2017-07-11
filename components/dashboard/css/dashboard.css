@@ -482,7 +482,7 @@ body {
 	position: absolute;
 	top: 10px;
 	bottom: 10px;
-	left: -650px;
+	left: -700px;
 	background-color: #666;
 	-moz-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
 	-webkit-box-shadow: 0px 2px 4px rgba(0,0,0,.5);
@@ -613,12 +613,12 @@ TILE LAYOUT STYLES:
 		overflow: hidden;
 	}
 
-	.iz-dash-tile > .animate-flip > .flippy-front > .frame > .report {
+	.flippy-front .frame .report {
 		min-height: 100%;
 	}
 
 		/* disable global bootstrap CSS rule */
-		.iz-dash-tile > .animate-flip > .flippy-front > .frame > .report > * {
+		.flippy-front .frame .report > * {
 			-webkit-box-sizing: content-box;
 			-moz-box-sizing: content-box;
 			box-sizing: content-box;
@@ -686,10 +686,13 @@ TILE LAYOUT STYLES:
 }
 
 .iz-dash-tile-description {
-	height: 30px;
-	font-size: 16px;
-	padding: 0 10px;
+	font-size: 15px;
+	line-height: 1.5em;
+	padding: 2px 10px;
 	color: #999999;
+	overflow: hidden;
+	box-sizing: border-box;
+	background-color: #fff;
 }
 
 /**************************************************************************************/
@@ -907,6 +910,7 @@ TILE LAYOUT STYLES:
 	line-height: 35px;
 	height: 35px;
 	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 	.animate-flip .title .title-text,

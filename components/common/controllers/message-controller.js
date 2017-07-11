@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 
 	/**
 	 * This controller used for showing modal dialog with message.

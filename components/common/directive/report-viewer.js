@@ -1,4 +1,4 @@
-﻿define(['../services/services'], function () {
+﻿izendaRequire.define(['angular', '../services/services'], function (angular) {
 
 /**
 * Report viewer directive. Used to show rendered report part (or whole report).

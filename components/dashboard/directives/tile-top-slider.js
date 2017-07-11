@@ -1,4 +1,4 @@
-﻿define(['../../vendor/ionrangeslider/ion.rangeSlider', '../../common/services/services', '../services/services'], function () {
+﻿izendaRequire.define(['angular', '../../vendor/ionrangeslider/ion.rangeSlider', '../../common/services/services', '../services/services'], function (angular) {
 
 	(function () {
 		'use strict';

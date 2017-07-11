@@ -1,4 +1,4 @@
-﻿define([
+﻿izendaRequire.define([
 	'./dashboard-background',
 	'./gallery',
 	'./tile-top-slider',

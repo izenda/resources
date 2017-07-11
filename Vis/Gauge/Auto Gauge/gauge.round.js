@@ -20,7 +20,7 @@ var izenda = izenda || {};
 			margin = { top: 0, right: 0, bottom: 30, left: 0 };
 
 		this.width = diameter - margin.right - margin.left - margin.top - margin.bottom;
-		this.height = this.width;
+		this.height = this.width * 1.3;
 
 		var halfWidth = this.width * 0.5;
 
@@ -99,7 +99,6 @@ var izenda = izenda || {};
 		background.append("g")
 			.attr("class", "izenda-vis-gauge-title")
 				.append("text")
-					.attr("width", self.titleWidth)
 					.attr("x", self.titleX)
 					.attr("y", self.titleY)
 					.text(self.title)
@@ -130,7 +129,7 @@ var izenda = izenda || {};
 		background.select("text.izenda-vis-gauge-title").call(wrap, self.width);
 
 		svg.attr("width", self.width)
-			.attr("height", background.node().getBBox().height);
+			.attr("height", self.height);
 
 		enter.append("g").attr("class", "izenda-vis-gauge-arcs");
 
@@ -173,25 +172,24 @@ var izenda = izenda || {};
 			region.arc = arc;
 		});
 
-		var tooltip = d3.select(self.parent).append("div")
-			.attr("class", "izenda-vis-gauge-tooltip")
-			.style("opacity", 0)
-			.html((self.data.items.length > 1 || (typeof self.data.max != "undefined")) ? (self.data.items[0].value + " / " + ((typeof self.data.max != "undefined") ? self.data.max.value : self.data.items[1].value)) : ns.format.formatValue(self.data.items[0].value, self.data.items[0].format));
-
-
+		var services = window.ReportingServices;
+		var tipContent = (self.data.items.length > 1 || (typeof self.data.max != "undefined")) ? (self.data.items[0].value + " / " + ((typeof self.data.max != "undefined") ? self.data.max.value : self.data.items[1].value)) : ns.format.formatValue(self.data.items[0].value, self.data.items[0].format);
 		var labels = enter.append("g").attr("class", "izenda-vis-gauge-labels");
 
 		labels.on("mouseover", function (d) {
-			tooltip.transition()
-				.duration(200)
-				.style("opacity", 1);
-			tooltip.style("left", (d3.event.layerX) + "px")
-				.style("top", (d3.event.layerY - 15) + "px");
+			services.showTip(tipContent, context = {
+				element: labels[0][0],
+				style: "sharp",
+				mode: 'tooltip',
+				tipStyle: izenda.utils.string.format('border: none; box-shadow: 2px 2px 5px 0px #7c7c7c; padding: 2px; font-family: \'Open Sans Condensed\', sans-serif; font-size: {fontSize}px; padding: 0px {padding}px',
+					{
+						fontSize: self.labelFormatTypeFontSize,
+						padding: self.width * 0.08 / 3
+					})
+			});
 		})
 		.on("mouseout", function (d) {
-			tooltip.transition()
-				.duration(500)
-				.style("opacity", 0);
+			services.hideTip();
 		});
 
 		var formatTypeText = null;

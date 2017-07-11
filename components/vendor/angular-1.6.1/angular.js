@@ -1,3 +1,7 @@
+(function () {
+	var existingWindowDotAngular = window.angular;
+	var angular = (window.angular = {});
+
 /**
  * @license AngularJS v1.6.1
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -32980,3 +32984,14 @@ $provide.value("$locale", {
 })(window);
 
 !window.angular.$$csp().noInlineStyle && window.angular.element(document.head).prepend('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak,.ng-hide:not(.ng-hide-animate){display:none !important;}ng\\:form{display:block;}.ng-animate-shim{visibility:hidden;}.ng-anchor{position:absolute;}</style>');
+
+// restore the old angular version
+window.izendaAngular = angular;
+window.izendaAngular.isIzendaAngular = true;
+if (typeof izendaRequire == 'object' && izendaRequire.define.amd)
+	izendaRequire.define(["jquery"], function (jQuery) {
+		return window.izendaAngular;
+	});
+if (typeof (existingWindowDotAngular) === 'object')
+	window.angular = existingWindowDotAngular;
+})();

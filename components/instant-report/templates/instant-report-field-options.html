@@ -228,6 +228,7 @@
                         <label for="izInstFieldExpression"
                                ng-bind="'js_Expression' | izendaLocale: 'Expression'" bind-once></label>
                         <textarea type="text" class="form-control" id="izInstFieldExpression"
+                                  ng-change="fieldOptionsController.onExpressionChanged()"
                                   ng-model="fieldOptionsController.field.expression" rows="3"
                                   style="position: relative; z-index: 2;"></textarea>
                       </div>

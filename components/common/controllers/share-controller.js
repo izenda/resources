@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 
 	/**
 	 * Share controller control. Used for configure access for report.

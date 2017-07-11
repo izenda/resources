@@ -1,4 +1,5 @@
-﻿define(function (require) {
+﻿izendaRequire.define(['angular', '../common/module-definition'], function (angular) {
+	'use strict';
 
 	/**
 	 * Requirements: 
@@ -6,11 +7,10 @@
 	 *   izenda.common.query
 	 *   izenda.common.ui
 	 */
-
-	angular.module('izendaFilters', [
+	var module = angular.module('izendaFilters', [
 		'izenda.common.compatibility',
 		'izenda.common.query',
 		'izenda.common.ui']);
 
-	return function () { };
+	return module;
 });

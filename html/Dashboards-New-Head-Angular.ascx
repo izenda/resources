@@ -1,6 +1,7 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 <title>Dashboards</title>
+
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.common.css.vendor-override.css" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" />
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=components.vendor.jquery-minicolors.jquery.minicolors.css" />
@@ -207,7 +208,8 @@
 <script type="text/javascript" src="./rp.aspx?extres=js.shrinkable-grid.js"></script>
 
 <!-- load and run instant report application -->
-<script src="./rp.aspx?extres=components.vendor.requirejs.require.js" data-main="./rp.aspx?extres=components.dashboard.module-loader.js"></script>
+<script src="./rp.aspx?extres=components.vendor.requirejs.require.js"></script>
+<script src="./rp.aspx?extres=components.dashboard.module-loader.js"></script>
 
 <script runat="server">
     protected override void OnInit(EventArgs e)

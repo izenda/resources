@@ -1,4 +1,4 @@
-﻿define(['./localization-service', './rs-query-service'], function () {
+﻿izendaRequire.define(['angular', './localization-service', './rs-query-service'], function (angular) {
 	/**
 	 * Izenda query service which provides dashboard specific queries
 	 * this is singleton

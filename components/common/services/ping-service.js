@@ -1,4 +1,4 @@
-﻿define(['./common-query-service'], function () {
+﻿izendaRequire.define(['angular', './common-query-service'], function (angular) {
 
 	/**
 	 * Service which used to keep http session alive.

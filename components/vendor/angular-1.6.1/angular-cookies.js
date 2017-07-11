@@ -1,3 +1,5 @@
+izendaRequire.define(['angular'], function(angular) {
+
 /**
  * @license AngularJS v1.6.1
  * (c) 2010-2016 Google, Inc. http://angularjs.org
@@ -327,4 +329,6 @@ angular.module('ngCookies').provider('$$cookieWriter', /** @this */ function $$C
 });
 
 
-})(window, window.angular);
+	})(window, angular);
+
+});

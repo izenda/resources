@@ -193,15 +193,19 @@
 
 /* align switcher */
 
+.glyphicon-none:before {
+	content: "\00a0";
+	color: transparent !important;
+}
+
 .izenda-align-switcher {
-	padding: 0.2em;
 	display: inline-block;
 	color: #4274AF;
 	background-color: #fff;
-	width: 1.4em;
-	height: 1.4em;
-	line-height: 1em;
-	font-size: 1em;
+	width: 20px;
+	height: 20px;
+	line-height: 12px;
+	font-size: 12px;
 	text-align: center;
 	cursor: pointer;
 	-webkit-touch-callout: none;
@@ -210,6 +214,9 @@
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+	border: 1px solid #4274AF;
+	padding: 3px;
+	box-shadow: #4274AF 0 0 1px 0 inset;
 }
 
 .html-container {

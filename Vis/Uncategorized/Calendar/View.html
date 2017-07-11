@@ -1241,7 +1241,6 @@ be a descendant of the grid when it is being dragged.
 						autoclose: true
 					});
 					customDefaultDateInput
-						.unbind('change')
 						.bind('change', function (e) {
 							var date = customDefaultDateInput.datepicker('getDate');
 							if (Object.prototype.toString.call(date) === '[object Date]' && !isNaN(date.getTime())) {
@@ -1283,7 +1282,7 @@ be a descendant of the grid when it is being dragged.
 					}
 					customDefaultDateControl.find('span.izenda-input-icon')
 						.bind('click', function () {
-							if (jq$('#iz-ui-datepicker-div').is(':hidden'))
+							if (customDefaultDateInput.datepicker('widget').is(':hidden'))
 								customDefaultDateInput.datepicker('show');
 						});
 				},

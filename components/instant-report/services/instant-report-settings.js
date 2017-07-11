@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services'], function () {
+﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
 
 	/**
 	 * Instant report settings service.

@@ -54,6 +54,7 @@ var izenda = izenda || {};
 	ns.gauges.TrendingGauge.prototype.render = function (dynamic) {
 		var self = this, lastRecord = self.data[self.data.length - 1],
 			relativeValue = lastRecord.items[0].value * 100 / self.data[0].items[0].value - 100;
+		var animationTimeout = 100;
 
 		var svg = d3.select(self.parent).append("svg")
 			.attr("width", self.width)
@@ -121,12 +122,12 @@ var izenda = izenda || {};
 				xT = self.width - self.areaPointRadius - self.areaOffset - self.areaPointOffset;
 			}
 
-			areaPoint.attr("transform", "translate(" + xT + "," + yT + ")");
+			areaPoint.transition().duration(animationTimeout).attr("transform", "translate(" + xT + "," + yT + ")");
 		}
 		setTransformOfAreaPoint(lastRecord);
 
 		svg.on("mouseover", function () {
-			currentBlock.select(".izenda-vis-gauge-current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 1);
+				currentBlock.select(".izenda-vis-gauge-current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 1);
 			})
 			.on("mouseout", function () {
 				currentBlock.select(".izenda-vis-gauge-current-date").transition().duration(self.currentDateAnimationDuration).style("opacity", 0);
@@ -166,8 +167,8 @@ var izenda = izenda || {};
 				yT = self.height - self.areaPointRadius - self.areaOffset - self.areaPointOffset;
 			}
 
-			background.select(".izenda-vis-gauge-area-bullseye").attr("transform", "translate(" + xT + "," + yT + ")");
-			background.select(".izenda-vis-gauge-area-bullseye-inner").attr("transform", "translate(" + xT + "," + yT + ")");
+			background.select(".izenda-vis-gauge-area-bullseye").transition().duration(animationTimeout).attr("transform", "translate(" + xT + "," + yT + ")");
+			background.select(".izenda-vis-gauge-area-bullseye-inner").transition().duration(animationTimeout).attr("transform", "translate(" + xT + "," + yT + ")");
 		}
 		if (typeof lastRecord.target !== "undefined") {
 			background.append("circle")
@@ -275,7 +276,7 @@ var izenda = izenda || {};
 
 			currentBlockText.text(formatedBigValue);
 			currentBlock.select(".izenda-vis-gauge-current-date").text("on " + item.date.toLocaleDateString());
-			
+
 			if (currentBlock.node().getBBox().width > self.correctedCurrentBlockWidth) {
 				currentBlockText.style("font-size", (self.currentFontSize * self.correctedCurrentBlockWidth / currentBlock.node().getBBox().width) + "px");
 			}

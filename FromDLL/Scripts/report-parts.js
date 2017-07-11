@@ -58,7 +58,7 @@ function CapitaliseString(string) {
 }
 
 function GerReportPartUrl(rn, part, first, embedScripts, rsp, params) {
-	var url = resposeServerUrl + '?wscmd=renderedreportpart&wsarg0=' + rn + '&wsarg1=' + part;
+	var url = (rsp ? rsp : resposeServerUrl) + '?wscmd=renderedreportpart&wsarg0=' + rn + '&wsarg1=' + part;
 	url += '&wsarg2=' + (first ? '' : 'alonenext');
 	url += '&wsarg3=' + (embedScripts ? 'embedScriptsForHtmlPart' : '');
 	url += '&wsarg4=' + encodeURIComponent(RP_Base64.encode(rsp));

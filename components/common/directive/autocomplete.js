@@ -1,4 +1,4 @@
-﻿define(['../services/services'], function () {
+﻿izendaRequire.define(['angular', '../services/services'], function (angular) {
 
 	/**
 	 * Autocomplete directive. Uses "tagit". Applyed for <input> element.

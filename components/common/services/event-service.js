@@ -1,4 +1,4 @@
-﻿define(['../module-definition'], function () {
+﻿izendaRequire.define(['angular', '../module-definition'], function (angular) {
 
 	/**
 	 * Background image/color storage service

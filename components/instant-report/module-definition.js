@@ -1,7 +1,8 @@
-﻿define(function (require) {
+﻿izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition'], function (angular, angularCookies, izendaCommon) {
 	'use strict';
 	// Create instant report angular module
 	angular.module('izendaInstantReport', [
+			'ngCookies',
 			'izenda.common.compatibility',
 			'izenda.common.query',
 			'izenda.common.ui'
@@ -38,8 +39,7 @@
 	var bootstrapInstantReports = function (commonSettingsLoader) {
 		angular.element(document).ready(function () {
 			// common settings promise:
-			var commonSettingsLoader = require('../common/module-definition');
-			var commonQuerySettingsPromise = commonSettingsLoader.loadSettings();
+			var commonQuerySettingsPromise = izendaCommon.loadSettings();
 
 			// instant report settings promise:
 			var urlSettings = window.urlSettings$;

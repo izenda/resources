@@ -1,4 +1,10 @@
-﻿define(function (require) {
+﻿/**
+ * requirejs module, which creates angular modules.
+ * returns 'loadSettings' function, which could load settings for this module.
+ */
+izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition', '../filter/module-definition'], function (angular, angularCookies, izendaCommon) {
+	'use strict';
+
 	// Create dashboards angular module
 	angular.module('izendaDashboard', [
 		'ngCookies',
@@ -44,8 +50,7 @@
 	var bootstrapDashboards = function () {
 		angular.element(document).ready(function () {
 			// common settings promise:
-			var commonSettingsLoader = require('../common/module-definition');
-			var commonQuerySettingsPromise = commonSettingsLoader.loadSettings();
+			var commonQuerySettingsPromise = izendaCommon.loadSettings();
 
 			// instant report settings promise:
 			var urlSettings = window.urlSettings$;

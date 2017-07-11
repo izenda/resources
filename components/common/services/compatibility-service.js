@@ -1,4 +1,4 @@
-﻿define(['vendor/custom/msie-detect'], function () {
+﻿izendaRequire.define(['angular', 'vendor/custom/msie-detect'], function (angular, msieDetect) {
 
 	angular.module('izenda.common.compatibility').factory('$izendaCompatibility', [
 		'$window',
@@ -13,9 +13,9 @@
 					rightViewOnly = "View Only",
 					rightLocked = "Locked",
 					rightFullAccess = "Full Access";
-			var isIE8 = isSpecificIeVersion(8, 'lte');
-			var isLteIE10 = isSpecificIeVersion(10, 'lte');
-			var isGteIE9 = isSpecificIeVersion(10, 'gte');
+			var isIE8 = msieDetect.isSpecificIeVersion(8, 'lte');
+			var isLteIE10 = msieDetect.isSpecificIeVersion(10, 'lte');
+			var isGteIE9 = msieDetect.isSpecificIeVersion(10, 'gte');
 			var checkIsIe8 = function () {
 				return isIE8;
 			};

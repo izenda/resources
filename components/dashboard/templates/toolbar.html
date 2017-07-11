@@ -321,7 +321,7 @@
 
           <!-- refresh -->
           <li ng-if="toolbarController.autoRefreshIntervals.length == 0">
-            <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
+            <a ng-attr-title="{{'js_RefreshData' | izendaLocale: 'Refresh Data'}}"
                ng-click="toolbarController.refreshDashboardHandler()"
                ng-hide="toolbarController.galleryState.isGalleryEnabled">
               <span class="glyphicon glyphicon-refresh"></span>
@@ -333,7 +333,7 @@
               ng-if="toolbarController.autoRefreshIntervals.length != 0"
               ng-hide="toolbarController.galleryState.isGalleryEnabled">
             <a class="dropdown-toggle" data-toggle="dropdown"
-               ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}">
+               ng-attr-title="{{'js_RefreshData' | izendaLocale: 'Refresh Data'}}">
               <span class="glyphicon glyphicon-refresh"></span>
               <sub style="color: greenyellow;"
                     ng-style="toolbarController.getSelectedInterval() ? {} : {visibility: 'hidden'}">A</sub>
@@ -347,10 +347,10 @@
                 </a>
               </li>
               <li>
-                <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
+                <a ng-attr-title="{{'js_RefreshData' | izendaLocale: 'Refresh Data'}}"
                    ng-click="toolbarController.refreshDashboardHandler()">
                   <span class="glyphicon glyphicon-refresh"></span>&nbsp;
-                  <span ng-bind="'js_Refresh' | izendaLocale: 'Refresh'" bind-once></span>
+                  <span ng-bind="'js_RefreshData' | izendaLocale: 'Refresh Data'" bind-once></span>
                 </a>
               </li>
               <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
@@ -363,31 +363,14 @@
               </li>
             </ul>
           </li>
-          <!--
-    <li>
-      <a ng-attr-title="{{'js_Refresh' | izendaLocale: 'Refresh'}}"
-         ng-click="toolbarController.refreshDashboardHandler()">
-        <span class="glyphicon glyphicon-refresh"></span>
-      </a>
-    </li>
-    <li style="width: 10px;"
-        ng-if="toolbarController.autoRefreshIntervals.length != 0">
-      <a class="btn dropdown-toggle" data-toggle="dropdown"
-         style="width: 10px; padding: 2px 0 0 0;">
-        <span class="caret"></span>
-      </a>
-      <ul class="dropdown-menu">
-        <li ng-repeat="interval in toolbarController.autoRefreshIntervals">
-          <a title="{{interval.name}}"
-             ng-class="{'selected-item': interval.selected}"
-             ng-click="toolbarController.refreshDashboardHandler($index)">
-            <span class="glyphicon glyphicon-refresh"></span>&nbsp;
-            <span ng-bind="interval.name"></span>
-          </a>
-        </li>
-      </ul>
-    </li>
-    -->
+
+          <li>
+            <a ng-attr-title="{{'js_RefreshReport' | izendaLocale: 'Refresh Report'}}"
+               ng-click="toolbarController.syncDashboardHandler()"
+               ng-hide="toolbarController.galleryState.isGalleryEnabled">
+              <span class="glyphicon glyphicon-retweet"></span>
+            </a>
+          </li>
           <!-- filters -->
           <li>
             <a ng-attr-title="{{'js_ShowDashboardFilters' | izendaLocale: 'Show dashboard filter'}}"

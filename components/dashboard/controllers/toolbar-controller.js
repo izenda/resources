@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directives/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directives/directives'], function (angular) {
 
 	angular
 		.module('izendaDashboard')
@@ -281,7 +281,7 @@
 			 */
 		vm.refreshDashboardHandler = function (index, skipFirst) {
 			if (!skipFirst) {
-				$izendaEvent.queueEvent('dashboardRefreshEvent', [false, true]);
+				$izendaEvent.queueEvent('dashboardRefreshEvent', [false, false]);
 			}
 			if (typeof index != 'undefined') {
 				vm.cancelRefreshInterval();
@@ -292,10 +292,17 @@
 				if (intervalValue >= 1) {
 					intervalValue *= 1000;
 					vm.refreshInterval = setInterval(function () {
-						$izendaEvent.queueEvent('dashboardRefreshEvent', [false, true]);
+						$izendaEvent.queueEvent('dashboardRefreshEvent', [false, false]);
 					}, intervalValue);
 				}
 			}
+		};
+
+		/**
+		 * Sync dashboard
+		 */
+		vm.syncDashboardHandler = function () {
+			$izendaEvent.queueEvent('dashboardRefreshEvent', [true, true]);
 		};
 
 		/**

@@ -1,5 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
-
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 	/**
 	 * Instant report controller definition
 	 */
@@ -10,6 +9,7 @@
 			'$scope',
 			'$window',
 			'$timeout',
+			'$cookies',
 			'$q',
 			'$log',
 			'$izendaUrl',
@@ -29,6 +29,7 @@
 			$scope,
 			$window,
 			$timeout,
+			$cookies,
 			$q,
 			$log,
 			$izendaUrl,
@@ -449,25 +450,81 @@
 			}, 500);
 		};
 
+		var exportReportInternal = function (exportType) {
+			vm.exportProgress = 'export';
+			$izendaInstantReportStorage.exportReport(exportType).then(function(result, message) {
+				if (!result) {
+					var reportSet = $izendaInstantReportStorage.getReportSet();
+					var rsReportName = reportSet.reportName;
+					$rootScope.$broadcast('izendaShowMessageEvent',
+						[
+							$izendaLocale.localeTextWithParams(
+								'js_FailedExportReport',
+								'Failed to export report "{0}". Error description: {1}.',
+								[rsReportName, message]),
+							$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'),
+							'danger'
+						]);
+				}
+				vm.exportProgress = null;
+			});
+		}
+
+		var showCsvBulkUnsupportedFormatWarning = function (exportType) {
+
+			var message = $izendaLocale.localeText('js_CsvBulkUnsupportFormatsWarning',
+				'Csv(bulk) export does not support following formats: percent of group, percent of group (with rounding), gauge, gauge (variable), dash gauge. Default format will be applied instead of them.');
+
+			var checkboxes = [
+				{
+					label: $izendaLocale.localeText('js_DoNotShowThisDialogAgain', 'Do not show this dialog again'),
+					checked: false
+		}];
+
+			var warningArgs = {
+				title: $izendaLocale.localeText('js_Warning', 'Warning'),
+				message: message,
+				buttons: [
+					{
+						text: $izendaLocale.localeText('js_Ok', 'Ok'),
+						callback: function (checkboxes) {
+							if (checkboxes && checkboxes.length > 0) {
+								var doNotShowAgain = checkboxes[0];
+								if (doNotShowAgain && doNotShowAgain.checked) {
+									var date = new Date;
+									date.setDate(date.getDate() + 365);
+									var cookieOptions = { expires: date }
+									$cookies.put("izendaHideCsvBulkUnsupportedFormatWarning", true, cookieOptions);
+								}
+							}
+							exportReportInternal(exportType);
+						}
+					},
+					{ text: $izendaLocale.localeText('js_Cancel', 'Cancel') }
+				],
+				checkboxes: checkboxes,
+				alert: 'warning'
+			}
+			$rootScope.$broadcast('izendaShowDialogBoxEvent', warningArgs);
+		};
+
+		var isCsvBulkWithUnsupportedFormat = function (exportType) {
+			var isCsvBulk = exportType === 'csv' && $izendaSettings.getBulkCsv();
+			if (!isCsvBulk) return false;
+			var hasAggregateFormats = $izendaInstantReportStorage.hasAggregateFormats();
+			return hasAggregateFormats;
+		}
+
 		/**
 		 * Export report buttons handler
 		 */
 		vm.exportReport = function (exportType) {
-			vm.exportProgress = 'export';
-			$izendaInstantReportStorage.exportReport(exportType).then(function (result, message) {
-				if (!result) {
-					var reportSet = $izendaInstantReportStorage.getReportSet();
-					var rsReportName = reportSet.reportName;
-					$rootScope.$broadcast('izendaShowMessageEvent', [
-						$izendaLocale.localeTextWithParams(
-							'js_FailedExportReport',
-							'Failed to export report "{0}". Error description: {1}.',
-							[rsReportName, message]),
-						$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'),
-						'danger']);
-				}
-				vm.exportProgress = null;
-			});
+			var hideCsvWarning = $cookies.get("izendaHideCsvBulkUnsupportedFormatWarning");
+			if (isCsvBulkWithUnsupportedFormat(exportType) && !hideCsvWarning) {
+				showCsvBulkUnsupportedFormatWarning(exportType);
+				return;
+			}
+			exportReportInternal(exportType);
 		};
 
 		/**

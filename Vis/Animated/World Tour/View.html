@@ -88,17 +88,33 @@
 
 		function draw() {
 			stopped = false;
-			function shortName(name) {
-				switch (name) {
-					case 'United Kingdom':
-						return 'UK';
-					case 'United States':
-						return 'USA';
-					case 'Venezuela, Bolivarian Republic of':
-						return 'Venezuela';
-					default:
-						return name;
+			var synonymsArray = [
+				['USA', 'United States', 'United States of America'],
+				['UK', 'United Kingdom', 'England', 'Britain', 'Great Britain', 'United Kingdom of Great Britain and Northen Ireland'],
+				['Venezuela', 'Venezuela, Bolivarian Republic of'],
+				['Netherlands', 'Holland'],
+				['Russia', 'Russian Federation'],
+				['China', 'People\'s Republic of China'],
+				['Taiwan', 'Republic of China', 'Taiwan, Province of China'],
+				['South Korea', 'Republic of Korea', 'Korea, Republic of'],
+				['North Korea', 'Democratic People\'s Republic of Korea', 'Korea, Democratic People\'s Republic of'],
+				['Egypt', 'Arab Republic of Egypt']
+			];
+
+			var synonymsMap = (function () {
+				var map = {};
+				var length = synonymsArray.length;
+				for (var i = 0; i < length; ++i) {
+					for (var j = 0; j < synonymsArray[i].length; ++j) {
+						map[synonymsArray[i][j].toLowerCase()] = synonymsArray[i];
+					}
 				}
+				return map;
+			})();
+
+			function getCountryNameSynonyms(value) {
+				var result = synonymsMap[value.toLowerCase()];
+				return result || [value];
 			}
 
 			d3.select(vis.element.get(0)).append('div')
@@ -192,7 +208,22 @@
 			var land, grid, countries = [], countriesInReportOrder = [], borders, min, max;
 
 			function equalsString(a, b, ci) {
-				return ci ? a.toUpperCase() === b.toUpperCase() : a === b;
+				return ci ? a.toLowerCase() === b.toLowerCase() : a === b;
+			}
+
+			function equalsMultipleString(a, b, ci) {
+				var arr1 = jq$.isArray(a) ? a : [a],
+					arr2 = jq$.isArray(b) ? b : [b],
+					len1 = arr1.length,
+					len2 = arr2.length;
+				for (var i = 0; i < len1; ++i) {
+					for (var j = 0; j < len2; ++j) {
+						if (equalsString(arr1[i], arr2[j], ci)) {
+							return true;
+						}
+					}
+				}
+				return false;
 			}
 
 			function drawEarth() {
@@ -253,8 +284,9 @@
 
 					if (typeof country.lastValue === 'undefined') {
 						for (var j = items.length - 1; j >= 0; j--) {
-							if (equalsString(vis.itemValue(items[j], 0), shortName(country.name), true)) {
+							if (equalsMultipleString(vis.itemValue(items[j], 0), getCountryNameSynonyms(country.name), true)) {
 								country.lastValue = vis.itemValue(items[j], metricValue);
+								break;
 							}
 						}
 					}
@@ -287,7 +319,7 @@
 				return stopped || !document.getElementById('VIS_ID') || vis.element.is(':hidden');
 			}
 
-			var countryIndex = -1,
+			var countryIndex = 0,
 				itemIndex = 0;
 
 			function transition() {
@@ -298,14 +330,11 @@
 				canvas.transition()
 					.duration(1000)
 					.each('start', function () {
-						var item = items[itemIndex];
-						var fieldFormatter = vis.columns.find(function (d) { return d.name == metricValue; }).formatter;
-						var name = vis.itemValue(item, 0);
-						var val = vis.itemValue(item, metricValue);
-						if (itemIndex == 0 || !equalsString(name, shortName(countriesInReportOrder[countryIndex].name), true)) {
-							countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
-						}
-						var label = shortName(name);
+						var item = items[itemIndex],
+							name = vis.itemValue(item, 0),
+							val = vis.itemValue(item, metricValue),
+							fieldFormatter = vis.columns.find(function (d) { return d.name == metricValue; }).formatter; 
+						var label = name;
 						if (!isNaN(val)) {
 							label += ' (' + (fieldFormatter ? fieldFormatter(val, null, vis, metricValue) : val) + ')';
 						}
@@ -324,7 +353,15 @@
 					})
 					.transition()
 					.each('end', function () {
+						if (checkStop()) {
+							return;
+						}
 						itemIndex = (itemIndex + 1) % items.length;
+						var item = items[itemIndex],
+							name = vis.itemValue(item, 0);
+						if (!equalsMultipleString(name, getCountryNameSynonyms(countriesInReportOrder[countryIndex].name), true)) {
+							countryIndex = (countryIndex + 1) % countriesInReportOrder.length;
+						}
 						transition();
 					});
 			}
@@ -334,21 +371,42 @@
 				grid = graticule();
 				var features = topojson.feature(world, world.objects.countries).features
 					.filter(function (feature) { return names.some(function (n) { return feature.id == n.id && (feature.name = n.name); }); });
-				var lastItemName = null;
-				items.map(function (item) { return vis.itemValue(item, 0); })
-					.filter(function (name) { return name !== lastItemName && (lastItemName = name); })
-					.forEach(function (name) {
-						for (var i = 0; i < features.length; ++i) {
-							var feature = features[i];
-							if (equalsString(shortName(feature.name), name, true)) {
-								countriesInReportOrder.push(feature);
-								if (!countries.some(function (c) { c.id == feature.id })) {
-									countries.push(feature);
+				var filteredItems = [],
+					lastItemName = null;
+
+				var featuresCache = {};
+				function getFeatureByName(name) {
+					var feature = featuresCache[name];
+					if (typeof feature === 'undefined') {
+						feature = featuresCache[name] = (function () {
+							for (var i = 0; i < features.length; ++i) {
+								var feature = features[i];
+								if (equalsMultipleString(name, getCountryNameSynonyms(feature.name), true)) {
+									return feature;
 								}
-								return;
+							}
+							return null;
+						})();
+					}
+					return feature;
+				}
+
+				for (var i = 0; i < items.length; ++i) {
+					var name = vis.itemValue(items[i], 0);
+					var feature = getFeatureByName(name);
+					if (feature) {
+						filteredItems.push(items[i]);
+						if (name !== lastItemName && (lastItemName = name)) {
+							countriesInReportOrder.push(feature);
+							if (!countries.some(function (c) { c.id == feature.id })) {
+								countries.push(feature);
 							}
 						}
-					});
+					}
+				}
+
+				items = filteredItems;
+
 				borders = topojson.mesh(world, world.objects.countries, function (a, b) { return a !== b; });
 				if (countriesInReportOrder.length > 0) {
 					min = d3.min(items, function (item) { return item.support[metricValue].o; });

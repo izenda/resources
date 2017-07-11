@@ -1,4 +1,4 @@
-﻿define(['./common-query-service', './settings-service'], function () {
+﻿izendaRequire.define(['angular', 'moment', './common-query-service', './settings-service'], function (angular, moment) {
 
 	/**
 	 * Service used for store data in schedule control

@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 
 	/**
 	* Instant report field options controller
@@ -91,6 +91,13 @@
 		};
 
 		/**
+		 * Fires when expression changed.
+		 */
+		vm.onExpressionChanged = function () {
+			$izendaInstantReportStorage.onExpressionApplyed(vm.field);
+		};
+
+		/**
 		 * Update preview
 		 */
 		vm.applyChanges = function () {
@@ -101,7 +108,7 @@
 		 * Toggle label justification
 		 */
 		vm.toggleLabelJustification = function () {
-			var itemsArray = ['L', 'M', 'R', 'J'];
+			var itemsArray = ['L', 'M', 'R', ' '];
 			var idx = itemsArray.indexOf(vm.field.labelJustification);
 			if (idx < itemsArray.length - 1)
 				idx++;
@@ -114,7 +121,7 @@
 		 * Toggle value justification
 		 */
 		vm.toggleValueJustification = function () {
-			var itemsArray = ['L', 'M', 'R', 'J'];
+			var itemsArray = ['L', 'M', 'R', ' '];
 			var idx = itemsArray.indexOf(vm.field.valueJustification);
 			if (idx < itemsArray.length - 1)
 				idx++;

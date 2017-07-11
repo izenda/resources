@@ -1,4 +1,4 @@
-﻿define([
+﻿izendaRequire.define([
 	'./common-query-service',
 	'./compatibility-service',
 	'./event-service',

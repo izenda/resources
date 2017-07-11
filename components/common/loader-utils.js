@@ -1,4 +1,4 @@
-﻿define([], function () {
+﻿izendaRequire.define(['jquery'], function (jq$) {
 	/**
 	 * Initialize configs which used by old scripts
 	 */

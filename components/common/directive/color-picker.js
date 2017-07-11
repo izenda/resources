@@ -1,4 +1,4 @@
-﻿define(['../../vendor/jquery-minicolors/jquery.minicolors.min', '../services/services'], function () {
+﻿izendaRequire.define(['angular', '../../vendor/jquery-minicolors/jquery.minicolors.min', '../services/services'], function (angular) {
 	/**
 	 * Color picker directive. Requires "jquery-minicolors" jQuery plugin. Usage:
 	 * <izenda-color-picker ng-model="..."></izenda-color-picker>

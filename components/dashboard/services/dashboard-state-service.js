@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services'], function () {
+﻿izendaRequire.define(['angular', 'css-parser', '../../common/services/services'], function (angular) {
 
 	/**
 	 * Dashboard state service contains all event handles, which are common for dashboard controllers.

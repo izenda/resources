@@ -1,5 +1,4 @@
-﻿define(['../services/services', '../directive/directives'], function () {
-
+﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
 	/**
 	* Instant report data sources controller definition
 	*/

@@ -1,4 +1,4 @@
-﻿define([
+﻿izendaRequire.define([
 	'./align-switcher',
 	'./autocomplete',
 	'./bootstrap-modal',

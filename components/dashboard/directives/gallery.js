@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services', '../services/services'], function () {
+﻿izendaRequire.define(['angular', '../../common/services/services', '../services/services'], function (angular) {
 
 	/**
 	 * Slider gallery directive.

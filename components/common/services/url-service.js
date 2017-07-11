@@ -1,4 +1,4 @@
-﻿define(['./localization-service', './ping-service', './rs-query-service', './settings-service'], function () {
+﻿izendaRequire.define(['angular', './localization-service', './ping-service', './rs-query-service', './settings-service'], function (angular) {
 
 	angular.module('izenda.common.query').factory('$izendaUrl', [
 		'$window',

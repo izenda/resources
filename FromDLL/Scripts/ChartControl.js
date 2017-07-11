@@ -413,6 +413,12 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 				additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }] }];
 				for (var j = 0; j < descriptions.length; j++) {
 					var calcField = descriptions[j];
+
+					if (chartItems && chartItems[i] && chartItems[i].label === "Date") {
+						var dateTypes = ["DateTime", "Date"];
+						if (dateTypes.indexOf(calcField.initialDataType) === -1) continue;
+					}
+
 					var option = {
 						value: calcFieldPrefix + calcField.fldId,
 						text: '[' + calcField.description + '] (calc)',
@@ -421,8 +427,14 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 					if (calcField.datatype != null) {
 						option.datatype = calcField.datatype;
 					}
+					if (calcField.expressionType !== "...") {
+						option.dataTypeGroup = calcField.expressionType;
+					} else if (calcField.dataTypeGroup) {
+						option.dataTypeGroup = calcField.dataTypeGroup;
+					}
 					additionalData[0].options.push(option);
 				}
+				if (additionalData[0].options.length === 1) additionalData = null;
 			}
 			if(numericOnly)
 			{

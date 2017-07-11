@@ -1,4 +1,4 @@
-﻿define(['./localization-service'], function () {
+﻿izendaRequire.define(['angular', './localization-service'], function (angular) {
 
 	angular
 		.module('izenda.common.query')

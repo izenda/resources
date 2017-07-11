@@ -1,4 +1,4 @@
-﻿define(['../services/services', '../directives/directives'], function () {
+﻿izendaRequire.define(['angular', '../services/services', '../directives/directives'], function (angular) {
 
 	angular
 		.module('izendaDashboard')
@@ -162,6 +162,20 @@
 		*/
 		vm.isTitleSet = function () {
 			return angular.isString(vm.title) && vm.title != '';
+		};
+
+		/**
+		 * Create title text
+		 */
+		vm.getTitleText = function () {
+			if (vm.isTitleSet())
+				return vm.title;
+			var result = '';
+			if (vm.getConvertedReportCategory())
+				result += vm.getConvertedReportCategory() + ' / ';
+			if (vm.reportName && vm.reportPartName)
+				result += vm.reportName + ' / ' + vm.reportPartName;
+			return result;
 		};
 
 		/**
@@ -1076,8 +1090,8 @@
 				} else {
 					var tileWidth = vm.getWidth() * $scope.dashboardController.tileWidth - 20;
 					var tileHeight = vm.getHeight() * $scope.dashboardController.tileHeight - 55;
-					if (vm.description !== null && vm.description !== '') {
-						tileHeight -= 30;
+					if (vm.description) {
+						tileHeight -= 32;
 					}
 					$izendaDashboardQuery.loadTileReport({
 						updateFromSourceReport: updateFromSource,
@@ -1102,6 +1116,7 @@
 							vm.endTop = vm.top;
 							vm.enableEndTopWatch();
 							vm.title = data.title;
+							vm.description = data.description;
 							updateParentTile();
 						} else {
 							throw 'Unexpected query result: ' + data;
@@ -1177,7 +1192,7 @@
 
 		function $getReport($customTile) {
 			var $tile = $getTile($customTile);
-			return $tile.children('.animate-flip').children('.flippy-front').children('.frame').children('.report');
+			return $tile.children('.animate-flip').children('.flippy-front').find('.report');
 		}
 	}
 

@@ -1,4 +1,4 @@
-﻿define(['../../common/services/services', './instant-report-query'], function () {
+﻿izendaRequire.define(['angular', '../../common/services/services', './instant-report-query'], function (angular) {
 
 	/**
 	 * Instant report chart service. Contains charts data and its functions.
