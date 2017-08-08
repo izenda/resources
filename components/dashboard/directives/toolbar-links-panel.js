@@ -102,7 +102,7 @@
 					// watch toolbar item collection changed
 					$scope.$watchCollection('toolbarItems', function () {
 						$scope.refreshButtonsWidth = true;
-						$slideContainer.find('.iz-dash-linkspanel-navbar-item').on('mouseup', function () {
+						$slideContainer.find('.iz-dash-linkspanel-navbar-item').on('click', function () {
 							var idStr = _(this).attr('id');
 							var id = parseInt(idStr.split('izDashToolbarItem')[1]);
 							var item = null;

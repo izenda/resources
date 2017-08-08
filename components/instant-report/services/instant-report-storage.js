@@ -167,7 +167,9 @@
 			var previewSplashText = $izendaLocale.localeText('js_WaitPreviewLoading', 'Please wait while preview is loading...');
 
 			var reportSet = angular.merge({}, $injector.get('izendaInstantReportObjectDefaults'));
+
 			reportSet.options.distinct = $izendaInstantReportSettings.distinct; // set default distinct setting value
+			restoreDefaultColors(); // set default report colors
 
 			var activeTables = [];
 			var activeFields = [];
@@ -3116,21 +3118,6 @@
 			};
 
 			/**
-			 * Restore default color settings.
-			 */
-			var restoreDefaultColors = function () {
-				var defaultReportSettings = $injector.get('izendaInstantReportObjectDefaults');
-				var defaultStyle = defaultReportSettings.options.style;
-				var style = reportSet.options.style;
-				style.borderColor = defaultStyle.borderColor;
-				style.headerColor = defaultStyle.headerColor;
-				style.headerForecolor = defaultStyle.headerForecolor;
-				style.itemColor = defaultStyle.itemColor;
-				style.itemForeColor = defaultStyle.itemForeColor;
-				style.itemAltColor = defaultStyle.itemAltColor;
-			};
-
-			/**
 			 * Column reorder. Indexes started from 1: 1,2,3,4,5,6
 			 */
 			var swapFields = function (fromIndex, toIndex) {
@@ -3248,6 +3235,19 @@
 
 					}
 				});
+
+			/**
+			 * Restore default color settings.
+			 */
+			function restoreDefaultColors() {
+				var style = reportSet.options.style;
+				style.borderColor = $izendaInstantReportSettings.reportBorderColor;
+				style.headerColor = $izendaInstantReportSettings.reportHeaderColor;
+				style.headerForecolor = $izendaInstantReportSettings.headerForegroundColor;
+				style.itemColor = $izendaInstantReportSettings.reportItemColor;
+				style.itemForeColor = $izendaInstantReportSettings.itemForegroundColor;
+				style.itemAltColor = $izendaInstantReportSettings.reportAlternatingItemColor;
+			};
 
 			// PUBLIC API
 			return {

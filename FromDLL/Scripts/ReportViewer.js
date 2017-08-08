@@ -1137,7 +1137,7 @@ function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 	}
 
 	if (queryParameters['rn'] != null && queryParameters['rn'].length > 0 && !initialized)
-		requestString += '&wsarg0=' + (reportName = queryParameters['rn']);
+		requestString += '&wsarg0=' + (reportName = queryParameters['rn']) + '&rnalt=' + reportName;
 	if (invalidateInCache)
 		urlParams.push('iic=1');
 	if (additionalParams)

@@ -3,83 +3,88 @@
 	/**
 	 * Select report report part modal dialog control.
 	 */
-	angular
-		.module('izenda.common.ui')
-		.controller('IzendaSelectReportController', [
-			'$rootScope',
-			'$scope',
-			'$q',
-			'$log',
-			'$element',
-			'$izendaUrl',
-			'$izendaLocale',
-			'$izendaSettings',
-			'$izendaCommonQuery',
-			IzendaSelectReportController]);
+	angular.module('izenda.common.ui')
+		.component('izendaSelectReportPart', {
+			templateUrl: 'Resources/components/common/templates/select-report.html',
+			controller: ['$scope', '$element', '$izendaLocale', '$izendaUrl', '$izendaCommonQuery', '$izendaSettings',
+				IzendaSelectReportPart],
+			bindings: {
+				isVisible: '<',
+				onReportPartSelected: '&',
+				onReportPartCancelled: '&'
+			}
+		});
 
-	function IzendaSelectReportController($rootScope, $scope, $q, $log, $element,
-		$izendaUrl, $izendaLocale, $izendaSettings, $izendaCommonQuery) {
+	function IzendaSelectReportPart($scope, $element, $izendaLocale, $izendaUrl, $izendaCommonQuery, $izendaSettings) {
 		'use strict';
-		var vm = this;
+		var self = this;
+		var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+		self.izendaUrl = $izendaUrl;
+		self.isLoading = false;
 
-		var uncategorizedText = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
-		vm.izendaUrl = $izendaUrl;
-		vm.category = uncategorizedText;
-		vm.isLoading = false;
-		vm.tileId = null;
-		vm.categories = [];
-		vm.groups = [];
+		self.category = UNCATEGORIZED;
+		self.categories = [];
+		self.groups = [];
+
+		/**
+		 * Bindings listener
+		 */
+		self.$onChanges = function (changesObj) {
+			if (angular.isObject(changesObj.isVisible)) {
+				if (changesObj.isVisible.currentValue)
+					self.show();
+			};
+		};
 
 		/**
 		 * Reset form
 		 */
-		vm.reset = function () {
-			vm.category = uncategorizedText;
-			vm.isLoading = true;
-			vm.categories = [];
-			vm.groups = [];
-			$scope.$applyAsync();
+		self.reset = function () {
+			self.isLoading = true;
+			self.category = UNCATEGORIZED;
+			self.categories = [];
+			self.groups = [];
 		};
 
 		/**
 		 * Add report parts to modal
 		 */
-		vm.addReportPartsToModal = function (reportParts) {
-			vm.groups.length = 0;
-			if (reportParts == null || reportParts.length === 0) {
+		self.addReportPartsToModal = function (reportParts) {
+			self.groups = [];
+			if (!reportParts || !reportParts.length) {
 				return;
 			}
 			// add groups:
 			var currentGroup = [];
 			for (var i = 0; i < reportParts.length; i++) {
 				if (i > 0 && i % 4 === 0) {
-					vm.groups.push(currentGroup);
+					self.groups.push(currentGroup);
 					currentGroup = [];
 				}
 				var reportPart = reportParts[i];
 				reportPart.isReportPart = true;
 				currentGroup.push(reportPart);
 			}
-			vm.groups.push(currentGroup);
+			self.groups.push(currentGroup);
 		};
 
 		/**
 		 * Add reportset categories to modal select control.
 		 */
-		vm.addCategoriesToModal = function (reportSets) {
-			if (reportSets == null)
+		self.addCategoriesToModal = function (reportSets) {
+			if (!reportSets)
 				return;
-			vm.categories.length = 0;
+			self.categories = [];
 			for (var i = 0; i < reportSets.length; i++) {
 				var report = reportSets[i];
 				if (report.Dashboard)
 					continue;
 				var category = report.Category;
 				if (category == null || category === '')
-					category = uncategorizedText;
+					category = UNCATEGORIZED;
 				var item = !report.Subcategory ? category : category + $izendaSettings.getCategoryCharacter() + report.Subcategory;
-				if (vm.categories.indexOf(item) < 0) {
-					vm.categories.push(item);
+				if (self.categories.indexOf(item) < 0) {
+					self.categories.push(item);
 				}
 			}
 		};
@@ -87,65 +92,72 @@
 		/**
 		 * Add report to modal dialog body.
 		 */
-		vm.addReportsToModal = function (reportSets) {
-			vm.groups.length = 0;
+		self.addReportsToModal = function (reportSets) {
+			self.groups = [];
 			var reportSetsToShow = angular.element.grep(reportSets, function (currentReportSet) {
 				return !currentReportSet.Dashboard && currentReportSet.Name;
 			});
-			if (reportSetsToShow == null || reportSetsToShow.length === 0) {
+			if (!reportSetsToShow || !reportSetsToShow.length)
 				return;
-			}
 
 			// add groups:
 			var currentGroup = [];
-			vm.groups.length = 0;
+			self.groups = [];
 			for (var i = 0; i < reportSetsToShow.length; i++) {
 				if (i > 0 && i % 4 === 0) {
-					vm.groups.push(currentGroup);
+					self.groups.push(currentGroup);
 					currentGroup = [];
 				}
 				var reportSet = reportSetsToShow[i];
 				reportSet.isReportPart = false;
 				currentGroup.push(reportSet);
 			}
-			vm.groups.push(currentGroup);
+			self.groups.push(currentGroup);
 		};
 
 		/**
 		 * Select report part modal
 		 */
-		vm.show = function () {
-			vm.reset();
-			var $modal = angular.element($element);
-			$modal.modal();
-			$izendaCommonQuery.getReportSetCategory(uncategorizedText).then(function (data) {
+		self.show = function () {
+			self.reset();
+			var $modal = angular.element($element).children('.modal');
+			var modal = $modal.modal({
+				backdrop: 'static',
+				keyboard: false
+			});
+			modal.on('hidden.bs.modal', function () {
+				if (angular.isFunction(self.onReportPartCancelled)) {
+					self.onReportPartCancelled();
+				}
+				$scope.$applyAsync();
+			})
+			$izendaCommonQuery.getReportSetCategory(UNCATEGORIZED).then(function (data) {
 				var reportSets = data.ReportSets;
-				vm.addCategoriesToModal(reportSets);
-				vm.addReportsToModal(reportSets);
-				vm.isLoading = false;
-				$scope.$evalAsync();
+				self.addCategoriesToModal(reportSets);
+				self.addReportsToModal(reportSets);
+				self.isLoading = false;
+				$scope.$applyAsync();
 			});
 		};
 
 		/**
 		 * Select category handler
 		 */
-		vm.categoryChangedHandler = function () {
-			vm.isLoading = true;
-			vm.groups.length = 0;
-			if (vm.category === null)
-				vm.category = uncategorizedText;
-			$izendaCommonQuery.getReportSetCategory(vm.category).then(function (data) {
-				vm.addReportsToModal(data.ReportSets);
-				vm.isLoading = false;
-				$scope.$evalAsync();
+		self.categoryChangedHandler = function () {
+			self.isLoading = true;
+			self.groups = [];
+			self.category = self.category || UNCATEGORIZED;
+			$izendaCommonQuery.getReportSetCategory(self.category).then(function (data) {
+				self.addReportsToModal(data.ReportSets);
+				self.isLoading = false;
+				$scope.$applyAsync();
 			});
 		};
 
 		/**
 		 * User clicked to report set item
 		 */
-		vm.itemSelectedHandler = function (item) {
+		self.itemSelectedHandler = function (item) {
 			var isReportPart = item.isReportPart;
 			var reportFullName = item.Name;
 
@@ -154,33 +166,22 @@
 
 			if (!isReportPart) {
 				// if report set selected
-				vm.isLoading = true;
-				vm.groups.length = 0;
+				self.isLoading = true;
+				self.groups = [];
 				$izendaCommonQuery.getReportParts(reportFullName).then(function (data) {
 					var reports = data.Reports;
-					vm.addReportPartsToModal(reports);
-					vm.isLoading = false;
-					$scope.$evalAsync();
+					self.addReportPartsToModal(reports);
+					self.isLoading = false;
+					$scope.$applyAsync();
 				});
 			} else {
 				// if report part selected
-				var $modal = angular.element('#izendaSelectPartModal');
+				var $modal = angular.element($element).children('.modal');
 				$modal.modal('hide');
-				$rootScope.$broadcast('selectedReportPartEvent', [vm.tileId, item]);
+				if (angular.isFunction(self.onReportPartSelected)) {
+					self.onReportPartSelected({ reportPartObject: item });
+				}
 			}
 		};
-
-		/**
-		 * Controller initialize
-		 */
-		vm.initialize = function () {
-
-			// open modal event handler
-			$scope.$on('openSelectPartModalEvent', function (event, args) {
-				vm.tileId = args.length > 0 ? args[0] : null;
-				vm.show();
-			});
-		};
 	}
-
 });

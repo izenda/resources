@@ -112,7 +112,7 @@
 				vm.initializeFilters(true);
 			});
 
-			$izendaEvent.handleQueuedEvent('dashboardRefreshEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
+			$izendaEvent.handleQueuedEvent('dashboardUpdateFiltersEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
 				if (reloadDashboardLayout || updateFromSource) {
 					vm.initializeFilters(false);
 				}

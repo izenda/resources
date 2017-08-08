@@ -35,7 +35,10 @@ izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition
 			.constant('izendaDashboardConfig', {
 				showDashboardToolbar: true,
 				defaultDashboardCategory: null,
-				defaultDashboardName: null
+				defaultDashboardName: null,
+				dashboardToolBarItemsSort: function (item1, item2) {
+					return item1.localeCompare(item2); // default order
+				}
 			})
 			.config(['$logProvider', function ($logProvider) { $logProvider.debugEnabled(false); }])
 			.constant('$izendaDashboardSettings', configObject);
@@ -76,6 +79,7 @@ izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition
 	};
 
 	return {
-		bootstrap: bootstrapDashboards
+		bootstrap: bootstrapDashboards,
+		configureModules: configureModules
 	};
 });

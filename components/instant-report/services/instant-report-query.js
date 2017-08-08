@@ -159,7 +159,6 @@
 		 */
 		function getReportSetPreviewQueued(reportSetConfig) {
 			cancelAllPreviewQueries();
-
 			// prepare params
 			var paramsArray = [
 				'iic=1', // invalidate in cache
@@ -172,11 +171,16 @@
 			if (typeof (window.angularPageId$) !== 'undefined')
 				paramsArray.push('anpid=' + window.angularPageId$);
 
+			var rnParamValue = (reportSetConfig.reportCategory
+					? reportSetConfig.reportCategory + $izendaSettings.getCategoryCharacter() + reportSetConfig.reportName
+					: reportSetConfig.reportName);
+
 			var resolver = $q.defer();
 			var canceller = $q.defer();
 			var req = {
 				method: 'POST',
 				url: $izendaUrl.settings.urlRsPage,
+				params: { 'rnalt': rnParamValue },
 				timeout: canceller.promise,
 				dataType: 'text',
 				data: paramsArray.join('&'), // query parameters

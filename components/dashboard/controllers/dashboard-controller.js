@@ -2,24 +2,6 @@
 
 	angular
 		.module('izendaDashboard')
-		.directive('tileAnimationCompleted', function () {
-			function link(scope) {
-				scope.$on('fade-down:enter', function () {
-					var $parentScope = scope.$parent;
-					if (!$parentScope.animationCompleted) {
-						$parentScope.$broadcast('tileRefreshEvent', [false]);
-						$parentScope.animationCompleted = true;
-					}
-				});
-			}
-			return {
-				restrict: 'A',
-				link: link
-			};
-		});
-
-	angular
-		.module('izendaDashboard')
 		.controller('IzendaDashboardController', [
 			'$rootScope',
 			'$scope',
@@ -87,7 +69,7 @@
 		vm.licenseInitialized = false;
 		vm.dashboardsAllowedByLicense = false;
 
-		vm.tilesAnimationCompleted = false;
+		vm.isLoaded = false;
 
 		vm.isIE8 = $izendaCompatibility.checkIsIe8();
 
@@ -175,7 +157,7 @@
 		};
 
 		vm.getTileById = function (tileId) {
-			var searchResult = _.grep(vm.tiles, function (tile) {
+			var searchResult = angular.element.grep(vm.tiles, function (tile) {
 				return tile.id === tileId;
 			});
 			return searchResult.length > 0 ? searchResult[0] : null;
@@ -219,8 +201,9 @@
 		};
 		vm.isTile$ = function (el) {
 			var $el = _(el);
-			return $el.closest('.iz-dash-tile').length > 0;
+			return $el.closest('izenda-dashboard-tile').length > 0;
 		};
+
 		vm.getTilePositionIndex = function (tileId) {
 			var position = 0;
 			var currentTile = vm.getTileById(tileId);
@@ -386,11 +369,23 @@
 		vm.showTileGridShadow = function (shadowBbox, showPlusButton) {
 			vm.isGridShadowVisible = true;
 			vm.isGridShadowPlusButtonVisible = showPlusButton;
+			var left = shadowBbox.left,
+					top = shadowBbox.top,
+					width = shadowBbox.width,
+					height = shadowBbox.height;
+			if (left < 0) {
+				left = 0;
+			}
+			if (left + width >= vm.tileWidth * 12) {
+				left = vm.tileWidth * 12 - width;
+			}
+			if (top < 0)
+				top = 0;
 			vm.gridShadowStyle = {
-				'left': shadowBbox.left + 1,
-				'top': shadowBbox.top + 1,
-				'width': shadowBbox.width - 1,
-				'height': shadowBbox.height - 1
+				'left': left + 1,
+				'top': top + 1,
+				'width': width - 1,
+				'height': height - 1
 			};
 			$scope.$applyAsync();
 		};
@@ -552,6 +547,105 @@
 		};
 
 		/**
+		 * Event fires on tile drag start
+		 */
+		vm.onTileDragStart = function (tile) {
+			turnOffAddTileHandler();
+			vm.showTileGrid();
+			vm.showTileGridShadow({
+				left: tile.x * vm.tileWidth,
+				top: tile.y * vm.tileHeight,
+				width: tile.width * vm.tileWidth,
+				height: tile.height * vm.tileHeight
+			}, false);
+			$scope.$applyAsync();
+		};
+
+		/**
+		 * Event fires on tile drag change position
+		 */
+		vm.onTileDrag = function (tile, shadowPosition) {
+			vm.showTileGridShadow({
+				left: shadowPosition.left,
+				top: shadowPosition.top,
+				width: shadowPosition.width,
+				height: shadowPosition.height
+			}, false);
+			vm.updateDashboardSize(shadowPosition);
+			$scope.$applyAsync();
+		};
+
+		/**
+		 * Event fires on tile drag end
+		 */
+		vm.onTileDragEnd = function (eventResult) {
+			vm.hideTileGridShadow();
+			vm.hideTileGrid();
+			$scope.$applyAsync();
+			turnOnAddTileHandler();
+		};
+
+		/**
+		 * Start tile resize event handler
+		 */
+		vm.onTileResizeStart = function (tile) {
+			turnOffAddTileHandler();
+			vm.showTileGrid();
+			vm.showTileGridShadow({
+				left: tile.x * vm.tileWidth,
+				top: tile.y * vm.tileHeight,
+				width: tile.width * vm.tileWidth,
+				height: tile.height * vm.tileHeight
+			}, false);
+			$scope.$applyAsync();
+		};
+
+		/**
+		 * Tile resize handler
+		 */
+		vm.onTileResize = function (tile, shadowPosition) {
+			vm.showTileGridShadow({
+				left: shadowPosition.left,
+				top: shadowPosition.top,
+				width: shadowPosition.width,
+				height: shadowPosition.height
+			}, false);
+			vm.updateDashboardSize(shadowPosition);
+			$scope.$applyAsync();
+		};
+
+		/**
+		 * Tile resize completed handler
+		 */
+		vm.onTileResizeEnd = function (eventResult) {
+			vm.hideTileGridShadow();
+			vm.hideTileGrid();
+			$scope.$applyAsync();
+			turnOnAddTileHandler();
+		};
+
+		/**
+		 * Tile delete handler
+		 */
+		vm.onTileDelete = function (tile) {
+			var tile = vm.getTileById(tile.id);
+			if (tile == null)
+				throw 'Tile "' + tileid + '" not found';
+			vm.tiles.splice(vm.tiles.indexOf(tile), 1);
+			updateTileContainerSize();
+			sync().then(function () {
+				$izendaEvent.queueEvent('refreshFilters', [], true);
+			});
+		};
+
+		/**
+		 * Tile report selected handler
+		 */
+		vm.onTileReportSelected = function (tile) {
+			vm.updateGalleryTiles();
+		};
+
+		/**
 		 * Turn activate/deactivate dashboard handlers after resize
 		 */
 		vm.updateDashboardHandlers = function () {
@@ -569,64 +663,6 @@
 			$scope.$on('selectedReportNameEvent', function (event, args) {
 				var dashboardName = args[0], dashboardCategory = args[1];
 				save(dashboardName, dashboardCategory);
-			});
-
-			$scope.$on('startEditTileEvent', function (event, args) {
-				var options = args.length > 0 ? args[0] : {};
-				vm.editTileEvent = vm.editTileEvent || { actionName: null };
-				var isMouseMove = options.actionName == 'addtile';
-				var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
-				vm.showTileGrid();
-				if (isMouseMove) {
-					if (!isInEdit) {
-						vm.showTileGridShadow({
-							left: options.shadowX,
-							top: options.shadowY,
-							width: vm.tileWidth,
-							height: vm.tileHeight
-						}, true);
-						vm.editTileEvent.actionName = options.actionName;
-					}
-				} else {
-					vm.editTileEvent.actionName = options.actionName;
-				}
-				$scope.$applyAsync();
-			});
-
-			$scope.$on('stopEditTileEvent', function (event, args) {
-				var options = args.length > 0 ? args[0] : {};
-				vm.editTileEvent = vm.editTileEvent || { actionName: null };
-				var isMouseMove = options.actionName == 'addtile';
-				var isInEdit = vm.editTileEvent.actionName != null && vm.editTileEvent.actionName != 'addtile';
-				if (isMouseMove) {
-					if (!isInEdit) {
-						vm.hideTileGrid();
-						vm.editTileEvent.actionName = null;
-					}
-				} else {
-					vm.hideTileGrid();
-					updateTileContainerSize();
-					vm.editTileEvent.actionName = null;
-				}
-				$scope.$applyAsync();
-			});
-
-			$scope.$on('deleteTileEvent', function (event, args) {
-				if (angular.isUndefined(args) || angular.isUndefined(args[0]))
-					throw 'Should be 1 argument with object: { tileId: <tileid> }';
-				var tileid = args[0].tileId;
-				var tile = vm.getTileById(tileid);
-				if (tile == null)
-					throw 'Tile "' + tileid + '" not found';
-				var idx = -1;
-				for (var i = 0; i < vm.tiles.length; i++)
-					if (vm.tiles[i].id == tileid)
-						idx = i;
-				vm.tiles.splice(idx, 1);
-				updateTileContainerSize();
-				sync().then(function () {
-					$izendaEvent.queueEvent('refreshFilters', [], true);
-				});
 			});
 
 			$izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function (subject) {
@@ -688,27 +724,11 @@
 		////////////////////////////////////////////////////////
 
 		/**
-		 * Get addtile context object
-		 */
-		function ensureAddTile() {
-			vm.addtile = vm.addtile || {
-				count: 0,
-				started: false,
-				startedDraw: false,
-				tile: null,
-				relativeX: 0,
-				relativeY: 0,
-				x: 0,
-				y: 0
-			};
-		}
-
-		/**
 		 * Add tile handler initialize
 		 */
 		function turnOnAddTileHandler() {
 			var addNewPixelTile = function (x, y) {
-				vm.addtile.tile = angular.extend({}, $injector.get('tileDefaults'), {
+				var newTile = angular.extend({}, $injector.get('tileDefaults'), {
 					id: 'IzendaDashboardTileNew' + (newTileIndex++),
 					isNew: true,
 					width: 1,
@@ -716,139 +736,69 @@
 					x: x,
 					y: y
 				});
-				while (!vm.checkTileIntersectsBbox(vm.addtile.tile) && vm.addtile.tile.width < 6
-							&& vm.addtile.tile.width + vm.addtile.tile.x < 12) {
-					vm.addtile.tile.width++;
+				while (!vm.checkTileIntersectsBbox(newTile) && newTile.width < 6 && newTile.width + newTile.x < 12) {
+					newTile.width++;
 				}
-				if (vm.checkTileIntersectsBbox(vm.addtile.tile)) {
-					vm.addtile.tile.width--;
+				if (vm.checkTileIntersectsBbox(newTile)) {
+					newTile.width--;
 				}
-				while (!vm.checkTileIntersectsBbox(vm.addtile.tile) && vm.addtile.tile.height < 3) {
-					vm.addtile.tile.height++;
+				while (!vm.checkTileIntersectsBbox(newTile) && newTile.height < 3) {
+					newTile.height++;
 				}
-				if (vm.checkTileIntersectsBbox(vm.addtile.tile)) {
-					vm.addtile.tile.height--;
+				if (vm.checkTileIntersectsBbox(newTile)) {
+					newTile.height--;
 				}
-
-				vm.tiles.push(vm.addtile.tile);
+				if (newTile.width <= 0 || newTile.height <= 0)
+					return;
+				vm.tiles.push(newTile);
 				vm.updateDashboardSize();
 				$scope.$evalAsync();
 			};
-
 			var $tileContainer = vm.getTileContainer();
 
-			// mouse down
-			$tileContainer.on('mousedown.dashboard', function (e) {
-				ensureAddTile();
-				var $tileContainer = vm.getTileContainer();
-				var $target = _(e.target);
-				if (vm.isTile$($target) || vm.addtile.started)
-					return;
-				angular.extend(vm.addtile, {
-					count: 0,
-					started: true,
-					startedDraw: false,
-					x: e.pageX,
-					y: e.pageY,
-					relativeX: e.pageX - $tileContainer.offset().left,
-					relativeY: e.pageY - $tileContainer.offset().top,
-					tile: null
-				});
+			// on click on free dashboard area: add tile
+			$tileContainer.on('mousedown.dashboard', function (event) {
+				var $target = angular.element(event.target);
+				if (vm.isTile$($target))
+					return true;
+				if (event.which !== 1)
+					return true;
+				$tileContainer = vm.getTileContainer();
+				// get {x, y} click coordinates
+				var x = Math.floor((event.pageX - $tileContainer.offset().left) / vm.tileWidth),
+						y = Math.floor((event.pageY - $tileContainer.offset().top) / vm.tileHeight);
+				addNewPixelTile(x, y);
+				return false;
 			});
 
-			// move mouse over the dashboard
+			// on mouse move: show grid
 			$tileContainer.on('mousemove.dashboard', function (e) {
-				ensureAddTile();
-				if (!angular.isObject(vm.mouseMoveCache)) {
-					var $tContainer = vm.getTileContainer();
-					vm.mouseMoveCache = {
-						$tileContainer: $tContainer,
-						offset: function () { return $tContainer.offset(); }
-					}
-				}
-				if (!vm.addtile.started) {
-					var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
-					var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
-					var x = Math.floor(relativeX / vm.tileWidth);
-					var y = Math.floor(relativeY / vm.tileHeight);
-					var $target = _(e.target);
-					if (e.target != vm.mouseMoveCache.previousElement || e.target === vm.mouseMoveCache.$tileContainer.get(0) || $target.hasClass('dashboard-grid')) {
-						var isTile = vm.isTile$($target);
-						if (isTile) {
-							vm.addtile.count = 0;
-							$rootScope.$broadcast('stopEditTileEvent', [{
-								tileId: null,
-								actionName: 'addtile'
-							}]);
-						} else {
-							vm.addtile.count++;
-							if (vm.addtile.count > 5) {
-								$rootScope.$broadcast('startEditTileEvent', [{
-									tileId: vm.id,
-									shadowX: x * vm.tileWidth,
-									shadowY: y * vm.tileHeight,
-									actionName: 'addtile'
-								}]);
-							}
-						}
-					};
-					vm.mouseMoveCache.previousElement = e.target;
-					return;
-				}
-
-				// add new tile if needed
-				if (vm.addtile.count > 5) {
-					if (vm.addtile.tile == null) {
-						var relativeX = e.pageX - vm.mouseMoveCache.offset().left;
-						var relativeY = e.pageY - vm.mouseMoveCache.offset().top;
-						var x = Math.floor(relativeX / vm.tileWidth);
-						var y = Math.floor(relativeY / vm.tileHeight);
-						addNewPixelTile(x, y);
-					}
-				}
-				vm.addtile.count++;
+				var $target = angular.element(e.target);
+				if (vm.isTile$($target))
+					return true;
+				$tileContainer = vm.getTileContainer();
+				// get {x, y} click coordinates
+				var x = Math.floor((e.pageX - $tileContainer.offset().left) / vm.tileWidth),
+						y = Math.floor((e.pageY - $tileContainer.offset().top) / vm.tileHeight);
+				vm.showTileGrid();
+				vm.showTileGridShadow({
+					left: x * vm.tileWidth,
+					top: y * vm.tileHeight,
+					width: vm.tileWidth,
+					height: vm.tileHeight
+				}, true);
 			});
 
-			// mouseup
-			$tileContainer.on('mouseup.dashboard', function (e) {
-				ensureAddTile();
-				var $tileContainer = vm.getTileContainer();
-				var $target = _(e.target);
-				var relativeX = e.pageX - $tileContainer.offset().left;
-				var relativeY = e.pageY - $tileContainer.offset().top;
-				var x = Math.floor(relativeX / vm.tileWidth);
-				var y = Math.floor(relativeY / vm.tileHeight);
-
-				if (!vm.addtile.started) {
-					return;
-				}
-				if (vm.addtile.tile == null) {
-					addNewPixelTile(x, y);
-				}
-
-				$rootScope.$broadcast('stopEditTileEvent', [{
-					tileId: null,
-					actionName: 'addtile'
-				}]);
-			});
-
-			// mouseout
-			$tileContainer.on('mouseout.dashboard', function (e) {
-				ensureAddTile();
-				vm.addtile.started = false;
-				vm.addtile.startedDraw = false;
-				vm.addtile.tile = null;
-				$rootScope.$broadcast('stopEditTileEvent', [{
-					tileId: null,
-					actionName: 'addtile'
-				}]);
+			// on mouse out: hide grid
+			$tileContainer.on('mouseout.dashboard', function () {
+				vm.hideTileGridShadow();
+				vm.hideTileGrid();
 			});
 		}
 
 		function turnOffAddTileHandler() {
 			vm.getTileContainer().off('mousedown.dashboard');
 			vm.getTileContainer().off('mousemove.dashboard');
-			vm.getTileContainer().off('mouseup.dashboard');
 			vm.getTileContainer().off('mouseout.dashboard');
 			vm.hideTileGrid();
 			$scope.$applyAsync();
@@ -888,7 +838,6 @@
 				}],
 				RowsCount: 1
 			};
-
 			for (var i = 0; i < tiles.length; i++) {
 				var tile = tiles[i];
 				if (angular.isString(tile.reportFullName) && tile.reportFullName !== '') {
@@ -898,13 +847,13 @@
 						ReportFullName: tile.reportFullName,
 						ReportPartName: tile.reportPartName,
 						ReportSetName: tile.reportNameWithCategory,
-						RecordsCount: tile.topPreview,
+						RecordsCount: tile.top,
 						X: tile.x,
 						Y: tile.y,
 						Height: tile.height,
 						Width: tile.width
 					};
-					config.Rows[0].Cells[i] = saveObject;
+					config.Rows[0].Cells.push(saveObject);
 					config.Rows[0].ColumnsCount++;
 				}
 			}
@@ -970,7 +919,7 @@
 			// interrupt previous animations
 			clearInterval(vm.refreshIntervalId);
 			vm.refreshIntervalId = null;
-			vm.tilesAnimationCompleted = false;
+			vm.isLoaded = false;
 
 			// remove tiles
 			vm.tiles.length = 0;
@@ -1013,7 +962,6 @@
 							isSourceReportDeleted: cell.IsSourceReportDeleted,
 							description: cell.ReportDescription,
 							top: cell.RecordsCount,
-							topPreview: cell.RecordsCount,
 							topString: '' + cell.RecordsCount,
 							endTop: cell.RecordsCount,
 							canBeLoaded: cell.CanBeLoaded,
@@ -1030,6 +978,8 @@
 				}
 
 				tilesToAdd = sortTilesByPosition(tilesToAdd);
+				for (var i = 0; i < tilesToAdd.length; i++)
+					tilesToAdd[i].index = i;
 
 				updateTileSize();
 
@@ -1049,7 +999,12 @@
 					tileToAdd.updateFromSource = updateFromSource;
 					vm.tiles.push(tileToAdd);
 				}
-				vm.tilesAnimationCompleted = true;
+
+				if (updateFromSource) {
+					$izendaEvent.queueEvent('dashboardUpdateFiltersEvent', [true, true], false);
+				}
+
+				vm.isLoaded = true;
 			});
 		};
 
@@ -1058,7 +1013,7 @@
 		 */
 		function refreshAllTiles(updateFromSource) {
 			if (!vm.galleryState.isGalleryEnabled) {
-				$scope.$broadcast('tileRefreshEvent', [updateFromSource]);
+				$scope.$broadcast('izendaDashboardTile.update', [null, null, true, updateFromSource]);
 			} else {
 				// trigger gallery update
 				vm.galleryUpdateCounter++;
@@ -1169,7 +1124,7 @@
 			if (vm.galleryState.isGalleryEnabled) {
 				activateGallery();
 			} else {
-				deactivateGallery(vm.tilesAnimationCompleted);
+				deactivateGallery(vm.isLoaded);
 			}
 		}
 
@@ -1202,7 +1157,7 @@
 			vm.initializeEventHandlers();
 			// all tiles added:
 			$scope.$watch(angular.bind(vm, function (name) {
-				return this.tilesAnimationCompleted;
+				return this.isLoaded;
 			}), function (newVal) {
 				if (newVal) {
 					$izendaEvent.queueEvent('refreshFilters', [], true);
@@ -1234,6 +1189,7 @@
 				vm.initialRootWidth = vm.getRoot().width();
 				angular.element('body').css('overflow', '');
 				updateSize();
+				refreshAllTiles(false);
 			});
 
 			// watch for location change: we can set dashboard when location is changing

@@ -1,20 +1,18 @@
 ﻿<!-- select report part modal dialog -->
-<div id="izendaSelectPartModal" class="modal" tabindex="-1" role="dialog" aria-hidden="true"
-  ng-controller="IzendaSelectReportController as izendaSelectReportController"
-  ng-init="izendaSelectReportController.initialize()">
+<div class="izendaSelectPartModal modal" tabindex="-1" role="dialog" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
         <div class="row">
           <div class="col-md-2">
             <h4 style="margin-top: 5px;" class="pull-right"
-              ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once></h4>
+                ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once></h4>
           </div>
           <div class="col-md-8">
-            <select class="form-control" ng-model="izendaSelectReportController.category"
-              ng-options="category for category in izendaSelectReportController.categories"
-              ng-change="izendaSelectReportController.categoryChangedHandler()">
-            </select>
+            <select class="form-control"
+                    ng-model="$ctrl.category"
+                    ng-options="category for category in $ctrl.categories"
+                    ng-change="$ctrl.categoryChangedHandler()"></select>
           </div>
           <div class="col-md-2">
             <button type="button" class="close" style="margin-left: 50px;" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -22,21 +20,21 @@
         </div>
       </div>
       <div class="modal-body" style="min-height: 300px;">
-        <div class="izenda-vcentered-container" ng-hide="izendaSelectReportController.isLoading || izendaSelectReportController.groups.length > 0">
+        <div class="izenda-vcentered-container" ng-hide="$ctrl.isLoading || $ctrl.groups.length > 0">
           <div class="izenda-vcentered-item"
-            ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once>
+               ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once>
           </div>
         </div>
-        <div class="izenda-vcentered-container" ng-hide="!izendaSelectReportController.isLoading">
+        <div class="izenda-vcentered-container" ng-hide="!$ctrl.isLoading">
           <div class="izenda-vcentered-item">
-            <img class="img-responsive" 
-              ng-src="{{izendaSelectReportController.izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
+            <img class="img-responsive"
+                 ng-src="{{$ctrl.izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif" alt="Loading..." />
           </div>
         </div>
-        <div ng-hide="izendaSelectReportController.isLoading || izendaSelectReportController.groups.length == 0">
-          <div ng-repeat="group in izendaSelectReportController.groups" class="row">
+        <div ng-hide="$ctrl.isLoading || $ctrl.groups.length == 0">
+          <div ng-repeat="group in $ctrl.groups" class="row">
             <div class="col-md-3" ng-repeat="item in group">
-              <div class="thumb" ng-click="izendaSelectReportController.itemSelectedHandler(item)">
+              <div class="thumb" ng-click="$ctrl.itemSelectedHandler(item)">
                 <div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
                   <img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}" />
                 </div>
@@ -48,8 +46,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal"
-          ng-bind="'js_close' | izendaLocale: 'Close'">
-        </button>
+                ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       </div>
     </div>
   </div>

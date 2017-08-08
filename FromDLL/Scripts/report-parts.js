@@ -62,6 +62,7 @@ function GerReportPartUrl(rn, part, first, embedScripts, rsp, params) {
 	url += '&wsarg2=' + (first ? '' : 'alonenext');
 	url += '&wsarg3=' + (embedScripts ? 'embedScriptsForHtmlPart' : '');
 	url += '&wsarg4=' + encodeURIComponent(RP_Base64.encode(rsp));
+	url += '&rnalt=' + rn;
 	if (params != null)
 		url += '&' + params;
 	return url;

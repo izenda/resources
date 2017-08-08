@@ -1,0 +1,26 @@
+﻿<a ng-if="$ctrl.isTitleSet()"
+   class="db-title-repname"
+   title="{{$ctrl.getTitleText()}}"
+   ng-click="$ctrl.fireReportViewerLink()"
+   ng-bind="$ctrl.tile.title"></a>
+
+<a ng-if="!$ctrl.isTitleSet() && !$ctrl.isUncategorized($ctrl.tile.reportCategory)"
+   title="{{$ctrl.getTitleText()}}"
+   href="{{$ctrl.$izendaUrl.settings.urlReportList}}#{{$ctrl.tile.reportCategory}}"
+   ng-bind="$ctrl.tile.reportCategory"></a>
+
+<span ng-if="!$ctrl.isTitleSet() && !$ctrl.isUncategorized($ctrl.tile.reportCategory) && $ctrl.tile.reportName">/</span>
+
+<a ng-if="!$ctrl.isTitleSet() && $ctrl.tile.reportName"
+   title="{{$ctrl.getTitleText()}}"
+   class="db-title-repname"
+   ng-click="$ctrl.fireReportViewerLink()"
+   ng-bind="$ctrl.tile.reportName"></a>
+
+<span ng-if="!$ctrl.isTitleSet() && $ctrl.tile.reportPartName">/</span>
+
+<a ng-if="!$ctrl.isTitleSet() && $ctrl.tile.reportPartName"
+   title="{{$ctrl.getTitleText()}}"
+   class="db-title-repname"
+   ng-click="$ctrl.fireReportViewerLink()"
+   ng-bind="$ctrl.tile.reportPartName"></a>

@@ -545,6 +545,12 @@
 								name: category,
 								dashboards: data[category]
 							};
+							// sort 
+							if (angular.isFunction(vm.dashboardConfig.dashboardToolBarItemsSort)) {
+								item.dashboards.sort(function (item1, item2) {
+									return vm.dashboardConfig.dashboardToolBarItemsSort(item1, item2);
+								});
+							}
 							vm.dashboardCategories.push(item);
 						}
 					}

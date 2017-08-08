@@ -142,11 +142,7 @@
 					var currentUrl = response.config.url;
 					$log.debug('<<< ' + ((new Date()).getTime() - rsQueryLog[currentUrl].getTime()) + 'ms: ' + currentUrl);
 					removeRequest(currentUrl);
-					if (typeof (response) == 'string') {
-						resolver.resolve(response);
-					} else {
-						resolver.resolve(response.data);
-					}
+					resolver.resolve(angular.isString(response) ? response : response.data);
 				}, function (response) {
 					// handle error
 					var needToReject = true;

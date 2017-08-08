@@ -389,3 +389,7 @@
 .ui-helper-hidden-accessible {
 	display: none;
 }
+
+.minicolors-theme-bootstrap .minicolors-swatch {
+	top: 4px !important;
+}

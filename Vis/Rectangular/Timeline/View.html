@@ -264,13 +264,24 @@
 				.attr('class', 'izenda-vis-timeline-axisX izenda-vis-timeline-axisX2')
 				.attr('transform', 'translate(' + (m[3]) + ', ' + (16) + ')');
 
+			var timerSetExtent = null;
+
 			function display() {
 				var rects, labels,
-					minExtent = brush.extent()[0],
-					maxExtent = brush.extent()[1];
+					extents = brush.extent().map(function (item) { return item instanceof Date ? item.getTime() : item; }),
+					minExtent = extents[0],
+					maxExtent = extents[1];
 
 				if (minExtent.valueOf() == maxExtent.valueOf()) {
 					return;
+				}
+
+				if (!vis.context.isImageRender) {
+					clearTimeout(timerSetExtent);
+					timerSetExtent = setTimeout(function () {
+						vis.setProperty('ExtentBegin', minExtent);
+						vis.setProperty('ExtentEnd', maxExtent);
+					}, 300);
 				}
 
 				var visItems = items.filter(function (d) { return d.start < maxExtent && d.end > minExtent; });
@@ -328,10 +339,21 @@
 				labels.exit().remove();
 			}
 
+			var extentBegin = vis.getProperty('ExtentBegin'),
+				extentEnd = vis.getProperty('ExtentEnd');
+			if (!extentBegin || !extentEnd) {
+				if (!vis.context.isImageRender) {
+					vis.setProperty('ExtentBegin', timeBegin + (timeEnd - timeBegin) / 3);
+					vis.setProperty('ExtentEnd', timeBegin + (timeEnd - timeBegin) * 2 / 3);
+				}
+				extentBegin = vis.getProperty('ExtentBegin');
+				extentEnd = vis.getProperty('ExtentEnd');
+			}
+
 			var brush = d3.svg.brush()
 				.x(x)
 				.on('brush', display)
-				.extent([timeBegin + (timeEnd - timeBegin) / 3, timeBegin + 2 / 3 * (timeEnd - timeBegin)]);
+				.extent([extentBegin, extentEnd]);
 
 			mini.append('g')
 				.attr('class', 'izenda-vis-timeline-mini-active')

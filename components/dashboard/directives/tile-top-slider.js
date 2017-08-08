@@ -15,7 +15,6 @@
 					disabled: '=',
 					rendered: '=',
 					ngModel: '=',
-					endValue: '=',
 					showItemAll: '=',
 					onChangeEnd: '&'
 				},
@@ -35,14 +34,14 @@
 					valuesArray.push(10000);
 					valuesArray.push('ALL');
 
-					var convertFromToValue = function (from) {
+					var _convertFromToValue = function (from) {
 						var val = valuesArray[from];
 						if (val === 'ALL')
 							val = -1;
 						return val;
 					};
 
-					var appendValueToFromArray = function (value) {
+					var _appendValueToFromArray = function (value) {
 						var index = value > 0 ? valuesArray.indexOf(value) : valuesArray.indexOf('ALL');
 						if (index >= 0)
 							return false;
@@ -56,21 +55,11 @@
 						return true;
 					};
 
-					var convertValueToFrom = function (value) {
+					var _convertValueToFrom = function (value) {
 						var index = value > 0 ? valuesArray.indexOf(value) : valuesArray.indexOf('ALL');
 						if (index < 0)
 							index = valuesArray.indexOf('ALL');
 						return index;
-					};
-
-					var setModelValue = function (value) {
-						$scope.ngModel = value;
-						$scope.$parent.$applyAsync();
-					};
-
-					var setEndValue = function (value) {
-						$scope.endValue = value;
-						$scope.$parent.$applyAsync();
 					};
 
 					/**
@@ -78,19 +67,18 @@
 					 */
 					var initializeSlider = function () {
 						var $input = elem.children('input');
-						appendValueToFromArray($scope.ngModel); // add current value if it doesn't exist in current values array.
+						_appendValueToFromArray($scope.ngModel); // add current value if it doesn't exist in current values array.
 						$input.val('');
 						$input.ionRangeSlider({
 							disable: $scope.disabled,
 							grid: true,
 							hide_min_max: true,
-							from: convertValueToFrom($scope.ngModel),
+							from: _convertValueToFrom($scope.ngModel),
 							values: valuesArray,
 							onFinish: function (data) {
-								var value = convertFromToValue(data.from);
-								setEndValue(value);
-								$scope.onChangeEnd({});
-								$scope.$parent.$applyAsync();
+								var value = _convertFromToValue(data.from);
+								if (angular.isFunction($scope.onChangeEnd))
+									$scope.onChangeEnd({newTop: value});
 							}
 						});
 						slider = $input.data("ionRangeSlider");
@@ -102,11 +90,11 @@
 					var setSliderValue = function (value) {
 						if (!slider)
 							return;
-						if (appendValueToFromArray(value))
+						if (_appendValueToFromArray(value))
 							slider.update({
 								values: valuesArray
 							});
-						var from = convertValueToFrom(value);
+						var from = _convertValueToFrom(value);
 						slider.update({
 							from: from
 						});

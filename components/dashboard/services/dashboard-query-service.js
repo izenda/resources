@@ -55,6 +55,7 @@
 			params['wsarg4'] = options.contentWidth;
 			params['wsarg5'] = options.contentHeight;
 			params['wsarg6'] = options.forPrint;
+			params['rnalt'] = options.reportFullName ? options.reportFullName.split('@')[1] : '';
 
 			var result = $izendaRsQuery.rsQuery(params, {
 				dataType: 'text',

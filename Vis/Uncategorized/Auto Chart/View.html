@@ -311,18 +311,7 @@
 				hidden: true,
 				hideTimeout: vis.context.isInstantReports ? 3000 : null,
 				getColor: function (d) { return getItem(colors, 0); },
-				clickable: true,
-				onCreateCallback: function () {
-					vis.events.subscribe('MetricChange', vis.resetBreadcrumb);
-					vis.events.subscribe('MetricExtraChange', vis.resetBreadcrumb);
-					vis.events.subscribe('TypeChange', vis.resetBreadcrumb);
-					vis.events.subscribe('PaletteChange', vis.resetBreadcrumb);
-					vis.events.subscribe('MultiColorChange', vis.resetBreadcrumb);
-					vis.events.subscribe('FromZeroChange', vis.resetBreadcrumb);
-					vis.events.subscribe('SubreportModeChange', vis.resetBreadcrumb);
-					vis.events.subscribe('CombineBottomChange', vis.resetBreadcrumb);
-					vis.events.subscribe('LineStepModeChange', vis.resetBreadcrumb);
-				}
+				clickable: true
 			},
 			metrics: [{
 				name: 'Metric',
