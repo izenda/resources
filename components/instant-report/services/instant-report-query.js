@@ -1,4 +1,12 @@
-﻿izendaRequire.define(['angular', 'moment', '../../common/services/services'], function (angular, moment) {
+﻿izendaRequire.define([
+	'angular',
+	'moment',
+	'../../common/core/services/localization-service',
+	'../../common/core/services/util-ui-service',
+	'../../common/query/services/rs-query-service',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service'
+], function (angular, moment) {
 
 	/**
 	 * Izenda query service which provides dashboard specific queries
@@ -11,10 +19,11 @@
 		'$log',
 		'$window',
 		'$izendaLocale',
+		'$izendaUtilUiService',
 		'$izendaUrl',
 		'$izendaSettings',
 		'$izendaRsQuery',
-	function ($rootScope, $q, $http, $log, $window, $izendaLocale, $izendaUrl, $izendaSettings, $izendaRsQuery) {
+	function ($rootScope, $q, $http, $log, $window, $izendaLocale, $izendaUtilUiService, $izendaUrl, $izendaSettings, $izendaRsQuery) {
 		'use strict';
 
 		var requestList = [];
@@ -203,10 +212,7 @@
 					if (response.config.timeout.$$state.value !== 'Cancelled!') {
 						//handle errors:
 						var errorText = $izendaLocale.localeText('js_FailedToLoadPreview', 'Failed to load preview.');
-						$rootScope.$broadcast('izendaShowMessageEvent', [
-									errorText,
-									$izendaLocale.localeText('js_Error', 'Error'),
-									'danger']);
+						$izendaUtilUiService.showErrorDialog(errorText);
 						resolver.reject(response.data);
 					}
 				});

@@ -73,11 +73,13 @@
           <b lang-text="js_PrintHTML">Print HTML</b><br>
           <span lang-text="js_PrintDirectlyMessage">Print directly from your browser, the fastest way for modern browsers</span>
         </a></li>
-        <li id="html2pdfPrintBtn"><a href="javascript:void(0)" title="" onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        <li id="html2pdfPrintBtn"><a href="javascript:void(0)" title="" 
+            onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=PDF', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./rp.aspx?image=ModernImages.html-to-pdf-32.png" alt="" />
           <b lang-text="js_HTML2PDF">HTML-powered PDF</b><br>
           <span lang-text="js_HTML2PDFMessage">One-file compilation of all the report's pages</span></a>
-          <a style="display: none;" id="testsharpPrintBtn" href="javascript:void(0)" title="" onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=PDF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+          <a style="display: none;" id="testsharpPrintBtn" href="javascript:void(0)" title="" 
+            onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=PDF', 'aspnetForm', 'reportFrame');">
             <img class="icon" src="./rp.aspx?image=ModernImages.pdf-32.png" alt="" />
             <b lang-text="js_StandardPDF">Standard PDF</b><br>
             <span lang-text="js_NonHTMLPDF">Non-HTML PDF generation</span></a>
@@ -86,7 +88,7 @@
     </div>
     <div class="btn-group cool">
       <button id="menuBtnExcelExport" type="button" class="btn" lang-title="js_ExportToExcel" title="Export to Excel"
-        onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XLS(MIME)', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=XLS(MIME)', 'aspnetForm', 'reportFrame');">
         <img class="icon" src="./rp.aspx?image=ModernImages.excel.png" alt="Get Excel file" />
         <span class="hide" lang-text="js_ExportToExcel">Export to Excel</span>
       </button>
@@ -95,25 +97,25 @@
       </button>
       <ul class="dropdown-menu">
         <li id="excelExportBtn"><a href="javascript:void(0)" title="" style="min-width: 18em;"
-          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XLS(MIME)', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=XLS(MIME)', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./rp.aspx?image=ModernImages.xls-32.png" alt="" />
           <b lang-text="js_ExportToExcel">Export to Excel</b><br>
           <span lang-text="js_ExportToExcelMessage">File for Microsoft's spreadsheet application</span>
         </a></li>
         <li id="wordExportBtn"><a href="javascript:void(0)" title=""
-          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=DOC', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=DOC', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./rp.aspx?image=ModernImages.word-32.png" alt="" />
           <b lang-text="js_WordDocument">Word document</b><br>
           <span lang-text="js_WordDocumentMessage">File for Microsoft's word processor, most widely-used office application</span>
         </a></li>
         <li><a id="csvExportBtn" href="javascript:void(0)" title=""
-          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=CSV', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=CSV', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./rp.aspx?image=ModernImages.csv-32.png" alt="" />
           <b lang-text="js_CSV">CSV</b><br>
           <span lang-text="js_CSVMessage">Stores tabular data in text file, that can be used in Google Docs</span>
         </a></li>
         <li><a href="javascript:void(0)" title=""
-          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, 'rs.aspx?output=XML', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=XML', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./rp.aspx?image=ModernImages.xml-32.png" alt="" />
           <b lang-text="js_XML">XML</b><br>
           <span lang-text="js_XMLMessage">Both human-readable and machine-readable text file</span>
@@ -121,7 +123,7 @@
         <!--
         http://fogbugz.izenda.us/default.asp?15858#BugEvent.185759
       <li id="RTFExportButton"><a href="javascript:void(0)" title="" 
-        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl('rs.aspx?output=RTF', 'aspnetForm', 'reportFrame', nrvConfig.ResponseServerUrl);">
+        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=RTF', 'aspnetForm', 'reportFrame');">
         <img class='icon' src="./rp.aspx?image=ModernImages.rtf-32.png" alt="" />
         <b lang-text='js_RTF'>RTF</b><br>
         <span lang-text='js_RTFMessage'>File format for cross-platform document interchange</span>

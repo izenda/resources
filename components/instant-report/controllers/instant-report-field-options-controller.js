@@ -1,4 +1,11 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/ui/directives/align-switcher',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 
 	/**
 	* Instant report field options controller
@@ -17,6 +24,7 @@
 				'$izendaCompatibility',
 				'$izendaInstantReportQuery',
 				'$izendaInstantReportStorage',
+				'$izendaInstantReportValidation',
 				InstantReportFieldOptionsController
 	]);
 
@@ -31,7 +39,8 @@
 				$izendaLocale,
 				$izendaCompatibility,
 				$izendaInstantReportQuery,
-				$izendaInstantReportStorage) {
+				$izendaInstantReportStorage,
+				$izendaInstantReportValidation) {
 		'use strict';
 		var vm = this;
 		var primaryButtonClass = "btn-izenda-dark",
@@ -197,6 +206,7 @@
 		 */
 		vm.applyFieldVisible = function () {
 			$izendaInstantReportStorage.applyFieldVisible(vm.field, !vm.field.visible);
+			$izendaInstantReportValidation.validateReportSetAndRefresh();
 		};
 
 		/**

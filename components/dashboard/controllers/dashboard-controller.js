@@ -1,4 +1,24 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directives/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/core/services/event-service',
+	'../../common/core/services/util-ui-service',
+	'../../common/core/directives/splashscreen',
+	'../../common/core/directives/bootstrap-modal',
+	'../../common/core/components/message/component',
+	'../../common/core/components/notification/component',
+	'../../common/query/services/rs-query-service',
+	'../../common/query/services/common-query-service',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service',
+	'../../common/ui/services/schedule-service',
+	'../../common/ui/services/share-service',
+	'../../common/ui/components/select-report-name/component',
+	'../../common/ui/components/select-report/component',
+	'../services/services',
+	'../directives/directives'
+], function (angular) {
 
 	angular
 		.module('izendaDashboard')
@@ -11,6 +31,7 @@
 			'$log',
 			'$animate',
 			'$injector',
+			'$izendaUtilUiService',
 			'$izendaBackground',
 			'$izendaUrl',
 			'$izendaCompatibility',
@@ -28,8 +49,8 @@
 			IzendaDashboardController]);
 
 	/**
-		 * Dashboard controller
-		 */
+	 * Dashboard controller
+	 */
 	function IzendaDashboardController(
 		$rootScope,
 		$scope,
@@ -39,6 +60,7 @@
 		$log,
 		$animate,
 		$injector,
+		$izendaUtilUiService,
 		$izendaBackground,
 		$izendaUrl,
 		$izendaCompatibility,
@@ -57,7 +79,6 @@
 		'use strict';
 
 		var vm = this;
-		var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 		var _ = angular.element;
 		$scope.izendaUrl = $izendaUrl;
 		$scope.izendaDashboardState = $izendaDashboardState;
@@ -70,6 +91,7 @@
 		vm.dashboardsAllowedByLicense = false;
 
 		vm.isLoaded = false;
+		vm.isSaveReportModalOpened = false;
 
 		vm.isIE8 = $izendaCompatibility.checkIsIe8();
 
@@ -370,9 +392,9 @@
 			vm.isGridShadowVisible = true;
 			vm.isGridShadowPlusButtonVisible = showPlusButton;
 			var left = shadowBbox.left,
-					top = shadowBbox.top,
-					width = shadowBbox.width,
-					height = shadowBbox.height;
+				top = shadowBbox.top,
+				width = shadowBbox.width,
+				height = shadowBbox.height;
 			if (left < 0) {
 				left = 0;
 			}
@@ -502,11 +524,11 @@
 		vm.swapTiles = function ($tile1, $tile2) {
 			var deferred = $q.defer();
 			var t1O = $tile1.position(),
-					t2O = $tile2.position(),
-					w1 = $tile1.width(),
-					h1 = $tile1.height(),
-					w2 = $tile2.width(),
-					h2 = $tile2.height();
+				t2O = $tile2.position(),
+				w1 = $tile1.width(),
+				h1 = $tile1.height(),
+				w2 = $tile2.width(),
+				h2 = $tile2.height();
 
 			$tile1.find('.frame').hide();
 			$tile2.find('.frame').hide();
@@ -537,6 +559,20 @@
 				}
 			});
 			return deferred.promise;
+		};
+
+		/**
+		 * Select report name handler
+		 */
+		vm.onSave = function (reportName, categoryName) {
+			save(reportName, categoryName);
+		};
+
+		/**
+		 * Save dialog closed handler.
+		 */
+		vm.onSaveClosed = function () {
+			vm.isSaveReportModalOpened = false;
 		};
 
 		/**
@@ -660,10 +696,6 @@
 		 * Fires when tiles added and animation is completed.
 		 */
 		vm.initializeEventHandlers = function () {
-			$scope.$on('selectedReportNameEvent', function (event, args) {
-				var dashboardName = args[0], dashboardCategory = args[1];
-				save(dashboardName, dashboardCategory);
-			});
 
 			$izendaEvent.handleQueuedEvent('dashboardSyncEvent', $scope, vm, function (subject) {
 				sync().then(function () {
@@ -691,10 +723,10 @@
 
 			$izendaEvent.handleQueuedEvent('dashboardSaveEvent', $scope, vm, function (showNameDialog) {
 				if (showNameDialog) {
-					$rootScope.$broadcast('openSelectReportNameModalEvent', []);
+					vm.isSaveReportModalOpened = true;
 				} else {
-					var dashboardName = $izendaUrl.getReportInfo().name,
-							dashboardCategory = $izendaUrl.getReportInfo().category;
+					var dashboardName = $izendaUrl.getReportInfo().name;
+					var dashboardCategory = $izendaUrl.getReportInfo().category;
 					save(dashboardName, dashboardCategory);
 				}
 			});
@@ -766,7 +798,7 @@
 				$tileContainer = vm.getTileContainer();
 				// get {x, y} click coordinates
 				var x = Math.floor((event.pageX - $tileContainer.offset().left) / vm.tileWidth),
-						y = Math.floor((event.pageY - $tileContainer.offset().top) / vm.tileHeight);
+					y = Math.floor((event.pageY - $tileContainer.offset().top) / vm.tileHeight);
 				addNewPixelTile(x, y);
 				return false;
 			});
@@ -779,7 +811,7 @@
 				$tileContainer = vm.getTileContainer();
 				// get {x, y} click coordinates
 				var x = Math.floor((e.pageX - $tileContainer.offset().left) / vm.tileWidth),
-						y = Math.floor((e.pageY - $tileContainer.offset().top) / vm.tileHeight);
+					y = Math.floor((e.pageY - $tileContainer.offset().top) / vm.tileHeight);
 				vm.showTileGrid();
 				vm.showTileGridShadow({
 					left: x * vm.tileWidth,
@@ -881,35 +913,32 @@
 		}
 
 		/**
-		 * Save 
+		 * Save dashboard.
+		 * @param {string} dashboardName dashboard report name
+		 * @param {string} dashboardCategory dashboard report category
 		 */
 		function save(dashboardName, dashboardCategory) {
-			var dashboardFullName = dashboardName;
-			if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
-				dashboardFullName = dashboardCategory + $izendaSettings.getCategoryCharacter() + dashboardName;
-			}
 			var json = createSaveJson();
 			if (json.Rows[0].ColumnsCount === 0) {
 				vm.openMessageBox($izendaLocale.localeText('js_CantSaveEmptyDashboard', 'Can\'t save empty dashboard.'));
 				return;
 			}
-			$izendaDashboardQuery.saveDashboard(dashboardFullName, json).then(function (data) {
-				if (data.Value !== 'OK') {
-					// handle save error:
-					var errorText = $izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
-						' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + data.Value;
-					$rootScope.$broadcast('izendaShowMessageEvent', [
-							errorText,
-							$izendaLocale.localeText('js_Error', 'Error'),
-							'danger']);
-				} else {
-					var n = $izendaUrl.getReportInfo().name, c = $izendaUrl.getReportInfo().category;
-					$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved')]);
-					if (n !== dashboardName || c !== dashboardCategory) {
-						$rootScope.$broadcast('selectedNewReportNameEvent', [dashboardName, dashboardCategory]);
+
+			// perform save action
+			$izendaDashboardState.saveDashboard(json, dashboardName, dashboardCategory).then(
+				function (saveResults) {
+					// success
+					var name = saveResults[0], category = saveResults[1], isDashboardNameChanged = saveResults[2];
+					$izendaUtilUiService.showNotification($izendaLocale.localeText('js_DashboardSaved', 'Dashboard sucessfully saved'));
+					if (isDashboardNameChanged) {
+						$rootScope.$broadcast('selectedNewReportNameEvent', [name, category]);
 					}
-				}
-			});
+				}, function (errorMessage) {
+					// handle save error
+					var errorText = $izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard') +
+						' "' + dashboardName + '". ' + $izendaLocale.localeText('js_Error', 'Error') + ': ' + errorMessage;
+					$izendaUtilUiService.showErrorDialog(errorText);
+				});
 		}
 
 		/**
@@ -1013,7 +1042,7 @@
 		 */
 		function refreshAllTiles(updateFromSource) {
 			if (!vm.galleryState.isGalleryEnabled) {
-				$scope.$broadcast('izendaDashboardTile.update', [null, null, true, updateFromSource]);
+				$rootScope.$broadcast('izendaDashboardTile.update', [null, null, true, updateFromSource]);
 			} else {
 				// trigger gallery update
 				vm.galleryUpdateCounter++;
@@ -1143,6 +1172,13 @@
 			updateGalleryContainer();
 			vm.updateDashboardHandlers();
 		}
+
+		vm.dashboardGlobalClickHandler = function ($event) {
+			if (angular.element($event.target).closest('.title-button.button2').length === 0)
+				vm.tiles.forEach(function (tile) {
+					tile.backTilePopupOpened = false;
+				});
+		};
 
 		/**
 		 * Initialize dashboard controller (set event listeners and so on)

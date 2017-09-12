@@ -3,7 +3,7 @@
 	// Create instant report angular module
 	angular.module('izendaInstantReport', [
 			'ngCookies',
-			'izenda.common.compatibility',
+			'izenda.common.core',
 			'izenda.common.query',
 			'izenda.common.ui'
 	]);

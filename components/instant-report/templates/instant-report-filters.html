@@ -45,7 +45,7 @@
                    ng-class="filter.isValid ? '' : 'not-valid'"
                    ng-attr-title="{{filter.validationMessageString}}">
                 <span class="index-container" ng-bind="$index + 1"></span>
-                <span class="text-nowrap" style="padding: 4px;">
+                <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
                   <span class="izenda-cursor-pointer glyphicon with-label"
                         ng-class="filter.parameter ? 'glyphicon-check' : 'glyphicon-unchecked'"
                         ng-click="filter.parameter = !filter.parameter"
@@ -56,7 +56,7 @@
                         izenda-stop-propagation>
                   </span>
                 </span>
-                <span class="text-nowrap" style="padding: 4px;">
+                <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
                   <span class="izenda-cursor-pointer glyphicon with-label"
                         ng-class="filter.required ? 'glyphicon-check' : 'glyphicon-unchecked'"
                         ng-click="filter.required = !filter.required"
@@ -67,7 +67,7 @@
                         izenda-stop-propagation>
                   </span>
                 </span>
-                <button class="btn btn-header-close pull-right" type="button"
+                <button class="btn btn-header-close" type="button"
                         ng-attr-title="{{'js_RemoveFilter' | izendaLocale: 'Remove filter'}}"
                         ng-click="filtersController.removeFilter(filter)" izenda-stop-propagation>
                   <span class="glyphicon glyphicon-remove"></span>
@@ -166,8 +166,9 @@
                       <input ng-attr-id="{{'filterPopupColumnIdValue' + $index}}" 
                              ng-attr-value="{{filter.field.sysname}}" 
                              type="hidden" />
-                      <button type="button" class="btn btn-default" ng-bind="filtersController.getPopupBtnText(filter)"
-                              data-toggle="modal" ng-attr-data-target="{{'#filterPopupModal' + $index}}"></button>
+                      <button type="button" class="btn btn-default iz-inst-filter-popup-btn" ng-bind="filtersController.getPopupBtnText(filter)"
+                              data-toggle="modal" ng-attr-data-target="{{'#filterPopupModal' + $index}}"
+                              ng-attr-title="{{filtersController.getPopupBtnText(filter)}}"></button>
                       <div ng-attr-id="{{'filterPopupModal' + $index}}" class="modal fade" tabindex="-1" role="dialog"
                            name="filtersPopupModalDialog">
                         <div class="modal-dialog" role="document">

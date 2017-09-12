@@ -1,17 +1,28 @@
-﻿izendaRequire.define(['angular', 'css-parser', '../../common/services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'css-parser',
+	'../../common/core/services/localization-service',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service',
+	'./dashboard-query-service'
+], function (angular) {
 
 	/**
 	 * Dashboard state service contains all event handles, which are common for dashboard controllers.
 	 */
-	angular
-		.module('izendaDashboard')
-		.factory('$izendaDashboardState', [
-			'$rootScope',
-			'$window',
-			'$log',
+	angular.module('izendaDashboard').factory('$izendaDashboardState', [
+		'$rootScope',
+		'$window',
+		'$log',
+		'$q',
 		'$izendaLocale',
-		function ($rootScope, $window, $log, $izendaLocale) {
+		'$izendaSettings',
+		'$izendaUrl',
+		'$izendaDashboardQuery',
+		function ($rootScope, $window, $log, $q, $izendaLocale, $izendaSettings, $izendaUrl, $izendaDashboardQuery) {
 			'use strict';
+
+			var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 			/**
 			 * Extract custom css rules
@@ -196,6 +207,42 @@
 				angular.element($window).off('resize.dashboard');
 			}
 
+			/////////////////////////////////////////
+			// save:
+			/////////////////////////////////////////
+
+			/**
+			 * Save dashboard.
+			 * @param {object} dashboardJsonConfig dashboard config
+			 * @param {string} dashboardName dashboard report name
+			 * @param {string} dashboardCategory dashboard report category (optional: "uncategorized" if not defined).
+			 * @returns {Promise}
+			 */
+			function saveDashboard(dashboardJsonConfig, dashboardName, dashboardCategory) {
+				if (!angular.isString(dashboardName))
+					throw 'Dashboard name should be specified';
+				if (!angular.isObject(dashboardJsonConfig))
+					throw 'Dashboard config is empty or not object';
+
+				// create report full name
+				var dashboardFullName = dashboardName;
+				if (angular.isString(dashboardCategory) && dashboardCategory !== '' && dashboardCategory.toLowerCase() !== UNCATEGORIZED.toLowerCase()) {
+					dashboardFullName = dashboardCategory + $izendaSettings.getCategoryCharacter() + dashboardName;
+				}
+
+				return $q(function (resolve, reject) {
+					$izendaDashboardQuery.saveDashboard(dashboardFullName, dashboardJsonConfig).then(function (data) {
+						if (data.Value === 'OK') {
+							var currentReportInfo = $izendaUrl.getReportInfo();
+							var isDashboardNameChanged = currentReportInfo.name !== dashboardName || currentReportInfo.category !== dashboardCategory;
+							resolve([dashboardName, dashboardCategory, isDashboardNameChanged]);
+						} else {
+							reject(data.Value);
+						}
+					});
+				});
+			}
+
 			// INITIALIZE:
 
 			turnOnWindowResizeHandler();
@@ -207,7 +254,8 @@
 				getWindowWidth: getWindowWidth,
 				loadReportIntoContainer: loadReportIntoContainer,
 				turnOnWindowResizeHandler: turnOnWindowResizeHandler,
-				turnOffWindowResizeHandler: turnOffWindowResizeHandler
+				turnOffWindowResizeHandler: turnOffWindowResizeHandler,
+				saveDashboard: saveDashboard
 			};
 		}]);
 

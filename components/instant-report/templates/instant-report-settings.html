@@ -1,6 +1,8 @@
-﻿<div ng-controller="InstantReportSettingsController as irDataSettingsController"
-     ng-init="irDataSettingsController.init()" ng-cloak>
+﻿<div ng-controller="InstantReportSettingsController as $ctrl" ng-init="$ctrl.init()" ng-cloak>
   <div class="iz-inst-share-container">
-    <div ng-include="'Resources/components/common/templates/share.html'"></div>
+    <izenda-share-component subjects="$ctrl.subjects"
+                            rights="$ctrl.rights"
+                            share-rules="$ctrl.shareRules">
+    </izenda-share-component>
   </div>
 </div>

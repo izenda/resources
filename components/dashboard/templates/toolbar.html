@@ -1,19 +1,15 @@
 ﻿<header ng-controller="IzendaToolbarController as toolbarController" ng-init="toolbarController.initialize()">
 
   <!-- dashboard background -->
-  <div izenda-dashboard-background background-color="toolbarController.izendaBackgroundColor"
-       background-image="toolbarController.izendaBackgroundImageUrl"
-       hue-rotate="toolbarController.hueRotate"
-       ng-show="toolbarController.dashboardsAllowedByLicense"
-       background-image-repeat="toolbarController.izendaBackgroundImageRepeat">
-  </div>
-
-  <!-- notifications -->
-  <div ng-include="'Resources/components/common/templates/notification.html'"></div>
-  <div ng-include="'Resources/components/common/templates/message.html'"></div>
+  <izenda-dashboard-background background-color="toolbarController.izendaBackgroundColor"
+                               background-image="toolbarController.izendaBackgroundImageUrl"
+                               hue-rotate="toolbarController.hueRotate"
+                               ng-show="toolbarController.dashboardsAllowedByLicense"
+                               background-image-repeat="toolbarController.izendaBackgroundImageRepeat">
+  </izenda-dashboard-background>
 
   <!-- schedule dialog -->
-  <div izenda-bootstrap-modal opened="toolbarController.scheduleModalOpened">
+  <izenda-bootstrap-modal opened="toolbarController.scheduleModalOpened">
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
@@ -22,7 +18,11 @@
       </div>
     </div>
     <div class="modal-body">
-      <div ng-include="'Resources/components/common/templates/schedule.html'"></div>
+      <izenda-schedule-component schedule-config="toolbarController.scheduleConfig"
+                                 repeat-types="toolbarController.repeatTypes"
+                                 email-types="toolbarController.emailTypes"
+                                 timezones="toolbarController.timezones">
+      </izenda-schedule-component>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
@@ -32,10 +32,10 @@
               ng-click="toolbarController.closeScheduleDialog(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
   <!-- share dialog -->
-  <div izenda-bootstrap-modal opened="toolbarController.shareModalOpened">
+  <izenda-bootstrap-modal opened="toolbarController.shareModalOpened">
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
@@ -44,7 +44,10 @@
       </div>
     </div>
     <div class="modal-body">
-      <div ng-include="'Resources/components/common/templates/share.html'"></div>
+      <izenda-share-component subjects="toolbarController.subjects"
+                              rights="toolbarController.rights"
+                              share-rules="toolbarController.shareRules">
+      </izenda-share-component>
     </div>
     <div class="modal-footer">
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
@@ -54,11 +57,11 @@
               ng-click="toolbarController.closeShareDialog(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
   <!-- send email -->
-  <div izenda-bootstrap-modal opened="toolbarController.sendEmailState.opened"
-       ng-show="toolbarController.dashboardsAllowedByLicense">
+  <izenda-bootstrap-modal opened="toolbarController.sendEmailState.opened"
+                          ng-show="toolbarController.dashboardsAllowedByLicense">
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
@@ -66,30 +69,32 @@
         </div>
       </div>
     </div>
-    <div class="modal-body" ng-hide="toolbarController.sendEmailState.isLoading">
-      <form ng-submit="toolbarController.hideEmailModal(true)">
-        <div class="alert alert-danger" role="alert"
-             ng-show="toolbarController.sendEmailState.errorOccured">
-          <div ng-repeat="error in toolbarController.sendEmailState.errors"
-               ng-bind="error">
+    <div class="modal-body">
+      <div ng-hide="toolbarController.sendEmailState.isLoading">
+        <form ng-submit="toolbarController.hideEmailModal(true)">
+          <div class="alert alert-danger" role="alert"
+               ng-show="toolbarController.sendEmailState.errorOccured">
+            <div ng-repeat="error in toolbarController.sendEmailState.errors"
+                 ng-bind="error">
+            </div>
           </div>
-        </div>
-        <span ng-bind="toolbarController.sendEmailState.type"></span>
-        <div class="form-group">
-          <label for="izendaDashboardModalSendEmail" class="col-sm-2 control-label"
-                 ng-bind="'js_Email' | izendaLocale: 'Email'" bind-once>
-          </label>
-          <div class="col-sm-10">
-            <input type="text" class="form-control" id="izendaDashboardModalSendEmail"
-                   ng-model="toolbarController.sendEmailState.email" placeholder="Email">
+          <span ng-bind="toolbarController.sendEmailState.type"></span>
+          <div class="form-group">
+            <label for="izendaDashboardModalSendEmail" class="col-sm-2 control-label"
+                   ng-bind="'js_Email' | izendaLocale: 'Email'" bind-once>
+            </label>
+            <div class="col-sm-10">
+              <input type="text" class="form-control" id="izendaDashboardModalSendEmail"
+                     ng-model="toolbarController.sendEmailState.email" placeholder="Email">
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
-    <div class="modal-body" ng-show="toolbarController.sendEmailState.isLoading">
-      <div class="izenda-vcentered-container" style="height: 50px;">
-        <div class="izenda-vcentered-item">
-          <img class="img-responsive" ng-src="{{izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif'}}" />
+        </form>
+      </div>
+      <div ng-show="toolbarController.sendEmailState.isLoading">
+        <div class="izenda-vcentered-container" style="height: 50px;">
+          <div class="izenda-vcentered-item">
+            <img class="izenda-img-loading" ng-src="{{izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif'}}" />
+          </div>
         </div>
       </div>
     </div>
@@ -101,11 +106,11 @@
               ng-click="toolbarController.hideEmailModal(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
   <!-- select background image modal dialog -->
-  <div izenda-bootstrap-modal opened="toolbarController.selectBackgroundImageModalOpened"
-       ng-show="toolbarController.dashboardsAllowedByLicense">
+  <izenda-bootstrap-modal opened="toolbarController.selectBackgroundImageModalOpened"
+                          ng-show="toolbarController.dashboardsAllowedByLicense">
     <div class="modal-body">
       <form>
         <div class="alert alert-info small" role="alert"
@@ -148,7 +153,7 @@
               ng-click="toolbarController.okBackgroundDialogHandler()"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
   <!-- toolbar -->
   <nav class="navbar navbar-default iz-dash-navbar" role="navigation"
@@ -311,7 +316,7 @@
           </li>
 
           <!-- new dashboard -->
-          <li ng-show="!toolbarController.isOneColumnView()" ng-if="toolbarController.isDesignLinksAllowed">
+          <li ng-show="!toolbarController.isOneColumnView()" ng-if="toolbarController.isDesignLinksAllowed && !izendaUrl.getReportInfo().isNew">
             <a ng-attr-title="{{'js_CreateNewDashboard' | izendaLocale: 'Create new dashboard'}}"
                ng-click="toolbarController.createNewDashboardHandler()"
                ng-hide="toolbarController.galleryState.isGalleryEnabled">
@@ -336,7 +341,7 @@
                ng-attr-title="{{'js_RefreshData' | izendaLocale: 'Refresh Data'}}">
               <span class="glyphicon glyphicon-refresh"></span>
               <sub style="color: greenyellow;"
-                    ng-style="toolbarController.getSelectedInterval() ? {} : {visibility: 'hidden'}">A</sub>
+                   ng-style="toolbarController.getSelectedInterval() ? {} : {visibility: 'hidden'}">A</sub>
               <b class="caret"></b>
             </a>
             <ul class="dropdown-menu">

@@ -1,39 +1,52 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/ui/directives/autocomplete',
+	'../../common/ui/directives/datetime-picker',
+	'../../common/ui/directives/select-checkboxes',
+	'../../common/query/services/settings-service',
+	'../../common/core/services/util-ui-service',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 
 	/**
 	* Instant report filters controller
 	*/
 	angular.module('izendaInstantReport').controller('InstantReportFiltersController', [
-				'$rootScope',
-				'$scope',
-				'$window',
-				'$timeout',
-				'$q',
-				'$sce',
-				'$log',
-				'$izendaLocale',
-				'$izendaSettings',
-				'$izendaCompatibility',
-				'$izendaInstantReportQuery',
-				'$izendaInstantReportStorage',
-				'$izendaInstantReportValidation',
-				InstantReportFiltersController
+		'$rootScope',
+		'$scope',
+		'$window',
+		'$timeout',
+		'$q',
+		'$sce',
+		'$log',
+		'$izendaLocale',
+		'$izendaSettings',
+		'$izendaCompatibility',
+		'$izendaUtilUiService',
+		'$izendaInstantReportQuery',
+		'$izendaInstantReportStorage',
+		'$izendaInstantReportValidation',
+		InstantReportFiltersController
 	]);
 
 	function InstantReportFiltersController(
-				$rootScope,
-				$scope,
-				$window,
-				$timeout,
-				$q,
-				$sce,
-				$log,
-				$izendaLocale,
-				$izendaSettings,
-				$izendaCompatibility,
-				$izendaInstantReportQuery,
-				$izendaInstantReportStorage,
-				$izendaInstantReportValidation) {
+		$rootScope,
+		$scope,
+		$window,
+		$timeout,
+		$q,
+		$sce,
+		$log,
+		$izendaLocale,
+		$izendaSettings,
+		$izendaCompatibility,
+		$izendaUtilUiService,
+		$izendaInstantReportQuery,
+		$izendaInstantReportStorage,
+		$izendaInstantReportValidation) {
 		'use strict';
 		$scope.$izendaLocale = $izendaLocale;
 		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
@@ -56,8 +69,9 @@
 		vm.addFilter = function (fieldSysName) {
 			$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
 				if (filter.field !== null && !filter.field.allowedInFilters) {
+					var errorTitle = $izendaLocale.localeText('js_Error', 'Error');
 					var errorText = $izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.');
-					$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
+					$izendaUtilUiService.showNotification(errorText, errorTitle);
 					return;
 				}
 				$izendaInstantReportStorage.getFilters().push(filter);
@@ -365,7 +379,7 @@
 					}
 					var found = false;
 					angular.element.each(vm.activeFields, function () {
-						if (this == newActiveField)
+						if (this.id == newActiveField.id)
 							found = true;
 					});
 					if (!found)
@@ -377,7 +391,7 @@
 					var field = vm.activeFields[i];
 					var found = false;
 					for (var j = 0; j < newActiveFields.length; j++) {
-						if (newActiveFields[j] == field)
+						if (newActiveFields[j].id == field.id)
 							found = true;
 					}
 					if (!found)

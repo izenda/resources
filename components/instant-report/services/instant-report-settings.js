@@ -1,4 +1,7 @@
-﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/query/services/rs-query-service'
+], function (angular) {
 
 	/**
 	 * Instant report settings service.

@@ -1,4 +1,8 @@
-﻿izendaRequire.define(['angular', '../../common/services/services', './instant-report-query'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/util-service',
+	'./instant-report-query'
+], function (angular) {
 
 	/**
 	 * Default pivot config object

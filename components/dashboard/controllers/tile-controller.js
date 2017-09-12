@@ -1,7 +1,19 @@
 ﻿izendaRequire.define([
 	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/core/services/util-service',
+	'../../common/core/services/event-service',
+	'../../common/core/services/util-ui-service',
+	'../../common/query/services/rs-query-service',
+	'../../common/query/services/common-query-service',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service',
+	'../../common/ui/directives/bootstrap',
+	'../../common/ui/components/select-report/component',
 	'../services/services',
-	'../directives/directives'], function (angular) {
+	'../directives/directives'
+], function (angular) {
 
 	/**
 	 * Tile default state object
@@ -31,7 +43,8 @@
 			topString: '100',
 			flip: false,
 			applyFilterParams: false,
-			backgroundColor: '#fff'
+			backgroundColor: '#fff',
+			backTilePopupOpened: false
 		});
 
 	/**
@@ -41,8 +54,8 @@
 		.module('izendaDashboard')
 		.component('izendaDashboardTile', {
 			templateUrl: 'Resources/components/dashboard/templates/izenda-dashboard-tile.html',
-			controller: ['$element', '$interval', '$timeout', '$scope', '$rootScope', '$window', '$izendaCompatibility', '$izendaUtil', '$izendaUrl',
-				'$izendaLocale', '$izendaSettings', '$izendaDashboardSettings', '$izendaRsQuery', '$izendaDashboardQuery',
+			controller: ['$element', '$interval', '$timeout', '$rootScope', '$window', '$izendaCompatibility', '$izendaUtil', '$izendaUrl',
+				'$izendaUtilUiService', '$izendaLocale', '$izendaSettings', '$izendaDashboardSettings', '$izendaRsQuery', '$izendaDashboardQuery',
 				'$izendaEvent', '$izendaDashboardState',
 				IzendaDashboardTileController],
 			bindings: {
@@ -62,26 +75,25 @@
 			}
 		});
 
-	function IzendaDashboardTileController($element, $interval, $timeout, $scope, $rootScope, $window, $izendaCompatibility, $izendaUtil, $izendaUrl,
-		$izendaLocale, $izendaSettings, $izendaDashboardSettings, $izendaRsQuery, $izendaDashboardQuery, $izendaEvent, $izendaDashboardState) {
+	function IzendaDashboardTileController($element, $interval, $timeout, $rootScope, $window, $izendaCompatibility, $izendaUtil, $izendaUrl,
+		$izendaUtilUiService, $izendaLocale, $izendaSettings, $izendaDashboardSettings, $izendaRsQuery, $izendaDashboardQuery, $izendaEvent, $izendaDashboardState) {
 		var self = this;
 
-		var isIE = $izendaCompatibility.checkIE();
+		var isIe = $izendaCompatibility.checkIE();
 
 		self.$izendaUrl = $izendaUrl;
-		self.deleteClass = 'title-button';
+
+		self.isButtonsVisible = true;
 		self.deleteConfirmClass = 'title-button hidden-confirm-btn';
+
 		self.tileSizeChanged = false;
 		self.state = {
 			empty: true,
 			resizableHandlerStarted: false,
 			relativeReportComplexity: 0
 		};
-		self.printMode = 'Html2PdfAndHtml';
-		self.isDesignLinksAllowed = false;
-		self.showAllInResults = true;
 		self.isSelectReportPartModalVisible = false;
-		
+
 		/**
 		 * Check if tile is empty
 		 */
@@ -111,6 +123,13 @@
 		};
 
 		/**
+		 * Is tile small enough and we need to show buttons without labels.
+		 */
+		self.isTileButtonsTight = function () {
+			return self.tile.width * self.gridWidth < 400;
+		};
+
+		/**
 		 * change report category from cat1\cat2\cat3 to cat1/cat2/cat3
 		 */
 		self.getConvertedReportCategory = function () {
@@ -136,33 +155,31 @@
 		/**
 		 * Is html model enabled in AdHocSettings
 		 */
-		self.isPrintTileVisible = function () {
-			return self.printMode === 'Html' || self.printMode === 'Html2PdfAndHtml';
+		self.isReportDivHidden = function () {
+			return !self.tile.reportFullName || self.isDashboardChangingNow;
 		};
 
 		/**
 		 * Is tile content should be hidden now.
 		 */
-		self.isReportDivHidden = function () {
-			return !self.tile.reportFullName || self.isDashboardChangingNow;
+		self.isTileSmallEnough = function () {
+			return self.tile.width * self.gridWidth < 400 || self.tile.height * self.gridHeight < 400;
 		};
 
 		/**
 		 * Class for confirm delete button (depends on tile size)
 		 */
 		self.getConfirmDeleteClass = function () {
-			if (self.tile.width <= 1)
-				return 'title-button-confirm-remove short';
-			return 'title-button-confirm-remove';
+			var tightClass = self.isTileButtonsTight() ? ' short' : '';
+			return 'title-button-confirm-remove' + tightClass;
 		};
 
 		/**
 		 * Class for cancel delete button (depends on tile size)
 		 */
 		self.getCancelDeleteClass = function () {
-			if (self.tile.width <= 1)
-				return 'title-button-cancel-remove short';
-			return 'title-button-cancel-remove';
+			var tightClass = self.isTileButtonsTight() ? ' short' : '';
+			return 'title-button-cancel-remove' + tightClass;
 		};
 
 		//////////////////////////////////////////////////////////////////////
@@ -192,47 +209,9 @@
 		//////////////////////////////////////////////////////////////////////
 		// rights
 		//////////////////////////////////////////////////////////////////////
-		self.hasRightLevel = function (requiredLevel) {
-			var rights = ['None', 'Locked', 'View Only', 'Read Only', 'Full Access'];
-			var currentRightLevel = rights.indexOf(self.tile.maxRights);
-			if (currentRightLevel < 0)
-				throw 'Unknown right string: ' + self.tile.maxRights;
-			return currentRightLevel >= requiredLevel;
-		}
-
-		self.hasLockedRightsOrMore = function () {
-			return self.hasRightLevel(1);
-		};
-
-		self.hasViewOnlyRightsOrMore = function () {
-			return self.hasRightLevel(2);
-		};
-
-		self.hasReadOnlyRightsOrMore = function () {
-			return self.hasRightLevel(3);
-		};
-
-		self.hasFullRights = function () {
-			return self.hasRightLevel(4);
-		};
-
 		//////////////////////////////////////////////////////////////////////
 		// tile actions
 		//////////////////////////////////////////////////////////////////////
-
-		/**
-		 * Select report part for tile
-		 */
-		self.selectReportPart = function () {
-			self.isSelectReportPartModalVisible = true;
-		};
-
-		/**
-		 * Select report part cancelled
-		 */
-		self.onSelectReportPartCancelled = function () {
-			self.isSelectReportPartModalVisible = false;
-		};
 
 		/**
 		 * Show confirm delete dialog in title
@@ -242,7 +221,6 @@
 				self.deleteTile();
 				return;
 			}
-			self.deleteClass = 'title-button hidden-btn';
 			self.deleteConfirmClass = 'title-button';
 		};
 
@@ -250,7 +228,6 @@
 		 * Hide confirm delete dialog in title
 		 */
 		self.hideConfirmDelete = function () {
-			self.deleteClass = 'title-button';
 			self.deleteConfirmClass = 'title-button hidden-confirm-btn';
 		};
 
@@ -264,9 +241,25 @@
 		}
 
 		/**
+		 * Close back tile popup
+		 */
+		self.closeBackTilePopup = function () {
+			self.tile.backTilePopupOpened = false;
+		};
+
+		/**
+		 * Back tile popup closed handler
+		 */
+		self.onBackTilePopupClosed = function () {
+
+		};
+
+		/**
 		 * Print tile
 		 */
 		self.printTile = function () {
+			self.closeBackTilePopup();
+
 			// print single tile if parameter is set:
 			if (!self.tile.reportFullName)
 				return;
@@ -297,7 +290,9 @@
 		/**
 		 * Export to excel
 		 */
-		self.exportToExcel = function () {
+		self.exportExcel = function () {
+			self.closeBackTilePopup();
+
 			var addParam = '';
 			if (typeof (window.izendaPageId$) !== 'undefined')
 				addParam += '&izpid=' + window.izendaPageId$;
@@ -307,10 +302,25 @@
 			// download the file
 			self.exportProgress = 'print';
 			$izendaRsQuery.downloadFileRequest('GET', $izendaUrl.settings.urlRsPage + '?rpn=' + self.tile.reportFullName +
-						'&output=XLS(MIME)' + addParam).then(function () {
-				self.exportProgress = null;
-				self.flipFront(true, false);
+				'&output=XLS(MIME)' + addParam).then(function () {
+					self.exportProgress = null;
+					self.flipFront(true, false);
+				});
+		};
+
+		/**
+		 * Back tile side click handler
+		 */
+		self.onBackTileClick = function () {
+			self.tiles.forEach(function (tile) {
+				if (tile.id !== self.tile.id)
+					tile.backTilePopupOpened = false;
 			});
+			if (self.isTileSmallEnough()) {
+				self.tile.backTilePopupOpened = !self.tile.backTilePopupOpened;
+			} else {
+				self.flipBack();
+			}
 		};
 
 		/**
@@ -326,6 +336,7 @@
 		 * Flip tile front
 		 */
 		self.flipFront = function (update, updateFromSourceReport) {
+			self.closeBackTilePopup();
 			self.tile.flip = {
 				isFront: true,
 				update: update,
@@ -337,15 +348,14 @@
 		 * Go to report viewer
 		 */
 		self.fireReportViewerLink = function () {
+			self.closeBackTilePopup();
+
 			if (!self.tile.isSourceReportDeleted) {
 				$window.open(_getReportViewerLink(), '_blank');
 			} else {
 				var errorText = $izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" doesn\'t exist.');
 				errorText = errorText.replaceAll(/\{0\}/, _getSourceReportName());
-				$rootScope.$broadcast('izendaShowMessageEvent', [
-					errorText,
-					$izendaLocale.localeText('js_Error', 'Error'),
-					'danger']);
+				$izendaUtilUiService.showErrorDialog(errorText);
 			}
 		};
 
@@ -353,15 +363,14 @@
 		 * Go to report editor
 		 */
 		self.fireReportEditorLink = function () {
+			self.closeBackTilePopup();
+
 			if (!self.tile.isSourceReportDeleted) {
 				$window.location.href = _getReportEditorLink();
 			} else {
 				var errorText = $izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" not exist.');
 				errorText = errorText.replaceAll(/\{0\}/, _getSourceReportName());
-				$rootScope.$broadcast('izendaShowMessageEvent', [
-					errorText,
-					$izendaLocale.localeText('js_Error', 'Error'),
-					'danger']);
+				$izendaUtilUiService.showErrorDialog(errorText);
 			}
 		};
 
@@ -382,10 +391,10 @@
 			self.tile.previousReportFullName = null;
 
 			var loadingHtml = '<div class="izenda-vcentered-container">' +
-					'<div class="izenda-vcentered-item">' +
-					'<img class="img-responsive" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
-					'</div>' +
-					'</div>';
+				'<div class="izenda-vcentered-item">' +
+				'<img class="izenda-img-loading" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+				'</div>' +
+				'</div>';
 			var $body = $element.find('.animate-flip> .flippy-front> .frame> .report');
 			$body.html(loadingHtml);
 			var tileWidth = _getWidth() * self.gridWidth - 20;
@@ -434,7 +443,7 @@
 		// tile handlers
 		//////////////////////////////////////////////////////////////////////
 
-		$scope.$on('izendaDashboardTile.update', function (event, args) {
+		$rootScope.$on('izendaDashboardTile.update', function (event, args) {
 			var tileId = args[0];
 			if (tileId === null || tileId === self.tile.id) {
 				var tileChangesObj = args[1] || null;
@@ -448,14 +457,34 @@
 		});
 
 		/**
+		 * Resize start handler
+		 */
+		self._onTileResizeStartInner = function (eventResult) {
+			self.isButtonsVisible = false;
+			if (angular.isFunction(self.onTileResizeStart))
+				self.onTileResizeStart(eventResult);
+		};
+
+		/**
+		 * Resize handler
+		 */
+		self._onTileResizeInner = function (eventResult) {
+			if (angular.isFunction(self.onTileResize))
+				self.onTileResize(eventResult);
+		};
+
+		/**
 		 * Resize end handler
 		 */
 		self._onTileResizeEndInner = function (eventResult) {
-			if (eventResult.isTileSizeChanged)
+			if (eventResult.isTileSizeChanged) {
+				self.flipFront();
 				self.refreshTile(false);
+			}
 			if (angular.isFunction(self.onTileResizeEnd)) {
 				self.onTileResizeEnd(eventResult);
 			}
+			self.isButtonsVisible = true;
 		};
 
 		/**
@@ -469,12 +498,27 @@
 		};
 
 		/**
+		 * Select report part for tile
+		 */
+		self.selectReportPart = function () {
+			self.isSelectReportPartModalVisible = true;
+		};
+
+		/**
+		 * Select report part cancelled
+		 */
+		self.onSelectReportModalClosed = function () {
+			// we need to reset "opened" binding.
+			self.isSelectReportPartModalVisible = false;
+		};
+
+		/**
 		 * Report part selected handler
 		 */
-		self.onSelectReportPart = function (reportPartObject) {
+		self.onSelectReportPart = function (reportPartInfo) {
 			// hide select report part dialog
-			self.isSelectReportPartModalVisible = false;
-			var rpInfo = reportPartObject;
+			self.closeBackTilePopup();
+			var rpInfo = reportPartInfo;
 			var fName = rpInfo.Name;
 			if (!$izendaUtil.isUncategorized(rpInfo.Category))
 				fName = rpInfo.Category + $izendaSettings.getCategoryCharacter() + fName;
@@ -494,7 +538,7 @@
 			if (isTileInDashboard) {
 				var errorText = $izendaLocale.localeText('js_CantSelectReportPart',
 					'Can\'t select report part because dashboard already contains tile with that report.');
-				$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
+				$izendaUtilUiService.showNotification(errorText);
 				return;
 			}
 
@@ -528,24 +572,26 @@
 		};
 
 		/**
-		 * Tile top changed:
-		 */
-		self.topSelected = function (newTop) {
-			if (self.tile.top === newTop)
-				return;
-			self.setTileTop(newTop);
-			$izendaDashboardQuery.setReportPartTop(self.tile.reportFullName, self.tile.top).then(function () {
-				self.flipFront(true, false);
-			});
-		};
-
-		/**
 		 * Tile flip handler
 		 */
 		self.onTileFlip = function (isFront, update, updateFromSourceReport) {
 			if (isFront && update) {
 				self.refreshTile(updateFromSourceReport);
 			}
+		};
+
+		/**
+		 * Tile top changed:
+		 */
+		self.onSetTileTop = function (top) {
+			if (self.tile.top === top)
+				return;
+			self.tile.top = top;
+			self.tile.topString = '' + top;
+			$izendaDashboardQuery.setReportPartTop(self.tile.reportFullName, self.tile.top).then(function () {
+				self.flipFront(true, false);
+			});
+			self.closeBackTilePopup();
 		};
 
 		/**
@@ -569,7 +615,8 @@
 				'top': (self.gridHeight * _getY()) + 'px',
 				'left': (self.gridWidth * _getX()) + 'px',
 				'width': (self.gridWidth * _getWidth()) + 'px',
-				'height': (self.gridHeight * _getHeight()) + 'px'
+				'height': (self.gridHeight * _getHeight()) + 'px',
+				'z-index': (self.tile.backTilePopupOpened ? '3' : '1')
 			};
 		};
 
@@ -656,68 +703,78 @@
 			if (self.state.relativeReportComplexity > 1)
 				self.state.relativeReportComplexity = 1;
 
-			if (isIE && self.state.relativeReportComplexity >= 0.5)
+			if (isIe && self.state.relativeReportComplexity >= 0.5)
 				$element.addClass('hover-ie');
 
 			self.state.empty = false;
 		}
-
-		/**
-		 * Initialize settings variables
-		 */
-		function _initializeAdHocSettings() {
-			var settings = $izendaSettings.getCommonSettings();
-			self.isDesignLinksAllowed = settings.showDesignLinks; // show/hide "go to designer" button
-			self.showAllInResults = settings.showAllInResults; // show "ALL" in tile top slider
-			self.printMode = $izendaDashboardSettings.allowedPrintEngine; // allowed print modes
-		}
-
-		/**
-		 * Init tile
-		 */
-		function _initialize() {
-			_initializeAdHocSettings();
-		}
-
-		_initialize();
 	}
 
 	/**
 	 * Tile hover directive. Adds onHover event handler to tile.
 	 */
 	angular.module('izendaDashboard').directive('izendaTileHover', [
-		'$izendaCompatibility',
-		function ($izendaCompatibility) {
+		'$window',
+		function ($window) {
 			return {
 				restrict: 'A',
 				link: function ($scope, $element, attrs) {
-					var isIE = $izendaCompatibility.checkIsIe8();
+					var $$el = angular.element($element);
+					var uid = Math.floor(Math.random() * 1000000);
+					var windowMouseMoveEventName = 'mousemove.tilehover' + uid;
+					var isHoveringOverTile = false;
+					var isHoverLocked = false;
+
+					$scope.$on('$destroy', function () {
+						$$el.off('hover');
+						angular.element($window).off(windowMouseMoveEventName);
+					});
+
+					// hover event handlers
+					$$el.hover(function () {
+						applyTileHover($$el, true);
+					}, function () {
+						applyTileHover($$el, false);
+					});
+
+					// window mouse move event handlers
+					angular.element($window).on(windowMouseMoveEventName, function (e) {
+						var $tileElement = angular.element(e.target).closest('div.iz-dash-tile');
+						var overTile = $tileElement.length > 0 && $tileElement.attr('tileid') == $$el.attr('tileid');
+						if (overTile !== isHoveringOverTile) {
+							applyTileHover($$el, overTile);
+						}
+						isHoveringOverTile = overTile;
+					});
+
+					$scope.$watch('$ctrl.tile.backTilePopupOpened', function (newVal, oldVal) {
+						if (!newVal && oldVal) {
+							// backTilePopupOpened turned off
+							isHoverLocked = false;
+							applyTileHover($$el, isHoveringOverTile);
+						}
+						else if (newVal && !oldVal) {
+							// backTilePopupOpened turned on
+							applyTileHover($$el, true);
+							isHoverLocked = true;
+						}
+					});
 
 					/**
 					 * Turn off/on tile hover classes.
 					 */
-					function applyTileHover(tile, value) {
-						tile.removeClass('no-hover-overflow');
+					function applyTileHover($tile, value) {
+						var reportComplexityCoefficent = $scope.$eval(attrs.izendaTileHoverReportComplexity);
+						if (isHoverLocked && reportComplexityCoefficent < 0.5)
+							return;
 						if (value) {
-							if (!isIE || attrs.izendaTileHoverReportComplexity < 0.5)
-								tile.addClass('hover');
+							$tile.addClass('hover');
+							$tile.removeClass('no-hover-overflow');
 						} else {
-							if (attrs.izendaTileHoverReportComplexity < 0.5)
-								tile.addClass('no-hover-overflow');
-							if (!isIE || attrs.izendaTileHoverReportComplexity < 0.5)
-								tile.removeClass('hover');
+							$tile.addClass('no-hover-overflow');
+							$tile.removeClass('hover');
 						}
-					}
-
-					if (isIE) {
-						tile.addClass('hover');
-					} else {
 						// hover event handlers
-						angular.element($element).hover(function () {
-							applyTileHover(angular.element(this), true);
-						}, function () {
-							applyTileHover(angular.element(this), false);
-						});
 					}
 				}
 			};
@@ -907,7 +964,7 @@
 					var previousHelperBbox = { left: 0, top: 0, width: 0, height: 0 };
 					var helperWidth = 0;
 					var helperHeight = 0;
-
+					var $tileFlippies;
 					var $tilesArray = [];
 					// init draggable
 					$tile.draggable({
@@ -918,16 +975,22 @@
 							var height = $scope.tile.height * $scope.gridHeight;
 							var helperStr =
 								'<div class="iz-dash-tile iz-dash-tile-helper" style="z-index: 1000; top: 0px; height: ' + height + 'px; left: 0px; width: ' + width + 'px; opacity: 1; transform: matrix(1, 0, 0, 1, 0, 0); z-index: 1000;">' +
-									'<div class="animate-flip">' +
-										'<div class="flippy flippy-front animated fast">' +
-											'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text"></span></div></div>' +
-										'</div>' +
-									'</div>' +
+								'<div class="animate-flip">' +
+								'<div class="flippy flippy-front animated fast">' +
+								'<div class="title-container" style="height: 35px; overflow: hidden;"><div class="title"><span class="title-text"></span></div></div>' +
+								'</div>' +
+								'</div>' +
 								'</div>';
 							return angular.element(helperStr);
 						},
 						distance: 10,
 						start: function (event, ui) {
+							$tileFlippies = $tile.children('.animate-flip').children('.flippy');
+
+							$scope.tiles.forEach(function (tile) {
+								tile.backTilePopupOpened = false;
+							});
+
 							// turn off window resize handler
 							$izendaDashboardState.turnOffWindowResizeHandler();
 
@@ -952,6 +1015,8 @@
 							helperHeight = $helper.height();
 							var $helperFlipFront = $helper.find('.flippy-front');
 							$helperFlipFront.removeClass('flipInY');
+							$helperFlipFront.removeClass('animated');
+							$helperFlipFront.removeClass('fast');
 							$helperFlipFront.css('background-color', 'rgba(50,205,50, 0.3)');
 							$helperFlipFront.find('.frame').remove();
 							$helper.css('z-index', 1000);
@@ -1034,7 +1099,7 @@
 								$rootScope.$broadcast('izendaDashboardTile.update', [targetTile.id, tileChangeObject, false, false]);
 								if (isTileSizeChanged)
 									angular.element('.iz-dash-tile[tileid=' + targetTile.id + ']').find('.report').empty();
-								
+
 								// run animation:
 								[$scope.tile, targetTile].forEach(function (affectedTile) {
 									var $tile = angular.element('.iz-dash-tile[tileid=' + affectedTile.id + ']');
@@ -1072,6 +1137,11 @@
 								$animatedTiles.forEach(function ($tile) {
 									$tile.removeClass('transition');
 								});
+								$tile.css('z-index', '1');
+								$tile.find('.frame').removeClass('hidden');
+								$tileFlippies.removeClass('flipInY');
+								$tileFlippies.removeClass('animated');
+								$tileFlippies.removeClass('fast');
 								setTimeout(function () {
 									$animatedTiles.forEach(function ($tile) {
 										$tile.find('.report').show();
@@ -1173,9 +1243,9 @@
 					function _updateTileSize(tile, $tile) {
 						var tilePosition = $tile.position();
 						var x = Math.round(tilePosition.left / $scope.gridWidth),
-								y = Math.round(tilePosition.top / $scope.gridHeight),
-								width = Math.round($tile.width() / $scope.gridWidth),
-								height = Math.round($tile.height() / $scope.gridHeight);
+							y = Math.round(tilePosition.top / $scope.gridHeight),
+							width = Math.round($tile.width() / $scope.gridWidth),
+							height = Math.round($tile.height() / $scope.gridHeight);
 						var isTileSizeNeedToCorrect = x < 0 || y < 0 || x + width > 12;
 						if (x < 0) {
 							width = width + x;
@@ -1212,6 +1282,9 @@
 						handles: 'n, e, s, w, se',
 						// start resize handler
 						start: function (event) {
+							$scope.tiles.forEach(function (tile) {
+								tile.backTilePopupOpened = false;
+							});
 							// turn off window resize handler
 							$izendaDashboardState.turnOffWindowResizeHandler();
 
@@ -1224,11 +1297,13 @@
 							$tileFlippies.css('background-color', 'rgba(50,205,50, 0.3)');
 							$tile.css('z-index', 1000);
 							$tile.css('opacity', 1);
+
 							// fire onResizeStart handler:
 							if (angular.isFunction($scope.onResizeStart)) {
-								var result = $scope.onResizeStart({
+								var eventResult = {
 									tile: $scope.tile
-								});
+								};
+								$scope.onResizeStart({ eventResult: eventResult });
 							}
 						},
 						// resize handler
@@ -1250,10 +1325,11 @@
 
 							// fire onMove handler:
 							if (angular.isFunction($scope.onResize)) {
-								var result = $scope.onResize({
+								var eventResult = {
 									tile: $scope.tile,
 									shadowPosition: helperBbox
-								});
+								};
+								$scope.onResize({ eventResult: eventResult });
 							}
 							$tileFlippies.css('background-color', 'rgba(50,205,50, 0.5)');
 							if (_checkTileIntersects($tile)) {
@@ -1262,9 +1338,12 @@
 						},
 						// end resize handler
 						stop: function (event, ui) {
-							$tile.css('z-index', 1);
+							$tile.css('z-index', '1');
 							$tile.find('.frame').removeClass('hidden');
-							$tileFlippies.addClass('flipInY');
+							$tileFlippies.removeClass('flipInY');
+							$tileFlippies.removeClass('animated');
+							$tileFlippies.removeClass('fast');
+
 							$tileFlippies.css('background-color', '');
 							var eventResult;
 							if (_checkTileIntersects($tile)) {
@@ -1298,7 +1377,7 @@
 
 							// fire onResizeEnd handler:
 							if (angular.isFunction($scope.onResizeEnd)) {
-								var result = $scope.onResizeEnd({
+								$scope.onResizeEnd({
 									eventResult: eventResult
 								});
 							}

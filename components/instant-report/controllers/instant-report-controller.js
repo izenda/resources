@@ -1,4 +1,22 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/core/directives/bootstrap-modal',
+	'../../common/core/services/util-ui-service',
+	'../../common/core/components/message/component',
+	'../../common/core/components/dialog-box/component',
+	'../../common/core/components/notification/component',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service',
+	'../../common/ui/directives/report-viewer',
+	'../../common/ui/directives/splashscreen',
+	'../../common/ui/services/schedule-service',
+	'../../common/ui/services/share-service',
+	'../../common/ui/components/select-report-name/component',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 	/**
 	 * Instant report controller definition
 	 */
@@ -12,6 +30,7 @@
 			'$cookies',
 			'$q',
 			'$log',
+			'$izendaUtilUiService',
 			'$izendaUrl',
 			'$izendaLocale',
 			'$izendaSettings',
@@ -32,6 +51,7 @@
 			$cookies,
 			$q,
 			$log,
+			$izendaUtilUiService,
 			$izendaUrl,
 			$izendaLocale,
 			$izendaSettings,
@@ -54,7 +74,9 @@
 		$scope.$izendaCompatibility = $izendaCompatibility;
 		vm.isSmallResolution = $izendaCompatibility.isSmallResolution();
 
+		vm.isSaveReportModalOpened = false;
 		vm.isLoading = true;
+
 		vm.previewHtml = $izendaInstantReportStorage.getPreview();
 		vm.reportSetOptions = {
 			isVgUsed: false,
@@ -73,7 +95,7 @@
 		vm.settings = $izendaInstantReportSettings;
 		vm.reportInfo = null;
 		vm.isExistingReport = false;
-
+		
 		vm.currentInsertColumnOrder = -1; // used for select field position for drag'n'drop fields
 
 		// Left panel state object
@@ -205,7 +227,8 @@
 		 * Handler column drag/drop reorder
 		 */
 		vm.columnReordered = function (fromIndex, toIndex, isVg) {
-			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVg);
+			// we need to understand that swap from <-> to doesn't take into concideration invisible fields.
+			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVg, true);
 			vm.updateReportSetValidationAndRefresh();
 			$scope.$applyAsync();
 		};
@@ -351,7 +374,7 @@
 			}
 			// move field from last postions to selected position if it is drag-n-drop:
 			if (field.checked && vm.currentInsertColumnOrder >= 0) {
-				var fieldsArray = $izendaInstantReportStorage.getAllActiveFields().slice();
+				var fieldsArray = $izendaInstantReportStorage.getAllVisibleFields().slice();
 				fieldsArray = angular.element.grep(fieldsArray, function (f) {
 					return !f.isVgUsed;
 				});
@@ -360,89 +383,57 @@
 				});
 				var from = fieldsArray.length - 1;
 				var to = vm.currentInsertColumnOrder;
-				$izendaInstantReportStorage.moveFieldToPosition(from, to, false);
+				$izendaInstantReportStorage.moveFieldToPosition(from, to, false, true);
 			}
 			vm.currentInsertColumnOrder = -1;
+		};
+
+		/**
+		 * Save dialog closed handler.
+		 */
+		vm.onSaveClosed = function () {
+			vm.isSaveReportModalOpened = false;
+		};
+
+		/**
+		 * Report name/category selected. Save report handler.
+		 */
+		vm.onSave = function (reportName, categoryName) {
+			_saveReportWithGivenName(reportName, categoryName);
+			vm.isSaveReportModalOpened = false;
 		};
 
 		/**
 		 * Save report
 		 */
 		vm.saveReport = function (forceRename) {
+			vm.isSaveReportModalOpened = false;
 			var rs = $izendaInstantReportStorage.getReportSet();
-			var needToRename = forceRename || rs.reportName === null || rs.reportName === '';
+			var needToRename = forceRename || !rs.reportName;
 			if (needToRename) {
-				$rootScope.$broadcast('openSelectReportNameModalEvent', [true]);
+				vm.isSaveReportModalOpened = true;
 			} else {
-				vm.saveReportWithGivenName(rs.reportName, rs.reportCategory);
+				_saveReportWithGivenName(rs.reportName, rs.reportCategory);
 			}
 		};
-
-		/**
-		 * Save report with selected name
-		 */
-		vm.saveReportWithGivenName = function (reportName, reportCategory) {
-			var savePromise;
-			if (angular.isString(reportName) && reportName !== '') {
-				savePromise = $izendaInstantReportStorage.saveReportSet(reportName, reportCategory);
-			} else {
-				savePromise = $izendaInstantReportStorage.saveReportSet();
-			}
-			savePromise.then(function (result) {
-				var reportSet = $izendaInstantReportStorage.getReportSet();
-				var rsReportName = reportSet.reportName;
-				var rsReportCategory = reportSet.reportCategory;
-				if (angular.isString(rsReportCategory) && rsReportCategory !== '')
-					rsReportName = rsReportCategory + $izendaSettings.getCategoryCharacter() + rsReportName;
-
-				// show result message
-				var errorMessage = null;
-				if (angular.isString(result)) {
-					if (result === 'OK') {
-						$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeTextWithParams('js_ReportSaved', 'Report "{0}" sucessfully saved.', [rsReportName])]);
-					} else {
-						errorMessage = $izendaLocale.localeTextWithParams(
-							'js_FailedSaveReport',
-							'Failed to save report "{0}". Error description: {1}',
-							[rsReportName, result]);
-					}
-				} else if (angular.isObject(result)) {
-					if (result.hasOwnProperty('Value')) {
-						errorMessage = $izendaLocale.localeTextWithParams(
-							'js_FailedSaveReport',
-							'Failed to save report "{0}". Error description: {1}',
-							[rsReportName, result.Value]);
-					} else {
-						errorMessage = result;
-						$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
-					}
-				} else {
-					errorMessage = result;
-					$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
-				}
-				if (errorMessage !== null) {
-					$rootScope.$broadcast('izendaShowMessageEvent', [errorMessage, $izendaLocale.localeText('js_FailedSaveReportTitle', 'Report save error'), 'danger']);
-				}
-			});
-		}
-
+		
 		/**
 		 * Print report buttons handler.
 		 */
 		vm.printReport = function (printType) {
 			vm.exportProgress = 'print';
 			$timeout(function () {
-				$izendaInstantReportStorage.printReport(printType).then(function (result, message) {
-					if (!result) {
+				$izendaInstantReportStorage.printReport(printType).then(function (results) {
+					if (!results.success) {
 						var reportSet = $izendaInstantReportStorage.getReportSet();
 						var rsReportName = reportSet.reportName;
-						$rootScope.$broadcast('izendaShowMessageEvent', [
+						// show message
+						$izendaUtilUiService.showErrorDialog(
 							$izendaLocale.localeTextWithParams(
 								'js_FailedPrintReport',
 								'Failed to print report "{0}". Error description: {1}.',
-								[rsReportName, message]),
-							$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error'),
-							'danger']);
+								[rsReportName, results.message]),
+							$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error'));
 					}
 					vm.exportProgress = null;
 				});
@@ -452,19 +443,19 @@
 
 		var exportReportInternal = function (exportType) {
 			vm.exportProgress = 'export';
-			$izendaInstantReportStorage.exportReport(exportType).then(function(result, message) {
-				if (!result) {
+			$izendaInstantReportStorage.exportReport(exportType).then(function(results) {
+				if (!results.success) {
 					var reportSet = $izendaInstantReportStorage.getReportSet();
 					var rsReportName = reportSet.reportName;
-					$rootScope.$broadcast('izendaShowMessageEvent',
-						[
+
+					// show error dialog
+					$izendaUtilUiService.showErrorDialog(
 							$izendaLocale.localeTextWithParams(
 								'js_FailedExportReport',
 								'Failed to export report "{0}". Error description: {1}.',
-								[rsReportName, message]),
-							$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'),
-							'danger'
-						]);
+								[rsReportName, results.message]),
+						$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error'));
+					
 				}
 				vm.exportProgress = null;
 			});
@@ -479,7 +470,7 @@
 				{
 					label: $izendaLocale.localeText('js_DoNotShowThisDialogAgain', 'Do not show this dialog again'),
 					checked: false
-		}];
+			}];
 
 			var warningArgs = {
 				title: $izendaLocale.localeText('js_Warning', 'Warning'),
@@ -503,9 +494,9 @@
 					{ text: $izendaLocale.localeText('js_Cancel', 'Cancel') }
 				],
 				checkboxes: checkboxes,
-				alert: 'warning'
+				alertInfo: 'warning'
 			}
-			$rootScope.$broadcast('izendaShowDialogBoxEvent', warningArgs);
+			$izendaUtilUiService.showDialogBox(warningArgs);
 		};
 
 		var isCsvBulkWithUnsupportedFormat = function (exportType) {
@@ -641,7 +632,7 @@
 				};
 
 				// add active fields.
-				vm.reportSetOptions.sortedActiveFields = $izendaInstantReportStorage.getAllActiveFields().slice();
+				vm.reportSetOptions.sortedActiveFields = $izendaInstantReportStorage.getAllVisibleFields();
 				vm.reportSetOptions.sortedActiveFields.sort(function (a, b) {
 					return a.order - b.order;
 				});
@@ -699,11 +690,10 @@
 			 * Report name selected handler
 			 */
 			$scope.$on('selectedNewReportNameEvent', function (event, args) {
-				var name = args[0],
-						category = args[1];
-				if (!angular.isString(category) || category.toLowerCase() === UNCATEGORIZED.toLowerCase())
-					category = '';
-				vm.saveReportWithGivenName(name, category);
+				if (!angular.isArray(args) || args.length !== 2)
+					throw 'Array with 2 elements expected';
+				var name = args[0], category = args[1];
+				_saveReportWithGivenName(name, category);
 			});
 
 			// todo: move that javascript to special directive in future, because DOM manipulations in controller is bad practice:
@@ -723,6 +713,59 @@
 			vm.rights.isEditAllowed = $izendaCompatibility.isEditAllowed();
 			vm.rights.isSaveAsAllowed = $izendaCompatibility.isSaveAsAllowed();
 			vm.rights.isSaveAllowed = $izendaCompatibility.isSaveAllowed();
+		}
+
+		/**
+		 * Save report with selected name
+		 */
+		function _saveReportWithGivenName(reportName, reportCategory) {
+			var category = reportCategory;
+			if (!angular.isString(category) || category.toLowerCase() === UNCATEGORIZED.toLowerCase())
+				category = '';
+
+			var savePromise;
+			if (angular.isString(reportName) && reportName !== '') {
+				savePromise = $izendaInstantReportStorage.saveReportSet(reportName, category);
+			} else {
+				savePromise = $izendaInstantReportStorage.saveReportSet();
+			}
+			savePromise.then(function (result) {
+				var reportSet = $izendaInstantReportStorage.getReportSet();
+				var rsReportName = reportSet.reportName;
+				var rsReportCategory = reportSet.reportCategory;
+				if (angular.isString(rsReportCategory) && rsReportCategory !== '')
+					rsReportName = rsReportCategory + $izendaSettings.getCategoryCharacter() + rsReportName;
+
+				// show result message
+				var errorMessage = null;
+				if (angular.isString(result)) {
+					if (result === 'OK') {
+						var notificationMessage = $izendaLocale.localeTextWithParams('js_ReportSaved', 'Report "{0}" sucessfully saved.', [rsReportName]);
+						$izendaUtilUiService.showNotification(notificationMessage);
+					} else {
+						errorMessage = $izendaLocale.localeTextWithParams(
+							'js_FailedSaveReport',
+							'Failed to save report "{0}". Error description: {1}',
+							[rsReportName, result]);
+					}
+				} else if (angular.isObject(result)) {
+					if (result.hasOwnProperty('Value')) {
+						errorMessage = $izendaLocale.localeTextWithParams(
+							'js_FailedSaveReport',
+							'Failed to save report "{0}". Error description: {1}',
+							[rsReportName, result.Value]);
+					} else {
+						errorMessage = result;
+						$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
+					}
+				} else {
+					errorMessage = result;
+					$log.$error('Unsupported result type: ' + typeof (result) + '. Error message: ', result);
+				}
+				if (errorMessage !== null) {
+					$izendaUtilUiService.showErrorDialog(errorMessage, $izendaLocale.localeText('js_FailedSaveReportTitle', 'Report save error'));
+				}
+			});
 		}
 	}
 

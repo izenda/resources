@@ -1,4 +1,10 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 
 	/**
 	* Instant report filters controller
@@ -36,7 +42,7 @@
 		vm.activeFields = $izendaInstantReportStorage.getAllActiveFields();
 
 		vm.columnReordered = function (fromIndex, toIndex, isVisualGroupColumn) {
-			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn);
+			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn, false);
 			if (!$izendaCompatibility.isSmallResolution())
 				$izendaInstantReportStorage.getReportPreviewHtml();
 			$scope.$applyAsync();

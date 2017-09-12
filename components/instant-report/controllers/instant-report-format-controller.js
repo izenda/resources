@@ -1,4 +1,13 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/ui/directives/align-switcher',
+	'../../common/ui/directives/bootstrap',
+	'../../common/ui/directives/color-picker',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 
 	/**
 	* Instant report formatting controller definition

@@ -69,14 +69,16 @@
                     ng-attr-title="{{'js_VisualGroup' | izendaLocale: 'Visual group'}}"
                     ng-class="fieldOptionsController.getVgButtonClass()"
                     ng-click="fieldOptionsController.applyVg()"
-                    ng-hide="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field) || fieldOptionsController.field.isPivotCellValue">
+                    ng-hide="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field) || fieldOptionsController.field.isPivotCellValue"
+                    ng-disabled="!fieldOptionsController.field.visible">
               <span class="glyphicon glyphicon-th-list"></span>
             </button>
 
             <button class="btn" type="button"
                     ng-attr-title="{{'js_ToggleFieldVis' | izendaLocale: 'Toggle field visibility'}}"
                     ng-class="fieldOptionsController.getVisibleButtonClass()"
-                    ng-click="fieldOptionsController.applyFieldVisible()">
+                    ng-click="fieldOptionsController.applyFieldVisible()"
+                    ng-disabled="fieldOptionsController.field.isVgUsed">
               <span class="glyphicon"
                     ng-class="fieldOptionsController.field.visible ? 'glyphicon-eye-open' : 'glyphicon-eye-close'"></span>
             </button>

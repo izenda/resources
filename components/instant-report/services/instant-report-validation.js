@@ -1,4 +1,10 @@
-﻿izendaRequire.define(['angular', '../../common/services/services', './instant-report-storage', './instant-report-pivot'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'./instant-report-storage',
+	'./instant-report-pivot'
+], function (angular) {
 
 	angular.module('izendaInstantReport').factory('$izendaInstantReportValidation', [
 		'$q',

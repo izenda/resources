@@ -628,7 +628,7 @@ function StoreFieldProps(newField) {
 }
 
 function PreviewFieldManual() {
-	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"/></tr></td></table>');
 	PreviewFieldToDiv();
 }
 
@@ -638,7 +638,7 @@ function PreviewFieldDelayed(timeOut) {
 	}
 	catch (e) {
 	}
-	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"></img></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"/></tr></td></table>');
 	previewFieldTimeout = setTimeout(PreviewFieldToDiv, timeOut);
 }
 

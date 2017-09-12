@@ -67,12 +67,12 @@
               <div class="iz-inst-small-panel-header form-inline"
                    ng-class="!cellValue ? 'not-valid' : ''">
                 &nbsp;
-                <button type="button" class="btn btn-header-close pull-right"
+                <button type="button" class="btn btn-header-close"
                         ng-attr-title="{{'js_RemoveCellValue' | izendaLocale: 'Remove cell value'}}"
                         ng-click="pivotsController.removeCellValue(cellValue)" izenda-stop-propagation>
                   <span class="glyphicon glyphicon-remove"></span>
                 </button>
-                <button class="btn btn-header-close pull-right" type="button"
+                <button class="btn btn-header-close" type="button"
                         ng-attr-title="{{'js_AdvFieldOptions' | izendaLocale: 'Advanced field options'}}"
                         ng-click="pivotsController.showAdvancedOptions(cellValue)"
                         ng-show="cellValue !== null"

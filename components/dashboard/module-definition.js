@@ -8,7 +8,7 @@ izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition
 	// Create dashboards angular module
 	angular.module('izendaDashboard', [
 		'ngCookies',
-		'izenda.common.compatibility',
+		'izenda.common.core',
 		'izenda.common.query',
 		'izenda.common.ui',
 		'izendaFilters'

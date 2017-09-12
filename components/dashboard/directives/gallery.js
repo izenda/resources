@@ -1,4 +1,8 @@
-﻿izendaRequire.define(['angular', '../../common/services/services', '../services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/query/services/url-service',
+	'../services/services'
+], function (angular) {
 
 	/**
 	 * Slider gallery directive.
@@ -280,7 +284,7 @@
 							var loadingHtml =
 								'<div class="izenda-vcentered-container" style="margin-top:-40px">' +
 									'<div class="izenda-vcentered-item">' +
-										'<img class="img-responsive" src="' + $izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+										'<img class="izenda-img-loading" src="' + $izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 									'</div>' +
 								'</div>';
 							$tile.append(loadingHtml);

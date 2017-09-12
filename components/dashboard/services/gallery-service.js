@@ -1,4 +1,6 @@
-﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular'
+], function (angular) {
 
 	/**
 	 * Gallery service. Stores gallery variables

@@ -1,4 +1,8 @@
-﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/event-service',
+	'../../common/query/services/url-service'
+], function (angular) {
 
 	angular
 	.module('izendaFilters')

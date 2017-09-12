@@ -887,7 +887,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			if (values[0] == '...') values[0] = '';
 			if (values[1] == '...') values[1] = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
-			onChangeCmd = 'onchange="javascript:checkDatesInterval(this);"';
+			onChangeCmd = 'onchange="javascript:checkDatesInterval(this); checkDateFormat(this);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
 			result += '<br />';
@@ -925,7 +925,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 		case 9:
 			if (value == '...') value = '';
 			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
-			onChangeCmd = '';
+			onChangeCmd = 'onchange="checkDateFormat(this);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
 			break;

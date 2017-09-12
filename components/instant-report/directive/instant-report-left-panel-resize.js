@@ -1,10 +1,14 @@
-﻿izendaRequire.define(['angular', '../../common/services/services', '../services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../services/services'
+], function (angular) {
 
 	/**
 	 * Resize left panel directive
 	 */
-	angular.module('izendaInstantReport').directive('izendaInstantReportLeftPanelResize', ['$izendaCompatibility',
-		function ($izendaCompatibility) {
+	angular.module('izendaInstantReport').directive('izendaInstantReportLeftPanelResize', ['$window', '$izendaCompatibility',
+		function ($window, $izendaCompatibility) {
 			return {
 				restrict: 'A',
 				scope: {
@@ -50,10 +54,11 @@
 					}
 
 					// initialize draggable
+					var windowWidth = angular.element($window).width();
 					$elem.draggable({
 						axis: 'x',
 						zIndex: 2,
-						containment: [350, 0, 1500, 0],
+						containment: [350, 0, Math.min(1500, windowWidth - 500), 0],
 						drag: function (event, ui) {
 							initializeElements();
 							var leftStyle = 'width: ' + ui.position.left + 'px',

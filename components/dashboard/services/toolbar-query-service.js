@@ -1,36 +1,38 @@
-﻿izendaRequire.define(['angular', '../../common/services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/localization-service',
+	'../../common/query/services/rs-query-service'
+], function (angular) {
 
 	/**
 	 * Izenda query service which provides toolbar specific queries
 	 * this is singleton
 	 */
-	angular
-		.module('izenda.common.query')
-		.factory('$izendaDashboardToolbarQuery', [
-			'$izendaRsQuery',
-			'$izendaLocale',
-			function ($izendaRsQuery, $izendaLocale) {
-				'use strict';
+	angular.module('izenda.common.query').factory('$izendaDashboardToolbarQuery', [
+		'$izendaRsQuery',
+		'$izendaLocale',
+		function ($izendaRsQuery, $izendaLocale) {
+			'use strict';
 
-				function loadDashboardNavigation() {
-					return $izendaRsQuery.query('getdashboardcategories', [], {
-						dataType: 'json'
-					},
+			function loadDashboardNavigation() {
+				return $izendaRsQuery.query('getdashboardcategories', [], {
+					dataType: 'json'
+				},
 					// custom error handler:
 					{
 						handler: function () {
 							return $izendaLocale.localeText('js_DashboardLoadCatsError', 'Failed to get dashboard categories');
 						}
 					});
-				}
+			}
 
-				/**
-				 * Send report via email
-				 */
-				function sendReportViaEmail(type, to) {
-					return $izendaRsQuery.query('sendReportEmail', [type, to], {
-						dataType: 'json'
-					},
+			/**
+			 * Send report via email
+			 */
+			function sendReportViaEmail(type, to) {
+				return $izendaRsQuery.query('sendReportEmail', [type, to], {
+					dataType: 'json'
+				},
 					// custom error handler:
 					{
 						handler: function () {
@@ -38,12 +40,12 @@
 						},
 						params: []
 					});
-				}
+			}
 
-				function loadAutoRefreshIntervals() {
-					return $izendaRsQuery.query('autorefreshintervals', [], {
-						dataType: 'json'
-					},
+			function loadAutoRefreshIntervals() {
+				return $izendaRsQuery.query('autorefreshintervals', [], {
+					dataType: 'json'
+				},
 					// custom error handler:
 					{
 						handler: function () {
@@ -51,14 +53,14 @@
 						},
 						params: []
 					});
-				}
+			}
 
-				// PUBLIC API
-				return {
-					loadDashboardNavigation: loadDashboardNavigation,
-					sendReportViaEmail: sendReportViaEmail,
-					loadAutoRefreshIntervals: loadAutoRefreshIntervals
-				};
-			}]);
+			// PUBLIC API
+			return {
+				loadDashboardNavigation: loadDashboardNavigation,
+				sendReportViaEmail: sendReportViaEmail,
+				loadAutoRefreshIntervals: loadAutoRefreshIntervals
+			};
+		}]);
 
 });

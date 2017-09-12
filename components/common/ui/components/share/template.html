@@ -1,0 +1,47 @@
+﻿<div class="container-fluid">
+  <div class="row">
+    <div class="col-xs-12">
+      <table>
+        <tr ng-show="$ctrl.shareRules.length">
+          <td style="width: 50%;">
+            <b ng-bind="'js_ShareWith' | izendaLocale: 'Share with'" bind-once></b>
+          </td>
+          <td style="width: 24px;"></td>
+          <td style="width: 50%;">
+            <b ng-bind="'js_Rights' | izendaLocale: 'Rights'" bind-once></b>
+          </td>
+        </tr>
+        <tr ng-repeat="shareRule in $ctrl.shareRules">
+          <td style="width: 50%;">
+            <div class="form-group">
+              <select class="form-control"
+                      ng-options="subject.value as subject.text disable when subject.disabled for subject in shareRule.availableSubjects"
+                      ng-model="shareRule.subject"
+                      ng-change="$ctrl.onShareRuleSubjectChanged(shareRule)"></select>
+            </div>
+          </td>
+          <td style="width: 24px;">
+            <div class="form-group">
+              <span class="glyphicon glyphicon-arrow-right" style="margin: 8px 0;"></span>
+            </div>
+          </td>
+          <td style="width: 50%;">
+            <div class="form-group"
+                 ng-class="$ctrl.getShareRuleValidationMessage(shareRule) !== null ? 'has-error' : ''"
+                 ng-attr-title="{{$ctrl.getShareRuleValidationMessage(shareRule)}}">
+              <select class="form-control"
+                      ng-options="right.value as right.text for right in $ctrl.rights"
+                      ng-model="shareRule.right"></select>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="row" ng-show="$ctrl.shareRules.length < $ctrl.subjects.length">
+    <div class="col-xs-12">
+      <button type="button" class="btn btn-default" ng-click="$ctrl.addShareRule()"
+              ng-bind="'js_AddRule' | izendaLocale: 'Add rule'"></button>
+    </div>
+  </div>
+</div>

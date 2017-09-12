@@ -11,6 +11,46 @@
 	display: none;
 }
 
+.izenda-no-reports-message {
+	white-space: nowrap;
+	color: #4e4e4e;
+	text-transform: uppercase;
+	font-size: 16px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+.dropdown-strong-shadow {
+	padding: 0;
+	-webkit-box-shadow: 4px 4px 12px rgba(0,0,0,0.375);
+	box-shadow: 4px 4px 12px rgba(0,0,0,0.375);
+}
+
+.dropdown-triangle {
+	position: absolute;
+	width: 0px;
+	height: 0px;
+	border-collapse: collapse;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid #ccc;
+	top: -20px;
+}
+
+	.dropdown-triangle::after {
+		content: '';
+		position: absolute;
+		width: 0px;
+		height: 0px;
+		border-collapse: collapse;
+		border-left: 15px solid transparent;
+		border-right: 15px solid transparent;
+		border-top: 10px solid transparent;
+		border-bottom: 10px solid #fff;
+		top: -9px;
+		left: -15px;
+	}
+
 /* izenda-select-checkboxes directive */
 .izenda-select-checkboxes {
 	height: 100px;
@@ -234,7 +274,7 @@
 
 /***************** notifications **************/
 
-#notificationDiv {
+.iz-notification-container {
 	position: fixed;
 	font-family: 'Open Sans', sans-serif;
 	right: 10px;
@@ -291,9 +331,10 @@
 .izenda-vcentered-item {
 	position: absolute;
 	top: 50%;
-	left: 50%;
-	margin: -24px -24px;
-	width: 48px;
+	margin-top: -0.5em;
+	left: 0;
+	right: 0;
+	text-align: center;
 }
 
 .btn-izenda-dark {
@@ -350,6 +391,12 @@
 		height: 24px;
 		margin: 4px;
 	}
+
+.izenda-img-loading {
+	width: 24px;
+	height: 24px;
+	margin: 4px;
+}
 
 .report-header-remove-column-btn {
 	position: absolute;

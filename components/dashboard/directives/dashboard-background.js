@@ -1,4 +1,7 @@
-﻿izendaRequire.define(['angular', '../../common/services/services', '../services/services'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../services/services'
+], function (angular) {
 
 	/**
 	 * Dashboard background directive. Used to set background color, image and hue rotate.
@@ -11,7 +14,7 @@
 			'use strict';
 			var _ = angular.element;
 			return {
-				restrict: 'A',
+				restrict: 'E',
 				scope: {
 					backgroundColor: '=',
 					backgroundImage: '=',

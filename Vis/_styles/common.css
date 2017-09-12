@@ -38,6 +38,7 @@
 
 .izenda-vis-container {
 	overflow: hidden;
+	position: relative;
 }
 
 .izenda-vis-header {

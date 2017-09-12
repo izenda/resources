@@ -2,7 +2,19 @@
 <div ng-controller="IzendaDashboardController as dashboardController"
      ng-init="dashboardController.initialize()" ng-cloak>
 
-  <div izenda-bootstrap-modal opened="dashboardController.licenseInitialized && !dashboardController.dashboardsAllowedByLicense">
+  <!-- save report dialog component -->
+  <izenda-select-report-name-component opened="dashboardController.isSaveReportModalOpened"
+                                       on-selected="dashboardController.onSave(reportName, categoryName)"
+                                       on-modal-closed="dashboardController.onSaveClosed()">
+  </izenda-select-report-name-component>
+
+  <!-- global message boxes -->
+  <izenda-message-component></izenda-message-component>
+
+  <!-- global notification popups -->
+  <izenda-notification-component></izenda-notification-component>
+
+  <izenda-bootstrap-modal opened="dashboardController.licenseInitialized && !dashboardController.dashboardsAllowedByLicense">
     <div class="modal-header">
       <div class="row">
         <div class="col-md-12">
@@ -21,9 +33,9 @@
       <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
               ng-bind="'js_close' | izendaLocale: 'Close'"></button>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
-  <div izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.exportProgress">
+  <izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.exportProgress">
     <div class="modal-header">
       <span ng-bind="dashboardController.getWaitMessageHeaderText()"></span>
     </div>
@@ -32,11 +44,12 @@
         <span ng-bind="dashboardController.getWaitMessageText()"></span>
       </div>
     </div>
-  </div>
+  </izenda-bootstrap-modal>
 
-  <div id="dashboardsDiv" ng-show="dashboardController.dashboardsAllowedByLicense">
+  <div id="dashboardsDiv" ng-show="dashboardController.dashboardsAllowedByLicense"
+       ng-click="dashboardController.dashboardGlobalClickHandler($event)">
     <!-- message box -->
-    <div izenda-bootstrap-modal opened="dashboardController.isMessageDialogOpened">
+    <izenda-bootstrap-modal opened="dashboardController.isMessageDialogOpened">
       <div class="modal-header">
         <div class="row">
           <div class="col-md-12">
@@ -52,7 +65,7 @@
                 ng-click="dashboardController.closeMessageBox()"
                 ng-bind="'js_close' | izendaLocale: 'Close'"></button>
       </div>
-    </div>
+    </izenda-bootstrap-modal>
 
     <div id="dashboardBodyContainer" class="iz-dash-body-container"
          ng-style="dashboardController.tileContainerStyle"
@@ -72,6 +85,7 @@
            ng-show="dashboardController.isGridVisible"
            ng-style="dashboardController.gridStyle">
       </div>
+      <!-- repeat tiles -->
       <izenda-dashboard-tile ng-repeat="tile in dashboardController.tiles"
                              tile="tile"
                              tiles="dashboardController.tiles"

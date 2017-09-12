@@ -1,4 +1,23 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directives/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/core/services/event-service',
+	'../../common/core/directives/bootstrap-modal',
+	'../../common/core/directives/utility',
+	'../../common/core/services/util-ui-service',
+	'../../common/query/services/ping-service',
+	'../../common/query/services/settings-service',
+	'../../common/query/services/url-service',
+	'../../common/ui/services/schedule-service',
+	'../../common/ui/services/share-service',
+	'../../common/ui/directives/color-picker',
+	'../../common/ui/directives/switcher',
+	'../../common/ui/components/schedule/component',
+	'../../common/ui/components/share/component',
+	'../services/services',
+	'../directives/directives'
+], function (angular) {
 
 	angular
 		.module('izendaDashboard')
@@ -10,6 +29,7 @@
 			'$window',
 			'$timeout',
 			'$cookies',
+			'$izendaUtilUiService',
 			'$izendaCompatibility',
 			'$izendaBackground',
 			'$izendaSettings',
@@ -36,6 +56,7 @@
 		$window,
 		$timeout,
 		$cookies,
+		$izendaUtilUiService,
 		$izendaCompatibility,
 		$izendaBackground,
 		$izendaSettings,
@@ -61,6 +82,8 @@
 		$scope.izendaUrl = $izendaUrl;
 		$scope.izendaDashboardState = $izendaDashboardState;
 		$scope.$izendaGalleryService = $izendaGalleryService;
+		$scope.$izendaScheduleService = $izendaScheduleService;
+		$scope.$izendaShareService = $izendaShareService;
 
 		var UNCATEGORIZED = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
@@ -132,6 +155,17 @@
 			rtime: null,
 			previousWidth: null
 		};
+
+		// schedule
+		vm.scheduleConfig = $izendaScheduleService.getScheduleConfig();
+		vm.repeatTypes = $izendaScheduleService.getRepeatTypes();
+		vm.emailTypes = $izendaScheduleService.getEmailTypes();
+		vm.timezones = $izendaScheduleService.getTimezones();
+
+		// share
+		vm.subjects = $izendaShareService.getSubjects();
+		vm.rights = $izendaShareService.getRights();
+		vm.shareRules = $izendaShareService.getShareRules();
 
 		// triple bar button styles:
 		vm.isButtonBarVisible = false;
@@ -595,13 +629,10 @@
 					$izendaDashboardToolbarQuery.sendReportViaEmail(vm.sendEmailState.sendType, vm.sendEmailState.email).then(function (result) {
 						vm.sendEmailState.opened = false;
 						if (result === 'OK') {
-							$rootScope.$broadcast('izendaShowNotificationEvent', [$izendaLocale.localeText('js_EmailWasSent', 'Email  was sent')]);
+							$izendaUtilUiService.showNotification($izendaLocale.localeText('js_EmailWasSent', 'Email  was sent'));
 						} else {
 							var errorText = $izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email');
-							$rootScope.$broadcast('izendaShowMessageEvent', [
-								errorText,
-								$izendaLocale.localeText('js_Error', 'Error'),
-								'danger']);
+							$izendaUtilUiService.showErrorDialog(errorText);
 						}
 						$scope.$applyAsync();
 					});
@@ -635,7 +666,7 @@
 			if (type === 'Link') {
 				if (!vm.isSendEmailLinkAllowed()) {
 					var errorText = $izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard');
-					$rootScope.$broadcast('izendaShowNotificationEvent', [errorText]);
+					$izendaUtilUiService.showNotification(errorText);
 					return;
 				}
 				var redirectUrl = '?subject=' + encodeURIComponent(vm.activeDashboard.fullName) + '&body=' + encodeURIComponent(location);
@@ -821,6 +852,29 @@
 				$scope.$watch('$izendaGalleryService.getGalleryState()', function (galleryState) {
 					vm.galleryState = $izendaGalleryService.getGalleryState();
 				}, true);
+
+				$scope.$watch('$izendaScheduleService.getScheduleConfig()', function (scheduleConfig) {
+					vm.scheduleConfig = scheduleConfig;
+				});
+				$scope.$watch('$izendaScheduleService.getRepeatTypes()', function (repeatTypes) {
+					vm.repeatTypes = repeatTypes;
+				});
+				$scope.$watch('$izendaScheduleService.getEmailTypes()', function (emailTypes) {
+					vm.emailTypes = emailTypes;
+				});
+				$scope.$watch('$izendaScheduleService.getTimezones()', function (timezones) {
+					vm.timezones = timezones;
+				});
+
+				$scope.$watch('$izendaShareService.getShareRules()', function () {
+					vm.shareRules = $izendaShareService.getShareRules();
+				});
+				$scope.$watch('$izendaShareService.getSubjects()', function () {
+					vm.subjects = $izendaShareService.getSubjects();
+				});
+				$scope.$watch('$izendaShareService.getRights()', function () {
+					vm.rights = $izendaShareService.getRights();
+				});
 			}
 		};
 	}

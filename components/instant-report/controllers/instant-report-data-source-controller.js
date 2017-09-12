@@ -1,4 +1,13 @@
-﻿izendaRequire.define(['angular', '../services/services', '../directive/directives'], function (angular) {
+﻿izendaRequire.define([
+	'angular',
+	'../../common/core/services/compatibility-service',
+	'../../common/core/services/localization-service',
+	'../../common/core/directives/utility',
+	'../../common/query/services/url-service',
+	'../../common/common/ui/directives/bootstrap',
+	'../services/services',
+	'../directive/directives'
+], function (angular) {
 	/**
 	* Instant report data sources controller definition
 	*/

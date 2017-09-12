@@ -36,7 +36,7 @@
     <!-- loading message -->
     <div class="izenda-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
       <div class="izenda-vcentered-item">
-        <img class="img-responsive" style="width: 24px;"
+        <img class="izenda-img-loading" style="width: 24px;"
              ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
              ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
       </div>
@@ -46,7 +46,7 @@
     <div id="anchorSearchResultsTop"
          class="ds-tree-item noselect"
          ng-show="!irDataSourceController.isDataSourcesLoading && irDataSourceController.searchPanelOpened"
-         scroll-bottom-action="irDataSourceController.runSearchQuery(false)">
+         izenda-scroll-bottom-action="irDataSourceController.runSearchQuery(false)">
       <div class="ds-tree-item-header collapse-link list-like" ng-repeat="searchResult in irDataSourceController.searchResults track by searchResult.id"
            ng-click="irDataSourceController.revealSearchResult(searchResult)">
         <span class="ds-tree-item-header-text">
