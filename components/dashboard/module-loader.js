@@ -46,15 +46,12 @@
 					function (commonSettingsLoader, filter, dashboardBootstrapper) {
 						// load javascripts
 						require([
-							'common/services/services',
-							'common/directive/directives',
-							'common/controllers/controllers',
 							'filter/controllers/filters-legacy-controller',
 							'dashboard/services/services',
 							'dashboard/directives/directives',
 							'dashboard/controllers/controllers'], function () {
 								// load main template:
-								angular.element.get('Resources/components/dashboard/templates/dashboard-app.html').then(function (html) {
+								angular.element.get('###RS###extres=components.dashboard.templates.dashboard-app.html').then(function (html) {
 									var placeHolder = document.getElementById('izendaDashboardMainContainer');
 									placeHolder.innerHTML = html;
 									// start instant reports application

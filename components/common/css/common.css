@@ -337,14 +337,14 @@
 	text-align: center;
 }
 
-.btn-izenda-dark {
+.btn-izenda-dark,
+.btn-izenda-dark:focus {
 	outline: transparent;
 	color: #fff;
 	background-color: #1c4389;
 }
 
 	.btn-izenda-dark:hover,
-	.btn-izenda-dark:focus,
 	.btn-izenda-dark:link:hover,
 	.btn-izenda-dark:visited:hover,
 	.btn-izenda-dark:active:hover {

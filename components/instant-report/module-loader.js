@@ -10,7 +10,8 @@
 			'izendaAngular': 'vendor/angular-1.6.1/angular.min',
 			'css-parser': 'vendor/jscssp/cssParser',
 			'bootstrap-datetimepicker': 'vendor/bootstrap/js/bootstrap-datetimepicker.min',
-			'izendaAngularCookies': 'vendor/angular-1.6.1/angular-cookies.min'
+			'izendaAngularCookies': 'vendor/angular-1.6.1/angular-cookies.min',
+			'resizeSensor': 'vendor/resize-sensor/resizeSensor.min'
 		},
 		map: {
 			'*': {
@@ -46,14 +47,11 @@
 					function (commonSettingsLoader, instantReportBootstrapper) {
 						// load javascripts
 						require([
-							'common/services/services',
-							'common/directive/directives',
-							'common/controllers/controllers',
 							'instant-report/services/services',
 							'instant-report/directive/directives',
 							'instant-report/controllers/controllers'], function () {
 								// load main template:
-								angular.element.get('Resources/components/instant-report/templates/instant-report-app.html').then(function (html) {
+								angular.element.get('###RS###extres=components.instant-report.templates.instant-report-app.html').then(function (html) {
 									var placeHolder = document.getElementById('izendaInstantReportRootPlaceHolder');
 									placeHolder.innerHTML = html;
 									// start instant reports application

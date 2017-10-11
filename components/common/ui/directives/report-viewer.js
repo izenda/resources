@@ -1,7 +1,7 @@
 ﻿izendaRequire.define([
 	'angular',
 	'../module-definition',
-	'../../../core/services/localization-service'
+	'../../core/services/localization-service'
 ], function (angular) {
 	'use strict';
 

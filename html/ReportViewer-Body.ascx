@@ -12,7 +12,7 @@
     <input type="text" id="newReportName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
   <div style="margin-top: 5px;" lang-text="js_Category">Category</div>
   <div>
-    <select onchange="CheckNewCatName();" id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select></div>
+    <select id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select></div>
 </div>
 
 <div id="newCatBlock" style="display: none">
@@ -257,7 +257,7 @@
             </div>
           </div>
           <!-- Add New Filter Template -->
-          <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" lang-title="js_AddNewFilterTooltip" title="Add New Filter"></div>
+          <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" lang-title="js_AddNewFilter" title="Add New Filter"></div>
           <!-- Add New Filter Button Template -->
           <div class="fuidNewFilterTemplate" style="margin-right: 8px; width: 30px; display: none;" expanded="false">
             <div style="background-color: #1C4E89; padding-left: 4px; margin-bottom: 2px; height: 26px; color: white; font-weight: bold; line-height: 22px;">

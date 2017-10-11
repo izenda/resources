@@ -37,11 +37,13 @@
         </div>
         <div class="col-sm-10" ng-hide="$ctrl.isCreatingNewCategory">
           <select id="izendaNameModalCategory" class="form-control"
-                  ng-options="category as category.name for category in $ctrl.categories"
-                  ng-model="$ctrl.selectedCategory"
-                  ng-change="$ctrl.categorySelectedHandler()"
                   ng-disabled="$ctrl.isSelectDisabled"
-                  tabindex="2"></select>
+                  tabindex="2"
+                  categories="$ctrl.categories"
+                  category="$ctrl.selectedCategory"
+                  on-select="$ctrl.categorySelectedHandler(val)"
+                  on-categories-changed="$ctrl.updateCategoriesHandler(newCategories)"
+                  izenda-category-select></select>
         </div>
       </div>
     </form>

@@ -1,6 +1,6 @@
 ﻿izendaRequire.define([
 	'angular',
-	'../../common/query/services/url-service'
+	'../../query/services/url-service'
 ], function (angular) {
 	'use strict';
 

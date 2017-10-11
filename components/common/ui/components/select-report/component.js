@@ -11,7 +11,7 @@
 	 * Select report component definition
 	 */
 	angular.module('izenda.common.ui').component('izendaSelectReportComponent', {
-		templateUrl: 'Resources/components/common/ui/components/select-report/template.html',
+		templateUrl: '###RS###extres=components.common.ui.components.select-report.template.html',
 		bindings: {
 			opened: '<',
 			onSelected: '&',

@@ -69,71 +69,71 @@
 			{
 				title: "Area",
 				name: "area",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.area.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.area.min.png"
 			}, {
 				title: "Area - Spline",
 				name: "areaspline",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.area-spline.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.area-spline.min.png"
 			}, {
 				title: "Bar",
 				name: "bar",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.bar.min.png"
 			}, {
 				title: "Bar - Stacked",
 				name: "bar-stacked",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar-stacked.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.bar-stacked.min.png"
 			}, {
 				title: "Bar - %",
 				name: "bar-stacked-percent",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bar-percent.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.bar-percent.min.png"
 			}, {
 				title: "Bubble",
 				name: "bubble",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.bubble.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.bubble.min.png"
 			}, {
 				title: "Column",
 				name: "column",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.column.min.png"
 			}, {
 				title: "Column - Stacked",
 				name: "column-stacked",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column-stacked.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.column-stacked.min.png"
 			}, {
 				title: "Column - %",
 				name: "column-stacked-percent",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.column-percent.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.column-percent.min.png"
 			}, {
 				title: "Funnel",
 				name: "funnel",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.funnel.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.funnel.min.png"
 			}, {
 				title: "Scatter",
 				name: "scatter",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.scatter.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.scatter.min.png"
 			}, {
 				title: "Line",
 				name: "line",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.line.min.png"
 			}, {
 				title: "Line - Spline",
 				name: "spline",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline.min.png"
 			}, {
 				title: "Line - Polar",
 				name: "line-polar",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-polar.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.line-polar.min.png"
 			}, {
 				title: "Line - Spline - Polar",
 				name: "spline-polar",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline-polar.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.line-spline-polar.min.png"
 			}, {
 				title: "Pie",
 				name: "pie",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.pie.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.pie.min.png"
 			}, {
 				title: "Pie - Donut",
 				name: "pie-donut",
-				thumbnail: "./rp.aspx?extres=Vis.Uncategorized.Auto Chart.chart-types.pie-donut.min.png"
+				thumbnail: "###RS###extres=Vis.Uncategorized.Auto Chart.chart-types.pie-donut.min.png"
 			}
 		], function (index, type) {
 			jq$.extend(type, {
@@ -670,7 +670,7 @@
 									glyphSize: 6
 								};
 							}
-							var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="./rp.aspx?image=loading.gif" />',
+							var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="###RS###image=loading.gif" />',
 								rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
 								rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + '&mw=1&paging=0&reportonly=1';
 
@@ -769,7 +769,7 @@
 									shownIndex = null;
 
 									var expandPanel = jq$('<div>').addClass('izenda-vis-autochart-expand-panel').css('display', 'none');
-									var expandCloseImage = jq$('<img>').attr('src', './rp.aspx?extres=Vis.Uncategorized.Auto Chart.icons.close.min.png');
+									var expandCloseImage = jq$('<img>').attr('src', '###RS###extres=Vis.Uncategorized.Auto Chart.icons.close.min.png');
 									var expandCloseButton = jq$('<div>').addClass('izenda-vis-autochart-expand-panel-close-button')
 										.append(expandCloseImage);
 									expandPanel.append(expandCloseButton);

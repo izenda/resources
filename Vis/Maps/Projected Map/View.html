@@ -11,13 +11,13 @@
 		stroke-linejoin: round;
 	}
 
-		#VIS_ID_CONTAINER #VIS_ID .izenda-vis-projectedmap-country.izenda-vis-projectedmap-hovered {
-			stroke-width: 1.5px;
-		}
+	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-projectedmap-country.izenda-vis-projectedmap-hovered {
+		stroke-width: 1.5px;
+	}
 
-		#VIS_ID_CONTAINER #VIS_ID .izenda-vis-projectedmap-country.izenda-vis-projectedmap-active {
-			fill: #1C8BF0;
-		}
+	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-projectedmap-country.izenda-vis-projectedmap-active {
+		fill: #1C8BF0;
+	}
 
 	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-projectedmap-graticule {
 		fill: none;
@@ -74,7 +74,9 @@
 			status: VIS_FORMJSASTATUS,
 			requirements: { d3: true, svg: true },
 			validate: function (columns, rows) {
-				return columns.length > 0 && columns[0].geoavailable;
+				return columns.length > 1
+					&& columns[0].geoavailable
+					&& izenda.visualization.isMetric(columns[1]);
 			},
 			draw: draw
 		});
@@ -84,16 +86,12 @@
 		var items = vis.getItems();
 
 		if (!metrics.length && items.length > 0) {
-			for (j = 1; j < VIS_COLUMNS.length; j++)
+			for (var j = 1; j < vis.columns.length; j++)
 				if (typeof vis.itemValue(items[0], j) == 'number')
-					metrics.push({ name: VIS_COLUMNS[j].name, max: 0, sum: 0, radius: 0 });
+					metrics.push({ name: vis.columns[j].name, max: 0, sum: 0, radius: 0 });
 		}
 
-		if (!metrics.length) {
-			throw new izenda.error.ChartSetUpError('No metric found!');
-		}
-
-		vis.metrics = jq$.map(metrics, function (val, i) {
+		vis.metrics = metrics.map(function (val, i) {
 			return val.name;
 		});
 
@@ -106,8 +104,8 @@
 
 		function draw() {
 			function setup() {
-				for (i = 0; i < metrics.length; i++) {
-					for (j = 0; j < items.length; j++) {
+				for (var i = 0; i < metrics.length; i++) {
+					for (var j = 0; j < items.length; j++) {
 						var value = vis.itemValue(items[j], metrics[i].name);
 						if (isNaN(value)) {
 							value = 0;
@@ -117,11 +115,11 @@
 					}
 				}
 
-				for (i = 0; i < metrics.length; i++)
+				for (var i = 0; i < metrics.length; i++)
 					metrics[i].radius = d3.scale.linear().domain([0, metrics[i].max]).range([1, maxradius]);
 			}
 
-			var i, j, nodeId = 0;
+			var nodeId = 0;
 
 			var maxradius = 10,
 				margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -383,14 +381,14 @@
 				update();
 			})();
 
-			vis.events.subscribe('MetricChange', function (value) {
+			vis.events.subscribe('MetricChange', function () {
 				selectedMetric = vis.container.find('select[name="Metric"]').find('option:selected').index();
 				setup();
 				update();
 			});
 		}
 
-		draw();
+		vis.draw();
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

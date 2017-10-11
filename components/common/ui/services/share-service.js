@@ -1,7 +1,7 @@
 ﻿izendaRequire.define([
 	'angular',
 	'../module-definition',
-	'../../common/query/services/common-query-service'
+	'../../query/services/common-query-service'
 ], function (angular) {
 
 	/**

@@ -19,6 +19,12 @@ var resourcesProvider;
 		children: []
 	};
 
+	function cancelEvent(event) {
+		if (!event) return;
+		(event.stopPropagation) ? event.stopPropagation() : event.cancelBubble = true;
+		(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+	}
+
 	function GetReports(keyword, categoryFullName) {
 		var requestString = 'wscmd=reportlistdatalite';
 		if (keyword == null)
@@ -225,15 +231,10 @@ var resourcesProvider;
 			var item = jq$('<li>').append(jq$('<a>')
 				.attr('href', directLink)
 				.text(report.Name)
-				.on('click', function () {
-					var evt = event || window.event;
-					if ((evt.which == null && evt.button < 2) || (evt.which != null && evt.which < 2)) {
+				.on('click', function (event) {
+					if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
 						AdHoc.Utility.NavigateReport(directLink, 0, nrlConfigObj.ResponseServerUrl);
-						if (evt.preventDefault) {
-							evt.preventDefault();
-						} else {
-							evt.returnValue = false;
-						}
+						cancelEvent(event);
 						return false;
 					}
 				}));
@@ -277,9 +278,8 @@ var resourcesProvider;
 					var element = jq$('<div>')
 						.addClass(isTouch ? 'thumb no-hover' : 'thumb');
 					if (imageMode) {
-						element.on('click', function () {
-							var evt = event || window.event;
-							if ((evt.which == null && evt.button < 2) || (evt.which != null && evt.which < 2)) {
+						element.on('click', function (event) {
+							if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
 								AdHoc.Utility.NavigateReport(directLink, 0, nrlConfigObj.ResponseServerUrl);
 							}
 						});
@@ -302,14 +302,9 @@ var resourcesProvider;
 					if (directLinkMode) {
 						var directLinkElement = jq$('<a>')
 							.attr('href', directLink)
-							.on('click', function () {
-								var evt = event || window.event;
-								if ((evt.which == null && evt.button < 2) || (evt.which != null && evt.which < 2)) {
-									if (evt.preventDefault) {
-										evt.preventDefault();
-									} else {
-										evt.returnValue = false;
-									}
+							.on('click', function (event) {
+								if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
+									cancelEvent(event);
 									return false;
 								}
 							});
@@ -349,10 +344,8 @@ var resourcesProvider;
 						var thumbEditElement = jq$('<div>')
 							.attr('title', IzLocal.Res('js_Edit', 'Edit'))
 							.addClass('thumb-edit')
-							.on('click', function () {
-								event.cancelBubble = true;
-								(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
-								(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+							.on('click', function (event) {
+								cancelEvent(event);
 
 								var link = '';
 								if (report.Dashboard)
@@ -378,10 +371,9 @@ var resourcesProvider;
 						var thumbRemoveElement = jq$('<div>')
 							.attr('title', IzLocal.Res('js_Remove', 'Remove'))
 							.addClass('thumb-remove')
-							.on('click', function () {
-								event.cancelBubble = true;
-								(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
-								(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+							.on('click', function (event) {
+								cancelEvent(event);
+
 								var message = IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?').replace(/\{0\}/g, fullName);
 								DeleteReport(message, report.UrlEncodedName);
 							});
@@ -391,10 +383,8 @@ var resourcesProvider;
 						var thumbPrintElement = jq$('<div>')
 							.attr('title', IzLocal.Res('js_Print', 'Print'))
 							.addClass('thumb-print')
-							.on('click', function () {
-								event.cancelBubble = true;
-								(event.stopPropagation) ? event.stopPropagation() : event.returnValue = false;
-								(event.preventDefault) ? event.preventDefault() : event.returnValue = false;
+							.on('click', function (event) {
+								cancelEvent(event);
 
 								var link = 'rs.aspx?rn=' + report.UrlEncodedName + '&print=1';
 								window.open(link, '_blank');

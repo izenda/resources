@@ -17,8 +17,6 @@
 			wscmd: 'getdashboardfiltersdata'
 		}, {
 			wscmd: 'getallfiltersdata'
-		}, {
-			wscmd: 'refreshcascadingfilters2'
 		}]);
 
 	/**

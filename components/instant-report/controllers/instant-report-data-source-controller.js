@@ -4,7 +4,7 @@
 	'../../common/core/services/localization-service',
 	'../../common/core/directives/utility',
 	'../../common/query/services/url-service',
-	'../../common/common/ui/directives/bootstrap',
+	'../../common/ui/directives/bootstrap',
 	'../services/services',
 	'../directive/directives'
 ], function (angular) {

@@ -10,7 +10,7 @@
 	 * Message component definition
 	 */
 	angular.module('izenda.common.core').component('izendaMessageComponent', {
-		templateUrl: 'Resources/components/common/core/components/message/template.html',
+		templateUrl: '###RS###extres=components.common.core.components.message.template.html',
 		bindings: {},
 		controller: ['$izendaLocale', '$izendaUtilUiService', izendaMessageComponentCtrl]
 	});

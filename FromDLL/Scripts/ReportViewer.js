@@ -5,17 +5,23 @@ var fieldsWereRemoved = new Array();
 var wereChecked = new Array();
 var curPropCdsInd;
 var curPropFInd;
-var additionalCategories = new Array();
+var additionalCategories = [];
 var needClick = false;
 var realFilterParent;
 var visualFilterParent;
 var filtersTable;
 var clonedFilters;
 var groupingUsed;
-var prevCatValue;
 var fieldsDataObtained = false;
 
 if (typeof IzLocal == 'undefined') { IzLocal = { Res: function (key, defaultValue) { return defaultValue; }, LocalizePage: function () { } }; }
+
+// let's start use single object instead of large amout of global variables
+var reportViewerContext = {
+	newCategoryName: IzLocal.Res('js_CreateNew', '(Create new)'),
+	categoryControl: null,
+	previousCategory: null
+};
 
 //Util-----------------------------------------------------------------------------------------------------
 function modifyUrl(parameterName, parameterValue) {
@@ -253,7 +259,7 @@ function RefreshFieldsList() {
 			'width': '15px',
 			'opacity': 0,
 			'cursor': 'pointer',
-			'background-image': 'url(rp.aspx?image=gear.gif)',
+			'background-image': 'url(###RS###image=gear.gif)',
 			'background-repeat': 'no-repeat',
 			'background-position': '0px 4px'
 		}).on('mouseover', function (event) {
@@ -322,13 +328,13 @@ function RefreshFieldsList() {
 				for (var rfi = 0; rfi < fieldsWereRemoved.length; rfi++)
 					if (fieldsWereRemoved[rfi].column == dataSources[i].Columns[col].DbName) {
 						$dsRow = _createColumnControlRowDs(fieldsWereRemoved[rfi].column, fieldsWereRemoved[rfi].description, globalColNum, col, i,
-									fieldsWereRemoved[rfi].description);
+							fieldsWereRemoved[rfi].description);
 						$dsTable.append($dsRow);
 						globalColNum++;
 					}
 
 				if ($dsRow == null && selectedColumns.indexOf(dataSources[i].Columns[col].DbName) < 0
-							&& additionalFieldsWereRemoved.indexOf(dataSources[i].Columns[col].DbName) < 0) {
+					&& additionalFieldsWereRemoved.indexOf(dataSources[i].Columns[col].DbName) < 0) {
 					$dsRow = _createColumnControlRowDs(dataSources[i].Columns[col].DbName, dataSources[i].Columns[col].FriendlyName, globalColNum, col, i);
 					$dsTable.append($dsRow);
 					globalColNum++;
@@ -471,49 +477,45 @@ function SetPivotCount() {
 //------------------------------------------------------------------------------------------------------------------
 
 //Field advanced properties-------------------------------------------------------------------------------------------------------
+function ShowFilterPropertiesForField(field, filter)
+{
+	var filterField = jq$.extend({}, field);
+	filterField.FilterGUID = filter.GUID;
+	filterField.FilterOperator = filter.OperatorValue;
+	filterField.FriendlyName = filter.FriendlyColumnName;
+	filterField.Alias = filter.Alias;
+	FP_ShowFilterProperties(filterField, fieldPopup);
+}
+
 function ShowFilterPropertiesByFieldName(fieldName, GUID) {
-	var calcFieldIndex = -1;
-	var tableAlias = '';
+	var filterToShow = null;
 	for (var i = 0; i < filtersData.length; i++) {
 		if (filtersData[i].GUID == GUID) {
-			tableAlias = filtersData[i].AliasTable;
+			filterToShow = filtersData[i];
 			break;
 		}
 	}
-	function prepareFieldToFilterPropertiesView(field) {
-		field.FilterGUID = GUID;
-		for (var i = 0; i < filtersData.length; i++) {
-			if (filtersData[i].GUID == GUID) {
-				field.FilterOperator = filtersData[i].OperatorValue;
-				field.FilterFriendlyName = field.Description;
-				field.Description = filtersData[i].Alias;
-				break;
-			}
-		}
+	if (!filterToShow) {
+		console.log('ERROR: failed to find filter by guid=' + GUID);
+		return;
 	}
+	var tableAlias = filterToShow.AliasTable;
 	for (var dsInd = 0; dsInd < dataSources.length; dsInd++) {
 		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++) {
 			if (dataSources[dsInd].Columns[colInd].DbName == fieldName && (tableAlias == '' || dataSources[dsInd].Columns[colInd].TableJoinAlias == tableAlias)) {
-				var newField = jq$.extend({}, dataSources[dsInd].Columns[colInd]);
-				prepareFieldToFilterPropertiesView(newField);
-				FP_ShowFilterProperties(newField, fieldPopup);
+				ShowFilterPropertiesForField(dataSources[dsInd].Columns[colInd], filterToShow);
 				return;
 			}
 		}
 	}
 	for (var i = 0; i < fieldsList.length; i++) {
-		if (fieldsList[i].Description == fieldName) {
-			calcFieldIndex = i;
-			break;
+		if (fieldsList[i].GUID == filterToShow.FieldGuid) {
+			curPropFInd = i;
+			ShowFilterPropertiesForField(fieldsList[i], filterToShow);
+			return;
 		}
 	}
-	if (calcFieldIndex >= 0) {
-		curPropFInd = calcFieldIndex;
-		var newField = jq$.extend({}, fieldsList[calcFieldIndex]);
-		prepareFieldToFilterPropertiesView(newField);
-		FP_ShowFilterProperties(newField, fieldPopup);
-		return;
-	}
+	console.log('ERROR: failed to find column or calc field for filter with guid=' + GUID);
 }
 
 function ShowFieldPropertiesForField(fieldCb) {
@@ -681,81 +683,58 @@ function AddOptsRecursively(selObj, parent) {
 }
 
 function GotCategoriesList(returnObj, id, setRn) {
-	if (id != 'crscategories' || returnObj == undefined || returnObj == null)
+	if (id !== 'crscategories' || !returnObj)
 		return;
 	var fieldWithRn = document.getElementById('reportNameFor2ver');
-	var rnVal;
-	if (fieldWithRn != null)
-		rnVal = fieldWithRn.value;
-	else if (reportName == undefined || reportName == null)
-		rnVal = '';
-	else
-		rnVal = reportName;
-	while (rnVal.indexOf('+') >= 0) {
-		rnVal = rnVal.replace('+', ' ');
-	}
-	var nodes = rnVal.split(nrvConfig.CategoryCharacter);
+	var rnVal = fieldWithRn ? fieldWithRn.value : (reportName ? reportName : '');
+	rnVal = rnVal.replaceAll('+', ' ');
+
+	// parse current report name
 	var curCatName = '';
-	var curRepName = nodes[0];
-	if (nodes.length > 1) {
-		curRepName = nodes[nodes.length - 1];
-		curCatName = nodes[0];
-		for (var ccnIndex = 1; ccnIndex < nodes.length - 1; ccnIndex++)
-			curCatName += nrvConfig.CategoryCharacter + nodes[ccnIndex];
+	var curRepName = rnVal;
+	if (rnVal.indexOf(nrvConfig.CategoryCharacter) >= 0) {
+		var lastIndex = rnVal.lastIndexOf(nrvConfig.CategoryCharacter);
+		curCatName = rnVal.substring(0, lastIndex);
+		curRepName = rnVal.substring(lastIndex + 1);
 	}
+	// get last category for recently added categories
 	if (additionalCategories.length > 0)
 		curCatName = additionalCategories[additionalCategories.length - 1];
+
 	var newReportName = document.getElementById('newReportName');
 	var newCategoryName = document.getElementById('newCategoryName');
 	if (setRn) {
 		newReportName.value = curRepName;
 	}
-	var catsArray = new Array();
-	catsArray[catsArray.length] = '';
-	for (var acCnt = 0; acCnt < additionalCategories.length; acCnt++)
-		catsArray[catsArray.length] = additionalCategories[acCnt];
-	for (var index = 0; returnObj.AdditionalData && index < returnObj.AdditionalData.length; index++)
-		catsArray[catsArray.length] = returnObj.AdditionalData[index];
-	newCategoryName.options.length = 0;
-	var root = new Object();
-	root.node = null;
-	root.name = '';
-	root.path = '';
-	root.subs = new Array();
-	for (var index = 0; index < catsArray.length; index++) {
-		var subCats = catsArray[index].split(nrvConfig.CategoryCharacter);
-		var indent = '';
-		var currentParent = root;
-		for (var scCnt = 0; scCnt < subCats.length; scCnt++) {
-			if (scCnt > 0)
-				indent += String.fromCharCode(160) + String.fromCharCode(160);
-			var newParent = null;
-			for (var rsCnt = 0; rsCnt < currentParent.subs.length; rsCnt++) {
-				if (currentParent.subs[rsCnt].name == subCats[scCnt]) {
-					newParent = currentParent.subs[rsCnt];
-					break;
-				}
-			}
-			if (newParent == null) {
-				newParent = new Object();
-				newParent.name = subCats[scCnt];
-				newParent.path = currentParent.path + (currentParent.path.length > 0 ? nrvConfig.CategoryCharacter : '') + newParent.name;
-				newParent.subs = new Array();
-				var npOpt = new Option();
-				npOpt.value = newParent.path;
-				npOpt.text = indent + newParent.name;
-				while (npOpt.text.indexOf('+') >= 0)
-					npOpt.text = npOpt.text.replace('+', ' ');
-				if (npOpt.value == curCatName)
-					npOpt.selected = 'selected';
-				newParent.node = npOpt;
-				currentParent.subs[currentParent.subs.length] = newParent;
-			}
-			currentParent = newParent;
-		}
+
+	// set up category control
+	var isInitialized = false; // isInitialized means that we've just created control.
+	if (!reportViewerContext.categoryControl) {
+		reportViewerContext.categoryControl = new AdHoc.Utility.IzendaCategorySelectorControl(jq$(newCategoryName),
+			nrvConfig.CategoryCharacter,
+			nrvConfig.StripInvalidCharacters,
+			nrvConfig.AllowInvalidCharacters);
+		isInitialized = true;
 	}
-	AddOptsRecursively(newCategoryName, root);
-	prevCatValue = newCategoryName.value;
+
+	var catsArray = [];
+	catsArray.push({ name: '' });
+	catsArray = catsArray.concat(returnObj.AdditionalData.map(function (c) {
+		return { name: c };
+	}));
+	catsArray = catsArray.concat(additionalCategories.map(function (c) {
+		return { name: c };
+	}));
+	reportViewerContext.categoryControl.setCategories(catsArray);
+	reportViewerContext.previousCategory = curCatName;
+	reportViewerContext.categoryControl.select(curCatName);
+	if (isInitialized)
+		reportViewerContext.categoryControl.addSelectedHandler(function (val) {
+			if (val === IzLocal.Res('js_CreateNew', '(Create new)'))
+				ShowNewCatDialog();
+			else
+				reportViewerContext.previousCategory = val;
+		});
 
 	ReportingServices.showModal(document.getElementById("saveAsBlock"), {
 		buttons: [
@@ -771,56 +750,30 @@ function GotCategoriesList(returnObj, id, setRn) {
 }
 
 function ShowSaveAsDialog() {
-	additionalCategories.length = 0;
+	additionalCategories = [];
 	GetCategoriesList(true);
 }
 
 function SaveReportAs() {
 	var newRepName = document.getElementById('newReportName').value;
-	var newCatName = document.getElementById('newCategoryName').value;
-	newRepName = jq$.map(newRepName.split(nrvConfig.CategoryCharacter), jq$.trim).join(nrvConfig.CategoryCharacter);
-	newCatName = jq$.map(newCatName.split(nrvConfig.CategoryCharacter), jq$.trim).join(nrvConfig.CategoryCharacter);
+	var newCatName = reportViewerContext.categoryControl.getSelectedCategory();
 
-	newRepName = CheckNameValidity(newRepName);
+	newRepName = window.utility.fixReportNamePath(newRepName, nrvConfig.CategoryCharacter,
+		nrvConfig.StripInvalidCharacters, nrvConfig.AllowInvalidCharacters);
 	if (newRepName == null) {
 		alert(IzLocal.Res('jsInvalidReportName', 'Invalid Report Name'));
 		return false;
 	}
-	newCatName = CheckNameValidity(newCatName);
-	if (newCatName == null) {
-		alert(IzLocal.Res('InvalidCategoryName', 'Invalid Category Name'));
-		return false;
-	}
 
-	var newFullName = newRepName;
-	if (newCatName != null && newCatName != '' && newCatName != IzLocal.Res('js_Uncategorized', 'Uncategorized')) {
+	var newFullName = window.utility.fixReportNamePath(
+		newRepName,
+		nrvConfig.CategoryCharacter,
+		nrvConfig.StripInvalidCharacters,
+		nrvConfig.AllowInvalidCharacters);
+	if (newCatName)
 		newFullName = newCatName + nrvConfig.CategoryCharacter + newFullName;
-	}
-	while (newFullName.indexOf(' ') >= 0) {
-		newFullName = newFullName.replace(' ', '+');
-	}
-
 	CheckIfReportExists(newFullName);
-}
-
-function escapeRegExp(s) {
-	return s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-}
-
-function CheckNameValidity(name) {
-	var additionalCharacter = '';
-	if (nrvConfig.CategoryCharacter != '\\')
-		additionalCharacter = escapeRegExp(nrvConfig.CategoryCharacter);
-	var invalidCharsRegex = new RegExp("[^A-Za-z0-9_/" + additionalCharacter + "\\-'' \\\\]", 'g');
-	if (nrvConfig.AllowInvalidCharacters)
-		return name;
-	if (nrvConfig.StripInvalidCharacters)
-		name = name.replace(invalidCharsRegex, '');
-
-	if (name.match(invalidCharsRegex))
-		return null;
-
-	return name;
+	return true;
 }
 
 function CheckIfReportExists(reportFullName) {
@@ -928,9 +881,41 @@ function ShowNewCatDialog() {
 }
 
 function AddNewCategory() {
-	additionalCategories[additionalCategories.length] = document.getElementById('addedCatName').value;
-	GetCategoriesList(false);
+	var newCategoryNameDirty = document.getElementById('addedCatName').value;
+	var newCategoryName = window.utility.fixReportNamePath(newCategoryNameDirty,
+		nrvConfig.CategoryCharacter,
+		nrvConfig.StripInvalidCharacters,
+		nrvConfig.AllowInvalidCharacters);
+	if (newCategoryName) {
+		// Category is good. Add to select.
+		additionalCategories.push(newCategoryName);
+		GetCategoriesList(false);
+	} else {
+		// Invalid category - show error.
+		ReportingServices.showOk(IzLocal.Res('InvalidCategoryName', 'Invalid Category Name'), function() {
+			ShowNewCatDialog(); 
+		});
+	}
 }
+
+/**
+ * Cancel add category handler. Restores previously selected category and returns the user "save as" dialog.
+ */
+function CancelAddCategory() {
+	reportViewerContext.categoryControl.select(reportViewerContext.previousCategory);
+	ReportingServices.showModal(document.getElementById("saveAsBlock"), {
+		buttons: [
+			{ value: jsResources.OK, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: SaveReportAs },
+			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default" }
+		],
+		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
+		tipStyle: "background-color: white; padding: 10px;",
+		overlayStyle: "opacity: 0;",
+		containerStyle: "padding: 7px; margin: 0; font: 16px 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; white-space: nowrap;",
+		footerStyle: "padding: 7px;"
+	});
+}
+
 //------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1290,30 +1275,6 @@ function GotDatasourcesList(returnObj, id) {
 
 function InitializeFields() {
 	GetDatasourcesList();
-}
-
-function CheckNewCatName() {
-	var newCategoryName = document.getElementById('newCategoryName');
-	if (newCategoryName.value == IzLocal.Res('js_CreateNew', '(Create new)'))
-		ShowNewCatDialog();
-	else
-		prevCatValue = newCategoryName.value;
-}
-
-function CancelAddCategory() {
-	document.getElementById('newCategoryName').value = prevCatValue;
-
-	ReportingServices.showModal(document.getElementById("saveAsBlock"), {
-		buttons: [
-			{ value: jsResources.OK, classes: "izenda-dialog-btn-primary", style: "margin-right: 10px;", onclick: SaveReportAs },
-			{ value: jsResources.Cancel, classes: "izenda-dialog-btn-default" }
-		],
-		buttonTemplate: '<button type="button" class="izenda-btn izenda-width-100">{value}</button>',
-		tipStyle: "background-color: white; padding: 10px;",
-		overlayStyle: "opacity: 0;",
-		containerStyle: "padding: 7px; margin: 0; font: 16px 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif; white-space: nowrap;",
-		footerStyle: "padding: 7px;"
-	});
 }
 //---------------------------------------------------------------------------------------------------------------------------
 

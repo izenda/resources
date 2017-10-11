@@ -24,7 +24,7 @@
 					equalsFunc: '&',
 					getTitle: '&'
 				},
-				templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/toolbar-links-panel.html',
+				templateUrl: '###RS###extres=components.dashboard.templates.toolbar-links-panel.html',
 				link: function ($scope, elem, attrs) {
 					var $slideContainer = _(elem).find('.iz-dash-linkspanel-navbar-3');
 					var slideContainerWidth = $slideContainer.width();

@@ -12,7 +12,7 @@
 	 * Select report name component definition
 	 */
 	angular.module('izenda.common.ui').component('izendaSelectReportNameComponent', {
-		templateUrl: 'Resources/components/common/ui/components/select-report-name/template.html',
+		templateUrl: '###RS###extres=components.common.ui.components.select-report-name.template.html',
 		bindings: {
 			opened: '<',
 			onSelected: '&',
@@ -233,13 +233,29 @@
 		};
 
 		/**
+		 * Categories were updated.
+		 */
+		$ctrl.updateCategoriesHandler = function(newCategories) {
+			$ctrl.categories = [];
+			var selectedCategoryName = $ctrl.selectedCategory.name;
+			$ctrl.categories = angular.element.map(newCategories, function(category) {
+				return {
+					'id': nextId++,
+					'name': category
+				};
+			});
+			$ctrl.selectedCategory = getCategoryByName(selectedCategoryName);
+		};
+
+		/**
 		 * Report category selected handler
 		 */
-		$ctrl.categorySelectedHandler = function () {
+		$ctrl.categorySelectedHandler = function (val) {
 			if (!$ctrl.isCategoryAllowed) {
 				$ctrl.selectedCategory = getCategoryByName($ctrl.UNCATEGORIZED_TEXT);
 				return;
 			}
+			$ctrl.selectedCategory = getCategoryByName(val);
 			if ($ctrl.selectedCategory !== null) {
 				if ($ctrl.selectedCategory.name === $ctrl.CREATE_NEW_TEXT) {
 					$ctrl.isCreatingNewCategory = true;
@@ -261,42 +277,36 @@
 				// check report name not empty
 				$ctrl.errorMessages.length = 0;
 				$ctrl.reportName = angular.isString($ctrl.reportName) ? $ctrl.reportName.trim() : '';
-				$ctrl.reportName = angular.element
-					.map($ctrl.reportName.split($izendaSettings.getCategoryCharacter()), angular.element.trim)
-					.join($izendaSettings.getCategoryCharacter());
 				if ($ctrl.reportName === '') {
 					$ctrl.errorMessages.push($ctrl.ERROR_REPORT_NAME_EMPTY);
 					reject();
 					return false;
 				}
 
+				// check report name is valid
 				var settings = $izendaSettings.getCommonSettings();
-				if (!settings.allowInvalidCharacters) {
-					var regexp = getInvalidCharsRegex();
-					if (settings.stripInvalidCharacters)
-						$ctrl.reportName = $ctrl.reportName.replace(regexp, '');
-					if ($ctrl.reportName.match(regexp)) {
-						$ctrl.errorMessages.push($ctrl.ERROR_INVALID_REPORT_NAME);
-						reject();
-						return false;
-					}
+				var reportNameFixed = window.utility.fixReportNamePath($ctrl.reportName, $izendaSettings.getCategoryCharacter(),
+					settings.stripInvalidCharacters, settings.allowInvalidCharacters);
+				if (!reportNameFixed) {
+					$ctrl.errorMessages.push($ctrl.ERROR_INVALID_REPORT_NAME);
+					reject();
+					return false;
 				}
+				$ctrl.reportName = reportNameFixed;
 
 				// check category
 				if ($ctrl.isCreatingNewCategory) {
-					$ctrl.newCategoryName = angular.element
-						.map($ctrl.newCategoryName.split($izendaSettings.getCategoryCharacter()), angular.element.trim)
-						.join($izendaSettings.getCategoryCharacter());
-					if (!settings.allowInvalidCharacters) {
-						var regexp = getInvalidCharsRegex();
-						if (settings.stripInvalidCharacters)
-							$ctrl.newCategoryName = $ctrl.newCategoryName.replace(regexp, '');
-						if ($ctrl.newCategoryName.match(regexp)) {
-							$ctrl.errorMessages.push($ctrl.ERROR_INVALID_CATEGORY_NAME);
-							reject();
-							return false;
-						}
+					var fixedCategoryName = window.utility.fixReportNamePath($ctrl.newCategoryName,
+						$izendaSettings.getCategoryCharacter(),
+						settings.stripInvalidCharacters,
+						settings.allowInvalidCharacters);
+					if (!fixedCategoryName) {
+						$ctrl.errorMessages.push($ctrl.ERROR_INVALID_CATEGORY_NAME);
+						reject();
+						return false;
 					}
+					$ctrl.newCategoryName = fixedCategoryName;
+
 					for (var i = 0; i < $ctrl.categories.length; i++) {
 						if ($ctrl.newCategoryName === $ctrl.categories[i]['name']) {
 							$ctrl.errorMessages.push($ctrl.ERROR_CATEGORY_EXIST($ctrl.newCategoryName));
@@ -386,4 +396,69 @@
 			return category;
 		}
 	}
+
+	angular.module('izenda.common.ui').directive('izendaCategorySelect', ['$izendaSettings', function ($izendaSettings) {
+		return {
+			restrict: 'A',
+			scope: {
+				categories: '=',
+				category: '=',
+				onSelect: '&',
+				onCategoriesChanged: '&'
+			},
+			link: function ($scope, element) {
+				var categoryCharacter = $izendaSettings.getCategoryCharacter();
+				var commonSettings = $izendaSettings.getCommonSettings();
+				var stripInvalidCharacters = commonSettings.stripInvalidCharacters;
+				var allowInvalidCharacters = commonSettings.allowInvalidCharacters;
+				var categoryControl = new AdHoc.Utility.IzendaCategorySelectorControl(
+					element, categoryCharacter, stripInvalidCharacters, allowInvalidCharacters);
+				categoryControl.addSelectedHandler(function (val) {
+					if (angular.isFunction($scope.onSelect)) {
+						$scope.onSelect({
+							val: val
+						});
+						$scope.$applyAsync();
+					}
+				});
+
+				// watch for collapsed state change
+				$scope.$watchCollection('categories', function () {
+					updateCategories();
+					updateCategory();
+				});
+				$scope.$watch('category', function() {
+					updateCategory();
+				});
+
+				function updateCategories() {
+					var categories = $scope.categories.map(function(catObject) {
+						return { name: catObject.name };
+					});
+					var previousLength = categories.length;
+					categoryControl.setCategories(categories);
+					var newCategories = collectCategories();
+					if (previousLength !== newCategories.length && angular.isFunction($scope.onCategoriesChanged)) {
+						$scope.onCategoriesChanged({
+							newCategories: newCategories
+						});
+						$scope.$applyAsync();
+					}
+				}
+
+				function updateCategory() {
+					if (angular.isObject($scope.category) && $scope.category.id !== 1) {
+						categoryControl.select($scope.category.name);
+					}
+				}
+
+				function collectCategories() {
+					var options = angular.element.map(element.children('option'), function($option) {
+						return $option.value;
+					});
+					return options;
+				}
+			}
+		}
+	}]);
 });

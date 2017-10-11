@@ -1589,7 +1589,7 @@ CC_FillCombobox = function (selectedValues, node, row) {
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
-		cValid.html('<nobr>' + displayText + '<img src="rp.aspx?image=icon-blue-x.gif" class="chunkX"></nobr>');
+		cValid.html('<nobr>' + displayText + '<img src="###RS###image=icon-blue-x.gif" class="chunkX"></nobr>');
 		selectedValues.append(cValid);
 		cValid.find(".chunkX").click(function () {
 			cValid.remove();

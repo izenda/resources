@@ -63,11 +63,11 @@
 
 /* Interaction states
 ----------------------------------*/
-/*.iz-db-ui-state-default, .iz-db-ui-widget-content .iz-db-ui-state-default, .iz-db-ui-widget-header .iz-db-ui-state-default { border: 1px solid #d3d3d3; background: #e6e6e6 url(###RS###image=ModernImages.iz-db-ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #555555; }*/
+/*.iz-db-ui-state-default, .iz-db-ui-widget-content .iz-db-ui-state-default, .iz-db-ui-widget-header .iz-db-ui-state-default { border: 1px solid #d3d3d3; background: #e6e6e6 url(###RS###image=ModernImages.iz-ui-bg_glass_75_e6e6e6_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #555555; }*/
 .iz-db-ui-state-default a, .iz-db-ui-state-default a:link, .iz-db-ui-state-default a:visited { color: #555555; }
 .iz-db-ui-state-hover, .iz-db-ui-widget-content .iz-db-ui-state-hover, .iz-db-ui-widget-header .iz-db-ui-state-hover, .iz-db-ui-state-focus, .iz-db-ui-widget-content .iz-db-ui-state-focus, .iz-db-ui-widget-header .iz-db-ui-state-focus { background: #888888; font-weight: normal; color: #eeeeee; }
 .iz-db-ui-state-hover a, .iz-db-ui-state-hover a:hover { color: #212121; text-decoration: none; }
-.iz-db-ui-state-active, .iz-db-ui-widget-content .iz-db-ui-state-active, .iz-db-ui-widget-header .iz-db-ui-state-active { border: 1px solid #aaaaaa; background: #ffffff url(###RS###image=ModernImages.iz-db-ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #212121; }
+.iz-db-ui-state-active, .iz-db-ui-widget-content .iz-db-ui-state-active, .iz-db-ui-widget-header .iz-db-ui-state-active { border: 1px solid #aaaaaa; background: #ffffff url(###RS###image=ModernImages.iz-ui-bg_glass_65_ffffff_1x400.png) 50% 50% repeat-x; font-weight: normal; color: #212121; }
 .iz-db-ui-state-active a, .iz-db-ui-state-active a:link, .iz-db-ui-state-active a:visited { color: #212121; }
 .iz-db-ui-widget :active { outline: none; }
 

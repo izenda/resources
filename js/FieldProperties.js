@@ -6,12 +6,12 @@ function FP_ShowFilterProperties(filter, dialog) {
 	jq$('.filter-prop-row').show();
 	document.getElementById('fieldPropDiv').style.display = 'none';
 	var titleDiv = document.getElementById('titleDiv');
-	var fieldFriendlyName = filter.FilterFriendlyName ? filter.FilterFriendlyName : filter.FriendlyName;
+	var fullFriendlyName = filter.FriendlyName;
 	if (filter.TableJoinAlias)
-		fieldFriendlyName += " (" + filter.TableJoinAlias + ")";
-	titleDiv.innerHTML = IzLocal.Res('js_FilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
+		fullFriendlyName += " (" + filter.TableJoinAlias + ")";
+	titleDiv.innerHTML = IzLocal.Res('js_FilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fullFriendlyName);
 	var propDescription = document.getElementById('propDescription');
-	propDescription.value = filter.Description;
+	propDescription.value = filter.Alias;
 	var propFilterOperators = document.getElementById('propFilterOperators');
 	if (typeof propFilterOperators.options.hasChildNodes != 'undefined') {
 		while (propFilterOperators.options.hasChildNodes())
@@ -45,7 +45,7 @@ function FP_ShowFilterProperties(filter, dialog) {
 	else
 		jq$('#dupFilterNote').hide();
 	document.getElementById('propFilterGUID').value = filter.FilterGUID;
-	dialog.dialog("option", "title", fieldFriendlyName);
+	dialog.dialog("option", "title", fullFriendlyName);
 	dialog.dialog("open");
 }
 
@@ -58,10 +58,10 @@ function FP_ShowFieldProperties(field, dialog) {
 	jq$('.field-prop-row').show();
 	document.getElementById('fieldPropDiv').style.display = '';
 	var titleDiv = document.getElementById('titleDiv');
-	var fieldFriendlyName = field.FriendlyName;
+	var fullFriendlyName = field.FriendlyName;
 	if (field.AliasTable)
-		fieldFriendlyName += " (" + field.AliasTable + ")";
-	titleDiv.innerHTML = IzLocal.Res('js_FieldPropertyForField', 'Field Properties for {0}').replace(/\{0\}/g, fieldFriendlyName);
+		fullFriendlyName += " (" + field.AliasTable + ")";
+	titleDiv.innerHTML = IzLocal.Res('js_FieldPropertyForField', 'Field Properties for {0}').replace(/\{0\}/g, fullFriendlyName);
 	var propDescription = document.getElementById('propDescription');
 	propDescription.value = field.Description;
 	var propVG = document.getElementById('propVG');
@@ -131,7 +131,7 @@ function FP_ShowFieldProperties(field, dialog) {
 	}
 	var propWidth = document.getElementById('propWidth');
 	propWidth.value = field.Width;
-	dialog.dialog("option", "title", fieldFriendlyName);
+	dialog.dialog("option", "title", fullFriendlyName);
 	dialog.dialog("open");
 }
 
@@ -174,7 +174,6 @@ function FP_CollectFieldProperties() {
 	field.ExpressionType = FP_CurrentlyBeingEditedField.ExpressionType;
 	field.FormatString = document.getElementById('propFormats').value;
 	field.STFunction = document.getElementById('propSTFunctions').value;
-	field.FriendlyName = document.getElementById('propFieldFriendlyName').value;
 	field.GUID = FP_CurrentlyBeingEditedField.GUID;
 	field.GaugeColor = FP_CurrentlyBeingEditedField.GaugeColor;
 	field.GaugeMax = FP_CurrentlyBeingEditedField.GaugeMax;

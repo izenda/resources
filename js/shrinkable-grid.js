@@ -75,7 +75,7 @@
 			row$.after(newRow$);
 
 			// Add show/hide control to the target row
-			row$.find('td:first').prepend('<img class="inner-grid-toggle-control" onclick="ToggleInnerGrid(this)" src="rp.aspx?image=plus.gif"/>');
+			row$.find('td:first').prepend('<img class="inner-grid-toggle-control" onclick="ToggleInnerGrid(this)" src="###RS###image=plus.gif"/>');
 		}
 	});
 }
@@ -109,7 +109,7 @@ function ToggleInnerGrid(element) {
 }
 
 function ToggleControlIcon(element) {
-	var baseUrl = 'rp.aspx?image=';
+	var baseUrl = '###RS###image=';
 	var src = jq$(element).attr('src').toString();
 	if (src.indexOf('plus.gif', src.length - 'plus.gif'.length) !== -1)
 		jq$(element).attr('src', baseUrl + 'minus.gif');

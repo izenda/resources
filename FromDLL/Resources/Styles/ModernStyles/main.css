@@ -1150,19 +1150,6 @@ a.button.default:active, a.button.default:active:hover {
   right: 0;
 }
 
-
-
-@font-face {
-  font-family: 'DroidSansRegular';
-  src: url('../resources/fonts/DroidSans-webfont.eot');
-  src: url('../resources/fonts/DroidSans-webfont.eot?#iefix') format('embedded-opentype'),
-    url('../resources/fonts/DroidSans-webfont.woff') format('woff'),
-    url('../resources/fonts/DroidSans-webfont.ttf') format('truetype'),
-    url('../resources/fonts/DroidSans-webfont.svg#DroidSansRegular') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
 @font-face {
   font-family: "Segoe UI Web Light";
   font-style: normal;

@@ -36,7 +36,7 @@
 					ngModel: '=',
 					galleryItems: '='
 				},
-				templateUrl: $izendaUrl.settings.urlResources + '/components/dashboard/templates/gallery.html',
+				templateUrl: '###RS###extres=components.dashboard.templates.gallery.html',
 
 				link: function ($scope, $element) {
 					var $smallButtonsPanel = $element.find('.izenda-gallery-controls-round-panel');

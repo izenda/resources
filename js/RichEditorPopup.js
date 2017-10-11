@@ -107,7 +107,7 @@ function RE_InstantiateRichEditor(paramsObj) {
 		RE_EditorsParamsList[paramsObj.TargetSelector] = paramsObj;
 		var lang = '';
 		if (typeof serverCulture != 'undefined' && serverCulture != null && serverCulture != '' && serverCulture != 'en-US')
-			lang = './rp.aspx?wscmd=tinymceresource&wsarg0=langjs&wsarg1=' + serverCulture;
+			lang = '###RS###wscmd=tinymceresource&wsarg0=langjs&wsarg1=' + serverCulture;
 		tinymce.init({
 			//forced_root_block: false,
 			force_p_newlines: false,
@@ -116,7 +116,7 @@ function RE_InstantiateRichEditor(paramsObj) {
 			mode: "exact",
 			plugins: "advlist anchor autolink charmap codemagic colorpicker contextmenu directionality fullscreen hr image insertdatetime layer legacyoutput link lists nonbreaking noneditable pagebreak paste preview save searchreplace tabfocus table template textcolor textpattern visualchars wordcount repeater jqueryspellchecker",
 			toolbar: "save cancel delete insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | print preview media | forecolor backcolor | codemagic | jqueryspellchecker | iz-fields iz-columns iz-subreports iz-tags | repeater-default repeater-adv",
-			skin_url: './rp.aspx?wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
+			skin_url: '###RS###wscmd=tinymceresource&wsarg0=skincss&wsarg1=',
 			language_url : lang,
 			resize: false,
 			init_instance_callback: RE_InitializeEditorInstance,

@@ -1,5 +1,6 @@
 ﻿izendaRequire.define([
 	'angular',
+	'resizeSensor',
 	'../../common/core/services/compatibility-service',
 	'../../common/core/services/localization-service',
 	'../../common/core/directives/bootstrap-modal',
@@ -16,7 +17,7 @@
 	'../../common/ui/components/select-report-name/component',
 	'../services/services',
 	'../directive/directives'
-], function (angular) {
+], function (angular, resizeSensor) {
 	/**
 	 * Instant report controller definition
 	 */
@@ -180,6 +181,7 @@
 		vm.setPreviewTop = function (value) {
 			$izendaInstantReportStorage.setPreviewTop(value);
 			vm.applyChanges();
+			vm.closeAllNavbars();
 		}
 
 		/**
@@ -389,6 +391,86 @@
 		};
 
 		/**
+		 * Close all navbar opened dropdowns
+		 */
+		vm.closeAllNavbars = function() {
+			var $navBar = angular.element('.iz-inst-navbar');
+			$navBar.find('.navbar-nav > li.open').each(function () {
+				angular.element(this).removeClass('open');
+			});
+		};
+
+		/**
+		 * Place dropdown to the proper position.
+		 */
+		vm.alignNavDropdowns = function () {
+			var $navbar = jq$('.iz-inst-navbar');
+			var $liList = $navbar.find('.iz-inst-nav > li.open');
+			if (!$liList.length)
+				return;
+			$liList.each(function() {
+				var $li = angular.element(this);
+				var liWidth = $li.width();
+				var $dropdown = $li.children('.dropdown-menu');
+				var isRightNow = $dropdown.hasClass('dropdown-menu-right');
+				var dropdownWidth = $dropdown.width();
+				var deltaLeft = $li.position().left + $dropdown.position().left;
+				var deltaRight = $navbar.width() - deltaLeft - dropdownWidth;
+				var isRightAlign = false;
+				var needToMove = false;
+				if (deltaRight < 0) {
+					isRightAlign = true;
+					needToMove = true;
+				}
+				if (deltaLeft < 0 || (isRightNow && deltaRight + liWidth > dropdownWidth + 10)) {
+					needToMove = true;
+					isRightAlign = false;
+				}
+				if (needToMove)
+					if (isRightAlign)
+						$dropdown.addClass('dropdown-menu-right');
+					else
+						$dropdown.removeClass('dropdown-menu-right');
+			});
+		};
+
+		/**
+		 * Open navbar dropdown accordingly to its relative position to the edges of the screen.
+		 * @param {object} $event angular click event object.
+		 */
+		vm.openNavBarDropdown = function ($event, doSync) {
+			function openDropdown($li) {
+				vm.closeAllNavbars();
+				$li.addClass('open');
+				vm.alignNavDropdowns();
+			}
+
+			$event.stopPropagation();
+			if (!vm.isValid)
+				return;
+
+			// dropdown elements
+			var $aElement = angular.element($event.currentTarget);
+			var $liElement = $aElement.parent();
+			var $dropdownElement = $aElement.siblings('.dropdown-menu');
+
+			// close
+			if ($liElement.hasClass('open')) {
+				$dropdownElement.removeClass('dropdown-menu-right');
+				$liElement.removeClass('open');
+				return;
+			}
+
+			// open
+			if (doSync)
+				$izendaInstantReportStorage.setReportSetAsCrs(false).then(function () {
+					openDropdown($liElement);
+				});
+			else
+				openDropdown($liElement);
+		};
+
+		/**
 		 * Save dialog closed handler.
 		 */
 		vm.onSaveClosed = function () {
@@ -415,6 +497,7 @@
 			} else {
 				_saveReportWithGivenName(rs.reportName, rs.reportCategory);
 			}
+			vm.closeAllNavbars();
 		};
 		
 		/**
@@ -439,6 +522,7 @@
 				});
 				$scope.$applyAsync();
 			}, 500);
+			vm.closeAllNavbars();
 		};
 
 		var exportReportInternal = function (exportType) {
@@ -516,19 +600,7 @@
 				return;
 			}
 			exportReportInternal(exportType);
-		};
-
-		/**
-		 * Sync current settings and set report set as current report set.
-		 */
-		vm.syncReportSetAndEval = function (applyPreviewTop) {
-			vm.isSynchronized = false;
-			return $q(function (resolve, reject) {
-				$izendaInstantReportStorage.setReportSetAsCrs(applyPreviewTop).then(function () {
-					vm.isSynchronized = true;
-					$scope.$applyAsync();
-				});
-			});
+			vm.closeAllNavbars();
 		};
 
 		/**
@@ -699,11 +771,19 @@
 			// todo: move that javascript to special directive in future, because DOM manipulations in controller is bad practice:
 			var $root = jq$('.iz-inst-root');
 			jq$(window).resize(function () {
+				vm.alignNavDropdowns();
 				var delta = $izendaCompatibility.isSmallResolution() ? 30 : 73;
 				$root.height(jq$(window).height() - $root.offset().top - delta);
 			});
 			var delta = $izendaCompatibility.isSmallResolution() ? 30 : 73;
 			$root.height(jq$(window).height() - $root.offset().top - delta);
+
+			// left panel resize sensor
+			var $panel = jq$('.iz-inst-left-panel');
+			if ($panel.length)
+				resizeSensor.create($panel.get(0), function () {
+					vm.alignNavDropdowns();
+				});
 		};
 
 		function _updateReportSetRightVariables() {

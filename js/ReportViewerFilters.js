@@ -2,6 +2,41 @@
 	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
+Array.prototype.binaryFind = function (el, cmpFunc)
+{
+	'use strict';
+	var minIndex = 0;
+	var maxIndex = this.length - 1;
+	var currentIndex;
+	var currentElement;
+	while (minIndex <= maxIndex)
+	{
+		currentIndex = ((minIndex + maxIndex) / 2) | 0;
+		currentElement = this[currentIndex];
+		if (cmpFunc(currentElement, el) < 0)
+			minIndex = currentIndex + 1;
+		else if (cmpFunc(currentElement, el) > 0)
+			maxIndex = currentIndex - 1;
+		else
+			return {
+				found: true,
+				index: currentIndex
+			};
+	}
+	return {
+		found: false,
+		index: cmpFunc(currentElement, el) < 0 ? currentIndex + 1 : currentIndex
+	};
+}
+
+Array.prototype.insertSorted = function (el, cmpFunc) {
+	var res = this.binaryFind(el, cmpFunc);
+	if (res.found)
+		return false;
+	this.splice(res.index, 0, el);
+	return true;
+}
+
 var filtersData = new Array();
 var subreportsFiltersData;
 var showingC = false;
@@ -380,7 +415,7 @@ function GenerateNewFilterDropDown() {
 	if (filtersData != null) {
 		for (var i = 0; i < filtersData.length; i++) {
 			var column = filtersData[i].ColumnName;
-			var isParam = column.substr(column.lastIndexOf('[') + 1).indexOf('PARAM') == 0;
+			var isParam = column.substr(column.lastIndexOf('[') + 1).indexOf('PARAM_') === 0;
 			if (isParam)
 				existingParamFilters.push(column);
 		}
@@ -389,14 +424,35 @@ function GenerateNewFilterDropDown() {
 	for (var dsCnt = 0; dsCnt < dataSources.length; dsCnt++) {
 		if (dataSources.length > 1)
 			result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
-
+		var sortedItems = new Array();
+		var customizedItems = new Array();
 		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
 			if (!dataSources[dsCnt].Columns[fCnt].FilterHidden && existingParamFilters.indexOf(dataSources[dsCnt].Columns[fCnt].DbName) < 0) {
-				result += '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + (dataSources[dsCnt].Columns[fCnt].FilterFriendlyName ? dataSources[dsCnt].Columns[fCnt].FilterFriendlyName : dataSources[dsCnt].Columns[fCnt].FriendlyName) + '</option>';
+				var uiName = dataSources[dsCnt].Columns[fCnt].AliasInFilter ? dataSources[dsCnt].Columns[fCnt].AliasInFilter : dataSources[dsCnt].Columns[fCnt].FriendlyName;
+				var itemBody = '<option value="' + dataSources[dsCnt].Columns[fCnt].DbName + '" data-alias="' + dataSources[dsCnt].JoinAlias + '">' + uiName + '</option>';
+				var item = {
+					name: uiName,
+					body: itemBody
+				};
+				if (dataSources[dsCnt].Columns[fCnt].AliasInFilter)
+					customizedItems.push(item);
+				else
+					sortedItems.push(item);
 				optionsAdded = true;
 			}
 		}
-
+		customizedItems.forEach(function (customItem) {
+			sortedItems.insertSorted(customItem, function (e1, e2) {
+				if (e1.name > e2.name)
+					return 1;
+				else if (e1.name < e2.name)
+					return -1;
+				return 0;
+			});
+		});
+		sortedItems.forEach(function (sortedItem) {
+			result += sortedItem.body;
+		});
 		if (dataSources.length > 1)
 			result += '</optgroup>';
 	}
@@ -449,7 +505,7 @@ function RefreshFilters(returnObj) {
 		var divsId = 'd' + s4() + s4();
 		controlsIds[controlsIds.length] = new Object();
 		controlsIds[controlsIds.length - 1].Id = divsId;
-		controlsIds[controlsIds.length - 1].filterDesc = returnObj.Filters[index].Description;
+		controlsIds[controlsIds.length - 1].filterTitle = returnObj.Filters[index].Alias ? returnObj.Filters[index].Alias : returnObj.Filters[index].FriendlyColumnName;
 
 		var filterContent = GetFilterContent(returnObj.Filters, index, divsId, hasFilterLogic, false);
 		htmlFilters.find('.filtersContent').append(filterContent);
@@ -577,7 +633,7 @@ function RefreshFilters(returnObj) {
 	for (var idx = 0; idx < controlsIds.length; idx++) {
 		var labelDiv = document.getElementById(controlsIds[idx].Id);
 		if (labelDiv !== null)
-			labelDiv.innerHTML = controlsIds[idx].filterDesc;
+			labelDiv.innerHTML = controlsIds[idx].filterTitle;
 	}
 }
 
@@ -588,26 +644,26 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.show();
 	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
 
-	var escapedDescription = jq$("<div>").text(filter.Description).html();
+	var escapedAlias = window.utility.htmlEncode(filter.Alias ? filter.Alias : filter.FriendlyColumnName);
 
 	var mouseOverScript = 'if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage= \'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } if(this.children[3]) { this.children[2].style.opacity=0.5; this.children[3].style.backgroundImage=\'url(\\\'\' + this.children[3].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
-						+ escapedDescription
+						+ escapedAlias
 						+ ' - '
 						+ filter.OperatorFriendlyName
 						+ '\';'
 						+ 'document.getElementById(\''
 						+ divsId
 						+ '\').setAttribute("title", "'
-						+ filter.Description
+						+ filter.Alias
 						+ ' - '
 						+ filter.OperatorFriendlyName
 						+ '");';
 	var mouseOutScript = 'for(var index = 2; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
 						+ divsId
 						+ '\').innerHTML = \''
-						+ escapedDescription
+						+ escapedAlias
 						+ '\';';
 	if (!isSimpleFilter) {
 		filterContent.find('.filterHeader').attr('onmouseover', mouseOverScript);
@@ -624,8 +680,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	if (isSimpleFilter)
 		filterContent.find('.filterTitle, .filterTitleContainer').attr('onmouseover', '');
 	filterContent.find('.filterTitle').prop('id', divsId);
-	var escapedDescription = jq$("<div>").text(filter.Description).html();
-	filterContent.find('.filterTitle').text(escapedDescription + ' - ' + filter.OperatorFriendlyName);
+	filterContent.find('.filterTitle').text(escapedAlias + ' - ' + filter.OperatorFriendlyName);
 	var filterInnerContent = GenerateFilterControl(isSimpleFilter ? filter.GUID : index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == filters.length - 1 && !hasFilterLogic);
 	filterContent.find('.filterInnerContent').append(filterInnerContent);
 	if (filter.Required)
@@ -689,7 +744,7 @@ function ProcessSubreportFilters(subreportFilters, addTitle) {
 		var divsId = 'd' + s4() + s4();
 		controlsIds[controlsIds.length] = new Object();
 		controlsIds[controlsIds.length - 1].Id = divsId;
-		controlsIds[controlsIds.length - 1].filterDesc = subreportFilters.FiltersData.Filters[index].Description;
+		controlsIds[controlsIds.length - 1].filterTitle = subreportFilters.FiltersData.Filters[index].Alias ? subreportFilters.FiltersData.Filters[index].Alias : subreportFilters.FiltersData.Filters[index].FriendlyColumnName;
 
 		var filterContent = GetFilterContent(subreportFilters.FiltersData.Filters, index, divsId, hasFilterLogic, true);
 

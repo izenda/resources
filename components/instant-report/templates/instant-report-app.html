@@ -42,7 +42,7 @@
         <div class="glyphicon glyphicon-menu-hamburger bootstrap-glyphicon"></div>
       </div>
       <!-- datasources button -->
-      <div class="iz-inst-sidepanel-button datasources"
+      <div class="iz-inst-sidepanel-button datasources active"
            ng-class="irController.getLeftPanelClass(0)"
            ng-click="irController.setLeftPanelActiveItem(0)">
         <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Data' | izendaLocale: 'Data'" bind-once></span>
@@ -106,29 +106,29 @@
       <!-- left panel content -->
       <div class="panel"
            ng-class="irController.getLeftPanelClass(0)">
-        <div ng-include="'Resources/components/instant-report/templates/instant-report-data-source.html'"></div>
+        <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-data-source.html'"></div>
       </div>
       <div class="panel"
            ng-class="irController.getLeftPanelClass(1)">
-        <div ng-include="'Resources/components/instant-report/templates/instant-report-charts.html'"></div>
+        <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-charts.html'"></div>
       </div>
       <div class="panel"
            ng-class="irController.getLeftPanelClass(2)">
-        <div ng-include="'Resources/components/instant-report/templates/instant-report-format.html'"></div>
+        <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-format.html'"></div>
       </div>
       <div class="panel"
            ng-class="irController.getLeftPanelClass(3)">
-        <div ng-include="'Resources/components/instant-report/templates/instant-report-schedule.html'"></div>
+        <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-schedule.html'"></div>
       </div>
       <div class="panel"
            ng-class="irController.getLeftPanelClass(4)">
-        <div ng-include="'Resources/components/instant-report/templates/instant-report-settings.html'"></div>
+        <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-settings.html'"></div>
       </div>
       <!-- toolbar -->
       <div class="panel" ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(5)">
         <div class="iz-inst-left-menu-container">
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-main-toolbar.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-main-toolbar.html'"></div>
         </div>
       </div>
       <!-- preview for mobile -->
@@ -136,7 +136,7 @@
            ng-class="irController.getLeftPanelClass(6)">
         <div class="iz-inst-left-preview-container">
           <!-- validation controller -->
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-validation.html'"></div>
           <div class="iz-inst-preview-root-container"
                droppable-accept=".datasource-field"
                on-drop="irController.addFieldToReport(arg0)"
@@ -155,21 +155,21 @@
       <div class="panel" ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(7)">
         <div class="iz-inst-left-field-options-container">
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-field-options.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-field-options.html'"></div>
         </div>
       </div>
       <!-- filters for mobile -->
       <div class="panel" ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(8)">
         <div class="iz-inst-left-filters-container">
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-filters.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-filters.html'"></div>
         </div>
       </div>
       <!-- pivots for mobile -->
       <div class="panel" ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(9)">
         <div class="iz-inst-left-pivots-container">
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-pivots.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-pivots.html'"></div>
         </div>
       </div>
     </div>
@@ -194,8 +194,7 @@
     <table style="width: 100%; height: 100%; overflow: hidden;">
       <tr>
         <td>
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-main-toolbar.html'"
-               data-izenda-fit-absolute-element="top">
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-main-toolbar.html'" data-izenda-fit-absolute-element="top">
           </div>
         </td>
       </tr>
@@ -214,13 +213,13 @@
                delta-top="20"
                izenda-fit-absolute-element>
             <!-- filters controller -->
-            <div ng-include="'Resources/components/instant-report/templates/instant-report-filters.html'"></div>
+            <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-filters.html'"></div>
 
             <!-- pivots controller -->
-            <div ng-include="'Resources/components/instant-report/templates/instant-report-pivots.html'"></div>
+            <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-pivots.html'"></div>
 
             <!-- validation controller -->
-            <div ng-include="'Resources/components/instant-report/templates/instant-report-validation.html'"></div>
+            <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-validation.html'"></div>
 
             <div class="iz-inst-preview-root-container"
                  droppable-accept=".datasource-field"
@@ -244,7 +243,7 @@
           </div>
 
           <!-- field options for full view-->
-          <div ng-include="'Resources/components/instant-report/templates/instant-report-field-options.html'"></div>
+          <div ng-include="'###RS###extres=components.instant-report.templates.instant-report-field-options.html'"></div>
 
         </td>
       </tr>

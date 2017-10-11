@@ -53,7 +53,7 @@
 	angular
 		.module('izendaDashboard')
 		.component('izendaDashboardTile', {
-			templateUrl: 'Resources/components/dashboard/templates/izenda-dashboard-tile.html',
+			templateUrl: '###RS###extres=components.dashboard.templates.izenda-dashboard-tile.html',
 			controller: ['$element', '$interval', '$timeout', '$rootScope', '$window', '$izendaCompatibility', '$izendaUtil', '$izendaUrl',
 				'$izendaUtilUiService', '$izendaLocale', '$izendaSettings', '$izendaDashboardSettings', '$izendaRsQuery', '$izendaDashboardQuery',
 				'$izendaEvent', '$izendaDashboardState',

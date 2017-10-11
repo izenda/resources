@@ -52,8 +52,6 @@
 
 <script type="text/javascript">
 	(function init() {
-		var services = window.ReportingServices;
-
 		(function () {
 			/* Backward Compatibility Section */
 			if (VIS_CONTEXT.props && VIS_CONTEXT.props.length > 2 && VIS_CONTEXT.props && VIS_CONTEXT.props.indexOf('metric') > 0) {
@@ -76,31 +74,30 @@
 			status: VIS_FORMJSASTATUS,
 			requirements: { d3: true, svg: true },
 			validate: function (columns, rows) {
-				return columns.length > 1 && columns[0].geoavailable && columns[1].geoavailable;
+				return columns.length > 2
+					&& columns[0].geoavailable
+					&& columns[1].geoavailable
+					&& izenda.visualization.isMetric(columns[2]);
 			},
 			draw: draw
 		});
 
 		function fixCity(label) {
 			var splitted = label.split(',');
-			return splitted.length == 2 ? (splitted[0].trim() + '#' + splitted[1].trim()).toLowerCase() : label;
+			return splitted.length === 2 ? (splitted[0].trim() + '#' + splitted[1].trim()).toLowerCase() : label;
 		}
 
-		var f1, f2, f3, links = new Array();
-
-		f1 = './rs.aspx?extres=Vis.Maps.Arc Map.us-states.json';
-		f2 = './rs.aspx?extres=Vis.Maps.Arc Map.geocities.json';
-		f3 = './rs.aspx?extres=Vis.Maps.Arc Map.us.json';
+		var links = new Array();
 
 		var metrics = [];
 
 		var items = vis.getItems(), si = -1, di = -1;
 		if (items.length > 0) {
-			for (var j = 0; j < VIS_COLUMNS.length; j++)
+			for (var j = 0; j < vis.columns.length; j++)
 				if (typeof vis.itemValue(items[0], j) == 'number')
-					metrics.push({ name: VIS_COLUMNS[j].name, max: 0, sum: 0, radius: 0, ci: j });
+					metrics.push({ name: vis.columns[j].name, max: 0, sum: 0, radius: 0, ci: j });
 
-			for (var j = 0; j < VIS_COLUMNS.length; j++) {
+			for (var j = 0; j < vis.columns.length; j++) {
 				if (typeof vis.itemValue(items[0], j, { sf: 'g' }) == 'undefined')
 					continue;
 
@@ -114,10 +111,6 @@
 			}
 		}
 
-		if (!metrics.length || si < 0 || di < 0) {
-			throw new izenda.error.ChartSetUpError('No metric, source or destination found!');
-		}
-
 		for (var i = 0; i < items.length; i++) {
 			links.push({
 				origin: fixCity(vis.itemLabel(items[i], si)),
@@ -128,8 +121,8 @@
 			});
 		}
 
-		vis.metrics = jq$.map(metrics, function (val, i) {
-			return val.name;
+		vis.metrics = metrics.map(function (metric) {
+			return metric.name;
 		});
 
 		vis.initHeader({
@@ -317,7 +310,7 @@
 			}
 		}
 
-		draw();
+		vis.draw();
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

@@ -26,6 +26,7 @@
 <script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.highcharts-more"></script>
 <script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.modules.funnel"></script>
 <script type="text/javascript" src="./rp.aspx?js=ReportViewer"></script>
+<script type="text/javascript" src="./rp.aspx?js=ServerReportArchive"></script>
 <script type="text/javascript" src="./rp.aspx?js=AdHocToolbarNavigation"></script>
 <script type="text/javascript" src="./rp.aspx?js=moment"></script>
 <script type="text/javascript" src="./rp.aspx?js=HtmlOutputReportResults"></script>

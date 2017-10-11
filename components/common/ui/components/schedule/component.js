@@ -10,7 +10,7 @@
 	 * Schedule component definition
 	 */
 	angular.module('izenda.common.ui').component('izendaScheduleComponent', {
-		templateUrl: 'Resources/components/common/ui/components/schedule/template.html',
+		templateUrl: '###RS###extres=components.common.ui.components.schedule.template.html',
 		bindings: {
 			scheduleConfig: '=',
 			repeatTypes: '<',

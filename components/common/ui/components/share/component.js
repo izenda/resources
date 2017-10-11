@@ -8,7 +8,7 @@
 	 * Message component definition
 	 */
 	angular.module('izenda.common.ui').component('izendaShareComponent', {
-		templateUrl: 'Resources/components/common/ui/components/share/template.html',
+		templateUrl: '###RS###extres=components.common.ui.components.share.template.html',
 		bindings: {
 			subjects: '<',
 			rights: '<',

@@ -80,7 +80,7 @@
            ng-click="$ctrl.deleteTile()"
            ng-hide="$ctrl.tile.reportFullName"
            ng-if="$ctrl.isEditAllowed()">
-          <img src="Resources/images/remove-18.png" class="img-responsive" />
+          <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
         </a>
         <div class="report" name="preview_control_container"
              ng-hide="$ctrl.isReportDivHidden()">
@@ -89,7 +89,7 @@
       <div class="title-container" style="overflow: hidden; height: 35px;">
         <div class="title">
           <!-- title -->
-          <span class="title-text" ng-include="'Resources/components/dashboard/templates/izenda-dashboard-tile-title.html'"></span>
+          <span class="title-text" ng-include="'###RS###extres=components.dashboard.templates.izenda-dashboard-tile-title.html'"></span>
           <!-- title buttons -->
           <a id="{{'backButton' + $ctrl.tile.id}}"
              class="title-button button2"
@@ -105,14 +105,14 @@
              ng-click="$ctrl.showConfirmDelete()"
              ng-show="$ctrl.isButtonsVisible"
              ng-if="$ctrl.isEditAllowed()">
-            <img src="Resources/images/remove-18.png" class="img-responsive" />
+            <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
           </a>
           <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getConfirmDeleteClass()"
              ng-click="$ctrl.deleteTile()"
              ng-if="$ctrl.isEditAllowed()"
              ng-show="$ctrl.isButtonsVisible"
              ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove tile'}}">
-            <img src="Resources/images/tile/confirm-delete.png" />
+            <img src="###RS###extres=images.tile.confirm-delete.png" />
             <span ng-if="!$ctrl.isTileButtonsTight()" class="text-lowercase"
                   ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
           </a>
@@ -121,7 +121,7 @@
              ng-if="$ctrl.isEditAllowed()"
              ng-show="$ctrl.isButtonsVisible"
              ng-attr-title="{{'js_Undo' | izendaLocale: 'Undo'}}">
-            <img src="Resources/images/tile/turn-back.png" />
+            <img src="###RS###extres=images.tile.turn-back.png" />
             <span ng-if="!$ctrl.isTileButtonsTight()" class="text-lowercase"
                   ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
           </a>
@@ -144,32 +144,32 @@
         <div class="title">
           <span class="title-text">
             <!-- title -->
-            <span class="title-text" ng-include="'Resources/components/dashboard/templates/izenda-dashboard-tile-title.html'"></span>
+            <span class="title-text" ng-include="'###RS###extres=components.dashboard.templates.izenda-dashboard-tile-title.html'"></span>
 
             <!-- title buttons -->
             <a class="title-button title-button-remove button2"
                ng-attr-title="{{'js_ShowTile' | izendaLocale: 'Show tile'}}"
                ng-show="$ctrl.isButtonsVisible"
                ng-click="$ctrl.flipFront($ctrl.tileSizeChanged)">
-              <img src="Resources/images/turn-18.png" class="img-responsive" />
+              <img src="###RS###extres=images.turn-18.png" class="img-responsive" />
             </a>
             <a class="title-button title-button-remove button1"
                ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
                ng-show="$ctrl.isButtonsVisible"
                ng-click="$ctrl.showConfirmDelete()">
-              <img src="Resources/images/remove-18.png" class="img-responsive" />
+              <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
             </a>
             <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getConfirmDeleteClass()"
                ng-click="$ctrl.deleteTile()"
                ng-show="$ctrl.isButtonsVisible">
-              <img src="Resources/images/tile/confirm-delete.png" />
+              <img src="###RS###extres=images.tile.confirm-delete.png" />
               <span ng-if="$ctrl.getWidth() > 1" class="text-lowercase"
                     ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
             </a>
             <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getCancelDeleteClass()"
                ng-click="$ctrl.hideConfirmDelete()"
                ng-show="$ctrl.isButtonsVisible">
-              <img src="Resources/images/tile/turn-back.png" />
+              <img src="###RS###extres=images.tile.turn-back.png" />
               <span ng-if="$ctrl.getWidth() > 1" class="text-lowercase"
                     ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
             </a>

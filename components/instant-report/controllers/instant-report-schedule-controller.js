@@ -1,8 +1,7 @@
 ﻿izendaRequire.define([
 	'angular',
-	'../../common/ui/services',
 	'../../common/ui/components/schedule/component',
-	'../services/services/schedule-service',
+	'../../common/ui/services/schedule-service',
 	'../directive/directives'
 ], function (angular) {
 

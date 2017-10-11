@@ -2,7 +2,7 @@
 	font-family: 'Open Sans';
 	font-style: normal;
 	font-weight: 400;
-	src: local('Open Sans'), local('OpenSans'), url(./rp.aspx?font=Fonts.OpenSans.woff) format('woff');
+	src: local('Open Sans'), local('OpenSans'), url(###RS###font=Fonts.OpenSans.woff) format('woff');
 }
 
 .izenda-clearfix:after {
@@ -206,51 +206,51 @@
 }
 
 .izenda-icon-refresh {
-	background: url('./rp.aspx?extres=Vis._images.refresh.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.refresh.png') no-repeat center center;
 }
 
 .izenda-icon-refresh:hover {
-	background: url('./rp.aspx?extres=Vis._images.refresh.hover.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.refresh.hover.png') no-repeat center center;
 }
 
 .izenda-icon-refresh.izenda-vis-property-selector-active {
-	background: url('./rp.aspx?extres=Vis._images.refresh.selected.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.refresh.selected.png') no-repeat center center;
 }
 
 .izenda-icon-palette {
-	background: url('./rp.aspx?extres=Vis._images.palette.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.palette.png') no-repeat center center;
 }
 
 .izenda-icon-palette:hover {
-	background: url('./rp.aspx?extres=Vis._images.palette.hover.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.palette.hover.png') no-repeat center center;
 }
 
 .izenda-icon-palette.izenda-vis-property-selector-active {
-	background: url('./rp.aspx?extres=Vis._images.palette.selected.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.palette.selected.png') no-repeat center center;
 }
 
 .izenda-icon-type {
-	background: url('./rp.aspx?extres=Vis._images.type.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.type.png') no-repeat center center;
 }
 
 .izenda-icon-type:hover {
-	background: url('./rp.aspx?extres=Vis._images.type.hover.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.type.hover.png') no-repeat center center;
 }
 
 .izenda-icon-type.izenda-vis-property-selector-active {
-	background: url('./rp.aspx?extres=Vis._images.type.selected.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.type.selected.png') no-repeat center center;
 }
 
 .izenda-icon-gear {
-	background: url('./rp.aspx?extres=Vis._images.gear.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.gear.png') no-repeat center center;
 }
 
 .izenda-icon-gear:hover {
-	background: url('./rp.aspx?extres=Vis._images.gear.hover.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.gear.hover.png') no-repeat center center;
 }
 
 .izenda-icon-gear.izenda-vis-property-selector-active {
-	background: url('./rp.aspx?extres=Vis._images.gear.selected.png') no-repeat center center;
+	background: url('###RS###extres=Vis._images.gear.selected.png') no-repeat center center;
 }
 
 .izenda-vis-property-panel {

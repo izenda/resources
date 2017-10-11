@@ -10,7 +10,7 @@
 	 * Message component definition
 	 */
 	angular.module('izenda.common.core').component('izendaDialogBoxComponent', {
-		templateUrl: 'Resources/components/common/core/components/dialog-box/template.html',
+		templateUrl: '###RS###extres=components.common.core.components.dialog-box.template.html',
 		bindings: {
 			componentId: '@',
 			useGlobalEventListening: '<',

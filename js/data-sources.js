@@ -127,7 +127,7 @@ function initializeTables(database$) {
 			event.preventDefault();
 		});
 		var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
-								<img src='rp.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
+								<img src='###RS###image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
 							</span> \
 							<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 							<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
@@ -628,7 +628,7 @@ function StoreFieldProps(newField) {
 }
 
 function PreviewFieldManual() {
-	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"/></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="###RS###image=loading.gif"/></tr></td></table>');
 	PreviewFieldToDiv();
 }
 
@@ -638,7 +638,7 @@ function PreviewFieldDelayed(timeOut) {
 	}
 	catch (e) {
 	}
-	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="rp.aspx?image=loading.gif"/></tr></td></table>');
+	jq$(document.getElementById('fieldSamplePreview')).html('<table width="100%"><tr width="100%"><td width="100%" align="center"><img src="###RS###image=loading.gif"/></tr></td></table>');
 	previewFieldTimeout = setTimeout(PreviewFieldToDiv, timeOut);
 }
 
@@ -712,7 +712,7 @@ function InitEmptyPreviewArea(container) {
 	}
 
 	jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
-	jq$('#appendSubtotalsBtn img').attr('src', 'rp.aspx?image=' + subtotalsImgName);
+	jq$('#appendSubtotalsBtn img').attr('src', '###RS###image=' + subtotalsImgName);
 
 	var chartGrey = 'button default';
 	var chartImgName = 'chartplusW.png';
@@ -722,7 +722,7 @@ function InitEmptyPreviewArea(container) {
 	}
 
 	jq$('#appendChartBtn').attr('class', chartGrey);
-	jq$('#appendChartBtn img').attr('src', 'rp.aspx?image=' + chartImgName);
+	jq$('#appendChartBtn img').attr('src', '###RS###image=' + chartImgName);
 	if (!chartAvailable)
 		jq$('#appendChartBtn').hide();
 
@@ -765,7 +765,7 @@ function PreviewReport(container) {
 			subtotalsImgName = "subtotalsplusW.png";
 		}
 		jq$('#appendSubtotalsBtn').attr('class', subtotalsGrey);
-		jq$('#appendSubtotalsBtn img').attr('src', 'rp.aspx?image=' + subtotalsImgName);
+		jq$('#appendSubtotalsBtn img').attr('src', '###RS###image=' + subtotalsImgName);
 
 		// chart btn
 		var chartGrey = 'button';
@@ -775,7 +775,7 @@ function PreviewReport(container) {
 			chartImgName = "chartplusW.png";
 		}
 		jq$('#appendChartBtn').attr('class', chartGrey);
-		jq$('#appendChartBtn img').attr('src', 'rp.aspx?image=' + chartImgName);
+		jq$('#appendChartBtn img').attr('src', '###RS###image=' + chartImgName);
 		if (!chartAvailable)
 			jq$('#appendChartBtn').hide();
 
@@ -1280,7 +1280,7 @@ function DsDomChanged() {
 }
 
 function NDS_Init() {
-	EBC_Init("rs.aspx?", 0, false, 0, "rp.aspx?");
+	EBC_Init("rs.aspx?", 0, false, 0, "###RS###");
 	EBC_LoadConstraints();
 }
 
@@ -1430,7 +1430,7 @@ function finalizeInitFieldsDsp(contentDiv, willBeTableIndex, fieldsData, onInitC
 		event.preventDefault();
 	});
 	var triggersHtml = "<span class='f-trigger' data-view='fields-view'> \
-							<img src='rp.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
+							<img src='###RS###image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
 						</span> \
 						<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 						<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
@@ -1608,7 +1608,7 @@ function GotInstantReportConfig(returnObj, id) {
 	});
 
 	var triggersHTML = "<span class='f-trigger' data-view='fields-view'> \
-							<img src='rp.aspx?image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
+							<img src='###RS###image=ModernImages.fields-icon.png' alt='' /> <span class='text'>" + IzLocal.Res("js_Fields", "Fields") + "</span> \
 						</span> \
 						<span class='p-trigger' data-view='preview-view'>" + IzLocal.Res("js_Preview", "Preview") + "</span> \
 						<span class='v-trigger' data-view='visuals-view'>" + IzLocal.Res("js_Visuals", "Visuals") + "</span> \
@@ -1725,8 +1725,7 @@ function UpdateDataSources() {
 				var field = table.fields[i];
 				var column = {
 					FriendlyName: field.name,
-					DbName: field.sysname,
-					FilterFriendlyName: field.filterAlias
+					DbName: field.sysname
 				};
 				columns.push(column);
 			}

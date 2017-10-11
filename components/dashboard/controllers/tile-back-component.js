@@ -7,7 +7,7 @@
 		 * Back tile component definition
 		 */
 		angular.module('izendaDashboard').component('izendaDashboardTileBack', {
-			templateUrl: 'Resources/components/dashboard/templates/izenda-dashboard-tile-back.html',
+			templateUrl: '###RS###extres=components.dashboard.templates.izenda-dashboard-tile-back.html',
 			bindings: {
 				tile: '<',
 				focused: '<',

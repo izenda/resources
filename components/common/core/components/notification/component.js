@@ -8,7 +8,7 @@
 	 * Message component definition
 	 */
 	angular.module('izenda.common.core').component('izendaNotificationComponent', {
-		templateUrl: 'Resources/components/common/core/components/notification/template.html',
+		templateUrl: '###RS###extres=components.common.core.components.notification.template.html',
 		bindings: {},
 		controller: ['$izendaUtilUiService', izendaNotificationComponentCtrl]
 	});

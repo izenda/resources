@@ -52,18 +52,17 @@
 			context: VIS_CONTEXT,
 			status: VIS_FORMJSASTATUS,
 			requirements: { d3: true, svg: true },
+			validate: function (columns, rows) {
+				return columns.length > 2
+					&& izenda.visualization.isMetric(columns[2]);
+			},
 			dataLayout: 'graph',
 			draw: draw
 		});
 
-		if (!vis.metrics.length) {
-			throw new izenda.error.ChartSetUpError('No metric found!');
-		}
-
 		vis.initHeader({
 			metrics: [{
-				name: 'Metric',
-				onChangeCallback: function () { }
+				name: 'Metric'
 			}]
 		});
 
@@ -74,82 +73,83 @@
 			if (utility.ie() > 0)
 				services.updateStyle('izenda-VIS_ID-style', '.edgePath path { fill: none !important; }');
 
+			var svgElement = d3.select(vis.element.get(0))
+					.append('svg:svg')
+					.attr('width', vis.width)
+					.attr('height', vis.height),
+				groupElement = svgElement.append('svg:g');
 
-			var spendField = vis.getProperty('Metric');
-
-			var names = [];
+			var zoom = d3.behavior.zoom().on('zoom', function () {
+				groupElement.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+			});
+			svgElement.call(zoom);
 
 			function safeName(name) {
 				return izenda.visualization.wordwrap(name, 15);
 			}
 
-			for (var i = 0, label; i < vis.edges.length; i++) {
-				if (names.indexOf(label = safeName(vis.itemLabel(vis.edges[i], 0))) < 0)
-					names.push(label);
-				if (names.indexOf(label = safeName(vis.itemLabel(vis.edges[i], 1))) < 0)
-					names.push(label);
-			}
-
-			var g = new dagreD3.graphlib.Graph().setGraph({});
-
-			names.forEach(function (name) { g.setNode(name, { label: name }); });
-
-			for (var i = 0; i < vis.edges.length; i++) {
-				var edge = vis.edges[i];
-				var labelValue = vis.itemValue(edge, spendField);
-				if (!isNaN(labelValue)) {
-					var columnFormatter = vis.columns.find(function (d) { return d.name == spendField; }).formatter;
-					labelValue = columnFormatter ? columnFormatter(labelValue, edge, vis, spendField) : labelValue;
+			function getMetricValue(edge, metric) {
+				var value = vis.itemValue(edge, metric);
+				if (!isNaN(value)) {
+					var columnFormatter = vis.columns.find(function (d) { return d.name === metric; }).formatter;
+					value = columnFormatter ? columnFormatter(value, edge, vis, metric) : value;
 				} else {
-					labelValue = '';
+					value = '';
 				}
-				g.setEdge(safeName(vis.itemLabel(edge, 0)), safeName(vis.itemLabel(edge, 1)), { label: labelValue, lineInterpolate: 'basis' });
+				return value;
 			}
 
-			g.nodes().forEach(function (v) {
-				var node = g.node(v);
-				node.rx = node.ry = 10;
-			});
+			var graph = new dagreD3.graphlib.Graph().setGraph({});
 
-			var svg = d3.select(vis.element.get(0))
-				.append('svg:svg')
-					.attr('width', vis.width)
-					.attr('height', vis.height),
-				inner = svg.append('svg:g');
+			var nodes = [];
+			var metric = vis.getProperty('Metric');
+			for (var i = 0; i < vis.edges.length; ++i) {
+				var edge = vis.edges[i];
 
-			var zoom = d3.behavior.zoom().on('zoom', function () {
-				inner.attr('transform', 'translate(' + d3.event.translate + ')' + 'scale(' + d3.event.scale + ')');
+				var node1 = safeName(vis.itemLabel(edge, 0));
+				if (nodes.indexOf(node1) < 0) {
+					graph.setNode(node1, { label: node1 });
+					nodes.push(node1);
+				}
+
+				var node2 = safeName(vis.itemLabel(edge, 1));
+				if (nodes.indexOf(node2) < 0) {
+					graph.setNode(node2, { label: node2 });
+					nodes.push(node2);
+				}
+
+				var value = getMetricValue(edge, metric);
+				graph.setEdge(node1, node2, { label: value, lineInterpolate: 'basis' });
+			}
+
+			graph.nodes().forEach(function (node) {
+				var dagreNode = graph.node(node);
+				dagreNode.rx = dagreNode.ry = 10;
 			});
-			svg.call(zoom);
 
 			var render = new dagreD3.render();
 
-			render(inner, g);
+			render(groupElement, graph);
 
 			var initialScale = 0.75;
-			zoom
-				.translate([(svg.attr('width') - g.graph().width * initialScale) / 2, 20])
+			zoom.translate([(svgElement.attr('width') - graph.graph().width * initialScale) / 2, 20])
 				.scale(initialScale)
-				.event(svg);
+				.event(svgElement);
 
 			subscriptions.push(vis.events.subscribe('MetricChange', function () {
-				var value = vis.getProperty('Metric');
-
-				inner
+				var metric = vis.getProperty('Metric');
+				groupElement
 					.selectAll('g.edgeLabel')
-					.each(function (element, index) {
-						var text = vis.itemValue(vis.edges[index], value);
-						var result = izenda.visualization.labelBBox(d3.select(this).select('g.label'), text);
-
-						d3.select(this).select('div').html(text);
-						d3.select(this)
-							.selectAll(function () { return this.getElementsByTagName('foreignObject'); })
-							.attr('width', result.width);
+					.each(function (dagreEdgeObj, index) {
+						var dagreEdge = graph.edge(dagreEdgeObj);
+						var value = getMetricValue(vis.edges[index], metric);
+						dagreEdge.label = value;
 					});
+				render(groupElement, graph);
 			}));
 		}
 
-		draw();
+		vis.draw();
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

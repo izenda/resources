@@ -23,7 +23,8 @@
           ng-class="irController.isValid ? '' : 'disabled'">
         <a ng-attr-title="{{'js_SetRecordsCount' | izendaLocale: 'Set records count for preview'}}"
            class="dropdown-toggle"
-           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
+           ng-click="irController.openNavBarDropdown($event)"
+           role="button">
           <span class="glyphicon glyphicon-list-alt" ng-if="$izendaCompatibility.isSmallResolution()"></span>
           <span ng-bind="'js_PreviewRecords' | izendaLocale: 'Preview Records'" bind-once></span>
           :
@@ -63,7 +64,8 @@
           ng-class="irController.isValid ? '' : 'disabled'">
         <a ng-attr-title="{{'js_SaveReport' | izendaLocale: 'Save report'}}"
            class="dropdown-toggle"
-           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
+           ng-click="irController.openNavBarDropdown($event)"
+           role="button">
           <span class="glyphicon svg-icon icon-16 save"></span>
           <span ng-if="$izendaCompatibility.isSmallResolution()"
                 ng-bind="'js_Save' | izendaLocale: 'Save'" bind-once></span>
@@ -106,8 +108,8 @@
           ng-class="irController.isValid ? '' : 'disabled'">
         <a ng-attr-title="{{'js_PrintReport' | izendaLocale: 'Print report'}}"
            class="dropdown-toggle"
-           ng-click="irController.syncReportSetAndEval(false)"
-           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
+           ng-click="irController.openNavBarDropdown($event, true)"
+           role="button">
           <span class="glyphicon svg-icon icon-16 print"></span>
           <span ng-if="$izendaCompatibility.isSmallResolution()"
                 ng-bind="'js_Print' | izendaLocale: 'Print'" bind-once></span>
@@ -116,8 +118,8 @@
         <ul class="dropdown-menu">
           <li ng-if="!$izendaCompatibility.isSmallResolution()">
             <a ng-click="irController.printReport('html')"
-               ng-show="(irController.settings.allowedPrintEngine === 'Html' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml') && irController.isSynchronized">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.print-32.png" alt="">
+               ng-show="['Html', 'Html2PdfAndHtml'].indexOf(irController.settings.allowedPrintEngine) >= 0">
+              <img class="icon-16" src="###RS###image=ModernImages.print-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_PrintHTML' | izendaLocale: 'Print HTML'" bind-once></b>
               <br />
@@ -127,8 +129,8 @@
           </li>
           <li>
             <a ng-click="irController.printReport('pdf')"
-               ng-show="(irController.settings.allowedPrintEngine === 'Html2Pdf' || irController.settings.allowedPrintEngine === 'Html2PdfAndHtml') && irController.isSynchronized">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.pdf-32.png" alt="">
+               ng-show="['Html2Pdf', 'Html2PdfAndHtml'].indexOf(irController.settings.allowedPrintEngine) >= 0">
+              <img class="icon-16" src="###RS###image=ModernImages.pdf-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_HTML2PDF' | izendaLocale: 'HTML-powered PDF'" bind-once></b>
               <br />
@@ -143,7 +145,8 @@
       <li ng-class="irController.isValid ? '' : 'disabled'">
         <a ng-attr-title="{{'js_ExportReport' | izendaLocale: 'Export report'}}"
            class="dropdown-toggle"
-           ng-attr-data-toggle="{{irController.isValid ? 'dropdown' : ''}}" role="button">
+           role="button"
+           ng-click="irController.openNavBarDropdown($event)">
           <span class="glyphicon svg-icon icon-16 glyphicon-log-out"></span>
           <span ng-if="$izendaCompatibility.isSmallResolution()"
                 ng-bind="'js_Export' | izendaLocale: 'Export'" bind-once></span>
@@ -152,7 +155,7 @@
         <ul class="dropdown-menu">
           <li>
             <a ng-click="irController.exportReport('excel')">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.xls-32.png" alt="" />
+              <img class="icon-16" src="###RS###image=ModernImages.xls-32.png" alt="" />
               &nbsp;
               <b ng-bind="'js_ExportToExcel' | izendaLocale: 'Export to Excel'" bind-once></b>
               <br />
@@ -162,7 +165,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('word')">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.word-32.png" alt="">
+              <img class="icon-16" src="###RS###image=ModernImages.word-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_WordDocument' | izendaLocale: 'Word document'" bind-once></b>
               <br />
@@ -172,7 +175,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('csv')">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.csv-32.png" alt="">
+              <img class="icon-16" src="###RS###image=ModernImages.csv-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_CSV' | izendaLocale: 'CSV'" bind-once></b>
               <br />
@@ -182,7 +185,7 @@
           </li>
           <li>
             <a ng-click="irController.exportReport('xml')">
-              <img class="icon-16" src="rp.aspx?image=ModernImages.xml-32.png" alt="">
+              <img class="icon-16" src="###RS###image=ModernImages.xml-32.png" alt="">
               &nbsp;
               <b ng-bind="'js_XML' | izendaLocale: 'XML'" bind-once></b>
               <br />

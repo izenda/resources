@@ -35,23 +35,19 @@
 */
 
 var isNetscape = window.navigator.appName == 'Netscape';
-var folderId;
 var autoSelectedValue = '';
 
-function ud()
-{
+function ud() {
 }
 
-function TB_SaveReportRDL()
-{
-	ReportingServices.showPrompt(null, "", function(result, reportName) {
+function TB_SaveReportRDL() {
+	ReportingServices.showPrompt(null, "", function (result, reportName) {
 		if (result == jsResources.OK && reportName)
 			responseServer.ExecuteCommand('saveReportRDL', "reportName=" + reportName, false, TB_SaveCallBack);
 	}, { title: jsResources.InputReportRdlName });
 }
 
-function TB_SaveCallBack(url, httpRequest)
-{
+function TB_SaveCallBack(url, httpRequest) {
 	if (httpRequest.status == 200)
 		ReportingServices.showOk(jsResources.Complete);
 	else
@@ -69,8 +65,7 @@ function TB_PropmtReportName(
 	showCategory,
 	additionalCategories,
 	dontCreateNewCategories,
-	reportNameAlreadyWas)
-{
+	reportNameAlreadyWas) {
 	if (reportNameFieldID != null)
 		tbPropmtReportNameData.reportNameFieldID = reportNameFieldID;
 	if (formId != null)
@@ -89,7 +84,7 @@ function TB_PropmtReportName(
 		tbPropmtReportNameData.dontCreateNewCategories = dontCreateNewCategories;
 	if (reportNameAlreadyWas == null)
 		reportNameAlreadyWas = "";
-		
+
 	//back operation
 	reportNameFieldID = tbPropmtReportNameData.reportNameFieldID;
 	formId = tbPropmtReportNameData.formId;
@@ -99,7 +94,8 @@ function TB_PropmtReportName(
 	showCategory = tbPropmtReportNameData.showCategory;
 	additionalCategories = tbPropmtReportNameData.additionalCategories;
 	dontCreateNewCategories = tbPropmtReportNameData.dontCreateNewCategories;
-	
+
+	// get report name from URL
 	var rnIndex = window.location.search.indexOf('rn=');
 	var reportName = "";
 	var category = "";
@@ -108,218 +104,115 @@ function TB_PropmtReportName(
 		reportName = reportNameField.value;
 	if (!reportName && rnIndex != -1)
 		reportName = window.location.search.match(/rn=([^&$]*)/)[1];
-	if (reportName != null)
-	{
+	if (reportName != null) {
 		reportName = reportName.replace(/%5c/g, jsResources.categoryCharacter);
 		reportName = reportName.replace(/%27/g, "'");
 		reportName = reportName.replace(/%25/g, "%");
 		var lastfolderIndex = reportName.lastIndexOf(jsResources.categoryCharacter);
-		if(lastfolderIndex!=-1)
-		{
+		if (lastfolderIndex != -1) {
 			category = reportName.substring(0, lastfolderIndex);
-			reportName = reportName.substr(lastfolderIndex+1);
+			reportName = reportName.substr(lastfolderIndex + 1);
 		}
 	}
 	if (reportNameAlreadyWas != "")
 		reportName = reportNameAlreadyWas;
-	category = category.replace(/\+/g," ");
-	reportName = reportName.replace(/\+/g," ");
+	category = category.replace(/\+/g, " ");
+	reportName = reportName.replace(/\+/g, " ");
 	var UserData = new ud();
 	UserData.reportNameFieldID = reportNameFieldID;
 	UserData.formId = formId;
 	UserData.action = action;
 	UserData.forceNewNameOnSave = forceNewNameOnSave;
 	UserData.PostBackScript = PostBackScript;
-	if (forceNewNameOnSave || !reportName)
-	{
+	if (forceNewNameOnSave || !reportName) {
 		UserData.checkReportExist = true;
-		
-		if(folderId!=null)
-		{
-			var folderControl = document.getElementById(folderId);
-			if(folderControl!=null)
-			{
-				var folderText = folderControl.value;
-				if(folderText != null)
-					category = folderText;
-			}
-		}
-
-		var genHtml = "<span>" + jsResources.InputReportName +"</span><br><input type='text' value=\"" + reportName + "\" id='promt_input'><br>";
-		if (showCategory)
-		{
+		var genHtml = "<span>" + jsResources.InputReportName + "</span><br><input type='text' value=\"" + reportName + "\" id='promt_input'><br>";
+		if (showCategory) {
 			if (autoSelectedValue == '')
 				autoSelectedValue = category;
-			var categories = reportCategories.split(",");
-			var categoriesHtml = "<select onchange='TB_OnCategoryChanged(this)' id='promt_input2' style='min-width:136px;'>";
-			var indent = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
-			var currentCategory = new Array();
-			var selectedAnything = false;
-			for(var i=0;i<categories.length;i++)
-			{
-				var currentName = "";
-				var currentDispalName = "";
-				var newCurrentCategory = new Array();
-				var subcategories = categories[i].split(jsResources.categoryCharacter);
-				
-				var cnt = currentCategory.length;
-				if (cnt > subcategories.length)
-				  cnt = subcategories.length;
-					
-				var subcategoriesIndex = 0;
-				
-				while ((subcategoriesIndex < cnt) && (currentCategory[subcategoriesIndex] == subcategories[subcategoriesIndex]))
-				{
-					if (currentName != "")
-						currentName += jsResources.categoryCharacter;
-					currentName += subcategories[subcategoriesIndex];
-					currentDispalName += indent;
-					newCurrentCategory.push(subcategories[subcategoriesIndex]);
-					subcategoriesIndex++;
-				}
-				
-				cnt = subcategories.length;
-				for (var j=subcategoriesIndex;j<cnt;j++)
-				{
-					if (currentName != "")
-						currentName += jsResources.categoryCharacter;
-				  currentName += subcategories[j];
-				  selected = "";
-				  if (!selectedAnything) {
-				    var selected = (additionalCategories == null && currentName == category) ? "selected" : "";
-				    if (autoSelectedValue == currentName) {
-				      selected = "selected";
-				      autoSelectedValue = "";
-				    }
-				    if (selected == "selected")
-				      selectedAnything = true;
-				  }
-					categoriesHtml += "<option value=\"" + currentName + "\" " + selected+ " >" + currentDispalName+subcategories[j] + "</option>";
-					currentDispalName += indent;
-					newCurrentCategory.push(subcategories[j]);
-				}
-				
-				if (i==0 && !dontCreateNewCategories)
-					categoriesHtml += "<option value='CreateNew'>" + jsResources.CreateNew + "</option>";
-				currentCategory = newCurrentCategory;
-			}
-			if (additionalCategories != null) {
-			  if (!selectedAnything) {
-			    var pos = additionalCategories.indexOf("'" + autoSelectedValue + "'");
-			    if (pos > 0) {
-			      var tagStr = "'" + autoSelectedValue + "'";
-			      var len = tagStr.length;
-			      var newAC = additionalCategories.substr(0, pos + len) + " selected " + additionalCategories.substr(pos + len);
-			      additionalCategories = newAC;
-			    }
-			  }
-			  categoriesHtml += additionalCategories;
-			}
-			categoriesHtml += "</select>";
+			var categoriesHtml = "<select id='promt_input2' style='min-width:136px;'></select>";
 			genHtml += "<span>" + jsResources.Category + "</span><br>" + categoriesHtml;
 		}
 		else
 			genHtml += "<input style='display:none' type='text' value=\"" + category + "\" id='promt_input2'>";
 
-		ReportingServices.showConfirm(genHtml, function(result) {
-			TB_PromptCallback(result, document.getElementById("promt_input").value, document.getElementById('promt_input2').value, UserData);
-		}, { onshow: function () { ReportingServices.focus(document.getElementById("promt_input")); }, showCaption: false, showClose: false });
+		// show name/category dialog
+		ReportingServices.showConfirm(
+			genHtml,
+			function (result) {
+				TB_PromptCallback(result, document.getElementById("promt_input").value, document.getElementById('promt_input2').value, UserData);
+			}, {
+				onshow: function () {
+					// prepare categories
+					var catsArray = [{
+						name: ''
+					}, {
+						name: jsResources.CreateNew
+					}];
+					var categories = reportCategories.split(",");
+					catsArray = catsArray.concat(categories
+						.filter(function (f) { return f !== ''; })
+						.map(function (c) {
+							return { name: c };
+						}));
+					if (tbPropmtReportNameData.additionalCategories)
+						catsArray = catsArray.concat(tbPropmtReportNameData.additionalCategories.map(function (c) {
+							return { name: c };
+						}));
+
+					// create categories control
+					var categoryControl = new AdHoc.Utility.IzendaCategorySelectorControl(jq$('#promt_input2'),
+						jsResources.categoryCharacter, stripInvalidCharacters, allowInvalidCharacters);
+					categoryControl.setCategories(catsArray);
+					categoryControl.select(autoSelectedValue);
+					categoryControl.addSelectedHandler(function (val) {
+						// "create new" handler:
+						if (val === IzLocal.Res('js_CreateNew', '(Create new)')) {
+							var input = document.getElementById("promt_input");
+							ReportingServices.showPrompt(null, "", TB_OnCategoryChangedCallBack, {
+								ctx: { OldReportName: input != null ? input.value : "" },
+								title: jsResources.InputNameOfNewCategory
+							});
+						}
+						else
+							autoSelectedValue = val;
+					});
+					// set focus
+					ReportingServices.focus(document.getElementById("promt_input"));
+				},
+				showCaption: false,
+				showClose: false
+			});
 	}
-	else
-	{
+	else {
 		UserData.checkReportExist = false;
 		TB_PromptCallback(jsResources.OK, reportName, category, UserData);
 	}
 }
 
-function TB_OnCategoryChanged(obj)
-{
-	var selectedValue = obj.value;
-	if (selectedValue=='CreateNew')
-	{
-		var input = document.getElementById("promt_input");
-		ReportingServices.showPrompt(null, "", TB_OnCategoryChangedCallBack, {
-			ctx: { OldReportName: input != null ? input.value : "" },
-			title: jsResources.InputNameOfNewCategory
-		});
+/**
+ * "New category" dialog close handler. We need to validate input, add new category and go back to name/category dialog.
+ */
+function TB_OnCategoryChangedCallBack(result, inputValue, context) {
+	if (result == jsResources.OK) {
+		if (tbPropmtReportNameData.additionalCategories == null)
+			tbPropmtReportNameData.additionalCategories = [];
+		// fix user input:
+		var fixedInputValue = window.utility.fixReportNamePath(inputValue,
+			jsResources.categoryCharacter,
+			stripInvalidCharacters,
+			allowInvalidCharacters);
+		if (!fixedInputValue) {
+			// if not valid: show error
+			ReportingServices.showOk(IzLocal.Res('InvalidCategoryName', 'Invalid Category Name'), TB_PropmtReportName);
+			return false;
+		}
+		// if valid: add new category
+		tbPropmtReportNameData.additionalCategories.push(fixedInputValue);
+		// change selected value by default
+		autoSelectedValue = fixedInputValue;
 	}
-}
-
-function escapeRegExp(s) {
-  return s.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
-}
-
-function TB_OnCategoryChangedCallBack(result, inputValue, context)
-{
-	if (result == jsResources.OK)
-	{
-		var additionalCategories = tbPropmtReportNameData.additionalCategories;
-		if (additionalCategories==null)
-		  additionalCategories = "";
-		additionalCategories = additionalCategories.replace("selected", "");
-		tbPropmtReportNameData.additionalCategories = additionalCategories;
-		var found = false;
-		
-		var newCat = inputValue;
-		var additionalCharacter = '';
-		if (jsResources.categoryCharacter != '\\')
-			additionalCharacter = escapeRegExp(jsResources.categoryCharacter);
-		var regexp = new RegExp("[^A-Za-z0-9_/" + additionalCharacter + "\\-'' \\\\]", 'g');
-		if (stripInvalidCharacters)
-		{
-		  newCat = newCat.replace(regexp, '');
-			if (newCat.length == 0) 
-			{
-				ReportingServices.showOk("Category Name invalid. Please provide a valid category name.", TB_PropmtReportName);
-				return false;
-			}
-		}
-		else 
-		{
-		  var pos = newCat.search(regexp);
-			if (pos != -1 && !allowInvalidCharacters) 
-			{
-				ReportingServices.showOk("Category Name invalid. Please provide a valid category name.", TB_PropmtReportName);
-				return false;
-			}
-		}
-		
-		var newInLower = newCat.toLowerCase();
-		var existingCats = reportCategories.split(',');
-		for (var i = 0; i < existingCats.length; i++) 
-		{
-			if (existingCats[i].toLowerCase() == newInLower) 
-			{
-				newCat = existingCats[i];
-				found = true;
-				break;
-			}
-		}
-		if (!found) 
-		{
-			var addedCats = additionalCategories.split('\'');
-			j = -1;
-			while (j < addedCats.length - 2)
-			{
-				j += 2;
-				if (addedCats[j].toLowerCase() == newInLower)
-				{
-					newCat = addedCats[j];
-					found = true;
-					break;
-				}		    
-			}
-		}
-		if (!found) 
-		{
-			additionalCategories += "<option value=\"" + newCat + "\" selected >" + newCat + "</option>";
-			tbPropmtReportNameData.additionalCategories = additionalCategories;
-		}
-		else 
-		{
-			autoSelectedValue = newCat;		  
-		}
-	}
+	// go back to the report name/category dialog
 	TB_PropmtReportName(
 		tbPropmtReportNameData.reportNameFieldID,
 		tbPropmtReportNameData.formId,
@@ -328,7 +221,7 @@ function TB_OnCategoryChangedCallBack(result, inputValue, context)
 		tbPropmtReportNameData.PostBackScript,
 		tbPropmtReportNameData.showCategory,
 		tbPropmtReportNameData.additionalCategories,
-		null, 
+		null,
 		context.ctx.OldReportName);
 }
 
@@ -340,18 +233,19 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 
 	ebc_cancelSubmiting = false;
 
-	if (result == jsResources.OK && reportName != null)
-	{
-		reportName = SRA_ProcessReportName(reportName, folderName);
-		reportName = jq$.map(reportName.split(jsResources.categoryCharacter), jq$.trim).join(jsResources.categoryCharacter);
+	if (result == jsResources.OK && reportName != null) {
+		reportName =
+			window.utility.fixReportNamePath(
+				reportName, jsResources.categoryCharacter, stripInvalidCharacters, allowInvalidCharacters);
 		if (reportName == null) {
 			ReportingServices.showOk(jsResources.InvalidReportName);
 			ebc_cancelSubmiting = true;
 			return;
 		}
+		if (folderName)
+			reportName = folderName + jsResources.categoryCharacter + reportName;
 		var b = SRA_CheckReport(reportName, UserData.checkReportExist);
-		if (b.canBeSaved)
-		{
+		if (b.canBeSaved) {
 			this.PostBackScript = UserData.PostBackScript;
 			var currentContext = this;
 			function execute() {
@@ -403,134 +297,123 @@ function TB_PromptCallback(result, reportName, folderName, UserData) {
 }
 
 function pause(ms) {
-  var now = new Date();
-  var exitTime = now.getTime() + ms;
-  while (true) {
-    now = new Date();
-    if (now.getTime() >= exitTime) return;
-  }
+	var now = new Date();
+	var exitTime = now.getTime() + ms;
+	while (true) {
+		now = new Date();
+		if (now.getTime() >= exitTime) return;
+	}
 }
 
-function TB_ShowLimitationMessage()
-{
+function TB_ShowLimitationMessage() {
 	var limitMsg = document.getElementById("limitMsgId");
 	if (limitMsg)
 		limitMsg.style.display = "block";
 }
 
 function TB_WaitForPrint(printWnd) {
-  if (!printWnd.document.readyState || printWnd.document.readyState != 'complete') {
-    setTimeout(function() { TB_WaitForPrint(printWnd); }, 100);
-  }
-  else {
-    printWnd.print();
-  }
+	if (!printWnd.document.readyState || printWnd.document.readyState != 'complete') {
+		setTimeout(function () { TB_WaitForPrint(printWnd); }, 100);
+	}
+	else {
+		printWnd.print();
+	}
 }
 
 function TB_ShowDashPrintWindow(address) {
-  printwindow = window.open(address);
-  setTimeout( function() { TB_WaitForPrint(printwindow); } , 500);
+	printwindow = window.open(address);
+	setTimeout(function () { TB_WaitForPrint(printwindow); }, 500);
 }
 
-function TB_EMailReportServer(reportName)
-{
-	if(reportName=="")
-	{
+function TB_EMailReportServer(reportName) {
+	if (reportName == "") {
 		ebc_cancelSubmiting = true;
 		alert(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
 	}
 	var email = prompt(jsResources.InputRecipientEmailAddress);
-	if(email!=null && email!="")
-	{
+	if (email != null && email != "") {
 		var eMailField = document.getElementById("TB_EMail");
 		eMailField.value = email;
+		theForm.onsubmit = function () {
+			for (i = 0; i < theForm.length; i++) {
+				if (theForm[i].getAttribute('htmlallowed') == 'true')
+					if (theForm[i].value)
+						theForm[i].value = theForm[i].value.escapeHtml();
+			}
+			return true;
+		}
 	}
 	else
 		ebc_cancelSubmiting = true;
 	
 }
 
-function TB_EMailReport(reportName, redirectUrl)
-{
-	if(reportName=="")
-	{
+function TB_EMailReport(reportName, redirectUrl) {
+	if (reportName == "") {
 		ReportingServices.showOk(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
 	}
-	else
-	{	
-		try
-		{
+	else {
+		try {
 			redirectUrl = "mailto:" + redirectUrl.replace(/ /g, "%20");
 			window.top.location = redirectUrl;
 		}
-		catch(e) {}
+		catch (e) { }
 	}
 }
 
-function TB_EMailReportCallback(UserData,email,IsOk)
-{
-		var reportName = UserData.reportName;
-		var redirectUrl = UserData.redirectUrl;
-		if(email!=null && email!="")
-		{
-			try 
-			{
-				redirectUrl = "mailto:" + email + redirectUrl.replace(/ /g, "%20");
-				window.top.location = redirectUrl;
-			}
-			catch(e) {}
+function TB_EMailReportCallback(UserData, email, IsOk) {
+	var reportName = UserData.reportName;
+	var redirectUrl = UserData.redirectUrl;
+	if (email != null && email != "") {
+		try {
+			redirectUrl = "mailto:" + email + redirectUrl.replace(/ /g, "%20");
+			window.top.location = redirectUrl;
 		}
+		catch (e) { }
+	}
 }
 
-function TB_EMailReportNoPostback(reportName)
-{
-	if(reportName=="")
+function TB_EMailReportNoPostback(reportName) {
+	if (reportName == "")
 		ReportingServices.showOk(jsResources.YouMustSaveAReportBeforeItCanBeEmailed);
-	else
-	{
-		ReportingServices.showPrompt(null, "", function(result, email) {
+	else {
+		ReportingServices.showPrompt(null, "", function (result, email) {
 			if (result == jsResources.OK && email != null && email != "")
 				responseServer.ExecuteCommand("sendEmail", "address=" + email + "&" + "reportName=" + reportName);
 		}, { title: jsResources.InputRecipientEmailAddress });
 	}
 }
 
-function TB_PublishRdlNoPostback(reportName)
-{
-	if(reportName=="")
+function TB_PublishRdlNoPostback(reportName) {
+	if (reportName == "")
 		ReportingServices.showOk(jsResources.PleaseSaveYourReportBeforePublishingIt);
-	else
-	{
-		ReportingServices.showPrompt(null, "", function(result, folderName) {
+	else {
+		ReportingServices.showPrompt(null, "", function (result, folderName) {
 			if (result == jsResources.OK)
 				responseServer.ExecuteCommand("publishRdl", "reportName=" + reportName + "&" + "folderName=" + folderName, false, TB_PublishRdlCallBack);
 		}, { title: jsResources.InputFolderName });
 	}
 }
 
-function TB_PublishRdlCallBack(url, httpRequest)
-{
+function TB_PublishRdlCallBack(url, httpRequest) {
 	if (httpRequest.status == 200)
 		ReportingServices.showOk(jsResources.Complete);
 	else
 		ReportingServices.showOk(jsResources.ServerError);
 }
 
-function ChangeFormAction(formId, action)
-{
+function ChangeFormAction(formId, action) {
 	var form = document.forms[formId];
-	if(form!=null)
+	if (form != null)
 		form.action = action;
 }
 
-function TB_ShowUnsupportedImagePopup(url)
-{
+function TB_ShowUnsupportedImagePopup(url) {
 	TB_ShowImagePopup(url, "<br><a href='http://www.izenda.com/adhoc'>This feature is unsupported in Express Edition. Click here to upgrade</a>");
 }
 
 var images = {};
-function TB_ShowImagePopup(url, html)
-{
+function TB_ShowImagePopup(url, html) {
 	if (html == null)
 		html = "";
 	var img = images[url];
@@ -552,6 +435,6 @@ function TB_ShowImagePopup(url, html)
 
 	ReportingServices.showModal('<div onclick="ReportingServices.hideTip()">{message}<br />\n\
 <image src="{url}" />{html}</div>'.format({
-		message: jsResources.ClickImageToClose, url: url, html: html
-	}));
+			message: jsResources.ClickImageToClose, url: url, html: html
+		}));
 }
