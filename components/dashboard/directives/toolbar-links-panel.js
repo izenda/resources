@@ -1,6 +1,5 @@
 ﻿izendaRequire.define([
 	'angular',
-	'../../common/query/services/url-service',
 	'../services/services'
 ], function (angular) {
 
@@ -11,7 +10,7 @@
 		'use strict';
 
 		// implementation
-		function izendaToolbarLinksPanel($timeout, $izendaUrl) {
+		function izendaToolbarLinksPanel($timeout) {
 			'use strict';
 			var _ = angular.element;
 			return {
@@ -26,33 +25,37 @@
 				},
 				templateUrl: '###RS###extres=components.dashboard.templates.toolbar-links-panel.html',
 				link: function ($scope, elem, attrs) {
-					var $slideContainer = _(elem).find('.iz-dash-linkspanel-navbar-3');
-					var slideContainerWidth = $slideContainer.width();
+					var $slideScrollContainer = angular.element(elem).find('.iz-dash-linkspanel-navbar-2');
+					var $slideContainer = angular.element(elem).find('.iz-dash-linkspanel-navbar-3');
 
-					// calculate max right of menu items
-					var getMaxRight = function () {
-						var maxRight = 0;
-						$slideContainer.find('.iz-dash-linkspanel-navbar-item').each(function () {
-							var right = angular.element(this).position().left + _(this).width();
-							if (maxRight < right)
-								maxRight = right;
-						});
-						return maxRight;
-					};
+					function getMinRight() {
+						var c2Width = $slideScrollContainer.width();
+						var c3Width = $slideContainer.width();
+						return c2Width - c3Width - 40;
+					}
+
+					function getMaxRight() {
+						return 40;
+					}
+
+					function respectEdges(position) {
+						var result = position;
+						var min = getMinRight();
+						var max = getMaxRight();
+						result = Math.max(result, min);
+						result = Math.min(result, max);
+						return result;
+					}
 
 					// move toolbar buttons left or right
-					var moveMenuItems = function (leftDelta) {
-						var left = $slideContainer.css('left');
-						if (angular.isString(left) && left.indexOf('px') >= 0)
-							left = parseInt(left.substring(0, left.length - 2));
-						left += leftDelta;
-						var maxRight = getMaxRight();
-						var width = slideContainerWidth;
-						if (left < width - maxRight)
-							left = width - maxRight;
-						if (left > 0)
-							left = 0;
-						$slideContainer.css('left', left + 'px');
+					function moveMenuItems(rightDelta) {
+						var rightString = $slideContainer.css('right');
+						var rightNumber = 0;
+						if (angular.isString(rightString) && rightString.indexOf('px') >= 0)
+							rightNumber = parseInt(rightString.substring(0, rightString.length - 2));
+						rightNumber += rightDelta;
+						rightNumber = respectEdges(rightNumber);
+						$slideContainer.css('right', rightNumber + 'px');
 					}
 
 					// move to item
@@ -63,26 +66,22 @@
 						}
 						if (itemToMove) {
 							var $item = angular.element(elem).find('#izDashToolbarItem' + itemToMove.id);
-							var maxRight = getMaxRight();
-							var width = slideContainerWidth;
-							var left = $item.position().left + $item.width() / 2;
-							left = -left + width / 2;
-							if (left > 0)
-								left = 0;
-							if (left < width - maxRight)
-								left = width - maxRight;
-							$slideContainer.css('left', left + 'px');
+
+							var itemRight = $slideContainer.width() - $item.position().left - $item.width() / 2;
+							var rightNumber = $slideScrollContainer.width() / 2 - itemRight;
+							rightNumber = respectEdges(rightNumber);
+							$slideContainer.css('right', rightNumber + 'px');
 						}
 					};
 
 					// move right button
 					$scope.moveRight = function () {
-						moveMenuItems(-300);
+						moveMenuItems(300);
 					};
 
 					// move left button
 					$scope.moveLeft = function () {
-						moveMenuItems(300);
+						moveMenuItems(-300);
 					};
 
 					// get active li class 
@@ -100,7 +99,8 @@
 							});
 							$scope.refreshButtonsWidth = false;
 						}
-						return $scope.sumWidth > slideContainerWidth;
+						var width = $slideScrollContainer.width();
+						return width && $scope.sumWidth > width;
 					};
 
 					// watch toolbar item collection changed
@@ -143,7 +143,7 @@
 			.module('izendaDashboard')
 			.directive('izendaToolbarLinksPanel', [
 				'$timeout',
-				'$izendaUrl',
+				'$window',
 				izendaToolbarLinksPanel
 			]);
 	})();

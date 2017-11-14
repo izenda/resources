@@ -90,7 +90,7 @@
       <div class="iz-inst-report-name-container"
            ng-show="irController.isExistingReport">
         <ol class="breadcrumb"
-            ng-show="irController.reportInfo.category !== '' && irController.reportInfo.category !== 'Uncategorized'"
+            ng-show="irController.reportInfo.category && irController.reportInfo.category !== 'Uncategorized'"
             ng-attr-title="{{irController.reportInfo.fullName}}">
           <li>
             <b ng-bind="irController.reportInfo.category"></b>
@@ -98,7 +98,7 @@
           <li class="active" ng-bind="irController.reportInfo.name"></li>
         </ol>
         <ol class="breadcrumb"
-            ng-hide="irController.reportInfo.category !== '' && irController.reportInfo.category !== 'Uncategorized'"
+            ng-hide="irController.reportInfo.category && irController.reportInfo.category !== 'Uncategorized'"
             ng-attr-title="{{irController.reportInfo.fullName}}">
           <li class="active" ng-bind="irController.reportInfo.name"></li>
         </ol>

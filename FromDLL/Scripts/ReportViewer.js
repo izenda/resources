@@ -1146,7 +1146,6 @@ function GotRenderedReportSet(returnObj, id) {
 		setTimeout(function () { jq$('body')[0].className = jq$('body')[0].className; }, 200);
 	if (!initialized) {
 		initialized = true;
-		GetReportViewerConfig();
 		FirstLoadInit();
 	}
 	else {

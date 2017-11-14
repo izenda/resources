@@ -189,8 +189,8 @@
 				vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel-ie8';
 				vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel-ie8 opened';
 			} else {
-				vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel left-transition';
-				vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel left-transition opened';
+				vm.buttonbarClass = 'nav navbar-nav iz-dash-toolbtn-panel';
+				vm.buttonbarCollapsedClass = 'nav navbar-nav iz-dash-collapsed-toolbtn-panel opened';
 			}
 			$timeout(function () {
 				vm.updateToolbarItems();

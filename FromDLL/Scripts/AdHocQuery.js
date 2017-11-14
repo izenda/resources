@@ -166,6 +166,8 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 				izenda.error.defaultCallbackError(thisRequestObject);
 		}
 	}
+
+	return thisRequestObject;
 }
 
 function getAppendedUrl(urlToAppend) {

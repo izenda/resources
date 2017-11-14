@@ -41,7 +41,7 @@ UrlSettingsPaths = {
 		var baseUrlFromServer = urlBase + '/rs.aspx';
 
 		// request to response server: we need to get config synchronously before continue
-		var url = baseUrlFromServer + '?wscmd=reportviewerconfig';
+		var url = baseUrlFromServer + '?wscmd=izendaurls';
 		url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
 		url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
 		jq$.ajax({

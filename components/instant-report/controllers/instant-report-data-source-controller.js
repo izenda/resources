@@ -106,7 +106,7 @@
 		vm.turnOffSearch = function (resetSearchResults) {
 			vm.searchPanelOpened = false;
 			if (resetSearchResults) {
-				$izendaUrl.setHash('');
+				angular.element('#izInstDataSourcesTree').get(0).scrollTop = 0;
 				vm.searchString = '';
 				vm.searchResults = [];
 				previousResultsCount = null;
@@ -129,7 +129,7 @@
 			if (clearResults) {
 				vm.searchResults = [];
 				previousResultsCount = null;
-				$izendaUrl.setHash('anchorSearchResultsTop');
+				angular.element('#izInstDataSourcesTree').get(0).scrollTop = 0;
 			}
 			if (previousResultsCount === 0) {
 				vm.searchQueryRunning = false;
@@ -398,20 +398,35 @@
 		 * @param {object} searchResultObject. Object, with table sysname and field sysname. 
 		 */
 		vm.revealSearchResult = function (searchResultObject) {
-			vm.selectField(null);
-			vm.turnOffSearch(true);
-			var isField = searchResultObject.hasOwnProperty('fSysName');
-			var tableSysName = searchResultObject['tSysName'];
-			var table = $izendaInstantReportStorage.getTableBySysname(tableSysName);
-			vm.toggleTableCollapse(table).then(function () {
+			function gotoSearchTarget(searchResult) {
+				var isField = searchResult.hasOwnProperty('fSysName');
+				var tSysName = searchResult['tSysName'];
 				if (isField) {
-					var fieldSysName = searchResultObject['fSysName'];
+					var fieldSysName = searchResult['fSysName'];
 					var field = $izendaInstantReportStorage.getFieldBySysName(fieldSysName, true);
 					vm.selectField(field);
 					$scope.$applyAsync();
 				}
-				$izendaUrl.setHash('anchor' + tableSysName);
-			});
+				// scroll to element
+				$timeout(function () {
+					var tableEl = document.getElementById('anchor' + tSysName);
+					if (tableEl)
+						angular.element('#izInstDataSourcesTree').get(0).scrollTop = angular.element(tableEl).position().top;
+				}, 300);
+			}
+
+			vm.selectField(null);
+			vm.turnOffSearch(true);
+			$scope.$applyAsync();
+			
+			var table = $izendaInstantReportStorage.getTableBySysname(searchResultObject['tSysName']);
+			if (!table.collapsed) {
+				gotoSearchTarget(searchResultObject);
+			} else {
+				vm.toggleTableCollapse(table).then(function () {
+					gotoSearchTarget(searchResultObject);
+				});
+			}
 		};
 
 		/**

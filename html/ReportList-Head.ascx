@@ -2,6 +2,7 @@
 
 <!-- Styles Resources -->
 <link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.Filters.min.css" />
+<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.report-list.css" />
 
 <!-- Styles Internal -->
 <link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" /> 

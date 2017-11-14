@@ -27,6 +27,13 @@
 				'$logProvider', function ($logProvider) {
 					$logProvider.debugEnabled(false);
 				}])
+			.config(['$provide', function ($provide) {
+				$provide.decorator('$browser', ['$delegate', function ($delegate) {
+					$delegate.onUrlChange = function () { };
+					$delegate.url = function () { return ''; };
+					return $delegate;
+				}]);
+			}])
 			.constant('$izendaInstantReportSettings', configObject);
 
 		return module;

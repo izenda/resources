@@ -629,17 +629,6 @@
 					vm.reportInfo = null;
 					return;
 				}
-				// default action - new report
-				if (reportInfo.isDefault) {
-					$izendaUrl.setLocation({
-						fullName: null,
-						name: null,
-						category: null,
-						isNew: true,
-						isDefault: false
-					});
-					return;
-				}
 				if (angular.isString(reportInfo.fullName) && reportInfo.fullName.trim() !== '') {
 					// if location contains report name: load it
 					$izendaInstantReportStorage.loadReport(reportInfo.fullName).then(function () {

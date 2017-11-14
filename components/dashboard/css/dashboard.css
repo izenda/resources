@@ -346,10 +346,17 @@ body {
 }
 
 .left-transition {
-	-moz-transition: left 0.2s ease;
-	-o-transition: left 0.2s ease;
-	-webkit-transition: left 0.2s ease;
-	transition: left 0.2s ease;
+	-moz-transition: left 0.2s ease-in;
+	-o-transition: left 0.2s ease-in;
+	-webkit-transition: left 0.2s ease-in;
+	transition: left 0.2s ease-in;
+}
+
+.right-transition {
+	-moz-transition: right 0.2s ease-in;
+	-o-transition: right 0.2s ease-in;
+	-webkit-transition: right 0.2s ease-in;
+	transition: right 0.2s ease-in;
 }
 
 /* dashboard links panel */
@@ -368,15 +375,16 @@ body {
 .iz-dash-linkspanel-slide-btn {
 	position: absolute;
 	top: 0;
-	padding: 14px 0;
+	padding: 13px 0;
 	width: 40px;
 	text-align: center;
 	cursor: pointer;
 	color: #999;
+	background-color: #f8f8f8;
 }
 
 	.iz-dash-linkspanel-slide-btn:hover {
-		background-color: #f8f8f8;
+		background-color: #DFDFE1;
 	}
 
 	.iz-dash-linkspanel-slide-btn.right {
@@ -390,13 +398,14 @@ body {
 .iz-dash-linkspanel-navbar-2 {
 	overflow: hidden;
 	white-space: nowrap;
-	margin: 0 40px;
+	margin: 0;
 	height: 49px;
+	position: relative;
 }
 
 .iz-dash-linkspanel-navbar-3 {
-	position: relative;
-	left: 0;
+	position: absolute;
+	right: 40px;
 }
 
 .iz-dash-linkspanel-navbar-item {
@@ -471,6 +480,10 @@ body {
 	top: 0;
 	bottom: 0;
 }
+
+	.iz-dash-dashboards-dropdown .dropdown-toggle {
+		padding-bottom: 13px;
+	}
 
 .iz-dash-dashboards-dropdown-container {
 	padding: 0;

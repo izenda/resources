@@ -2296,6 +2296,8 @@
 						field = getCalcField(fieldSysName);
 					} else
 						field = getFieldBySysName(fieldSysName);
+					while (field && field.mcAncestor)
+						field = field.mcAncestor;
 
 					filterObject.field = field;
 					if (angular.isDefined(values)) {
@@ -2700,6 +2702,7 @@
 					if (parentField.multipleColumns.length === 0) {
 						// if field has no multiple fields:
 						var copyField = parentField = angular.copy(field);
+						copyField.mcAncestor = field;
 						copyField.originId = field.id;
 						copyField.isMultipleColumns = true;
 						copyField.multipleColumnsCounter = 1;

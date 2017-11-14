@@ -211,37 +211,15 @@
 <script src="./rp.aspx?extres=components.dashboard.module-loader.js"></script>
 
 <script runat="server">
-    protected override void OnInit(EventArgs e)
-    {
-      if (Utility.PageIsPostBack(Page))
-        return;
+	protected override void OnInit(EventArgs e)
+	{
+		if (Utility.PageIsPostBack(Page))
+			return;
 
-      if (Page.Request.Params["clear"] != null)
-      {
-        AdHocContext.CurrentReportSet = ReportSet.InitializeNew();
-        Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "#!?new");
-      }
-
-      if (Page.Request.Params["rn"] != null)
-      {
-        string report = Page.Request.Params["rn"],
-          query = null;
-        var izpidFound = false;
-        foreach (string key in Request.QueryString.AllKeys)
-        {
-          if (key == "rn")
-            continue;
-          if (key == "izpid")
-            izpidFound = true;
-          if (!string.IsNullOrEmpty(query))
-            query += "&";
-          query += string.Format("{0}={1}", key, Request.QueryString[key]);
-        }
-        var baseUrl = Request.Path + (!string.IsNullOrEmpty(query) ? "?" : "") + query;
-        if (!izpidFound)
-          baseUrl = Utility.AppendIzPidParameter(baseUrl);
-
-        Response.Redirect(baseUrl + "#!/" + report.Replace("\\", "%5c"));
-      }
-    }
+		if (Page.Request.Params["clear"] != null)
+		{
+			AdHocContext.CurrentReportSet = ReportSet.InitializeNew();
+			Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "?isNew=1");
+		}
+	}
 </script>

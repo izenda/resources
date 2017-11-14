@@ -32,7 +32,7 @@
     </div>
   </form>
 
-  <div class="iz-inst-data-sources-tree">
+  <div id="izInstDataSourcesTree" class="iz-inst-data-sources-tree">
     <!-- loading message -->
     <div class="izenda-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
       <div class="izenda-vcentered-item">
@@ -43,8 +43,7 @@
     </div>
 
     <!-- search results -->
-    <div id="anchorSearchResultsTop"
-         class="ds-tree-item noselect"
+    <div class="ds-tree-item noselect"
          ng-show="!irDataSourceController.isDataSourcesLoading && irDataSourceController.searchPanelOpened"
          izenda-scroll-bottom-action="irDataSourceController.runSearchQuery(false)">
       <div class="ds-tree-item-header collapse-link list-like" ng-repeat="searchResult in irDataSourceController.searchResults track by searchResult.id"
