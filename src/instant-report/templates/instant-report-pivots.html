@@ -1,0 +1,137 @@
+﻿<div ng-controller="InstantReportPivotsController as pivotsController"
+     ng-init="pivotsController.init()" ng-cloak>
+
+  <div class="iz-inst-top-panel" ng-show="$izendaCompatibility.isSmallResolution() || pivotsController.panelOpened"
+       droppable-accept=".datasource-field"
+       on-drop="pivotsController.addPivotItem(arg0)"
+       izenda-instant-report-field-droppable>
+    <div class="iz-inst-top-panel-header">
+      <span ng-bind="'js_Pivots' | izendaLocale: 'Pivots'" bind-once></span>
+      <a class="white pull-right close-btn"
+         ng-attr-title="{{'js_ClosePivotPanel' | izendaLocale: 'Close pivots panel'}}"
+         ng-click="irController.openPivotsPanel(false)">
+        <span class="glyphicon glyphicon-minus"></span>
+      </a>
+    </div>
+    <div class="iz-inst-top-panel-body">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-md-12 iz-inst-form-container">
+            <form class="form-inline form-group-sm">
+              <label class="iz-inst-pivot-inline-control right-margin">
+                <span ng-bind="'js_PivotColumn' | izendaLocale: 'Pivot column'" bind-once></span>
+                <select class="form-control izenda-width-250 iz-inst-pivot-select"
+                        ng-options="field as field.name group by field.tableName for field in pivotsController.activeFields track by field.sysname"
+                        ng-model="pivotsController.pivotColumn"
+                        ng-change="pivotsController.onPivotColumnFieldSelect()"></select>
+              </label>
+              <label class="iz-inst-pivot-inline-control right-margin">
+                <span ng-bind="'js_PivotColumnGroup' | izendaLocale: 'Pivot column group'" bind-once></span>
+                <select class="form-control izenda-width-250 iz-inst-pivot-select"
+                        ng-options="func as func.text group by func.group for func in pivotsController.pivotColumn.groupByFunctionOptions"
+                        ng-model="pivotsController.pivotColumn.groupByFunction"
+                        ng-change="pivotsController.updateReportSetValidationAndRefresh()"></select>
+              </label>
+              <div class="checkbox iz-inst-pivot-inline-control right-margin">
+                <label>
+                  <input type="checkbox"
+                         ng-model="pivotsController.pivotOptions.addSideTotals"
+                         ng-change="pivotsController.updateReportSetValidationAndRefresh()">
+                  <span class="bold" ng-bind="'js_AddSideTotals' | izendaLocale: 'Add side totals'" bind-once></span>
+                </label>
+              </div>
+              <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn"
+                 ng-show="pivotsController.pivotColumn !== null"
+                 ng-click="pivotsController.clearPivots()">
+                <span class="glyphicon glyphicon-remove" style="font-size: 0.8em;"></span>
+                <span ng-bind="'js_ClearPivots' | izendaLocale: 'Clear pivots'" bind-once></span>
+              </a>
+            </form>
+          </div>
+        </div>
+        <hr class="iz-inst-pivot-hr" />
+        <div class="row">
+          <!-- cell values -->
+          <div class="iz-inst-small-panel-container"
+               ng-repeat="cellValue in pivotsController.cellValues">
+            <div class="iz-inst-small-panel"
+                 draggable-data-id="{{$index}}"
+                 draggable-enabled="true"
+                 izenda-instant-report-field-draggable
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="pivotsController.reorderCellValue(arg0, $index)"
+                 izenda-instant-report-field-droppable>
+              <div class="iz-inst-small-panel-header form-inline"
+                   ng-class="!cellValue ? 'not-valid' : ''">
+                &nbsp;
+                <button type="button" class="btn btn-header-close"
+                        ng-attr-title="{{'js_RemoveCellValue' | izendaLocale: 'Remove cell value'}}"
+                        ng-click="pivotsController.removeCellValue(cellValue)" izenda-stop-propagation>
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+                <button class="btn btn-header-settings" type="button"
+                        ng-attr-title="{{'js_AdvFieldOptions' | izendaLocale: 'Advanced field options'}}"
+                        ng-click="pivotsController.showAdvancedOptions(cellValue)"
+                        ng-show="cellValue !== null"
+                        izenda-stop-propagation>
+                  <span class="glyphicon glyphicon-cog"></span>
+                </button>
+              </div>
+              <div class="iz-inst-small-panel-body">
+                <div class="iz-inst-small-panel-line form-group-sm">
+                  <select class="form-control"
+                          ng-options="field as field.name group by field.tableName for field in pivotsController.activeFields track by field.sysname"
+                          ng-model="pivotsController.selectedFields[$index]"
+                          ng-change="pivotsController.onCellValueFieldSelect($index)"></select>
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm"
+                     ng-show="cellValue !== null">
+                  <input type="text"
+                         ng-attr-placeholder="{{'js_Description' | izendaLocale: 'Description'}}"
+                         class="form-control"
+                         ng-model="cellValue.description"
+                         ng-blur="pivotsController.updateReportSetValidationAndRefresh()" />
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm"
+                     ng-show="cellValue !== null">
+                  <select class="form-control"
+                          ng-options="func as func.text group by func.group for func in cellValue.groupByFunctionOptions"
+                          ng-model="cellValue.groupByFunction"
+                          ng-change="pivotsController.onCellValueFunctionSelect(cellValue)"></select>
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm"
+                     ng-show="cellValue !== null">
+                  <select class="form-control"
+                          ng-options="format as format.text group by format.group for format in cellValue.formatOptionGroups"
+                          ng-model="cellValue.format"
+                          ng-change="pivotsController.updateReportSetValidationAndRefresh()"></select>
+                </div>
+              </div>
+            </div>
+            <div class="iz-inst-small-panel-drop-placeholder left"
+                 index="{{$index}}"
+                 ng-show="$index === 0 || $index % 4 === 0"
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="pivotsController.moveCellValueTo(arg0, $index)"
+                 izenda-instant-report-field-droppable>
+            </div>
+            <div class="iz-inst-small-panel-drop-placeholder right"
+                 index="{{$index + 1}}"
+                 ng-class="$index % 4 === 3 ? 'half' : ''"
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="pivotsController.moveCellValueTo(arg0, $index + 1)"
+                 izenda-instant-report-field-droppable>
+            </div>
+          </div>
+
+          <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn iz-inst-add-pivot-cell-btn" ng-click="pivotsController.addCellValue()"
+             ng-class="pivotsController.getAddCellBtnClass()">
+            <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>
+            &nbsp;
+            <span ng-bind="'js_AddPivotCellValue' | izendaLocale: 'Add Cell Value'" bind-once></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

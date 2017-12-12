@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'vendor/custom/msie-detect',
 	'../module-definition'

@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/ui/components/schedule/component',
 	'../../common/ui/services/schedule-service',

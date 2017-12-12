@@ -1240,7 +1240,7 @@
 					});
 				}
 
-				jq$(function () {
+				(function () {
 					function trace(node, i, childIndex) {
 						if (node && node.children) {
 							var index = node.children.findIndex(function (e) {
@@ -1441,7 +1441,7 @@
 							});
 						}
 					});
-				});
+				})();
 			}
 
 			function checkRhd(initWidth, callCnt) {

@@ -1,0 +1,122 @@
+﻿<!-- dashboard body -->
+<div ng-controller="IzendaDashboardController as dashboardController"
+     ng-init="dashboardController.initialize()" ng-cloak>
+
+  <!-- save report dialog component -->
+  <izenda-select-report-name-component opened="dashboardController.isSaveReportModalOpened"
+                                       on-selected="dashboardController.onSave(reportName, categoryName)"
+                                       on-modal-closed="dashboardController.onSaveClosed()">
+  </izenda-select-report-name-component>
+
+  <!-- global message boxes -->
+  <izenda-message-component></izenda-message-component>
+
+  <!-- global notification popups -->
+  <izenda-notification-component></izenda-notification-component>
+
+  <izenda-bootstrap-modal opened="dashboardController.licenseInitialized && !dashboardController.dashboardsAllowedByLicense">
+    <div class="modal-header">
+      <div class="row">
+        <div class="col-md-12">
+          <b ng-bind="'js_LicenseCheckFailed' | izendaLocale: 'License Check Failed'" bind-once></b>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">
+        <span ng-bind="'js_DashboardExtnesionsRequiredPage' | izendaLocale: 'This page requires Dashboard Extensions'" bind-once></span>
+        <br />
+        <span ng-bind="'js_PleaseContact' | izendaLocale: 'Please contact sales@izenda.com for details.'" bind-once></span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+              ng-bind="'js_close' | izendaLocale: 'Close'"></button>
+    </div>
+  </izenda-bootstrap-modal>
+
+  <izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="dashboardController.exportProgress">
+    <div class="modal-header">
+      <span ng-bind="dashboardController.getWaitMessageHeaderText()"></span>
+    </div>
+    <div class="modal-body">
+      <div class="container-fluid">
+        <span ng-bind="dashboardController.getWaitMessageText()"></span>
+      </div>
+    </div>
+  </izenda-bootstrap-modal>
+
+  <div id="dashboardsDiv" ng-show="dashboardController.dashboardsAllowedByLicense"
+       ng-click="dashboardController.dashboardGlobalClickHandler($event)">
+    <!-- message box -->
+    <izenda-bootstrap-modal opened="dashboardController.isMessageDialogOpened">
+      <div class="modal-header">
+        <div class="row">
+          <div class="col-md-12">
+            <b ng-bind="dashboardController.messageDialogTitle"></b>
+          </div>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid" ng-bind="dashboardController.messageDialogText"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+                ng-click="dashboardController.closeMessageBox()"
+                ng-bind="'js_close' | izendaLocale: 'Close'"></button>
+      </div>
+    </izenda-bootstrap-modal>
+
+    <div id="dashboardBodyContainer" class="iz-dash-body-container"
+         ng-style="dashboardController.tileContainerStyle"
+         ng-hide="dashboardController.galleryState.isGalleryEnabled">
+      <div class="tile-grid-cell shadow"
+           ng-show="dashboardController.isGridShadowVisible"
+           ng-style="dashboardController.gridShadowStyle">
+        <div class="iz-dash-select-report-front-container"
+             ng-show="dashboardController.isGridShadowPlusButtonVisible">
+          <button type="button" class="iz-dash-select-report-front-btn2 btn"
+                  ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}">
+            <span class="glyphicon glyphicon-plus"></span>
+          </button>
+        </div>
+      </div>
+      <div class="dashboard-grid"
+           ng-show="dashboardController.isGridVisible"
+           ng-style="dashboardController.gridStyle">
+      </div>
+      <!-- repeat tiles -->
+      <izenda-dashboard-tile ng-repeat="tile in dashboardController.tiles"
+                             tile="tile"
+                             tiles="dashboardController.tiles"
+                             grid-width="dashboardController.tileWidth"
+                             grid-height="dashboardController.tileHeight"
+                             is-dashboard-changing-now="dashboardController.isChangingNow"
+                             on-tile-delete="dashboardController.onTileDelete(tile)"
+                             on-tile-report-selected="dashboardController.onTileReportSelected(tile)"
+                             on-tile-drag-start="dashboardController.onTileDragStart(tile)"
+                             on-tile-drag="dashboardController.onTileDrag(tile, shadowPosition)"
+                             on-tile-drag-end="dashboardController.onTileDragEnd(eventResult)"
+                             on-tile-resize-start="dashboardController.onTileResizeStart(tile)"
+                             on-tile-resize="dashboardController.onTileResize(tile, shadowPosition)"
+                             on-tile-resize-end="dashboardController.onTileResizeEnd(eventResult)">
+      </izenda-dashboard-tile>
+    </div>
+    <div id="galleryBodyContainer"
+         ng-show="dashboardController.galleryState.isGalleryEnabled"
+         ng-style="dashboardController.galleryContainerStyle">
+      <!-- gallery -->
+      <izenda-gallery play-timeout="dashboardController.galleryState.playDelay"
+                      play-started="dashboardController.galleryState.isPlayStarted"
+                      play-stop-on-complete="!dashboardController.galleryState.isPlayRepeat"
+                      width="70%"
+                      height="80%"
+                      enabled="dashboardController.galleryState.isGalleryEnabled"
+                      gallery-items="dashboardController.galleryTiles"
+                      is-full-screen="dashboardController.galleryState.isGalleryFullScreen"
+                      ng-model="dashboardController.galleryTileIndex"
+                      update-counter="dashboardController.galleryUpdateCounter">
+      </izenda-gallery>
+    </div>
+  </div>
+</div>

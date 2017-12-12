@@ -181,7 +181,7 @@ function SC_GetSelectedFormats(id){
 	for (var i = 0; i < body.rows.length; i++) {
 		var row = body.rows[i];
 		var formatSel = EBC_GetSelectByName(row, 'Format');
-		if (!formatSel || !formatSel.options) continue;
+		if(!formatSel || !formatSel.options) continue;
 		var formatSelctedOption = formatSel.options[formatSel.selectedIndex];
 		if (formatSelctedOption != null){
 			var format = formatSelctedOption.value;
@@ -1771,17 +1771,12 @@ function SC_OnVisualGroupsCheckedHandler(e) {
 	var orderCheckbox = EBC_GetElementByName(row, 'Order', 'INPUT');
 	var orderDescCheckbox = EBC_GetElementByName(row, 'OrderDesc', 'INPUT');
 	var masterCheckbox = EBC_GetElementByName(row, 'Master', 'INPUT');
-	var invisibleCheckbox = EBC_GetElementByName(row, 'Invisible', 'INPUT');
 	var pageBreakCheckbox = EBC_GetElementByName(row, 'BreakPage', 'INPUT');
 	var separatorCheckbox = EBC_GetElementByName(row, 'Separator', 'INPUT');
 	if (masterCheckbox != null && masterCheckbox.checked) {
 		if (orderCheckbox != null && !orderCheckbox.checked && orderDescCheckbox != null && !orderDescCheckbox.checked) {
 			orderCheckbox.checked = true;
 		}
-	}
-	if (invisibleCheckbox != null) {
-		invisibleCheckbox.checked = false;
-		invisibleCheckbox.disabled = masterCheckbox.checked;
 	}
 	if (pageBreakCheckbox != null) {
 		pageBreakCheckbox.checked = false;

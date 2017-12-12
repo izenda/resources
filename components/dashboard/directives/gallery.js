@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/query/services/url-service',
 	'../services/services'

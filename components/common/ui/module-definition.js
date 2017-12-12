@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../core/module-definition',
 	'../query/module-definition'

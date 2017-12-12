@@ -90,8 +90,9 @@ var resourcesProvider;
 				this0.renderCategories();
 				this0.renderRecentItems();
 				this0.renderTabs();
-				
-				this0.onCategorySelect('', true);
+
+				var $categoryEl = this0.$elLeftPanel.find('.category-item:not(.empty):first');
+				this0.onCategorySelect($categoryEl);
 			}, function (message) {
 				// handle error
 				this0.onError('reports not loaded: ' + message);
@@ -117,7 +118,7 @@ var resourcesProvider;
 		this0.loadCategory(categoryObject);
 
 		if ($categoryEl) {
-			jq$('.category-item').removeClass('selected');
+			this0.$elLeftPanel.find('.category-item').removeClass('selected');
 			$categoryEl.addClass('selected');
 		}
 	}
@@ -483,7 +484,9 @@ var resourcesProvider;
 		var $thumbs = $container.children('.thumbs');
 		$thumbs.empty();
 		if (!categoryObject.reports.length) {
+			var vSize = document.body.offsetHeight;
 			var $noReportsDiv = jq$('<div class="no-reports-found-message"></div>')
+				.css('margin-top', (vSize / 3) + 'px')
 				.text(IzLocal.Res('js_NoReportsFound', 'No reports found'));
 			$thumbs.append($noReportsDiv);
 			return;
@@ -587,7 +590,7 @@ var resourcesProvider;
 		var this0 = this;
 		var element = jq$('<div class="thumb-buttons"></div>');
 		if (!report.viewOnly && !report.isLocked && this0.nrlConfigObj.AllowDesignReports) {
-			var thumbEditElement = jq$('<div class="thumb-edit"></div>')
+			var thumbEditElement = jq$('<div class="thumb-button thumb-edit bottom"></div>')
 				.attr('title', IzLocal.Res('js_Edit', 'Edit'))
 				.on('click', function (event) {
 					cancelEvent(event);
@@ -605,7 +608,7 @@ var resourcesProvider;
 			element.append(thumbEditElement);
 		}
 		if (!report.readOnly && !report.viewOnly && !report.isLocked && this0.nrlConfigObj.AllowDeletingReports && this0.nrlConfigObj.AllowDesignReports) {
-			var thumbRemoveElement = jq$('<div class="thumb-remove"></div>')
+			var thumbRemoveElement = jq$('<div class="thumb-button thumb-remove"></div>')
 				.attr('title', IzLocal.Res('js_Remove', 'Remove'))
 				.on('click', function (event) {
 					cancelEvent(event);
@@ -616,7 +619,7 @@ var resourcesProvider;
 			element.append(thumbRemoveElement);
 		}
 		if (!report.csvOnly || !imageMode) {
-			var thumbPrintElement = jq$('<div>')
+			var thumbPrintElement = jq$('<div class="thumb-button thumb-print bottom"></div>')
 				.attr('title', IzLocal.Res('js_Print', 'Print'))
 				.addClass('thumb-print')
 				.on('click', function (event) {

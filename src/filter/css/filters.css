@@ -1,0 +1,16 @@
+﻿.iz-filters-container {
+	position: relative;
+	padding: 10px;
+	left: 0;
+	margin-top: 4px;
+	width: 100%;
+	opacity: 0;
+	background-color: #fff;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-transition: all 0.2s ease;
+	-o-transition: all 0.2s ease;
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
+}

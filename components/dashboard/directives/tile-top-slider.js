@@ -1,6 +1,6 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
-	'../../vendor/ionrangeslider/ion.rangeSlider',
+	'../../vendor/ionrangeslider/ion.rangeSlider.min',
 	'../services/services'
 ], function (angular) {
 

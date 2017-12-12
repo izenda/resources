@@ -1,0 +1,308 @@
+﻿<div ng-controller="InstantReportFiltersController as filtersController"
+     ng-init="filtersController.init()" ng-cloak>
+  <div class="iz-inst-top-panel" ng-show="$izendaCompatibility.isSmallResolution() || filtersController.panelOpened"
+       droppable-accept=".datasource-field"
+       on-drop="filtersController.addFilter(arg0)"
+       izenda-instant-report-field-droppable>
+    <div class="iz-inst-top-panel-header">
+      <span ng-bind="'js_Filters' | izendaLocale: 'Filters'" bind-once></span>
+      <a class="white pull-right close-btn"
+         ng-attr-title="{{'js_CloseFiltersPanel' | izendaLocale: 'Close filters panel'}}"
+         ng-click="irController.openFiltersPanel(false)">
+        <span class="glyphicon glyphicon-minus"></span>
+      </a>
+    </div>
+    <div class="iz-inst-top-panel-body">
+      <div class="container-fluid" ng-show="filtersController.filters.length > 0 && filtersController.activeFields.length > 0">
+        <div class="row">
+          <div class="iz-inst-field-filters-toolbar">
+            <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn" ng-click="filtersController.addFilter()">
+              <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>
+              &nbsp;
+              <span ng-bind="'js_AddFilter' | izendaLocale: 'Add Filter'" bind-once></span>
+            </a>
+            <div class="iz-inst-field-filters-logic-container">
+              <span ng-bind="'js_FilterLogic' | izendaLocale: 'Filter Logic'" bind-once></span>
+              :
+              <input type="text" class="iz-inst-field-filters-logic"
+                     ng-attr-placeholder="{{'js_ExampleFilterLogic' | izendaLocale: 'Example:(1 OR 2) AND (3 OR 4)'}}"
+                     ng-model="filtersController.filterOptions.filterLogic"
+                     ng-blur="filtersController.onFilterLogicChange()" />
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div ng-repeat="filter in filtersController.filters" class="iz-inst-small-panel-container">
+            <div class="iz-inst-small-panel"
+                 draggable-data-id="{{$index}}"
+                 draggable-enabled="true"
+                 draggable-handle=".iz-inst-small-panel-header"
+                 izenda-instant-report-field-draggable
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="filtersController.reorderFilters(arg0, $index)"
+                 izenda-instant-report-field-droppable>
+              <div class="iz-inst-small-panel-header form-inline"
+                   ng-class="filter.isValid ? '' : 'not-valid'"
+                   ng-attr-title="{{filter.validationMessageString}}">
+                <span class="index-container" ng-bind="$index + 1"></span>
+                <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
+                  <span class="izenda-cursor-pointer glyphicon with-label"
+                        ng-class="filter.parameter ? 'glyphicon-check' : 'glyphicon-unchecked'"
+                        ng-click="filter.parameter = !filter.parameter"
+                        izenda-stop-propagation></span>
+                  <span class="izenda-cursor-pointer"
+                        ng-click="filter.parameter = !filter.parameter"
+                        ng-bind="'js_Param' | izendaLocale: 'Param'"
+                        izenda-stop-propagation>
+                  </span>
+                </span>
+                <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
+                  <span class="izenda-cursor-pointer glyphicon with-label"
+                        ng-class="filter.required ? 'glyphicon-check' : 'glyphicon-unchecked'"
+                        ng-click="filter.required = !filter.required"
+                        izenda-stop-propagation></span>
+                  <span class="izenda-cursor-pointer"
+                        ng-click="filter.required = !filter.required"
+                        ng-bind="'js_Required' | izendaLocale: 'Required'"
+                        izenda-stop-propagation>
+                  </span>
+                </span>
+                <button class="btn btn-header-close" type="button"
+                        ng-attr-title="{{'js_RemoveFilter' | izendaLocale: 'Remove filter'}}"
+                        ng-click="filtersController.removeFilter(filter)" izenda-stop-propagation>
+                  <span class="glyphicon glyphicon-remove"></span>
+                </button>
+              </div>
+              <div class="iz-inst-small-panel-body">
+
+                <div class="iz-inst-small-panel-line form-group-sm">
+                  <input type="text" class="form-control"
+                         ng-attr-placeholder="{{'js_FilterDesc' | izendaLocale: 'Filter description'}}"
+                         ng-model="filter.description" />
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm">
+                  <select class="form-control iz-inst-filter-input"
+                          ng-options="field as field.name group by field.additionalGroup for field in filtersController.activeFields"
+                          ng-model="filter.field"
+                          ng-change="filtersController.onFilterFieldChange(filter)"></select>
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null">
+                  <select class="form-control iz-inst-filter-input"
+                          ng-options="operator as operator.text group by operator.groupName for operator in filter.operators"
+                          ng-model="filter.operator"
+                          ng-change="filtersController.onFilterOperatorChange(filter)"></select>
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null && filtersController.options.showFiltersInReportDescription">
+                  <select class="form-control iz-inst-filter-input"
+                          ng-options="format as format.text group by format.group for format in filter.titleFormats"
+                          ng-model="filter.titleFormat"></select>
+                </div>
+                <div class="iz-inst-small-panel-line form-group-sm" ng-show="filter.field !== null && filter.operator !== null && filter.operator !== ''">
+                  <div ng-switch="filtersController.getFilterOperatorType(filter)">
+                    <span ng-switch-when="hidden"></span>
+
+                    <!-- one value -->
+                    <span ng-switch-when="oneValue">
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[0]"
+                             ng-change="filtersController.onCurrentValueChange(filter)" />
+                    </span>
+
+                    <!-- two values -->
+                    <span ng-switch-when="twoValues">
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[0]"
+                             ng-change="filtersController.onCurrentValueChange(filter)" />
+                      <input type="text" class="form-control iz-inst-filter-input" ng-model="filter.values[1]"
+                             ng-change="filtersController.onCurrentValueChange(filter)" />
+                    </span>
+
+                    <!-- textarea -->
+                    <span ng-switch-when="Equals_TextArea">
+                      <textarea ng-model="filter.currentValue" rows="3" class="fullwidth"
+                                ng-change="filtersController.onCurrentValueChange(filter)"></textarea>
+                    </span>
+
+                    <!-- autocomplete -->
+                    <span ng-switch-when="Equals_Autocomplete">
+                      <input type="text" name="autocomplete-filter"
+                             class="form-control iz-inst-filter-input" refresh="true"
+                             autocomplete-items="filter.existentValues"
+                             update-autocomplete-items="filtersController.updateAutoCompleteItems(filter, arg0)"
+                             ng-change="filtersController.onCurrentValueChange(filter)"
+                             ng-model="filter.values[0]"
+                             izenda-autocomplete />
+                    </span>
+
+                    <!-- select -->
+                    <span ng-switch-when="select">
+                      <select class="form-control iz-inst-filter-input"
+                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
+                              ng-model="filter.values[0]"
+                              ng-change="filtersController.onCurrentValueChange(filter)"></select>
+                    </span>
+
+                    <!-- select field -->
+                    <span ng-switch-when="field">
+                      <select class="form-control iz-inst-filter-input"
+                              ng-options="field as field.name group by field.additionalGroup for field in filtersController.activeFields"
+                              ng-model="filter.values[0]"
+                              ng-change="filtersController.onCurrentValueChange(filter)"></select>
+                    </span>
+
+                    <!-- select multiple -->
+                    <span ng-switch-when="select_multiple">
+                      <select class="form-control iz-inst-filter-input"
+                              ng-model="filter.values" multiple
+                              ng-change="filtersController.onCurrentValueChange(filter)"
+                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues">
+                      </select>
+                    </span>
+
+                    <!-- select popup -->
+                    <span ng-switch-when="select_popup">
+
+                      <input ng-attr-id="{{'filterPopupValue' + $index}}" 
+                             type="hidden"
+                             izenda-on-popup-value-change="filtersController.onPopupValueChange(filter, newValue)"/>
+                      <input ng-attr-id="{{'filterPopupColumnIdValue' + $index}}" 
+                             ng-attr-value="{{filter.field.sysname}}" 
+                             type="hidden" />
+                      <button type="button" class="btn btn-default iz-inst-filter-popup-btn" ng-bind="filtersController.getPopupBtnText(filter)"
+                              data-toggle="modal" ng-attr-data-target="{{'#filterPopupModal' + $index}}"
+                              ng-attr-title="{{filtersController.getPopupBtnText(filter)}}"></button>
+                      <div ng-attr-id="{{'filterPopupModal' + $index}}" class="modal fade" tabindex="-1" role="dialog"
+                           name="filtersPopupModalDialog">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                              <h4 class="modal-title">&nbsp;</h4>
+                            </div>
+                            <div class="modal-body" style="min-height: 500px;">
+                              <!-- default popup filter -->
+                              <div ng-repeat="existentValue in filter.existentValues" class="checkbox"
+                                   ng-if="!filter.customPopupTemplateUrl">
+                                <label>
+                                  <input type="checkbox"
+                                         ng-checked="filtersController.isValueChecked(filter, existentValue.value)"
+                                         ng-click="filtersController.toggleValue(filter, existentValue.value)">
+                                  &nbsp;<span ng-bind="existentValue.text"></span>
+                                </label>
+                              </div>
+                              <!-- popup filter with custom template -->
+                              <div ng-if="filter.customPopupTemplateUrl">
+                                <iframe ng-src="{{filter.customPopupTemplateUrl + '?valueeditid=filterPopupValue' + $index + '&columneditid=filterPopupColumnIdValue' + $index}}" 
+                                        name="CustomAspx" style="width: 100%; height: 100%;">
+                                </iframe>
+                              </div>
+                            </div>
+                            <div class="modal-footer" 
+                                 ng-hide="filter.customPopupTemplateUrl !== null">
+                              <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </span>
+
+                    <!-- select checkboxes -->
+                    <span ng-switch-when="select_checkboxes">
+                      <izenda-select-checkboxes existent-values="filter.existentValues"
+                            ng-model="filter.values"
+                            ng-change="filtersController.onCurrentValueChange(filter)">
+                      </izenda-select-checkboxes>
+                    </span>
+
+                    <!-- in time period -->
+                    <span ng-switch-when="inTimePeriod">
+                      <select class="form-control iz-inst-filter-input"
+                              ng-options="existentValue.value as existentValue.text for existentValue in filter.existentValues"
+                              ng-model="filter.values[0]"
+                              ng-change="filtersController.onCurrentValueChange(filter)"></select>
+                    </span>
+
+                    <!-- one date -->
+                    <span ng-switch-when="oneDate">
+                      <div class="input-group date fullwidth"
+                           date-format="filtersController.dateFormat.defaultFilterDateFormat"
+                           locale="filtersController.culture"
+                           ng-model="filter.values[0]"
+                           ng-change="filtersController.onCurrentValueChange(filter)"
+                           show-additional-buttons="true"
+                           html-container-selector=".iz-inst-root"
+                           datepart="'datetime'"
+                           izenda-date-time-picker>
+                      </div>
+                    </span>
+                    <!-- two dates -->
+                    <span ng-switch-when="twoDates">
+                      <div class="input-group date fullwidth"
+                           date-format="filtersController.dateFormat.defaultFilterDateFormat"
+                           locale="filtersController.culture"
+                           ng-model="filter.values[0]"
+                           ng-change="filtersController.onCurrentValueChange(filter)"
+                           show-additional-buttons="true"
+                           html-container-selector=".iz-inst-root"
+                           datepart="'datetime'"
+                           izenda-date-time-picker>
+                      </div>
+                      <div class="input-group date fullwidth"
+                           date-format="filtersController.dateFormat.defaultFilterDateFormat"
+                           locale="filtersController.culture"
+                           ng-model="filter.values[1]"
+                           ng-change="filtersController.onCurrentValueChange(filter)"
+                           show-additional-buttons="true"
+                           html-container-selector=".iz-inst-root"
+                           datepart="'datetime'"
+                           izenda-date-time-picker>
+                      </div>
+                    </span>
+                    <span ng-switch-default>
+                      Other: {{filtersController.getFilterOperatorType(filter)}}
+                      <span ng-repeat="value in filter.values" ng-bind="value + ' '"></span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="iz-inst-small-panel-drop-placeholder left"
+                 index="{{$index}}"
+                 ng-show="$index === 0 || $index % 4 === 0"
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="filtersController.moveFilterTo(arg0, $index)"
+                 izenda-instant-report-field-droppable>
+            </div>
+            <div class="iz-inst-small-panel-drop-placeholder right"
+                 index="{{$index + 1}}"
+                 ng-class="$index % 4 === 3 ? 'half' : ''"
+                 droppable-accept=".iz-inst-small-panel"
+                 on-drop="filtersController.moveFilterTo(arg0, $index + 1)"
+                 izenda-instant-report-field-droppable>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-fluid" ng-show="filtersController.filters.length === 0 && filtersController.activeFields.length > 0">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="without-margins alert alert-warning" role="alert">
+              <span ng-bind="'js_DragFieldsToFilter1' | izendaLocale: 'Drag and drop fields from data sources here to add a new filter or'" bind-once></span>
+              <a ng-click="filtersController.addFilter()"
+                 ng-bind="'js_DragFieldsToFilter2' | izendaLocale: 'add filter manually'"></a>.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container-fluid" ng-show="filtersController.activeFields.length === 0">
+        <div class="row">
+          <div class="col-xs-12">
+            <div class="without-margins alert alert-warning" role="alert"
+                 ng-bind="'js_SelectFieldForFilters' | izendaLocale: 'You need to select at least one field to add filters.'" bind-once>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -82,7 +82,7 @@
 .izenda-vis-property label {
 	color: #000000;
 	display: inline-block;
-	font-size: 13px;
+	font-size: 14px;
 	font-weight: normal;
 }
 
@@ -120,6 +120,33 @@
 	display: none;
 }
 
+.izenda-vis-group-property .izenda-vis-property-container {
+	display: table;
+}
+
+.izenda-vis-group-property .izenda-vis-property-container .izenda-vis-property-slider,
+.izenda-vis-group-property .izenda-vis-property-container .izenda-vis-property-buttongroup {
+	display: table-row;
+}
+
+.izenda-vis-property-slider-container {
+	display: inline-block;
+}
+
+.izenda-vis-group-property .izenda-vis-property-slider label,
+.izenda-vis-group-property .izenda-vis-property-slider .izenda-vis-property-slider-container,
+.izenda-vis-group-property .izenda-vis-property-buttongroup label, 
+.izenda-vis-group-property .izenda-vis-property-buttongroup ul {
+	display: table-cell;
+	padding-top: 10px;
+}
+
+.izenda-vis-group-property label {
+	text-align: right;
+	margin: 0;
+	font-weight: normal;
+}
+
 .izenda-vis-property-slider .ui-slider,
 .izenda-vis-property-slider .iz-ui-slider
 {
@@ -143,7 +170,7 @@
 	width: 12px;
 	position: absolute;
 	top: 0;
-	margin: -0.4em;
+	margin: -5px -.4em -.4em -.4em;
 	cursor: pointer;
 }
 
@@ -255,6 +282,7 @@
 
 .izenda-vis-property-panel {
 	overflow: hidden;
+	margin-bottom: 10px;
 }
 
 .izenda-vis-property-panel .izenda-vis-property {

@@ -1,0 +1,1 @@
+..\..\node_modules\.bin\gulp --gulpfile ..\..\gulpfile.js --cwd ..\.. [WATCH]

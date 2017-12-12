@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'moment',
 	'../../common/core/services/compatibility-service',
@@ -594,6 +594,8 @@
 				 */
 				var isFieldGrouped = function (field) {
 					var compareWithValue = EMPTY_FIELD_GROUP_OPTION.value;
+					if (!field.groupByFunction)
+						return false;
 					return field.groupByFunction.value.toLowerCase() !== compareWithValue.toLowerCase();
 				}
 
@@ -611,13 +613,18 @@
 					return $q(function (resolve) {
 						var gotFieldFormats = function (returnObj, defaultTypeGroup) {
 							field.formatOptionGroups = $izendaUtil.convertOptionsByPath(returnObj);
-							var formatToApply = angular.isString(defaultFormatString)
-								? $izendaUtil.getOptionByValue(field.formatOptionGroups, defaultFormatString)
-								: $izendaUtil.getOptionByValue(field.formatOptionGroups, getDefaultFieldFormat(defaultTypeGroup));
+							var formatToApply;
+							if (angular.isString(defaultFormatString)) {
+								formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, defaultFormatString);
+								if (!formatToApply) {
+									formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, getDefaultFieldFormat(defaultTypeGroup));
+								}
+							} else {
+								formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, getDefaultFieldFormat(defaultTypeGroup));
+							}
 							field.format = formatToApply;
 							resolve(field);
 						};
-
 						if (isFieldGrouped(field) && ['min', 'max', 'sum', 'sum_distinct', 'group'].indexOf(field.groupByFunction.value.toLowerCase()) < 0) {
 							$izendaInstantReportQuery.getFieldFormats(field, field.groupByFunction.dataTypeGroup).then(function (returnObj) {
 								gotFieldFormats(returnObj, field.groupByFunction.dataTypeGroup);
@@ -2601,6 +2608,10 @@
 				var updateUiStateAndRefreshPreview = function () {
 					// remove drilldowns which are not in active tables
 					updateDrilldowns();
+
+					// update pivot state
+					$izendaInstantReportPivots.syncPivotState(getAllFieldsInActiveTables());
+
 					// update filters state
 					syncFilters();
 
@@ -2774,30 +2785,33 @@
 				 * Apply field config to field
 				 */
 				var loadReportField = function (field, fieldConfig) {
-					var functionValue = fieldConfig.groupByFunction.value;
-					var subtotalFunctionValue = fieldConfig.groupBySubtotalFunction.value;
-					var formatValue = fieldConfig.format.value;
-					angular.extend(field, fieldConfig);
-					// remove column group from description: 'field description@column group'
-					if (field.description.lastIndexOf('@') > 0 && field.columnGroup) {
-						field.description = field.description.substring(0, field.description.lastIndexOf('@'));
-					}
-					if (field.order > orderCounter)
-						orderCounter = field.order + 1;
+					return $q(function (resolve) {
+						var functionValue = fieldConfig.groupByFunction.value;
+						var subtotalFunctionValue = fieldConfig.groupBySubtotalFunction.value;
+						var formatValue = fieldConfig.format.value;
+						angular.extend(field, fieldConfig);
+						// remove column group from description: 'field description@column group'
+						if (field.description.lastIndexOf('@') > 0 && field.columnGroup) {
+							field.description = field.description.substring(0, field.description.lastIndexOf('@'));
+						}
+						if (field.order > orderCounter)
+							orderCounter = field.order + 1;
 
-					angular.element.each(expressionTypes, function () {
-						if (this.value === fieldConfig.expressionType)
-							field.expressionType = this;
-					});
+						angular.element.each(expressionTypes, function () {
+							if (this.value === fieldConfig.expressionType)
+								field.expressionType = this;
+						});
 
-					loadGroupFunctionsAndFormatsToField(field, functionValue, formatValue, subtotalFunctionValue).then(function (f) {
-						if (fieldConfig.description) {
-							// if description differs from the default generated description: mark it as "set manually"
-							f.isDescriptionSetManually = fieldConfig.description !== _generateDescription(f);
-							f.description = fieldConfig.description;
-						} else
-							autoUpdateFieldDescription(f);
-						f.isInitialized = true;
+						loadGroupFunctionsAndFormatsToField(field, functionValue, formatValue, subtotalFunctionValue).then(function (f) {
+							if (fieldConfig.description) {
+								// if description differs from the default generated description: mark it as "set manually"
+								f.isDescriptionSetManually = fieldConfig.description !== _generateDescription(f);
+								f.description = fieldConfig.description;
+							} else
+								autoUpdateFieldDescription(f);
+							f.isInitialized = true;
+							resolve(f);
+						});
 					});
 				}
 
@@ -2992,6 +3006,9 @@
 
 							// wait until table fields will be loaded:
 							$q.all(lazyPromises).then(function () {
+								// initialization promises
+								var promises = [];
+
 								// convert chart names to chart objects collection
 								convertChartNamesToCharts();
 
@@ -3004,11 +3021,11 @@
 									var pivotColumnField = getFieldBySysName(pivotColumnConfig.sysname, true);
 									reportSet.pivot.pivotColumn = angular.copy(pivotColumnField);
 									reportSet.pivot.pivotColumn.isPivotColumn = true;
-									loadReportField(reportSet.pivot.pivotColumn, pivotColumnConfig);
+									promises.push(loadReportField(reportSet.pivot.pivotColumn, pivotColumnConfig));
 									for (var i = 0; i < reportSet.pivot.cellValues.length; i++) {
 										var cellValueConfig = angular.copy(reportSet.pivot.cellValues[i]);
 										reportSet.pivot.cellValues[i] = angular.copy(getFieldBySysName(cellValueConfig.sysname, true));
-										loadReportField(reportSet.pivot.cellValues[i], cellValueConfig);
+										promises.push(loadReportField(reportSet.pivot.cellValues[i], cellValueConfig));
 									}
 								}
 
@@ -3024,7 +3041,7 @@
 									var isFieldMultiple = addedFieldSysNames.indexOf(sysname) >= 0;
 									if (!isFieldMultiple) {
 										field.guid = activeField.guid;
-										loadReportField(field, activeField);
+										promises.push(loadReportField(field, activeField));
 										field.checked = true;
 										updateParentFoldersAndTables(field, true);
 										addedFieldSysNames.push(sysname);
@@ -3035,15 +3052,12 @@
 											anotherField.isDescriptionSetManually = true;
 											anotherField.description = activeField.description;
 										}
-										loadReportField(anotherField, activeField);
+										promises.push(loadReportField(anotherField, activeField));
 										anotherField.checked = true;
 									}
 								});
 								_syncCalcFieldsArray();
-
-								// initialization promises
-								var promises = [];
-
+								
 								// pivots initialization
 								if (angular.isObject(reportSet.pivot)) {
 									var pivotData = reportSet.pivot;

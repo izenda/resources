@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../../vendor/jquery-minicolors/jquery.minicolors.min',
 	'../module-definition'

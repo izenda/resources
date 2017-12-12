@@ -1,0 +1,15 @@
+﻿<!-- message modal dialog -->
+<izenda-bootstrap-modal opened="$ctrl.$izendaUtilUiService.message !== null" ng-cloak>
+  <div class="modal-header">
+    <b><span ng-bind="$ctrl.$izendaUtilUiService.message.title"></span></b>
+  </div>
+  <div class="modal-body">
+    <div class="alert" ng-class="'alert-' + $ctrl.$izendaUtilUiService.message.alertInfo" ng-bind="$ctrl.$izendaUtilUiService.message.message"></div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default"
+      ng-click="$ctrl.closeMessage()"
+      ng-bind="'js_close' | izendaLocale: 'Close'">
+    </button>
+  </div>
+</izenda-bootstrap-modal>

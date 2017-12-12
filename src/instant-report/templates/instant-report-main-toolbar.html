@@ -1,0 +1,243 @@
+﻿<!-- main nav require irCotroller -->
+<nav class="iz-inst-navbar navbar navbar-default">
+  <div class="collapse in navbar-collapse">
+    <ul class="iz-inst-nav nav navbar-nav">
+      <li ng-if="!$izendaCompatibility.isSmallResolution()">
+        <a ng-attr-title="{{irController.getToggleButtonTitle()}}"
+           ng-click="irController.toggleLeftPanel()">
+          <span class="glyphicon glyphicon-chevron-left"
+                ng-class="irController.leftPanel.opened ? 'glyphicon-chevron-left' : 'glyphicon-chevron-right'"></span>
+        </a>
+      </li>
+      <!-- refresh button -->
+      <li ng-if="!$izendaCompatibility.isSmallResolution()"
+          ng-class="irController.isValid ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
+           ng-click="irController.isValid ? irController.applyChanges() : ''">
+          <span class="glyphicon glyphicon-refresh"></span>&nbsp;
+          <span ng-bind="'js_UpdateResults' | izendaLocale: 'Update Results'" bind-once></span>
+        </a>
+      </li>
+      <!-- set records count -->
+      <li class="dropdown"
+          ng-class="irController.isValid ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_SetRecordsCount' | izendaLocale: 'Set records count for preview'}}"
+           class="dropdown-toggle"
+           ng-click="irController.openNavBarDropdown($event)"
+           role="button">
+          <span class="glyphicon glyphicon-list-alt" ng-if="$izendaCompatibility.isSmallResolution()"></span>
+          <span ng-bind="'js_PreviewRecords' | izendaLocale: 'Preview Records'" bind-once></span>
+          :
+          <span ng-bind="(irController.previewTop > 0 ? irController.previewTop + ' ' : 'All ')"></span>
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a ng-click="irController.setPreviewTop(10)">
+              10
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.setPreviewTop(100)">
+              100
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.setPreviewTop(1000)">
+              1000
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.setPreviewTop(10000)">
+              10000
+            </a>
+          </li>
+          <li>
+            <a ng-show="irController.settings.showAllInPreview" ng-click="irController.setPreviewTop()"
+               ng-bind="'js_AllRecords' | izendaLocale: 'All records'">
+            </a>
+          </li>
+        </ul>
+      </li>
+      <!-- save -->
+      <li class="dropdown" ng-if="irController.settings.showSaveControls && (irController.rights.isSaveAllowed || irController.rights.isSaveAsAllowed)"
+          ng-class="irController.isValid ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_SaveReport' | izendaLocale: 'Save report'}}"
+           class="dropdown-toggle"
+           ng-click="irController.openNavBarDropdown($event)"
+           role="button">
+          <span class="glyphicon svg-icon icon-16 save"></span>
+          <span ng-if="$izendaCompatibility.isSmallResolution()"
+                ng-bind="'js_Save' | izendaLocale: 'Save'" bind-once></span>
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li ng-if="irController.rights.isSaveAllowed">
+            <a ng-click="irController.saveReport(false)">
+              <span class="glyphicon svg-icon icon-16 save"></span>
+              &nbsp;
+              <b ng-bind="'js_Save' | izendaLocale: 'Save'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_SaveChangesMessage' | izendaLocale: 'Save changes to the report for everyone it is shared with'" bind-once></span>
+            </a>
+          </li>
+          <li ng-if="irController.rights.isSaveAsAllowed">
+            <a ng-click="irController.saveReport(true)">
+              <span class="glyphicon svg-icon icon-16 save"></span>
+              &nbsp;
+              <b ng-bind="'js_SaveAs' | izendaLocale: 'Save as'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_SaveACopyMessage' | izendaLocale: 'Save a copy with a new name, keeping the original intact'" bind-once></span>
+            </a>
+          </li>
+        </ul>
+      </li>
+      <!-- Go to report editor button -->
+      <li ng-class="irController.activeFields.length !== 0 ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_OpenReportInReportDesigner' | izendaLocale: 'Open report in Report Designer'}}"
+           ng-click="irController.activeFields.length !== 0 ? irController.openReportInDesigner() : ''">
+          <span class="glyphicon glyphicon-pencil"></span>
+          <span ng-if="$izendaCompatibility.isSmallResolution()"
+                ng-bind="'js_OpenInDesigner' | izendaLocale: 'Open in report designer'" bind-once></span>
+        </a>
+      </li>
+      <!-- print -->
+      <li ng-if="irController.settings.allowedPrintEngine !== 'None'"
+          ng-class="irController.isValid ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_PrintReport' | izendaLocale: 'Print report'}}"
+           class="dropdown-toggle"
+           ng-click="irController.openNavBarDropdown($event, true)"
+           role="button">
+          <span class="glyphicon svg-icon icon-16 print"></span>
+          <span ng-if="$izendaCompatibility.isSmallResolution()"
+                ng-bind="'js_Print' | izendaLocale: 'Print'" bind-once></span>
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li ng-if="!$izendaCompatibility.isSmallResolution()">
+            <a ng-click="irController.printReport('html')"
+               ng-show="['Html', 'Html2PdfAndHtml'].indexOf(irController.settings.allowedPrintEngine) >= 0">
+              <img class="icon-16" src="###RS###image=ModernImages.print-32.png" alt="">
+              &nbsp;
+              <b ng-bind="'js_PrintHTML' | izendaLocale: 'Print HTML'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_PrintDirectlyMessage' | izendaLocale: 'Print directly from your browser, the fastest way for modern browsers'" bind-once></span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.printReport('pdf')"
+               ng-show="['Html2Pdf', 'Html2PdfAndHtml'].indexOf(irController.settings.allowedPrintEngine) >= 0">
+              <img class="icon-16" src="###RS###image=ModernImages.pdf-32.png" alt="">
+              &nbsp;
+              <b ng-bind="'js_HTML2PDF' | izendaLocale: 'HTML-powered PDF'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_HTML2PDFMessage' | izendaLocale: 'One-file compilation of all the report\'s pages'" bind-once></span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- export -->
+      <li ng-class="irController.isValid ? '' : 'disabled'">
+        <a ng-attr-title="{{'js_ExportReport' | izendaLocale: 'Export report'}}"
+           class="dropdown-toggle"
+           role="button"
+           ng-click="irController.openNavBarDropdown($event)">
+          <span class="glyphicon svg-icon icon-16 glyphicon-log-out"></span>
+          <span ng-if="$izendaCompatibility.isSmallResolution()"
+                ng-bind="'js_Export' | izendaLocale: 'Export'" bind-once></span>
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+          <li>
+            <a ng-click="irController.exportReport('excel')">
+              <img class="icon-16" src="###RS###image=ModernImages.xls-32.png" alt="" />
+              &nbsp;
+              <b ng-bind="'js_ExportToExcel' | izendaLocale: 'Export to Excel'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_ExportToExcelMessage' | izendaLocale: 'File for Microsoft\'s spreadsheet application'" bind-once></span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.exportReport('word')">
+              <img class="icon-16" src="###RS###image=ModernImages.word-32.png" alt="">
+              &nbsp;
+              <b ng-bind="'js_WordDocument' | izendaLocale: 'Word document'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_WordDocumentMessage' | izendaLocale: 'File for Microsoft\'s word processor, most widely-used office application'" bind-once></span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.exportReport('csv')">
+              <img class="icon-16" src="###RS###image=ModernImages.csv-32.png" alt="">
+              &nbsp;
+              <b ng-bind="'js_CSV' | izendaLocale: 'CSV'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_CSVMessage' | izendaLocale: 'Stores tabular data in text file, that can be used in Google Docs'" bind-once></span>
+            </a>
+          </li>
+          <li>
+            <a ng-click="irController.exportReport('xml')">
+              <img class="icon-16" src="###RS###image=ModernImages.xml-32.png" alt="">
+              &nbsp;
+              <b ng-bind="'js_XML' | izendaLocale: 'XML'" bind-once></b>
+              <br />
+              <span class="menu-item-description"
+                    ng-bind="'js_XMLMessage' | izendaLocale: 'Both human-readable and machine-readable text file'" bind-once></span>
+            </a>
+          </li>
+        </ul>
+      </li>
+
+      <!-- email -->
+      <li ng-class="!irController.isValid || !irController.isExistingReport ? 'disabled' : ''">
+        <a ng-attr-title="{{'js_Email' | izendaLocale: 'Email'}}"
+           ng-click="(!irController.isValid || !irController.isExistingReport) ? '' : irController.sendReportLinkEmail()"
+           ng-attr-title="{{irController.isExistingReport ? $izendaLocale.localeText('js_SendEmailLink', 'Send email with report link') : $izendaLocale.localeText('js_SendEmailMustSave', 'You must save a report before it can be emailed')}}">
+          <span class="glyphicon svg-icon icon-16 email"></span>
+          <span ng-if="$izendaCompatibility.isSmallResolution()"
+                ng-bind="'js_EmailReport' | izendaLocale: 'Email report'" bind-once></span>
+        </a>
+      </li>
+
+      <!-- filters -->
+      <li ng-if="!$izendaCompatibility.isSmallResolution()"
+          ng-class="irController.filtersPanelOpened ? 'active' : ''">
+        <a ng-attr-title="{{'js_EditFilters' | izendaLocale: 'Edit Report Filters'}}"
+           ng-disabled="irController.activeFields.length === 0"
+           ng-click="irController.openFiltersPanel()"
+           droppable-accept=".datasource-field"
+           on-drop="irController.addFilter(arg0)"
+           izenda-instant-report-field-droppable>
+          <span class="glyphicon glyphicon-filter"></span>
+          <span class="highlight-notification-round"
+                ng-show="irController.filtersCount > 0"
+                ng-bind="irController.filtersCount"></span>
+        </a>
+      </li>
+
+      <!-- pivots -->
+      <li ng-if="!$izendaCompatibility.isSmallResolution()"
+          ng-class="irController.pivotsPanelOpened ? 'active' : ''">
+        <a ng-attr-title="{{'js_EditPivots' | izendaLocale: 'Edit Pivots'}}"
+           ng-disabled="irController.activeFields.length === 0"
+           ng-click="irController.openPivotsPanel()"
+           droppable-accept=".datasource-field"
+           on-drop="irController.addPivotItem(arg0)"
+           izenda-instant-report-field-droppable>
+          <span class="glyphicon glyphicon-transfer"></span>
+          <span class="highlight-notification-round"
+                ng-show="irController.pivotCellsCount > 0"
+                ng-bind="irController.pivotCellsCount"></span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

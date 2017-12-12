@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Core module definition
  */
 izendaRequire.define(['angular'], function (angular) {

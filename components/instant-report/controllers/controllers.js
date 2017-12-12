@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'./instant-report-charts-controller',
 	'./instant-report-columns-sort-controller',
 	'./instant-report-controller',

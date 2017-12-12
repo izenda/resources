@@ -651,8 +651,12 @@ tr.ReportFooter td {
 }
 
 .no-reports-found-message {
-	padding: 1em;
-	color: #666;
+	color: #1D5987;
+	font-family: Verdana,Arial,Helvetica,sans-serif;
+	font-weight: normal;
+	font-size: 20px;
+	font-style: normal;
+	text-align: center;
 }
 
 .iz-ui-tabs {
@@ -773,54 +777,47 @@ tr.ReportFooter td {
 }
 
 .iz-ui-tabs-panel div.thumb:hover .thumb-buttons,
-.iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-buttons {
+.iz-ui-tabs-panel div.thumb.no-hover:hover .thumb-buttons {
 	display: block;
 }
 
-.iz-ui-tabs-panel div.thumb .thumb-edit, .iz-ui-tabs-panel div.thumb .thumb-template, .iz-ui-tabs-panel div.thumb .thumb-print,
-.iz-ui-tabs-panel div.thumb .thumb-remove {
+.iz-ui-tabs-panel div.thumb .thumb-button {
 	display: block;
 	width: 28px;
 	height: 28px;
+	position: absolute;
+	right: 0;
+	top: 0;
 	background-color: #cddbf6;
+	opacity: .75;
 	background-position: 6px 6px;
 	background-repeat: no-repeat;
-	position: absolute;
-	right: 0px;
-	opacity: .75;
 }
 
-.iz-ui-tabs-panel div.thumb .thumb-remove {
-	background-image: url(###RS###image=ModernImages.remove-icon.png);
-	top: 0;
-}
+	.iz-ui-tabs-panel div.thumb .thumb-button.bottom {
+		position: relative;
+		float: right;
+		top: calc(100% - 28px);
+	}
 
-.iz-ui-tabs-panel div.thumb .thumb-edit {
-	background-image: url(###RS###image=ModernImages.edit-icon.png);
-	right: 0px;
-	bottom: 0px;
-}
+	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-remove {
+		background-image: url(###RS###image=ModernImages.remove-icon.png);
+	}
 
-.iz-ui-tabs-panel div.thumb .thumb-print {
-	background-image: url(###RS###image=ModernImages.print-icon.png);
-	right: 28px;
-	bottom: 0px;
-}
+	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-edit {
+		background-image: url(###RS###image=ModernImages.edit-icon.png);
+	}
 
-.iz-ui-tabs-panel div.thumb .thumb-template {
-	background-image: url(###RS###image=ModernImages.template-icon.png);
-	right: 56px;
-	bottom: 0px;
-}
+	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-print {
+		background-image: url(###RS###image=ModernImages.print-icon.png);
+	}
 
-.iz-ui-tabs-panel div.thumb:hover .thumb-remove:hover,
-.iz-ui-tabs-panel div.thumb:hover .thumb-edit:hover,
-.iz-ui-tabs-panel div.thumb:hover .thumb-template:hover,
-.iz-ui-tabs-panel div.thumb:hover .thumb-print:hover,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-print {
+	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-template {
+		background-image: url(###RS###image=ModernImages.template-icon.png);
+	}
+
+.iz-ui-tabs-panel div.thumb:hover .thumb-button:hover,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-button {
 	background-color: #b0c8e9;
 	opacity: 1;
 }
@@ -903,70 +900,6 @@ tr.ReportFooter td {
 		outline: 1px solid #cecece;
 		background-color: #fff;
 	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-buttons {
-		display: block;
-		position: absolute;
-		overflow: visible;
-		width: 100%;
-		height: 100%;
-		top: 0;
-		bottom: 0;
-		left: 0;
-		right: 0;
-	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-edit, .iz-ui-tabs-panel div.thumb .thumb-template, .iz-ui-tabs-panel div.thumb .thumb-print,
-	.iz-ui-tabs-panel div.thumb .thumb-remove {
-		display: none;
-	}
-
-	.iz-ui-tabs-panel div.thumb:hover .thumb-edit,
-	.iz-ui-tabs-panel div.thumb:hover .thumb-template,
-	.iz-ui-tabs-panel div.thumb:hover .thumb-print,
-	.iz-ui-tabs-panel div.thumb:hover .thumb-remove,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-template,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-print,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
-		display: block;
-		width: 28px;
-		height: 28px;
-		background-color: #cddbf6;
-		background-position: 6px 6px;
-		background-repeat: no-repeat;
-		position: absolute;
-		top: 0;
-		right: 0;
-		opacity: .75;
-	}
-
-	.iz-ui-tabs-panel div.thumb:hover .thumb-remove,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-remove {
-		background-image: url(###RS###image=ModernImages.remove-icon.png);
-	}
-
-	.iz-ui-tabs-panel div.thumb:hover .thumb-edit,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-edit {
-		background-image: url(###RS###image=ModernImages.edit-icon.png);
-		right: 0px;
-		top: auto;
-	}
-
-	.iz-ui-tabs-panel div.thumb:hover .thumb-print,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-print {
-		background-image: url(###RS###image=ModernImages.print-icon.png);
-		right: 28px;
-		top: auto;
-	}
-
-	.iz-ui-tabs-panel div.thumb:hover .thumb-template,
-	.iz-ui-tabs-panel div.thumb.no-hover .thumb-template {
-		background-image: url(###RS###image=ModernImages.template-icon.png);
-		right: 56px;
-		top: auto;
-	}
-
 
 .tab-content {
 }

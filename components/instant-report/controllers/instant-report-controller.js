@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'resizeSensor',
 	'../../common/core/services/compatibility-service',
@@ -770,7 +770,7 @@
 			// left panel resize sensor
 			var $panel = jq$('.iz-inst-left-panel');
 			if ($panel.length)
-				resizeSensor.create($panel.get(0), function () {
+				resizeSensor($panel.get(0), function () {
 					vm.alignNavDropdowns();
 				});
 		};

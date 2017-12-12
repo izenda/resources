@@ -70,13 +70,13 @@ function GerReportPartUrl(rn, part, first, embedScripts, rsp, params) {
 
 function LoadReportPart(div, first, params) {
 	jq$(div).text('Loading...');
-	var rn = jq$(div).data('report');
-	var part = CapitaliseString(jq$(div).data('part'));
-	var embedScriptsObj = jq$(div).data('embedscripts');
+	var rn = jq$(div).attr('data-report');
+	var part = CapitaliseString(jq$(div).attr('data-part'));
+	var embedScriptsObj = jq$(div).attr('data-embedscripts');
 	var embedScripts = false;
 	if (typeof embedScriptsObj != 'undefined' && embedScriptsObj != null && embedScriptsObj.toString().toLowerCase() == 'true')
 		embedScripts = true;
-	var rspObj = jq$(div).data('responseserverpath');
+	var rspObj = jq$(div).attr('data-responseserverpath');
 	var rsp = '';
 	if (typeof rspObj != 'undefined' && rspObj != null && rspObj.toString() != '')
 		rsp = rspObj.toString();

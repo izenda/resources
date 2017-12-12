@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'css-parser',
 	'../../common/core/services/localization-service',

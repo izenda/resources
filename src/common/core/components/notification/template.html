@@ -1,0 +1,14 @@
+﻿<!-- notifications -->
+<div class="iz-notification-container"
+     ng-hide="$ctrl.notifications.length === 0">
+  <div class="iz-dash-notification fx-fade-down fx-speed-500 fx-trigger fx-easing-quint"
+       ng-repeat="notification in $ctrl.notifications"
+       ng-mouseover="$ctrl.cancelNotificationTimeout(notification)">
+    <div class="close-button glyphicon glyphicon-remove"
+         ng-click="$ctrl.closeNotification(notification)">
+    </div>
+    <div class="icon" ng-class="notification.iconClass" ng-show="notification.iconClass !== ''"></div>
+    <div class="title" ng-bind="notification.title"></div>
+    <div class="text" ng-bind="notification.text"></div>
+  </div>
+</div>

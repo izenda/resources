@@ -1,4 +1,4 @@
-﻿izendaRequire.define(['angular', '../common/module-definition'], function (angular) {
+izendaRequire.define(['angular', '../common/module-definition'], function (angular) {
 	'use strict';
 
 	var module = angular.module('izendaFilters', [

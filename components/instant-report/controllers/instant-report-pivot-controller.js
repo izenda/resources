@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/core/services/compatibility-service',
 	'../../common/core/services/localization-service',
@@ -75,6 +75,8 @@
 		 * Update validation state and refresh if needed.
 		 */
 		vm.updateReportSetValidationAndRefresh = function () {
+			$izendaInstantReportPivots.setDefaultGroup();
+
 			$izendaInstantReportStorage.clearReportPreviewHtml();
 			$izendaInstantReportStorage.applyAutoGroups(true);
 			$izendaInstantReportValidation.validateReportSetAndRefresh();

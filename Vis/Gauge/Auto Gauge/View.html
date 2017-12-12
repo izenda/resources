@@ -1,114 +1,177 @@
 ﻿<style type="text/css">
-	#VIS_ID {
+
+	.izenda-vis-grid-container {
 		display: grid;
 		justify-content: space-around;
 		align-content: space-around;
 	}
 
-	#VIS_ID .izenda-vis-gauge {
+	.izenda-vis-property-style-thumbnail img {
+		width: 98px;
+		height: 59px;
+	}
+
+	.izenda-vis-gauge {
 		display: inline-block;
 		margin: 20px;
+		position: relative;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-simple-gauge {
+	.izenda-vis-gauge-title {
+		position: absolute;
+		cursor: default;
+		color: rgb(25, 25, 25);
+	}
+
+	.izenda-vis-gauge-title span {
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.izenda-vis-simple-gauge {
 		font-family: 'Open Sans Condensed', sans-serif;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-simple-gauge .izenda-vis-gauge-units {
-		fill: #A1A1A1;
+	.izenda-vis-simple-gauge .izenda-vis-gauge-front {
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0.01;
+		background-color: white;
+		width: 100%;
+		height: 100%;
+		z-index: 100;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-linear-gauge {
+	.izenda-vis-simple-gauge .izenda-vis-gauge-value {
+		cursor: pointer;
+	}
+
+	.izenda-vis-simple-gauge .izenda-vis-gauge-title {
+		left: 0;
+		top: 0;
+		z-index: 110;
+	}
+
+	.izenda-vis-simple-gauge .izenda-vis-gauge-title span {
+		line-height: 1.3em
+	}
+
+	.izenda-vis-simple-gauge .izenda-vis-gauge-subtitle {
+		position: absolute;
+		color: #a1a1a1;
+		z-index: 110;
+		cursor: default;
+	}
+
+	.izenda-vis-simple-gauge .izenda-vis-gauge-subtitle span {
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		line-height: 1.5em;
+		white-space: nowrap;
+	}
+
+	.izenda-vis-linear-gauge .izenda-vis-gauge-axis text,
+	.izenda-vis-linear-gauge .izenda-vis-gauge-pointer {
+		fill: rgb(25, 25, 25);
+	}
+
+	.izenda-vis-linear-gauge,
+	.izenda-vis-linear-gauge text {
 		font-family: 'Open Sans Condensed', sans-serif;
-		font-weight: bold;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-linear-gauge .izenda-vis-gauge-axis path,
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-linear-gauge .izenda-vis-gauge-axis line {
+	.izenda-vis-linear-gauge .izenda-vis-gauge-axis path,
+	.izenda-vis-linear-gauge .izenda-vis-gauge-axis line {
 		fill: none;
-		stroke: #000;
+		stroke: rgb(25, 25, 25);
 		shape-rendering: crispEdges;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-round-gauge .izenda-vis-gauge-background {
-		fill: #e1e1e1;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-round-gauge .izenda-vis-gauge-title {
+	.izenda-vis-round-gauge {
 		font-family: 'Open Sans Condensed', sans-serif;
-		text-anchor: middle;
-		fill: #A1A1A1;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-round-gauge .izenda-vis-gauge-arc {
-		fill: #00c0d8;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-round-gauge .izenda-vis-gauge-label-value {
-		fill: #4A4A4A;
-		font-family: 'Open Sans Condensed', sans-serif;
+	.izenda-vis-round-gauge .izenda-vis-gauge-label-container {
 		cursor: pointer;
+		line-height: 1em;
+		position: absolute;
+		text-align: center;
+		width: 100%;
+		transform: translateY(-50%);
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-round-gauge .izenda-vis-gauge-label-format-type {
-		fill: #A1A1A1;
-		font-family: 'Open Sans Condensed', sans-serif;
-		cursor: pointer;
+	.izenda-vis-round-gauge .izenda-vis-gauge-label-value:after {
+		content: attr(data-content);
+		position: absolute;
+		font-size: 50%;
+		line-height: 2.75em;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge {
+	.izenda-vis-round-gauge .izenda-vis-gauge-arc {
+		shape-rendering: geometricprecision;
+	}
+
+	.izenda-vis-round-gauge .izenda-vis-gauge-title span {
+		text-align: center;
+	}
+
+	.izenda-vis-trending-gauge {
 		fill: #444444;
-		font-weight: bold;
 		font-family: 'Open Sans Condensed', sans-serif;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-insetBorder {
-		fill: #000000;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-outsetBorder {
-		fill: none;
-		stroke: #bbbbbb;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-insetBorder {
-		fill: none;
-		stroke: #ffffff;
-	}
-
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-area {
+	.izenda-vis-trending-gauge .izenda-vis-gauge-line {
 		stroke: #629af0;
+		fill: none;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-area-point {
+	.izenda-vis-trending-gauge .izenda-vis-gauge-value {
+		fill: #629af0;
+		text-anchor: start;
+	}
+
+	.izenda-vis-trending-gauge .izenda-vis-gauge-point {
 		fill: #629af0;
 		stroke: #6685b5;
 		stroke-width: 1px;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-area-bullseye {
-		fill: none;
-		stroke: #c00000;
+	.izenda-vis-trending-gauge .izenda-vis-gauge-date {
+		opacity: 0;
+		text-anchor: start;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-area-bullseye-inner {
-		fill: #c00000;
+	.izenda-vis-trending-gauge .izenda-vis-gauge-trend {
+		position: absolute;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-current-block .izenda-vis-gauge-current-value {
-		fill: #4882ff;
+	.izenda-vis-trending-gauge .izenda-vis-gauge-trend-icon {
+		display: inline-block;
+		background-repeat: no-repeat;
+		background-position: center;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-up-direction .izenda-vis-gauge-relative-value,
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-up-direction .izenda-vis-gauge-relative-arrow {
-		fill: #00ac00;
+	.izenda-vis-trending-gauge .izenda-vis-gauge-up {
+		color: #00ac00;
 	}
 
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-dn-direction .izenda-vis-gauge-relative-value,
-	#VIS_ID_CONTAINER #VIS_ID .izenda-vis-trending-gauge .izenda-vis-gauge-dn-direction .izenda-vis-gauge-relative-arrow {
-		fill: #ac0000;
+	.izenda-vis-trending-gauge .izenda-vis-gauge-up .izenda-vis-gauge-trend-icon {
+		transform: scaleX(0.65);
+		background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDEwMDAgMTAwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz48cGF0aCBzdHlsZT0iZmlsbDogIzAwYWMwMDsiIGQ9Ik01NjEuMyw5OTBWMjQ1LjhsMzQzLDM0M0w5OTAsNTAwTDUwMCwxMEwxMCw1MDBsODUuNyw4NS43bDM0My0zMzkuOVY5OTBINTYxLjN6Ii8+PC9nPg0KPC9zdmc+');
 	}
 
+	.izenda-vis-trending-gauge .izenda-vis-gauge-down {
+		color: #ac0000;
+	}
+
+	.izenda-vis-trending-gauge .izenda-vis-gauge-down .izenda-vis-gauge-trend-icon {
+		transform: rotate(180deg) scaleX(0.65);
+		background-image: url('data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgeD0iMHB4IiB5PSIwcHgiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgMCAwIDEwMDAgMTAwMCIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz48cGF0aCBzdHlsZT0iZmlsbDogI2FjMDAwMDsiIGQ9Ik01NjEuMyw5OTBWMjQ1LjhsMzQzLDM0M0w5OTAsNTAwTDUwMCwxMEwxMCw1MDBsODUuNyw4NS43bDM0My0zMzkuOVY5OTBINTYxLjN6Ii8+PC9nPg0KPC9zdmc+');
+	}
 </style>
 
 <div id="VIS_ID_CONTAINER">
@@ -116,12 +179,11 @@
 </div>
 
 <script type="text/javascript" src="d3.v3.min.js"></script>
-
-<script type="text/javascript" src="gauge.base.js"></script>
-<script type="text/javascript" src="gauge.simple.js"></script>
-<script type="text/javascript" src="gauge.linear.js"></script>
-<script type="text/javascript" src="gauge.round.js"></script>
-<script type="text/javascript" src="gauge.trending.js"></script>
+<script type="text/javascript" src="d3.min.js"></script>
+<script type="text/javascript" src="izenda.gauges.SimpleGauge.js"></script>
+<script type="text/javascript" src="izenda.gauges.LinearGauge.js"></script>
+<script type="text/javascript" src="izenda.gauges.RoundGauge.js"></script>
+<script type="text/javascript" src="izenda.gauges.TrendingGauge.js"></script>
 
 <script type="text/javascript">
 	(function init() {
@@ -163,260 +225,13 @@
 			}
 		})();
 
-		var sliderEventActive = false;
+		var styles = {};
+		styles.simple = new SimpleStyle();
+		styles.linear = new LinearStyle();
+		styles.round = new RoundStyle();
+		styles.trending = new TrendingStyle();
 
-		var sliderTimeout = 250;
-
-		var styles = {
-			simple: function () {
-				return {
-					name: "simple",
-					initGearGallery: function () {
-						var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
-						gearGallery.empty();
-
-						gearGallery.append(jq$("<div></div>").addClass("izenda-vis-property izenda-vis-property-slider")
-							.append(jq$("<label>Size</label>").append(jq$("<div></div>").attr("id", "VIS_ID_PROPERTY_SIZE_SLIDER"))));
-						var timeoutId = 0;
-						jq$("#VIS_ID_PROPERTY_SIZE_SLIDER").slider({
-							min: 100,
-							max: 450,
-							value: vis.getProperty('Styles.Simple.Size'),
-						}).on("slide", function (e, o) {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(function () {
-								vis.setProperty('Styles.Simple.Size', o.value);
-								adaptGridLayout();
-								gauges.forEach(function (gauge) {
-									gauge.resize(o.value);
-								});
-							}, sliderTimeout);
-						}).on("slidestart", function () {
-							sliderEventActive = true;
-						}).on("slidestop", function () {
-							sliderEventActive = false;
-						});
-					},
-					draw: function (name, data) {
-						if (isNaN(data.items[0].value))
-							return;
-						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-simple-gauge");
-						jq$("#VIS_ID").append(gaugeDiv);
-						var gauge = new izenda.gauges.SimpleGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Simple.Size'), data);
-						gauges.push(gauge);
-						gauge.render(!vis.context.isImageRender);
-					},
-					destroy: function () {
-						jq$("#VIS_ID").empty();
-						gauges = [];
-					}
-				};
-			},
-			linear: function () {
-				return {
-					name: "linear",
-					initGearGallery: function () {
-						var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
-						gearGallery.empty();
-
-						var linearModeControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-buttongroup')
-						.append(jq$('<label>').text('Mode'))
-						.append(jq$('<ul>')
-							.append(jq$('<li>').attr('val', 'horizontal').text('Horizontal'))
-							.append(jq$('<li>').attr('val', 'vertical').text('Vertical')));
-						linearModeControl.find('li')
-							.bind("click", function () {
-								if (!jq$(this).hasClass('izenda-selected')) {
-									linearModeControl.find('li').removeClass("izenda-selected");
-									jq$(this).addClass("izenda-selected");
-									var mode = jq$(this).attr('val');
-									vis.setProperty('Styles.Linear.Mode', mode);
-									adaptGridLayout();
-									setTimeout(function () {
-										gauges.forEach(function (gauge) { gauge.changeMode(mode); });
-									}, 0);
-								}
-							});
-						linearModeControl.find('li[val="' + vis.getProperty('Styles.Linear.Mode') + '"]').addClass("izenda-selected");
-						gearGallery.append(linearModeControl);
-
-						gearGallery.append(jq$("<div></div>").append(jq$("<div></div>").addClass("izenda-vis-property izenda-vis-property-slider")
-							.append(jq$("<label>Size</label>").append(jq$("<div></div>").attr("id", "VIS_ID_PROPERTY_SIZE_SLIDER")))));
-
-						var timeoutId = 0;
-
-						jq$("#VIS_ID_PROPERTY_SIZE_SLIDER").slider({
-							min: 200,
-							max: 400,
-							value: vis.getProperty('Styles.Linear.Size'),
-						}).on("slide", function (e, o) {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(function () {
-								vis.setProperty('Styles.Linear.Size', o.value);
-								adaptGridLayout();
-								gauges.forEach(function (gauge) {
-									gauge.resize(o.value);
-								});
-							}, sliderTimeout);
-						}).on("slidestart", function () {
-							sliderEventActive = true;
-						}).on("slidestop", function () {
-							sliderEventActive = false;
-						});
-					},
-					draw: function (name, data) {
-						if (isNaN(data.items[0].value))
-							return;
-						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-linear-gauge").css("float", "left");
-						jq$("#VIS_ID").append(gaugeDiv);
-						var gauge = new izenda.gauges.LinearGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Linear.Mode'), vis.getProperty('Styles.Linear.Size'), data);
-						gauges.push(gauge);
-						gauge.render(!vis.context.isImageRender);
-					},
-					destroy: function () {
-						jq$("#VIS_ID").empty();
-						gauges = [];
-					}
-				};
-			},
-			round: function () {
-				return {
-					name: "round",
-					initGearGallery: function () {
-						var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
-						gearGallery.empty();
-
-						var timeoutId = 0;
-
-						gearGallery.append(jq$("<div></div>").addClass("izenda-vis-property izenda-vis-property-slider")
-							.append(jq$("<label>Size</label>").append(jq$("<div></div>").attr("id", "VIS_ID_PROPERTY_SIZE_SLIDER"))));
-
-						jq$("#VIS_ID_PROPERTY_SIZE_SLIDER").slider({
-							min: 60,
-							max: 360,
-							value: vis.getProperty('Styles.Round.Size'),
-						}).on("slide", function (e, o) {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(function () {
-								gauges.forEach(function (gauge) {
-									gauge.setDegree(o.value);
-								});
-							}, sliderTimeout);
-						}).on("slidechange", function (e, o) {
-							vis.setProperty('Styles.Round.Size', o.value);
-						}).on("slidestart", function() {
-							sliderEventActive = true;
-						}).on("slidestop", function() {
-							sliderEventActive = false;
-						});
-
-						gearGallery.append(jq$("<div></div>").addClass("izenda-vis-property izenda-vis-property-slider")
-							.append(jq$("<label>Width</label>").append(jq$("<div></div>").attr("id", "VIS_ID_PROPERTY_WIDTH_SLIDER"))));
-
-						jq$("#VIS_ID_PROPERTY_WIDTH_SLIDER").slider({
-							min: 1,
-							max: 50,
-							value: vis.getProperty('Styles.Round.Width'),
-						}).on("slide", function (e, o) {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(function () {
-								gauges.forEach(function (gauge) {
-									gauge.setTickness(o.value);
-								});
-							}, sliderTimeout);
-						}).on("slidechange", function (e, o) {
-							vis.setProperty('Styles.Round.Width', o.value);
-						}).on("slidestart", function () {
-							sliderEventActive = true;
-						}).on("slidestop", function () {
-							sliderEventActive = false;
-						});
-					},
-					draw: function (name, data) {
-						if (isNaN(data.items[0].value) || isNaN(data.items.length > 1 && data.items[1].value) || isNaN(typeof data.max === 'object' && data.max.value))
-							return;
-
-						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-round-gauge");
-						vis.element.append(gaugeDiv);
-
-						var gauge = new izenda.gauges.RoundGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Round.Size'), vis.getProperty('Styles.Round.Width'), data);
-						gauges.push(gauge);
-						gauge.render(!vis.context.isImageRender);
-					},
-					destroy: function () {
-						vis.element.empty();
-						gauges = [];
-					}
-				};
-			},
-			trending: function () {
-				function storeProperties() {
-					vis.setProperty('Styles', jq$.extend(vis.getProperty('Styles'), {
-						trending: {
-							size: jq$('#VIS_ID_PROPERTY_SIZE_SLIDER').slider("option", "value")
-						}
-					}));
-				}
-
-				return {
-					name: "trending",
-					initGearGallery: function () {
-						var gearGallery = jq$("#VIS_ID_GEAR_GALLERY");
-						gearGallery.empty();
-
-						var timeoutId = 0;
-
-						gearGallery.append(jq$("<div></div>").addClass("izenda-vis-property izenda-vis-property-slider")
-							.append(jq$("<label>Size</label>").append(jq$("<div></div>").attr("id", "VIS_ID_PROPERTY_SIZE_SLIDER"))));
-
-						jq$("#VIS_ID_PROPERTY_SIZE_SLIDER").slider({
-							min: 200,
-							max: 600,
-							value: vis.getProperty('Styles.Trending.Size'),
-						}).on("slide", function (e, o) {
-							clearTimeout(timeoutId);
-							timeoutId = setTimeout(function () {
-								vis.setProperty('Styles.Trending.Size', o.value);
-								adaptGridLayout();
-								gauges.forEach(function (gauge) {
-									gauge.resize(o.value);
-								});
-							}, sliderTimeout);
-						}).on("slidechange", function (e, o) {
-
-						}).on("slidestart", function () {
-							sliderEventActive = true;
-						}).on("slidestop", function () {
-							sliderEventActive = false;
-						});
-					},
-					draw: function (name, data) {
-						data = jq$.grep(data, function (item) {
-							return !isNaN(item.items[0].value);
-						});
-						if (data.length == 0)
-							return;
-						var gaugeDiv = jq$("<div></div>").addClass("izenda-vis-gauge").addClass("izenda-vis-trending-gauge");
-						jq$("#VIS_ID").append(gaugeDiv);
-						var gauge = new izenda.gauges.TrendingGauge(gaugeDiv.get(0), name, vis.getProperty('Styles.Trending.Size'), data);
-						gauges.push(gauge);
-						gauge.render(!vis.context.isImageRender);
-					},
-					destroy: function () {
-						jq$("#VIS_ID").empty();
-						gauges = [];
-					}
-				};
-			}
-		};
-
-		var isDateExist = false;
-		for (var i = 0; i < VIS_COLUMNS.length; ++i) {
-			if (VIS_COLUMNS[i].type === 'DateTime') {
-				isDateExist = true;
-				break;
-			}
-		}
+		var isDateExist = izenda.utils.array.any(VIS_COLUMNS, function (column) { return column.type === 'DateTime' });
 
 		var vis = new izenda.visualization({
 			id: 'VIS_ID',
@@ -425,6 +240,10 @@
 			context: VIS_CONTEXT,
 			status: VIS_FORMJSASTATUS,
 			requirements: { d3: true, svg: true },
+			validate: function (columns, rows) {
+				return columns.length > 1
+					&& izenda.utils.array.any(columns.slice(1), function (column) { return izenda.visualization.isMetric(column); });
+			},
 			defaultProperties: {
 				CurrentStyle: (isDateExist) ? 'trending' : 'simple',
 				Styles: {
@@ -437,7 +256,11 @@
 					},
 					Round: {
 						Size: 360,
-						Width: 5
+						Width: 5,
+						Color: '#00c0d8',
+						BackgroundColor: '#e1e1e1',
+						LabelColor: '#4a4a4a',
+						TitleColor: '#a1a1a1'
 					},
 					Trending: {
 						Size: 400
@@ -451,84 +274,69 @@
 			selectors: [{
 				icon: 'type',
 				initPanel: function (panel) {
-					var galleryControl = jq$('<div>').addClass('izenda-vis-property');
-					var setGalleryControlValue = function (value) {
-						galleryControl.find('.izenda-vis-property-gallery-item-active').removeClass('izenda-vis-property-gallery-item-active');
-						galleryControl.find('.izenda-vis-property-gallery-item[value=\'' + value + '\']').addClass('izenda-vis-property-gallery-item-active');
+					var jqStyleControl = jq$('<div>').addClass('izenda-vis-property');
+					var setStyleControlValue = function (value) {
+						jqStyleControl.find('.izenda-vis-property-gallery-item-active').removeClass('izenda-vis-property-gallery-item-active');
+						jqStyleControl.find('.izenda-vis-property-gallery-item[value=\'' + value + '\']').addClass('izenda-vis-property-gallery-item-active');
 					};
-					var types = [{
-						value: 'simple',
-						title: 'Simple Style',
-						thumbnail: '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.simple-style.png'
-					}, {
-						value: 'linear',
-						title: 'Linear Style',
-						thumbnail: '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.linear-style.png'
-					}, {
-						value: 'round',
-						title: 'Round Style',
-						thumbnail: '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.round-style.png'
-					}, {
-						value: 'trending',
-						title: 'Trending Style',
-						thumbnail: '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.trending-style.png'
-					}];
-					jq$.each(types, function (i, type) {
-						if (type.value == 'trending' && !isDateExist) {
+
+					jq$.each(styles, function (i, style) {
+						if (style.name === 'trending' && !isDateExist) {
 							return;
 						}
 						var item = jq$('<div>')
 							.attr('index', i)
-							.attr('value', type.value)
+							.attr('value', style.name)
 							.addClass('izenda-vis-property-gallery-item')
 							.bind('mousedown', function () {
-								setGalleryControlValue(~~jq$(this).attr('index'));
+								setStyleControlValue(~~jq$(this).attr('index'));
 							})
-							.bind('click', function () {
-								var value = jq$(this).attr("value");
-								style.destroy();
-								style = styles[value]();
-								style.initGearGallery();
+							.bind('click', vis.safeWrapper(function () {
+								var value = jq$(this).attr('value');
+								var currentStyle = styles[vis.getProperty('CurrentStyle')];
+
+								if (currentStyle.name === value) { return; }
+
+								currentStyle.destroy();
 
 								vis.setProperty('CurrentStyle', value);
-								setGalleryControlValue(vis.getProperty('CurrentStyle'));
-								drawAllGauges();
-							});
 
-						var placeholder = jq$('<div>').addClass('izenda-vis-property-gallery-item-placeholder');
+								setStyleControlValue(value);
+
+								currentStyle = styles[value];
+
+								currentStyle.draw();
+							}));
+
+						var placeholder = jq$('<div>').addClass('izenda-vis-property-style-thumbnail');
 						placeholder.append(jq$('<img>')
-							.css({
-								'width': '98px',
-								'height': '59px'
-							})
-							.attr("src", type.thumbnail));
+							.attr('src', style.thumbnail));
 
 						var titlebox = jq$('<a>')
-							.attr('title', type.title)
+							.attr('title', style.title)
 							.attr('href', 'javascript:void(0)')
 							.append(placeholder);
 						item.append(titlebox);
 
-						galleryControl.append(item);
+						jqStyleControl.append(item);
 					});
-					setGalleryControlValue(vis.getProperty('CurrentStyle'));
+					setStyleControlValue(vis.getProperty('CurrentStyle'));
 
-					panel.append(galleryControl);
+					panel.append(jqStyleControl);
 				},
-				visibility: !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards
+				visibility: !vis.context.isDashboard || vis.context.showVisPropertiesInDashboards
 			}, {
 				icon: 'gear',
 				initPanel: function (panel) {
-					panel.attr('id', 'VIS_ID_GEAR_GALLERY');
+					vis.events.subscribe('CurrentStyleChange', function (value) {
+						if (typeof styles[value].initGearPanel === 'function') {
+							styles[value].initGearPanel(panel);
+						}
+					}).raise(vis.getProperty('CurrentStyle'));
 				},
-				visibility: !VIS_CONTEXT.isDashboard || VIS_CONTEXT.showVisPropertiesInDashboards
+				visibility: !vis.context.isDashboard || vis.context.showVisPropertiesInDashboards
 			}]
 		});
-
-		var style, gauges = [];
-
-		style = styles[vis.getProperty('CurrentStyle')]();
-		style.initGearGallery();
 
 		function getProcessedData(node) {
 			var data = {};
@@ -536,40 +344,39 @@
 			data.items = [];
 
 			for (var key in node) {
-				switch (key.toLowerCase()) {
-					case "units":
-						data.units = { value: node[key] };
-						break;
+				if (node.hasOwnProperty(key) && key.toLowerCase() === 'units') {
+					data.units = { value: node[key] };
 				}
 			}
 
 			for (var key in node.support) {
-				var origin = node.support[key].o,
-					formatted = node.support[key].f;
+				if (node.support.hasOwnProperty(key)) {
+					var origin = node.support[key].o,
+						formatted = node.support[key].f;
 
-				if (VIS_COLUMNS.find(function (d) { return d.name == key; }).format == "MoneyDividedByHundred")
-					origin /= 100;
+					if (vis.columns.find(function(d) { return d.name === key; }).format === 'MoneyDividedByHundred')
+						origin /= 100;
 
-				switch (key.toLowerCase()) {
-					case "low":
-						data.low = { name: "low", value: origin, color: "#00C000" };
+					switch (key.toLowerCase()) {
+					case 'low':
+						data.low = { name: 'low', value: origin, color: '#00C000' };
 						break;
-					case "high":
-						data.high = { name: "high", value: origin, color: "#C00000" };
+					case 'high':
+						data.high = { name: 'high', value: origin, color: '#C00000' };
 						break;
-					case "target":
-						data.target = { name: "target", value: origin, color: "#0034ff" };
+					case 'target':
+						data.target = { name: 'target', value: origin, color: '#0034ff' };
 						break;
-					case "max":
+					case 'max':
 						data.max = {
 							value: origin,
-							format: (function () {
+							format: (function() {
 								var precisionMatch = formatted.match(/(\.)(\d+)/),
 									currencyMath = formatted.match(/\$|€|£/);
 								return {
 									precision: (precisionMatch) ? precisionMatch[2].length : 0,
 									isCurrency: currencyMath != null,
-									currency: (currencyMath) ? currencyMath[0] : "",
+									currency: (currencyMath) ? currencyMath[0] : '',
 									isPercentage: /%/.test(formatted)
 								};
 							})()
@@ -578,100 +385,527 @@
 					default:
 						if (origin instanceof Date) {
 							data.date = origin;
-						} else if (typeof origin === "number") {
+						} else if (typeof origin === 'number') {
 							data.items.push({
 								value: origin,
-								format: (function () {
+								format: (function() {
 									var precisionMatch = formatted.match(/(\.)(\d+)/),
 										currencyMath = formatted.match(/\$|€|£/);
 									return {
 										precision: (precisionMatch) ? precisionMatch[2].length : 0,
 										isCurrency: currencyMath != null,
-										currency: (currencyMath) ? currencyMath[0] : "",
+										currency: {
+											symbol: (currencyMath) ? currencyMath[0] : null
+
+										},
 										isPercentage: /%/.test(formatted)
 									};
 								})()
 							});
 						}
 						break;
+					}
 				}
 			}
 
 			return data;
 		}
 
-		function adaptGridLayout() {
+		function adaptGridLayout(name) {
+			var jqGridContainer = vis.element.find('div.izenda-vis-grid-container');
+
 			var columnSize = 0,
 				rowSize = 0;
-			if (style.name === 'simple') {
+			if (name === 'simple') {
 				var margin = 40;
 				var size = vis.getProperty('Styles.Simple.Size');
 				columnSize = size + margin;
 				rowSize = size + margin;
-			} else if (style.name === 'round') {
+			} else if (name === 'round') {
 				var margin = 40;
 				columnSize = 170 + margin;
 				rowSize = 221 + margin;
-			} else if (style.name === 'linear') {
+			} else if (name === 'linear') {
 				var margin = 40;
 				var size = vis.getProperty('Styles.Linear.Size'),
 					mode = vis.getProperty('Styles.Linear.Mode');
-				if (mode === 'horizontal') {
-					columnSize = size + 20 + margin;
-					rowSize = (size * 0.08) + (size * 0.2025) + margin;
-				} else if (mode === 'vertical') {
-					columnSize = (size * 0.08) + (size * 0.145) + 20 + margin;
-					rowSize = size + (size * 0.1075) + 20 + margin;
+				columnSize = (size * 1.1075) + 20 + margin;
+				rowSize = (size * 0.35) + margin;
+				if (mode === 'vertical') {
+					rowSize = [columnSize, columnSize = rowSize][0];
 				}
-			} else if (style.name === 'trending') {
+			} else if (name === 'trending') {
 				var size = vis.getProperty('Styles.Trending.Size');
 				var margin = 40;
 				columnSize = size + margin;
 				rowSize = (size * 0.5) + margin;
 			}
-			vis.element.css({
+			jqGridContainer.css({
 				'grid-template-columns': izenda.utils.string.format('repeat(auto-fill, {size}px)', { 'size': columnSize }),
-				'grid-template-rows': izenda.utils.string.format('repeat(auto-fill, {size}px)', { 'size': rowSize }),
+				'grid-template-rows': izenda.utils.string.format('repeat(auto-fill, {size}px)', { 'size': rowSize })
 			});
 		}
 
-		function drawAllGauges() {
-			if (vis.getItems().length == 0) {
-				return;
-			}
+		var style = styles[vis.getProperty('CurrentStyle')];
+		style.draw();
 
-			adaptGridLayout();
+		function createGroupComponent(container, options) {
+			var jqContainer = jq$(container);
+			var jqGroupPropertyControl = jq$('<div>').addClass('izenda-vis-group-property');
+			var jqGroupPropertyLabel = jq$('<label>').text(options.label);
+			var jqGroupPropertyContainer = jq$('<div>').addClass('izenda-vis-property-container');
 
-			if (style.name == "trending") {
-				var items = {};
+			jqGroupPropertyControl.append(jqGroupPropertyLabel);
+			jqGroupPropertyControl.append(jqGroupPropertyContainer);
+
+			jqContainer.append(jqGroupPropertyControl);
+
+			return jqGroupPropertyContainer;
+		}
+
+		function createSliderComponent(container, options) {
+			var jqContainer = jq$(container);
+			var jqPropertyControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-slider');
+			var jqPropertyLabel = jq$('<label>').text(options.label);
+			var jqPropertyContainer = jq$('<div>').addClass('izenda-vis-property-slider-container');
+			var jqPropertySlider = jq$('<div>');
+
+			jqPropertyControl.append(jqPropertyLabel);
+			jqPropertyContainer.append(jqPropertySlider);
+			jqPropertyControl.append(jqPropertyContainer);
+			jqContainer.append(jqPropertyControl);
+
+			var timeoutId = 0;
+			jqPropertySlider.slider({
+				min: options.min,
+				max: options.max,
+				value: vis.getProperty(options.propertyId)
+			}).on('slide', function (event, object) {
+				clearTimeout(timeoutId);
+				timeoutId = setTimeout(vis.safeWrapper(function () {
+					vis.setProperty(options.propertyId, object.value);
+					options.callback(object.value);
+				}, options.ajaxTimeout || 100));
+			});
+		}
+
+		function createButtonGroupControl(container, options) {
+			var jqContainer = jq$(container);
+
+			var jqList = jq$('<ul>');
+			jq$.each(options.items, function (index, item) {
+				jqList.append(jq$('<li>').attr('val', item.value).text(item.label));
+			});
+
+			var jqPropertyControl = jq$('<div>').addClass('izenda-vis-property izenda-vis-property-buttongroup')
+				.append(jq$('<label>').text(options.label))
+				.append(jqList);
+			jqPropertyControl.find('li')
+				.bind('click', vis.safeWrapper(function () {
+					var jqElement = jq$(this);
+					if (!jqElement.hasClass('izenda-selected')) {
+						jqPropertyControl.find('li').removeClass('izenda-selected');
+						jqElement.addClass('izenda-selected');
+						var value = jqElement.attr('val');
+						vis.setProperty(options.propertyId, value);
+						options.callback(value);
+					}
+				}));
+			jqPropertyControl.find('li[val="' + vis.getProperty(options.propertyId) + '"]').addClass('izenda-selected');
+			jqContainer.append(jqPropertyControl);
+		}
+
+		function SimpleStyle() {
+			var style = this;
+
+			style.name = 'simple';
+			style.title = 'Simple Style';
+			style.thumbnail = '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.simple-style.png';
+
+			var gauges = [], panels = [];
+
+			style.initGearPanel = function (panel) {
+				panels.push(panel);
+
+				var jqGroup = createGroupComponent(panel, {
+					label: 'Transform'
+				});
+
+				createSliderComponent(jqGroup, {
+					label: 'Size',
+					propertyId: 'Styles.Simple.Size',
+					min: 100,
+					max: 450,
+					callback: function (value) {
+						vis.element.fadeOut(200, function () {
+							adaptGridLayout(style.name);
+							gauges.forEach(function (gauge) {
+								gauge.setSize(value);
+							});
+							vis.element.fadeIn(500);
+						});
+					}
+				});
+			};
+
+			style.draw = function () {
+				if (vis.getItems().length === 0) {
+					return;
+				}
+
+				var jqGridContainer = jq$('<div>').addClass('izenda-vis-grid-container');
+				vis.element.append(jqGridContainer);
+
+				adaptGridLayout(style.name);
+
+				var items = [];
 				jq$.each(vis.getItems(), function (index, item) {
 					var name = vis.cellValue(index, 0, false);
-					if (!items[name]) {
-						items[name] = [];
+					items.push({ title: name, data: getProcessedData(item) });
+				});
+
+				function drawGauge(title, data) {
+					if (isNaN(data.items[0].value))
+						return;
+					var jqGaugeDiv = jq$('<div>').addClass('izenda-vis-gauge izenda-vis-simple-gauge');
+					jqGridContainer.append(jqGaugeDiv);
+
+					var gauge = new izenda.gauges.SimpleGauge({
+						parent: jqGaugeDiv.get(0),
+						title: title,
+						size: vis.getProperty('Styles.Simple.Size'),
+						subtitle: typeof data.units !== 'undefined' ? data.units.value : null,
+						data: data
+					});
+
+					gauges.push(gauge);
+					gauge.render(!vis.context.isImageRender);
+				}
+
+				jq$.each(items,
+					function (i, item) {
+						drawGauge(item.title, item.data);
+					});
+			};
+
+			style.destroy = function () {
+				vis.element.empty();
+				gauges = [];
+
+				jq$.each(panels, function (i, panel) {
+					panel.empty();
+				});
+				panels = [];
+			};
+		}
+
+		function LinearStyle() {
+			var style = this;
+
+			style.name = 'linear';
+			style.title = 'Linear Style';
+			style.thumbnail = '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.linear-style.png';
+
+			var gauges = [], panels = [];
+
+			style.initGearPanel = function (panel) {
+				panels.push(panel);
+
+				var jqGroup = createGroupComponent(panel, {
+					label: 'Transform'
+				});
+
+				createButtonGroupControl(jqGroup, {
+					label: 'Mode',
+					items: [{
+						value: 'horizontal',
+						label: 'Horizontal'
+					}, {
+						value: 'vertical',
+						label: 'Vertical'
+					}],
+					propertyId: 'Styles.Linear.Mode',
+					callback: function (mode) {
+						vis.element.fadeOut(200, function () {
+							adaptGridLayout(style.name);
+							gauges.forEach(function (gauge) {
+								gauge.changeMode(mode);
+							});
+							vis.element.fadeIn(500);
+						});
+					}
+				});
+
+				createSliderComponent(jqGroup, {
+					label: 'Size',
+					propertyId: 'Styles.Linear.Size',
+					min: 200,
+					max: 400,
+					callback: function (value) {
+						vis.element.fadeOut(200, function () {
+							adaptGridLayout(style.name);
+							gauges.forEach(function (gauge) {
+								gauge.setSize(value);
+							});
+							vis.element.fadeIn(500);
+						});
+					}
+				});
+			};
+
+			style.draw = function () {
+				if (vis.getItems().length === 0) {
+					return;
+				}
+
+				var jqGridContainer = jq$('<div>').addClass('izenda-vis-grid-container');
+				vis.element.append(jqGridContainer);
+
+				adaptGridLayout(style.name);
+
+				var items = [];
+				jq$.each(vis.getItems(), function (index, item) {
+					var name = vis.cellValue(index, 0, false);
+					items.push({ title: name, data: getProcessedData(item) });
+				});
+
+				function drawGauge(title, data) {
+					if (isNaN(data.items[0].value))
+						return;
+					var jqGaugeDiv = jq$('<div>').addClass('izenda-vis-gauge izenda-vis-linear-gauge');//.css('float', 'left');
+					jqGridContainer.append(jqGaugeDiv);
+
+					var gauge = new izenda.gauges.LinearGauge({
+						parent: jqGaugeDiv.get(0),
+						title: title,
+						size: vis.getProperty('Styles.Linear.Size'),
+						mode: vis.getProperty('Styles.Linear.Mode'),
+						data: data
+					});
+
+					gauges.push(gauge);
+					gauge.render(!vis.context.isImageRender);
+				}
+
+				jq$.each(items,
+					function (i, item) {
+						drawGauge(item.title, item.data);
+					});
+			};
+
+			style.destroy = function () {
+				vis.element.empty();
+				gauges = [];
+
+				jq$.each(panels, function (i, panel) {
+					panel.empty();
+				});
+				panels = [];
+			};
+		}
+
+		function RoundStyle() {
+			var style = this;
+
+			style.name = 'round';
+			style.title = 'Round Style';
+			style.thumbnail = '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.round-style.png';
+
+			var gauges = [], panels = [];
+
+			style.initGearPanel = function (panel) {
+				panels.push(panel);
+
+				var jqGroup = createGroupComponent(panel, {
+					label: 'Transform'
+				});
+
+				createSliderComponent(jqGroup, {
+					label: 'Size',
+					propertyId: 'Styles.Round.Size',
+					min: 60,
+					max: 360,
+					callback: function (value) {
+						gauges.forEach(function (gauge) {
+							gauge.setDegree(value);
+						});
+					},
+					ajaxTimeout: 50
+				});
+
+				createSliderComponent(jqGroup, {
+					label: 'Width',
+					propertyId: 'Styles.Round.Width',
+					min: 1,
+					max: 50,
+					callback: function (value) {
+						gauges.forEach(function (gauge) {
+							gauge.setTickness(value);
+						});
+					},
+					ajaxTimeout: 50
+				});
+			};
+
+			style.draw = function (items) {
+				if (vis.getItems().length === 0) {
+					return;
+				}
+
+				var jqGridContainer = jq$('<div>').addClass('izenda-vis-grid-container');
+				vis.element.append(jqGridContainer);
+
+				adaptGridLayout(style.name);
+
+				var items = [];
+				jq$.each(vis.getItems(), function (index, item) {
+					var name = vis.cellValue(index, 0, false);
+					items.push({ title: name, data: getProcessedData(item) });
+				});
+
+				function drawGauge(title, data) {
+					if (isNaN(data.items[0].value) || isNaN(data.items.length > 1 && data.items[1].value) || isNaN(typeof data.max === 'object' && data.max.value))
+						return;
+
+					var jqGaugeDiv = jq$('<div>').addClass('izenda-vis-gauge izenda-vis-round-gauge');
+					jqGridContainer.append(jqGaugeDiv);
+
+					var gauge = new izenda.gauges.RoundGauge({
+						parent: jqGaugeDiv.get(0),
+						title: title,
+						color: vis.getProperty('Styles.Round.Color'),
+						backgroundColor: vis.getProperty('Styles.Round.BackgroundColor'),
+						labelColor: vis.getProperty('Styles.Round.LabelColor'),
+						titleColor: vis.getProperty('Styles.Round.TitleColor'),
+						degree: vis.getProperty('Styles.Round.Size'),
+						tickness: vis.getProperty('Styles.Round.Width'),
+						data: data
+					});
+
+					gauges.push(gauge);
+					gauge.render(!vis.context.isImageRender);
+				}
+
+				jq$.each(items,
+					function (i, item) {
+						drawGauge(item.title, item.data);
+					});
+			};
+
+			style.destroy = function () {
+				vis.element.empty();
+				gauges = [];
+
+				jq$.each(panels, function (i, panel) {
+					panel.empty();
+				});
+				panels = [];
+			};
+		}
+
+		function TrendingStyle() {
+			var style = this;
+
+			style.name = 'trending';
+			style.title = 'Trending Style';
+			style.thumbnail = '###RS###extres=Vis.Gauge.Auto Gauge.images.styles.trending-style.png';
+
+			var gauges = [], panels = [];
+
+			style.initGearPanel = function (panel) {
+				panels.push(panel);
+
+				var jqGroup = createGroupComponent(panel, {
+					label: 'Transform'
+				});
+
+				createSliderComponent(jqGroup, {
+					label: 'Size',
+					propertyId: 'Styles.Trending.Size',
+					min: 200,
+					max: 600,
+					callback: function (value) {
+						vis.element.fadeOut(200, function () {
+							adaptGridLayout(style.name);
+							gauges.forEach(function (gauge) {
+								gauge.setSize(value);
+							});
+							vis.element.fadeIn(500);
+						});
+					}
+				});
+			};
+
+			style.draw = function () {
+				if (vis.getItems().length === 0) {
+					return;
+				}
+
+				var jqGridContainer = jq$('<div>').addClass('izenda-vis-grid-container');
+				vis.element.append(jqGridContainer);
+
+				adaptGridLayout(style.name);
+
+				var nonFilteredItems = {};
+				jq$.each(vis.getItems(), function (index, item) {
+					var name = vis.cellValue(index, 0, false);
+					if (!nonFilteredItems[name]) {
+						nonFilteredItems[name] = [];
 					}
 
 					var data = getProcessedData(item);
 					if (data.date) {
-						items[name].push(data);
+						nonFilteredItems[name].push(data);
 					}
 				});
 
-				for (var key in items) {
-					var values = items[key];
-
-					if (values.length > 1) {
-						style.draw(key, values);
+				var items = [];
+				for (var key in nonFilteredItems) {
+					if (nonFilteredItems.hasOwnProperty(key)) {
+						var values = nonFilteredItems[key];
+						if (values.length > 1) {
+							items.push({ title: key, data: values });
+						}
 					}
 				}
-			} else {
-				jq$.each(vis.getItems(), function (index, item) {
-					var name = vis.cellValue(index, 0, false);
-					style.draw(name, getProcessedData(item));
-				});
-			}
-		}
 
-		drawAllGauges();
+				function drawGauge(title, data) {
+					data = jq$.grep(data, function (item) {
+						return !isNaN(item.items[0].value);
+					});
+					if (data.length === 0)
+						return;
+
+					var jqGaugeDiv = jq$('<div>').addClass('izenda-vis-gauge izenda-vis-trending-gauge');
+					jqGridContainer.append(jqGaugeDiv);
+
+					var gauge = new izenda.gauges.TrendingGauge({
+						parent: jqGaugeDiv.get(0),
+						title: title,
+						size: vis.getProperty('Styles.Trending.Size'),
+						data: data
+					});
+
+					gauges.push(gauge);
+					gauge.render(!vis.context.isImageRender);
+				}
+
+				jq$.each(items,
+					function (i, item) {
+						drawGauge(item.title, item.data);
+					});
+			};
+
+			style.destroy = function () {
+				vis.element.empty();
+				gauges = [];
+
+				jq$.each(panels, function (i, panel) {
+					panel.empty();
+				});
+				panels = [];
+			};
+		}
 
 		izenda.visualization.registerResize('VIS_ID', init, vis.clear);
 	})();

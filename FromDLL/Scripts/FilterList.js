@@ -44,106 +44,109 @@ var showingC = false;
 var CC_Initialized = false;
 
 function CC_LoadColumns(id, path, options, selectName, row) {
-		if (selectName == null)
-				selectName = "Column";
-		cc_paths[id] = { path: path, options: options };
-		var table = document.getElementById(id);
-		var additionalData = null;
-		if (descriptions != null && descriptions.length > 0) {
-			additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }]}];
-			for (var i = 0; i < descriptions.length; i++) {
-				var calcField = descriptions[i];
-				var option = {
-					value: calcFieldPrefix + calcField.fldId,
-					text: '[' + calcField.description + '] (calc)',
-					fieldIndex: calcField.fieldIndex
-				};
-				if(calcField.datatype != null){
-					option.datatype = calcField.datatype;
-				}
-				additionalData[0].options.push(option);
-			}
+	if (selectName == null)
+		selectName = "Column";
+	cc_paths[id] = { path: path, options: options };
+	var table = document.getElementById(id);
+	var additionalData = null;
+	if (descriptions != null && descriptions.length > 0) {
+		additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }]}];
+		for (var i = 0; i < descriptions.length; i++) {
+			var calcField = descriptions[i];
+			var option = {
+				value: calcFieldPrefix + calcField.fldId,
+				text: '[' + calcField.description + '] (calc)',
+				fieldIndex: calcField.fieldIndex
+			};
+			if(calcField.datatype != null)
+				option.datatype = calcField.datatype;
+			if (calcField.dataTypeGroup != null)
+				option.dataTypeGroup = calcField.dataTypeGroup;
+			if (calcField.expressionType != null)
+				option.expressionType = calcField.expressionType;
+			additionalData[0].options.push(option);
 		}
-		var rows = null;
-		if (row != null) {
-				rows = new Array();
-				rows.push(row);
-				CC_oldData = null;
-		} else
-			rows = jq$(table.tBodies[0]).find("tr");
+	}
+	var rows = null;
+	if (row != null) {
+		rows = new Array();
+		rows.push(row);
+		CC_oldData = null;
+	} else
+		rows = jq$(table.tBodies[0]).find("tr");
 
-		var cc_newData = path + options + "&" + "filterList=true";
-		if (additionalData != null)
-			cc_newData = cc_newData + JSON.stringify(additionalData);
+	var cc_newData = path + options + "&" + "filterList=true";
+	if (additionalData != null)
+		cc_newData = cc_newData + JSON.stringify(additionalData);
 
-		if (CC_oldData == cc_newData)
-				return;
-		CC_oldData = cc_newData;
-		for (var i = 0; i < rows.length; i++) {
-				var row = rows[i];
-				var columnSel = EBC_GetSelectByName(row, selectName);
-				var value = columnSel.getAttribute("oldValue");
-				if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
-						value = EBC_GetSelectValue(columnSel);
-				columnSel.value = value;
-				EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
-		}
+	if (CC_oldData == cc_newData)
+		return;
+	CC_oldData = cc_newData;
+	for (var i = 0; i < rows.length; i++) {
+		var row = rows[i];
+		var columnSel = EBC_GetSelectByName(row, selectName);
+		var value = columnSel.getAttribute("oldValue");
+		if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
+			value = EBC_GetSelectValue(columnSel);
+		columnSel.value = value;
+		EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
+	}
 }
 
 function CC_GetTables(tableID) {
-		var tables = new Array();
-		var pos = tableID.lastIndexOf("_cc");
-		if (pos > 0) {
-				var id = tableID.substring(0, pos + 1) + "jtc";
-				if (document.getElementById(id) != null) {
-						var tableSels = document.getElementsByName(id + '_Table');
-						var columnSels = document.getElementsByName(id + '_Column');
-						var rightColumnSel = document.getElementsByName(id + '_RightColumn');
-						var joinSel = document.getElementsByName(id + '_Join');
-						var tableAliases = document.getElementsByName(id + '_TableAlias');
-						var additionalOperators = document.getElementsByName(id + '_ConditionOperator');
+	var tables = new Array();
+	var pos = tableID.lastIndexOf("_cc");
+	if (pos > 0) {
+		var id = tableID.substring(0, pos + 1) + "jtc";
+		if (document.getElementById(id) != null) {
+			var tableSels = document.getElementsByName(id + '_Table');
+			var columnSels = document.getElementsByName(id + '_Column');
+			var rightColumnSel = document.getElementsByName(id + '_RightColumn');
+			var joinSel = document.getElementsByName(id + '_Join');
+			var tableAliases = document.getElementsByName(id + '_TableAlias');
+			var additionalOperators = document.getElementsByName(id + '_ConditionOperator');
 
-						for (var i = 0; i < tableSels.length; i++) {
-								var value = new Array();
-								value.table = tableSels[i].value;
-								if (value.table != null && value.table != '...') {
-									value.alias = tableAliases[i].value;
-										if (i > 0) {
-												value.column = columnSels[i].value;
-												value.rightColumn = rightColumnSel[i].value;
-												value.join = joinSel[i].value;
-												if (joinSel[i].getAttribute('additional') == 'true' && additionalOperators != null)
-													value.additionalOperator = additionalOperators[i].value;
-										}
-										tables.push(value);
-								}
-						}
+			for (var i = 0; i < tableSels.length; i++) {
+				var value = new Array();
+				value.table = tableSels[i].value;
+				if (value.table != null && value.table != '...') {
+					value.alias = tableAliases[i].value;
+					if (i > 0) {
+						value.column = columnSels[i].value;
+						value.rightColumn = rightColumnSel[i].value;
+						value.join = joinSel[i].value;
+						if (joinSel[i].getAttribute('additional') == 'true' && additionalOperators != null)
+							value.additionalOperator = additionalOperators[i].value;
+					}
+					tables.push(value);
 				}
-				else {
-						id += "s";
-						if (document.getElementById(id) != null) {
-								var value = new Array();
-								var tableList = cc_paths[tableID].options;
-								value.table = tableList.substring(7, tableList.length);
-								tables.push(value);
-						}
-				}
+			}
 		}
-		return tables;
+		else {
+			id += "s";
+			if (document.getElementById(id) != null) {
+				var value = new Array();
+				var tableList = cc_paths[tableID].options;
+				value.table = tableList.substring(7, tableList.length);
+				tables.push(value);
+			}
+		}
+	}
+	return tables;
 }
 
 function CC_GetAllowNulls(tableID) {
-		var allowNulls = "0";
-		var pos = tableID.lastIndexOf("_cc");
-		if (pos > 0) {
-				var id = tableID.substring(0, pos + 1) + "jtc";
-				if (document.getElementById(id) == null)
-						id += "s";
-				var allowNullsInput = document.getElementsByName(id + "_AllowNulls");
-				if (allowNullsInput != null && allowNullsInput[0] != null && allowNullsInput[0].checked == true)
-						allowNulls = "1";
-		}
-		return allowNulls;
+	var allowNulls = "0";
+	var pos = tableID.lastIndexOf("_cc");
+	if (pos > 0) {
+		var id = tableID.substring(0, pos + 1) + "jtc";
+		if (document.getElementById(id) == null)
+			id += "s";
+		var allowNullsInput = document.getElementsByName(id + "_AllowNulls");
+		if (allowNullsInput != null && allowNullsInput[0] != null && allowNullsInput[0].checked == true)
+			allowNulls = "1";
+	}
+	return allowNulls;
 }
 
 function CC_GetSectionRowIndex(row) {
@@ -151,19 +154,19 @@ function CC_GetSectionRowIndex(row) {
 }
 
 function CC_CaCalDateChanged(elem) {
-		var parent = jq$("#" + elem);
-		if (!parent)
-				return;
+	var parent = jq$("#" + elem);
+	if (!parent)
+		return;
 
-		var row = EBC_GetRow(parent[0]);
-		var table = EBC_GetParentTable(row);
-		var rows = jq$(table.tBodies[0]).find("tr");
+	var row = EBC_GetRow(parent[0]);
+	var table = EBC_GetParentTable(row);
+	var rows = jq$(table.tBodies[0]).find("tr");
 
-		for (var i = CC_GetSectionRowIndex(row) + 1; i < rows.length; i++) {
-				var showEditForRow = CC_GetShowEditForRow(rows[i]);
-				if (showEditForRow[2] || showEditForRow[7] || showEditForRow[11])
-						CC_LoadValues(rows[i]);
-		}
+	for (var i = CC_GetSectionRowIndex(row) + 1; i < rows.length; i++) {
+		var showEditForRow = CC_GetShowEditForRow(rows[i]);
+		if (showEditForRow[2] || showEditForRow[7] || showEditForRow[11])
+			CC_LoadValues(rows[i]);
+	}
 }
 
 function CC_GetFiltersInRange(row, startIndex, endIndex) {
@@ -258,27 +261,27 @@ function CC_GetPrewRows(row) {
 }
 
 function CC_CropDate(s) {
-		var newS = "";
-		var stop = false;
-		var i = 0;
-		var dotNum = 0;
-		while (!stop) {
-				var c = s.charAt(i);
-				if (c == '.') {
-						dotNum++;
-				}
-				if (dotNum < 3) {
-						newS += c;
-				}
-				else {
-						stop = true;
-				}
-				i++;
-				if (i >= s.length) {
-						stop = true;
-				}
+	var newS = "";
+	var stop = false;
+	var i = 0;
+	var dotNum = 0;
+	while (!stop) {
+		var c = s.charAt(i);
+		if (c == '.') {
+			dotNum++;
 		}
-		return newS;
+		if (dotNum < 3) {
+			newS += c;
+		}
+		else {
+			stop = true;
+		}
+		i++;
+		if (i >= s.length) {
+			stop = true;
+		}
+	}
+	return newS;
 }
 
 function CC_GetCurrentFilterLogic() {
@@ -296,70 +299,70 @@ function CC_IsFilterLogicValid() {
 }
 
 function CC_GetFilterCMD(row) {
-		var cmd = "";
-		var parentTable = EBC_GetParentTable(row);
-		var id = parentTable.id;
-		var tables = CC_GetTables(id);
-		var allowNulls = CC_GetAllowNulls(id);
-		var filterLogic = CC_GetCurrentFilterLogic();
+	var cmd = "";
+	var parentTable = EBC_GetParentTable(row);
+	var id = parentTable.id;
+	var tables = CC_GetTables(id);
+	var allowNulls = CC_GetAllowNulls(id);
+	var filterLogic = CC_GetCurrentFilterLogic();
 
-		if (tables.length == 0) {
-				var els = jq$("[id$='_SavedReportName']");
-				var savedReportName = null;
-				if (els.length > 0)
-						savedReportName = els[0];
-				if (savedReportName != null) {
-						var rn = savedReportName.value;
-						if (rn != null && rn != "") {
-								var val = new Array();
-								val.table = "-1" + "&" + "rn=" + rn;
-								tables.push(val);
-						}
-				}
+	if (tables.length == 0) {
+		var els = jq$("[id$='_SavedReportName']");
+		var savedReportName = null;
+		if (els.length > 0)
+			savedReportName = els[0];
+		if (savedReportName != null) {
+			var rn = savedReportName.value;
+			if (rn != null && rn != "") {
+				var val = new Array();
+				val.table = "-1" + "&" + "rn=" + rn;
+				tables.push(val);
+			}
 		}
-		if (tables.length > 0) {
-				var i;
-				for (i = 0; i < tables.length; i++) {
-					cmd = cmd + "&" + "tbl" + i + "=" + tables[i].table;
-					cmd += "&ta" + i + "=" + (tables[i].alias == null ? '' : tables[i].alias);
-						if (i > 0) {
-								cmd = cmd + "&" + "lclm" + i + "=" + tables[i].column;
-								cmd = cmd + "&" + "rclm" + i + "=" + tables[i].rightColumn;
-								cmd = cmd + "&" + "jn" + i + "=" + tables[i].join;
-								if (tables[i].additionalOperator != null)
-									cmd = cmd + "&" + "aop" + i + "=" + tables[i].additionalOperator;
-						}
-				}
-				var filters = new Array();
-				if (filterLogic != '')
-					filters = CC_GetAllFilters(row);
-				else
-					filters = CC_GetPrewRows(row);
-				for (i = 0; i < filters.length; i++) {
-						cmd = cmd + "&" + "fc" + i + "=" + filters[i].Column;
-						cmd = cmd + "&" + "fo" + i + "=" + filters[i].Operator;
-						if (filters[i].val1 != null) {
-								var v1 = filters[i].val1.replace('&', '%26');
-								if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
-										v1 = CC_CropDate(v1);
-								}
-								cmd = cmd + "&" + "fvl" + i + "=" + encodeURIComponent(v1);
-						}
-						if (filters[i].val2 != null) {
-								var v2 = filters[i].val2.replace('&', '%26');
-								if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
-										v2 = CC_CropDate(v2);
-								}
-								cmd = cmd + "&" + "fvr" + i + "=" + encodeURIComponent(v2);
-						}
-				}
+	}
+	if (tables.length > 0) {
+		var i;
+		for (i = 0; i < tables.length; i++) {
+			cmd = cmd + "&" + "tbl" + i + "=" + tables[i].table;
+			cmd += "&ta" + i + "=" + (tables[i].alias == null ? '' : tables[i].alias);
+			if (i > 0) {
+				cmd = cmd + "&" + "lclm" + i + "=" + tables[i].column;
+				cmd = cmd + "&" + "rclm" + i + "=" + tables[i].rightColumn;
+				cmd = cmd + "&" + "jn" + i + "=" + tables[i].join;
+				if (tables[i].additionalOperator != null)
+					cmd = cmd + "&" + "aop" + i + "=" + tables[i].additionalOperator;
+			}
 		}
+		var filters = new Array();
 		if (filterLogic != '')
-			cmd += '&filterLogic=' + filterLogic;
+			filters = CC_GetAllFilters(row);
+		else
+			filters = CC_GetPrewRows(row);
+		for (i = 0; i < filters.length; i++) {
+			cmd = cmd + "&" + "fc" + i + "=" + filters[i].Column;
+			cmd = cmd + "&" + "fo" + i + "=" + filters[i].Operator;
+			if (filters[i].val1 != null) {
+				var v1 = filters[i].val1.replace('&', '%26');
+				if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
+					v1 = CC_CropDate(v1);
+				}
+				cmd = cmd + "&" + "fvl" + i + "=" + encodeURIComponent(v1);
+			}
+			if (filters[i].val2 != null) {
+				var v2 = filters[i].val2.replace('&', '%26');
+				if (filters[i].Operator == "BetweenTwoDates" || filters[i].Operator == "NotBetweenTwoDates" || filters[i].Operator == "EqualsCalendar" || filters[i].Operator == "NotEqualsCalendar") {
+					v2 = CC_CropDate(v2);
+				}
+				cmd = cmd + "&" + "fvr" + i + "=" + encodeURIComponent(v2);
+			}
+		}
+	}
+	if (filterLogic != '')
+		cmd += '&filterLogic=' + filterLogic;
 
-		if (allowNulls == "1")
-				cmd += "&nulls=1";
-		return cmd;
+	if (allowNulls == "1")
+		cmd += "&nulls=1";
+	return cmd;
 }
 
 
@@ -368,9 +371,9 @@ function CC_LoadValues(row) {
 	var isNotFieldOperator = true;
 	if (operatorName != null) {
 		var len = operatorName.length;
-			if (len > 5) {
-				var str = operatorName.substring(len - 5, len);
-				isNotFieldOperator = (str != 'Field');
+		if (len > 5) {
+			var str = operatorName.substring(len - 5, len);
+			isNotFieldOperator = (str != 'Field');
 		}
 	}
 	if (isNotFieldOperator) {
@@ -659,10 +662,12 @@ function CC_OnColumnChangedHandler(e) {
 			CC_LoadValues(row);
 		var dataType = null;
 		var dataTypeGroup = null;
+		var expressionType = null;
 		var colFullName = null;
 		if (columnSel.selectedIndex != -1) {
-			dataType = columnSel.options[columnSel.selectedIndex].getAttribute("dataType");
+			dataType = columnSel.options[columnSel.selectedIndex].getAttribute("datatype");
 			dataTypeGroup = columnSel.options[columnSel.selectedIndex].getAttribute("dataTypeGroup");
+			expressionType = columnSel.options[columnSel.selectedIndex].getAttribute("expressionType");
 			colFullName = columnSel.options[columnSel.selectedIndex].value;
 		}
 		if (dataType == null || dataType == "Unknown")
@@ -684,7 +689,7 @@ function CC_OnColumnChangedHandler(e) {
 
 		var formatSel = EBC_GetSelectByName(row, 'DisplayFormat');
 		if (formatSel != null)
-			EBC_LoadData('FormatList', 'typeGroup=' + dataTypeGroup + '&onlySimple=true&forceSimple=true', formatSel);
+			EBC_LoadData('FormatList', 'typeGroup=' + ((expressionType && expressionType != '...') ? expressionType : dataTypeGroup) + '&onlySimple=true&forceSimple=true&colFullName=' + colFullName, formatSel);
 	}
 }
 
@@ -840,8 +845,8 @@ function CC_OnOperatorChangedHandler(e) {
 			CC_LoadValues(row);
 
 		if (showFieldAsValueDropDown &&
-				(operatorValue == 'NotEqualsField' || operatorValue == 'EqualsField' ||
-				operatorValue == 'LessThanField' || operatorValue == 'GreaterThanField')) {
+			(operatorValue == 'NotEqualsField' || operatorValue == 'EqualsField' ||
+			operatorValue == 'LessThanField' || operatorValue == 'GreaterThanField')) {
 			CC_LoadFields(row);
 		}
 	}

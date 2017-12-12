@@ -130,7 +130,7 @@ function TB_PropmtReportName(
 		if (showCategory) {
 			if (autoSelectedValue == '')
 				autoSelectedValue = category;
-			var categoriesHtml = "<select id='promt_input2' style='min-width:136px;'></select>";
+			var categoriesHtml = "<select id='promt_input2' style='min-width:136px; max-width: 500px;'></select>";
 			genHtml += "<span>" + jsResources.Category + "</span><br>" + categoriesHtml;
 		}
 		else
@@ -142,7 +142,7 @@ function TB_PropmtReportName(
 			function (result) {
 				TB_PromptCallback(result, document.getElementById("promt_input").value, document.getElementById('promt_input2').value, UserData);
 			}, {
-				onshow: function () {
+				onbeforefit: function () {
 					// prepare categories
 					var catsArray = [{
 						name: ''

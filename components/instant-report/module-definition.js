@@ -1,4 +1,4 @@
-﻿izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition'], function (angular, angularCookies, izendaCommon) {
+izendaRequire.define(['angular', 'angular-cookies', '../common/module-definition'], function (angular, angularCookies, izendaCommon) {
 	'use strict';
 	// Create instant report angular module
 	angular.module('izendaInstantReport', [

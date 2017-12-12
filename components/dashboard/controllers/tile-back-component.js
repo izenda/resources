@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../services/services',
 	'../directives/directives'], function (angular) {

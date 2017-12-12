@@ -1,0 +1,22 @@
+﻿<izenda-bootstrap-modal opened="$ctrl.$izendaUtilUiService.dialogBox">
+  <div class="modal-header">
+    <span ng-bind="$ctrl.$izendaUtilUiService.dialogBox.title"></span>
+  </div>
+  <div class="modal-body">
+    <div class="alert" ng-class="'alert-' + $ctrl.$izendaUtilUiService.dialogBox.alertInfo">
+      <div ng-bind="$ctrl.$izendaUtilUiService.dialogBox.message"></div>
+      <div style="padding-top: 20px">
+        <label style="font-weight: normal;" ng-repeat="checkbox in $ctrl.$izendaUtilUiService.dialogBox.checkboxes">
+          <input type="checkbox" ng-model="checkbox.checked">
+          {{checkbox.label}}
+        </label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-default"
+            ng-click="$ctrl.onButtonClick(button);"
+            ng-bind="button.text"
+            ng-repeat="button in $ctrl.$izendaUtilUiService.dialogBox.buttons"></button>
+  </div>
+</izenda-bootstrap-modal>

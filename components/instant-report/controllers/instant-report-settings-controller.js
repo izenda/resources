@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/ui/services/share-service',
 	'../../common/ui/components/share/component',

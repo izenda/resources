@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/core/services/compatibility-service',
 	'../services/services'
@@ -26,10 +26,8 @@
 					// calculate width
 					function getLeftWidth() {
 						var width = $left.width();
-						var styleString = $left.attr('style');
-						if (angular.isString($left.data('style')) && $left.data('style') !== '') {
-							styleString = $left.data('style');
-						}
+						var styleData = $left.attr('data-style');
+						var styleString = styleData ? styleData : $left.attr('style');
 						if (angular.isString(styleString))
 							angular.element.each(styleString.split(';'), function () {
 								if (this.trim().indexOf('width') === 0) {

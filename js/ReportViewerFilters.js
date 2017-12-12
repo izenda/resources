@@ -400,7 +400,7 @@ function AddNewFilterField() {
 	filterObj.Values = null;
 	filterObj.ControlType = 1;
 	filterObj.ColumnName = newFilterFieldDropDown.value;
-	filterObj.AliasTable = jq$(newFilterFieldDropDown).find('option[value="' + newFilterFieldDropDown.value + '"]').data('alias');
+	filterObj.AliasTable = jq$(newFilterFieldDropDown).find('option[value="' + newFilterFieldDropDown.value + '"]').attr('data-alias');
 
 	filtersData.push(filterObj);
 	CommitFiltersData(false);

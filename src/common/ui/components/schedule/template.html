@@ -1,0 +1,59 @@
+﻿<div class="container-fluid">
+  <div class="row">
+    <div class="col-md-12">
+      <form role="form">
+        <div class="form-group">
+          <label for="scheduleDatetimePicker1" ng-bind="'js_date' | izendaLocale: 'Date'" bind-once></label>
+          <div class="input-group date fullwidth">
+            <div id="scheduleDatetimePicker1" class="input-group date fullwidth"
+                 date-format="$ctrl.dateFormat.shortDate"
+                 locale="$ctrl.culture"
+                 ng-model="$ctrl.scheduleConfig.date"
+                 show-additional-buttons="true"
+                 html-container-selector=".izenda-layout-middle"
+                 datepart="'date'"
+                 izenda-date-time-picker>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="scheduleTimePicker1" ng-bind="'js_time' | izendaLocale: 'Time'" bind-once></label>
+          <div class="input-group bootstrap-timepicker fullwidth">
+            <div id="scheduleTimePicker1" class="input-group date fullwidth"
+                 date-format="$ctrl.dateFormat.shortTime"
+                 locale="$ctrl.culture"
+                 ng-model="$ctrl.scheduleConfig.date"
+                 show-additional-buttons="false"
+                 html-container-selector=".izenda-layout-middle"
+                 datepart="'time'"
+                 izenda-date-time-picker>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="scheduleTzPicker1" ng-bind="'js_timezone' | izendaLocale: 'Timezone'" bind-once></label>
+          <select id="scheduleTzPicker1" class="form-control"
+                  ng-options="timezone.value as timezone.text disable when timezone.disabled for timezone in $ctrl.timezones"
+                  ng-model="$ctrl.scheduleConfig.timezone"></select>
+        </div>
+        <div class="form-group">
+          <label for="scheduleRepeatPicker1" ng-bind="'js_repeatType' | izendaLocale: 'Repeat Type'" bind-once></label>
+          <select id="scheduleRepeatPicker1" class="form-control"
+                  ng-options="repeat.value as repeat.text disable when repeat.disabled for repeat in $ctrl.repeatTypes"
+                  ng-model="$ctrl.scheduleConfig.repeat"></select>
+        </div>
+        <div class="form-group">
+          <label for="scheduleEmailPicker1" ng-bind="'js_sendEmailAs' | izendaLocale: 'Send Email As'" bind-once></label>
+          <select id="scheduleEmailPicker1" class="form-control"
+                  ng-options="email.value as email.text disable when email.disabled for email in $ctrl.emailTypes"
+                  ng-model="$ctrl.scheduleConfig.email"></select>
+        </div>
+        <div class="form-group">
+          <label for="scheduleRecipientsPicker1" ng-bind="'js_recipients' | izendaLocale: 'Recipients'" bind-once></label>
+          <textarea id="scheduleRecipientsPicker1" class="form-control"
+                    ng-model="$ctrl.scheduleConfig.recipients"></textarea>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

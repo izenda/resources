@@ -1,4 +1,4 @@
-﻿izendaRequire.define(function (require) {
+izendaRequire.define(function (require) {
 	'use strict';
 	return {
 		isSpecificIeVersion: function (version, comparison) {

@@ -1,0 +1,181 @@
+﻿<!-- select report part dialog -->
+<izenda-select-report-component opened="$ctrl.isSelectReportPartModalVisible" 
+                           on-selected="$ctrl.onSelectReportPart(reportPartInfo)"
+                           on-modal-closed="$ctrl.onSelectReportModalClosed()">
+</izenda-select-report-component>
+
+<!-- export progress modal -->
+<izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="$ctrl.exportProgress">
+  <div class="modal-header">
+    <span ng-bind="$ctrl.getWaitMessageHeaderText()"></span>
+  </div>
+  <div class="modal-body">
+    <div class="container-fluid">
+      <span ng-bind="$ctrl.getWaitMessageText()"></span>
+    </div>
+  </div>
+</izenda-bootstrap-modal>
+
+<div tileid="{{$ctrl.tile.id}}"
+     reportid="{{$ctrl.tile.id}}"
+     class="iz-dash-tile izenda-report-with-id"
+     ng-style="$ctrl.getTileStyle()"
+     data-hover="false"
+     izenda-tile-hover-report-complexity="$ctrl.state.relativeReportComplexity"
+     izenda-tile-hover
+     izenda-tile-hover-disabled="$ctrl.tile.backTilePopupOpened"
+     izenda-tile-flip-object="$ctrl.tile.flip"
+     izenda-tile-flip-handler="$ctrl.onTileFlip(isFront, update, updateFromSourceReport)"
+     izenda-tile-flip
+     ng-cloak>
+  <izenda-tile-draggable enabled="true"
+                         tile="$ctrl.tile"
+                         tiles="$ctrl.tiles"
+                         grid-width="$ctrl.gridWidth"
+                         grid-height="$ctrl.gridHeight"
+                         on-move-start="$ctrl.onTileDragStart({ tile: tile })"
+                         on-move="$ctrl.onTileDrag({ tile: tile, shadowPosition: shadowPosition })"
+                         on-move-end="$ctrl._onTileDragEndInner(eventResult)"></izenda-tile-draggable>
+  <izenda-tile-resizable enabled="true"
+                         tile="$ctrl.tile"
+                         tiles="$ctrl.tiles"
+                         grid-width="$ctrl.gridWidth"
+                         grid-height="$ctrl.gridHeight"
+                         on-resize-start="$ctrl._onTileResizeStartInner(eventResult)"
+                         on-resize="$ctrl._onTileResizeInner(eventResult)"
+                         on-resize-end="$ctrl._onTileResizeEndInner(eventResult)"></izenda-tile-resizable>
+  <izenda-bootstrap-dropdown width="400px" height="350px" opened="$ctrl.tile.backTilePopupOpened"
+                             attach-to-element="{{'#backButton' + $ctrl.tile.id}}"
+                             on-close="$ctrl.onBackTilePopupClosed()">
+    <izenda-dashboard-tile-back tile="$ctrl.tile"
+                                focused="$ctrl.tile.backTilePopupOpened"
+                                on-set-tile-top="$ctrl.onSetTileTop(top)"
+                                on-print="$ctrl.printTile()"
+                                on-export-excel="$ctrl.exportExcel()"
+                                on-go-to-editor="$ctrl.fireReportEditorLink()"
+                                on-go-to-viewer="$ctrl.fireReportViewerLink()"
+                                on-reload="$ctrl.flipFront(true, true)"
+                                on-select-report="$ctrl.selectReportPart()"></izenda-dashboard-tile-back>
+  </izenda-bootstrap-dropdown>
+  <div class="animate-flip">
+    <div class="flippy flippy-front" 
+         ng-style="{backgroundColor: $ctrl.tile.backgroundColor}">
+      <div class="frame" ng-style="$ctrl.tile.reportFullName ? {} : {'top':'5px'}">
+        <!-- tile front -->
+        <div style="cursor: pointer;" class="iz-dash-select-report-front-container"
+             ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
+             ng-hide="$ctrl.tile.reportFullName"
+             ng-click="$ctrl.selectReportPart()">
+          <a class="btn btn-default iz-dash-select-report-front-btn">
+            <span class="glyphicon glyphicon-plus"></span>
+          </a>
+        </div>
+        <div class="iz-dash-tile-description"
+             ng-show="$ctrl.tile.description"
+             ng-bind="$ctrl.tile.description">
+        </div>
+        <a class="title-button title-button-remove button1"
+           style="position: absolute; cursor: pointer; right: 0; top: 0; height: 35px; background-color: transparent;"
+           ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
+           ng-click="$ctrl.deleteTile()"
+           ng-hide="$ctrl.tile.reportFullName"
+           ng-if="$ctrl.isEditAllowed()">
+          <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
+        </a>
+        <div class="report" name="preview_control_container"
+             ng-hide="$ctrl.isReportDivHidden()">
+        </div>
+      </div>
+      <div class="title-container" style="overflow: hidden; height: 35px;">
+        <div class="title">
+          <!-- title -->
+          <span class="title-text" ng-include="'###RS###extres=components.dashboard.templates.izenda-dashboard-tile-title.html'"></span>
+          <!-- title buttons -->
+          <a id="{{'backButton' + $ctrl.tile.id}}"
+             class="title-button button2"
+             ng-click="$ctrl.onBackTileClick()"
+             ng-if="$ctrl.isEditAllowed() && $ctrl.tile.reportFullName"
+             ng-show="$ctrl.isButtonsVisible">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+          </a>
+          <a class="title-button title-button-remove button1"
+             ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
+             ng-click="$ctrl.showConfirmDelete()"
+             ng-show="$ctrl.isButtonsVisible"
+             ng-if="$ctrl.isEditAllowed()">
+            <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
+          </a>
+          <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getConfirmDeleteClass()"
+             ng-click="$ctrl.deleteTile()"
+             ng-if="$ctrl.isEditAllowed()"
+             ng-show="$ctrl.isButtonsVisible"
+             ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove tile'}}">
+            <img src="###RS###extres=images.tile.confirm-delete.png" />
+            <span ng-if="!$ctrl.isTileButtonsTight()" class="text-lowercase"
+                  ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
+          </a>
+          <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getCancelDeleteClass()"
+             ng-click="$ctrl.hideConfirmDelete()"
+             ng-if="$ctrl.isEditAllowed()"
+             ng-show="$ctrl.isButtonsVisible"
+             ng-attr-title="{{'js_Undo' | izendaLocale: 'Undo'}}">
+            <img src="###RS###extres=images.tile.turn-back.png" />
+            <span ng-if="!$ctrl.isTileButtonsTight()" class="text-lowercase"
+                  ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="flippy flippy-back" 
+         ng-style="{backgroundColor: $ctrl.tile.backgroundColor}">
+      <div class="frame">
+        <izenda-dashboard-tile-back tile="$ctrl.tile"
+                                    on-set-tile-top="$ctrl.onSetTileTop(top)"
+                                    on-print="$ctrl.printTile()"
+                                    on-export-excel="$ctrl.exportExcel()"
+                                    on-go-to-editor="$ctrl.fireReportEditorLink()"
+                                    on-go-to-viewer="$ctrl.fireReportViewerLink()"
+                                    on-reload="$ctrl.flipFront(true, true)"
+                                    on-select-report="$ctrl.selectReportPart()"></izenda-dashboard-tile-back>
+      </div>
+      <div class="title-container" style="height: 35px; overflow: hidden;">
+        <div class="title">
+          <span class="title-text">
+            <!-- title -->
+            <span class="title-text" ng-include="'###RS###extres=components.dashboard.templates.izenda-dashboard-tile-title.html'"></span>
+
+            <!-- title buttons -->
+            <a class="title-button title-button-remove button2"
+               ng-attr-title="{{'js_ShowTile' | izendaLocale: 'Show tile'}}"
+               ng-show="$ctrl.isButtonsVisible"
+               ng-click="$ctrl.flipFront($ctrl.tileSizeChanged)">
+              <img src="###RS###extres=images.turn-18.png" class="img-responsive" />
+            </a>
+            <a class="title-button title-button-remove button1"
+               ng-attr-title="{{'js_RemoveTile' | izendaLocale: 'Remove Tile'}}"
+               ng-show="$ctrl.isButtonsVisible"
+               ng-click="$ctrl.showConfirmDelete()">
+              <img src="###RS###extres=images.remove-18.png" class="img-responsive" />
+            </a>
+            <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getConfirmDeleteClass()"
+               ng-click="$ctrl.deleteTile()"
+               ng-show="$ctrl.isButtonsVisible">
+              <img src="###RS###extres=images.tile.confirm-delete.png" />
+              <span ng-if="$ctrl.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_RemoveTile' | izendaLocale: 'Remove tile'" bind-once></span>
+            </a>
+            <a ng-class="$ctrl.deleteConfirmClass + ' ' + $ctrl.getCancelDeleteClass()"
+               ng-click="$ctrl.hideConfirmDelete()"
+               ng-show="$ctrl.isButtonsVisible">
+              <img src="###RS###extres=images.tile.turn-back.png" />
+              <span ng-if="$ctrl.getWidth() > 1" class="text-lowercase"
+                    ng-bind="'js_Undo' | izendaLocale: 'Undo'" bind-once></span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

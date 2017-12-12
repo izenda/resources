@@ -1,0 +1,83 @@
+﻿<!-- title and description -->
+<div class="container-fluid iz-dash-tile-fb-main">
+  <div class="row">
+    <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
+      <label ng-bind="'js_Title' | izendaLocale: 'Title'" bind-once></label>
+    </div>
+    <div class="col-md-9 col-xs-12">
+      <input type="text" class="form-control"
+             ng-model="$ctrl.tile.title"
+             izenda-focus="{{$ctrl.focused}}">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-3 col-xs-12 iz-dash-tile-fb-label">
+      <label ng-bind="'js_Description' | izendaLocale: 'Description'" bind-once></label>
+    </div>
+    <div class="col-md-9 col-xs-12">
+      <input type="text" class="form-control"
+             ng-model="$ctrl.tile.description">
+    </div>
+  </div>
+</div>
+
+<!-- tile toolbar -->
+<div class="iz-dash-tile-fb-toolbar2">
+  <div class="iz-dash-tile-fb-toolbtn"
+       ng-show="!$ctrl.isOneColumnView() && $ctrl.isPrintTileVisible() && $ctrl.hasLockedRightsOrMore()">
+    <a ng-attr-title="{{'js_PrintTileReport' | izendaLocale: 'Print tile report'}}"
+       ng-click="$ctrl.printTile()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.print.png" />
+    </a>
+  </div>
+  <div class="iz-dash-tile-fb-toolbtn"
+       ng-show="$ctrl.hasLockedRightsOrMore()">
+    <a ng-attr-title="{{'js_ExportTileToExcel' | izendaLocale: 'Export tile report to Excel'}}"
+       ng-click="$ctrl.fireExportToExcel()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.excel.png" />
+    </a>
+  </div>
+  <div class="iz-dash-tile-fb-toolbtn"
+       ng-show="$ctrl.isDesignLinksAllowed && $ctrl.hasReadOnlyRightsOrMore()">
+    <a ng-attr-title="{{'js_OpenTileInDesigner' | izendaLocale: 'Open tile report in designer'}}"
+       ng-click="$ctrl.fireReportEditorLink()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.edit.png" />
+    </a>
+  </div>
+  <div class="iz-dash-tile-fb-toolbtn"
+       ng-show="$ctrl.hasLockedRightsOrMore()">
+    <a ng-attr-title="{{'js_OpenTileInViewer' | izendaLocale: 'Open tile report in viewer'}}"
+       ng-click="$ctrl.fireReportViewerLink()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.view.png" />
+    </a>
+  </div>
+  <div class="iz-dash-tile-fb-toolbtn"
+       ng-show="$ctrl.hasLockedRightsOrMore()">
+    <a ng-attr-title="{{'js_ReloadTile' | izendaLocale: 'Reload tile from its source'}}"
+       ng-click="$ctrl.reloadTile()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.reload.png">
+    </a>
+  </div>
+  <div class="iz-dash-tile-fb-toolbtn">
+    <a ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}"
+       ng-click="$ctrl.selectReportPart()">
+      <img class="img-responsive" src="###RS###extres=images.back-tile.add.png">
+    </a>
+  </div>
+</div>
+
+<!-- top -->
+<div class="iz-dash-tile-fb-toolbar">
+  <span class="iz-dash-tile-fb-rcount" ng-bind="$ctrl.tile.topString"></span>
+  <span class="iz-dash-tile-fb-rcount-slider">
+    <div ng-model="$ctrl.tile.top"
+         on-change-end="$ctrl.topSelected(newTop)"
+         disabled="!$ctrl.hasLockedRightsOrMore()"
+         show-item-all="$ctrl.showAllInResults"
+         rendered="true"
+         izenda-tile-top-slider>
+    </div>
+  </span>
+  <span class="iz-dash-tile-fb-rcount-label text-uppercase"
+        ng-bind="'js_RecordsCount' | izendaLocale: 'Records count'" bind-once></span>
+</div>

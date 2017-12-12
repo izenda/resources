@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../module-definition',
 	'../directives/utility' // almost all "izendaLocale" directives uses with "bindOnce"

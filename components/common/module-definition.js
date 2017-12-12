@@ -1,4 +1,4 @@
-﻿/**
+/**
  * requirejs module, which creates angular modules.
  * returns 'loadSettings' function, which could load settings for this module.
  */

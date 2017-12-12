@@ -1,4 +1,4 @@
-﻿(function (require, define) {
+(function (require, define) {
 	'use strict';
 	
 	// require configuration
@@ -7,11 +7,11 @@
 		waitSeconds: 0,
 		paths: {
 			'moment': 'vendor/moment/moment-with-locales.min',
-			'izendaAngular': 'vendor/angular-1.6.1/angular.min',
+			'izendaAngular': 'vendor/angular/angular.min',
+			'izendaAngularCookies': 'vendor/angular/angular-cookies.min',
 			'css-parser': 'vendor/jscssp/cssParser',
 			'bootstrap-datetimepicker': 'vendor/bootstrap/js/bootstrap-datetimepicker.min',
-			'izendaAngularCookies': 'vendor/angular-1.6.1/angular-cookies.min',
-			'resizeSensor': 'vendor/resize-sensor/resizeSensor.min'
+			'resizeSensor': 'vendor/resize-sensor/resizeSensor'
 		},
 		map: {
 			'*': {

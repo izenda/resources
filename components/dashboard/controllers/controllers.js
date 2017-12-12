@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'./dashboard-controller',
 	'./tile-controller',
 	'./tile-back-component',

@@ -1,0 +1,10 @@
+﻿<div ng-controller="InstantReportScheduleController as $ctrl" 
+     ng-init="$ctrl.initialize()" ng-cloak>
+  <div class="iz-inst-schedule-container">
+    <izenda-schedule-component schedule-config="$ctrl.scheduleConfig"
+                               repeat-types="$ctrl.repeatTypes"
+                               email-types="$ctrl.emailTypes"
+                               timezones="$ctrl.timezones">
+    </izenda-schedule-component>
+  </div>
+</div>

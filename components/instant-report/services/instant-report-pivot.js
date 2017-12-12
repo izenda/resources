@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/core/services/util-service',
 	'./instant-report-query'
@@ -23,8 +23,7 @@
 		'$q',
 		'$rootScope',
 		'$izendaUtil',
-		'$izendaInstantReportQuery',
-		function ($injector, $q) {
+		function ($injector, $q, $rootScope, $izendaUtil) {
 			'use strict';
 
 			/////////////////////////////////////////
@@ -49,6 +48,16 @@
 			var setPivotColumn = function (value) {
 				pivotConfig.pivotColumn = value;
 			};
+
+			/**
+			 * Set default group for pivot column.
+			 */
+			var setDefaultGroup = function () {
+				if (!angular.isObject(pivotConfig.pivotColumn))
+					return;
+				if (!pivotConfig.pivotColumn.groupByFunction)
+					pivotConfig.pivotColumn.groupByFunction = $izendaUtil.getOptionByValue(pivotConfig.pivotColumn.groupByFunctionOptions, 'GROUP');
+			}
 
 			/**
 			 * Clear pivots
@@ -181,7 +190,7 @@
 				var j = 0;
 				while (j < pivotConfig.cellValues.length) {
 					var cellValue = pivotConfig.cellValues[j];
-					if (!isFieldInList(cellValue, activeFieldsInActiveTables)) {
+					if (cellValue && !isFieldInList(cellValue, activeFieldsInActiveTables)) {
 						pivotConfig.cellValues.splice(j, 1);
 					}
 					j++;
@@ -218,6 +227,7 @@
 				getPivotColumn: getPivotColumn,
 				getPivotOptions: getPivotOptions,
 				setPivotColumn: setPivotColumn,
+				setDefaultGroup: setDefaultGroup,
 				removePivots: removePivots,
 				getCellValues: getCellValues,
 				addCellValue: addCellValue,

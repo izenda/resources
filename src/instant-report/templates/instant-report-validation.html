@@ -1,0 +1,16 @@
+﻿<div ng-controller="InstantReportValidationController as validationController"
+     ng-init="validationController.init()" ng-cloak>
+  <ul class="alert alert-info" role="alert" 
+      ng-show="validationController.infoMessages.length > 0">
+    <li ng-repeat="message in validationController.infoMessages">
+      <span class="glyphicon glyphicon-info-sign"></span>
+      <span ng-bind="message.text"></span>
+    </li>
+  </ul>
+  <div ng-hide="validationController.isValid">
+    <ul>
+      <li ng-repeat="message in validationController.messages"
+          ng-bind="message.text"></li>
+    </ul>
+  </div>
+</div>

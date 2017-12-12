@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'./background-service',
 	'./dashboard-query-service',
 	'./dashboard-state-service',

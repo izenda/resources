@@ -1,4 +1,4 @@
-﻿/* sometimes angular creates empty optgroups, so we need to hide it */
+/* sometimes angular creates empty optgroups, so we need to hide it */
 /*optgroup:empty { display: none; }*/
 
 .svg-icon {
@@ -899,6 +899,7 @@ div[id$="_ReportsDiv"] {
 	padding: 0.5em 0;
 	margin: 0;
 	border: 1px solid #4274AF;
+	font-size: 0.9em;
 }
 
 .iz-inst-mobile .iz-inst-top-panel-body {
@@ -907,10 +908,46 @@ div[id$="_ReportsDiv"] {
 }
 
 .iz-inst-top-panel-body-btn {
+	background-color: #4274AF;
+	height: 2em;
+	line-height: 1em;
+	margin-bottom: 0.5em;
+	margin-top: 0.5em;
+	display: inline-block;
 }
 
 .iz-inst-mobile .iz-inst-top-panel-body-btn {
 	display: block;
+}
+
+.iz-inst-pivot-select {
+	font-weight: normal;
+}
+
+.iz-inst-pivot-inline-control {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
+}
+
+	.iz-inst-pivot-inline-control.right-margin {
+		margin-right: 1em;
+	}
+
+.iz-inst-mobile .iz-inst-pivot-inline-control {
+	margin: 0;
+}
+
+.iz-inst-add-pivot-cell-btn {
+	margin: 0 0.5em;
+}
+
+.iz-inst-pivot-hr {
+	border-bottom: 1px solid #dddddd;
+	margin: 0 -0.5em 0.5em -0.5em;
+}
+
+.iz-inst-mobile .iz-inst-pivot-hr {
+	display: none;
 }
 
 .iz-inst-field-filters-logic {
@@ -951,12 +988,18 @@ div[id$="_ReportsDiv"] {
 		right: 0;
 	}
 
+.iz-inst-form-container {
+	padding: 0 0.5em;
+	margin-top: -0.5em;
+}
+
 .iz-inst-small-panel-container {
 	display: inline-block;
 	position: relative;
 	vertical-align: top;
 	width: 25%;
 	padding: 0.5em;
+	padding-top: 0;
 }
 
 .iz-inst-mobile .iz-inst-small-panel-container {
@@ -987,10 +1030,10 @@ div[id$="_ReportsDiv"] {
 		padding-left: 4px;
 	}
 
-	.iz-inst-small-panel-header .btn-header-close {
+	.iz-inst-small-panel-header .btn-header-close,
+	.iz-inst-small-panel-header .btn-header-settings {
 		position: absolute;
-		right: 8px;
-		top: 8px;
+		top: 0;
 		padding: 0;
 		outline: 0;
 		border: 0;
@@ -1001,6 +1044,14 @@ div[id$="_ReportsDiv"] {
 		color: #fff;
 		border: 0;
 		margin: 0.2em;
+	}
+
+	.iz-inst-small-panel-header .btn-header-close {
+		right: 0.5em;
+	}
+
+	.iz-inst-small-panel-header .btn-header-settings {
+		right: 1.7em;
 	}
 
 .iz-inst-small-panel-body {

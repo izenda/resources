@@ -1,0 +1,12 @@
+﻿<div class="iz-dash-category-container" ng-repeat="category in categories">
+  <div class="category-header" ng-click="toggleAccordion($index)"
+    ng-bind="category.name"   
+    izenda-stop-propagation></div>
+  <div class="category" ng-class="getCategoryClass($index)">
+    <div class="category-item" ng-repeat="dashboard in category.dashboards"
+         ng-class="getCategoryItemClass(dashboard)"
+         ng-click="goToDashboard(dashboard)">
+      <a ng-bind="extractReportName(dashboard)"></a>
+    </div>
+  </div>
+</div>

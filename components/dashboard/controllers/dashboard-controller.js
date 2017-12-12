@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/core/services/compatibility-service',
 	'../../common/core/services/localization-service',
@@ -1007,8 +1007,6 @@
 				}
 
 				tilesToAdd = sortTilesByPosition(tilesToAdd);
-				for (var i = 0; i < tilesToAdd.length; i++)
-					tilesToAdd[i].index = i;
 
 				updateTileSize();
 

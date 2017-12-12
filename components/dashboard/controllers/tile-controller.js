@@ -1,4 +1,4 @@
-﻿izendaRequire.define([
+izendaRequire.define([
 	'angular',
 	'../../common/core/services/compatibility-service',
 	'../../common/core/services/localization-service',
@@ -645,7 +645,12 @@
 		 * Get Y coordinate for tile. This coordinate used for drawing tile UI
 		 */
 		function _getY() {
-			return self.isOneColumnView() ? 4 * self.tile.index : self.tile.y;
+			var sortedTiles = self.tiles.sort(function (a, b) {
+				if (a.y != b.y)
+					return a.y - b.y;
+				return a.x - b.x;
+			});
+			return self.isOneColumnView() ? 4 * sortedTiles.indexOf(self.tile) : self.tile.y;
 		};
 
 		/**
