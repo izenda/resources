@@ -207,7 +207,6 @@
 <script type="text/javascript" src="./rp.aspx?extres=js.shrinkable-grid.js"></script>
 
 <!-- load and run instant report application -->
-<script src="./rp.aspx?extres=components.vendor.babel.polyfill.min.js"></script>
 <script src="./rp.aspx?extres=components.vendor.requirejs.require.js"></script>
 <script src="./rp.aspx?extres=components.dashboard.module-loader.js"></script>
 

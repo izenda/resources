@@ -20,14 +20,14 @@
             <form class="form-inline form-group-sm">
               <label class="iz-inst-pivot-inline-control right-margin">
                 <span ng-bind="'js_PivotColumn' | izendaLocale: 'Pivot column'" bind-once></span>
-                <select class="form-control izenda-width-250 iz-inst-pivot-select"
+                <select class="form-control izenda-common-width-250 iz-inst-pivot-select"
                         ng-options="field as field.name group by field.tableName for field in pivotsController.activeFields track by field.sysname"
                         ng-model="pivotsController.pivotColumn"
                         ng-change="pivotsController.onPivotColumnFieldSelect()"></select>
               </label>
               <label class="iz-inst-pivot-inline-control right-margin">
                 <span ng-bind="'js_PivotColumnGroup' | izendaLocale: 'Pivot column group'" bind-once></span>
-                <select class="form-control izenda-width-250 iz-inst-pivot-select"
+                <select class="form-control izenda-common-width-250 iz-inst-pivot-select"
                         ng-options="func as func.text group by func.group for func in pivotsController.pivotColumn.groupByFunctionOptions"
                         ng-model="pivotsController.pivotColumn.groupByFunction"
                         ng-change="pivotsController.updateReportSetValidationAndRefresh()"></select>
@@ -40,7 +40,7 @@
                   <span class="bold" ng-bind="'js_AddSideTotals' | izendaLocale: 'Add side totals'" bind-once></span>
                 </label>
               </div>
-              <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn"
+              <a class="btn izenda-common-btn-dark iz-inst-top-panel-body-btn"
                  ng-show="pivotsController.pivotColumn !== null"
                  ng-click="pivotsController.clearPivots()">
                 <span class="glyphicon glyphicon-remove" style="font-size: 0.8em;"></span>
@@ -124,7 +124,7 @@
             </div>
           </div>
 
-          <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn iz-inst-add-pivot-cell-btn" ng-click="pivotsController.addCellValue()"
+          <a class="btn izenda-common-btn-dark iz-inst-top-panel-body-btn iz-inst-add-pivot-cell-btn" ng-click="pivotsController.addCellValue()"
              ng-class="pivotsController.getAddCellBtnClass()">
             <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>
             &nbsp;

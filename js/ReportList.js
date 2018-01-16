@@ -142,10 +142,17 @@ var resourcesProvider;
 				this0,
 				function (returnObject) {
 					this0.buildCategoriesModel(returnObject, false);
+					var firstEnabled = this0.turnOffEmptyAfterSearchCategories(returnObject);
+					if (firstEnabled && this0.categoriesModel.currentCategory.isDisabled) {
+						this0.loadCategory(firstEnabled);
+						return;
+					}
+					this0.renderCategories();
 					var $tabElement = jq$('#tabs').find('#tab' + categoryObject.id);
 					this0.renderTabContent(categoryObject, $tabElement);
 					this0.showContent();
 					this0.turnOffLoading(true);
+					window.scrollTo(0, 0);
 				},	
 				function (message) {
 					this0.onError('reports not loaded: ' + message);
@@ -155,6 +162,43 @@ var resourcesProvider;
 			this0.turnOffLoading(true);
 		}
 	};
+
+	ReportListRenderer.prototype.turnOffEmptyAfterSearchCategories = function (searchResults) {
+		var this0 = this;
+		var firstEnabled = null;
+		this0.categoriesModel.categories.forEach(function (categoryObject) {
+			if (!this0.searchKeyword) {
+				categoryObject.isDisabled = false;
+				return;
+			}
+			var isDisabled = true;
+			for (var i = 0; i < searchResults.ReportSets.length; i++) {
+				var searchResult = searchResults.ReportSets[i];
+				var isReport = !!searchResult.ImgUrl;
+				if (isReport)
+					continue;
+				if (searchResult.CategoryFull === categoryObject.fullName
+					|| (!searchResult.CategoryFull && categoryObject.fullName === IzLocal.Res('js_Uncategorized', 'Uncategorized'))) {
+					isDisabled = false;
+					break;
+				}
+			}
+			categoryObject.isDisabled = isDisabled;
+			if (!isDisabled && !firstEnabled)
+				firstEnabled = categoryObject;
+		});
+		if (this.searchKeyword) {
+			for (var i = 0; i < searchResults.ReportSets.length; i++) {
+				var searchResult = searchResults.ReportSets[i];
+				var isReport = !!searchResult.ImgUrl;
+				if (isReport) {
+					this0.categoriesModel.currentCategory.isDisabled = false;
+					break;
+				}
+			}
+		}
+		return firstEnabled;
+	}
 
 	/**
 	 * Category collapse handler
@@ -367,11 +411,13 @@ var resourcesProvider;
 			}
 		}, this0);
 	};
-
+	
 	ReportListRenderer.prototype.renderCategories = function () {
 		var this0 = this;
 		var $el = jq$('<ul class="iz-rl-category-list"></ul>');
 		this0.categoriesModel.categories.forEach(function (categoryObject) {
+			if (categoryObject.isDisabled)
+				return;
 			var hasSubcategory = categoryObject.categories.length;
 			var hasReports = categoryObject.hasReports;
 			var marginLeft = 6 * categoryObject.level;
@@ -532,6 +578,7 @@ var resourcesProvider;
 				}
 			});
 		} else {
+			$element.addClass('text-mode');
 			$element.css({
 					'background-color': '#f3f3f3',
 					'max-width': (this0.nrlConfigObj.ThumbnailWidth + 70) + 'px',
@@ -590,7 +637,7 @@ var resourcesProvider;
 		var this0 = this;
 		var element = jq$('<div class="thumb-buttons"></div>');
 		if (!report.viewOnly && !report.isLocked && this0.nrlConfigObj.AllowDesignReports) {
-			var thumbEditElement = jq$('<div class="thumb-button thumb-edit bottom"></div>')
+			var thumbEditElement = jq$('<div class="thumb-button thumb-edit"></div>')
 				.attr('title', IzLocal.Res('js_Edit', 'Edit'))
 				.on('click', function (event) {
 					cancelEvent(event);
@@ -603,7 +650,9 @@ var resourcesProvider;
 					}
 				});
 			if (!imageMode) {
-				thumbEditElement.css('top', '28px');
+				thumbEditElement.css('right', '28px');
+			} else {
+				thumbEditElement.addClass('bottom');
 			}
 			element.append(thumbEditElement);
 		}
@@ -619,7 +668,7 @@ var resourcesProvider;
 			element.append(thumbRemoveElement);
 		}
 		if (!report.csvOnly || !imageMode) {
-			var thumbPrintElement = jq$('<div class="thumb-button thumb-print bottom"></div>')
+			var thumbPrintElement = jq$('<div class="thumb-button thumb-print"></div>')
 				.attr('title', IzLocal.Res('js_Print', 'Print'))
 				.addClass('thumb-print')
 				.on('click', function (event) {
@@ -629,7 +678,9 @@ var resourcesProvider;
 					window.open(link, '_blank');
 				});
 			if (!imageMode) {
-				thumbPrintElement.css('top', '28px');
+				thumbPrintElement.css('right', '56px');
+			} else {
+				thumbPrintElement.addClass('bottom');
 			}
 			element.append(thumbPrintElement);
 		}
@@ -638,19 +689,14 @@ var resourcesProvider;
 
 	ReportListRenderer.prototype.createThumbTitleElement = function (report, imageMode) {
 		var this0 = this;
-		var $element = jq$('<div class="thumb-title"></div>')
-			.css({
-				'max-width': this0.nrlConfigObj.ThumbnailWidth + 'px'
-			});
+		var $element = jq$('<div class="thumb-title"></div>');
 		if (imageMode) {
+			$element.css('max-width', this0.nrlConfigObj.ThumbnailWidth + 'px');
 			$element.text(report.name);
 		} else {
 			var $textElement = jq$('<span class="thumb-text-mode"></span>')
 				.text(report.name);
-			$element.css({
-				'line-height': '55px',
-				'padding-top': '0'
-			}).append($textElement);
+			$element.append($textElement);
 		}
 		return $element;
 	}

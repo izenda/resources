@@ -390,9 +390,9 @@ izendaRequire.define([
 			var previousReportName = self.tile.previousReportFullName; // reset previous full name
 			self.tile.previousReportFullName = null;
 
-			var loadingHtml = '<div class="izenda-vcentered-container">' +
-				'<div class="izenda-vcentered-item">' +
-				'<img class="izenda-img-loading" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+			var loadingHtml = '<div class="izenda-common-vcentered-container">' +
+				'<div class="izenda-common-vcentered-item">' +
+				'<img class="izenda-common-img-loading" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 				'</div>' +
 				'</div>';
 			var $body = $element.find('.animate-flip> .flippy-front> .frame> .report');

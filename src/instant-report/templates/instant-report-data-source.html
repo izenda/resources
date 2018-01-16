@@ -10,7 +10,7 @@
                ng-attr-title="{{'js_SearchDatasources' | izendaLocale: 'Search Data Sources'}}"
                value=""
                ng-model="irDataSourceController.searchString" />
-        <span class="input-group-addon izenda-cursor-pointer"
+        <span class="input-group-addon izenda-common-cursor-pointer"
               ng-click="irDataSourceController.runSearchQuery(true)">
           <span class="glyphicon-search glyphicon"></span>
         </span>
@@ -27,16 +27,16 @@
               class="glyphicon glyphicon-search pull-right"></span>
         <span ng-show="irDataSourceController.searchString !== ''"
               ng-click="irDataSourceController.turnOffSearch(true)"
-              class="glyphicon glyphicon-remove-sign pull-right izenda-cursor-pointer"></span>
+              class="glyphicon glyphicon-remove-sign pull-right izenda-common-cursor-pointer"></span>
       </div>
     </div>
   </form>
 
   <div id="izInstDataSourcesTree" class="iz-inst-data-sources-tree">
     <!-- loading message -->
-    <div class="izenda-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
-      <div class="izenda-vcentered-item">
-        <img class="izenda-img-loading" style="width: 24px;"
+    <div class="izenda-common-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
+      <div class="izenda-common-vcentered-item">
+        <img class="izenda-common-img-loading" style="width: 24px;"
              ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
              ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
       </div>

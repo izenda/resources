@@ -128,7 +128,7 @@ izendaRequire.define([
 						};
 						var _createHelper = function (innerOffset) {
 							var $cell = $scope.reorderState.$from;
-							var $clone = $cell.clone().wrap('<div class="izenda-col-reorder-helper"></div>').parent();
+							var $clone = $cell.clone().wrap('<div class="izenda-common-col-reorder-helper"></div>').parent();
 							$clone.width($cell.outerWidth());
 							$clone.height($cell.outerHeight());
 							$clone.css('top', $cell.position().top);
@@ -151,7 +151,7 @@ izendaRequire.define([
 							$scope.reorderState.$from.removeClass('izenda-reorder-cell-selected');
 							$scope.reorderState.itemsCache = null;
 							$scope.$table.css('position', $scope.reorderState.previousPosition);
-							$scope.$table.find('.izenda-col-reorder-active').removeClass('izenda-col-reorder-active');
+							$scope.$table.find('.izenda-common-col-reorder-active').removeClass('izenda-col-reorder-active');
 							_removeHelper();
 							restoreTextSelection();
 						};
@@ -204,9 +204,9 @@ izendaRequire.define([
 								}
 							}
 							if (isToTdChanged) {
-								$tds.removeClass('izenda-col-reorder-active');
-								if (!$scope.reorderState.$to.hasClass('izenda-col-reorder-active')) {
-									$scope.reorderState.$to.addClass('izenda-col-reorder-active');
+								$tds.removeClass('izenda-common-col-reorder-active');
+								if (!$scope.reorderState.$to.hasClass('izenda-common-col-reorder-active')) {
+									$scope.reorderState.$to.addClass('izenda-common-col-reorder-active');
 								}
 
 								// bubble inner content
@@ -214,25 +214,25 @@ izendaRequire.define([
 								var toIndex = $scope.reorderState.$to.index();
 								angular.element.each($tds, function () {
 									var $td = angular.element(this);
-									var $backups = $td.children('.izenda-col-reorder-hidden');
+									var $backups = $td.children('.izenda-common-col-reorder-hidden');
 									if ($backups.length > 0) {
-										$td.children().not('.izenda-col-reorder-hidden').remove();
+										$td.children().not('.izenda-common-col-reorder-hidden').remove();
 									}
-									$td.children().removeClass('izenda-col-reorder-hidden');
+									$td.children().removeClass('izenda-common-col-reorder-hidden');
 								});
 								var $currentTd, $nextTd, i;
 								if (fromIndex < toIndex) {
 									for (i = fromIndex; i < toIndex; i++) {
 										$currentTd = angular.element($tds[i]);
 										$nextTd = angular.element($tds[i + 1]);
-										$currentTd.children().addClass('izenda-col-reorder-hidden');
+										$currentTd.children().addClass('izenda-common-col-reorder-hidden');
 										$currentTd.append($nextTd.children().clone());
 									}
 								} else {
 									for (i = fromIndex; i > toIndex; i--) {
 										$currentTd = angular.element($tds[i]);
 										$nextTd = angular.element($tds[i - 1]);
-										$currentTd.children().addClass('izenda-col-reorder-hidden');
+										$currentTd.children().addClass('izenda-common-col-reorder-hidden');
 										$currentTd.append($nextTd.children().clone());
 									}
 								}
@@ -451,15 +451,15 @@ izendaRequire.define([
 								// add cell handlers
 								$cell.on('mouseover.removebtn', function () {
 									var $this = angular.element(this);
-									$this.children('.report-header-remove-column-btn').show();
+									$this.children('.izenda-common-remove-column-btn').show();
 								});
 								$cell.on('mouseout.removebtn', function () {
 									var $this = angular.element(this);
-									$this.children('.report-header-remove-column-btn').hide();
+									$this.children('.izenda-common-remove-column-btn').hide();
 								});
 
 								// add button
-								var $reportColumnRemoveButton = angular.element('<div class="report-header-remove-column-btn"><span class="glyphicon glyphicon-remove"></span></div>');
+								var $reportColumnRemoveButton = angular.element('<div class="izenda-common-remove-column-btn"><span class="glyphicon glyphicon-remove"></span></div>');
 								$cell.append($reportColumnRemoveButton);
 								$reportColumnRemoveButton.on('mousedown.removebtn', function (e) {
 									if (e.which !== 1) return;

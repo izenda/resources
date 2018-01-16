@@ -1195,23 +1195,28 @@ div[id$="_ReportsDiv"] {
 	padding-bottom: 50px;
 }
 
-.iz-inst-mobile .izenda-width-100 {
+.iz-inst-mobile .izenda-width-100,
+.iz-inst-mobile .izenda-common-width-100 {
 	width: 100% !important;
 }
 
-.iz-inst-mobile .izenda-width-150 {
+.iz-inst-mobile .izenda-width-150,
+.iz-inst-mobile .izenda-common-width-150 {
 	width: 100% !important;
 }
 
-.iz-inst-mobile .izenda-width-200 {
+.iz-inst-mobile .izenda-width-200,
+.iz-inst-mobile .izenda-common-width-200 {
 	width: 100% !important;
 }
 
-.iz-inst-mobile .izenda-width-250 {
+.iz-inst-mobile .izenda-width-250,
+.iz-inst-mobile .izenda-common-width-250 {
 	width: 100% !important;
 }
 
-.iz-inst-mobile .izenda-width-400 {
+.iz-inst-mobile .izenda-width-400,
+.iz-inst-mobile .izenda-common-width-400 {
 	width: 100% !important;
 }
 

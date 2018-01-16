@@ -18,11 +18,11 @@ izendaRequire.define([
 				label: '=',
 				ngModel: '='
 			},
-			template: '<span ng-show="label != null && label != \'\'" class="izenda-switcher-label">{{label}}</span>' +
-			'<span class="izenda-switcher" title="{{tooltip}}">' +
-			'<span class="izenda-switcher-text-off">O</span>' +
-			'<span class="izenda-switcher-item"></span>' +
-			'<span class="izenda-switcher-text-on">I</span>' +
+			template: '<span ng-show="label != null && label != \'\'" class="izenda-common-switcher-label">{{label}}</span>' +
+			'<span class="izenda-common-switcher" title="{{tooltip}}">' +
+				'<span class="izenda-common-switcher-text-off">O</span>' +
+				'<span class="izenda-common-switcher-item"></span>' +
+				'<span class="izenda-common-switcher-text-on">I</span>' +
 			'</span>',
 			link: function ($scope, elem, attrs) {
 				elem.click(function (e) {
@@ -30,7 +30,7 @@ izendaRequire.define([
 					$scope.ngModel = !$scope.ngModel;
 					$scope.$parent.$apply();
 				});
-				var $switcher = elem.find('.izenda-switcher');
+				var $switcher = elem.find('.izenda-common-switcher');
 				$scope.$watch('ngModel', function (newVal) {
 					if (newVal) {
 						$switcher.addClass('on');

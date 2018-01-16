@@ -86,8 +86,6 @@ if (!String.prototype.trim) {
 		var msg = "Error occurred on server side. ";
 		if (responseObject && responseObject.status && responseObject.statusText)
 			msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
-		if (!preventReloading)
-			msg += '<br /><br />Page will be reloaded when you click "OK"';
 		if (responseObject.responseText) {
 			var stacktrace = izenda.error.extractStackTrace(responseObject);
 			if (stacktrace) {
@@ -95,8 +93,13 @@ if (!String.prototype.trim) {
 					stacktrace.replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
 					'</span></div>';
 			}
+			if (!preventReloading)
+				msg += '<br />Press "OK" to reload page, or "Cancel" to leave it as is.';
 		}
-		ReportingServices.showOk(msg, function () { if (!preventReloading) { location.reload(); } });
+		if (!preventReloading)
+			ReportingServices.showConfirm(msg, function (result) { if (result == jsResources.OK) { location.reload(); } });
+		else
+			ReportingServices.showOk(msg);
 	};
 
 })(window.izenda || (window.izenda = {}));

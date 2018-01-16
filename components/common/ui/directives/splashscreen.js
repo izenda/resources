@@ -5,10 +5,10 @@ izendaRequire.define([
 	'use strict';
 
 	var template =
-		'<div class="izenda-splashscreen hidden">' +
-		'<div class="izenda-splashscreen-inner text-center">' +
-		'<img class="izenda-splashscreen-loading"/>' +
-		'<span class="izenda-splashscreen-text"></span>' +
+		'<div class="izenda-common-splashscreen hidden">' +
+		'<div class="izenda-common-splashscreen-inner text-center">' +
+		'<img class="izenda-common-splashscreen-loading"/>' +
+		'<span class="izenda-common-splashscreen-text"></span>' +
 		'</div>' +
 		'</div>';
 
@@ -34,7 +34,7 @@ izendaRequire.define([
 				var bodyOverflow, bodyPadding, $body;
 
 				var initialize = function () {
-					$element.find('.izenda-splashscreen-loading').attr('src', defaultLoadingIndicatorUrl);
+					$element.find('.izenda-common-splashscreen-loading').attr('src', defaultLoadingIndicatorUrl);
 					$body = angular.element(parentSelectorText);
 					if ($body.length > 0 && !added) {
 						bodyOverflow = $body.css('overflow');
@@ -45,7 +45,7 @@ izendaRequire.define([
 				};
 
 				var setText = function (text) {
-					var $inner = $element.find('.izenda-splashscreen-text');
+					var $inner = $element.find('.izenda-common-splashscreen-text');
 					$inner.text($scope.text);
 				}
 

@@ -41,8 +41,7 @@ function GC_OnTableListChangedHandlerWithStoredParams() {
 }
 
 var lastCallParams_GC_OnTableListChangedHandler = new Array();
-function GC_OnTableListChangedHandler(id, tables)
-{
+function GC_OnTableListChangedHandler(id, tables) {
 	if (!tables)
 		return;
 	var sc_wac_works_val = false;
@@ -122,13 +121,14 @@ function GC_OnAggregateFunctionChanged(e, chartElementId) {
 	}
 }
 
-function GC_OnColumnChangedHandler(e)
-{
+function GC_OnColumnChangedHandler(e) {
 	if(e)
 		ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e);
 	try {
 		var columnSel = EBC_GetSelectByName(row, 'Column');
+		if (columnSel.disabled)
+			return;
 		var oldValue = columnSel.getAttribute("oldValue");
 		if (columnSel.options[columnSel.selectedIndex].restrictselecting == "true") {
 			if (oldValue != null && columnSel.options[columnSel.selectedIndex].value != oldValue) {
@@ -141,7 +141,7 @@ function GC_OnColumnChangedHandler(e)
 	catch (exc) {}
 	if (row == null)
 		return;
-			
+
 	var rowFunc = EBC_GetSelectByName(row, 'Function');
 	jq$(rowFunc).removeAttr('disabled');
 	if (columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
@@ -158,8 +158,6 @@ function GC_OnColumnChangedHandler(e)
 	var count = 1;
 	
 	var disableAfterIndex = -1;
-
-	var enableAll = true;
 	for (var i = 1; i < body.rows.length-1; i++)
 	{
 		var selField = EBC_GetSelectByName(body.rows[i], 'Column');
@@ -193,8 +191,8 @@ function GC_OnColumnChangedHandler(e)
 		}
 		else {
 			if (selField != null)
-			    selField.disabled = false;
-			if (selFunc != null && selField.options[selField.selectedIndex].value.indexOf(calcFieldPrefix) == -1)
+				selField.disabled = false;
+			if (selFunc != null && !selField.disabled && selField.options[selField.selectedIndex].value.indexOf(calcFieldPrefix) == -1)
 				selFunc.disabled = false;
 			if (i == disableAfterIndex && selField != null)
 			{

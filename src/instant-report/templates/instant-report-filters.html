@@ -16,7 +16,7 @@
       <div class="container-fluid" ng-show="filtersController.filters.length > 0 && filtersController.activeFields.length > 0">
         <div class="row">
           <div class="iz-inst-field-filters-toolbar">
-            <a class="btn btn-izenda-dark iz-inst-top-panel-body-btn" ng-click="filtersController.addFilter()">
+            <a class="btn izenda-common-btn-dark iz-inst-top-panel-body-btn" ng-click="filtersController.addFilter()">
               <span class="glyphicon glyphicon-plus" style="font-size: 0.8em;"></span>
               &nbsp;
               <span ng-bind="'js_AddFilter' | izendaLocale: 'Add Filter'" bind-once></span>
@@ -46,22 +46,22 @@
                    ng-attr-title="{{filter.validationMessageString}}">
                 <span class="index-container" ng-bind="$index + 1"></span>
                 <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
-                  <span class="izenda-cursor-pointer glyphicon with-label"
+                  <span class="izenda-common-cursor-pointer glyphicon with-label"
                         ng-class="filter.parameter ? 'glyphicon-check' : 'glyphicon-unchecked'"
                         ng-click="filter.parameter = !filter.parameter"
                         izenda-stop-propagation></span>
-                  <span class="izenda-cursor-pointer"
+                  <span class="izenda-common-cursor-pointer"
                         ng-click="filter.parameter = !filter.parameter"
                         ng-bind="'js_Param' | izendaLocale: 'Param'"
                         izenda-stop-propagation>
                   </span>
                 </span>
                 <span class="text-nowrap" style="padding: 0 4px; display: inline-block;">
-                  <span class="izenda-cursor-pointer glyphicon with-label"
+                  <span class="izenda-common-cursor-pointer glyphicon with-label"
                         ng-class="filter.required ? 'glyphicon-check' : 'glyphicon-unchecked'"
                         ng-click="filter.required = !filter.required"
                         izenda-stop-propagation></span>
-                  <span class="izenda-cursor-pointer"
+                  <span class="izenda-common-cursor-pointer"
                         ng-click="filter.required = !filter.required"
                         ng-bind="'js_Required' | izendaLocale: 'Required'"
                         izenda-stop-propagation>

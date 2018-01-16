@@ -103,8 +103,8 @@
 			},
 			template:
 				'<div class="dropdown">' +
-					'<div class="dropdown-menu dropdown-strong-shadow dropdown-no-close-on-click" izenda-stop-propagation>' +
-					'<div class="dropdown-triangle"></div>' +
+					'<div class="dropdown-menu izenda-common-dropdown-strong-shadow dropdown-no-close-on-click" izenda-stop-propagation>' +
+					'<div class="izenda-common-dropdown-triangle"></div>' +
 					'<div ng-style="{\'width\': width, \'height\': height}">' +
 					'<div ng-transclude></div>' +
 					'</div>' +
@@ -118,7 +118,7 @@
 				var $dropdown = $element.find('.dropdown');
 				var $menu = $element.find('.dropdown-menu');
 
-				$dropdown.find('.dropdown-triangle').on('click', function () {
+				$dropdown.find('.izenda-common-dropdown-triangle').on('click', function () {
 					close();
 				});
 
@@ -160,14 +160,14 @@
 						'top': top + 'px',
 						'left': left + 'px'
 					});
-					$menu.children('.dropdown-triangle').css('left', 0);
+					$menu.children('.izenda-common-dropdown-triangle').css('left', 0);
 					$menu.data('open', true);
 					var windowWidth = angular.element($window).width();
 					if ($menu.offset().left + $menu.width() > windowWidth) {
 						var delta = $menu.offset().left + $menu.width() - windowWidth + 10;
 						left -= delta;
 						$menu.css('left', left);
-						$menu.children('.dropdown-triangle').css('left', delta + 'px');
+						$menu.children('.izenda-common-dropdown-triangle').css('left', delta + 'px');
 					}
 					if (angular.isFunction($scope.onOpen))
 						$scope.onOpen({});

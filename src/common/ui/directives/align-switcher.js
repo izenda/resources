@@ -12,7 +12,7 @@
 					ngModel: '=',
 					title: '@'
 				},
-				template: '<span class="izenda-align-switcher glyphicon" ng-click="nextValue()" ng-attr-title="title" ng-class="alignShortcut"></span>',
+				template: '<span class="izenda-common-align-switcher glyphicon" ng-click="nextValue()" ng-attr-title="title" ng-class="alignShortcut"></span>',
 				link: function ($scope, element, attrs) {
 					var itemsArray = ['L', 'M', 'R', ' '];
 					var shortcuts = {

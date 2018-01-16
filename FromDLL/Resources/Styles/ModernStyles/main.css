@@ -715,6 +715,25 @@ tr.ReportFooter td {
 	vertical-align: top;
 }
 
+	.iz-ui-tabs-panel div.thumb:hover {
+		outline: 8px solid #cddbf6;
+		background-color: #cddbf6;
+	}
+
+	.iz-ui-tabs-panel div.thumb.text-mode:hover {
+		outline: 2px solid #cddbf6;
+	}
+
+	.iz-ui-tabs-panel div.thumb.no-hover {
+		outline: 8px solid #cddbf6;
+		background-color: #cddbf6;
+	}
+
+	.iz-ui-tabs-panel div.thumb.text-mode.no-hover {
+		outline: 2px solid #cddbf6;
+		background-color: #cddbf6;
+	}
+
 .report-list-icon {
 	width: 170px;
 	height: 220px;
@@ -754,16 +773,6 @@ tr.ReportFooter td {
 	outline: none;
 }
 
-.iz-ui-tabs-panel div.thumb:hover {
-	outline: 8px solid #cddbf6;
-	background-color: #cddbf6;
-}
-
-.iz-ui-tabs-panel div.thumb.no-hover {
-	outline: 8px solid #cddbf6;
-	background-color: #cddbf6;
-}
-
 .iz-ui-tabs-panel div.thumb .thumb-buttons {
 	display: none;
 	position: absolute;
@@ -794,35 +803,7 @@ tr.ReportFooter td {
 	background-repeat: no-repeat;
 }
 
-	.iz-ui-tabs-panel div.thumb .thumb-button.bottom {
-		position: relative;
-		float: right;
-		top: calc(100% - 28px);
-	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-remove {
-		background-image: url(###RS###image=ModernImages.remove-icon.png);
-	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-edit {
-		background-image: url(###RS###image=ModernImages.edit-icon.png);
-	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-print {
-		background-image: url(###RS###image=ModernImages.print-icon.png);
-	}
-
-	.iz-ui-tabs-panel div.thumb .thumb-button.thumb-template {
-		background-image: url(###RS###image=ModernImages.template-icon.png);
-	}
-
-.iz-ui-tabs-panel div.thumb:hover .thumb-button:hover,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-button {
-	background-color: #b0c8e9;
-	opacity: 1;
-}
-
-#tabs .thumbs div.thumb-title {
+.iz-ui-tabs-panel div.thumb .thumb-title {
 	color: #000;
 	display: block;
 	font-family: "Droid Sans", Tahoma, "Segoe UI", sans-serif !important;
@@ -831,14 +812,52 @@ tr.ReportFooter td {
 	padding: 4px 0;
 	position: relative;
 	word-break: break-all;
+	max-width: 170px;
 }
 
-.thumb-title .thumb-text-mode {
-	margin-top: -5px;
+.iz-ui-tabs-panel div.thumb.text-mode .thumb-title {
+	margin: 30px 0;
 	word-break: normal;
 	display: inline-block;
 	line-height: 20px;
 	vertical-align: middle;
+	padding: 0 0 0 8px;
+	max-width: 225px;
+	line-height: 20px;
+	overflow-x: hidden;
+	text-overflow: ellipsis;
+}
+
+	.iz-ui-tabs-panel div.thumb.text-mode .thumb-title .thumb-text-mode {
+		line-height: 20px;
+	}
+
+.iz-ui-tabs-panel div.thumb .thumb-button.bottom {
+	position: relative;
+	float: right;
+	top: calc(100% - 28px);
+}
+
+.iz-ui-tabs-panel div.thumb .thumb-button.thumb-remove {
+	background-image: url(###RS###image=ModernImages.remove-icon.png);
+}
+
+.iz-ui-tabs-panel div.thumb .thumb-button.thumb-edit {
+	background-image: url(###RS###image=ModernImages.edit-icon.png);
+}
+
+.iz-ui-tabs-panel div.thumb .thumb-button.thumb-print {
+	background-image: url(###RS###image=ModernImages.print-icon.png);
+}
+
+.iz-ui-tabs-panel div.thumb .thumb-button.thumb-template {
+	background-image: url(###RS###image=ModernImages.template-icon.png);
+}
+
+.iz-ui-tabs-panel div.thumb:hover .thumb-button:hover,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-button {
+	background-color: #b0c8e9;
+	opacity: 1;
 }
 
 .iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {

@@ -39,7 +39,6 @@
 
 
 <!-- load and run instant report application -->
-<script src="./rp.aspx?extres=components.vendor.babel.polyfill.min.js"></script>
 <script src="./rp.aspx?extres=components.vendor.requirejs.require.js"></script>
 <script src="./rp.aspx?extres=components.instant-report.module-loader.js"></script>
 

@@ -18,13 +18,13 @@
 						ngModel: '='
 					},
 					template: '<div ng-repeat="existentValue in existentValues">' +
-					'<label class="izenda-select-checkboxes-label">' +
+					'<label class="izenda-common-select-checkboxes-label">' +
 					'<input type="checkbox" ng-click="clickCheckbox(existentValue)" ng-checked="isChecked(existentValue)"/>' +
 					'<span ng-bind="existentValue.text"></span>' +
 					'</label>' +
 					'</div>',
 					link: function ($scope, elem, attrs) {
-						elem.addClass('izenda-select-checkboxes');
+						elem.addClass('izenda-common-select-checkboxes');
 
 						$scope.$watch('existentValues', function () {
 							$scope.$parent.$eval(attrs.ngChange);

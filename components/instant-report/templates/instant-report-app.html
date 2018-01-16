@@ -201,9 +201,9 @@
       <tr>
         <td style="height: 100%; position: relative;">
           <!-- loading message -->
-          <div class="izenda-vcentered-container">
-            <div class="izenda-vcentered-item" ng-show="irController.isLoading">
-              <img class="izenda-img-loading" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
+          <div class="izenda-common-vcentered-container">
+            <div class="izenda-common-vcentered-item" ng-show="irController.isLoading">
+              <img class="izenda-common-img-loading" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
                    ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
             </div>
           </div>
@@ -252,7 +252,7 @@
 
   <!-- refresh preview button for mobile view -->
   <div ng-if="$izendaCompatibility.isSmallResolution()"
-       class="btn iz-inst-matherial-refresh btn-izenda-dark"
+       class="btn iz-inst-matherial-refresh izenda-common-btn-dark"
        ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
        ng-click="irController.applyChangesMobile()">
     <span class="glyphicon"

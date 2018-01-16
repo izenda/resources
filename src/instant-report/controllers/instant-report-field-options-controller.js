@@ -43,8 +43,8 @@
 				$izendaInstantReportValidation) {
 		'use strict';
 		var vm = this;
-		var primaryButtonClass = "btn-izenda-dark",
-				activeButtonClass = "btn-izenda-dark active";
+		var primaryButtonClass = "izenda-common-btn-dark",
+				activeButtonClass = "izenda-common-btn-dark active";
 
 		$scope.$izendaLocale = $izendaLocale;
 		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;

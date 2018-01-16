@@ -896,6 +896,9 @@ function CC_CustomFilterPageValueReceived() {
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
 	var notRefreshFilters = isLastFilter || nrvConfig && nrvConfig.CascadeFilterValues == false;
+	var textareaheight = '';
+	if (nrvConfig && nrvConfig.FilterTextAreaHeight && nrvConfig.FilterTextAreaHeight > 22)
+		textareaheight = ' height:' + nrvConfig.FilterTextAreaHeight + 'px;';
 	var onChangeCmd = notRefreshFilters ? '' : 'onchange="CommitFiltersData(false);"';
 	var result = '';
 	switch (cType) {
@@ -960,7 +963,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			break;
 		case 7:
 			if (value == '...') value = '';
-			result += '<textarea style="width:99%;" rows="2" id="ndbfc' + index + '" ' + onChangeCmd + '>' + value + '</textarea>';
+			result += '<textarea style="width:99%;' + textareaheight + '" rows="2" id="ndbfc' + index + '" ' + onChangeCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
 			result += '<div id="ndbfc' + index + '" class="saveScroll" style="padding-left:8px; overflow-y:auto; overflow-x:hidden; max-height: 100px;background-color: white;border: 1px solid #A5A5A5; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">';

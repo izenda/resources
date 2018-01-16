@@ -1,17 +1,8 @@
-.no-side-paddings {
-	padding-left: 0;
-	padding-right: 0;
-}
-
-.izenda-cursor-pointer {
+.izenda-common-cursor-pointer {
 	cursor: pointer;
 }
 
-.ui-datepicker {
-	display: none;
-}
-
-.izenda-no-reports-message {
+.izenda-common-no-reports-message {
 	white-space: nowrap;
 	color: #4e4e4e;
 	text-transform: uppercase;
@@ -19,13 +10,14 @@
 	font-family: 'Open Sans', sans-serif;
 }
 
-.dropdown-strong-shadow {
+.izenda-common-dropdown-strong-shadow {
 	padding: 0;
-	-webkit-box-shadow: 4px 4px 12px rgba(0,0,0,0.375);
-	box-shadow: 4px 4px 12px rgba(0,0,0,0.375);
+	-webkit-box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.375);
+	-moz-box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.375);
+	box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.375);
 }
 
-.dropdown-triangle {
+.izenda-common-dropdown-triangle {
 	position: absolute;
 	width: 0px;
 	height: 0px;
@@ -37,22 +29,22 @@
 	top: -20px;
 }
 
-	.dropdown-triangle::after {
-		content: '';
-		position: absolute;
-		width: 0px;
-		height: 0px;
-		border-collapse: collapse;
-		border-left: 15px solid transparent;
-		border-right: 15px solid transparent;
-		border-top: 10px solid transparent;
-		border-bottom: 10px solid #fff;
-		top: -9px;
-		left: -15px;
-	}
+.izenda-common-dropdown-triangle:after {
+	content: '';
+	position: absolute;
+	width: 0px;
+	height: 0px;
+	border-collapse: collapse;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid #fff;
+	top: -9px;
+	left: -15px;
+}
 
 /* izenda-select-checkboxes directive */
-.izenda-select-checkboxes {
+.izenda-common-select-checkboxes {
 	height: 100px;
 	overflow: auto;
 	display: block;
@@ -60,87 +52,44 @@
 	background-color: #fff;
 }
 
-	.izenda-select-checkboxes .izenda-select-checkboxes-label {
-		cursor: pointer;
-		font-weight: normal;
-		width: 100%;
-	}
+.izenda-common-select-checkboxes .izenda-common-select-checkboxes-label {
+	cursor: pointer;
+	font-weight: normal;
+	width: 100%;
+}
 
-		.izenda-select-checkboxes .izenda-select-checkboxes-label:hover {
-			background-color: #f3f3f3;
-			background-color: rgba(0, 0, 0, 0.05);
-		}
+.izenda-common-select-checkboxes .izenda-common-select-checkboxes-label:hover {
+	background-color: #f3f3f3;
+	background-color: rgba(0, 0, 0, 0.05);
+}
 
-		.izenda-select-checkboxes .izenda-select-checkboxes-label > span {
-			margin-left: 5px;
-		}
+.izenda-common-select-checkboxes .izenda-common-select-checkboxes-label > span {
+	margin-left: 5px;
+}
 
 /* toggle button directive */
-
 .izenda-toggle-button-btn {
 	position: relative;
 	height: 30px;
 	top: -5px;
 }
 
-	.izenda-toggle-button-btn:hover,
-	.izenda-toggle-button-btn:focus {
-		color: #fff;
-	}
-
-
-	.izenda-toggle-button-btn.active {
-		background-color: rgba(255, 255, 255, 0.2);
-	}
-
-/* schedule */
-
-.izenda-width-100 {
-	width: 100px !important;
-	max-width: 100%;
+.izenda-toggle-button-btn:hover, .izenda-toggle-button-btn:focus {
+	color: #fff;
 }
 
-.izenda-width-150 {
-	width: 150px !important;
-	max-width: 100%;
-}
-
-.izenda-width-200 {
-	width: 200px !important;
-	max-width: 100%;
-}
-
-.izenda-width-250 {
-	width: 200px !important;
-	max-width: 100%;
-}
-
-.izenda-width-400 {
-	width: 400px !important;
-	max-width: 100%;
+.izenda-toggle-button-btn.active {
+	background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* date picker directive */
-
-.izenda-date-picker-inline {
+.izenda-common-date-picker-inline {
 	width: 100%;
 	border: 1px solid #ddd;
 }
 
-.bootstrap-datetimepicker-widget {
-	z-index: 9999;
-}
-
-	.bootstrap-datetimepicker-widget a,
-	.bootstrap-datetimepicker-widget a:hover,
-	.bootstrap-datetimepicker-widget a:visited,
-	.bootstrap-datetimepicker-widget a:focus {
-		color: #4274af;
-	}
-
 /* switcher */
-
-.izenda-switcher-label {
+.izenda-common-switcher-label {
 	display: inline-block;
 	height: 24px;
 	line-height: 26px;
@@ -151,94 +100,89 @@
 	cursor: pointer;
 }
 
-.izenda-switcher {
+.izenda-common-switcher {
 	display: inline-block;
 	position: relative;
 	width: 50px;
 	height: 24px;
-	-ms-border-radius: 12px;
-	border-radius: 3px;
 	background-color: #AB0000;
 	border: 1px solid #ccc;
-	border: 1px solid rgba(0,0,0,0.4);
-	-webkit-box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
-	box-shadow: inset 0 0 3px 2px rgba(0,0,0,0.2);
-	-webkit-transition: background-color 0.5s ease;
-	-moz-transition: background-color 0.5s ease;
-	-ms-transition: background-color 0.5s ease;
-	-o-transition: background-color 0.5s ease;
-	transition: background-color 0.5s ease;
+	border: 1px solid rgba(0, 0, 0, 0.4);
 	overflow: hidden;
 	cursor: pointer;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-ms-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-transition: left 0.5s ease;
+	-moz-transition: left 0.5s ease;
+	-o-transition: left 0.5s ease;
+	transition: left 0.5s ease;
+	-webkit-box-shadow: inset 0 0 3px 2px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: inset 0 0 3px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 0 0 3px 2px rgba(0, 0, 0, 0.2);
 }
 
-	.izenda-switcher.on {
-		background-color: #62c462;
-	}
+.izenda-common-switcher > .izenda-common-switcher-text-off,
+.izenda-common-switcher > .izenda-common-switcher-text-on {
+	position: absolute;
+	line-height: 22px;
+	text-align: center;
+	width: 28px;
+	font-size: 16px;
+	font-weight: bold;
+	text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+	color: #ddd;
+	-webkit-transition: left 0.5s ease;
+	-moz-transition: left 0.5s ease;
+	-o-transition: left 0.5s ease;
+	transition: left 0.5s ease;
+}
 
-	.izenda-switcher > .izenda-switcher-text-off,
-	.izenda-switcher > .izenda-switcher-text-on {
-		position: absolute;
-		line-height: 22px;
-		text-align: center;
-		width: 28px;
-		font-size: 16px;
-		font-weight: bold;
-		text-shadow: 0 0 3px rgba(0,0,0,0.5);
-		color: #ddd;
-		-webkit-transition: left 0.5s ease;
-		-moz-transition: left 0.5s ease;
-		-ms-transition: left 0.5s ease;
-		-o-transition: left 0.5s ease;
-		transition: left 0.5s ease;
-	}
+.izenda-common-switcher > .izenda-common-switcher-text-on {
+	left: 50px;
+}
 
-	.izenda-switcher > .izenda-switcher-text-on {
-		left: 50px;
-	}
+.izenda-common-switcher > .izenda-common-switcher-text-off {
+	left: 0;
+}
 
-	.izenda-switcher.on > .izenda-switcher-text-on {
-		left: 20px;
-	}
+.izenda-common-switcher > .izenda-common-switcher-item {
+	position: absolute;
+	top: 2px;
+	left: 28px;
+	width: 18px;
+	height: 18px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	background-color: #fff;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	-ms-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-transition: left 0.5s ease;
+	-moz-transition: left 0.5s ease;
+	-o-transition: left 0.5s ease;
+	transition: left 0.5s ease;
+}
 
-	.izenda-switcher > .izenda-switcher-text-off {
-		left: 0;
-	}
+.izenda-common-switcher.on {
+	background-color: #62c462;
+}
 
-	.izenda-switcher.on > .izenda-switcher-text-off {
-		left: -28px;
-	}
+.izenda-common-switcher.on > .izenda-common-switcher-text-on {
+	left: 20px;
+}
 
-	.izenda-switcher > .izenda-switcher-item {
-		position: absolute;
-		top: 2px;
-		left: 28px;
-		width: 18px;
-		height: 18px;
-		-ms-border-radius: 12px;
-		border-radius: 3px;
-		border: 1px solid #ccc;
-		border: 1px solid rgba(0,0,0,0.2);
-		background-color: #fff;
-		-webkit-transition: left 0.5s ease;
-		-moz-transition: left 0.5s ease;
-		-ms-transition: left 0.5s ease;
-		-o-transition: left 0.5s ease;
-		transition: left 0.5s ease;
-	}
+.izenda-common-switcher.on > .izenda-common-switcher-text-off {
+	left: -28px;
+}
 
-	.izenda-switcher.on > .izenda-switcher-item {
-		left: 2px;
-	}
+.izenda-common-switcher.on > .izenda-common-switcher-item {
+	left: 2px;
+}
 
 /* align switcher */
-
-.glyphicon-none:before {
-	content: "\00a0";
-	color: transparent !important;
-}
-
-.izenda-align-switcher {
+.izenda-common-align-switcher {
 	display: inline-block;
 	color: #4274AF;
 	background-color: #fff;
@@ -249,14 +193,16 @@
 	text-align: center;
 	cursor: pointer;
 	-webkit-touch-callout: none;
+	border: 1px solid #4274AF;
+	padding: 3px;
+	-webkit-box-shadow: #4274AF 0 0 1px 0 inset;
+	-moz-box-shadow: #4274AF 0 0 1px 0 inset;
+	box-shadow: #4274AF 0 0 1px 0 inset;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
-	border: 1px solid #4274AF;
-	padding: 3px;
-	box-shadow: #4274AF 0 0 1px 0 inset;
 }
 
 .html-container {
@@ -273,8 +219,7 @@
 }
 
 /***************** notifications **************/
-
-.iz-notification-container {
+.izenda-common-notification-container {
 	position: fixed;
 	font-family: 'Open Sans', sans-serif;
 	right: 10px;
@@ -282,53 +227,49 @@
 	z-index: 1005;
 }
 
-.iz-dash-notification {
+.izenda-common-dash-notification {
 	min-width: 200px;
 	background-color: #fff;
 	border: 1px solid #ddd;
-	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
-	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
-	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.5);
 	padding: 15px;
 	padding-right: 35px;
 	margin: 5px;
 	position: relative;
 }
 
-	.iz-dash-notification > .title {
-		font-weight: bold;
-		margin-left: 16px;
-	}
+.izenda-common-dash-notification > .title {
+	font-weight: bold;
+	margin-left: 16px;
+}
 
-	.iz-dash-notification > .text {
-	}
+.izenda-common-dash-notification > .icon {
+	color: red;
+	float: left;
+	position: absolute;
+	left: 8px;
+	top: 18px;
+}
 
-	.iz-dash-notification > .icon {
-		color: red;
-		float: left;
-		position: absolute;
-		left: 8px;
-		top: 18px;
-	}
-
-	.iz-dash-notification > .close-button {
-		position: absolute;
-		width: 24px;
-		height: 24px;
-		line-height: 24px;
-		right: 5px;
-		top: 15px;
-		text-align: center;
-		cursor: pointer;
-	}
+.izenda-common-dash-notification > .close-button {
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	line-height: 24px;
+	right: 5px;
+	top: 15px;
+	text-align: center;
+	cursor: pointer;
+}
 
 /* COMMON */
-
-.izenda-vcentered-container {
+.izenda-common-vcentered-container {
 	height: 100%;
 }
 
-.izenda-vcentered-item {
+.izenda-common-vcentered-container .izenda-common-vcentered-item {
 	position: absolute;
 	top: 50%;
 	margin-top: -0.5em;
@@ -337,36 +278,26 @@
 	text-align: center;
 }
 
-.btn-izenda-dark,
-.btn-izenda-dark:focus {
+.izenda-common-btn-dark {
 	outline: transparent;
 	color: #fff;
 	background-color: #1c4389;
 }
 
-	.btn-izenda-dark:hover,
-	.btn-izenda-dark:link:hover,
-	.btn-izenda-dark:visited:hover,
-	.btn-izenda-dark:active:hover {
-		outline: transparent;
-		color: #fff;
-		background-color: #3668A3;
-	}
+.izenda-common-btn-dark.active {
+	color: #1c4389;
+	background-color: #b3cbda;
+}
 
-	.btn-izenda-dark.active {
-		outline: transparent;
-		color: #1c4389;
-		background-color: #b3cbda;
-	}
+.izenda-common-btn-dark:focus {
+	background-color: #1c4389;
+}
 
-		.btn-izenda-dark.active:hover,
-		.btn-izenda-dark.active:focus {
-			outline: transparent;
-			color: #1c4389;
-			background-color: #b3cbda;
-		}
+.izenda-common-btn-dark:hover, .izenda-common-btn-dark:link:hover, .izenda-common-btn-dark:visited:hover, .izenda-common-btn-dark:active:hover {
+	background-color: #3668A3;
+}
 
-.izenda-splashscreen {
+.izenda-common-splashscreen {
 	position: absolute;
 	top: 0;
 	bottom: 0;
@@ -377,28 +308,33 @@
 	color: #000;
 }
 
-	.izenda-splashscreen > .izenda-splashscreen-inner {
-		position: absolute;
-		top: 50%;
-		margin-top: -12px;
-		left: 0;
-		right: 0;
-		text-align: center;
-	}
+.izenda-common-splashscreen > .izenda-common-splashscreen-inner {
+	position: absolute;
+	top: 50%;
+	margin-top: -12px;
+	left: 0;
+	right: 0;
+	text-align: center;
+}
 
-	.izenda-splashscreen .izenda-splashscreen-loading {
-		width: 24px;
-		height: 24px;
-		margin: 4px;
-	}
-
-.izenda-img-loading {
+.izenda-common-splashscreen .izenda-common-splashscreen-loading {
 	width: 24px;
 	height: 24px;
 	margin: 4px;
 }
 
-.report-header-remove-column-btn {
+.izenda-common-img-loading {
+	width: 24px;
+	height: 24px;
+	margin: 4px;
+}
+
+/**************IZENDA COL REORDER*************/
+.izenda-common-col-reorder-active {
+	background-color: #ddd !important;
+}
+
+.izenda-common-remove-column-btn {
 	position: absolute;
 	display: inline-block;
 	background-color: darkred;
@@ -411,26 +347,49 @@
 	display: none;
 }
 
-/**************IZENDA COL REORDER*************/
-.izenda-col-reorder-active {
-	background-color: #ddd !important;
-}
-
-.izenda-col-reorder-helper {
+.izenda-common-col-reorder-helper {
 	background-color: #4274AF;
 	position: absolute;
 	display: inline-block;
-	-ms-opacity: 0.5;
 	opacity: 0.5;
 	cursor: move;
 }
 
-	.izenda-col-reorder-helper .report-header-remove-column-btn {
-		display: none !important;
-	}
-
-.izenda-col-reorder-hidden {
+.izenda-common-col-reorder-helper .izenda-common-remove-column-btn {
 	display: none !important;
+}
+
+.izenda-common-col-reorder-hidden {
+	display: none !important;
+}
+
+.izenda-common-width-100 {
+	width: 100px !important;
+	max-width: 100%;
+}
+
+.izenda-common-width-150 {
+	width: 150px !important;
+	max-width: 100%;
+}
+
+.izenda-common-width-200 {
+	width: 200px !important;
+	max-width: 100%;
+}
+
+.izenda-common-width-250 {
+	width: 250px !important;
+	max-width: 100%;
+}
+
+.izenda-common-width-400 {
+	width: 400px !important;
+	max-width: 100%;
+}
+
+.ui-datepicker {
+	display: none;
 }
 
 .ui-helper-hidden-accessible {
@@ -439,4 +398,20 @@
 
 .minicolors-theme-bootstrap .minicolors-swatch {
 	top: 4px !important;
+}
+
+.bootstrap-datetimepicker-widget {
+	z-index: 9999;
+}
+
+.bootstrap-datetimepicker-widget a,
+.bootstrap-datetimepicker-widget a:hover,
+.bootstrap-datetimepicker-widget a:visited,
+.bootstrap-datetimepicker-widget a:focus {
+	color: #4274AF;
+}
+
+.glyphicon-none:before {
+	content: "\00a0";
+	color: transparent !important;
 }

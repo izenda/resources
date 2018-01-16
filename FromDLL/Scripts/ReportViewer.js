@@ -1090,9 +1090,6 @@ function GotReportViewerConfig(returnObj, id) {
 	ApplySecurityOptions();
 	if (!initialized)
 		GetRenderedReportSet(false);
-	//http://fogbugz.izenda.us/default.asp?15858#BugEvent.185759
-	/*if (!nrvConfig.AllowRTFExportFormat)
-		jq$("#RTFExportButton").remove();*/
 	AppendReportNameTitle(nrvConfig.ClearReportName);
 }
 

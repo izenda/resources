@@ -25,10 +25,10 @@
       </izenda-schedule-component>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+      <button type="button" class="btn btn-default izenda-common-width-100" data-dismiss="modal"
               ng-click="toolbarController.closeScheduleDialog(false)"
               ng-bind="'js_Cancel' | izendaLocale: 'Cancel'"></button>
-      <button type="button" class="btn btn-izenda-dark izenda-width-100"
+      <button type="button" class="btn izenda-common-btn-dark izenda-common-width-100"
               ng-click="toolbarController.closeScheduleDialog(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
@@ -50,10 +50,10 @@
       </izenda-share-component>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn btn-default izenda-width-100" data-dismiss="modal"
+      <button type="button" class="btn btn-default izenda-common-width-100" data-dismiss="modal"
               ng-click="toolbarController.closeShareDialog(false)"
               ng-bind="'js_Cancel' | izendaLocale: 'Cancel'"></button>
-      <button id="shareSaveButton" type="button" class="btn btn-izenda-dark izenda-width-100"
+      <button id="shareSaveButton" type="button" class="btn izenda-common-btn-dark izenda-common-width-100"
               ng-click="toolbarController.closeShareDialog(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
@@ -91,9 +91,9 @@
         </form>
       </div>
       <div ng-show="toolbarController.sendEmailState.isLoading">
-        <div class="izenda-vcentered-container" style="height: 50px;">
-          <div class="izenda-vcentered-item">
-            <img class="izenda-img-loading" ng-src="{{izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif'}}" />
+        <div class="izenda-common-vcentered-container" style="height: 50px;">
+          <div class="izenda-common-vcentered-item">
+            <img class="izenda-common-img-loading" ng-src="{{izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif'}}" />
           </div>
         </div>
       </div>
@@ -102,7 +102,7 @@
       <button type="button" class="btn btn-default" data-dismiss="modal"
               ng-click="toolbarController.hideEmailModal(false)"
               ng-bind="'js_close' | izendaLocale: 'Close'"></button>
-      <button type="button" class="btn btn-izenda-dark"
+      <button type="button" class="btn izenda-common-btn-dark"
               ng-click="toolbarController.hideEmailModal(true)"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>
@@ -149,7 +149,7 @@
       <button type="button" class="btn btn-default" data-dismiss="modal"
               ng-click="toolbarController.cancelBackgroundDialogHandler()"
               ng-bind="'js_close' | izendaLocale: 'Close'"></button>
-      <button type="button" class="btn btn-izenda-dark"
+      <button type="button" class="btn izenda-common-btn-dark"
               ng-click="toolbarController.okBackgroundDialogHandler()"
               ng-bind="'js_Ok' | izendaLocale: 'OK'"></button>
     </div>

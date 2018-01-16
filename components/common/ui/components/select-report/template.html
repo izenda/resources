@@ -21,15 +21,15 @@
   </div>
 
   <div class="modal-body" style="min-height: 300px">
-    <div class="izenda-vcentered-container" ng-hide="$ctrl.isLoading || $ctrl.groups.length > 0">
-      <div class="izenda-vcentered-item">
-        <span class="izenda-no-reports-message"
+    <div class="izenda-common-vcentered-container" ng-hide="$ctrl.isLoading || $ctrl.groups.length > 0">
+      <div class="izenda-common-vcentered-item">
+        <span class="izenda-common-no-reports-message"
               ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once></span>
       </div>
     </div>
-    <div class="izenda-vcentered-container" ng-hide="!$ctrl.isLoading">
-      <div class="izenda-vcentered-item">
-        <img class="izenda-img-loading" ng-src="{{$ctrl.$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif" alt="Loading..."/>
+    <div class="izenda-common-vcentered-container" ng-hide="!$ctrl.isLoading">
+      <div class="izenda-common-vcentered-item">
+        <img class="izenda-common-img-loading" ng-src="{{$ctrl.$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif" alt="Loading..."/>
       </div>
     </div>
     <div ng-hide="$ctrl.hideAll || $ctrl.isLoading || $ctrl.groups.length == 0">

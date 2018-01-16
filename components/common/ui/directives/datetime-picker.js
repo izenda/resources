@@ -26,14 +26,14 @@ izendaRequire.define([
 					onChange: '&'
 				},
 				template: $izendaCompatibility.isSmallResolution()
-					? '<div class="izenda-date-picker-inline"/>'
+					? '<div class="izenda-common-date-picker-inline"/>'
 					: '<input type="text" class="form-control" />' +
 					'<span class="input-group-addon">' +
 					'<span class="glyphicon-calendar glyphicon"></span>' +
 					'</span>',
 				link: function ($scope, elem, attrs, ngModelCtrl) {
 					var uid = Math.floor(Math.random() * 1000000);
-					var $input = elem.children('input,.izenda-date-picker-inline');
+					var $input = elem.children('input,.izenda-common-date-picker-inline');
 					var $btn = elem.children('.input-group-addon');
 					var isSmallResolution = $izendaCompatibility.isSmallResolution();
 

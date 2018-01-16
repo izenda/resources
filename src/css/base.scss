@@ -1,0 +1,30 @@
+﻿// base functions and mixins
+@import "config.scss";
+
+@mixin prefix($property, $value, $prefixes: ()) {
+	@each $p in $prefixes {
+		#{'-' + $p + '-' + $property}: $value;
+	}
+	// Output standard non-prefixed declaration
+	#{$property}: $value;
+}
+
+// create -webkit-border-radius, -moz-border-radius,...
+@mixin izenda-border-radius($radius) {
+	@include prefix(border-radius, $radius, webkit moz ms);
+}
+
+// create -webkit-border-shadow, -moz-border-shadow,...
+@mixin izenda-box-shadow($shadow) {
+	@include prefix(box-shadow, $shadow, webkit moz);
+}
+
+// create -webkit-transition, -moz-transition,...
+@mixin izenda-transition($transition) {
+	@include prefix(transition, $transition, webkit moz o);
+}
+
+// create -webkit-user-select, -moz-user-select,...
+@mixin izenda-user-select($user-select) {
+	@include prefix(user-select, $user-select, webkit khtml moz ms);
+}

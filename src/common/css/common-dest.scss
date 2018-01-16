@@ -1,0 +1,393 @@
+﻿@import "../../css/config.scss";
+@import "../../css/base.scss";
+
+.izenda-common-cursor-pointer {
+	cursor: pointer;
+}
+
+.izenda-common-no-reports-message {
+	white-space: nowrap;
+	color: #4e4e4e;
+	text-transform: uppercase;
+	font-size: 16px;
+	font-family: 'Open Sans', sans-serif;
+}
+
+.izenda-common-dropdown-strong-shadow {
+	padding: 0;
+	@include izenda-box-shadow(4px 4px 12px rgba(0,0,0,0.375));
+}
+
+.izenda-common-dropdown-triangle {
+	position: absolute;
+	width: 0px;
+	height: 0px;
+	border-collapse: collapse;
+	border-left: 15px solid transparent;
+	border-right: 15px solid transparent;
+	border-top: 10px solid transparent;
+	border-bottom: 10px solid #ccc;
+	top: -20px;
+
+	&:after {
+		content: '';
+		position: absolute;
+		width: 0px;
+		height: 0px;
+		border-collapse: collapse;
+		border-left: 15px solid transparent;
+		border-right: 15px solid transparent;
+		border-top: 10px solid transparent;
+		border-bottom: 10px solid #fff;
+		top: -9px;
+		left: -15px;
+	}
+}
+
+/* izenda-select-checkboxes directive */
+.izenda-common-select-checkboxes {
+	height: 100px;
+	overflow: auto;
+	display: block;
+	border: 1px solid #ccc;
+	background-color: #fff;
+
+	.izenda-common-select-checkboxes-label {
+		cursor: pointer;
+		font-weight: normal;
+		width: 100%;
+
+		&:hover {
+			background-color: #f3f3f3;
+			background-color: rgba(0, 0, 0, 0.05);
+		}
+
+		& > span {
+			margin-left: 5px;
+		}
+	}
+}
+
+/* toggle button directive */
+
+.izenda-toggle-button-btn {
+	position: relative;
+	height: 30px;
+	top: -5px;
+
+	&:hover,
+	&:focus {
+		color: #fff;
+	}
+
+	&.active {
+		background-color: rgba(255, 255, 255, 0.2);
+	}
+}
+
+/* date picker directive */
+
+.izenda-common-date-picker-inline {
+	width: 100%;
+	border: 1px solid #ddd;
+}
+
+/* switcher */
+
+.izenda-common-switcher-label {
+	display: inline-block;
+	height: 24px;
+	line-height: 26px;
+	font-size: 16px;
+	position: relative;
+	top: -7px;
+	padding-right: 5px;
+	cursor: pointer;
+}
+
+.izenda-common-switcher {
+	display: inline-block;
+	position: relative;
+	width: 50px;
+	height: 24px;
+	background-color: #AB0000;
+	border: 1px solid #ccc;
+	border: 1px solid rgba(0,0,0,0.4);
+	overflow: hidden;
+	cursor: pointer;
+	@include izenda-border-radius(3px);
+	@include izenda-transition(left 0.5s ease);
+	@include izenda-box-shadow(inset 0 0 3px 2px rgba(0,0,0,0.2));
+
+	& > .izenda-common-switcher-text-off,
+	& > .izenda-common-switcher-text-on {
+		position: absolute;
+		line-height: 22px;
+		text-align: center;
+		width: 28px;
+		font-size: 16px;
+		font-weight: bold;
+		text-shadow: 0 0 3px rgba(0,0,0,0.5);
+		color: #ddd;
+		@include izenda-transition(left 0.5s ease);
+	}
+
+	& > .izenda-common-switcher-text-on {
+		left: 50px;
+	}
+
+	& > .izenda-common-switcher-text-off {
+		left: 0;
+	}
+
+	& > .izenda-common-switcher-item {
+		position: absolute;
+		top: 2px;
+		left: 28px;
+		width: 18px;
+		height: 18px;
+		border: 1px solid rgba(0,0,0,0.2);
+		background-color: #fff;
+		@include izenda-border-radius(3px);
+		@include izenda-transition(left 0.5s ease);
+	}
+
+	&.on {
+		background-color: #62c462;
+
+		& > .izenda-common-switcher-text-on {
+			left: 20px;
+		}
+
+		& > .izenda-common-switcher-text-off {
+			left: -28px;
+		}
+
+		& > .izenda-common-switcher-item {
+			left: 2px;
+		}
+	}
+}
+
+/* align switcher */
+
+.izenda-common-align-switcher {
+	display: inline-block;
+	color: $global-color-default;
+	background-color: #fff;
+	width: 20px;
+	height: 20px;
+	line-height: 12px;
+	font-size: 12px;
+	text-align: center;
+	cursor: pointer;
+	-webkit-touch-callout: none;
+	border: 1px solid $global-color-default;
+	padding: 3px;
+	@include izenda-box-shadow($global-color-default 0 0 1px 0 inset);
+	@include izenda-user-select(none);
+}
+
+.html-container {
+	min-width: 100%;
+}
+
+.html-container-placeholder {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	width: 2px;
+	background-color: #ee4823;
+}
+
+/***************** notifications **************/
+
+.izenda-common-notification-container {
+	position: fixed;
+	font-family: 'Open Sans', sans-serif;
+	right: 10px;
+	bottom: 10px;
+	z-index: 1005;
+}
+
+.izenda-common-dash-notification {
+	min-width: 200px;
+	background-color: #fff;
+	border: 1px solid #ddd;
+	-webkit-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	-moz-box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	box-shadow: 0px 2px 8px 0px rgba(0,0,0,0.5);
+	padding: 15px;
+	padding-right: 35px;
+	margin: 5px;
+	position: relative;
+
+	& > .title {
+		font-weight: bold;
+		margin-left: 16px;
+	}
+
+	& > .icon {
+		color: red;
+		float: left;
+		position: absolute;
+		left: 8px;
+		top: 18px;
+	}
+
+	& > .close-button {
+		position: absolute;
+		width: 24px;
+		height: 24px;
+		line-height: 24px;
+		right: 5px;
+		top: 15px;
+		text-align: center;
+		cursor: pointer;
+	}
+}
+
+/* COMMON */
+
+.izenda-common-vcentered-container {
+	height: 100%;
+
+	.izenda-common-vcentered-item {
+		position: absolute;
+		top: 50%;
+		margin-top: -0.5em;
+		left: 0;
+		right: 0;
+		text-align: center;
+	}
+}
+
+.izenda-common-btn-dark {
+	outline: transparent;
+	color: #fff;
+	background-color: $global-color-dark;
+
+	&.active {
+		color: $global-color-dark;
+		background-color: $global-color-light;
+	}
+
+	&:focus {
+		background-color: $global-color-dark;
+	}
+
+	&:hover,
+	&:link:hover,
+	&:visited:hover,
+	&:active:hover {
+		background-color: #3668A3;
+	}
+}
+
+.izenda-common-splashscreen {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #fff;
+	text-align: center;
+	color: #000;
+
+	& > .izenda-common-splashscreen-inner {
+		position: absolute;
+		top: 50%;
+		margin-top: -12px;
+		left: 0;
+		right: 0;
+		text-align: center;
+	}
+
+	.izenda-common-splashscreen-loading {
+		width: 24px;
+		height: 24px;
+		margin: 4px;
+	}
+}
+
+.izenda-common-img-loading {
+	width: 24px;
+	height: 24px;
+	margin: 4px;
+}
+
+/**************IZENDA COL REORDER*************/
+.izenda-common-col-reorder-active {
+	background-color: #ddd !important;
+}
+
+.izenda-common-remove-column-btn {
+	position: absolute;
+	display: inline-block;
+	background-color: darkred;
+	cursor: pointer;
+	color: #fff;
+	right: 0;
+	top: 0;
+	padding-left: 4px;
+	padding-right: 4px;
+	display: none;
+}
+
+.izenda-common-col-reorder-helper {
+	background-color: $global-color-default;
+	position: absolute;
+	display: inline-block;
+	opacity: 0.5;
+	cursor: move;
+
+	.izenda-common-remove-column-btn {
+		display: none !important;
+	}
+}
+
+.izenda-common-col-reorder-hidden {
+	display: none !important;
+}
+
+// generate ".izenda-common-width-N" styles
+@mixin fixed-width($width-array...) {
+	@each $w in $width-array {
+		.izenda-common-width-#{$w} {
+			width: #{$w}px !important;
+			max-width: 100%;
+		}
+	}
+}
+
+@include fixed-width(100, 150, 200, 250, 400);
+
+// VENDOR
+.ui-datepicker {
+	display: none;
+}
+
+.ui-helper-hidden-accessible {
+	display: none;
+}
+
+.minicolors-theme-bootstrap .minicolors-swatch {
+	top: 4px !important;
+}
+
+.bootstrap-datetimepicker-widget {
+	z-index: 9999;
+
+	a,
+	a:hover,
+	a:visited,
+	a:focus {
+		color: $global-color-default;
+	}
+}
+
+.glyphicon-none:before {
+	content: "\00a0";
+	color: transparent !important;
+}

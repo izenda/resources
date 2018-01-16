@@ -6,6 +6,7 @@
 		baseUrl: '###RS###extres=components',
 		waitSeconds: 0,
 		paths: {
+			'babel-polyfill': 'vendor/babel/polyfill.min',
 			'moment': 'vendor/moment/moment-with-locales.min',
 			'izendaAngular': 'vendor/angular/angular.min',
 			'izendaAngularCookies': 'vendor/angular/angular-cookies.min',
@@ -31,8 +32,12 @@
 		return jq$;
 	});
 
+	var firstRequireArray = ['jquery', 'common/loader-utils'];
+	if (!window._babelPolyfill)
+		firstRequireArray.push('babel-polyfill');
+
 	// start loading
-	require(['jquery', 'common/loader-utils'], function (jq$, loaderUtils) {
+	require(firstRequireArray, function (jq$, loaderUtils) {
 		// we need to set jq$ as default jQuery object, because angularjs use default jquery.
 		// if we're using external angular (which already loaded in the external code
 		// nothing will happen, because angular init code will not be executed here.

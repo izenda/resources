@@ -120,16 +120,6 @@
           <b lang-text="js_XML">XML</b><br>
           <span lang-text="js_XMLMessage">Both human-readable and machine-readable text file</span>
         </a></li>
-        <!--
-        http://fogbugz.izenda.us/default.asp?15858#BugEvent.185759
-      <li id="RTFExportButton"><a href="javascript:void(0)" title="" 
-        onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=RTF', 'aspnetForm', 'reportFrame');">
-        <img class='icon' src="./rp.aspx?image=ModernImages.rtf-32.png" alt="" />
-        <b lang-text='js_RTF'>RTF</b><br>
-        <span lang-text='js_RTFMessage'>File format for cross-platform document interchange</span>
-        </a>
-      </li>
-        -->
       </ul>
     </div>
     <div class="btn-group">
