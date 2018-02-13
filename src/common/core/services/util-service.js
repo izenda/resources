@@ -68,11 +68,15 @@
 			 * Get option by value from array of objects with "value" property (case insensitive): 
 			 * [{value:'text1',...}, {value:'text2', ...}, ...]
 			 */
-			var getOptionByValue = function (options, value) {
+			var getOptionByValue = function (options, value, useLowerCaseComparison) {
 				var i = 0;
+				if (!angular.isArray(options) || !options.length)
+					return null;
 				while (i < options.length) {
 					var option = options[i];
-					if (option.value.toLowerCase() === value.toLowerCase())
+					if (!useLowerCaseComparison && option.value === value)
+						return option;
+					if (useLowerCaseComparison && option.value.toLowerCase() === value.toLowerCase())
 						return option;
 					i++;
 				}

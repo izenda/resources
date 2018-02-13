@@ -29,7 +29,7 @@
 				// loading spinner
 				var defaultLoadingIndicatorUrl = angular.isString($scope.loadingIndicatorUrl)
 					? $scope.loadingIndicatorUrl
-					: $izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif';
+					: $izendaUrl.settings.urlRpPage + 'image=ModernImages.loading-grid.gif';
 				var parentSelectorText = angular.isString($scope.parentSelector) ? $scope.parentSelector : 'body';
 				var bodyOverflow, bodyPadding, $body;
 

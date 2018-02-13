@@ -1,4 +1,5 @@
 ﻿<%@ Control AutoEventWireup="true" %>
+<%@ Import namespace="Izenda.AdHoc" %>
 
 <div class="iz-rl-root">
 	<div class="middle">
@@ -17,7 +18,7 @@
 			</ul>
 			<div id="loadingDiv">
 				<div id="loadingWord" lang-text="js_Loading">Loading...</div>
-				<img id="loadingImg" alt="" src='rp.aspx?image=loading.gif' />
+				<img id="loadingImg" alt="" src='./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=loading.gif' />
 			</div>
 			<div id="reportListDiv" style="visibility: hidden;" class="iz-rl-right-panel-content"></div>
 		</div>
@@ -35,7 +36,7 @@
 				<span class="search-icon"></span>
 				<img class="search-progress-icon" lang-title="js_Searching" 
 					lang-alt="js_Searching" title="Searching..." alt="Searching..."
-					src="./rp.aspx?image=searching-icon.gif" />
+					src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=searching-icon.gif" />
 			</div>
 			<!-- categories -->
 			<h2 lang-text="js_Categories">Categories</h2>

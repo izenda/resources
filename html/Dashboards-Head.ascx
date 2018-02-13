@@ -17,31 +17,31 @@
    { %>
 
 <!-- Styles Resources -->
-<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.report-list-modal.css" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.report-list-modal.css" />
 
 <!-- Styles Internal -->
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui-1.8.21.custom2" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.custom_dashboard" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=DashboardViewer" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jqui_modified2" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=tagit" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=ModernStyles.jquery-ui-1.8.21.custom2" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=ModernStyles.custom_dashboard" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=DashboardViewer" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=ModernStyles.jqui_modified2" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=tagit" />
   
 <!-- jQuery Core -->
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jq"></script>
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jqui"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jq"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jq_db"></script>
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jqui_db"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jq_db"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jqui_db"></script>
 
-<script type="text/javascript" src="./rp.aspx?js=jQuery.DashboardViewer"></script>	
-<script type="text/javascript" src="./rp.aspx?js=jQuery.NewDashboardControls"></script>	
-<script type="text/javascript" src="./rp.aspx?js=ModernScripts.jquery.blockUI"></script>
-<script type="text/javascript" src="./rp.aspx?js=tag-it"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.DashboardViewer"></script>	
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.NewDashboardControls"></script>	
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ModernScripts.jquery.blockUI"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=tag-it"></script>
 
 <!-- Utils Resources -->
-<script type="text/javascript" src="./rp.aspx?extres=js.ContentRefreshIntervals.js"></script>
-<script type="text/javascript" src="./rp.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.ContentRefreshIntervals.js"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js_nocache=ModernScripts.IzendaLocalization"></script>
 
 <style type="text/css">
 	.izenda-toolbar {

@@ -163,32 +163,32 @@ function ChangeTopRecords(recsNum, updateReportData) {
 	if (recsNum == 1) {
 		uvcVal = '1';
 		jq$('#resNumLi0').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'row-1.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'row-1.png';
 	}
 	if (recsNum == 10) {
 		uvcVal = '10';
 		jq$('#resNumLi1').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-10.png';
 	}
 	if (recsNum == 100) {
 		uvcVal = '100';
 		jq$('#resNumLi2').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-100.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-100.png';
 	}
 	if (recsNum == 1000) {
 		uvcVal = '1000';
 		jq$('#resNumLi3').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-1000.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-1000.png';
 	}
 	if (recsNum == 10000) {
 		uvcVal = '10000';
 		jq$('#resNumLi5').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-10000.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-10000.png';
 	}
 	if (recsNum == -1) {
 		uvcVal = '-1';
 		jq$('#resNumLi4').addClass('selected');
-		resNumImg.src = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter + 'image=ModernImages.' + 'rows-all.png';
+		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-all.png';
 	}
 	if (updateReportData) {
 		SetTopRecords(uvcVal);
@@ -1050,7 +1050,7 @@ function GotReportViewerConfig(returnObj, id) {
 		delimiter = nrvConfig.serverDelimiter;
 	responseServer = new AdHoc.ResponseServer(urlSettings.urlRsPage + delimiter, 0);
 	responseServerWithDelimeter = responseServer.ResponseServerUrl;
-	resourcesProvider = new AdHoc.ResourcesProvider(urlSettings.urlRpPage + delimiter, 0);
+	resourcesProvider = new AdHoc.ResourcesProvider(urlSettings.urlRpPage, 0);
 	resourcesProviderWithDelimeter = resourcesProvider.ResourcesProviderUrl;
 	if (nrvConfig.UseBulkCsv) {
 		var csvExportBtn = document.getElementById('csvExportBtn');

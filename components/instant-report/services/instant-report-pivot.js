@@ -56,7 +56,7 @@ izendaRequire.define([
 				if (!angular.isObject(pivotConfig.pivotColumn))
 					return;
 				if (!pivotConfig.pivotColumn.groupByFunction)
-					pivotConfig.pivotColumn.groupByFunction = $izendaUtil.getOptionByValue(pivotConfig.pivotColumn.groupByFunctionOptions, 'GROUP');
+					pivotConfig.pivotColumn.groupByFunction = $izendaUtil.getOptionByValue(pivotConfig.pivotColumn.groupByFunctionOptions, 'GROUP', true);
 			}
 
 			/**

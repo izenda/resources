@@ -479,7 +479,7 @@
 				var isBinaryField = function (field) {
 					if (!angular.isObject(field))
 						return false;
-					if (angular.isObject(field.expressionType) && field.expressionType.value !== '...')
+					if (angular.isObject(field.expressionType) && field.expressionType.value && field.expressionType.value !== '...')
 						return ['Binary', 'Other', 'None'].indexOf(field.expressionType) >= 0;
 					return field.sqlType === 'Text' || field.sqlType === 'Image';
 				}
@@ -594,7 +594,7 @@
 				 */
 				var isFieldGrouped = function (field) {
 					var compareWithValue = EMPTY_FIELD_GROUP_OPTION.value;
-					if (!field.groupByFunction)
+					if (!field.groupByFunction || !field.groupByFunction.value)
 						return false;
 					return field.groupByFunction.value.toLowerCase() !== compareWithValue.toLowerCase();
 				}
@@ -611,20 +611,23 @@
 				 */
 				var updateFieldFormats = function (field, defaultFormatString) {
 					return $q(function (resolve) {
-						var gotFieldFormats = function (returnObj, defaultTypeGroup) {
+						function gotFieldFormats(returnObj, defaultTypeGroup) {
 							field.formatOptionGroups = $izendaUtil.convertOptionsByPath(returnObj);
 							var formatToApply;
-							if (angular.isString(defaultFormatString)) {
+							var defaultTypeGroupFormatString = getDefaultFieldFormat(defaultTypeGroup);
+							if (angular.isString(defaultFormatString) && defaultFormatString) {
 								formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, defaultFormatString);
 								if (!formatToApply) {
-									formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, getDefaultFieldFormat(defaultTypeGroup));
+									formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, defaultTypeGroupFormatString);
 								}
 							} else {
-								formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, getDefaultFieldFormat(defaultTypeGroup));
+								formatToApply = $izendaUtil.getOptionByValue(field.formatOptionGroups, defaultTypeGroupFormatString);
 							}
 							field.format = formatToApply;
 							resolve(field);
-						};
+						}
+
+						// isFieldGrouped guarantees that field.groupByFunction.value will be non-empty and don't have "None" value.
 						if (isFieldGrouped(field) && ['min', 'max', 'sum', 'sum_distinct', 'group'].indexOf(field.groupByFunction.value.toLowerCase()) < 0) {
 							$izendaInstantReportQuery.getFieldFormats(field, field.groupByFunction.dataTypeGroup).then(function (returnObj) {
 								gotFieldFormats(returnObj, field.groupByFunction.dataTypeGroup);
@@ -641,14 +644,14 @@
 				 * Get group by given value
 				 */
 				var getGroupByValue = function (field, value) {
-					return $izendaUtil.getOptionByValue(field.groupByFunctionOptions, value);
+					return $izendaUtil.getOptionByValue(field.groupByFunctionOptions, value, true);
 				};
 
 				/**
 				 * Get Subtotal group by given value
 				 */
 				var getGroupBySubtotalValue = function (field, value) {
-					return $izendaUtil.getOptionByValue(field.groupBySubtotalFunctionOptions, value);
+					return $izendaUtil.getOptionByValue(field.groupBySubtotalFunctionOptions, value, true);
 				};
 
 				/**
@@ -2009,7 +2012,7 @@
 				 * Find filter operator by string value
 				 */
 				var getFilterOperatorByValue = function (filter, value) {
-					if (!angular.isString(value))
+					if (!angular.isString(value) || !value)
 						return null;
 					var result = null;
 					angular.element.each(filter.operators, function () {
@@ -2145,17 +2148,6 @@
 						return result;
 					}
 
-					function getOptionByValue(options, value) {
-						if (!angular.isArray(options))
-							return null;
-						var resultsArray = angular.element.grep(options, function (currentOption) {
-							return currentOption.value === value;
-						});
-						if (resultsArray.length === 0)
-							return null;
-						return resultsArray[0];
-					}
-
 					function syncValues(filter) {
 						if (filter.values.length === 0 || filter.operator.value === 'Equals_Autocomplete')
 							return;
@@ -2207,7 +2199,7 @@
 									.then(function (data) {
 										filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
 										syncValues(filter);
-										var defaultValue = getOptionByValue(filter.existentValues, '...');
+										var defaultValue = $izendaUtil.getOptionByValue(filter.existentValues, '...');
 										if (filter.values.length === 0 && defaultValue)
 											filter.values = [defaultValue.value];
 										filter.initialized = true;
@@ -2218,7 +2210,7 @@
 							$izendaInstantReportQuery.getPeriodList().then(function (data) {
 								filter.existentValues = convertOptionsForSelect(data[0].options, operatorType);
 								syncValues(filter);
-								var defaultValue = getOptionByValue(filter.existentValues, '...');
+								var defaultValue = $izendaUtil.getOptionByValue(filter.existentValues, '...');
 								if (filter.values.length === 0 && defaultValue)
 									filter.values = [defaultValue.value];
 								filter.initialized = true;
@@ -2443,7 +2435,9 @@
 				 */
 				var loadFieldFunctions = function (field, defaultGroupString) {
 					return $q(function (resolve) {
-						var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'NONE';
+						var groupToApply = angular.isString(defaultGroupString) && defaultGroupString
+							? defaultGroupString
+							: 'NONE';
 						$izendaInstantReportQuery.getFieldFunctions(field, field.isPivotColumn ? 'pivotField' : 'field').then(function (returnObj) {
 							field.groupByFunctionOptions = $izendaUtil.convertOptionsByPath(returnObj);
 
@@ -2469,7 +2463,9 @@
 				 */
 				var loadSubtotalFieldFunctions = function (field, defaultGroupString) {
 					return $q(function (resolve) {
-						var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'DEFAULT';
+						var groupToApply = angular.isString(defaultGroupString) && defaultGroupString
+							? defaultGroupString
+							: 'DEFAULT';
 						$izendaInstantReportQuery.getFieldFunctions(field, 'subtotal').then(function (returnObj) {
 							field.groupBySubtotalFunctionOptions = $izendaUtil.convertOptionsByPath(returnObj);
 							field.groupBySubtotalFunction = getGroupBySubtotalValue(field, groupToApply);
@@ -2487,8 +2483,12 @@
 				 */
 				var loadGroupFunctionsAndFormatsToField = function (field, defaultGroupString, defaultFormatString, defaultSubtotalGroupString) {
 					return $q(function (resolve) {
-						var groupToApply = angular.isString(defaultGroupString) ? defaultGroupString : 'NONE';
-						var groupSubtotalToApply = angular.isString(defaultSubtotalGroupString) ? defaultSubtotalGroupString : 'DEFAULT';
+						var groupToApply = angular.isString(defaultGroupString) && defaultGroupString
+							? defaultGroupString
+							: 'NONE';
+						var groupSubtotalToApply = angular.isString(defaultSubtotalGroupString) && defaultSubtotalGroupString
+							? defaultSubtotalGroupString
+							: 'DEFAULT';
 
 						if (isBinaryField(field)) {
 							// if field type doesn't support group by.
@@ -2797,6 +2797,7 @@
 						if (field.order > orderCounter)
 							orderCounter = field.order + 1;
 
+						fieldConfig.expressionType = fieldConfig.expressionType || '...';
 						angular.element.each(expressionTypes, function () {
 							if (this.value === fieldConfig.expressionType)
 								field.expressionType = this;
@@ -2890,7 +2891,7 @@
 
 							// set operator
 							var operatorPromise;
-							if (angular.isString(filterConfig.operatorName)) {
+							if (angular.isString(filterConfig.operatorName) && filterConfig.operatorName) {
 								operatorPromise = setFilterOperator(newFilter, filterConfig.operatorName);
 							} else {
 								operatorPromise = setFilterOperator(newFilter, null);

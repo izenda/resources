@@ -284,7 +284,7 @@ izendaRequire.define([
 							var loadingHtml =
 								'<div class="izenda-common-vcentered-container" style="margin-top:-40px">' +
 									'<div class="izenda-common-vcentered-item">' +
-										'<img class="izenda-common-img-loading" src="' + $izendaUrl.settings.urlRpPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+										'<img class="izenda-common-img-loading" src="' + $izendaUrl.settings.urlRpPage + 'image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 									'</div>' +
 								'</div>';
 							$tile.append(loadingHtml);

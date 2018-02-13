@@ -1,51 +1,52 @@
 ﻿<%@ Control AutoEventWireup="true" %>
+<%@ Import namespace="Izenda.AdHoc" %>
 
 <title>Report viewer</title>
 
 <!-- Styles Resources -->
-<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.Filters.min.css" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.shrinkable-grid.css" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.Filters.min.css" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.shrinkable-grid.css" />
 
 <!-- Styles Internal -->
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModernStyles.jquery-ui" /> 
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=ModalDialogStyle" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=jquery-ui-timepicker-addon" />
-<link rel="stylesheet" type="text/css" href="./rp.aspx?css=tagit" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=ModernStyles.jquery-ui" /> 
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=ModalDialogStyle" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=jquery-ui-timepicker-addon" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>css=tagit" />
 
 <!-- jQuery Core -->
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jq"></script>
-<script type="text/javascript" src="./rp.aspx?js=jQuery.jqui"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jq"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jQuery.jqui"></script>
 
 <!-- Utils Internal -->
-<script type="text/javascript" src="./rp.aspx?js=ModernScripts.jquery.purl"></script>
-<script type="text/javascript" src="./rp.aspx?js=ModernScripts.url-settings"></script>
-<script type="text/javascript" src="./rp.aspx?js=Utility"></script>
-<script type="text/javascript" src="./rp.aspx?js=AdHocServer"></script>
-<script type="text/javascript" src="./rp.aspx?js=NumberFormatter"></script>
-<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.highcharts"></script>
-<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.highcharts-more"></script>
-<script type="text/javascript" src="./rp.aspx?js=vendor.highcharts.modules.funnel"></script>
-<script type="text/javascript" src="./rp.aspx?js=ReportViewer"></script>
-<script type="text/javascript" src="./rp.aspx?js=ServerReportArchive"></script>
-<script type="text/javascript" src="./rp.aspx?js=AdHocToolbarNavigation"></script>
-<script type="text/javascript" src="./rp.aspx?js=moment"></script>
-<script type="text/javascript" src="./rp.aspx?js=HtmlOutputReportResults"></script>
-<script type="text/javascript" src="./rp.aspx?js=EditorBaseControl"></script>
-<script type="text/javascript" src="./rp.aspx?js=MultilineEditorBaseControl"></script>
-<script type="text/javascript" src="./rp.aspx?js=GaugeControl"></script>
-<script type="text/javascript" src="./rp.aspx?js=ReportingServices"></script>
-<script type="text/javascript" src="./rp.aspx?js=ReportScripting"></script>
-<script type="text/javascript" src="./rp.aspx?js=CustomScripts"></script>
-<script type="text/javascript" src="./rp.aspx?js=jquery-ui-timepicker-addon"></script>
-<script type="text/javascript" src="./rp.aspx?js=datepicker.langpack"></script>
-<script type="text/javascript" src="./rp.aspx?js_nocache=ModernScripts.IzendaLocalization"></script>
-<script type="text/javascript" src="./rp.aspx?js=tag-it"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ModernScripts.jquery.purl"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ModernScripts.url-settings"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=Utility"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=AdHocServer"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=NumberFormatter"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=vendor.highcharts.highcharts"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=vendor.highcharts.highcharts-more"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=vendor.highcharts.modules.funnel"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ReportViewer"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ServerReportArchive"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=AdHocToolbarNavigation"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=moment"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=HtmlOutputReportResults"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=EditorBaseControl"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=MultilineEditorBaseControl"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=GaugeControl"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ReportingServices"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ReportScripting"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=CustomScripts"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=jquery-ui-timepicker-addon"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=datepicker.langpack"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js_nocache=ModernScripts.IzendaLocalization"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=tag-it"></script>
 
 <!-- Utils Resources -->
-<script type="text/javascript" src="./rp.aspx?extres=js.ReportViewerFilters.js"></script>
-<script type="text/javascript" src="./rp.aspx?extres=js.FieldProperties.js"></script>
-<script type="text/javascript" src="./rp.aspx?extres=js.shrinkable-grid.js"></script>
-<script type="text/javascript" src="./rp.aspx?extres=js.ContentRefreshIntervals.js"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.ReportViewerFilters.js"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.FieldProperties.js"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.shrinkable-grid.js"></script>
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.ContentRefreshIntervals.js"></script>
 
 <style type="text/css">
   .izenda-toolbar {

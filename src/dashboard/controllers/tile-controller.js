@@ -43,7 +43,7 @@
 			topString: '100',
 			flip: false,
 			applyFilterParams: false,
-			backgroundColor: '#fff',
+			backgroundColor: '',
 			backTilePopupOpened: false
 		});
 
@@ -392,7 +392,7 @@
 
 			var loadingHtml = '<div class="izenda-common-vcentered-container">' +
 				'<div class="izenda-common-vcentered-item">' +
-				'<img class="izenda-common-img-loading" src="' + $izendaUrl.settings.urlRsPage + '?image=ModernImages.loading-grid.gif" alt="Loading..." />' +
+				'<img class="izenda-common-img-loading" src="' + $izendaUrl.settings.urlRpPage + 'image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 				'</div>' +
 				'</div>';
 			var $body = $element.find('.animate-flip> .flippy-front> .frame> .report');
@@ -1075,9 +1075,10 @@
 							// return default tile color
 							if (angular.isArray($scope.tiles)) {
 								$scope.tiles.forEach(function (currentTile) {
-									currentTile.backgroundColor = '#fff';
+									currentTile.backgroundColor = '';
 								});
 							}
+							$scope.tile.backgroundColor = '';
 							var targetTile = _getUnderlyingTile(event.pageX, event.pageY, $tilesArray);
 							var eventResult;
 							var isTileSizeChanged = false;

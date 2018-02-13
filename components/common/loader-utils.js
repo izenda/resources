@@ -24,7 +24,7 @@ izendaRequire.define(['jquery'], function (jq$) {
 				delimiter = window.nrvConfig.serverDelimiter;
 			window.responseServer = new AdHoc.ResponseServer(uSettings.urlRsPage + delimiter, 0);
 			window.responseServerWithDelimeter = window.responseServer.ResponseServerUrl;
-			window.resourcesProvider = new AdHoc.ResourcesProvider(uSettings.urlRpPage + delimiter, 0);
+			window.resourcesProvider = new AdHoc.ResourcesProvider(uSettings.urlRpPage, 0);
 			window.resourcesProviderWithDelimeter = window.resourcesProvider.ResourcesProviderUrl;
 			dfd.resolve();
 		});

@@ -539,7 +539,7 @@ function RefreshFilters(returnObj) {
 		if (showTimeInFilterPickers) {
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq("destroy");
 			jq$(document.getElementById(calendars[cc])).datetimepickerJq({
-				buttonImage: urlSettings.urlRpPage + '?image=calendar_icon.png',
+				buttonImage: urlSettings.urlRpPage + 'image=calendar_icon.png',
 				showOn: "both",
 				buttonImageOnly: true,
 				altRedirectFocus: false,
@@ -580,7 +580,7 @@ function RefreshFilters(returnObj) {
 			jq$(document.getElementById(calendars[cc])).datepicker("destroy");
 			jq$(document.getElementById(calendars[cc])).datepicker({
 				dateFormat: dateFormatString,
-				buttonImage: urlSettings.urlRpPage + '?image=calendar_icon.png',
+				buttonImage: urlSettings.urlRpPage + 'image=calendar_icon.png',
 				showOn: "both",
 				buttonImageOnly: true,
 				onClose: function () {
@@ -1271,10 +1271,10 @@ CC_FillCombobox = function (selectedValues, node, row) {
 
 		cValid.addClass("cValid");
 		cValid.attr("value", val);
-		var responseServerUrl = urlSettings.urlRpPage + '?';
+		var responseServerUrl = urlSettings.urlRpPage;
 		// From ReportViewer.js
-		if (typeof nrvConfig != 'undefined')
-			responseServerUrl = nrvConfig.ResourcesProviderUrl + nrvConfig.serverDelimiter;
+		if (typeof resourcesProviderWithDelimeter != 'undefined')
+			responseServerUrl = resourcesProviderWithDelimeter;
 		cValid.html('<nobr>' + displayText + '<img src="' + responseServerUrl + 'image=icon-blue-x.gif" class="chunkX"></nobr>');
 		selectedValues.append(cValid);
 		cValid.find(".chunkX").click(function () {

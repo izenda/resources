@@ -45,7 +45,7 @@ AdHoc.chartControl = function(elementId) {
 }
 AdHoc.chartControl.prototype = {
 	getChartTypeSelect : function() {
-		return document.getElementById(this.elementId + '_ChartTypeSelect')
+		return document.getElementById(this.elementId + '_ChartTypeSelect');
 	}
 }
 
@@ -387,7 +387,6 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 			var forbidAutoSelect = false;
 			var defaultAdvancedTypeGroup = "None";
 			var addExpression = "&" + "addExpression=false";
-			//var addExpression = (i == count - 1) ? "" : "&addExpression=true";
 		
 			if(chartItems==null)
 				filter = "all";
@@ -414,7 +413,7 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 				for (var j = 0; j < descriptions.length; j++) {
 					var calcField = descriptions[j];
 
-					if (chartItems && chartItems[i] && chartItems[i].label === "Date") {
+					if (chartItems && chartItems[i] && chartItems[i].type === "Date") {
 						var dateTypes = ["DateTime", "Date"];
 						if (dateTypes.indexOf(calcField.initialDataType) === -1) continue;
 					}
@@ -475,30 +474,28 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 		var divElems = body.rows[i].getElementsByTagName('DIV');
 		var divCount = divElems.length;
 		var funcVisible;
-		var orderVisible = "none";
+		var orderVisible = 'none';
 		var valueRangeVisible = false;
 		var ascChecked = false;
 		var descChecked = false;
 		var defaultAggregateFunction;
-		if(chartItems==null)
-			funcVisible = "none";
-		else
-		{
+		if (chartItems == null)
+			funcVisible = 'none';
+		else {
 			var item = chartItems[i];
-			if(item==null || item.label==null)
-				funcVisible = "none";
-			else
-			{
+			if (item == null || item.label == null)
+				funcVisible = 'none';
+			else {
 				defaultAggregateFunction = item.defaultAggregateFunction;
-				funcVisible = item.functionVisible ? "" : "none";
-				orderVisible = item.canBeSorted ? "" : "none";
-				ascChecked = item.orderType == "ASC";
-				descChecked = item.orderType == "DESC";
-				if (item.label == "Separator")
+				funcVisible = item.functionVisible ? '' : 'none';
+				orderVisible = item.canBeSorted ? '' : 'none';
+				ascChecked = item.orderType === 'ASC';
+				descChecked = item.orderType === 'DESC';
+				if (item.type === 'Separator')
 					valueRangeVisible = true;
 			}
 		}
-		
+
 		jq$(body.rows[i]).find('td').each(function () {
 			if (jq$(this).attr('visibilitymode') == '2')
 				jq$(this).css('display', orderVisible);

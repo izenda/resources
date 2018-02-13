@@ -1405,17 +1405,17 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 	var div = document.createElement('div');
 	div.appendChild(columnSel);
 	columnSel = div.firstChild;
-	var selRez = EBC_LoadData("CombinedColumnList", "&" + "tables=" + sc_tables[id], columnSel, false);
+	var selRez = EBC_LoadData('CombinedColumnList', '&tables=' + sc_tables[id], columnSel, false);
 	if (selRez)
 		columnSel = selRez;
 	else if (div.childNodes.length > 0) {
 		columnSel = div.childNodes[0];
 	}
 
-	var html = "<div align='left' style='text-align:left;' class='quick-add-container'><div style='margin-bottom:6px;'>" + jsResources.PleaseSelectTheFields + "</div>";
+	var html = '<div align="left" style="text-align:left;" class="quick-add-container"><div style="margin-bottom:6px;">' + jsResources.PleaseSelectTheFields + '</div>';
 
 	//all fields
-	var allFieldsTable = document.getElementById(id + "_AllFieldsTable");
+	var allFieldsTable = document.getElementById(id + '_AllFieldsTable');
 
 	//  This needs to be moved to version 7
 	if (allFieldsTable != null) {
@@ -1423,10 +1423,10 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 		var allFieldsRow = allFieldsBody.rows[0];
 		var allFieldsCell = allFieldsRow.cells[0];
 		var obj = allFieldsCell.childNodes[0];
-		var checked = obj.checked ? "checked" : "";
-		html += "<div style='font-size:13px;text-align:center;visibility:hidden;'><input type=checkbox " + checked +
-						" id='SC_QuickAdd_ShowAll'>&nbsp;" +
-						jsResources.ShowAllFields + "</div>";
+		var checked = obj.checked ? 'checked' : '';
+		html += '<div style="font-size:13px;text-align:center;visibility:hidden;"><input type=checkbox ' + checked +
+						' id="SC_QuickAdd_ShowAll">&nbsp;' +
+						jsResources.ShowAllFields + '</div>';
 
 	}
 
@@ -1436,7 +1436,7 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 	var options = columnSel.options;
 	// check if empty
 	for (var i = 0; i < options.length; i++) {
-		var group = options[i].getAttribute("optgroup");
+		var group = options[i].getAttribute('optgroup');
 		if (group != null) {
 			if (tables[group] == null) tables[group] = new Array();
 			//else 
@@ -1463,16 +1463,16 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 	}
 
 	if (maxRows > 0) {
-		html += "<style>#mdb table {width: 100%; font-size: 13px; text-align: left;}" +
-			"#mdb table tr * {padding-right: 10px;}</style>";
-		html += "<table>";
-		html += "<tr>";
+		html += '<style>#mdb table {width: 100%; font-size: 13px; text-align: left;}' +
+			'#mdb table tr * {padding-right: 10px;}</style>';
+		html += '<table>';
+		html += '<tr>';
 		for (key in tables)
-			html += "<th colspan='{colspan}'>{key}</th>".format({ colspan: tables[key].width, key: key });
-		html += "</tr>";
+			html += '<th colspan="{colspan}">{key}</th>'.format({ colspan: tables[key].width, key: key });
+		html += '</tr>';
 		var optNum = 0;
 		for (var i = 0; i < maxRows; i++) {
-			html += "<tr>";
+			html += '<tr>';
 			for (key in tables) {
 				var currentTable = tables[key];
 				var addEmpty = currentTable.width;
@@ -1486,19 +1486,19 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 						if (optionTitle.length > maxFieldWidth)
 							optionText = optionTitle.substr(0, maxFieldWidth - 3) + '...';
 						var haveValue = values[optionValue];
-						html += "<td><nobr><input type=checkbox {attrs} value='{value}' id='SC_QuickAdd_{num}'> <span title='{title}'>{text}</span></nobr></td>"
-							.format({ attrs: haveValue ? "checked disabled" : "", value: optionValue, num: optNum, title: optionTitle, text: optionText });
+						html += '<td><nobr><input type=checkbox {attrs} value="{value}" id="SC_QuickAdd_{num}"> <span title="{title}">{text}</span></nobr></td>'
+							.format({ attrs: haveValue ? 'checked disabled' : '', value: optionValue.replaceAll('"', '&quot;'), num: optNum, title: optionTitle.replaceAll('"', '&quot;'), text: optionText });
 						optNum++;
 					}
 				}
 				while (addEmpty--)
-					html += "<td>&nbsp;</td>";
+					html += '<td>&nbsp;</td>';
 			}
-			html += "</tr>";
+			html += '</tr>';
 		}
-		html += "</table>";
+		html += '</table>';
 	}
-	html += "</div>";
+	html += '</div>';
 	ReportingServices.showConfirm(html, SC_QuickAdd_Close, { ctx: id, title: jsResources.QuickAdd, movable: true });
 
 	if (selRez == null) {
@@ -1509,7 +1509,7 @@ function SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth) {
 
 function SC_QuickAdd_Refresh(id, columnNumber, minInColumn, maxFieldWidth) {
 	var columnSel = document.createElement('select');
-	var selRez = EBC_LoadData("CombinedColumnList", "&" + "tables=" + sc_tables[id], columnSel, false);
+	var selRez = EBC_LoadData('CombinedColumnList', '&tables=' + sc_tables[id], columnSel, false);
 
 	if (selRez) {
 		SC_QuickAdd(id, columnNumber, minInColumn, maxFieldWidth);
@@ -1529,8 +1529,8 @@ function SC_QuickAdd_Close(result, context) {
 		sc_qac_works = true;
 		if (result == jsResources.OK) {
 			//show all;
-			var showAll = document.getElementById("SC_QuickAdd_ShowAll");
-			var allFieldsTable = document.getElementById(context.ctx + "_AllFieldsTable");
+			var showAll = document.getElementById('SC_QuickAdd_ShowAll');
+			var allFieldsTable = document.getElementById(context.ctx + '_AllFieldsTable');
 			if (allFieldsTable != null) {
 				var allFieldsBody = allFieldsTable.tBodies[0];
 				var allFieldsRow = allFieldsBody.rows[0];
@@ -1541,7 +1541,7 @@ function SC_QuickAdd_Close(result, context) {
 			}
 
 			var table = document.getElementById(context.ctx);
-			var max = table.getAttribute("max");
+			var max = table.getAttribute('max');
 			var body = table.tBodies[0];
 			var rowCount = body.rows.length;
 			var needsGroup = false;
@@ -1549,10 +1549,10 @@ function SC_QuickAdd_Close(result, context) {
 			for (var i = 0; i < rowCount; i++) {
 				var row = body.rows[i];
 				var funcSelect = EBC_GetSelectByName(row, 'Function');
-				var isScalar = funcSelect.options[funcSelect.selectedIndex].getAttribute("isScalar");
+				var isScalar = funcSelect.options[funcSelect.selectedIndex].getAttribute('isScalar');
 				if (isScalar == null || isScalar.length == 0)
 					isScalar = '0';
-				if (funcSelect.value != "None" && funcSelect.value != "..." && isScalar == '0')
+				if (funcSelect.value != 'None' && funcSelect.value != '...' && isScalar == '0')
 					needsGroup = true;
 				var columnSel = EBC_GetSelectByName(row, 'Column');
 				var v = columnSel.value;
@@ -1566,7 +1566,7 @@ function SC_QuickAdd_Close(result, context) {
 			var currentCheckBox;
 			var added = false;
 			for (var i = columnSel.options.length - 1; i >= 0; i--) {
-				var chbId = "SC_QuickAdd_" + i;
+				var chbId = 'SC_QuickAdd_' + i;
 				currentCheckBox = document.getElementById(chbId);
 				if (currentCheckBox == null || !currentCheckBox.checked)
 					continue;
@@ -1580,7 +1580,7 @@ function SC_QuickAdd_Close(result, context) {
 
 				added = true;
 				newRow = EBC_InsertRow(table, rowCount - 1);
-				newRow.setAttribute("userChanged", "");
+				newRow.setAttribute('userChanged', '');
 				SC_ClearRowInputs(newRow);
 				SC_ClearRowSelects(newRow);
 				newColumnSel = EBC_GetSelectByName(newRow, 'Column');
@@ -1608,15 +1608,15 @@ function SC_QuickAdd_Close_Callback() {
 	sc_qac_timers = 0;
 	sc_qac_requests = 0;
 	sc_qac_works = false;
-	if (typeof CHC_OnTableListChangedHandlerWithStoredParams === "function")
+	if (typeof CHC_OnTableListChangedHandlerWithStoredParams === 'function')
 		CHC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof GC_OnTableListChangedHandlerWithStoredParams === "function")
+	if (typeof GC_OnTableListChangedHandlerWithStoredParams === 'function')
 		GC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof CC_OnTableListChangedHandlerWithStoredParams === "function")
+	if (typeof CC_OnTableListChangedHandlerWithStoredParams === 'function')
 		CC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof SC_CheckGroupingAndFunctionsWithStoredParams === "function")
+	if (typeof SC_CheckGroupingAndFunctionsWithStoredParams === 'function')
 		SC_CheckGroupingAndFunctionsWithStoredParams();
-	if (typeof EBC_CheckFieldsCountWithStoredParams === "function")
+	if (typeof EBC_CheckFieldsCountWithStoredParams === 'function')
 		EBC_CheckFieldsCountWithStoredParams();
 }
 
@@ -1633,7 +1633,7 @@ function SC_ClearRowSelects(row) {
 function SC_ChangeAllTablesSel(id, tables) {
 	var allTablesSel = document.getElementById(id + '_AllTables');
 	if (allTablesSel != null && tables != null && tables.join)
-		EBC_LoadData("UsedTableList", "tables=" + tables.join('\''), allTablesSel);
+		EBC_LoadData('UsedTableList', 'tables=' + tables.join('\''), allTablesSel);
 }
 
 function SC_RemoveAllFields(id) {

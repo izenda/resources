@@ -1,4 +1,5 @@
 ﻿<%@ Control AutoEventWireup="true" %>
+<%@ Import namespace="Izenda.AdHoc" %>
 
 <script type="text/javascript">
   var is_ie9_or_newer = true;
@@ -27,9 +28,9 @@ is_ie9_or_newer = false;
         <div class="controls">
           <div id="msgAboutBottom" style="text-align: left; width: 250px; color: rgb(0, 0, 61); font-weight: bold; font-family: Times New Roman; height: 20px;">Because of limited screen width, your preview has moved to the bottom of the page.</div>
           <a class="collapse" href="#collapseall" lang-text="js_CollapseAll">
-            <img src="./rp.aspx?image=ModernImages.collapse.png" alt="collapse" lang-alt="js_Collapse" style="" />Collapse all</a>
+            <img src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.collapse.png" alt="collapse" lang-alt="js_Collapse" style="" />Collapse all</a>
           <a class="uncheck" href="#uncheck_all" lang-text="js_UncheckAll" onclick="javascript:NDS_UnckeckAllDs();PreviewReportManual();">
-            <img src="./rp.aspx?image=ModernImages.remove-icon.png" alt="remove" lang-alt="js_Remove" style="" />Uncheck all</a>
+            <img src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.remove-icon.png" alt="remove" lang-alt="js_Remove" style="" />Uncheck all</a>
         </div>
 
         <div class="database-description css-only-clearfix">
@@ -47,19 +48,19 @@ is_ie9_or_newer = false;
       <div class="right-help" id="rightHelpDiv" style="margin-left: 0px; padding-top: 10px; padding-left: 10px; padding-right: 10px; padding-bottom: 10px;">
         <h2 id="previewH2" style="margin: 0px; margin-bottom: 20px; display: none;">
           <a class="button default" href="#update_preview" title="Update Preview" onclick="javascript:PreviewReportManual();">
-            <img style="margin-bottom: -9px;" src="./rp.aspx?image=ModernImages.largerefresh.png" />
+            <img style="margin-bottom: -9px;" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.largerefresh.png" />
           </a>
           <a id="appendSubtotalsBtn" href="#add_subtotals" title="Add Subtotals" onclick="javascript:AppendSubtotals();">
-            <img style="margin-bottom: -9px;" src="./rp.aspx?image=subtotalsplusW.png" />
+            <img style="margin-bottom: -9px;" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=subtotalsplusW.png" />
           </a>
           <a id="appendChartBtn" href="#add_chart" title="Add Chart" onclick="javascript:AppendChart();">
-            <img style="margin-bottom: -9px;" src="./rp.aspx?image=chartplusW.png" />
+            <img style="margin-bottom: -9px;" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=chartplusW.png" />
           </a>
           <a class="button" href="#design_report" title="Design Report" onclick="DesignReportRequest(CollectReportData());">
-            <img style="margin-bottom: -9px;" src="./rp.aspx?image=ModernImages.pencilwhite.png" />
+            <img style="margin-bottom: -9px;" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.pencilwhite.png" />
           </a>
           <a class="button default" href="#view_report" title="View Report" onclick="ViewReportRequest(CollectReportData());">
-            <img style="margin-bottom: -9px;" src="./rp.aspx?image=ModernImages.magwhite.png" />
+            <img style="margin-bottom: -9px;" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.magwhite.png" />
           </a>
         </h2>
         <div id="htmlFilters" class="css-only-clearfix" style="border-bottom: 3px dotted #ccc; margin-bottom: 10px;">
@@ -75,8 +76,8 @@ is_ie9_or_newer = false;
                                     <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}"
                                       style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
                                 </nobr>
-                  <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./rp.aspx?image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
-                  <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./rp.aspx?image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+                  <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+                  <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
                 </div>
               </div>
             </div>
@@ -96,7 +97,7 @@ is_ie9_or_newer = false;
         <table id="previewLoading" style="width: 100%; display: none;">
           <tr style="width: 100%;">
             <td style="width: 100%; text-align: center">
-              <img src="./rp.aspx?image=loading.gif" />
+              <img src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=loading.gif" />
             </td>
           </tr>
         </table>

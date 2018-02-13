@@ -47,7 +47,7 @@
 				inTimePeriod = ['InTimePeriod'];
 			if (!angular.isObject(operator))
 				return 'hidden';
-			if (operator.value === '' || hiddenOperators.indexOf(operator.value) >= 0)
+			if (!operator.value || hiddenOperators.indexOf(operator.value) >= 0)
 				return 'hidden';
 			if (oneValueOperators.indexOf(operator.value) >= 0)
 				return 'oneValue';

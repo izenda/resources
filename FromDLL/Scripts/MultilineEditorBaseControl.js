@@ -454,7 +454,7 @@ function EBC_GetDataTypeGroup_Internal(row, columnSel, functionName, formatSelec
 
 	var functionSel = EBC_GetSelectByName(row, functionName);
 
-	var typeGroup = (formatSelect == null || whatFor == 'format') ? "" : formatSelect.getAttribute("TypeGroup");
+	var typeGroup = (formatSelect == null || whatFor == 'format' || whatFor == 'function') ? "" : formatSelect.getAttribute("TypeGroup");
 
 	if ((!typeGroup || typeGroup == "None") && functionSel != null && functionSel.selectedIndex > -1)
 		typeGroup = (functionSel == null || whatFor == 'function') ? "" : functionSel.options[functionSel.selectedIndex].getAttribute("dataTypeGroup");

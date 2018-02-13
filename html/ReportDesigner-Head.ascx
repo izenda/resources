@@ -1,8 +1,8 @@
 ﻿<%@ Control Language="C#" AutoEventWireup="true" %>
 <%@ Import Namespace="Izenda.AdHoc" %>
 
-<link rel="stylesheet" type="text/css" href="./rp.aspx?extres=css.Filters.css" />
-<script type="text/javascript" src="./rp.aspx?extres=js.RichEditorPopup.js"></script>
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.Filters.css" />
+<script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=js.RichEditorPopup.js"></script>
 <script type="text/javascript">
   jq$(document).ready(function () {
     if (typeof reportLoadError != 'undefined' && reportLoadError == true)

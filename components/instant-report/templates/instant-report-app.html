@@ -203,7 +203,7 @@
           <!-- loading message -->
           <div class="izenda-common-vcentered-container">
             <div class="izenda-common-vcentered-item" ng-show="irController.isLoading">
-              <img class="izenda-common-img-loading" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
+              <img class="izenda-common-img-loading" style="width: 24px;" ng-src="{{$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
                    ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
             </div>
           </div>
@@ -262,7 +262,7 @@
   <!-- splashscreen -->
   <izenda-splash-screen ng-show="irController.reportLoadingIndicatorIsVisible"
        text="$izendaInstantReportStorage.getPreviewSplashText()"
-       loading-indicator-url="{{$izendaUrl.settings.urlRpPage}}?image=ModernImages.loading-grid.gif"
+       loading-indicator-url="{{$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
        parent-selector=".iz-inst-mainpanel-body">
   </izenda-splash-screen>
 </div>
