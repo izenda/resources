@@ -1146,8 +1146,7 @@ function GotRenderedReportSet(returnObj, id) {
 		FirstLoadInit();
 	}
 	else {
-		jq$('#htmlFilters :input').prop('disabled', true);
-		if (typeof (GetFiltersData) === 'function')
+		if (typeof (GetFiltersData) === 'function' && nrvConfig && nrvConfig.CascadeFilterValues)
 			GetFiltersData();
 	}
 }

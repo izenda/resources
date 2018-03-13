@@ -57,29 +57,39 @@ function CapitaliseString(string) {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function GerReportPartUrl(rn, part, first, embedScripts, rsp, params) {
+function GerReportPartUrl(rn, part, first, omitScripts, embedScripts, combineScripts, rsp, rpp, params) {
 	var url = (rsp ? rsp : resposeServerUrl) + '?wscmd=renderedreportpart&wsarg0=' + rn + '&wsarg1=' + part;
 	url += '&wsarg2=' + (first ? '' : 'alonenext');
-	url += '&wsarg3=' + (embedScripts ? 'embedScriptsForHtmlPart' : '');
+	url += '&wsarg3=' + (omitScripts ? 'omitScriptsForHtmlPart' : (embedScripts ? 'embedScriptsForHtmlPart' : (combineScripts ? 'combineScriptsForHtmlPart' : '')));
 	url += '&wsarg4=' + encodeURIComponent(RP_Base64.encode(rsp));
+	url += '&wsarg5=' + encodeURIComponent(RP_Base64.encode(rpp));
 	url += '&rnalt=' + rn;
 	if (params != null)
 		url += '&' + params;
 	return url;
 }
 
+function TryGetAttr(el, attrName, defaultVal)
+{
+	if (!defaultVal)
+		defaultVal = '';
+	if (!el)
+		return defaultVal;
+	var obj = jq$(el).attr(attrName);
+	if (typeof obj != 'undefined' && obj != null)
+		return obj.toString();
+	return defaultVal;
+}
+
 function LoadReportPart(div, first, params) {
 	jq$(div).text('Loading...');
 	var rn = jq$(div).attr('data-report');
 	var part = CapitaliseString(jq$(div).attr('data-part'));
-	var embedScriptsObj = jq$(div).attr('data-embedscripts');
-	var embedScripts = false;
-	if (typeof embedScriptsObj != 'undefined' && embedScriptsObj != null && embedScriptsObj.toString().toLowerCase() == 'true')
-		embedScripts = true;
-	var rspObj = jq$(div).attr('data-responseserverpath');
-	var rsp = '';
-	if (typeof rspObj != 'undefined' && rspObj != null && rspObj.toString() != '')
-		rsp = rspObj.toString();
+	var omitScripts = TryGetAttr(div, 'data-omitscripts', 'false') == 'true';
+	var embedScripts = TryGetAttr(div, 'data-embedscripts', 'false') == 'true';
+	var combineScripts = TryGetAttr(div, 'data-combinescripts', 'false') == 'true';
+	var rsp = TryGetAttr(div, 'data-responseserverpath', '');
+	var rpp = TryGetAttr(div, 'data-resourcesproviderpath', '');
 	var filters = '';
 	jq$.each(jq$(div).data(), function (key, data) {
 		if (key.indexOf('filter') == 0) {
@@ -99,7 +109,7 @@ function LoadReportPart(div, first, params) {
 	}
 	jQ.ajaxSetup({ cache: true });
 	jq$.ajax({
-		url: GerReportPartUrl(rn, part, first, embedScripts, rsp, params)
+		url: GerReportPartUrl(rn, part, first, omitScripts, embedScripts, combineScripts, rsp, rpp, params)
 	}).done(function (html) {
 		if (first) {
 			var headIdx = html.indexOf('</head>');

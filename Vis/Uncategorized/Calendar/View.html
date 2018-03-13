@@ -1387,21 +1387,21 @@ be a descendant of the grid when it is being dragged.
 					slotEventOverlap: false,
 					eventLimit: true,
 					events: events,
-					eventRender: function (event, element) {
+					eventRender: function (event, jqElement) {
 						var eventColor = color(event.item);
-						element.context.style.borderColor = eventColor;
-						element.context.innerHTML = ('<div class="fc-content">' +
+						jqElement.css('border-color', eventColor);
+						jqElement.html(('<div class="fc-content">' +
 							'<table><tr>' +
 							'<td><div class="fc-title" style="background-color: {color};">{title}</div></td>' +
 							'</tr><tr>' +
 							'<td class="fc-value-cell "><div class="fc-value"><span>{value}</span><span class="fc-placeholder"></span></div></td>' +
 							'</tr></table>' +
-							'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue });
-						services.tipOn(element.context, '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
+							'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue }));
+						services.tipOn(jqElement[0], '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
 							.format({ color: color(event.item), title: event.title, value: event.formattedValue }));
 					},
-					eventAfterRender: function (event, element) {
-						var eventContainer = jq$(element.context).parent('.fc-event-container');
+					eventAfterRender: function (event, jqElement) {
+						var eventContainer = jqElement.parent('.fc-event-container');
 						eventContainer.css('margin', '0 {right}px 0 2px'.format({ right: Math.floor(eventContainer.parent().width() * 0.025) }));
 						eventContainer.find('.fc-content').each(function() {
 							normalizeEventContent(jq$(this));

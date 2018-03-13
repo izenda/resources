@@ -2,15 +2,13 @@
 	return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };
 
-Array.prototype.binaryFind = function (el, cmpFunc)
-{
+Array.prototype.binaryFind = function (el, cmpFunc) {
 	'use strict';
 	var minIndex = 0;
 	var maxIndex = this.length - 1;
 	var currentIndex;
 	var currentElement;
-	while (minIndex <= maxIndex)
-	{
+	while (minIndex <= maxIndex) {
 		currentIndex = ((minIndex + maxIndex) / 2) | 0;
 		currentElement = this[currentIndex];
 		if (cmpFunc(currentElement, el) < 0)
@@ -161,7 +159,7 @@ function GetFilterValues(index, filters, id) {
 * Save filters stored in 'filtersData' variable.
 */
 function CommitChangedFilter(field) {
-	if (field.FilterGUID) {	
+	if (field.FilterGUID) {
 		for (var i = 0; i < filtersData.length; i++)
 			if (filtersData[i].GUID == field.FilterGUID) {
 				if (filtersData[i].OperatorValue.endsWith('Field') && !field.FilterOperator.endsWith('Field'))
@@ -206,13 +204,14 @@ function CommitFiltersData(updateReportSet) {
 		if (!jq$(this).attr('id') || this.scrollTop == 0)
 			return;
 		positions.push(
-				{
-        	id: jq$(this).attr('id'),
-        	scroll: this.scrollTop
-				});
+			{
+				id: jq$(this).attr('id'),
+				scroll: this.scrollTop
+			});
 	});
+
 	// Disable filters so they cannot be changed until they are in the relevant state
-	jq$('#htmlFilters :input').prop('disabled', true);
+	LockFilters();
 
 	var cmd = 'setfiltersdata';
 	if (!updateReportSet)
@@ -484,6 +483,11 @@ function CheckShowAddFilterControls() {
 }
 
 function RefreshFilters(returnObj) {
+	if (!returnObj || returnObj.Value === 'OK') {
+		UnlockFilters();
+		return;
+	}
+
 	jq$.datepicker.markerClassName = "hasDateTimePickerJq";
 	var htmlFilters = jq$('#htmlFilters');
 	htmlFilters.find('.filtersContent').html('');
@@ -521,8 +525,7 @@ function RefreshFilters(returnObj) {
 
 	var dateFormatString = 'mm/dd/yy';
 	var showTimeInFilterPickers = false;
-	if (typeof nrvConfig != 'undefined' && nrvConfig != null)
-	{
+	if (typeof nrvConfig != 'undefined' && nrvConfig != null) {
 		if (typeof nrvConfig.DateFormat != 'undefined' && nrvConfig.DateFormat != null && nrvConfig.DateFormat != '')
 			dateFormatString = nrvConfig.DateFormat;
 		if (typeof nrvConfig.ShowTimeInFilterPickers != 'undefined' && nrvConfig.ShowTimeInFilterPickers != null && nrvConfig.ShowTimeInFilterPickers != '')
@@ -552,12 +555,16 @@ function RefreshFilters(returnObj) {
 						var enteredDate = jq$(this).datetimepickerJq("getDate");
 						if (typeof enteredDate != 'undefined' && enteredDate != null && enteredDate.getHours() + enteredDate.getMinutes() + enteredDate.getSeconds() <= 0) {
 							var fixedDate = new Date(enteredDate.getFullYear(), enteredDate.getMonth(), enteredDate.getDate(), 23, 59, 59, 0)
-							jq$(this).datetimepickerJq("setDate", fixedDate)
+							jq$(this).datetimepickerJq("setDate", fixedDate);
 						}
 					}
-					setTimeout(function () {
-						CommitFiltersData(false);
-					}, 401);
+					if (nrvConfig && nrvConfig.CascadeFilterValues)
+						setTimeout(function() {
+								CommitFiltersData(false);
+							},
+							401);
+					else
+						izenda.reportViewerFilter.datepickerReadyToShow = true;
 				},
 				beforeShow: function (e, o) {
 					function waitReadyToShow() {
@@ -585,9 +592,13 @@ function RefreshFilters(returnObj) {
 				buttonImageOnly: true,
 				onClose: function () {
 					izenda.reportViewerFilter.datepickerReadyToShow = false;
-					setTimeout(function () {
-						CommitFiltersData(false);
-					}, 401);
+					if (nrvConfig && nrvConfig.CascadeFilterValues)
+						setTimeout(function() {
+								CommitFiltersData(false);
+							},
+							401);
+					else
+						izenda.reportViewerFilter.datepickerReadyToShow = true;
 				},
 				beforeShow: function (e, o) {
 					function waitReadyToShow() {
@@ -647,24 +658,24 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	var escapedAlias = window.utility.htmlEncode(filter.Alias ? filter.Alias : filter.FriendlyColumnName);
 
 	var mouseOverScript = 'if(this.children[2]) { this.children[2].style.opacity=0.5; this.children[2].style.backgroundImage= \'url(\\\'\' + this.children[2].getAttribute("data-img") + \'\\\')\'; } if(this.children[3]) { this.children[2].style.opacity=0.5; this.children[3].style.backgroundImage=\'url(\\\'\' + this.children[3].getAttribute("data-img") + \'\\\')\'; } document.getElementById(\''
-						+ divsId
-						+ '\').innerHTML = \''
-						+ escapedAlias
-						+ ' - '
-						+ filter.OperatorFriendlyName
-						+ '\';'
-						+ 'document.getElementById(\''
-						+ divsId
-						+ '\').setAttribute("title", "'
-						+ filter.Alias
-						+ ' - '
-						+ filter.OperatorFriendlyName
-						+ '");';
+		+ divsId
+		+ '\').innerHTML = \''
+		+ escapedAlias
+		+ ' - '
+		+ filter.OperatorFriendlyName
+		+ '\';'
+		+ 'document.getElementById(\''
+		+ divsId
+		+ '\').setAttribute("title", "'
+		+ filter.Alias
+		+ ' - '
+		+ filter.OperatorFriendlyName
+		+ '");';
 	var mouseOutScript = 'for(var index = 2; index < this.children.length; index++){this.children[index].style.backgroundImage=\'none\';}document.getElementById(\''
-						+ divsId
-						+ '\').innerHTML = \''
-						+ escapedAlias
-						+ '\';';
+		+ divsId
+		+ '\').innerHTML = \''
+		+ escapedAlias
+		+ '\';';
 	if (!isSimpleFilter) {
 		filterContent.find('.filterHeader').attr('onmouseover', mouseOverScript);
 		filterContent.find('.filterHeader').attr('onmouseout', mouseOutScript);
@@ -773,11 +784,16 @@ function CascadingFiltersChanged(returnObj, id) {
 }
 
 function FiltersDataSet(returnObj, id) {
-	if (id != 'setfiltersdata' || returnObj == null)
+	if (id != 'setfiltersdata')
 		return;
-	if (returnObj.Value != 'OK')
+	if (!returnObj || returnObj.Value != 'OK') {
+		UnlockFilters();
 		return;
-	GetFiltersData();
+	}
+	if (nrvConfig && nrvConfig.CascadeFilterValues)
+		GetFiltersData();
+	else
+		UnlockFilters();
 	if (useGetRenderedReportSetForFilters)
 		GetRenderedReportSet(true);
 	if (typeof GetDatasourcesList != 'undefined')
@@ -845,7 +861,7 @@ function ShowEqualsPopupDialog(filterInd) {
 	var table = jq$("<table>").css("width", "100%");
 	var tr = jq$("<tr>");
 	var ci = 0;
-	for (var i = 0; i < filter.ExistingValues.length; i++, ci++) {
+	for (var i = 0; i < filter.ExistingValues.length; i++ , ci++) {
 		if (filter.ExistingValues[i] == '...') {
 			ci--;
 			continue;
@@ -1025,6 +1041,9 @@ function GetFiltersData(filterUrlParameters) {
 		jq$('#tab1 #loadingDiv').hide();
 		return;
 	}
+
+	LockFilters();
+
 	var requestString = 'wscmd=getfiltersdata';
 	if (typeof (filterUrlParameters) === 'string')
 		requestString += filterUrlParameters;
@@ -1035,6 +1054,15 @@ function GotFiltersData(returnObj, id) {
 	if (id != 'getfiltersdata' || returnObj == null)
 		return;
 	RefreshFilters(returnObj);
+	UnlockFilters();
+}
+
+function LockFilters() {
+	jq$('#htmlFilters :input').prop('disabled', true);
+}
+
+function UnlockFilters() {
+	izenda.reportViewerFilter.datepickerReadyToShow = true;
 	jq$('#htmlFilters :input').prop('disabled', false);
 }
 
@@ -1156,7 +1184,7 @@ var CC_appendItem = function (node, itemText, itemValue, prevText, prevValue, tr
 			pos = commaSequence + 4;
 			ivi = value.indexOf("|", pos);
 		}
-		if(ivi > -1)
+		if (ivi > -1)
 			value = value.substr(0, ivi);
 	}
 	if (prevValue != "")

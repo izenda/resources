@@ -104,6 +104,9 @@
 					// clear previous content
 					$container.empty();
 
+					// turn off internal visualization window resize handler.
+					izenda.visualization.isResizeHandlerEnabled = false;
+
 					// load response to container
 					izenda.report.loadReportResponse(htmlData, $container);
 

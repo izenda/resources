@@ -1193,7 +1193,7 @@
 
 					new Highcharts.Chart(options, function (highchart) {
 						chart = highchart;
-						isVml = vis.container.find('shape').size() > 0;
+						isVml = vis.container.find('shape').length > 0;
 						registerLabelEvents();
 
 						if (updateRefreshButton())

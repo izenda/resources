@@ -368,18 +368,16 @@ izendaRequire.define([
 				vm.options = options;
 			});
 
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields, oldActiveFields) {
-
+			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields) {
 				// sync collection elements:
 				// add:
 				angular.element.each(newActiveFields, function () {
 					var newActiveField = this;
-					if (!newActiveField.allowedInFilters) {
+					if (!newActiveField.allowedInFilters)
 						return;
-					}
 					var found = false;
 					angular.element.each(vm.activeFields, function () {
-						if (this.id == newActiveField.id)
+						if (this === newActiveField)
 							found = true;
 					});
 					if (!found)
@@ -391,7 +389,7 @@ izendaRequire.define([
 					var field = vm.activeFields[i];
 					var found = false;
 					for (var j = 0; j < newActiveFields.length; j++) {
-						if (newActiveFields[j].id == field.id)
+						if (newActiveFields[j] === field)
 							found = true;
 					}
 					if (!found)

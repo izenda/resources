@@ -46,8 +46,15 @@ izendaRequire.define([
 					});
 				}
 
+				$scope.$on('$destroy', function() {
+					$input.minicolors('destroy');
+					$input.remove();
+				});
+
 				// watch active item changed
-				$scope.$watch('ngModel', function (newVal) {
+				$scope.$watch('ngModel', function (newVal, oldVal) {
+					if (newVal === oldVal)
+						return;
 					$input.val(newVal);
 					$input.minicolors('value', newVal);
 				});

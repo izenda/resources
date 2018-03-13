@@ -2009,19 +2009,27 @@ function SC_OnDeleteShowAll(id) {
 function SC_ShowPivot(id, obj) {
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];
-	var display = body.rows[0].style["display"];
-	var columnSel = EBC_GetSelectByName(body.rows[0], 'ExtraColumn');
+	var zeroRow = body.rows[0];
+	var display = zeroRow.style["display"];
 	if (display == "none") {
 		body.rows[0].style["display"] = "";
 		obj.value = jsResources.RemovePivot;
 		jq$("table[id$='ExtraColumn_Subtotal']").show();
 	}
 	else {
-		columnSel.value = '...';
-		for (var i = 0; i < body.rows.length; i++)
-			body.rows[i].style["display"] = "none";
+		EBC_GetSelectByName(zeroRow, 'ExtraColumn').value = '...';
+		EBC_SetFunctions(zeroRow, true, false, null, true, 'ExtraFunction', null, null, 'ExtraColumn', true);
+		EBC_GetSelectByName(zeroRow, 'ExtraFunction').value = 'None';
+		EBC_internalInsertHandler(zeroRow, table.rows.length, table.rows.length - 1);
+		while (table.rows.length > 2)
+			table.deleteRow(1);
+		var ctlId = id.substr(0, id.length - '_ExtraColumn'.length);
+		jq$('.' + ctlId + '_ExtraDescription_Label1').hide();
+		jq$('.' + ctlId + '_ExtraDescription').hide();
+		jq$('.' + ctlId + '_ExtraDescription_Label2').hide();
+		zeroRow.style["display"] = "none";
+		body.rows[1].style["display"] = "none";
 		obj.value = jsResources.AddPivot;
-
 		jq$("table[id$='ExtraColumn_Subtotal']").hide();
 		SC_CheckTotals(id);
 	}
