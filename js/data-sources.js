@@ -449,6 +449,7 @@ function DS_GetFullField(fieldSqlName, friendlyName) {
 
 	field.AdditionalFields = [];
 	field.AggregateFunction = "None";
+	field.Alias = "";
 	field.AliasTable = "";
 	field.Bold = false;
 	field.CalcDescription = "";

@@ -169,10 +169,20 @@ function CommitChangedFilter(field) {
 				break;
 			}
 	}
-	CommitFiltersData(false);
+	CommitFiltersData(false, true, true);
 }
 
-function CommitFiltersData(updateReportSet) {
+/**
+ * Send filters data to server.
+ * @param {boolean} updateReportSet
+ * @param {boolean} [forceUseSetFiltersDataMode=false]
+ * @param {boolean} [refreshFilterControls=false]
+ */
+function CommitFiltersData(updateReportSet, forceUseSetFiltersDataMode, refreshFilterControls) {
+
+	var useRefreshCascadingFiltersMode = (typeof forceUseSetFiltersDataMode === 'undefined' || !forceUseSetFiltersDataMode)
+		&& (typeof nrvConfig !== 'undefined' && nrvConfig !== null) && nrvConfig.CascadeFilterValues;
+
 	// Handle situation when server-side sort caused sorting exception
 	var sortErrorControl = jq$('[name="iz-critical_report_error"]');
 	if (sortErrorControl && sortErrorControl.length > 0 && typeof sortedFieldGuid != 'undefined' && sortedFieldGuid) {
@@ -211,12 +221,14 @@ function CommitFiltersData(updateReportSet) {
 	});
 
 	// Disable filters so they cannot be changed until they are in the relevant state
-	LockFilters();
+	if (useRefreshCascadingFiltersMode)
+		LockFilters();
 
-	var cmd = 'setfiltersdata';
-	if (!updateReportSet)
-		cmd = 'refreshcascadingfilters';
+	var cmd = useRefreshCascadingFiltersMode
+		? 'refreshcascadingfilters'
+		: 'setfiltersdata';
 	var requestString = 'wscmd=' + cmd + '&wsarg0=' + encodeURIComponent(JSON.stringify(dataToCommit));
+
 	// Instant Report handling
 	if (typeof nirConfig != 'undefined' && nirConfig != null && typeof dataSources != 'undefined' && dataSources != null) {
 		var ds = new Array();
@@ -225,16 +237,23 @@ function CommitFiltersData(updateReportSet) {
 		requestString += '&wsarg1=' + encodeURIComponent(JSON.stringify(ds));
 	}
 	refreshFiltersLastGUID = GenerateGuid();
-	if (updateReportSet)
-		AjaxRequest(urlSettings.urlRsPage, requestString, FiltersDataSet, null, 'setfiltersdata');
-	else
-		AjaxRequest(urlSettings.urlRsPage, requestString, function (returnObj, id) {
+	if (useRefreshCascadingFiltersMode)
+		AjaxRequest(urlSettings.urlRsPage, requestString, function (returnObj, id, dataToKeep) {
 			CascadingFiltersChanged(returnObj, id);
 			for (var i = 0; i < positions.length; i++) {
 				if (jq$('#' + positions[i].id) != null)
 					jq$('#' + positions[i].id)[0].scrollTop = positions[i].scroll;
 			}
-		}, null, 'refreshcascadingfilters-' + refreshFiltersLastGUID);
+			if (dataToKeep.updateReportSet)
+				updateReportSetWhenFiltersChanged();
+		}, null, 'refreshcascadingfilters-' + refreshFiltersLastGUID, {
+			updateReportSet: typeof updateReportSet === 'boolean' && updateReportSet
+		});
+	else
+		AjaxRequest(urlSettings.urlRsPage, requestString, FiltersDataSet, null, 'setfiltersdata', {
+			updateReportSet: typeof updateReportSet === 'boolean' && updateReportSet,
+			refreshFilterControls: typeof refreshFilterControls === 'boolean' && refreshFilterControls
+		});
 }
 
 function GetFiltersDataToCommit() {
@@ -330,7 +349,7 @@ function RemoveFilterByFieldGuid(fieldGuid) {
 	// Instant Report page
 	if (typeof nirConfig != 'undefined' && nirConfig != null)
 		updateReportSet = false;
-	CommitFiltersData(updateReportSet);
+	CommitFiltersData(updateReportSet, false, true);
 }
 
 function RemoveFilterByUid(uid) {
@@ -351,7 +370,7 @@ function RemoveFilterByUid(uid) {
 	// Instant Report page
 	if (typeof nirConfig != 'undefined' && nirConfig != null)
 		updateReportSet = false;
-	CommitFiltersData(updateReportSet);
+	CommitFiltersData(updateReportSet, false, true);
 }
 
 function ShowHideAddFilter() {
@@ -395,6 +414,7 @@ function AddNewFilterField() {
 	filterObj.Removed = false;
 	filterObj.Uid = '';
 	filterObj.GUID = '';
+	filterObj.Alias = '';
 	filterObj.Value = null;
 	filterObj.Values = null;
 	filterObj.ControlType = 1;
@@ -402,7 +422,7 @@ function AddNewFilterField() {
 	filterObj.AliasTable = jq$(newFilterFieldDropDown).find('option[value="' + newFilterFieldDropDown.value + '"]').attr('data-alias');
 
 	filtersData.push(filterObj);
-	CommitFiltersData(false);
+	CommitFiltersData(false, false, true);
 }
 
 function GenerateNewFilterDropDown() {
@@ -483,11 +503,6 @@ function CheckShowAddFilterControls() {
 }
 
 function RefreshFilters(returnObj) {
-	if (!returnObj || returnObj.Value === 'OK') {
-		UnlockFilters();
-		return;
-	}
-
 	jq$.datepicker.markerClassName = "hasDateTimePickerJq";
 	var htmlFilters = jq$('#htmlFilters');
 	htmlFilters.find('.filtersContent').html('');
@@ -558,13 +573,9 @@ function RefreshFilters(returnObj) {
 							jq$(this).datetimepickerJq("setDate", fixedDate);
 						}
 					}
-					if (nrvConfig && nrvConfig.CascadeFilterValues)
-						setTimeout(function() {
-								CommitFiltersData(false);
-							},
-							401);
-					else
-						izenda.reportViewerFilter.datepickerReadyToShow = true;
+					setTimeout(function() {
+							CommitFiltersData(false);
+					}, 401);
 				},
 				beforeShow: function (e, o) {
 					function waitReadyToShow() {
@@ -592,13 +603,9 @@ function RefreshFilters(returnObj) {
 				buttonImageOnly: true,
 				onClose: function () {
 					izenda.reportViewerFilter.datepickerReadyToShow = false;
-					if (nrvConfig && nrvConfig.CascadeFilterValues)
-						setTimeout(function() {
-								CommitFiltersData(false);
-							},
-							401);
-					else
-						izenda.reportViewerFilter.datepickerReadyToShow = true;
+					setTimeout(function () {
+						CommitFiltersData(false);
+					}, 401);
 				},
 				beforeShow: function (e, o) {
 					function waitReadyToShow() {
@@ -783,17 +790,27 @@ function CascadingFiltersChanged(returnObj, id) {
 	RefreshFilters(returnObj);
 }
 
-function FiltersDataSet(returnObj, id) {
-	if (id != 'setfiltersdata')
+function FiltersDataSet(returnObj, id, dataToKeep) {
+	if (id !== 'setfiltersdata')
 		return;
-	if (!returnObj || returnObj.Value != 'OK') {
+
+	if (!returnObj || returnObj.Value !== 'OK') {
+		RefreshFilters(returnObj);
 		UnlockFilters();
 		return;
 	}
-	if (nrvConfig && nrvConfig.CascadeFilterValues)
+
+	if (dataToKeep.refreshFilterControls || (nrvConfig && nrvConfig.CascadeFilterValues))
 		GetFiltersData();
 	else
 		UnlockFilters();
+
+	if (dataToKeep.updateReportSet) {
+		updateReportSetWhenFiltersChanged();
+	}
+}
+
+function updateReportSetWhenFiltersChanged() {
 	if (useGetRenderedReportSetForFilters)
 		GetRenderedReportSet(true);
 	if (typeof GetDatasourcesList != 'undefined')
@@ -911,20 +928,22 @@ function CC_CustomFilterPageValueReceived() {
 }
 
 function GenerateFilterControl(index, cType, value, values, existingLabels, existingValues, isLastFilter) {
-	var notRefreshFilters = isLastFilter || nrvConfig && nrvConfig.CascadeFilterValues == false;
+	var notRefreshFilters = isLastFilter || (nrvConfig && !nrvConfig.CascadeFilterValues);
 	var textareaheight = '';
 	if (nrvConfig && nrvConfig.FilterTextAreaHeight && nrvConfig.FilterTextAreaHeight > 22)
 		textareaheight = ' height:' + nrvConfig.FilterTextAreaHeight + 'px;';
-	var onChangeCmd = notRefreshFilters ? '' : 'onchange="CommitFiltersData(false);"';
+	// Call commit on each filter change, but we don't need updated filters data when "notRefreshFilters" is true
+	var onChangeFunction = 'CommitFiltersData(false, ' + (isLastFilter ? 'true' : 'false') + ');';
+	var onChangeCmd = 'onchange="' + onChangeFunction + '"';
 	var result = '';
 	switch (cType) {
 		case 1:
-			if (value == '...') value = '';
+			if (value === '...') value = '';
 			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
 			break;
 		case 2:
-			if (values[0] == '...') values[0] = '';
-			if (values[1] == '...') values[1] = '';
+			if (values[0] === '...') values[0] = '';
+			if (values[1] === '...') values[1] = '';
 			result = '<input style="width:99%;" type="text" id="ndbfc' + index + '_l" value="' + values[0].replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
 			result += '<input style="width:99%;" type="text" id="ndbfc' + index + '_r" value="' + values[1].replaceAll('"', "&quot;") + '" ' + onChangeCmd + ' />';
 			break;
@@ -958,9 +977,8 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</select>';
 			break;
 		case 5:
-			if (values[0] == '...') values[0] = '';
-			if (values[1] == '...') values[1] = '';
-			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			if (values[0] === '...') values[0] = '';
+			if (values[1] === '...') values[1] = '';
 			onChangeCmd = 'onchange="javascript:checkDatesInterval(this); checkDateFormat(this);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + values[0].replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '_1" />';
 			calendars[calendars.length] = 'ndbfc' + index + '_1';
@@ -978,7 +996,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += input.get(0).outerHTML;
 			break;
 		case 7:
-			if (value == '...') value = '';
+			if (value === '...') value = '';
 			result += '<textarea style="width:99%;' + textareaheight + '" rows="2" id="ndbfc' + index + '" ' + onChangeCmd + '>' + value + '</textarea>';
 			break;
 		case 8:
@@ -997,8 +1015,7 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</div>';
 			break;
 		case 9:
-			if (value == '...') value = '';
-			onChangeCmd = notRefreshFilters ? '' : 'onchange="setTimeout(function(){CommitFiltersData(false);},401);"';
+			if (value === '...') value = '';
 			onChangeCmd = 'onchange="checkDateFormat(this);"';
 			result += '<input type="text" ' + onChangeCmd + ' value="' + value.replaceAll('"', "&quot;") + '" style="width:248px" id="ndbfc' + index + '" />';
 			calendars[calendars.length] = 'ndbfc' + index;
@@ -1019,12 +1036,12 @@ function GenerateFilterControl(index, cType, value, values, existingLabels, exis
 			result += '</select>';
 			break;
 		case 11:
-			if (value == '...') value = '';
+			if (value === '...') value = '';
 			result += '<div style="display: none;" visibilitymode="1"><input type="text" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '"/></div>';
 			result += '<div class="comboboxTreeMultyselect" index=' + index + '></div>';
 			break;
 		case 100:
-			if (value == '...') value = '';
+			if (value === '...') value = '';
 			result = '<input style="width:99%;" type="text" name="autocomplete-filter" id="ndbfc' + index + '" value="' + value.replaceAll('"', "&quot;") + '" ' + (notRefreshFilters ? '' : 'refresh="true"') + ' />';
 			break;
 		default:

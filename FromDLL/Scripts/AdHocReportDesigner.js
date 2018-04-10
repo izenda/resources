@@ -48,17 +48,8 @@ function OnAdHocQueryBuilderTabChanged(horrId, index, continueScript, columnNumb
 	}	
 	if(window.previewTabIndex!=null && index == previewTabIndex && typeof(HORR_UpdateContent)!="undefined")
 		HORR_UpdateContent(horrId, continueScript, true, param);
-		
-	//if(fieldsTabIndex!=null && index == fieldsTabIndex && fieldsId!=null)
-	//{
-	//	var table = document.getElementById(fieldsId);
-	//	var body = table.tBodies[0];
-	//	var rowCount = body.rows.length;
-	//	if (rowCount<=1)
-	//		SC_QuickAdd(fieldsId, columnNumber);
-	//}
-	
 }
+
 function OnAdHocQueryBuilderBeforeTabChanged(index)
 {
 }
@@ -83,7 +74,6 @@ function AHQB_Init()
 		document.documentElement.attachEvent('onresize', AHQB_OnResize);
 		document.documentElement.attachEvent('onload', AHQB_OnResize);
 	}	
-	
 }
 
 function AHQB_OnKeyDown(evt)
@@ -106,7 +96,6 @@ function AHQB_OnKeyDown(evt)
 function AHQB_OnResize()
 {
 	clearTimeout(resizeDelay);
-	//resizeDelay = setTimeout("AHQB_OnResize_Internal()", 200);
 }
 
 function AHQB_OnResize_Internal()
@@ -127,12 +116,6 @@ function AHQB_OnResize_Internal()
 
 function DisableEnableTabs(enable)
 {
-	/*if (tabStripId)
-	{
-		var tabsCount = TabStrip_GetTabsCount(tabStripId);
-		for(var i=0;i<tabsCount;i++)
-			TabStrip_EnableDisableTab(tabStripId, i, enable);
-	}*/
 }
 
 var isErrorOld = false;
@@ -143,7 +126,6 @@ function DisableEnablePreviewTab(isError, enable)
 		isErrorOld = isError;
 	else
 		trueEnable = !isErrorOld && enable;
-
 	var pbCnt = 0;
 	var pb = document.getElementById('PreviewBtn' + pbCnt);
 	while (pb != null) {
@@ -154,10 +136,10 @@ function DisableEnablePreviewTab(isError, enable)
 		pbCnt++;
 		pb = document.getElementById('PreviewBtn' + pbCnt);
 	}
-		
 	if (tabStripId && window.previewTabIndex)
 		TabStrip_EnableDisableTab(tabStripId, previewTabIndex, trueEnable);
 }
+
 function DisableEnableTabsFrom(enable, index)
 {
 	if (tabStripId)
@@ -179,6 +161,42 @@ function AHRD_ShowHideHelpPanel()
 		helpControl.style["display"] = helpControl.style["display"] == "none" ? "" : "none";
 	}
 }
+
+function GetLoadingHtml() {
+	var loading = jq$('#loadingDiv');
+	if (loading == null || loading.length == 0)
+		return '';
+	return jq$('<div>').append(loading.clone().show()).html()
+}
+
+function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
+	jq$('#renderedReportDiv').html(GetLoadingHtml());
+	var requestString = 'wscmd=getrenderedreportset',
+		urlParams = [];
+	var rnField = document.getElementById('reportNameFor2ver');
+	var rn;
+	if (typeof rnField != 'undefined' && rnField != null)
+		rn = rnField.value;
+	if (typeof rn == 'undefined' || rn == null)
+		rn = '';
+	urlParams.push('rn=' + rn);
+	if (invalidateInCache)
+		urlParams.push('iic=1');
+	if (additionalParams)
+		urlParams.push(additionalParams);
+	AjaxRequest('./rs.aspx' + (urlParams.length > 0 ? '?' + urlParams.join('&') : ''), requestString, GotRenderedReportSet, null, 'getrenderedreportset');
+}
+
+function GotRenderedReportSet(returnObj, id) {
+	if (id != 'getrenderedreportset' || !returnObj)
+		return;
+	izenda.report.loadReportResponse(returnObj, '#renderedReportDiv');
+	AdHoc.Utility.InitGaugeAnimations(null, null, false);
+	// Dirty workaround for IE8
+	if (jq$.support.opacity == false)
+		setTimeout(function () { jq$('body')[0].className = jq$('body')[0].className; }, 200);
+}
+
 if(window.ebc_disableEnableFunctions)
 	ebc_disableEnableFunctions.push(DisableEnableTabs);
 AHQB_Init();

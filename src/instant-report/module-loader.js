@@ -6,7 +6,6 @@
 		baseUrl: '###RS###extres=components',
 		waitSeconds: 0,
 		paths: {
-			'babel-polyfill': 'vendor/babel/polyfill.min',
 			'moment': 'vendor/moment/moment-with-locales.min',
 			'izendaAngular': 'vendor/angular/angular.min',
 			'izendaAngularCookies': 'vendor/angular/angular-cookies.min',
@@ -33,8 +32,6 @@
 	});
 
 	var firstRequireArray = ['jquery', 'common/loader-utils'];
-	if (!window._babelPolyfill)
-		firstRequireArray.push('babel-polyfill');
 
 	// start loading
 	require(firstRequireArray, function (jq$, loaderUtils) {

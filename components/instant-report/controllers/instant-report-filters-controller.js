@@ -152,7 +152,7 @@ izendaRequire.define([
 			$izendaInstantReportStorage.loadFilterFormats(filter);
 			$izendaInstantReportStorage.setFilterOperator(filter).then(function () {
 				$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter);
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
 					$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
 						$scope.$applyAsync();
 					});
@@ -197,7 +197,7 @@ izendaRequire.define([
 			});
 
 			asyncPromise.then(function () {
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
 					$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
 						$scope.$applyAsync();
 					});
@@ -224,7 +224,7 @@ izendaRequire.define([
 		vm.updateAutoCompleteItems = function (filter, autocompleteText) {
 			return $q(function (resolve) {
 				filter.possibleValue = autocompleteText;
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
 					filter.possibleValue = null;
 					resolve(filter.existentValues);
 				});
@@ -235,6 +235,8 @@ izendaRequire.define([
 		 * Prepare value for filter
 		 */
 		vm.onCurrentValueChange = function (filter) {
+			if (!filter.isFilterReady)
+				return;
 			// prepare data:
 			if (filter.operator.value === 'Equals_TextArea') {
 				var values = filter.currentValue.match(/^.*((\r\n|\n|\r)|$)/gm);

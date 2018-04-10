@@ -94,7 +94,8 @@
 			isValid: true,
 			validationMessages: [],
 			validationMessageString: '',
-			customPopupTemplateUrl: null
+			customPopupTemplateUrl: null,
+			isFilterReady: false
 		});
 
 		/**
@@ -2009,6 +2010,15 @@
 				};
 
 				/**
+				 * Mark filters as ready to use.
+				 */
+				var startFilters = function() {
+					reportSet.filters.forEach(function(filter) {
+						filter.isFilterReady = true;
+					});
+				}
+
+				/**
 				 * Find filter operator by string value
 				 */
 				var getFilterOperatorByValue = function (filter, value) {
@@ -2120,7 +2130,7 @@
 				/**
 				 * Load filter existent values list (you need to ensure that all operators were applyed before starting update existing values)
 				 */
-				var updateFieldFilterExistentValues = function (filter) {
+				var updateFieldFilterExistentValues = function (filter, forceUpdate) {
 					// parse unicode symbols util
 					function parseHtmlUnicodeEntities(str) {
 						return angular.element('<textarea />').html(str).text();
@@ -2175,6 +2185,12 @@
 							filter.existentValues = [];
 							filter.values = [];
 							filter.initialized = true;
+							resolve(filter);
+							return;
+						}
+
+						var isCascadingDisabled = $window.nrvConfig && !$window.nrvConfig.CascadeFilterValues;
+						if (!forceUpdate && (reportSet.filterOptions.filterLogic || isCascadingDisabled)) {
 							resolve(filter);
 							return;
 						}
@@ -2237,7 +2253,7 @@
 						var promises = [];
 						angular.element.each(allFilters, function () {
 							var filter = this;
-							var promise = updateFieldFilterExistentValues(filter);
+							var promise = updateFieldFilterExistentValues(filter, true);
 							promises.push(promise);
 						});
 						$q.all(promises).then(function () {
@@ -2251,7 +2267,8 @@
 				 */
 				var refreshNextFiltersCascading = function (filter) {
 					return $q(function (resolve) {
-						if (reportSet.filterOptions.filterLogic) {
+						var isCascadingDisabled = $window.nrvConfig && !$window.nrvConfig.CascadeFilterValues;
+						if (reportSet.filterOptions.filterLogic || isCascadingDisabled) {
 							resolve();
 							return;
 						}
@@ -2290,7 +2307,7 @@
 				var _createNewFilterBase = function (fieldSysName, operatorName, values, required, description, parameter, customPopupTemplateUrl) {
 					var filterObject = angular.extend({}, $injector.get('izendaFilterObjectDefaults'));
 					// set field
-					var field = getFieldBySysName(fieldSysName);
+					var field;
 					if (fieldSysName && fieldSysName.indexOf('fldId|') === 0) {
 						field = getCalcField(fieldSysName);
 					} else
@@ -2346,6 +2363,7 @@
 				 */
 				var createNewFilter = function (fieldSysName, operatorName, values, required, description, parameter, titleFormatName, customPopupTemplateUrl) {
 					var filterObject = _createNewFilterBase(fieldSysName, operatorName, values, required, description, parameter, titleFormatName, customPopupTemplateUrl);
+					filterObject.isFilterReady = true;
 					return loadFilterFormats(filterObject, titleFormatName);
 				};
 
@@ -2902,7 +2920,7 @@
 						var existentValuesPromises = [];
 						$q.all(filterOperatorPromises).then(function () {
 							angular.element.each(reportSet.filters, function () {
-								var existentPromise = updateFieldFilterExistentValues(this);
+								var existentPromise = updateFieldFilterExistentValues(this, true);
 								existentValuesPromises.push(existentPromise);
 							});
 							// wait when all existent values loaded
@@ -3082,6 +3100,7 @@
 								// wait for all preparations completion
 								$q.all(promises).then(function () {
 									validateFilters();
+									startFilters();
 									$log.debug('loadReport end');
 									resolve([true, true]);
 								});
