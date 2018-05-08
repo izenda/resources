@@ -344,12 +344,7 @@ function RemoveFilterByFieldGuid(fieldGuid) {
 			break;
 		}
 	}
-
-	var updateReportSet = true;
-	// Instant Report page
-	if (typeof nirConfig != 'undefined' && nirConfig != null)
-		updateReportSet = false;
-	CommitFiltersData(updateReportSet, false, true);
+	CommitFiltersData(false, false, true);
 }
 
 function RemoveFilterByUid(uid) {
@@ -365,12 +360,7 @@ function RemoveFilterByUid(uid) {
 			break;
 		}
 	}
-
-	var updateReportSet = true;
-	// Instant Report page
-	if (typeof nirConfig != 'undefined' && nirConfig != null)
-		updateReportSet = false;
-	CommitFiltersData(updateReportSet, false, true);
+	CommitFiltersData(false, false, true);
 }
 
 function ShowHideAddFilter() {

@@ -912,6 +912,11 @@ function CC_InitAutoComplete(row) {
 						var cmd = CC_GetFilterCMD(currentRow);
 						cmd += "&possibleValue=" + possibleText.replace('&', '%26') + "&resultType=json";
 						EBC_LoadData("ExistentValuesList", "columnName=" + fullColumnName + cmd, null, true, function (responseResult) {
+							if (!responseResult === null || responseResult.length === null || responseResult.length <= 0) {
+								responeFunction("");
+								return;
+							}
+
 							var result = new Array();
 							jq$.each(responseResult[0].options, function (i, item) {
 								if (item.value == null || item.value == "" || item.value == '...')

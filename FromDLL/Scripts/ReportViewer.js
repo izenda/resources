@@ -152,62 +152,30 @@ function InitiateEmail() {
 	TB_EMailReport(encodeURIComponent(rnVal), '?subject=' + encodeURIComponent(rnVal) + '&body=' + encodeURIComponent(location));
 }
 
-function ChangeTopRecords(recsNum, updateReportData) {
-	for (var i = 0; i < 6; i++)
-		jq$('#resNumLi' + i).removeClass('selected');
-	var resNumImg = document.getElementById('resNumImg');
-	if (!resNumImg) {
+function ChangeTopRecords(previewResults, updateReportData) {
+	jq$('.izenda-previewresults-item').removeClass('selected');
+	var previewResultsIcon = jq$('.izenda-previewresults-icon').get(0);
+	if (!previewResultsIcon)
 		return;
-	}
-	var uvcVal = '100';
-	if (recsNum == 1) {
-		uvcVal = '1';
-		jq$('#resNumLi0').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'row-1.png';
-	}
-	if (recsNum == 10) {
-		uvcVal = '10';
-		jq$('#resNumLi1').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-10.png';
-	}
-	if (recsNum == 100) {
-		uvcVal = '100';
-		jq$('#resNumLi2').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-100.png';
-	}
-	if (recsNum == 1000) {
-		uvcVal = '1000';
-		jq$('#resNumLi3').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-1000.png';
-	}
-	if (recsNum == 10000) {
-		uvcVal = '10000';
-		jq$('#resNumLi5').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-10000.png';
-	}
-	if (recsNum == -1) {
-		uvcVal = '-1';
-		jq$('#resNumLi4').addClass('selected');
-		resNumImg.src = resourcesProviderWithDelimeter + 'image=ModernImages.' + 'rows-all.png';
-	}
-	if (updateReportData) {
-		SetTopRecords(uvcVal);
-	}
-}
 
-function SetTopRecords(topRecords) {
-	var requestString = 'wscmd=settoprecords&wsarg0=' + topRecords;
-	AjaxRequest('./rs.aspx', requestString, TopRecordsSet, null, 'settoprecords');
-}
+	var allItemValue = -1;
+	var minItemValue = 1;
+	var maxItemValue = 10000;
+	var isAllowableValue = previewResults === allItemValue || previewResults === minItemValue
+		|| (previewResults > minItemValue && previewResults <= maxItemValue && previewResults % 10 === 0);
 
-function TopRecordsSet(returnObj, id) {
-	if (id != 'settoprecords' || returnObj == undefined || returnObj == null)
-		return;
-	if (returnObj.Value != 'OK') {
-		alert(returnObj.Value);
-		return;
+	if (isAllowableValue) {
+		var itemSuffix = previewResults === allItemValue ? 'all' : previewResults;
+		jq$('.izenda-previewresults-item-' + itemSuffix).addClass('selected');
+		previewResultsIcon.src = resourcesProviderWithDelimeter + 'image=ModernImages.row' + (previewResults !== 1 ? 's' : '') + '-' + itemSuffix + '.png';
+
+		if (updateReportData) {
+			if (previewResults === nrvConfig.InitialResults)
+				return;
+			nrvConfig.InitialResults = previewResults;
+			GetRenderedReportSet(false);
+		}
 	}
-	GetRenderedReportSet(false);
 }
 
 /**
@@ -1076,15 +1044,14 @@ function GotReportViewerConfig(returnObj, id) {
 		document.getElementById('saveControls').style.display = 'none';
 	if (!nrvConfig.ShowSaveAsToolbarButton)
 		document.getElementById('saveAsBtn').style.display = 'none';
-	ChangeTopRecords(nrvConfig.InitialResults, false);
 	if (urlSettings.reportInfo.exportType != null) {
 		responseServer.OpenUrlWithModalDialogNewCustomRsUrl(
 			nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=' + urlSettings.reportInfo.exportType, 'aspnetForm', 'reportFrame');
 	}
 
 	if (!nrvConfig.ShowAllInResults) {
-		jq$(".izenda-results-control-separator").hide();
-		jq$(".izenda-results-control-all").hide();
+		jq$(".izenda-previewresults-separator").hide();
+		jq$(".izenda-previewresults-item-all").hide();
 	}
 
 	ApplySecurityOptions();
@@ -1107,29 +1074,31 @@ function ApplySecurityOptions() {
 	}
 }
 
-function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
+function GetRenderedReportSet(invalidateInCache, additionalParams) {
 	jq$('#renderedReportDiv').html(GetLoadingHtml());
 	var requestString = 'wscmd=getrenderedreportset',
 		urlParams = [],
 		queryParameters = {},
 		re = /([^&=]+)=([^&]*)/g, m;
 
-	while (m = re.exec(location.search.substring(1))) {
+	while ((m = re.exec(location.search.substring(1)))) {
 		var pName = decodeURIComponent(m[1]).toLowerCase();
 		queryParameters[pName] = decodeURIComponent(m[2]);
-		var pNvalueParam = pName[0] == 'p' && (pName.indexOf('value', pName.length - 'value'.length) !== -1 || pName.indexOf('value2', pName.length - 'value2'.length) !== -1);
-		if (pName != 'rn' && !(pNvalueParam && invalidateInCache))
+		var pNvalueParam = pName[0] === 'p' && (pName.indexOf('value', pName.length - 'value'.length) !== -1 || pName.indexOf('value2', pName.length - 'value2'.length) !== -1);
+		if (pName !== 'rn' && !(pNvalueParam && invalidateInCache))
 			urlParams.push(pName + '=' + m[2]);
 	}
 
 	if (queryParameters['rn'] != null && queryParameters['rn'].length > 0 && !initialized)
 		requestString += '&wsarg0=' + (reportName = queryParameters['rn']) + '&rnalt=' + reportName;
+	if (typeof nrvConfig !== 'undefined' && nrvConfig !== null)
+		urlParams.push('previewResults=' + nrvConfig.InitialResults);
 	if (invalidateInCache)
 		urlParams.push('iic=1');
 	if (additionalParams)
 		urlParams.push(additionalParams);
 
-	AjaxRequest('./rs.aspx' + (urlParams.length > 0 ? "?" + urlParams.join("&") : ""), requestString, GotRenderedReportSet, null, 'getrenderedreportset');
+	AjaxRequest('./rs.aspx' + (urlParams.length > 0 ? '?' + urlParams.join('&') : ''), requestString, GotRenderedReportSet, null, 'getrenderedreportset');
 }
 
 function GotRenderedReportSet(returnObj, id) {

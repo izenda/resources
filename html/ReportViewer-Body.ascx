@@ -1,6 +1,24 @@
 ﻿<%@ Control AutoEventWireup="true" Language="C#" %>
 <%@ Import namespace="Izenda.AdHoc" %>
 
+<script runat="server">
+	private string GetCurrentPreviewResultsImageName()
+	{
+		var previewResults = AdHocSettings.ReportViewerDefaultPreviewResults;
+
+		var allItemValue = -1;
+		var minItemValue = 1;
+		var maxItemValue = 10000;
+		var isAllowableValue = previewResults == allItemValue || previewResults == minItemValue
+			|| (previewResults > minItemValue && previewResults <= maxItemValue && previewResults % 10 == 0);
+		if (!isAllowableValue)
+			previewResults = 100;
+		var itemSuffix = previewResults == allItemValue ? "all" : previewResults.ToString();
+		var iconSrc = "ModernImages.row" + (previewResults != 1 ? "s" : "") + "-" + itemSuffix + ".png";
+		return iconSrc;
+	}
+</script>
+
 <iframe style="display: none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
 <div id="loadingrv2" style="z-index: 500; top: 0px; left: 0px; width: 100%; background-color: #FFFFFF; position: fixed; display: none; text-align: center; vertical-align: middle;" lang-text="js_Loading">
   Loading...<br />
@@ -132,40 +150,40 @@
     </div>
     <div class="btn-group cool" data-toggle="buttons-radio">
       <button type="button" class="btn" lang-title="js_ResultsPerPage" title="Results per page" onclick="">
-        <img class="icon" id="resNumImg" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.rows-100.png" alt="Results per page" />
+        <img class="icon izenda-previewresults-icon" id="resNumImg" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=<%=GetCurrentPreviewResultsImageName()%>" alt="Results per page" />
         <span class="hide" lang-text="js_ResultsPerPage">Results per page</span>
       </button>
       <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
         <span class="caret"></span>
       </button>
       <ul class="dropdown-menu">
-        <li onclick="ChangeTopRecords(1, true);" id="resNumLi0"><a href="javascript:void(0)" title="" style="min-width: 12em;">
+        <li class="izenda-previewresults-item izenda-previewresults-item-1" onclick="ChangeTopRecords(1, true);" id="resNumLi0"><a href="javascript:void(0)" title="" style="min-width: 12em;">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.result-1-32.png" alt="" />
           <b lang-text="js_Result_1">1 Result</b><br />
           <span lang-text="js_Result_1_Message">Ideal for large forms</span>
         </a></li>
-        <li onclick="ChangeTopRecords(10, true);" id="resNumLi1"><a href="javascript:void(0)" title="">
+        <li class="izenda-previewresults-item izenda-previewresults-item-10" onclick="ChangeTopRecords(10, true);" id="resNumLi1"><a href="javascript:void(0)" title="">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.results-10-32.png" alt="" />
           <b lang-text="js_Result_10">10 Results</b><br />
           <span lang-text="js_Result_10_Message">Good for single parameter reports</span>
         </a></li>
-        <li onclick="ChangeTopRecords(100, true);" id="resNumLi2"><a href="javascript:void(0)" title="">
+        <li class="izenda-previewresults-item izenda-previewresults-item-100" onclick="ChangeTopRecords(100, true);" id="resNumLi2"><a href="javascript:void(0)" title="">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.results-100-32.png" alt="" />
           <b lang-text="js_Result_100">100 Results</b><br />
           <span lang-text="js_Result_100_Message">Default and recommended value</span>
         </a></li>
-        <li onclick="ChangeTopRecords(1000, true);" id="resNumLi3"><a href="javascript:void(0)" title="">
+        <li class="izenda-previewresults-item izenda-previewresults-item-1000" onclick="ChangeTopRecords(1000, true);" id="resNumLi3"><a href="javascript:void(0)" title="">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.results-1000-32.png" alt="" />
           <b lang-text="js_Result_1000">1000 Results</b><br />
           <span lang-text="js_Result_1000_Message">Good for larger reports</span>
         </a></li>
-        <li onclick="ChangeTopRecords(10000, true);" id="resNumLi5"><a href="javascript:void(0)" title="">
+        <li class="izenda-previewresults-item izenda-previewresults-item-10000" onclick="ChangeTopRecords(10000, true);" id="resNumLi5"><a href="javascript:void(0)" title="">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.results-10000-32.png" alt="" />
           <b lang-text="js_Result_10000">10000 Results</b><br />
           <span lang-text="js_Result_10000_Message">10000 Results</span>
         </a></li>
-        <li class="divider izenda-results-control-separator"></li>
-        <li class="izenda-results-control-all" onclick="ChangeTopRecords(-1, true);" id="resNumLi4"><a href="javascript:void(0)" title="">
+        <li class="divider izenda-previewresults-separator"></li>
+        <li class="izenda-previewresults-item izenda-previewresults-item-all" onclick="ChangeTopRecords(-1, true);" id="resNumLi4"><a href="javascript:void(0)" title="">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.results-all-32.png" alt="" />
           <b lang-text="js_Result_All">Show all results</b><br>
           <span lang-text="js_Result_All_Message">Use carefully as this may overload the browser</span>

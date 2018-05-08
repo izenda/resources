@@ -136,7 +136,8 @@ izendaRequire.define([
 			errorOccured: false,
 			sendType: 'Link',
 			email: '',
-			opened: false
+			opened: false,
+			focused: false
 		};
 
 		vm.scheduleModalOpened = false;
@@ -604,19 +605,29 @@ izendaRequire.define([
 		/**
 		 * Open send email dialog
 		 */
-		vm.showEmailModal = function (type) {
+		vm.showEmailModal = function(type) {
 			vm.sendEmailState.isLoading = false;
 			vm.sendEmailState.opened = true;
 			vm.sendEmailState.sendType = type;
 			vm.sendEmailState.email = '';
 			vm.sendEmailState.errors = [];
 			vm.sendEmailState.errorOccured = false;
+		};
+
+		/**
+		 * Send email dialog shown event.
+		 */
+		vm.setFocus = function () {
+			$timeout(function() {
+				vm.sendEmailState.focused = true;
+			}, 1);
 		}
 
 		/**
 		 * Close send email dialog
 		 */
 		vm.hideEmailModal = function (success) {
+			vm.sendEmailState.focused = false;
 			vm.sendEmailState.errorOccured = true;
 			vm.sendEmailState.errors = [];
 			if (success) {
