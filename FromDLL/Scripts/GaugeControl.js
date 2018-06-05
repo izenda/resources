@@ -92,16 +92,28 @@ function GC_OnTableListChangedHandler(id, tables) {
 				filter2 = "NotText";
 				tempData = null;
 			}
-			EBC_LoadData(
-				"CombinedColumnList",
-				"tables=" + tables +
-				"&" + "typeGroup=" + filter +
-				"&" + "type=" + filter2 +
-				"&" + "includeBlank=true",
-				columnSel,
-				null,
-				null,
-				tempData);
+			var typeGroupsObj = EBC_GetTypesValidator(filter);
+			var typesObj = EBC_GetTypesValidator(filter2);
+			(function (tgo, to) {
+				EBC_LoadData(
+					"CombinedColumnList",
+					"tables=" + tables,
+					columnSel,
+					null,
+					null,
+					tempData,
+					function (newOpt) {
+						if (newOpt.attr('value') === '...')
+							return true;
+						var dtg = newOpt.attr('dataTypeGroup');
+						if (!dtg)
+							dtg = 'unknown';
+						var dt = newOpt.attr('dataType');
+						if (!dt)
+							dt = 'unknown';
+						return tgo.TypeAllowed(dtg.toLowerCase()) && to.TypeAllowed(dt.toLowerCase());
+					});
+			})(typeGroupsObj, typesObj);
 			var fmtSel = EBC_GetSelectByName(body.rows[i], 'FormatValue');
 			if (fmtSel != null) {
 				EBC_SetFormat(body.rows[i], true, null, null, "FormatValue");

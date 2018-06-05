@@ -11,7 +11,8 @@
 			'izendaAngularCookies': 'vendor/angular/angular-cookies.min',
 			'css-parser': 'vendor/jscssp/cssParser',
 			'bootstrap-datetimepicker': 'vendor/bootstrap/js/bootstrap-datetimepicker.min',
-			'resizeSensor': 'vendor/resize-sensor/resizeSensor'
+			'resizeSensor': 'vendor/resize-sensor/resizeSensor',
+			'corejs': 'vendor/corejs/shim.min'
 		},
 		map: {
 			'*': {
@@ -31,7 +32,7 @@
 		return jq$;
 	});
 
-	var firstRequireArray = ['jquery', 'common/loader-utils'];
+	var firstRequireArray = ['jquery', 'common/loader-utils', 'corejs'];
 
 	// start loading
 	require(firstRequireArray, function (jq$, loaderUtils) {

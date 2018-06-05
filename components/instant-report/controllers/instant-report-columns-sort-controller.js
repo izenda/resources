@@ -10,30 +10,32 @@ izendaRequire.define([
 	* Instant report filters controller
 	*/
 	angular.module('izendaInstantReport').controller('InstantReportColumnsSortController', [
-				'$rootScope',
-				'$scope',
-				'$window',
-				'$timeout',
-				'$q',
-				'$sce',
-				'$log',
-				'$izendaLocale',
-				'$izendaCompatibility',
-				'$izendaInstantReportStorage',
-				InstantReportColumnsSortController
+		'$rootScope',
+		'$scope',
+		'$window',
+		'$timeout',
+		'$q',
+		'$sce',
+		'$log',
+		'$izendaLocale',
+		'$izendaCompatibility',
+		'$izendaInstantReportStorage',
+		'$izendaInstantReportValidation',
+		InstantReportColumnsSortController
 	]);
 
 	function InstantReportColumnsSortController(
-				$rootScope,
-				$scope,
-				$window,
-				$timeout,
-				$q,
-				$sce,
-				$log,
-				$izendaLocale,
-				$izendaCompatibility,
-				$izendaInstantReportStorage) {
+		$rootScope,
+		$scope,
+		$window,
+		$timeout,
+		$q,
+		$sce,
+		$log,
+		$izendaLocale,
+		$izendaCompatibility,
+		$izendaInstantReportStorage,
+		$izendaInstantReportValidation) {
 		'use strict';
 		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
 		var vm = this;
@@ -44,7 +46,7 @@ izendaRequire.define([
 		vm.columnReordered = function (fromIndex, toIndex, isVisualGroupColumn) {
 			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn, false);
 			if (!$izendaCompatibility.isSmallResolution())
-				$izendaInstantReportStorage.getReportPreviewHtml();
+				$izendaInstantReportValidation.validateReportSetAndRefresh();
 			$scope.$applyAsync();
 		};
 
@@ -70,8 +72,8 @@ izendaRequire.define([
 	 * Columns reorder directive
 	 */
 	angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
-				'$izendaLocale',
-				'$izendaInstantReportStorage',
+		'$izendaLocale',
+		'$izendaInstantReportStorage',
 		function ($izendaLocale, $izendaInstantReportStorage) {
 			return {
 				restrict: 'EA',
@@ -83,23 +85,23 @@ izendaRequire.define([
 				template:
 					'<div class="izenda-reorder-header vg">' + $izendaLocale.localeText('js_VisGroupColumns', 'Visual group columns') + '</div>' +
 					'<ul class="izenda-reorder list-unstyled vg">' +
-						'<li class="izenda-reorder-item" ng-repeat="item in vgList" ng-bind="item.title">' +
-							'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
-							'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
-						'</li>' +
+					'<li class="izenda-reorder-item" ng-repeat="item in vgList" ng-bind="item.title">' +
+					'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
+					'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
+					'</li>' +
 					'</ul>' +
 					'<div class="izenda-reorder-header simple">' + $izendaLocale.localeText('js_Columns', 'Columns') + '</div>' +
 					'<ul class="izenda-reorder list-unstyled simple">' +
-						'<li class="izenda-reorder-item" ng-repeat="item in simpleList" ng-bind="item.title">' +
-							'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
-							'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
-						'</li>' +
+					'<li class="izenda-reorder-item" ng-repeat="item in simpleList" ng-bind="item.title">' +
+					'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
+					'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
+					'</li>' +
 					'</ul>',
 				link: function (scope, element, attrs) {
 					var $vgList = element.find('.izenda-reorder.vg'),
-							$simpleList = element.find('.izenda-reorder.simple'),
-							$vgListHeader = element.find('.izenda-reorder-header.vg'),
-							$simpleListHeader = element.find('.izenda-reorder-header.simple');
+						$simpleList = element.find('.izenda-reorder.simple'),
+						$vgListHeader = element.find('.izenda-reorder-header.vg'),
+						$simpleListHeader = element.find('.izenda-reorder-header.simple');
 
 					/**
 					 * Call reorder handler
@@ -118,7 +120,7 @@ izendaRequire.define([
 					 */
 					var sortUpdateHandler = function (event, ui) {
 						var $elem = ui.item,
-								$parent = $elem.closest('.izenda-reorder');
+							$parent = $elem.closest('.izenda-reorder');
 						var startPosition = parseInt($elem.attr('data-order'));
 						var endPosition = $elem.index();
 						// update indexes

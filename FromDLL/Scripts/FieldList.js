@@ -300,12 +300,8 @@ function SC_LoadColumns(id, path, options, columnName) {
 		loadCalled[i] = '1';
 		var row = body.rows[i];
 		var columnSel = EBC_GetSelectByName(row, cName);
-		if (columnSel != null) {
-			var value = columnSel.value;
-			if (options.indexOf("&" + "addExpression=true") == -1)
-				options += "&" + "addExpression=true";
+		if (columnSel != null)
 			EBC_LoadData(path, options, columnSel);
-		}
 	}
 }
 
@@ -358,7 +354,7 @@ function SC_OnTableListChangedHandler(id, tables, loadFields, extraColumn) {
 		SC_LoadColumns(id, "CombinedColumnList", "tables=" + tables, 'ExtraValue');
 	}
 	else
-		SC_LoadColumns(id, "CombinedColumnList", "ignoreSort=true&tables=" + tables);
+		SC_LoadColumns(id, "CombinedColumnList", "tables=" + tables);
 }
 
 function SC_OnExtraColumnChangedHandler(e, el, columnName) {
@@ -1253,11 +1249,8 @@ function SC_InitRow(row) {
 	var formatSel = EBC_GetSelectByName(row, 'Format');
 	var id = EBC_GetParentTable(row).id;
 	if (columnSel != null && sc_tables[id] != null) {
-		var url = sc_tables[id];
-		if (url.indexOf("&" + "addExpression=true") == -1)
-			url += "&" + "addExpression=true";
 		columnSel.PreparingNewRow = true;
-		EBC_LoadData("CombinedColumnList", "tables=" + url, columnSel);
+		EBC_LoadData("CombinedColumnList", "tables=" + sc_tables[id], columnSel);
 		columnSel.PreparingNewRow = false;
 	}
 	if (functionSel != null) {

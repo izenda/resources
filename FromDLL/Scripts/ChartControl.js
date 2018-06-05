@@ -386,7 +386,6 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 			var onlySimple = false;
 			var forbidAutoSelect = false;
 			var defaultAdvancedTypeGroup = "None";
-			var addExpression = "&" + "addExpression=false";
 		
 			if(chartItems==null)
 				filter = "all";
@@ -401,7 +400,8 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 					includeBlank = !item.shouldBeSetted;
 					numericOnly = item.numericOnly;
 					forbidAutoSelect = item.forbidAutoSelect;
-					defaultAdvancedTypeGroup = item.defaultAdvancedTypeGroup;
+					if (item.defaultAdvancedTypeGroup)
+						defaultAdvancedTypeGroup = item.defaultAdvancedTypeGroup;
 					onlySimple = item.onlySimpleFormats;
 				}
 			}
@@ -435,35 +435,62 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 				}
 				if (additionalData[0].options.length === 1) additionalData = null;
 			}
+			var typeGroupsObj;
 			if(numericOnly)
 			{
-				EBC_LoadData(
-					"CombinedColumnList",
-					"tables=" + tablesSave[id] + 
-					"&" + "typeGroup=NotBinary" + 
-					"&" + "type=NotText" +
-					"&" + "includeBlank=" + includeBlank +
-					addExpression,
-					selField,
-					null,
-					null,
-					additionalData);
+				typeGroupsObj = EBC_GetTypesValidator('NotBinary');
+				var typesObj = EBC_GetTypesValidator('NotText');
+				(function(tgo, to, ib) {
+					EBC_LoadData(
+						"CombinedColumnList",
+						"tables=" + tablesSave[id],
+						selField,
+						null,
+						null,
+						additionalData,
+						function (newOpt) {
+							var emptyVal = newOpt.attr('value') === '...';
+							if (!ib && emptyVal)
+								return false;
+							var dtg = newOpt.attr('dataTypeGroup');
+							if (!dtg)
+								dtg = 'unknown';
+							var dt = newOpt.attr('dataType');
+							if (!dt)
+								dt = 'unknown';
+							return emptyVal || (tgo.TypeAllowed(dtg.toLowerCase()) && to.TypeAllowed(dt.toLowerCase()));
+						});
+				})(typeGroupsObj, typesObj, includeBlank);
 			}
 			else
 			{
-				EBC_LoadData(
-					"CombinedColumnList",
-					"tables=" + tablesSave[id] + 
-					"&" + "typeGroup=" + filter +
-					"&" + "includeBlank=" + includeBlank +
-					"&" + "defaultAdvancedTypeGroup=" + defaultAdvancedTypeGroup +
-					addExpression,
-					selField,
-					null,
-					null,
-					additionalData);
+				typeGroupsObj = EBC_GetTypesValidator(filter);
+				(function (tgo, ib, datg) {
+					var itemSelected = false;
+					EBC_LoadData(
+						"CombinedColumnList",
+						"tables=" + tablesSave[id],
+						selField,
+						null,
+						null,
+						additionalData,
+						function (newOpt) {
+							var emptyVal = newOpt.attr('value') === '...';
+							if (!ib && emptyVal)
+								return false;
+							var dtg = newOpt.attr('dataTypeGroup');
+							if (!dtg)
+								dtg = 'unknown';
+							if (!emptyVal && !tgo.TypeAllowed(dtg.toLowerCase()))
+								return false;
+							if (!ib && datg !== "None" && dtg === datg) {
+								newOpt.attr('default', true);
+								itemSelected = true;
+							}
+							return true;
+						});
+				})(typeGroupsObj, includeBlank, defaultAdvancedTypeGroup);
 			}	
-			
 		}
 	}
 	else

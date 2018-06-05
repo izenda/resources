@@ -499,6 +499,15 @@ gulp.task('moment', () => {
 		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/moment`));
 });
 
+gulp.task('corejs', () => {
+	const src = `${FOLDER_NODE_MODULES}/core-js/client`;
+
+	return gulp.src(`${src}/shim.min.js`)
+		.pipe(hideAndRevealRequire())
+		.pipe(eol())
+		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/corejs`));
+});
+
 /**
  * resize sensor lib
  */
@@ -559,6 +568,7 @@ gulp.task('[build-vendor]',
 			'ion-range-slider',
 			'jquery-minicolors',
 			'css-parser',
+			'corejs',
 			'moment',
 			'require',
 			'resize-sensor')));

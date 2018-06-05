@@ -12,34 +12,36 @@ izendaRequire.define([
 	* Instant report charts controller definition
 	*/
 	angular
-	.module('izendaInstantReport')
-	.controller('InstantReportChartsController', [
-				'$rootScope',
-				'$scope',
-				'$window',
-				'$timeout',
-				'$q',
-				'$izendaUrl',
-				'$izendaLocale',
-				'$izendaCompatibility',
-				'$izendaInstantReportStorage',
-				'$izendaInstantReportVisualization',
-				'$log',
-				InstantReportChartsController
-	]);
+		.module('izendaInstantReport')
+		.controller('InstantReportChartsController', [
+			'$rootScope',
+			'$scope',
+			'$window',
+			'$timeout',
+			'$q',
+			'$izendaUrl',
+			'$izendaLocale',
+			'$izendaCompatibility',
+			'$izendaInstantReportStorage',
+			'$izendaInstantReportVisualization',
+			'$izendaInstantReportValidation',
+			'$log',
+			InstantReportChartsController
+		]);
 
 	function InstantReportChartsController(
-				$rootScope,
-				$scope,
-				$window,
-				$timeout,
-				$q,
-				$izendaUrl,
-				$izendaLocale,
-				$izendaCompatibility,
-				$izendaInstantReportStorage,
-				$izendaInstantReportVisualization,
-				$log) {
+		$rootScope,
+		$scope,
+		$window,
+		$timeout,
+		$q,
+		$izendaUrl,
+		$izendaLocale,
+		$izendaCompatibility,
+		$izendaInstantReportStorage,
+		$izendaInstantReportVisualization,
+		$izendaInstantReportValidation,
+		$log) {
 		'use strict';
 		var vm = this;
 
@@ -57,12 +59,12 @@ izendaRequire.define([
 				vm.selectedChart = null;
 				$izendaInstantReportStorage.selectChart(null);
 				if (!$izendaCompatibility.isSmallResolution())
-					$izendaInstantReportStorage.getReportPreviewHtml();
+					$izendaInstantReportValidation.validateReportSetAndRefresh();
 			} else {
 				vm.selectedChart = chart;
 				$izendaInstantReportStorage.selectChart(chart);
 				if (!$izendaCompatibility.isSmallResolution())
-					$izendaInstantReportStorage.getReportPreviewHtml();
+					$izendaInstantReportValidation.validateReportSetAndRefresh();
 			}
 
 		};

@@ -110,7 +110,7 @@
 		 * Update preview
 		 */
 		vm.applyChanges = function () {
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			$izendaInstantReportValidation.validateReportSetAndRefresh();
 		};
 
 		/**

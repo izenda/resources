@@ -168,7 +168,7 @@ izendaRequire.define([
 		vm.applyChangesMobile = function () {
 			if (vm.leftPanel.previousPanelId === vm.leftPanel.activeItem) {
 				vm.setLeftPanelActiveItem(6);
-				$izendaInstantReportStorage.getReportPreviewHtml();
+				$izendaInstantReportValidation.validateReportSetAndRefresh();
 			} else {
 				vm.setLeftPanelActiveItem(vm.leftPanel.previousPanelId);
 				vm.leftPanel.previousPanelId = vm.leftPanel.activeItem;
@@ -609,7 +609,7 @@ izendaRequire.define([
 		vm.onPagingClick = function (pagingControlType, pageRange) {
 			var rs = $izendaInstantReportStorage.getReportSet();
 			rs.options.rowsRange = pageRange;
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			$izendaInstantReportValidation.validateReportSetAndRefresh();
 		};
 
 		/**

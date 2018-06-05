@@ -62,7 +62,9 @@
                     if (string.IsNullOrWhiteSpace(returnUrl))
                         returnUrl = FormsAuthentication.DefaultUrl;
                     FormsAuthentication.SetAuthCookie(userName, false);
-                    HttpContext.Current.Response.Redirect(returnUrl, true);
+                    HttpContext.Current.Response.Redirect(returnUrl, false);
+                    HttpContext.Current.ApplicationInstance.CompleteRequest();
+                    Page.Visible = false;
                     return true;
                 }
                 return false;

@@ -97,6 +97,6 @@ function RC_OnTableListChangedHandler(id, tables)
 		tables = tables.join('\'');
 	for (var index = 0; index < drillDownKeyListIds.length; index++) {
 		var drillDownKeyList = document.getElementById(drillDownKeyListIds[index]);
-		EBC_LoadData("CombinedColumnList", "&" + "tables=" + tables, drillDownKeyList);
+		EBC_LoadData("CombinedColumnList", "tables=" + tables, drillDownKeyList);
 	}
 }

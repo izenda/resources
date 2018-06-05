@@ -75,7 +75,7 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 	} else
 		rows = jq$(table.tBodies[0]).find("tr");
 
-	var cc_newData = path + options + "&" + "filterList=true";
+	var cc_newData = path + options;
 	if (additionalData != null)
 		cc_newData = cc_newData + JSON.stringify(additionalData);
 
@@ -89,7 +89,14 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 		if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
 			value = EBC_GetSelectValue(columnSel);
 		columnSel.value = value;
-		EBC_LoadData(path, options + "&" + "filterList=true", columnSel, true, null, additionalData);
+		EBC_LoadData(path, options, columnSel, true, null, additionalData, function (newOpt) {
+			if (newOpt.attr('prohibitedInFilters') === 'true')
+				return false;
+			var filterAlias = newOpt.attr('filterListAlias');
+			if (filterAlias && newOpt.length > 0)
+				newOpt[0].text = filterAlias;
+			return true;
+		});
 	}
 }
 
@@ -678,7 +685,7 @@ function CC_OnColumnChangedHandler(e) {
 			colFullName = "";
 		var id = EBC_GetParentTable(row).id;
 		var tables = "tables=" + tablesSave[id];
-		EBC_LoadData("OperatorList", "typeGroup=" + dataType + "&" + tables + "&colFullName=" + colFullName, operatorSel);
+		EBC_LoadData("OperatorList", EBC_JoinParams("typeGroup", dataType) + "&" + tables + "&colFullName=" + colFullName, operatorSel);
 		if (CC_allowNewFilters != null && (CC_allowNewFilters == null || CC_allowNewFilters)) {
 			var columnSel = EBC_GetSelectByName(row, 'Column');
 			if (columnSel.value != '' && columnSel.value != '...') {
@@ -689,7 +696,7 @@ function CC_OnColumnChangedHandler(e) {
 
 		var formatSel = EBC_GetSelectByName(row, 'DisplayFormat');
 		if (formatSel != null)
-			EBC_LoadData('FormatList', 'typeGroup=' + ((expressionType && expressionType != '...') ? expressionType : dataTypeGroup) + '&onlySimple=true&forceSimple=true&colFullName=' + colFullName, formatSel);
+			EBC_LoadData('FormatList', EBC_JoinParams('typeGroup', ((expressionType && expressionType != '...') ? expressionType : dataTypeGroup)) + '&onlySimple=true&forceSimple=true&colFullName=' + colFullName, formatSel);
 	}
 }
 

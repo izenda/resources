@@ -336,7 +336,7 @@ izendaRequire.define([
 		 * Apply filters
 		 */
 		vm.applyFilters = function () {
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			$izendaInstantReportValidation.validateReportSetAndRefresh();
 		};
 
 		/**

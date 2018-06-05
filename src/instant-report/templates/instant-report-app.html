@@ -8,12 +8,12 @@
 
   <!-- global dialog modal -->
   <izenda-dialog-box-component></izenda-dialog-box-component>
-  
+
   <!-- global notification popups -->
   <izenda-notification-component></izenda-notification-component>
 
   <!-- save report dialog component -->
-  <izenda-select-report-name-component opened="irController.isSaveReportModalOpened" 
+  <izenda-select-report-name-component opened="irController.isSaveReportModalOpened"
                                        on-selected="irController.onSave(reportName, categoryName)"
                                        on-modal-closed="irController.onSaveClosed()">
   </izenda-select-report-name-component>
@@ -33,56 +33,72 @@
   <div class="iz-inst-left-panel"
        style="width: 550px" data-style="width: 550px"
        ng-class="(irController.leftPanel.opened ? '' : 'collapsed') + irController.getMobileClass()">
+    <!-- menu button for mobile view -->
     <div class="iz-inst-sidepanel-buttons noselect">
-      <!-- menu button for mobile view -->
       <div class="iz-inst-sidepanel-button"
            ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(5)"
            ng-click="irController.setLeftPanelActiveItem(5)">
-        <div class="glyphicon glyphicon-menu-hamburger bootstrap-glyphicon"></div>
+        <div class="iz-inst-sidepanel-button-inner">
+          <div class="glyphicon glyphicon-menu-hamburger bootstrap-glyphicon"></div>
+        </div>
       </div>
       <!-- datasources button -->
       <div class="iz-inst-sidepanel-button datasources active"
            ng-class="irController.getLeftPanelClass(0)"
            ng-click="irController.setLeftPanelActiveItem(0)">
-        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Data' | izendaLocale: 'Data'" bind-once></span>
+        <div class="iz-inst-sidepanel-button-inner">
+          <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Data' | izendaLocale: 'Data'" bind-once></span>
+        </div>
       </div>
       <!-- filter button for mobile view -->
       <div class="iz-inst-sidepanel-button"
            ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(8)"
            ng-click="irController.setLeftPanelActiveItem(8)">
-        <div class="glyphicon glyphicon-filter bootstrap-glyphicon"></div>
+        <div class="iz-inst-sidepanel-button-inner">
+          <div class="glyphicon glyphicon-filter bootstrap-glyphicon"></div>
+        </div>
       </div>
       <!-- pivots button for mobile view -->
       <div class="iz-inst-sidepanel-button"
            ng-if="$izendaCompatibility.isSmallResolution()"
            ng-class="irController.getLeftPanelClass(9)"
            ng-click="irController.setLeftPanelActiveItem(9)">
-        <div class="glyphicon glyphicon-transfer bootstrap-glyphicon"></div>
+        <div class="iz-inst-sidepanel-button-inner">
+          <div class="glyphicon glyphicon-transfer bootstrap-glyphicon"></div>
+        </div>
       </div>
       <div class="iz-inst-sidepanel-button charts"
            ng-class="irController.getLeftPanelClass(1)"
            ng-click="irController.setLeftPanelActiveItem(1)"
            ng-show="irController.settings.showChartTab">
-        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Charts' | izendaLocale: 'Charts'" bind-once></span>
+        <div class="iz-inst-sidepanel-button-inner">
+          <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Charts' | izendaLocale: 'Charts'" bind-once></span>
+        </div>
       </div>
       <div class="iz-inst-sidepanel-button format"
            ng-class="irController.getLeftPanelClass(2)"
            ng-click="irController.setLeftPanelActiveItem(2)">
-        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_format' | izendaLocale: 'Format'" bind-once></span>
+        <div class="iz-inst-sidepanel-button-inner">
+          <span class="iz-inst-sidepanel-button-text" ng-bind="'js_format' | izendaLocale: 'Format'" bind-once></span>
+        </div>
       </div>
       <div class="iz-inst-sidepanel-button schedule"
            ng-class="irController.getLeftPanelClass(3)"
            ng-click="irController.setLeftPanelActiveItem(3)"
            ng-show="irController.settings.showScheduleControls">
-        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_schedule' | izendaLocale: 'Schedule'" bind-once></span>
+        <div class="iz-inst-sidepanel-button-inner">
+          <span class="iz-inst-sidepanel-button-text" ng-bind="'js_schedule' | izendaLocale: 'Schedule'" bind-once></span>
+        </div>
       </div>
       <div class="iz-inst-sidepanel-button access"
            ng-class="irController.getLeftPanelClass(4)"
            ng-click="irController.setLeftPanelActiveItem(4)"
            ng-show="irController.settings.showSharingControl">
-        <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Sharing' | izendaLocale: 'Sharing'" bind-once></span>
+        <div class="iz-inst-sidepanel-button-inner">
+          <span class="iz-inst-sidepanel-button-text" ng-bind="'js_Sharing' | izendaLocale: 'Sharing'" bind-once></span>
+        </div>
       </div>
     </div>
     <div class="iz-inst-leftpanel-body">
@@ -261,8 +277,8 @@
 
   <!-- splashscreen -->
   <izenda-splash-screen ng-show="irController.reportLoadingIndicatorIsVisible"
-       text="$izendaInstantReportStorage.getPreviewSplashText()"
-       loading-indicator-url="{{$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
-       parent-selector=".iz-inst-mainpanel-body">
+                        text="$izendaInstantReportStorage.getPreviewSplashText()"
+                        loading-indicator-url="{{$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
+                        parent-selector=".iz-inst-mainpanel-body">
   </izenda-splash-screen>
 </div>

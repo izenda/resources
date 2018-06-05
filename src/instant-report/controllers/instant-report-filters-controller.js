@@ -336,7 +336,7 @@
 		 * Apply filters
 		 */
 		vm.applyFilters = function () {
-			$izendaInstantReportStorage.getReportPreviewHtml();
+			$izendaInstantReportValidation.validateReportSetAndRefresh();
 		};
 
 		/**

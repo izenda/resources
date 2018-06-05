@@ -470,7 +470,7 @@ function ShowFilterPropertiesByFieldName(fieldName, GUID) {
 	var tableAlias = filterToShow.AliasTable;
 	for (var dsInd = 0; dsInd < dataSources.length; dsInd++) {
 		for (var colInd = 0; colInd < dataSources[dsInd].Columns.length; colInd++) {
-			if (dataSources[dsInd].Columns[colInd].DbName == fieldName && (tableAlias == '' || dataSources[dsInd].Columns[colInd].TableJoinAlias == tableAlias)) {
+			if (dataSources[dsInd].Columns[colInd].DbName == fieldName && (tableAlias == '' || dataSources[dsInd].Columns[colInd].AliasTable == tableAlias)) {
 				ShowFilterPropertiesForField(dataSources[dsInd].Columns[colInd], filterToShow);
 				return;
 			}

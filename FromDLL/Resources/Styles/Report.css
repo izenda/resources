@@ -154,7 +154,7 @@ tr.ReportHeader th {
 	font-size: 9pt;
 	border-width: 1px;
 	border-style: solid;
-	border-bottom: solid 1px #AFAFAF !important;
+	border-bottom: solid 1px white !important;
 }
 
 tr.ReportFooter, tr.ReportFooter td {

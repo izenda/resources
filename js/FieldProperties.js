@@ -7,8 +7,8 @@ function FP_ShowFilterProperties(filter, dialog) {
 	document.getElementById('fieldPropDiv').style.display = 'none';
 	var titleDiv = document.getElementById('titleDiv');
 	var fullFriendlyName = filter.FriendlyName;
-	if (filter.TableJoinAlias)
-		fullFriendlyName += " (" + filter.TableJoinAlias + ")";
+	if (filter.AliasTable)
+		fullFriendlyName += " (" + filter.AliasTable + ")";
 	titleDiv.innerHTML = IzLocal.Res('js_FilterPropertyForField', 'Filter Properties for {0}').replace(/\{0\}/g, fullFriendlyName);
 	var propDescription = document.getElementById('propDescription');
 	propDescription.value = filter.Alias;

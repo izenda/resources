@@ -487,7 +487,7 @@ function EBC_SetFormat(row, onlySimple, columnName, functionName, formatName) {
 	}
 	EBC_LoadData(
 		"FormatList",
-		"typeGroup=" + dataTypeGroup +
+		EBC_JoinParams("typeGroup", dataTypeGroup) +
 			(onlySimple ? "&" + "onlySimple=true" : ""),
 		formatSelect,
 		true,
@@ -577,14 +577,14 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 			row._ignoreDescriptor = 1;
 		EBC_LoadData(
 			"FunctionList",
-			"type=" + type +
-				"&" + "typeGroup=" + typeGroup +
-				"&" + "includeBlank=" + includeBlank +
-				"&" + "includeGroupBy=" + includeGroup +
-				"&" + "forSubtotals=" + forSubtotals +
-				"&" + "extraFunction=" + isExtraFunction +
-				"&" + "forceEmptySelector=" + forceEmptySelector +
-				"&" + "onlyNumericResults=" + onlyNumericResults,
+			EBC_JoinParams("type", type,
+				"typeGroup", typeGroup) +
+			"&includeBlank=" + includeBlank +
+			"&includeGroupBy=" + includeGroup +
+			"&forSubtotals=" + forSubtotals +
+			"&extraFunction=" + isExtraFunction +
+			"&forceEmptySelector=" + forceEmptySelector +
+			"&onlyNumericResults=" + onlyNumericResults,
 			funcSelect,
 			true,
 			function () {

@@ -220,7 +220,9 @@
 		if (Page.Request.Params["clear"] != null)
 		{
 			AdHocContext.CurrentReportSet = ReportSet.InitializeNew();
-			Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "?isNew=1");
+			Response.Redirect(Utility.AppendIzPidParameter(Page.Request.Url.LocalPath) + "?isNew=1", false);
+			HttpContext.Current.ApplicationInstance.CompleteRequest();
+			Page.Visible = false;
 		}
 	}
 </script>
