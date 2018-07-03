@@ -382,7 +382,7 @@ table.db-dashboard-part-table tbody tr td{
 
 .db-dashboard-part
 {
-	border: 2px solid #AAAAAA;
+	border: 2px solid #dddddd;
 	display: inline-block;
 	vertical-align: top;
 	/*-moz-box-shadow: 5px 5px 10px rgba(0,0,0,0.5);
@@ -396,7 +396,7 @@ table.db-dashboard-part-table tbody tr td{
 	font-size: 1em;
 	height: 2.5em;
 	vertical-align: middle;
-	line-height: 1.1em;
+	line-height: 1.3em;
 }
 
 .db-dashboard-hide-button{

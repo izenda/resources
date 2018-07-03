@@ -108,7 +108,7 @@
 			function getW() { return vis.width - m[1] - m[3]; }
 			function getH() { return vis.height - m[0] - m[2]; }
 
-			var m = [16, 5, 15, 60], //top right bottom left
+			var m = [18, 5, 15, 60], //top right bottom left
 				minLH = 7, lPortion = 5;
 
 			if (!vis.context.isDashboard && ((getH() / lPortion) / laneLength < minLH)) {
@@ -250,7 +250,7 @@
 			chart.append('g')
 				.call(axisX)
 				.attr('class', 'izenda-vis-timeline-axisX')
-				.attr('transform', 'translate(' + (m[3]) + ', ' + (vis.height - 16) + ')');
+				.attr('transform', 'translate(' + m[3] + ', ' + (vis.height - m[0]) + ')');
 
 			var x2 = d3.time.scale().range([0, w]);
 			var axisX2 = d3.svg.axis()
@@ -262,7 +262,7 @@
 			chart.append('g')
 				.call(axisX2)
 				.attr('class', 'izenda-vis-timeline-axisX izenda-vis-timeline-axisX2')
-				.attr('transform', 'translate(' + (m[3]) + ', ' + (16) + ')');
+				.attr('transform', 'translate(' + m[3] + ', ' + m[0] + ')');
 
 			var timerSetExtent = null;
 

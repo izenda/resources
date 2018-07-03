@@ -1,7 +1,7 @@
 <div class="iz-filters-container"
-  ng-controller="IzendaFiltersLegacyController as izendaFiltersController"
-  ng-style="izendaFiltersController.containerStyle"
-  ng-init="izendaFiltersController.initialize()">
+     ng-controller="IzendaFiltersLegacyController as izendaFiltersController"
+     ng-style="izendaFiltersController.containerStyle"
+     ng-init="izendaFiltersController.initialize()">
   <div id="htmlFilters">
     <table style="width: 100%;">
       <tr>
@@ -16,8 +16,7 @@
             <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px; display: none;">+</span>
             <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px;">-</span>
           </div>
-          <table class="subreportsFiltersTable" style="width: 100%;">
-          </table>
+          <table class="subreportsFiltersTable" style="width: 100%;"></table>
         </td>
       </tr>
       <tr>
@@ -35,18 +34,18 @@
   <!-- Filters Templates -->
   <div style="display: none;">
     <!-- Single Filter Template -->
-    <div class="filterViewerTemplate" style="float: left; margin-right: 8px; margin-bottom: 16px; min-width: 300px; width: auto; display: none;">
-      <div class="filterInnerContent" style="float: left; margin-right: 8px; min-width: 300px;">
-        <div class="filterHeader" style="background-color: #1C4E89; color: white; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; -webkit-box-sizing: content-box; -moz-box-sizing: content-box; box-sizing: content-box;">
-          <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
-            <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity = 1;var e = event ? event : window.event;if (e) {e.cancelBubble = true;if (e.stopPropagation) {e.stopPropagation();}}"
-              style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
-          </nobr>
+    <div class="filterViewerTemplate filterInnerContentRoot" style="display: none;">
+      <div class="filterInnerContent">
+        <div class="filterHeader">
+          <div class="filterTitleContainer">
+            <span class="filterRequiredFlag" lang-title="js_Require" title="Require" style="display: none;">*</span>
+            <span class="filterTitle"></span>
+          </div>
         </div>
       </div>
     </div>
     <!-- Add New Filter Template -->
-    <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" title="Add New Filter"></div>
+    <div class="addFilterTemplate" title="Add New Filter"></div>
     <!-- Subreport Title Template-->
     <div class="subreportTitleTemplate" style="height: 1px; background-color: #aaa; margin-top: 16px; margin-bottom: 16px; text-align: center;">
       <span style="background-color: white; position: relative; color: #aaa; top: -11px; font-size: 16px; padding: 0px 10px;"></span>

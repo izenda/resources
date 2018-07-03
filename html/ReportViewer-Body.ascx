@@ -1,22 +1,22 @@
 ﻿<%@ Control AutoEventWireup="true" Language="C#" %>
-<%@ Import namespace="Izenda.AdHoc" %>
+<%@ Import Namespace="Izenda.AdHoc" %>
 
 <script runat="server">
-	private string GetCurrentPreviewResultsImageName()
-	{
-		var previewResults = AdHocSettings.ReportViewerDefaultPreviewResults;
+    private string GetCurrentPreviewResultsImageName()
+    {
+      var previewResults = AdHocSettings.ReportViewerDefaultPreviewResults;
 
-		var allItemValue = -1;
-		var minItemValue = 1;
-		var maxItemValue = 10000;
-		var isAllowableValue = previewResults == allItemValue || previewResults == minItemValue
-			|| (previewResults > minItemValue && previewResults <= maxItemValue && previewResults % 10 == 0);
-		if (!isAllowableValue)
-			previewResults = 100;
-		var itemSuffix = previewResults == allItemValue ? "all" : previewResults.ToString();
-		var iconSrc = "ModernImages.row" + (previewResults != 1 ? "s" : "") + "-" + itemSuffix + ".png";
-		return iconSrc;
-	}
+      var allItemValue = -1;
+      var minItemValue = 1;
+      var maxItemValue = 10000;
+      var isAllowableValue = previewResults == allItemValue || previewResults == minItemValue
+          || (previewResults > minItemValue && previewResults <= maxItemValue && previewResults % 10 == 0);
+      if (!isAllowableValue)
+        previewResults = 100;
+      var itemSuffix = previewResults == allItemValue ? "all" : previewResults.ToString();
+      var iconSrc = "ModernImages.row" + (previewResults != 1 ? "s" : "") + "-" + itemSuffix + ".png";
+      return iconSrc;
+    }
 </script>
 
 <iframe style="display: none" name="reportFrame" id='reportFrame' width='0' height='0'></iframe>
@@ -28,16 +28,19 @@
 <div id="saveAsBlock" style="display: none">
   <div lang-text="js_InputReportName">Input report name</div>
   <div>
-    <input type="text" id="newReportName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
+    <input type="text" id="newReportName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" />
+  </div>
   <div style="margin-top: 5px;" lang-text="js_Category">Category</div>
   <div>
-    <select id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select></div>
+    <select id="newCategoryName" style="width: 206px; border-style: solid; border-width: 1px;"></select>
+  </div>
 </div>
 
 <div id="newCatBlock" style="display: none">
   <div lang-text="js_NewCategoryName">New category name</div>
   <div>
-    <input type="text" id="addedCatName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" /></div>
+    <input type="text" id="addedCatName" style="width: 200px; margin: 0px; border-style: solid; border-width: 1px;" value="" />
+  </div>
 </div>
 
 <div id="loadingDiv" style="width: 100%; text-align: center; display: none;">
@@ -92,12 +95,12 @@
           <b lang-text="js_PrintHTML">Print HTML</b><br>
           <span lang-text="js_PrintDirectlyMessage">Print directly from your browser, the fastest way for modern browsers</span>
         </a></li>
-        <li id="html2pdfPrintBtn"><a href="javascript:void(0)" title="" 
-            onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=PDF', 'aspnetForm', 'reportFrame');">
+        <li id="html2pdfPrintBtn"><a href="javascript:void(0)" title=""
+          onclick="ExtendReportExport(responseServer.OpenUrlWithModalDialogNewCustomRsUrl, nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=PDF', 'aspnetForm', 'reportFrame');">
           <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.html-to-pdf-32.png" alt="" />
           <b lang-text="js_HTML2PDF">HTML-powered PDF</b><br>
           <span lang-text="js_HTML2PDFMessage">One-file compilation of all the report's pages</span></a>
-          <a style="display: none;" id="testsharpPrintBtn" href="javascript:void(0)" title="" 
+          <a style="display: none;" id="testsharpPrintBtn" href="javascript:void(0)" title=""
             onclick="responseServer.OpenUrlWithModalDialogNewCustomRsUrl(nrvConfig.ResponseServerUrl + nrvConfig.serverDelimiter + 'output=PDF', 'aspnetForm', 'reportFrame');">
             <img class="icon" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.pdf-32.png" alt="" />
             <b lang-text="js_StandardPDF">Standard PDF</b><br>
@@ -252,21 +255,20 @@
         <!-- Filters Templates -->
         <div style="display: none;">
           <!-- Single Filter Template -->
-          <div class="filterViewerTemplate" style="float: left; margin-right: 8px; margin-bottom: 16px; min-width: 300px; width: auto; display: none;">
-            <div class="filterInnerContent" style="float: left; margin-right: 8px; min-width: 300px;">
-              <div class="filterHeader" style="background-color: #1C4E89; padding: 2px; padding-left: 4px; margin-bottom: 2px; height: 23px; color: white;">
-                <span class="filterRequiredFlag" style="float: left; font-size: x-large; margin: 0px 3px; cursor: default; height: 23px; display: none;" lang-title="js_Require" title="Require">*</span>
-                <nobr class="filterTitleContainer" onmouseover="javascript:this.parentElement.onmouseover();var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}">
-                                <div class="filterTitle" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" 
-                                  style="float: left; margin-right: 8px; width: 222px; overflow: hidden; text-overflow: ellipsis;"></div>
-                            </nobr>
-                <div class="filterRemoveButton" style="float: right; width: 32px; height: 24px; cursor: pointer; opacity: 0.5; background-image: none; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.clear-light-bigger.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
-                <div class="filterPropertiesButton" style="float: right; width: 32px; height: 24px; cursor: pointer; background-position: 8px 4px; background-repeat: no-repeat;" data-img="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>image=ModernImages.gear-light.png" onmouseover="javascript:this.parentElement.onmouseover();this.style.opacity=1;var e=event?event:window.event;if(e){e.cancelBubble = true;if(e.stopPropagation){e.stopPropagation();}}" onmouseout="javascript:this.style.opacity=0.5;"></div>
+          <div class="filterViewerTemplate filterInnerContentRoot" style="display: none;">
+            <div class="filterInnerContent">
+              <div class="filterHeader">
+                <div class="filterTitleContainer">
+                  <span class="filterRequiredFlag" lang-title="js_Require" title="Require" style="display: none;">*</span>
+                  <span class="filterTitle"></span>
+                </div>
+                <div class="filterRemoveButton"></div>
+                <div class="filterPropertiesButton"></div>
               </div>
             </div>
           </div>
           <!-- Add New Filter Template -->
-          <div class="addFilterTemplate" style="display: none; float: left; margin-right: 8px; margin-bottom: 16px;" lang-title="js_AddNewFilter" title="Add New Filter"></div>
+          <div class="addFilterTemplate" lang-title="js_AddNewFilter" title="Add New Filter"></div>
           <!-- Add New Filter Button Template -->
           <div class="fuidNewFilterTemplate" style="margin-right: 8px; width: 30px; display: none;" expanded="false">
             <div style="background-color: #1C4E89; padding-left: 4px; margin-bottom: 2px; height: 26px; color: white; font-weight: bold; line-height: 22px;">
@@ -432,7 +434,7 @@
   var urlSettings;
   var responseServer;
   var responseServerWithDelimeter;
-    var resourcesProviderWithDelimeter;
+  var resourcesProviderWithDelimeter;
   var switchTabAfterRefreshCycle = false;
 
   jq$(document).ready(function () {

@@ -4,7 +4,7 @@
 <title>Report viewer</title>
 
 <!-- Styles Resources -->
-<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.Filters.min.css" />
+<link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.Filters.css" />
 <link rel="stylesheet" type="text/css" href="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>extres=css.shrinkable-grid.css" />
 
 <!-- Styles Internal -->

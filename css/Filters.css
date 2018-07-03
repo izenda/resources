@@ -1,138 +1,272 @@
-﻿.comboboxTreeMultyselect {
-	width: 300px;
-}
+﻿/*
+.filterViewerTemplate .filterInnerContentRoot
+	.filterInnerContent
+		.filterHeader
+			.filterRequiredFlag
+			.filterTitleContainer
+				.filterTitle
+			.filterRemoveButton
+			.filterPropertiesButton
+*/
 
-.comboboxTreeMultyselect .textArea .showHide {
-	width: 13px;
-	height: 13px;
-	background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
-	cursor: pointer;
-	float: right;
-	margin-top: 5px;
-}
-
-.comboboxTreeMultyselect .tree {
-	border: 1px solid #8FB3D4;
-	max-height: 300px;
-	overflow-y: scroll;
-	overflow-x: hidden;
-	width: 300px;
-	background: white;
-	position: absolute;
-	z-index: 30;
-	margin-top: 1px;
-}
-
-.comboboxTreeMultyselect .tree .node {
-	margin-left: 10px;
-}
-
-.comboboxTreeMultyselect .tree .collapsed div {
-	display: none;
-}
-
-.comboboxTreeMultyselect .tree .node >.collapse {
+.filterInnerContentRoot {
 	display: inline-block;
-	width: 13px;
-	height: 13px;
-	background: url("###RS###image=treeArrows.png") no-repeat scroll -26px 0 transparent;
-}
-
-.comboboxTreeMultyselect .tree .haschild >.collapse {
-	background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
-}
-
-.comboboxTreeMultyselect .tree .collapsed >.collapse {
-	background: url("###RS###image=treeArrows.png") no-repeat scroll 0 0 transparent;}
-	
-.comboboxTreeMultyselect .textArea {
-	
-    border: 1px solid #8FB3D4;
-    cursor: text;
-    overflow: hidden;
-    padding-bottom: 2px;
-    padding-left: 2px;
-    padding-top: 0;
-    min-height: 18px;
-	width: 298px;
-   
-}
-
-.comboboxTreeMultyselect .cInput {
-	width: 300px;
-	border: 1px solid #FFFFFF;
-    height: 14px;
-    margin-right: -16px;
-    margin-top: 2px;
-    min-width: 4px;
-    overflow: hidden;
-    position: relative;
-    float: left;
-    cursor: text;
-}
-
-.comboboxTreeMultyselect .cInput input {
-	border: 0 none;
-    font-family: Verdana,'Helvetica Neue',Helvetica,Arial,sans-serif;
-    min-width: 4px;
-    outline: medium none;
-    padding-left: 0;
-    position: relative;
-    width: 300px;
-    z-index: 0;
-    margin-top: 0;
-    padding-top: 0;
-    font-size: 11px;
-    padding-bottom: 3px;
-	margin-right: -4px;
-}
-
-.comboboxTreeMultyselect .cValid {
-	background-color: #E0E9F1;
-    border: 1px solid #BAC2CC;
-    color: #243241;
-    cursor: default;
-    font-size: 12px;
-    margin-top: 1px;
-    padding: 0 1px 1px 4px;
-    position: relative;
-    z-index: 1;
-    float: left;
-    margin-right: 3px;
-}
-
-.comboboxTreeMultyselect .chunkX {
-	cursor: pointer;
-    height: 10px;
-    padding: 0 2px;
-    position: relative;
-    top: 1px;
-    vertical-align: baseline;
-    width: 10px;
-    border: medium none;
-    font-size: 11px;
-}
-
-.comboboxTreeMultyselect .search {
-	width: 280px;
-	border: none;
-}
-
-.comboboxTreeMultyselect .tree .hiddenBySearch {
-	display: none;
-}
-
-.comboboxTreeMultyselect .tree .node .highlight {
-	background-color: yellow;
-}
-
-.comboboxTreeMultyselect .selectedValues {
-	display: inline-block;
-	border: 1px solid #BAC2CC;
+	vertical-align: top;
+	margin-right: 8px;
+	margin-bottom: 16px;
 	min-width: 300px;
-	max-width: 300px;
+	width: auto;
 }
 
-.comboboxTreeMultyselect .hiddenTree {
+.addFilterTemplate {
 	display: none;
+	vertical-align: top;
+	margin-right: 8px;
+	margin-bottom: 16px;
 }
+
+.filterInnerContent {
+	float: left;
+	margin-right: 8px;
+	min-width: 300px;
+	position: relative;
+}
+
+	.filterInnerContent > input, select, textarea {
+		padding: 1px 2px;
+	}
+
+	.filterInnerContent .iz-ui-datepicker-trigger,
+	.filterInnerContent .ui-datepicker-trigger {
+		position: absolute;
+		right: 2px;
+		margin-top: 2px;
+	}
+
+	.filterHeader {
+		background-color: #1C4E89;
+		padding: 2px;
+		padding-left: 4px;
+		margin-bottom: 2px;
+		height: 23px;
+		color: white;
+		display: block;
+		box-sizing: content-box;
+		width: 300px;
+	}
+
+	.filterHeader .filterRequiredFlag {
+		float: left;
+		font-size: x-large;
+		margin: 0px 3px;
+		cursor: default;
+		height: 23px;
+	}
+
+	.filterHeader .filterRemoveButton {
+		float: right;
+		width: 32px;
+		height: 24px;
+		cursor: pointer;
+		opacity: 0.5;
+		background-image: none;
+		background-position: 8px 4px;
+		background-repeat: no-repeat;
+		background-image: url("###RS###image=ModernImages.clear-light-bigger.png");
+		display: none;
+	}
+
+	.filterHeader:hover .filterRemoveButton {
+		display: block;
+	}
+
+	.filterHeader .filterPropertiesButton {
+		float: right;
+		width: 32px;
+		height: 24px;
+		cursor: pointer;
+		opacity: 0.5;
+		background-position: 8px 4px;
+		background-repeat: no-repeat;
+		background-image: url("###RS###image=ModernImages.gear-light.png");
+		display: none;
+	}
+
+	.filterHeader:hover .filterPropertiesButton {
+		display: block;
+	}
+
+	.filterHeader .filterTitleContainer {
+		width: 300px;
+		display: inline-block;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.filterHeader:hover .filterTitleContainer {
+		width: 236px;
+	}
+
+	.filterHeader .filterTitle {
+		padding-right: 8px;
+		width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+ul.tagit {
+	width: 299px !important;
+	margin-top: 0 !important;
+	border-color: rgb(169, 169, 169) !important;
+}
+
+	ul.tagit input {
+		font-size: 16px;
+		border-color: initial !important;
+	}
+
+.tagit-choice {
+	padding-top: 1px !important;
+	padding-bottom: 1px !important;
+	margin-top: 0 !important;
+	margin-bottom: 0 !important;
+}
+/*********************************************/
+.comboboxTreeMultyselect {
+	width: 300px;
+}
+
+	.comboboxTreeMultyselect .textArea .showHide {
+		width: 13px;
+		height: 13px;
+		background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+		cursor: pointer;
+		float: right;
+		margin-top: 5px;
+	}
+
+	.comboboxTreeMultyselect .tree {
+		border: 1px solid #8FB3D4;
+		max-height: 300px;
+		overflow-y: scroll;
+		overflow-x: hidden;
+		width: 300px;
+		background: white;
+		position: absolute;
+		z-index: 30;
+		margin-top: 1px;
+	}
+
+		.comboboxTreeMultyselect .tree .node {
+			margin-left: 10px;
+		}
+
+		.comboboxTreeMultyselect .tree .collapsed div {
+			display: none;
+		}
+
+		.comboboxTreeMultyselect .tree .node > .collapse {
+			display: inline-block;
+			width: 13px;
+			height: 13px;
+			background: url("###RS###image=treeArrows.png") no-repeat scroll -26px 0 transparent;
+		}
+
+		.comboboxTreeMultyselect .tree .haschild > .collapse {
+			background: url("###RS###image=treeArrows.png") no-repeat scroll -13px 0 transparent;
+		}
+
+		.comboboxTreeMultyselect .tree .collapsed > .collapse {
+			background: url("###RS###image=treeArrows.png") no-repeat scroll 0 0 transparent;
+		}
+
+	.comboboxTreeMultyselect .textArea {
+		border: 1px solid #8FB3D4;
+		cursor: text;
+		overflow: hidden;
+		padding-bottom: 2px;
+		padding-left: 2px;
+		padding-top: 0;
+		min-height: 18px;
+		width: 298px;
+	}
+
+	.comboboxTreeMultyselect .cInput {
+		width: 300px;
+		border: 1px solid #FFFFFF;
+		height: 14px;
+		margin-right: -16px;
+		margin-top: 2px;
+		min-width: 4px;
+		overflow: hidden;
+		position: relative;
+		float: left;
+		cursor: text;
+	}
+
+		.comboboxTreeMultyselect .cInput input {
+			border: 0 none;
+			font-family: Verdana,'Helvetica Neue',Helvetica,Arial,sans-serif;
+			min-width: 4px;
+			outline: medium none;
+			padding-left: 0;
+			position: relative;
+			width: 300px;
+			z-index: 0;
+			margin-top: 0;
+			padding-top: 0;
+			font-size: 11px;
+			padding-bottom: 3px;
+			margin-right: -4px;
+		}
+
+	.comboboxTreeMultyselect .cValid {
+		background-color: #E0E9F1;
+		border: 1px solid #BAC2CC;
+		color: #243241;
+		cursor: default;
+		font-size: 12px;
+		margin-top: 1px;
+		padding: 0 1px 1px 4px;
+		position: relative;
+		z-index: 1;
+		float: left;
+		margin-right: 3px;
+	}
+
+	.comboboxTreeMultyselect .chunkX {
+		cursor: pointer;
+		height: 10px;
+		padding: 0 2px;
+		position: relative;
+		top: 1px;
+		vertical-align: baseline;
+		width: 10px;
+		border: medium none;
+		font-size: 11px;
+	}
+
+	.comboboxTreeMultyselect .search {
+		width: 280px;
+		border: none;
+	}
+
+	.comboboxTreeMultyselect .tree .hiddenBySearch {
+		display: none;
+	}
+
+	.comboboxTreeMultyselect .tree .node .highlight {
+		background-color: yellow;
+	}
+
+	.comboboxTreeMultyselect .selectedValues {
+		display: inline-block;
+		border: 1px solid #BAC2CC;
+		min-width: 300px;
+		max-width: 300px;
+	}
+
+	.comboboxTreeMultyselect .hiddenTree {
+		display: none;
+	}

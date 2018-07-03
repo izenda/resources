@@ -64,12 +64,15 @@
 					showPageNumber: false,
 					showDateAndTime: false,
 					usePagination: true,
-					itemsPerPage: 1000,
+					itemsPerPage: 10000,
 					addBookmarkForVg: false,
 					pageBreakAfterVg: false,
 					minimizeGridWidth: true,
 					enableResponsiveGrid: true,
-					vgStyle: 'CommaDelimited'
+					vgStyle: 'CommaDelimited',
+					pivotsPerPage: '',
+					splitAllColumns: false,
+					pageBreakOnSplit: false
 				}
 			},
 			isFieldsAutoGrouped: false
@@ -1563,6 +1566,9 @@
 						schedule: null,
 						share: {}
 					};
+
+					reportSetConfig.options.page.itemsPerPage = parseInt(reportSetConfig.options.page.itemsPerPage);
+
 					// preview top
 					var reportTop = parseInt(reportSetConfig.options.top);
 					if (angular.isNumber(previewTop)) {
@@ -1931,7 +1937,8 @@
 					var reportInfo = $izendaUrl.getReportInfo();
 					if (!angular.isObject(reportInfo) || !angular.isString(reportInfo.fullName) || reportInfo.fullName === '')
 						throw 'Can\'t send email without report name';
-					var redirectUrl = '?subject=' + encodeURIComponent(reportInfo.fullName) + '&body=' + encodeURIComponent(location);
+					var reportViewerLocation = location.href.replaceAll($izendaUrl.settings.urlInstantReport, $izendaUrl.settings.urlReportViewer);
+					var redirectUrl = '?subject=' + encodeURIComponent(reportInfo.fullName) + '&body=' + encodeURIComponent(reportViewerLocation);
 					redirectUrl = 'mailto:' + redirectUrl.replace(/ /g, '%20');
 					window.top.location = getAppendedUrl(redirectUrl);
 				};
