@@ -105,6 +105,10 @@
 	user-select: none;
 }
 
+.highlight-color {
+	background-color: #CDE5F4 !important;
+}
+
 .highlight {
 	color: #000 !important;
 	background-color: #CDE5F4 !important;

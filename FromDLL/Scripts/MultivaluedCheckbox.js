@@ -34,6 +34,14 @@
 |___________________________________________________________________|
 */
 
+var multivaluedCheckBoxValueChangedHandlers = {};
+
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+})(window.izenda || (window.izenda = {}));
+
 function MultivaluedCheckBoxSymbolsMatch(s1, s2) {
 	var s1Code = s1.charCodeAt(0);
 	if (s1Code == 160)
@@ -71,7 +79,7 @@ AdHoc.MultivaluedCheckBox = function(element, row) {
 		this.key = key;
 		this.acceptableValues = AdHoc.MultivaluedCheckBox.acceptableValuesLists[key];
 	}
-	this.ValueChangeHandlers = SC_onMultivaluedCheckBoxValueChangedHandlers;
+	this.ValueChangeHandlers = multivaluedCheckBoxValueChangedHandlers;
 };
 
 AdHoc.MultivaluedCheckBox.acceptableValuesLists = {
@@ -192,10 +200,10 @@ AdHoc.MultivaluedCheckBox.prototype = {
 };
 
 AdHoc.MultivaluedCheckBox.RegisterValueChangedHandler = function(rowIndex, ctrlName, funct) {
-	var arr = SC_onMultivaluedCheckBoxValueChangedHandlers[rowIndex];
+	var arr = multivaluedCheckBoxValueChangedHandlers[rowIndex];
 	if (arr == null) {
 		arr = new Array();
-		SC_onMultivaluedCheckBoxValueChangedHandlers[rowIndex] = arr;
+		multivaluedCheckBoxValueChangedHandlers[rowIndex] = arr;
 	}
 	var handler = { };
 	handler.rowindex = rowIndex;
@@ -205,7 +213,7 @@ AdHoc.MultivaluedCheckBox.RegisterValueChangedHandler = function(rowIndex, ctrlN
 };
 
 AdHoc.MultivaluedCheckBox.CallOnValueChanged = function(rowIndex) {
-	var handlers = SC_onMultivaluedCheckBoxValueChangedHandlers[rowIndex];
+	var handlers = multivaluedCheckBoxValueChangedHandlers[rowIndex];
 	if (!handlers)
 		return;
 	for (var i = 0; i < handlers.length; i++)
@@ -240,7 +248,7 @@ AdHoc.MultivaluedCheckBox.ValueChangedHandler = function (div) {
 	var row = EBC_GetRow(div);
 
 	AdHoc.MultivaluedCheckBox.CallOnValueChanged(row["sectionRowIndex"]);
-	SC_AfterArithmeticOperationChanged(row);
+	izenda.pages.designer.ChangeArithmeticOperationForRow(row);
 };
 
 AdHoc.MultivaluedCheckBox.ValueChangedHandlerWOA = function(div) {

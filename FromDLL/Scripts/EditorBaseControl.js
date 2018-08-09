@@ -52,6 +52,30 @@ var resourcesProvider;
 var descriptions = new Array();
 var tablesSave = {};
 
+(function (ns) {
+	ns.isDefined = function (value) {
+		return typeof value !== 'undefined';
+	};
+
+	ns.isUndefined = function (value) {
+		return typeof value === 'undefined';
+	};
+
+	ns.getValue = function (value, defaultValue) {
+		return ns.isDefined(value) ? value : defaultValue;
+	};
+
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+	var context = ns.pages.designer.context;
+	context.qac_works = ns.getValue(context.qac_works, false);
+	context.qac_requests = ns.getValue(context.qac_requests, 0);
+	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+})(window.izenda || (window.izenda = {}));
+
 function urldecode(s) {
 	return decodeURIComponent(s).replace(/\+/g, ' ');
 }
@@ -178,9 +202,11 @@ function EBC_OnServerResponse(url, xmlHttpRequest, arg, additionalData) {
 		if (arg.callbackFunction)
 			arg.callbackFunction(data, wait);
 	}
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true) {
-		sc_qac_requests--;
-		SC_QuickAdd_Close_Callback();
+
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.qac_works) {
+		pageContext.qac_requests--;
+		izenda.pages.designer.QuickAdd_Close_Callback();
 	}
 }
 
@@ -241,8 +267,9 @@ function EBC_CallServer(path, params, async, callbackFunction, additionalData) {
 		(!paramsProcessed ? '' : "&" + paramsProcessed) +
 		(quantityOfCallsInvalidate == 0 ? "" : "&" + "r=" + quantityOfCallsInvalidate);
 
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true)
-		sc_qac_requests++;
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.qac_works)
+		pageContext.qac_requests++;
 
 	responseServer.ExecuteCommand(
 		"GetOptionsByPath",
@@ -879,12 +906,14 @@ var ebc_fieldsCount = {};
 var ebc_totalFieldsCount = 0;
 var lastCallParams_EBC_CheckFieldsCount = new Array();
 function EBC_CheckFieldsCount(id, count) {
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true) {
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.qac_works) {
 		lastCallParams_EBC_CheckFieldsCount = new Array();
 		lastCallParams_EBC_CheckFieldsCount[0] = id;
 		lastCallParams_EBC_CheckFieldsCount[1] = count;
 		return;
 	}
+
 	if (ebc_fieldsCount[id] != null)
 		ebc_totalFieldsCount -= ebc_fieldsCount[id];
 	ebc_fieldsCount[id] = count;

@@ -40,6 +40,7 @@ var reportCategories = "";
 var allowOverwriting;
 var stripInvalidCharacters;
 var allowInvalidCharacters;
+var isNetscape = window.navigator.appName === 'Netscape';
 
 function SRA_ReportExists(reportName) {
 	var reports = reportNames.split(",");

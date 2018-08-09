@@ -34,6 +34,8 @@
 |___________________________________________________________________|
 */
 
+var isNetscape = window.navigator.appName === 'Netscape';
+
 AdHoc.MatrixEditorBaseControl = function(id) {
 	if (typeof(id) == "string") {
 		this.id = id;

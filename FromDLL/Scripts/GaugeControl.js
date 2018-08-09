@@ -34,6 +34,30 @@
 |___________________________________________________________________|
 */
 
+(function (ns) {
+	ns.isDefined = function (value) {
+		return typeof value !== 'undefined';
+	};
+
+	ns.isUndefined = function (value) {
+		return typeof value === 'undefined';
+	};
+
+	ns.getValue = function (value, defaultValue) {
+		return ns.isDefined(value) ? value : defaultValue;
+	};
+
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+	var context = ns.pages.designer.context;
+	context.qac_works = ns.getValue(context.qac_works, false);
+	context.qac_requests = ns.getValue(context.qac_requests, 0);
+	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+})(window.izenda || (window.izenda = {}));
+
 function GC_OnTableListChangedHandlerWithStoredParams() {
 	if (lastCallParams_GC_OnTableListChangedHandler == null || lastCallParams_GC_OnTableListChangedHandler.length != 2)
 		return;
@@ -44,13 +68,12 @@ var lastCallParams_GC_OnTableListChangedHandler = new Array();
 function GC_OnTableListChangedHandler(id, tables) {
 	if (!tables)
 		return;
-	var sc_wac_works_val = false;
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true)
-		sc_wac_works_val = true;
-	var JTCS_Init_executes_val = false;
-	if (typeof JTCS_Init_executes != 'undefined' && JTCS_Init_executes != null && JTCS_Init_executes == true)
-		JTCS_Init_executes_val = true;
-	if (sc_wac_works_val || JTCS_Init_executes_val) {
+
+	var pageContext = izenda.pages.designer.context;
+
+	var JTCS_Init_executes_val = izenda.isDefined(JTCS_Init_executes) && JTCS_Init_executes === true;
+
+	if (pageContext.qac_works || JTCS_Init_executes_val) {
 		lastCallParams_GC_OnTableListChangedHandler = new Array();
 		lastCallParams_GC_OnTableListChangedHandler[0] = id;
 		lastCallParams_GC_OnTableListChangedHandler[1] = tables;
@@ -291,14 +314,16 @@ var gc_fields;
 function GC_OnFieldsListChangedHandler(id, fields)
 {	
 	if (gc_fields != fields) {
-		if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true)
-			sc_qac_timers++;
+		var pageContext = izenda.pages.designer.context;
+
+		if (pageContext.qac_works)
+			pageContext.qac_timers++;
 		setTimeout(function () {
 			GC_PopulateDescriptions(fields);
 			GC_OnTableListChangedHandler(id, tablesSave[id]);
-			if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true) {
-				sc_qac_timers--;
-				SC_QuickAdd_Close_Callback();
+			if (pageContext.qac_works) {
+				pageContext.qac_timers--;
+				izenda.pages.designer.QuickAdd_Close_Callback();
 			}
 		}, 0);
 	}

@@ -608,6 +608,11 @@ function EBC_SetFunctions(row, mustGroupOrFunction, onlyNumericResults, defaultA
 	}
 }
 
+function EBC_RemoveDatabaseType(src) {
+	var index = src.lastIndexOf('(');
+	return (index === -1) ? src : src.substring(0, index);
+}
+
 /// optimize work with EBC_Humanize
 function EBC_SetDescription(row, force) {
 	// Find controls in a row
@@ -634,7 +639,7 @@ function EBC_SetDescription(row, force) {
 		return;
 	}
 	if (typeof MEBC_ShowDatabaseTypes != 'undefined' && MEBC_ShowDatabaseTypes != null && MEBC_ShowDatabaseTypes == true)
-		columnName = SC_RemoveDatabaseType(columnName);
+		columnName = EBC_RemoveDatabaseType(columnName);
 	if (funcSelectValue == 'GROUP_BY_MONTH_NAME') {
 		if (descriptionEdit.getAttribute("FirstModification") == 'true') {
 			descriptionEdit.setAttribute("FirstModification", "false");

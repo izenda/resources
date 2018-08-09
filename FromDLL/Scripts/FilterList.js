@@ -43,6 +43,30 @@ var CC_FirstTimeOperatorUpdated;
 var showingC = false;
 var CC_Initialized = false;
 
+(function (ns) {
+	ns.isDefined = function (value) {
+		return typeof value !== 'undefined';
+	};
+
+	ns.isUndefined = function (value) {
+		return typeof value === 'undefined';
+	};
+
+	ns.getValue = function (value, defaultValue) {
+		return ns.isDefined(value) ? value : defaultValue;
+	};
+
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+	var context = ns.pages.designer.context;
+	context.qac_works = ns.getValue(context.qac_works, false);
+	context.qac_requests = ns.getValue(context.qac_requests, 0);
+	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+})(window.izenda || (window.izenda = {}));
+
 function CC_LoadColumns(id, path, options, selectName, row) {
 	if (selectName == null)
 		selectName = "Column";
@@ -524,7 +548,9 @@ var lastCallParams_CC_OnTableListChangedHandler = new Array();
 function CC_OnTableListChangedHandler(id, tables, loadFields, selectName, row) {
 	if (tables == null)
 		return;
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works == true) {
+
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.qac_works) {
 		lastCallParams_CC_OnTableListChangedHandler = new Array();
 		lastCallParams_CC_OnTableListChangedHandler[0] = id;
 		lastCallParams_CC_OnTableListChangedHandler[1] = tables;

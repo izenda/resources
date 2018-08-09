@@ -2,6 +2,21 @@
 var RE_EditorsParamsList = new Array();
 var RE_ContentSections = null;
 
+(function (ns) {
+
+	ns.isFunction = function (value) {
+		return typeof value === 'function';
+	};
+
+})(window.izenda || (window.izenda = {}));
+
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+})(window.izenda || (window.izenda = {}));
+
+
 // Prevent jQuery UI dialog from blocking focusin
 jq$(document).on('focusin', function (e) {
 	if (jq$(e.target).closest(".mce-window, .moxman-window").length) {
@@ -144,12 +159,13 @@ function RE_InitToolbarItems(editor) {
 
 	// Fields descriptions
 	var fieldsItems = [];
-	try {
-		var fields = SC_GetFieldsList(fieldsId);
+
+	if (izenda.isFunction(izenda.pages.designer.GetFieldsList)) {
+		var fields = izenda.pages.designer.GetFieldsList(fieldsId);
 		if (fields != null)
 			for (var i = 0; i < fields.length; i++)
 				fieldsItems.push({ text: fields[i].description, onclick: function () { editor.insertContent('[' + this._text + ']'); } });
-	} catch (e) { }
+	}
 
 	editor.addButton('iz-fields', {
 		type: 'splitbutton',

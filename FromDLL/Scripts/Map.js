@@ -39,6 +39,30 @@ var DMC_isErrorNow = false;
 var DMC_wasMapType = '...';
 var lastCallParams_MC_OnTableListChangedHandler = new Array();
 
+(function (ns) {
+	ns.isDefined = function (value) {
+		return typeof value !== 'undefined';
+	};
+
+	ns.isUndefined = function (value) {
+		return typeof value === 'undefined';
+	};
+
+	ns.getValue = function (value, defaultValue) {
+		return ns.isDefined(value) ? value : defaultValue;
+	};
+
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+	var context = ns.pages.designer.context;
+	context.qac_works = ns.getValue(context.qac_works, false);
+	context.qac_requests = ns.getValue(context.qac_requests, 0);
+	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+})(window.izenda || (window.izenda = {}));
+
 function MC_OnTableListChangedHandlerWithStoredParams() {
 	if (lastCallParams_MC_OnTableListChangedHandler == null || lastCallParams_MC_OnTableListChangedHandler.length !== 2)
 		return;
@@ -48,9 +72,10 @@ function MC_OnTableListChangedHandlerWithStoredParams() {
 function MC_OnTableListChangedHandler(id, tables) {
 	if (tables == null)
 		return;
-	var scWacWorksVal = false;
-	if (typeof sc_qac_works != 'undefined' && sc_qac_works != null && sc_qac_works === true)
-		scWacWorksVal = true;
+
+	var pageContext = izenda.pages.designer.context;
+	var scWacWorksVal = pageContext.qac_works;
+
 	var jtcsInitExecutesVal = false;
 	if (typeof JTCS_Init_executes != 'undefined' && JTCS_Init_executes != null && JTCS_Init_executes === true)
 		jtcsInitExecutesVal = true;
