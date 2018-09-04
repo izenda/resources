@@ -1390,7 +1390,10 @@
 											.format({ color: this.color, title: metricValue, value: value }));
 									}
 								}
-								return '<span style="border-color: ' + this.point.color + ';" class="izenda-vis-autochart-tooltip-content">' + html.join('<br/>') + '</span>';
+								return '<span style="max-height: ' + (chart.chartHeight - 50) +  'px; overflow-y: auto; border-color: ' + this.point.color + ';" class="izenda-vis-autochart-tooltip-content" ' +
+									'onclick="event.stopPropagation()" onmousedown="event.stopPropagation()" onmousemove="event.stopPropagation()" ' +
+									'ontouchstart="event.stopPropagation()" ontouchend="event.stopPropagation()" ontouchmove="event.stopPropagation()" ' +
+									'onpointerdown="event.stopPropagation()" onpointermove="event.stopPropagation()">' + html.join('<br/>') + '</span>';
 							},
 							backgroundColor: null,
 						},

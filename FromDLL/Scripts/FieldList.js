@@ -107,7 +107,6 @@
 	var mustGroupOrFunctionList = {};
 	var onColumnInitHandlers = {};
 	var onColumnFunctionChangeHandlers = {};
-	var isNetscape = window.navigator.appName === 'Netscape';
 
 	var groupingContext = {};
 	groupingContext.oldIsCorrect = true;
@@ -1840,9 +1839,7 @@
 					if (haveValue)
 						continue;
 
-					var newRow = isNetscape
-						? EBC_InsertRow(table, currentRow)
-						: EBC_InsertRow(table.tBodies[0], currentRow);
+					var newRow = EBC_InsertRow(table, currentRow);
 
 					currentRow++;
 					clearRowInputs(newRow);

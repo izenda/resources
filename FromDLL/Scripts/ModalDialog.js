@@ -1,7 +1,6 @@
 //MODAL DIALOG
 ///--------------------------------------COMMON PART
 var initComplete = false;
-var isNetscape = window.navigator.appName == 'Netscape' || window.navigator.appName == 'Opera';
 
 function SetHiddableControlsVisibility(isVisible) {
 	jq$("div[name=showHideMeInIE6]")
@@ -13,8 +12,8 @@ function SetHiddableControlsVisibility(isVisible) {
 
 function scrollFix() {
 	jq$('#ol').css({
-		top: (jq$(window).scrollTop() - (isNetscape ? 17 : 20)) + 'px',
-		left: (jq$(window).scrollLeft() - (isNetscape ? 17 : 20)) + 'px'
+		top: (jq$(window).scrollTop() - 17) + 'px',
+		left: (jq$(window).scrollLeft() - 17) + 'px'
 	});
 }
 function sizeFix() {
@@ -42,7 +41,7 @@ function initmb(autoResize) {
 	var wrap = jq$('<div id="wrap"><div id="ol" style="display: none; position: absolute; top: 0px; left: 0px; z-index: 998; width: {factor}; height: {factor};"></div>\
 <div id="mbox" style="display: none; position: absolute; z-index: 999;" autoResize="{autoResize}">\
 	<span><div id="mbd"></div></span>\
-</div></div>'.format({ factor: isNetscape ? '100%' : '50%', autoResize: autoResize + '' }));
+</div></div>'.format({ factor: '100%', autoResize: autoResize + '' }));
 
 	if (document.addEventListener)
 		document.addEventListener('load', modal_resized, true);

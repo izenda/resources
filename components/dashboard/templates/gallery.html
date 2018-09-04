@@ -13,6 +13,7 @@
 </div>
 
 <div class="izenda-gallery-controls-round-panel"
+     ng-show="galleryItems.length > 1"
      ng-style="{visibility: state.isUiHidden ? 'hidden' : 'visible'}">
   <div class="izenda-gallery-round-item-container"
        ng-repeat="item in galleryItems" 
@@ -24,10 +25,12 @@
 
 <div class="izenda-gallery-side-button left"
      ng-click="goPrevious()"
+	 ng-show="galleryItems.length > 1"
      ng-style="{visibility: state.isUiHidden ? 'hidden' : 'visible'}">
   <span class="izenda-gallery-side-button-icon glyphicon glyphicon-arrow-left"></span>
 </div>
 <div class="izenda-gallery-side-button right"
+     ng-show="galleryItems.length > 1"
      ng-click="goNext()" ng-style="{visibility: state.isUiHidden ? 'hidden' : 'visible'}">
   <span class="izenda-gallery-side-button-icon glyphicon glyphicon-arrow-right"></span>
 </div>

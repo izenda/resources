@@ -34,7 +34,6 @@
 |___________________________________________________________________|
 */
 
-var isNetscape = window.navigator.appName == 'Netscape';
 var autoSelectedValue = '';
 
 function ud() {

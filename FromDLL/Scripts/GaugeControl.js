@@ -179,7 +179,10 @@ function GC_OnColumnChangedHandler(e) {
 
 	var rowFunc = EBC_GetSelectByName(row, 'Function');
 	jq$(rowFunc).removeAttr('disabled');
-	if (columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
+	if (columnSel.options.length === 0
+		|| columnSel.selectedIndex < 0
+		|| columnSel.selectedIndex > columnSel.options.length - 1
+		|| columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
 		jq$(rowFunc).attr('disabled', 'true');
 			
 	EBC_SetFunctions(row, false, row["sectionRowIndex"] != 1);

@@ -116,9 +116,11 @@
 	}
 
 ul.tagit {
-	width: 299px !important;
+	width: 300px !important;
 	margin-top: 0 !important;
 	border-color: rgb(169, 169, 169) !important;
+	margin-left: 0 !important;
+	margin-right: 0 !important;
 }
 
 	ul.tagit input {

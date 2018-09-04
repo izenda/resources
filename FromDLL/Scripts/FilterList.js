@@ -73,44 +73,47 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 	cc_paths[id] = { path: path, options: options };
 	var table = document.getElementById(id);
 	var additionalData = null;
-	if (descriptions != null && descriptions.length > 0) {
-		additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }]}];
-		for (var i = 0; i < descriptions.length; i++) {
-			var calcField = descriptions[i];
+	if (descriptions && descriptions.length > 0) {
+		additionalData = [{
+			name: IzLocal.Res('js_calcFields', 'Calc fields'),
+			options: []
+		}];
+		descriptions.forEach(function(calcField) {
 			var option = {
 				value: calcFieldPrefix + calcField.fldId,
 				text: '[' + calcField.description + '] (calc)',
 				fieldIndex: calcField.fieldIndex
 			};
-			if(calcField.datatype != null)
+			if(calcField.datatype !== null)
 				option.datatype = calcField.datatype;
-			if (calcField.dataTypeGroup != null)
+			if (calcField.dataTypeGroup !== null)
 				option.dataTypeGroup = calcField.dataTypeGroup;
-			if (calcField.expressionType != null)
+			if (calcField.expressionType !== null)
 				option.expressionType = calcField.expressionType;
 			additionalData[0].options.push(option);
-		}
+		});
 	}
-	var rows = null;
-	if (row != null) {
+	var rows;
+	if (row) {
 		rows = new Array();
 		rows.push(row);
 		CC_oldData = null;
 	} else
-		rows = jq$(table.tBodies[0]).find("tr");
+		rows = jq$(table.tBodies[0]).find('tr');
 
 	var cc_newData = path + options;
-	if (additionalData != null)
+	if (additionalData)
 		cc_newData = cc_newData + JSON.stringify(additionalData);
 
-	if (CC_oldData == cc_newData)
+	if (CC_oldData === cc_newData)
 		return;
 	CC_oldData = cc_newData;
+
 	for (var i = 0; i < rows.length; i++) {
-		var row = rows[i];
-		var columnSel = EBC_GetSelectByName(row, selectName);
+		var currRow = rows[i];
+		var columnSel = EBC_GetSelectByName(currRow, selectName);
 		var value = columnSel.getAttribute("oldValue");
-		if (value == "" || value == null || value.indexOf(calcFieldPrefix) == 0)
+		if (!value || value.indexOf(calcFieldPrefix) === 0)
 			value = EBC_GetSelectValue(columnSel);
 		columnSel.value = value;
 		EBC_LoadData(path, options, columnSel, true, null, additionalData, function (newOpt) {

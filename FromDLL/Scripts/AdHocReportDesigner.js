@@ -35,7 +35,6 @@
 */
 
 var allTabsFilled = false;
-var isNetscape = window.navigator.appName == 'Netscape';
 var resizeDelay = null;
 
 function OnAdHocQueryBuilderTabChanged(horrId, index, continueScript, columnNumber, param)
@@ -61,36 +60,8 @@ function AHQB_GotoTab(index)
 
 function AHQB_Init()
 {
-	if (isNetscape)
-	{
-		document.addEventListener('keydown', AHQB_OnKeyDown, true);
-		window.addEventListener('resize', AHQB_OnResize, true);
-		document.addEventListener('load', AHQB_OnResize, true);
-	}
-	else
-	{
-		document.attachEvent('onkeydown', AHQB_OnKeyDown);
-		window.attachEvent('onresize', AHQB_OnResize);
-		document.documentElement.attachEvent('onresize', AHQB_OnResize);
-		document.documentElement.attachEvent('onload', AHQB_OnResize);
-	}	
-}
-
-function AHQB_OnKeyDown(evt)
-{
-	evt = (evt) ? evt : window.event;
-	if(evt.ctrlKey && evt.keyCode==9)
-	{
-		if (tabStripId)
-			TabStrip_NextTab(tabStripId);
-		evt.cancelBubble=true;
-		evt.returnValue=false;
-	}
-	if(evt.altKey && evt.keyCode==80)
-	{
-		if (tabStripId)
-			TabStrip_ActivateTab(tabStripId, TabStrip_GetTabsCount(tabStripId)-1);
-	}
+	window.addEventListener('resize', AHQB_OnResize, true);
+	document.addEventListener('load', AHQB_OnResize, true);
 }
 
 function AHQB_OnResize()

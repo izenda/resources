@@ -34,8 +34,6 @@
 |___________________________________________________________________|
 */
 
-var isNetscape = window.navigator.appName === 'Netscape';
-
 AdHoc.MatrixEditorBaseControl = function(id) {
 	if (typeof(id) == "string") {
 		this.id = id;
@@ -92,12 +90,9 @@ AdHoc.MatrixEditorBaseControl.RenameControls = function(undo) {
 					var cells = rows[j].cells;
 					var cellsCount = cells.length;
 					for (var k = 0; k < cellsCount; k++) {
-						var children;
-						if(isNetscape)
-							children = cells[k].childNodes;
-						else
-							children = cells[k].children;
-						if (children != null)
+						// we don't use .childNodes because we don't need to process text nodes here
+						var children = cells[k].children;
+						if (children)
 							for (var l = 0; l < children.length; l++)
 								AdHoc.MatrixEditorBaseControl.internalSetName(children[l], j, k, undo);
 					}
@@ -113,10 +108,9 @@ AdHoc.MatrixEditorBaseControl.internalSetName = function(elem, n, m, undo) {
 		if(undo) elem.name = elem.name.substring(0, elem.name.length - suffix.length);
 		else elem.name = elem.name + suffix;
 	}
-	var children;
-	if(isNetscape) children = elem.childNodes;
-	else children = elem.children;
-	if (children != null)
+	// we don't use .childNodes because we don't need to process text nodes here
+	var children = elem.children;
+	if (children)
 		for (var i = 0; i < children.length; i++)
 			AdHoc.MatrixEditorBaseControl.internalSetName(children[i], n, m, undo);
 }

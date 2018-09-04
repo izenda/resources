@@ -34,9 +34,6 @@
 |___________________________________________________________________|
 */
 
-
-var isNetscape = window.navigator.appName == 'Netscape';
-
 function disableAnchor(obj, disable)
 {
 	// The following statement prevents client-side activation of diabled buttons
@@ -58,24 +55,16 @@ function disableAnchor(obj, disable)
 			}
 		}
 		
-		if(isNetscape && obj.attributes['href']!=null || !isNetscape && obj.href!="")
+		if(obj.attributes['href'] != null)
 		{
 			obj.setAttribute('href_bak', obj.attributes['href'].nodeValue);
 			obj.removeAttribute('href');
 		}
 		
-		if(isNetscape && obj.attributes['onclick']!=null || !isNetscape && obj.onclick!="")
+		if(obj.attributes['onclick'] != null)
 		{
-			if(isNetscape)
-			{
-				obj.setAttribute('onclick_bak', obj.attributes['onclick'].nodeValue);
-				obj.removeAttribute('onclick');
-			}
-			else
-			{
-				obj.onclick_bak = obj.onclick;
-				obj.onclick = null;
-			}
+			obj.setAttribute('onclick_bak', obj.attributes['onclick'].nodeValue);
+			obj.removeAttribute('onclick');
 		}
 	}
 	else
@@ -90,19 +79,11 @@ function disableAnchor(obj, disable)
 			}
 		}
 		
-		if(obj.attributes['href_bak']!=null)
+		if(obj.attributes['href_bak'] != null)
 			obj.setAttribute('href', obj.attributes['href_bak'].nodeValue);
 		
-		if(isNetscape && obj.attributes['onclick_bak']!=null || !isNetscape && obj.onclick_bak!="")
-		{
-			if(isNetscape)
-				obj.setAttribute('onclick', obj.attributes['onclick_bak'].nodeValue);
-			else
-			{
-				if(obj.onclick_bak!=null)
-					obj.onclick = obj.onclick_bak;
-			}
-		}
+		if(obj.attributes['onclick_bak'] != null)
+			obj.setAttribute('onclick', obj.attributes['onclick_bak'].nodeValue);
 	}
 }
 

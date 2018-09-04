@@ -277,7 +277,7 @@ function GetFiltersDataToCommit() {
 				for (var j = 0; j < filterObj.Values.length; j++) {
 					var filterValue = filterObj.Values[j];
 					if (filterValue !== '...' && filterObj.OperatorValue == 'Equals_Multiple')
-						filterValue = filterValue.split(',').filter(function(fvalue) {
+						filterValue = filterValue.split(',').filter(function (fvalue) {
 							return fvalue !== '...';
 						}).join(',');
 					filterObj.Values[j] = encodeURIComponent(filterValue);
@@ -437,8 +437,7 @@ function GenerateNewFilterDropDown() {
 	}
 
 	for (var dsCnt = 0; dsCnt < dataSources.length; dsCnt++) {
-		if (dataSources.length > 1)
-			result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
+		result += '<optgroup label="' + dataSources[dsCnt].FriendlyName + '">';
 		var sortedItems = new Array();
 		var customizedItems = new Array();
 		for (var fCnt = 0; fCnt < dataSources[dsCnt].Columns.length; fCnt++) {
@@ -465,12 +464,30 @@ function GenerateNewFilterDropDown() {
 				return 0;
 			});
 		});
-		sortedItems.forEach(function (sortedItem) {
-			result += sortedItem.body;
-		});
-		if (dataSources.length > 1)
-			result += '</optgroup>';
+		result += sortedItems.map(function (sortedItem) {
+			return sortedItem.body;
+		}).join('');
+		result += '</optgroup>';
 	}
+
+	// check for calc fields
+	if (fieldsList && fieldsList.length) {
+		var optgroupText = null;
+		fieldsList.forEach(function (field) {
+			if (field.Coefficient || ['GROUP', 'NONE'].indexOf(field.AggregateFunction) < 0) {
+				if (!optgroupText)
+					optgroupText = '<optgroup label="' + IzLocal.Res('js_calcFields') + '">';
+				// add calc field option
+				var optionAttrDbName = 'value="fldId|' + field.GUID + '"';
+				var optionAttrAlias = 'data-alias=""';
+				var optionText = '<option ' + optionAttrDbName + ' ' + optionAttrAlias + '>[' + field.Description + '] (calc)</option>';
+				optgroupText += optionText;
+			}
+		});
+		if (optgroupText)
+			result += optgroupText + '</optgroup>';
+	}
+
 	result += '</select>';
 	if (!optionsAdded)
 		return '';
@@ -668,7 +685,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 					.attr('title', escapedAlias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\''))
 					.html(escapedAlias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\''));
 			})
-			.on('mouseout', function() {
+			.on('mouseout', function () {
 				var $filterHeader = jq$(this);
 				$filterHeader.find('.filterTitle').text(escapedAlias);
 			});

@@ -1247,3 +1247,12 @@ a.button {
 		background-color: #e6e6e6;
 		border-color: #adadad;
 	}
+
+.highcharts-container,
+.highcharts-container svg {
+	overflow: visible !important;
+}
+
+.highcharts-tooltip {
+	pointer-events: initial !important;
+}

@@ -1,54 +1,53 @@
 <!-- select report part modal dialog -->
-<izenda-bootstrap-modal opened="$ctrl.openedInner" 
-                        modal-size="large" 
-                        on-modal-closed="$ctrl.modalClosedHandler()"
-                        ng-cloak>
-  <div class="modal-header">
-    <div class="row">
-      <div class="col-md-2">
-        <h4 style="margin-top: 5px;" class="pull-right"
-            ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once></h4>
-      </div>
-      <div class="col-md-8">
-        <select class="form-control" ng-model="$ctrl.category"
-                ng-options="category for category in $ctrl.categories"
-                ng-change="$ctrl.categoryChangedHandler()"></select>
-      </div>
-      <div class="col-md-2">
-        <button type="button" class="close" style="margin-left: 50px;" data-dismiss="modal" aria-hidden="true">&times;</button>
-      </div>
-    </div>
-  </div>
+<izenda-bootstrap-modal opened="$ctrl.openedInner"
+						modal-size="large"
+						on-modal-closed="$ctrl.modalClosedHandler()">
+	<div class="modal-header">
+		<div class="row">
+			<div class="col-md-2">
+				<h4 style="margin-top: 5px;" class="pull-right"
+					ng-bind="'js_Category' | izendaLocale: 'Category'" bind-once></h4>
+			</div>
+			<div class="col-md-8">
+				<select class="form-control" ng-model="$ctrl.category"
+						ng-options="category for category in $ctrl.categories"
+						ng-change="$ctrl.categoryChangedHandler()"></select>
+			</div>
+			<div class="col-md-2">
+				<button type="button" class="close" style="margin-left: 50px;" data-dismiss="modal" aria-hidden="true">&times;</button>
+			</div>
+		</div>
+	</div>
 
-  <div class="modal-body" style="min-height: 300px">
-    <div class="izenda-common-vcentered-container" ng-hide="$ctrl.isLoading || $ctrl.groups.length > 0">
-      <div class="izenda-common-vcentered-item">
-        <span class="izenda-common-no-reports-message"
-              ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once></span>
-      </div>
-    </div>
-    <div class="izenda-common-vcentered-container" ng-hide="!$ctrl.isLoading">
-      <div class="izenda-common-vcentered-item">
-        <img class="izenda-common-img-loading" ng-src="{{$ctrl.$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif" alt="Loading..."/>
-      </div>
-    </div>
-    <div ng-hide="$ctrl.hideAll || $ctrl.isLoading || $ctrl.groups.length == 0">
-      <div ng-repeat="group in $ctrl.groups" class="row">
-        <div class="col-md-3 iz-ui-tabs-panel" ng-repeat="item in group">
-          <div class="thumb" ng-click="$ctrl.itemSelectedHandler(item)">
-            <div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
-              <img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}" />
-            </div>
-            <div class="thumb-title" ng-bind="item.Name"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+	<div class="modal-body" style="min-height: 300px">
+		<div class="izenda-common-vcentered-container" ng-hide="$ctrl.isLoading || $ctrl.groups.length > 0">
+			<div class="izenda-common-vcentered-item">
+				<span class="izenda-common-no-reports-message"
+					  ng-bind="'js_NoReportsFound' | izendaLocale: 'No reports found'" bind-once></span>
+			</div>
+		</div>
+		<div class="izenda-common-vcentered-container" ng-hide="!$ctrl.isLoading">
+			<div class="izenda-common-vcentered-item">
+				<img class="izenda-common-img-loading" ng-src="{{$ctrl.$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif" alt="Loading..." />
+			</div>
+		</div>
+		<div ng-hide="$ctrl.hideAll || $ctrl.isLoading || $ctrl.groups.length == 0">
+			<div ng-repeat="group in $ctrl.groups" class="row">
+				<div class="col-md-3 iz-ui-tabs-panel" ng-repeat="item in group">
+					<div class="thumb" ng-click="$ctrl.itemSelectedHandler(item)">
+						<div class="thumb-container" style="background-color: white; width: 170px; height: 220px;">
+							<img class="img-responsive" ng-src="{{item.ImgUrl}}" alt="{{item.Name}}" />
+						</div>
+						<div class="thumb-title" ng-bind="item.Name"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
-  <div class="modal-footer">
-    <button type="button" class="btn btn-default"
-            data-dismiss="modal"
-            ng-bind="'js_close' | izendaLocale: 'Close'"></button>
-  </div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default izenda-common-width-100"
+				data-dismiss="modal"
+				ng-bind="'js_close' | izendaLocale: 'Close'"></button>
+	</div>
 </izenda-bootstrap-modal>

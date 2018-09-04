@@ -166,23 +166,23 @@
 
                 <!-- notifications -->
                 <span class="ds-tree-item-header-notify-icon-first"
-                      ng-show="field.checked && field.sort !== null"
+                      ng-show="field.checked && field.sort !== null && !field.isMultipleColumns"
                       ng-attr-title="{{'js_SortIsApplyed' | izendaLocale: 'Sort function is applyed'}}">
                   <span class="glyphicon"
                         ng-class="field.sort === 'asc' ? 'glyphicon-sort-by-alphabet' : 'glyphicon-sort-by-alphabet-alt'"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
-                      ng-show="field.checked && field.isVgUsed"
+                      ng-show="field.checked && field.isVgUsed && !field.isMultipleColumns"
                       ng-attr-title="{{'js_VgIsApplyed' | izendaLocale: 'Visual group is applyed'}}">
                   <span class="glyphicon glyphicon-th-list"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
-                      ng-show="field.checked && !field.visible"
+                      ng-show="field.checked && !field.visible && !field.isMultipleColumns"
                       ng-attr-title="{{'js_FieldIsHidden' | izendaLocale: 'Field is hidden'}}">
                   <span class="glyphicon glyphicon-eye-close"></span>
                 </span>
                 <span class="ds-tree-item-header-notify-icon"
-                      ng-show="field.checked && field.subreport !== ''"
+                      ng-show="field.checked && field.subreport !== '' && !field.isMultipleColumns"
                       ng-attr-title="{{'js_FieldHaveSubreport' | izendaLocale: 'Field have subreport'}}">
                   <span class="glyphicon glyphicon-link"></span>
                 </span>

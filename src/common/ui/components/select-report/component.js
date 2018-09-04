@@ -21,17 +21,16 @@
 	});
 
 	function izendaSelectReportComponentCtrl($timeout, $izendaLocale, $izendaUrl, $izendaSettings, $izendaCommonQuery) {
-		var $ctrl = this;
+		var uncategorizedText = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
+		var $ctrl = this;
 		$ctrl.openedInner = false;
 		$ctrl.category = uncategorizedText;
 		$ctrl.categories = [];
 		$ctrl.groups = [];
-
 		$ctrl.isLoading = true;
 		$ctrl.hideAll = true;
 		$ctrl.$izendaUrl = $izendaUrl;
-		var uncategorizedText = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
 
 		/**
 		 * Component init
@@ -54,13 +53,14 @@
 							$ctrl.addReportsToModal(reportSets);
 							$ctrl.isLoading = false;
 						});
-					}, 500);
+					}, 1000);
 				}
 			}
 		};
 		
 		/**
 		 * Add report parts to modal
+		 * @param {Array<object>} reportParts Report parts array from response.
 		 */
 		$ctrl.addReportPartsToModal = function (reportParts) {
 			$ctrl.groups = [];
@@ -84,6 +84,7 @@
 
 		/**
 		 * Add reportset categories to modal select control.
+		 * @param {Array<object>} reportSets Report sets array from response. This array contains report sets and categories objects.
 		 */
 		$ctrl.addCategoriesToModal = function (reportSets) {
 			if (!reportSets)
@@ -100,10 +101,14 @@
 					$ctrl.categories.push(item);
 				}
 			}
+
+			if (!$ctrl.category)
+				$ctrl.category = uncategorizedText;
 		};
 
 		/**
 		 * Add report to modal dialog body.
+		 * @param {Array<object>} reportSets Report sets array from response. This array contains report sets and categories objects.
 		 */
 		$ctrl.addReportsToModal = function (reportSets) {
 			$ctrl.groups = [];
@@ -132,8 +137,9 @@
 		 * Select category handler
 		 */
 		$ctrl.categoryChangedHandler = function () {
+			if ($ctrl.isLoading)
+				return;
 			$ctrl.isLoading = true;
-			$ctrl.groups = [];
 			if (!$ctrl.category)
 				$ctrl.category = uncategorizedText;
 			$izendaCommonQuery.getReportSetCategory($ctrl.category).then(function (data) {
@@ -152,12 +158,13 @@
 
 		/**
 		 * User clicked to report set item
+		 * @param {object} item Selected item (report or report part)
 		 */
 		$ctrl.itemSelectedHandler = function (item) {
 			var isReportPart = item.isReportPart;
 			var reportFullName = item.Name;
 
-			if (item.CategoryFull != null && item.CategoryFull !== '')
+			if (item.CategoryFull)
 				reportFullName = item.CategoryFull + $izendaSettings.getCategoryCharacter() + reportFullName;
 
 			if (!isReportPart) {

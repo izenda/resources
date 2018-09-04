@@ -25,11 +25,11 @@
 				},
 				template:
 					'<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">' +
-					'  <div class="modal-dialog" ng-class="getModalSizeClass()">' +
-					'    <div class="modal-content">' +
-					'      <div ng-transclude></div>' +
-					'    </div>' +
-					'  </div>' +
+					'	<div class="modal-dialog" ng-class="getModalSizeClass()">' +
+					'		<div class="modal-content">' +
+					'			<div ng-transclude></div>' +
+					'		</div>' +
+					'	</div>' +
 					'</div>',
 				link: function ($scope, $element, attrs) {
 					var $modal = $element.children('.modal');
@@ -39,10 +39,13 @@
 							'overflow-y': 'scroll'
 						});
 					}
+					if ($scope.keyboard != null)
+						$modal.attr('data-keyboard', $scope.keyboard);
+					if ($scope.backdrop != null)
+						$modal.attr('data-backdrop', $scope.backdrop);
 
 					// modal show handler
 					$modal.on('show.bs.modal', function (e) {
-						$modal.css('background-color', 'rgba(0,0,0,0.8)');
 						$modal.css('filter', 'alpha(opacity=80)');
 						if (!$scope.isModernBootstrapVersion) {
 							angular.element('body').css('margin-right', '0');
@@ -71,21 +74,12 @@
 						$scope.$applyAsync();
 					});
 
-					if ($scope.keyboard != null)
-						$modal.attr('data-keyboard', $scope.keyboard);
-					if ($scope.backdrop != null)
-						$modal.attr('data-backdrop', $scope.backdrop);
-
 					$scope.getModalSizeClass = function () {
 						return $scope.modalSize === 'large' ? 'modal-lg' : '';
 					};
 
 					$scope.$watch('opened', function (newVal) {
-						if (newVal) {
-							$element.children('.modal').modal();
-						} else {
-							$element.children('.modal').modal('hide');
-						}
+						$modal.modal(newVal ? 'show' : 'hide');
 					});
 				}
 			};

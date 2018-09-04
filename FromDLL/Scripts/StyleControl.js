@@ -34,8 +34,6 @@
 |___________________________________________________________________|
 */
 
-
-var isNetscape = window.navigator.appName == 'Netscape';
 var STC_Table;
 var borderColorListId, headerColorListId, headerForegroundColorListId, itemColorListId, itemForegroundColorListId, alternatingItemColorListId;
 
@@ -70,7 +68,7 @@ function STC_ColorItemChanged() {
 		var itemForegroundColorListValue = TrimDefault(itemForegroundColorList.value);
 		var alternatingItemColorListValue = TrimDefault(alternatingItemColorList.value);
 
-		var rules = isNetscape ? style.sheet.cssRules : style.styleSheet.rules;
+		var rules = style.sheet.cssRules;
 
 		for (var i = 0; i < rules.length; i++) {
 			if (rules[i].selectorText.toLowerCase().indexOf('reportstyle') == -1) {

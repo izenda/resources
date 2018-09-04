@@ -42,8 +42,6 @@ var JTC_autoJoinQueue = {};
 var JTC_leftAutoJoinQueue = {};
 var JTC_oldTableList = new Array(" ");
 var JTC_hash = "0";
-var isNetscape = window.navigator.appName == 'Netscape';
-var isOpera = window.navigator.appName == 'Opera';
 var JTCS_Init_executes = false;
 
 function JTC_GetCleanDataSource(dataSources)

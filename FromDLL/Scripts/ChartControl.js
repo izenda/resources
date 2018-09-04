@@ -37,7 +37,6 @@
 var chartTypes = {};
 var chartTypeSelectIds = {};
 var advancedEnabledIds = {};
-var isNetscape = window.navigator.appName === 'Netscape';
 
 (function (ns) {
 	ns.isDefined = function(value) {
@@ -332,23 +331,17 @@ function CHC_ChartTypeChangeHandlerByUser(e, ct, id)
 	CHC_ResetFunctionValue(id);
 }
 
-function CHC_ChartTypeChangeHandler(e, ct, id)
+function CHC_ChartTypeChangeHandler(selectElement, ct, id)
 {
-	if(e) ebc_mozillaEvent = e;
 	var chartTypesSelect;
-	if (e != null)
-	{
-		if(isNetscape)
-			chartTypesSelect = ebc_mozillaEvent;
-		else
-			chartTypesSelect = window.event.srcElement;
-	
+	if (selectElement != null) {
+		chartTypesSelect = selectElement;
 		chartTypes[id] = chartTypesSelect.value;
 	}
 	else
 	{
 		chartTypes[id] = ct;
-		var chartTypesSelect = document.getElementById(id+'_ChartTypeSelect');
+		chartTypesSelect = document.getElementById(id+'_ChartTypeSelect');
 		chartTypesSelect.value = chartTypes[id];
 	}
 	
@@ -579,7 +572,7 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 			if(funcField!=null)
 				funcField.selectedIndex = 0;
 		}
-		if(e!=null)
+		if(selectElement!=null)
 		{
 			var orderAscCheckbox = EBC_GetElementByName(body.rows[i], 'OrderAsc', 'INPUT');
 			if(orderAscCheckbox!=null)
@@ -626,7 +619,7 @@ function CHC_ChartTypeChangeHandler(e, ct, id)
 				}
 		}
 	}
-	var row = EBC_GetRow(e);
+	var row = EBC_GetRow(selectElement);
 	var titleDiv$ = jq$(document.getElementById(id + "_ChartTitleDiv"));
 	if (chartTypesSelect.value == '...' || chartTypesSelect.value == '')
 		titleDiv$.css('display', 'none');
@@ -741,7 +734,11 @@ function CHC_OnColumnChangedHandler(e)
 
 		var rowFunc = EBC_GetSelectByName(row, 'Function');
 		jq$(rowFunc).removeAttr('disabled');
-		if (columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
+
+		if (columnSel.options.length === 0
+			|| columnSel.selectedIndex < 0
+			|| columnSel.selectedIndex > columnSel.options.length - 1
+			|| columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
 		{
 			jq$(rowFunc).attr('disabled', 'true');
 			defaultAggregateFunction = "ForceNone";

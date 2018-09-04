@@ -40,7 +40,6 @@ var reportCategories = "";
 var allowOverwriting;
 var stripInvalidCharacters;
 var allowInvalidCharacters;
-var isNetscape = window.navigator.appName === 'Netscape';
 
 function SRA_ReportExists(reportName) {
 	var reports = reportNames.split(",");
@@ -143,15 +142,9 @@ function SRA_ReportSelect(selectId, reportNameId, newLocation) {
 		EBC_ClearContols();
 	}
 	else {
-		var refererAnchor = document.getElementById("RefererAnchor");
 		selectedReport = selectedReport.replace(/ /, '+');
-		var newHref = newLocation + "rn=" + selectedReport;
-		if (isNetscape)
-			window.location.href = newHref;
-		else {
-			refererAnchor.href = newHref;
-			refererAnchor.click();
-		}
+		var newHref = newLocation + 'rn=' + selectedReport;
+		window.location.href = newHref;
 	}
 }
 function SRA_SaveAsView(viewNameId, viewsList) {

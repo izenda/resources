@@ -21,7 +21,7 @@
 
 .with-label {
 	position: relative;
-	top: 0.2em;
+	top: 1px;
 }
 
 .svg-icon.check {
@@ -483,7 +483,7 @@ a.collapse-link {
 		}
 
 		.ds-tree-item > .ds-tree-item-header:hover {
-			background-color: #fafafa;
+			background-color: #f1f1f1;
 		}
 
 		.ds-tree-item > .ds-tree-item-header.selected {
@@ -1047,6 +1047,8 @@ div[id$="_ReportsDiv"] {
 	border-bottom: 1px solid #ccc;
 	cursor: move;
 	padding-right: 20px;
+	padding-bottom: 2px;
+	padding-top: 2px;
 }
 
 	.iz-inst-small-panel-header.not-valid {
@@ -1060,7 +1062,7 @@ div[id$="_ReportsDiv"] {
 	.iz-inst-small-panel-header .btn-header-close,
 	.iz-inst-small-panel-header .btn-header-settings {
 		position: absolute;
-		top: 0;
+		top: 2px;
 		padding: 0;
 		outline: 0;
 		border: 0;
@@ -1252,4 +1254,12 @@ div[id$="_ReportsDiv"] {
 	min-width: 1px;
 	width: 100%;
 	max-width: 100%;
+	margin-left: 0;
+	margin-right: 0;
+	min-height: 33px;
+	line-height: 23px;
+	padding-bottom: 0;
+}
+.iz-inst-small-panel-line ul.tagit input {
+	height: 28px;
 }
