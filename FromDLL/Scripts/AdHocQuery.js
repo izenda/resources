@@ -1,4 +1,115 @@
-﻿// prevent using external require
+(function (ns) {
+
+	ns.isDefined = function (value) {
+		return typeof value !== 'undefined';
+	};
+
+	ns.isUndefined = function (value) {
+		return typeof value === 'undefined';
+	};
+
+	ns.isNull = function (value) {
+		return value === null;
+	};
+
+	ns.isFunction = function (value) {
+		return typeof value === 'function';
+	};
+
+	ns.isNullOrUndefined = function (value) {
+		return ns.isNull(value) || ns.isUndefined(value);
+	};
+
+	ns.isString = function (value) {
+		return typeof value === 'string';
+	};
+
+	ns.isEmptyString = function (value) {
+		return ns.isString(value) && value === '';
+	};
+
+	ns.isEmptyOrWhiteSpaceString = function (value) {
+		return ns.isString(value) && value.trim() === '';
+	};
+
+	ns.isNullOrEmptyString = function (value) {
+		return ns.isNull(value) || ns.isEmptyString(value);
+	};
+
+	ns.isExampleString = function (value) {
+		if (!ns.isString(value) || ns.isEmptyString(value))
+			return false;
+		return value.trim().toLowerCase().indexOf('example') === 0;
+	};
+
+	ns.matchAny = function (value, values) {
+		return values.indexOf(value) >= 0;
+	};
+
+	ns.getValue = function (value, defaultValue) {
+		return ns.isDefined(value) ? value : defaultValue;
+	};
+
+	ns.callIfFunction = function (func) {
+		var args = Array.prototype.slice.call(arguments, ns.callIfFunction.length);
+		if (ns.isFunction(func))
+			func.apply(null, args);
+	};
+
+	// Dates are written in the Microsoft JSON format, e.g. "\/Date(1198908717056)\/".
+	var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
+	ns.JSONParserExtension = function (key, value) {
+		if (typeof value === 'string') {
+			var result = reMsAjax.exec(value);
+			if (result) {
+				var b = result[1].split(/[-+,.]/);
+				return new Date(b[0] ? +b[0] : 0 - +b[1]);
+			}
+		}
+		return value;
+	};
+})(window.izenda || (window.izenda = {}));
+
+(function (ns) {
+	ns.error = ns.error || {};
+
+	ns.error.extractStackTrace = function (responseObject) {
+		var stacktrace = '';
+		if (responseObject.responseText) {
+			var excInd = responseObject.responseText.indexOf('Exception]:');
+			if (excInd >= 0) {
+				var excStart = responseObject.responseText.lastIndexOf('[', excInd);
+				if (excStart < 0)
+					excStart = 0;
+				stacktrace = responseObject.responseText.substring(excStart, responseObject.responseText.length - 5);
+			}
+		}
+		return stacktrace;
+	};
+
+	ns.error.defaultCallbackError = function (responseObject, preventReloading) {
+		var msg = "Error occurred on server side. ";
+		if (responseObject && responseObject.status && responseObject.statusText)
+			msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
+		if (responseObject.responseText) {
+			var stacktrace = izenda.error.extractStackTrace(responseObject);
+			if (stacktrace) {
+				msg += '<br /><br /><div style="cursor:text;text-align:left;width:800px;white-space:normal;">The information below will help to identify problem if you pass it to support:<br /><span style="font-size:9px;">' +
+					stacktrace.replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
+					'</span></div>';
+			}
+			if (!preventReloading)
+				msg += '<br />Press "OK" to reload page, or "Cancel" to leave it as is.';
+		}
+		if (!preventReloading)
+			ReportingServices.showConfirm(msg, function (result) { if (result == jsResources.OK) { location.reload(); } });
+		else
+			ReportingServices.showOk(msg);
+	};
+
+})(window.izenda || (window.izenda = {}));
+
+// prevent using external require
 (function (requirejs, require, define) {
 //Ajax request for JSON methods-----------------------------------------------------------
 /*! JSON v3.3.0 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
@@ -46,63 +157,6 @@ if (!String.prototype.trim) {
 		};
 	})();
 }
-
-(function (ns) {
-	ns.izenda = ns.izenda || {};
-
-	// Dates are written in the Microsoft JSON format, e.g. "\/Date(1198908717056)\/".
-	var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
-
-	ns.izenda.JSONParserExtension = function (key, value) {
-		if (typeof value === 'string') {
-			var result = reMsAjax.exec(value);
-			if (result) {
-				var b = result[1].split(/[-+,.]/);
-				return new Date(b[0] ? +b[0] : 0 - +b[1]);
-			}
-		}
-		return value;
-	};
-})(window);
-
-(function (ns) {
-	ns.error = ns.error || {};
-
-	ns.error.extractStackTrace = function (responseObject) {
-		var stacktrace = '';
-		if (responseObject.responseText) {
-			var excInd = responseObject.responseText.indexOf('Exception]:');
-			if (excInd >= 0) {
-				var excStart = responseObject.responseText.lastIndexOf('[', excInd);
-				if (excStart < 0)
-					excStart = 0;
-				stacktrace = responseObject.responseText.substring(excStart, responseObject.responseText.length - 5);
-			}
-		}
-		return stacktrace;
-	};
-
-	ns.error.defaultCallbackError = function (responseObject, preventReloading) {
-		var msg = "Error occurred on server side. ";
-		if (responseObject && responseObject.status && responseObject.statusText)
-			msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
-		if (responseObject.responseText) {
-			var stacktrace = izenda.error.extractStackTrace(responseObject);
-			if (stacktrace) {
-				msg += '<br /><br /><div style="cursor:text;text-align:left;width:800px;white-space:normal;">The information below will help to identify problem if you pass it to support:<br /><span style="font-size:9px;">' +
-					stacktrace.replaceAll('\r\n', '<br />').replaceAll('\'', '\\\'').replaceAll('&#39;', '\\&#39;') +
-					'</span></div>';
-			}
-			if (!preventReloading)
-				msg += '<br />Press "OK" to reload page, or "Cancel" to leave it as is.';
-		}
-		if (!preventReloading)
-			ReportingServices.showConfirm(msg, function (result) { if (result == jsResources.OK) { location.reload(); } });
-		else
-			ReportingServices.showOk(msg);
-	};
-
-})(window.izenda || (window.izenda = {}));
 
 /**
  * Ajax request function.

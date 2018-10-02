@@ -2,6 +2,8 @@
 var resourcesProvider;
 
 (function () {
+	var cookieNameCurrentCategory = 'izrl_currentCategory';
+	var cookieNameClosedCategories = 'izrl_closedCategories';
 	var justSelect = false;
 	var isTouch = 'ontouchstart' in window || navigator.msMaxTouchPoints;
 
@@ -38,26 +40,63 @@ var resourcesProvider;
 		this0.searchInputTimer = [];
 	}
 
+	ReportListRenderer.prototype.isSubcategory = function(parentCategory, possibleChildCategory) {
+		if (!parentCategory || !possibleChildCategory)
+			return false;
+		var parentParts = parentCategory.split('\\');
+		var childParts = possibleChildCategory.split('\\');
+		if (parentParts.length >= childParts.length)
+			return false;
+		for (var i = 0; i < parentParts.length; i++)
+			if (parentParts[i] !== childParts[i])
+				return false;
+		return true;
+	};
+
+	ReportListRenderer.prototype.selectDefaultCategory = function () {
+		var promise = jq$.Deferred();
+		var this0 = this;
+		// try to get category from cookie
+		var cookieCategoryFullName = AdHoc.Utility.GetCookie(cookieNameCurrentCategory);
+		var $categoryEl = null;
+		if (cookieCategoryFullName) {
+			var cookieCategoryObject = this0.getCategoryByName(cookieCategoryFullName);
+			if (cookieCategoryObject)
+				$categoryEl = this0.$elLeftPanel.find('.category-item[data-category="' + cookieCategoryObject.fullName + '"]');
+		}
+		// if category not fount - get first not empty category
+		if (!$categoryEl || !$categoryEl.length)
+			$categoryEl = this0.$elLeftPanel.find('.category-item:not(.empty):first');
+
+		if ($categoryEl && $categoryEl.length) {
+			this0.onCategorySelect($categoryEl).then(function () {
+				promise.resolve();
+			});
+		} else
+			promise.resolve();
+		return promise;
+	};
+
 	ReportListRenderer.prototype.initialize = function () {
 		var this0 = this;
 		this0.$elSearchInput
 			.attr('placeholder', IzLocal.Res('js_Search', 'Search'))
-			.on('keyup', function(event) {
+			.on('keyup', function (event) {
 				this0.onKeyupQuickSearchBoxHandler(event);
 			});
 
 		this0.$elSideMenuBackdrop.on('click', function () {
 			this0.hideSideMenu();
-		}).on('touchmove', function(e) {
+		}).on('touchmove', function (e) {
 			e.stopPropagation();
 			e.preventDefault();
 		});
 
-		this0.$elMenuButton.on('click', function() {
+		this0.$elMenuButton.on('click', function () {
 			this0.showSideMenu();
 		});
 
-		this0.$elMenuButtonClose.on('click', function() {
+		this0.$elMenuButtonClose.on('click', function () {
 			this0.hideSideMenu();
 		});
 
@@ -73,9 +112,10 @@ var resourcesProvider;
 
 		// start loading data
 		this0.reportListRequest.loadConfig(this, function (nrlConfigObj) {
+			this0.$elSideMenu.css('visibility', 'hidden');
 			this0.nrlConfigObj = nrlConfigObj;
 			this0.reportListRequest.loadReports(null, null, this, function (returnObject) {
-				if (returnObject.ReportSets.length == 0) {
+				if (!returnObject.ReportSets.length) {
 					// no reports => go to designer
 					this0.$elAddInstantReportContainer.show();
 					var text = IzLocal.Res('js_NoReportsCurrentlyExistMessage',
@@ -91,8 +131,10 @@ var resourcesProvider;
 				this0.renderRecentItems();
 				this0.renderTabs();
 
-				var $categoryEl = this0.$elLeftPanel.find('.category-item:not(.empty):first');
-				this0.onCategorySelect($categoryEl);
+				this0.selectDefaultCategory().then(function () {
+					this0.scrollToCurrentCategory();
+					this0.$elSideMenu.css('visibility', 'visible');
+				});
 			}, function (message) {
 				// handle error
 				this0.onError('reports not loaded: ' + message);
@@ -101,33 +143,58 @@ var resourcesProvider;
 	};
 
 	/**
+	 * Scroll to current category.
+	 */
+	ReportListRenderer.prototype.scrollToCurrentCategory = function () {
+		var this0 = this;
+		var currentCategory = this0.categoriesModel.currentCategory;
+		if (currentCategory) {
+			var $categoryEl = this0.$elLeftPanel.find('.category-item[data-category="' + currentCategory.fullName + '"]');
+			var categoryBottom = $categoryEl.position().top + $categoryEl.height();
+			var delta = categoryBottom - this0.$elSideMenu.height();
+			delta = (delta > 0) ? delta - 40 + this0.$elSideMenu.height() : 0;
+			this0.$elSideMenu.scrollTop(delta);
+		}
+	};
+
+	/**
 	 * Category selected handler
 	 * @param {object} $categoryEl category DOM jquery element.
+	 * @return {Promise} promise.
 	 */
 	ReportListRenderer.prototype.onCategorySelect = function ($categoryEl) {
+		var promise = jq$.Deferred();
 		var this0 = this;
-		var categoryFullName = $categoryEl ? $categoryEl.attr('data-category') : '';
-		var categoryObject = this0.getCategoryByName(categoryFullName);
+		var categorFullName = $categoryEl ? $categoryEl.attr('data-category') : '';
+		var categoryObject = this0.getCategoryByName(categorFullName);
 
-		if (!categoryObject || !categoryObject.hasReports)
-			return;
+		if (!categoryObject || !categoryObject.hasReports) {
+			promise.resolve();
+			return promise;
+		}
 
-		this0.$elCategoryTitleMobile.text(categoryFullName ? categoryFullName : IzLocal.Res('js_Uncategorized', 'Uncategorized'));
+		AdHoc.Utility.SetCookie(cookieNameCurrentCategory, categoryObject.fullName);
 
-		this0.hideSideMenu();
-		this0.loadCategory(categoryObject);
-
+		this0.$elCategoryTitleMobile.text(categoryObject.fullName);
 		if ($categoryEl) {
 			this0.$elLeftPanel.find('.category-item').removeClass('selected');
 			$categoryEl.addClass('selected');
 		}
-	}
+		this0.$elReportList.scrollTop(0);
+		this0.hideSideMenu();
+		this0.loadCategory(categoryObject).then(function () {
+			promise.resolve();
+		});
+		return promise;
+	};
 
 	/**
 	 * Load category reports.
 	 * @param {object} categoryObject category model object.
+	 * @return {Promise} promise.
 	 */
 	ReportListRenderer.prototype.loadCategory = function (categoryObject) {
+		var promise = jq$.Deferred();
 		var this0 = this;
 		this0.categoriesModel.currentCategory = categoryObject;
 
@@ -153,20 +220,23 @@ var resourcesProvider;
 					this0.showContent();
 					this0.turnOffLoading(true);
 					window.scrollTo(0, 0);
-				},	
+					promise.resolve();
+				},
 				function (message) {
 					this0.onError('reports not loaded: ' + message);
 				});
 		} else {
 			this0.showContent();
 			this0.turnOffLoading(true);
+			promise.resolve();
 		}
+		return promise;
 	};
 
 	ReportListRenderer.prototype.turnOffEmptyAfterSearchCategories = function (searchResults) {
 		var this0 = this;
 		var firstEnabled = null;
-		this0.categoriesModel.categories.forEach(function (categoryObject) {
+		this0.categoriesModel.all.forEach(function (categoryObject) {
 			if (!this0.searchKeyword) {
 				categoryObject.isDisabled = false;
 				return;
@@ -177,8 +247,8 @@ var resourcesProvider;
 				var isReport = !!searchResult.ImgUrl;
 				if (isReport)
 					continue;
-				if (searchResult.CategoryFull === categoryObject.fullName
-					|| (!searchResult.CategoryFull && categoryObject.fullName === IzLocal.Res('js_Uncategorized', 'Uncategorized'))) {
+				if (searchResult.CategoryFull === categoryObject.fullName ||
+					(!searchResult.CategoryFull && categoryObject.fullName === IzLocal.Res('js_Uncategorized', 'Uncategorized'))) {
 					isDisabled = false;
 					break;
 				}
@@ -198,27 +268,36 @@ var resourcesProvider;
 			}
 		}
 		return firstEnabled;
-	}
+	};
 
 	/**
 	 * Category collapse handler
 	 * @param {object} $categoryToggleEl category DOM jquery element.
 	 */
 	ReportListRenderer.prototype.onCategoryToggle = function ($categoryToggleEl) {
+		var this0 = this;
 		var $li = $categoryToggleEl.parent();
-		var category = $li.attr('data-category');
+		var categoryFullName = $li.attr('data-category');
+		var categoryObject = this0.getCategoryByName(categoryFullName);
+		if (!categoryObject)
+			throw 'Can\'t find category object: "' + categoryFullName + '"';
 		var level = $li.data('level');
 		var isOpened = $li.hasClass('open');
 		if (isOpened)
 			$li.removeClass('open');
 		else
 			$li.addClass('open');
+		// set new state
+		categoryObject.opened = !isOpened;
 
-		jq$($li).siblings('.category-item').each(function() {
+		jq$($li).siblings('.category-item').each(function () {
 			var $currentLi = jq$(this);
-			var currentCategory = $currentLi.attr('data-category');
+			var currentCategoryFullName = $currentLi.attr('data-category');
+			var currentCategoryObject = this0.getCategoryByName(currentCategoryFullName);
 			var currentLevel = $currentLi.data('level');
-			if (currentLevel > level && currentCategory.indexOf(category) === 0 && currentCategory.length > category.length) {
+			if (currentCategoryObject
+				&& currentLevel > level
+				&& this0.isSubcategory(categoryObject.fullName, currentCategoryObject.fullName)) {
 				if (isOpened) {
 					$currentLi.removeClass('open');
 					$currentLi.stop(true, true).fadeOut(250);
@@ -228,6 +307,9 @@ var resourcesProvider;
 				}
 			}
 		});
+
+		// save category expand/collapse state
+		this0.saveClosedCategories();
 	};
 
 	ReportListRenderer.prototype.cancelSearch = function () {
@@ -241,7 +323,7 @@ var resourcesProvider;
 			this0.categoriesModel.currentCategory.reports = [];
 			this0.loadCategory(this0.categoriesModel.currentCategory);
 		}
-	}
+	};
 
 	ReportListRenderer.prototype.onKeyupQuickSearchBoxHandler = function (event) {
 		var this0 = this;
@@ -283,7 +365,7 @@ var resourcesProvider;
 		this0.searchInputTimer.push(newTimerId);
 	};
 
-	ReportListRenderer.prototype.handleSwipe = function($el, handler) {
+	ReportListRenderer.prototype.handleSwipe = function ($el, handler) {
 		var startX, distX;
 		var startY, distY;
 		var startTime = null;
@@ -306,19 +388,18 @@ var resourcesProvider;
 			var elapsedTime = e.timeStamp - startTime;
 			if (elapsedTime <= allowedTime) {
 				if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint) {
-					swipedir = (distX < 0) ? 'left' : 'right';
-				}
-				else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) {
-					swipedir = (distY < 0) ? 'up' : 'down';
+					swipedir = distX < 0 ? 'left' : 'right';
+				} else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint) {
+					swipedir = distY < 0 ? 'up' : 'down';
 				}
 				handler(swipedir);
 			}
 		});
-	}
+	};
 
-	ReportListRenderer.prototype.handleSwipeEvents = function() {
+	ReportListRenderer.prototype.handleSwipeEvents = function () {
 		var this0 = this;
-		this0.handleSwipe(this0.$elSideMenu, function(swipedir) {
+		this0.handleSwipe(this0.$elSideMenu, function (swipedir) {
 			if (swipedir === 'left')
 				this0.hideSideMenu();
 		});
@@ -332,20 +413,34 @@ var resourcesProvider;
 		});
 	};
 
+	ReportListRenderer.prototype.saveClosedCategories = function () {
+		var this0 = this;
+		var resultArray = [];
+		this0.categoriesModel.all.forEach(function (categoryObject) {
+			if (!categoryObject.opened)
+				resultArray.push(categoryObject.fullName);
+		});
+		AdHoc.Utility.SetCookie(cookieNameClosedCategories, JSON.stringify(resultArray));
+	};
+
 	ReportListRenderer.prototype.buildCategoriesModel = function (rawModel, clean) {
 		var this0 = this;
+		var closedCategories = AdHoc.Utility.GetCookie(cookieNameClosedCategories);
+		closedCategories = closedCategories ? JSON.parse(closedCategories) : [];
+
 		if (clean)
 			this0.categoriesModel = {
 				currentCategory: null,
-				categories: []
+				categories: [],
+				all: []
 			};
-		this0.categoriesModel.categories.forEach(function (categoryObject) {
+		this0.categoriesModel.all.forEach(function (categoryObject) {
 			categoryObject.reports = [];
 		}, this);
 
 		this0.categoriesModel.recents = [];
 		if (rawModel.Recent)
-			rawModel.Recent.forEach(function(reportSet) {
+			rawModel.Recent.forEach(function (reportSet) {
 				this0.categoriesModel.recents.push({
 					name: reportSet.Name,
 					urlEncodedName: reportSet.UrlEncodedName,
@@ -353,14 +448,13 @@ var resourcesProvider;
 				});
 			});
 
-		rawModel.ReportSets.forEach(function (reportSet) {
-			var isReport = !!reportSet.Name;
+		var uncategorizedText = IzLocal.Res('js_Uncategorized', 'Uncategorized');
 
+		rawModel.ReportSets.forEach(function (reportSet) {
 			// collect categories
-			var categoryFullName = reportSet.CategoryFull
-				? reportSet.CategoryFull
-				: IzLocal.Res('js_Uncategorized', 'Uncategorized');
+			var categoryFullName = reportSet.CategoryFull ? reportSet.CategoryFull : uncategorizedText;
 			var parts = categoryFullName.split(this0.nrlConfigObj.CategoryCharacter);
+
 			var currentCategoryName = '';
 			var parent = null;
 			parts.forEach(function (categoryPart, categoryPartIndex) {
@@ -369,28 +463,37 @@ var resourcesProvider;
 					currentCategoryName += this0.nrlConfigObj.CategoryCharacter;
 				currentCategoryName += categoryPart;
 
+				var cookieCategoryFullName = AdHoc.Utility.GetCookie(cookieNameCurrentCategory) || '';
+
 				// add new category object if not exist:
-				var parentCategoryObj = this0.getCategoryByName(currentCategoryName);
-				if (!parentCategoryObj) {
-					var categoryObject = {
+				var currentCategoryObject = this0.getCategoryByName(currentCategoryName);
+				if (!currentCategoryObject) {
+					// create if new
+					var newCategoryObject = {
 						id: this0.id++,
+						opened: (this0.isSubcategory(currentCategoryName, cookieCategoryFullName)) || closedCategories.indexOf(currentCategoryName) < 0,
 						name: categoryPart,
 						fullName: currentCategoryName,
 						level: categoryPartIndex,
 						reports: [],
 						hasReports: categoryPartIndex === parts.length - 1,
+						parent: null,
 						categories: []
-					}
+					};
 					if (parent !== null) {
-						parent.categories.push(categoryObject);
-					}
-					this0.categoriesModel.categories.push(categoryObject);
-					parent = categoryObject;
+						parent.categories.push(newCategoryObject);
+						newCategoryObject.parent = parent;
+					} else {
+						this0.categoriesModel.categories.push(newCategoryObject);
+					}	
+					this0.categoriesModel.all.push(newCategoryObject);
+					parent = newCategoryObject; // go deeper
 				} else {
-					parent = parentCategoryObj;
+					parent = currentCategoryObject; // go deeper
 				}
 			}, this);
 
+			var isReport = !!reportSet.Name;
 			if (isReport) {
 				var categoryObject = this0.getCategoryByName(categoryFullName);
 				/* Category, CategoryFull, CsvOnly, Dashboard, ImgUrl, IsLocked, Name, ReadOnly, ReportDesignerType
@@ -411,57 +514,83 @@ var resourcesProvider;
 			}
 		}, this0);
 	};
-	
-	ReportListRenderer.prototype.renderCategories = function () {
+
+	ReportListRenderer.prototype.renderCategory = function ($el, categoryObject) {
 		var this0 = this;
-		var $el = jq$('<ul class="iz-rl-category-list"></ul>');
-		this0.categoriesModel.categories.forEach(function (categoryObject) {
-			if (categoryObject.isDisabled)
-				return;
-			var hasSubcategory = categoryObject.categories.length;
-			var hasReports = categoryObject.hasReports;
-			var marginLeft = 6 * categoryObject.level;
+		if (categoryObject.isDisabled)
+			return;
+		var hasSubcategory = categoryObject.categories.length;
+		var hasReports = categoryObject.hasReports;
+		var marginLeft = 6 * categoryObject.level;
 
-			// create li
-			var $item = jq$('<li>')
-				.attr('title', categoryObject.name)
-				.attr('data-level', categoryObject.level)
-				.attr('data-category', categoryObject.fullName)
-				.addClass('category-item')
-				.css({
-					'margin-left': marginLeft + 'px',
-					'display': (categoryObject.level === 0 || this0.nrlConfigObj.ExpandCategorizedReports) ? '' : 'none'
-				});
-			if (!hasReports) {
-				$item.addClass('empty');
-			}
+		// create li
+		var $item = jq$('<li>')
+			.attr('title', categoryObject.name)
+			.attr('data-level', categoryObject.level)
+			.attr('data-category', categoryObject.fullName)
+			.addClass('category-item')
+			.css({
+				'margin-left': marginLeft + 'px',
+				'display': categoryObject.level === 0 || this0.nrlConfigObj.ExpandCategorizedReports ? '' : 'none'
+			});
+		if (!hasReports)
+			$item.addClass('empty');
 
-			// create expand icon
-			if (hasSubcategory) {
-				var $expandIcon = jq$('<a></a>')
-					.addClass('category-item-expand')
-					.on('click', function () {
+		// create expand icon
+		if (hasSubcategory) {
+			var $expandIcon = jq$('<a></a>')
+				.addClass('category-item-expand')
+				.on('click',
+					function () {
 						this0.onCategoryToggle(jq$(this));
 					});
+			$item.append($expandIcon);
+			if (categoryObject.opened)
 				$item.addClass('open');
-				$item.append($expandIcon);
-			}
-			if ((this0.categoriesModel.currentCategory && this0.categoriesModel.currentCategory.fullName === categoryObject.fullName)
-				|| (this0.categoriesModel.currentCategory === null && categoryObject.fullName === IzLocal.Res('js_Uncategorized', 'Uncategorized'))) {
-				$item.addClass('selected');
-			}
+		}
 
-			// create link
-			var $link = jq$('<a class="category-item-text" href="#"></a>')
-				.text(categoryObject.name)
-				.on('click', function (e) {
+		var isParentsOpened = true;
+		var parent = categoryObject.parent;
+		while (parent && isParentsOpened) {
+			if (!parent.opened)
+				isParentsOpened = false;
+			parent = parent.parent;
+		}
+		if (!isParentsOpened)
+			$item.hide();
+
+		if ((this0.categoriesModel.currentCategory &&
+			this0.categoriesModel.currentCategory.fullName === categoryObject.fullName) ||
+			(this0.categoriesModel.currentCategory === null &&
+				categoryObject.fullName === IzLocal.Res('js_Uncategorized', 'Uncategorized')))
+			$item.addClass('selected');
+
+		// create link
+		var $link = jq$('<a class="category-item-text" href="#"></a>')
+			.text(categoryObject.name)
+			.on('click',
+				function (e) {
 					cancelEvent(e);
 					var $categoryEl = jq$(this).parent();
 					this0.onCategorySelect.call(this0, $categoryEl);
 				});
-			$item.append($link);
-			$el.append($item);
+		$item.append($link);
+		$el.append($item);
+	};
+
+	ReportListRenderer.prototype.renderCategoriesBunch = function ($el, categories) {
+		var this0 = this;
+		categories.forEach(function (categoryObject) {
+			this0.renderCategory($el, categoryObject);
+			if (categoryObject.categories.length)
+				this0.renderCategoriesBunch($el, categoryObject.categories);
 		}, this0);
+	};
+
+	ReportListRenderer.prototype.renderCategories = function () {
+		var this0 = this;
+		var $el = jq$('<ul class="iz-rl-category-list"></ul>');
+		this0.renderCategoriesBunch($el, this0.categoriesModel.categories);
 		this0.$elLeftPanel.empty();
 		if ($el) {
 			this0.$elLeftPanel.append($el);
@@ -472,7 +601,7 @@ var resourcesProvider;
 		var this0 = this;
 		var recents = this0.categoriesModel.recents;
 		var element = jq$('<ul class="iz-rl-category-list"></ul>');
-		recents.forEach(function(recent) {
+		recents.forEach(function (recent) {
 			var recentItem = this0.renderRecentItem(recent);
 			element.append(recentItem);
 		});
@@ -486,7 +615,7 @@ var resourcesProvider;
 			.attr('href', directLink)
 			.text(recent.name)
 			.on('click', function (event) {
-				if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
+				if ((event.which === null && event.button < 2) || (event.which !== null && event.which < 2)) {
 					AdHoc.Utility.NavigateReport(directLink, 0, this0.nrlConfigObj.ResponseServerUrl);
 					cancelEvent(event);
 					return false;
@@ -501,7 +630,7 @@ var resourcesProvider;
 		this0.$elReportList.empty();
 		var $tabs = jq$('<div id="tabs"></div>');
 		var $hiddenItems = jq$('<ul style="display: none;"></ul>');
-		this0.categoriesModel.categories.forEach(function (categoryObject) {
+		this0.categoriesModel.all.forEach(function (categoryObject) {
 			// tabs menu
 			var $hiddenItem = jq$('<li></li>').css({
 				'font-size': '1em'
@@ -532,7 +661,7 @@ var resourcesProvider;
 		if (!categoryObject.reports.length) {
 			var vSize = document.body.offsetHeight;
 			var $noReportsDiv = jq$('<div class="no-reports-found-message"></div>')
-				.css('margin-top', (vSize / 3) + 'px')
+				.css('margin-top', vSize / 3 + 'px')
 				.text(IzLocal.Res('js_NoReportsFound', 'No reports found'));
 			$thumbs.append($noReportsDiv);
 			return;
@@ -547,7 +676,7 @@ var resourcesProvider;
 
 	ReportListRenderer.prototype.renderReportItem = function (report) {
 		var this0 = this;
-		if (report.name == null || report.name == '')
+		if (!report.name)
 			return null;
 		if (report.dashboard && justSelect)
 			return null;
@@ -567,23 +696,23 @@ var resourcesProvider;
 		}
 	};
 
-	ReportListRenderer.prototype.createThumbElement = function(report, imageMode, buttonsMode, titleMode, directLinkMode) {
+	ReportListRenderer.prototype.createThumbElement = function (report, imageMode, buttonsMode, titleMode, directLinkMode) {
 		var this0 = this;
 		var directLink = this0.createDirectLink(report);
 		var $element = jq$('<div></div>').addClass(isTouch ? 'thumb no-hover' : 'thumb');
 		if (imageMode) {
 			$element.on('click', function (event) {
-				if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
+				if ((event.which === null && event.button < 2) || (event.which !== null && event.which < 2)) {
 					AdHoc.Utility.NavigateReport(directLink, 0, this0.nrlConfigObj.ResponseServerUrl);
 				}
 			});
 		} else {
 			$element.addClass('text-mode');
 			$element.css({
-					'background-color': '#f3f3f3',
-					'max-width': (this0.nrlConfigObj.ThumbnailWidth + 70) + 'px',
-					'line-height': '55px'
-				})
+				'background-color': '#f3f3f3',
+				'max-width': (this0.nrlConfigObj.ThumbnailWidth + 70) + 'px',
+				'line-height': '55px'
+			})
 				.on('click', function () {
 					AdHoc.Utility.NavigateReport(directLink, 0, this0.nrlConfigObj.ResponseServerUrl);
 				});
@@ -598,7 +727,7 @@ var resourcesProvider;
 			var directLinkElement = jq$('<a>')
 				.attr('href', directLink)
 				.on('click', function (event) {
-					if ((event.which == null && event.button < 2) || (event.which != null && event.which < 2)) {
+					if ((event.which === null && event.button < 2) || (event.which !== null && event.which < 2)) {
 						cancelEvent(event);
 						return false;
 					}
@@ -610,7 +739,7 @@ var resourcesProvider;
 		return $element;
 	}
 
-	ReportListRenderer.prototype.createThumbContainerElement = function(report, imageMode, buttonsMode) {
+	ReportListRenderer.prototype.createThumbContainerElement = function (report, imageMode, buttonsMode) {
 		var this0 = this;
 		var element = jq$('<div class="thumb-container">');
 		if (imageMode) {
@@ -639,16 +768,17 @@ var resourcesProvider;
 		if (!report.viewOnly && !report.isLocked && this0.nrlConfigObj.AllowDesignReports) {
 			var thumbEditElement = jq$('<div class="thumb-button thumb-edit"></div>')
 				.attr('title', IzLocal.Res('js_Edit', 'Edit'))
-				.on('click', function (event) {
-					cancelEvent(event);
+				.on('click',
+					function (event) {
+						cancelEvent(event);
 
-					var link = this0.createDirectLink(report, true);
-					if (!this0.nrlConfigObj.ChangParentUrlWhenRedirect) {
-						AdHoc.Utility.NavigateReport(link, 0, this0.nrlConfigObj.ResponseServerUrl);
-					} else {
-						AdHoc.Utility.NavigateReport(link, 0, this0.nrlConfigObj.ResponseServerUrl, true);
-					}
-				});
+						var link = this0.createDirectLink(report, true);
+						if (!this0.nrlConfigObj.ChangParentUrlWhenRedirect) {
+							AdHoc.Utility.NavigateReport(link, 0, this0.nrlConfigObj.ResponseServerUrl);
+						} else {
+							AdHoc.Utility.NavigateReport(link, 0, this0.nrlConfigObj.ResponseServerUrl, true);
+						}
+					});
 			if (!imageMode) {
 				thumbEditElement.css('right', '28px');
 			} else {
@@ -656,27 +786,34 @@ var resourcesProvider;
 			}
 			element.append(thumbEditElement);
 		}
-		if (!report.readOnly && !report.viewOnly && !report.isLocked && this0.nrlConfigObj.AllowDeletingReports && this0.nrlConfigObj.AllowDesignReports) {
+		if (!report.readOnly &&
+			!report.viewOnly &&
+			!report.isLocked &&
+			this0.nrlConfigObj.AllowDeletingReports &&
+			this0.nrlConfigObj.AllowDesignReports) {
 			var thumbRemoveElement = jq$('<div class="thumb-button thumb-remove"></div>')
 				.attr('title', IzLocal.Res('js_Remove', 'Remove'))
-				.on('click', function (event) {
-					cancelEvent(event);
-					var fullName = report.categoryFull + this0.nrlConfigObj.CategoryCharacter + report.name;
-					var message = IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?').replace(/\{0\}/g, fullName);
-					this0.deleteReport(report, message, report.urlEncodedName);
-				});
+				.on('click',
+					function (event) {
+						cancelEvent(event);
+						var fullName = report.categoryFull + this0.nrlConfigObj.CategoryCharacter + report.name;
+						var message = IzLocal.Res('js_AreYouSureYouWantToDeleteMessage', 'Are you sure you want to delete {0}?')
+							.replace(/\{0\}/g, fullName);
+						this0.deleteReport(report, message, report.urlEncodedName);
+					});
 			element.append(thumbRemoveElement);
 		}
 		if (!report.csvOnly || !imageMode) {
 			var thumbPrintElement = jq$('<div class="thumb-button thumb-print"></div>')
 				.attr('title', IzLocal.Res('js_Print', 'Print'))
 				.addClass('thumb-print')
-				.on('click', function (event) {
-					cancelEvent(event);
+				.on('click',
+					function (event) {
+						cancelEvent(event);
 
-					var link = 'rs.aspx?rn=' + report.urlEncodedName + '&print=1';
-					window.open(link, '_blank');
-				});
+						var link = 'rs.aspx?rn=' + report.urlEncodedName + '&print=1';
+						window.open(link, '_blank');
+					});
 			if (!imageMode) {
 				thumbPrintElement.css('right', '56px');
 			} else {
@@ -685,7 +822,7 @@ var resourcesProvider;
 			element.append(thumbPrintElement);
 		}
 		return element;
-	}
+	};
 
 	ReportListRenderer.prototype.createThumbTitleElement = function (report, imageMode) {
 		var this0 = this;
@@ -699,7 +836,7 @@ var resourcesProvider;
 			$element.append($textElement);
 		}
 		return $element;
-	}
+	};
 
 	ReportListRenderer.prototype.createDirectLink = function (report, isDesignerLink) {
 		var this0 = this;
@@ -725,7 +862,7 @@ var resourcesProvider;
 	ReportListRenderer.prototype.deleteReport = function (report, message, reportName) {
 		var this0 = this;
 		ReportingServices.showConfirm(message, function (result) {
-			if (result == jsResources.OK) {
+			if (result === jsResources.OK) {
 				this0.turnOnLoading(true,
 					IzLocal.Res('js_Deleting', 'Deleting...'),
 					false,
@@ -753,17 +890,17 @@ var resourcesProvider;
 	ReportListRenderer.prototype.onError = function (message) {
 		var this0 = this;
 		this0.$elReportList.empty().text(message);
-		this0.turnOffLoading(true, function() {
+		this0.turnOffLoading(true, function () {
 			this0.showContent();
 		});
 	};
-	
+
 	ReportListRenderer.prototype.getCategoryByName = function (fullName) {
 		var this0 = this;
 		var searchName = fullName;
 		if (!fullName)
 			searchName = IzLocal.Res('js_Uncategorized', 'Uncategorized');
-		var categories = this0.categoriesModel.categories.filter(function (categoryObj) {
+		var categories = this0.categoriesModel.all.filter(function (categoryObj) {
 			return categoryObj.fullName === searchName;
 		});
 		return categories.length ? categories[0] : null;
@@ -803,14 +940,16 @@ var resourcesProvider;
 		this0.$elSearchIcon.show();
 		this0.$elCancelSearchIcon.show();
 		if (animate && this0.$elLoading.length) {
-			this0.$elLoading.stop(true, true).fadeOut(250, function () {
-				this0.$elReportList.stop(true, true).fadeIn(250, function () {
-					this0.$elLoading.hide();
-					this0.showContent();
-					if (typeof (callback) === 'function')
-						callback.call(this0);
+			this0.$elLoading.stop(true, true).fadeOut(250,
+				function () {
+					this0.$elReportList.stop(true, true).fadeIn(250,
+						function () {
+							this0.$elLoading.hide();
+							this0.showContent();
+							if (typeof (callback) === 'function')
+								callback.call(this0);
+						});
 				});
-			});
 		} else {
 			this0.$elLoading.hide();
 			this0.$elReportList.show();
@@ -818,11 +957,20 @@ var resourcesProvider;
 			if (typeof (callback) === 'function')
 				callback.call(this0);
 		}
-	}
+	};
 
 	ReportListRenderer.prototype.showContent = function () {
 		var this0 = this;
+		var reportListOffsetTop = this0.$elMainPanel.offset().top;
+		var footer = jq$('.izenda-layout-footer');
+		if (footer.length)
+			reportListOffsetTop += footer.height();
+		var height = 'calc(100vh - ' + reportListOffsetTop + 'px)';
+		this0.$elReportList.css('height', height);
+		this0.$elReportList.css('overflow-y', 'auto');
 		this0.$elReportList.css('visibility', 'visible');
+		this0.$elSideMenu.css('height', height);
+		this0.$elSideMenu.css('overflow-y', 'auto');
 	};
 
 	ReportListRenderer.prototype.hideContent = function () {
@@ -847,17 +995,17 @@ var resourcesProvider;
 	/////////////////////////////
 	function ReportListRequest() {
 		this.nrlConfigObj = null;
-	};
+	}
 
 	ReportListRequest.prototype.loadConfig = function (context, callback) {
 		var this0 = this;
 		var instant = getUrlParam('instant');
-		if (instant != '1') instant = '0';
+		if (instant !== '1') instant = '0';
 
 		// load config
 		var requestString = 'wscmd=reportlistconfig&wsarg0=' + instant;
 		AjaxRequest('./rs.aspx', requestString, function (returnObj, id) {
-			if (id != 'reportlistconfig') return;
+			if (id !== 'reportlistconfig') return;
 			if (typeof returnObj === 'undefined' || returnObj === null)
 				throw 'reportlistconfig returnObj is supposed to be object.';
 			// process config
@@ -869,18 +1017,18 @@ var resourcesProvider;
 			responseServer = new AdHoc.ResponseServer(this0.nrlConfigObj.ResponseServerUrl, this0.nrlConfigObj.TimeOut);
 			resourcesProvider = new AdHoc.ResourcesProvider(this0.nrlConfigObj.ResourcesProviderUrl, this0.nrlConfigObj.TimeOut);
 			var reportDesignerLink = jq$('#newReportLink');
+			reportDesignerLink.href = this0.nrlConfigObj.ReportDesignerLink;
+			reportDesignerLink.target = this0.nrlConfigObj.ReportDesignerTarget;
+
 			var dashboardDesignerLink = jq$('#newDashboardLink');
-			if (reportDesignerLink != null) {
-				reportDesignerLink.href = this0.nrlConfigObj.ReportDesignerLink;
-				reportDesignerLink.target = this0.nrlConfigObj.ReportDesignerTarget;
-			}
-			if (dashboardDesignerLink != null)
-				dashboardDesignerLink.href = this0.nrlConfigObj.DashboardDesignerLink;
+			dashboardDesignerLink.href = this0.nrlConfigObj.DashboardDesignerLink;
+
 			var irdivlink = document.getElementById('irdivlink');
-			if (irdivlink != null)
+			if (irdivlink)
 				irdivlink.onclick = function () {
 					window.location = this0.nrlConfigObj.InstantReportUrl;
 				};
+
 			if (typeof (callback) === 'function')
 				callback.call(context ? context : this0, this0.nrlConfigObj);
 		}, function (thisRequestObject) {
@@ -905,8 +1053,8 @@ var resourcesProvider;
 		this.reportListRequest = AjaxRequest('./rs.aspx', requestString, function (returnObj, id, parameters) {
 			this0.reportListRequest = null;
 			// process results
-			if (id != 'reportlistdatalite') return;
-			if (typeof returnObj === 'undefined' || returnObj == null || typeof returnObj.ReportSets === 'undefined' || returnObj.ReportSets == null) {
+			if (id !== 'reportlistdatalite') return;
+			if (typeof returnObj === 'undefined' || returnObj === null || typeof returnObj.ReportSets === 'undefined' || returnObj.ReportSets === null) {
 				if (typeof (callbackSuccess) === 'function')
 					callbackSuccess.call(context ? context : this0, null);
 				return;
@@ -916,7 +1064,7 @@ var resourcesProvider;
 		}, function (returnObj) {
 			this0.reportListRequest = null;
 			// error handling
-			if (returnObj.isAborted || returnObj.requestId != 'reportlistdatalite') return;
+			if (returnObj.isAborted || returnObj.requestId !== 'reportlistdatalite') return;
 			var startEx = returnObj.responseText.indexOf('<' + '!' + '-' + '-');
 			var exMsg;
 			if (startEx >= 0)
@@ -928,7 +1076,7 @@ var resourcesProvider;
 		}, 'reportlistdatalite', requestString);
 	};
 
-	ReportListRequest.prototype.cancelLoadReports = function() {
+	ReportListRequest.prototype.cancelLoadReports = function () {
 		if (this.reportListRequest && this.reportListRequest.abort) {
 			this.reportListRequest.isAborted = true;
 			this.reportListRequest.abort();
@@ -944,7 +1092,7 @@ var resourcesProvider;
 		var regexS = '[\\?&]' + name + '=([^&#]*)';
 		var regex = new RegExp(regexS);
 		var results = regex.exec(window.location.href);
-		if (results == null)
+		if (results === null)
 			return '';
 		else
 			return results[1];
@@ -958,7 +1106,7 @@ var resourcesProvider;
 
 	// RUN!
 	jq$(document).ready(function () {
-		justSelect = getUrlParam('justSelect') == '1';
+		justSelect = getUrlParam('justSelect') === '1';
 		if (justSelect) {
 			document.getElementById('whiteHeader').style.display = 'none';
 			document.getElementById('blueHeader').style.display = 'none';

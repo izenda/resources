@@ -37,63 +37,64 @@
 var allTabsFilled = false;
 var resizeDelay = null;
 
-function OnAdHocQueryBuilderTabChanged(horrId, index, continueScript, columnNumber, param)
-{
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+})(window.izenda || (window.izenda = {}));
+
+function OnAdHocQueryBuilderTabChanged(horrId, index, continueScript, columnNumber, param) {
+	var pageContext = izenda.pages.designer.context;
 	EBC_RemoveAllUnusedRows();
-	if(typeof(EBC_TotalStartupScript)!='undefined')
-	{
-		if(!EBC_TotalStartupScriptRunned)
+	if (typeof(EBC_TotalStartupScript) != 'undefined') {
+		if (!EBC_TotalStartupScriptRunned)
 			EBC_TotalStartupScript();
-	}	
-	if(window.previewTabIndex!=null && index == previewTabIndex && typeof(HORR_UpdateContent)!="undefined")
+	}
+	if (pageContext.previewTabIndex != null && index == pageContext.previewTabIndex && typeof(HORR_UpdateContent) != "undefined")
 		HORR_UpdateContent(horrId, continueScript, true, param);
 }
 
-function OnAdHocQueryBuilderBeforeTabChanged(index)
-{
+function OnAdHocQueryBuilderBeforeTabChanged() {
 }
 
-function AHQB_GotoTab(index)
-{
-	TabStrip_ActivateTab(tabStripId, index);
+function AHQB_GotoTab(index) {
+	var pageContext = izenda.pages.designer.context;
+	TabStrip_ActivateTab(pageContext.tabStripId, index);
 }
 
-function AHQB_Init()
-{
+function AHQB_Init() {
 	window.addEventListener('resize', AHQB_OnResize, true);
 	document.addEventListener('load', AHQB_OnResize, true);
 }
 
-function AHQB_OnResize()
-{
+function AHQB_OnResize() {
 	clearTimeout(resizeDelay);
 }
 
-function AHQB_OnResize_Internal()
-{
+function AHQB_OnResize_Internal() {
 	var helpControls = document.getElementsByTagName("td");
 	var bsize = document.body.offsetWidth < 900;
-	for(var i = 0; i < helpControls.length; i++)
-	{
+	for (var i = 0; i < helpControls.length; i++) {
 		var helpControl = helpControls[i];
-		if(helpControl.getAttribute("AdHocHelpControl") != "true")
+		if (helpControl.getAttribute("AdHocHelpControl") != "true")
 			continue;
-		if(bsize)
-		    helpControl.style.display = "none";
+		if (bsize)
+			helpControl.style.display = "none";
 		else
 			helpControl.style.display = "";
 	}
 }
 
-function DisableEnableTabs(enable)
-{
+function DisableEnableTabs() {
 }
 
 var isErrorOld = false;
-function DisableEnablePreviewTab(isError, enable)
-{
+
+function DisableEnablePreviewTab(isError, enable) {
 	var trueEnable = !isError;
-	if (enable==null)
+	if (enable == null)
 		isErrorOld = isError;
 	else
 		trueEnable = !isErrorOld && enable;
@@ -107,27 +108,26 @@ function DisableEnablePreviewTab(isError, enable)
 		pbCnt++;
 		pb = document.getElementById('PreviewBtn' + pbCnt);
 	}
-	if (tabStripId && window.previewTabIndex)
-		TabStrip_EnableDisableTab(tabStripId, previewTabIndex, trueEnable);
+
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.tabStripId && pageContext.previewTabIndex)
+		TabStrip_EnableDisableTab(pageContext.tabStripId, pageContext.previewTabIndex, trueEnable);
 }
 
-function DisableEnableTabsFrom(enable, index)
-{
-	if (tabStripId)
-	{
-		var tabsCount = TabStrip_GetTabsCount(tabStripId);
-		for(var i=index;i<tabsCount;i++)
-			TabStrip_EnableDisableTab(tabStripId, i, enable);
+function DisableEnableTabsFrom(enable, index) {
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.tabStripId) {
+		var tabsCount = TabStrip_GetTabsCount(pageContext.tabStripId);
+		for (var i = index; i < tabsCount; i++)
+			TabStrip_EnableDisableTab(pageContext.tabStripId, i, enable);
 	}
 }
 
-function AHRD_ShowHideHelpPanel()
-{
+function AHRD_ShowHideHelpPanel() {
 	var helpControls = document.getElementsByTagName("td");
-	for(var i=0;i<helpControls.length;i++)
-	{
+	for (var i = 0; i < helpControls.length; i++) {
 		var helpControl = helpControls[i];
-		if(helpControl.getAttribute("AdHocHelpControl") != "true")
+		if (helpControl.getAttribute("AdHocHelpControl") != "true")
 			continue;
 		helpControl.style["display"] = helpControl.style["display"] == "none" ? "" : "none";
 	}
@@ -137,10 +137,10 @@ function GetLoadingHtml() {
 	var loading = jq$('#loadingDiv');
 	if (loading == null || loading.length == 0)
 		return '';
-	return jq$('<div>').append(loading.clone().show()).html()
+	return jq$('<div>').append(loading.clone().show()).html();
 }
 
-function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
+function GetRenderedReportSet(invalidateInCache, additionalParams) {
 	jq$('#renderedReportDiv').html(GetLoadingHtml());
 	var requestString = 'wscmd=getrenderedreportset',
 		urlParams = [];
@@ -155,7 +155,11 @@ function GetRenderedReportSet(invalidateInCache, additionalParams, caller) {
 		urlParams.push('iic=1');
 	if (additionalParams)
 		urlParams.push(additionalParams);
-	AjaxRequest('./rs.aspx' + (urlParams.length > 0 ? '?' + urlParams.join('&') : ''), requestString, GotRenderedReportSet, null, 'getrenderedreportset');
+	AjaxRequest('./rs.aspx' + (urlParams.length > 0 ? '?' + urlParams.join('&') : ''),
+		requestString,
+		GotRenderedReportSet,
+		null,
+		'getrenderedreportset');
 }
 
 function GotRenderedReportSet(returnObj, id) {
@@ -165,9 +169,10 @@ function GotRenderedReportSet(returnObj, id) {
 	AdHoc.Utility.InitGaugeAnimations(null, null, false);
 	// Dirty workaround for IE8
 	if (jq$.support.opacity == false)
-		setTimeout(function () { jq$('body')[0].className = jq$('body')[0].className; }, 200);
+		setTimeout(function() { jq$('body')[0].className = jq$('body')[0].className; }, 200);
 }
 
 if(window.ebc_disableEnableFunctions)
 	ebc_disableEnableFunctions.push(DisableEnableTabs);
+
 AHQB_Init();

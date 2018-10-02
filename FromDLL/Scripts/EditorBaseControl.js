@@ -48,29 +48,19 @@ var currentRequests = 0;
 var responseServer;
 var resourcesProvider;
 var descriptions = new Array();
-var tablesSave = {};
 
 (function (ns) {
-	ns.isDefined = function (value) {
-		return typeof value !== 'undefined';
-	};
-
-	ns.isUndefined = function (value) {
-		return typeof value === 'undefined';
-	};
-
-	ns.getValue = function (value, defaultValue) {
-		return ns.isDefined(value) ? value : defaultValue;
-	};
-
 	ns.pages = ns.pages || {};
 	ns.pages.designer = ns.pages.designer || {};
+
 	ns.pages.designer.context = ns.pages.designer.context || {};
 
 	var context = ns.pages.designer.context;
 	context.qac_works = ns.getValue(context.qac_works, false);
 	context.qac_requests = ns.getValue(context.qac_requests, 0);
 	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+	context.descriptions = ns.getValue(context.descriptions, []);
 
 })(window.izenda || (window.izenda = {}));
 
@@ -882,7 +872,9 @@ function EBC_CheckFieldsCount(id, count) {
 
 
 function EBC_PopulateDescriptions(fields) {
-	descriptions = new Array();
+	var pageContext = izenda.pages.designer.context;
+
+	pageContext.descriptions = [];
 	var calcField;
 	for (var i = 0; i < fields.length; i++) {
 		var field = fields[i];
@@ -895,7 +887,7 @@ function EBC_PopulateDescriptions(fields) {
 			calcField.initialDataType = field.initialDataType;
 			calcField.dataTypeGroup = field.dataTypeGroup;
 			calcField.expressionType = field.expressionType;
-			descriptions.push(calcField);
+			pageContext.descriptions.push(calcField);
 		}
 		else if (field.operationElem == '~' && (i + 1 < fields.length) && (fields[i + 1].operationElem != '~')) {
 			calcField.description = field.description;
@@ -904,7 +896,7 @@ function EBC_PopulateDescriptions(fields) {
 			calcField.initialDataType = field.initialDataType;
 			calcField.dataTypeGroup = field.dataTypeGroup;
 			calcField.expressionType = field.expressionType;
-			descriptions.push(calcField);
+			pageContext.descriptions.push(calcField);
 		}
 	}
 }

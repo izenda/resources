@@ -44,8 +44,15 @@ var JTC_oldTableList = new Array(" ");
 var JTC_hash = "0";
 var JTCS_Init_executes = false;
 
-function JTC_GetCleanDataSource(dataSources)
-{
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+})(window.izenda || (window.izenda = {}));
+
+function JTC_GetCleanDataSource(dataSources) {
 	if (dataSources.indexOf('\'') < 0)
 		return dataSources;
 	var bracketOpenedCount = 0;
@@ -64,23 +71,21 @@ function JTC_GetCleanDataSource(dataSources)
 }
 
 //Prepare tabs
-function JTC_PrepareTabStrip(id)
-{
-	if(window.tabStripId && !window.tabStriptIdisIlligal)
+function JTC_PrepareTabStrip(id) {
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.tabStripId && !window.tabStriptIdisIlligal)
 		return;
 	var table = document.getElementById(id);
-	while(table != null && table.tagName != 'SPAN')
+	while (table != null && table.tagName != 'SPAN')
 		table = table.parentNode;
 	table = table.firstChild.childNodes;
-A:	for(var i = table.length - 1; i >= 0; --i)
-	{
+	A: for (var i = table.length - 1; i >= 0; --i) {
 		var node = table[i];
-		if(node.tagName == 'DIV' && node.className == 'TabStrip')
-			for(var j = node.childNodes.length - 1; j >= 0; --j)
-				if(node.childNodes[j].tagName == 'TABLE')
-				{
+		if (node.tagName == 'DIV' && node.className == 'TabStrip')
+			for (var j = node.childNodes.length - 1; j >= 0; --j)
+				if (node.childNodes[j].tagName == 'TABLE') {
 					var tid = node.childNodes[j].tBodies[0].rows[0].id;
-					window.tabStripId = tid.substr(0, tid.length - 4);
+					pageContext.tabStripId = tid.substr(0, tid.length - 4);
 					break A;
 				}
 	}
@@ -88,32 +93,27 @@ A:	for(var i = table.length - 1; i >= 0; --i)
 }
 
 //ceck, and enable/disable other tabs
-function JTC_CheckAliases(id)
-{
-	if(window.DisableEnableTabsFrom && window.firstDisabledTabIndex)
-	{
+function JTC_CheckAliases(id) {
+	var pageContext = izenda.pages.designer.context;
+	if (window.DisableEnableTabsFrom && pageContext.firstDisabledTabIndex) {
 		var count = 0;
-		var tableSels = document.getElementsByName(id + '_Table');	
+		var tableSels = document.getElementsByName(id + '_Table');
 		var rightTable = document.getElementsByName(id + '_RightTable');
 		var column = document.getElementsByName(id + '_Column');
 		var rightColumn = document.getElementsByName(id + '_RightColumn');
 		var joinSel = document.getElementsByName(id + '_Join');
 		var joined = true;
 
-		for (var i = 0; i < tableSels.length && joined; i++)
-		{
-			if (tableSels[i] != null && tableSels[i].value != null && tableSels[i].value != '...')
-			{
+		for (var i = 0; i < tableSels.length && joined; i++) {
+			if (tableSels[i] != null && tableSels[i].value != null && tableSels[i].value != '...') {
 				count++;
-				if (i>0)
-				{
+				if (i > 0) {
 					if (joinSel != null && joinSel[i] != null && joinSel[i].value == 'CROSS_JOIN')
 						joined = true;
-					else
-					{
+					else {
 						joined = (rightTable[i].value != null && rightTable[i].value != '...');
-						joined = joined  && (rightColumn[i].value != null && rightColumn[i].value != '...');
-						joined = joined  && (column[i].value != null && column[i].value != '...');
+						joined = joined && (rightColumn[i].value != null && rightColumn[i].value != '...');
+						joined = joined && (column[i].value != null && column[i].value != '...');
 					}
 				}
 			}
@@ -121,93 +121,86 @@ function JTC_CheckAliases(id)
 
 		JTC_PrepareTabStrip(id);
 		if (JTC_JoinedAutomatically[id])
-		    joined = true;
-		if(count>0 && joined)
-			DisableEnableTabsFrom(true, firstDisabledTabIndex);
+			joined = true;
+		if (count > 0 && joined)
+			DisableEnableTabsFrom(true, pageContext.firstDisabledTabIndex);
 		else
-			DisableEnableTabsFrom(false, firstDisabledTabIndex);		
+			DisableEnableTabsFrom(false, pageContext.firstDisabledTabIndex);
 	}
 }
 
-function JTC_AutoJoin(id, rowIndex)
-{
+function JTC_AutoJoin(id, rowIndex) {
 	// source table have not join fields
-	if (rowIndex == 0)
-	{
+	if (rowIndex == 0) {
 		return true;
 	}
-		
+
 	var result = false;
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];
 	var row = body.rows[rowIndex]
-	
+
 	var leftColumn = EBC_GetSelectByName(row, 'Column');
 	var rightColumn = EBC_GetSelectByName(row, 'RightColumn');
-		
+
 	var leftTable = EBC_GetSelectByName(row, 'Table');
 	var leftTableName = leftTable.value;
-	if (leftTableName != '...')
-	{
+	if (leftTableName != '...') {
 		var primaryKey = null;
 		var foreignKey = null;
 		var rightTable = EBC_GetSelectByName(row, 'RightTable');
 		var rightTableName = rightTable.value;
-		
-		if (ebc_tableInfo != null)
-		{
-			if (typeof(ebc_tableInfo[leftTableName]) != 'undefined' && ebc_tableInfo[leftTableName] != null && ebc_tableInfo[leftTableName][rightTableName] != null)
-			{
+
+		if (ebc_tableInfo != null) {
+			if (typeof(ebc_tableInfo[leftTableName]) != 'undefined' &&
+				ebc_tableInfo[leftTableName] != null &&
+				ebc_tableInfo[leftTableName][rightTableName] != null) {
 				primaryKey = ebc_tableInfo[leftTableName][rightTableName][1];
 				foreignKey = ebc_tableInfo[leftTableName][rightTableName][0];
-			}
-			else if (typeof(ebc_tableInfo[rightTableName]) != 'undefined' && ebc_tableInfo[rightTableName] != null && ebc_tableInfo[rightTableName][leftTableName] != null)
-			{
+			} else if (typeof(ebc_tableInfo[rightTableName]) != 'undefined' &&
+				ebc_tableInfo[rightTableName] != null &&
+				ebc_tableInfo[rightTableName][leftTableName] != null) {
 				primaryKey = ebc_tableInfo[rightTableName][leftTableName][0];
 				foreignKey = ebc_tableInfo[rightTableName][leftTableName][1];
 			}
 		}
-		if (primaryKey != null && foreignKey != null)
-		{
+		if (primaryKey != null && foreignKey != null) {
 			EBC_SetSelectedIndexByValue(rightColumn, primaryKey);
 			EBC_SetSelectedIndexByValue(leftColumn, foreignKey);
 			result = true;
-		}
-		else
+		} else
 			result = JTC_Internal_FindEqualColumns(row);
 	}
 	return result;
 }
 
-function JTC_SetRightColumnValues(id, rowIndex)
-{
+function JTC_SetRightColumnValues(id, rowIndex) {
 	var tableSel = document.getElementsByName(id + '_RightTable')[rowIndex]
 	var columnSel = document.getElementsByName(id + '_RightColumn')[rowIndex]
-	
-	if (tableSel != null && columnSel != null)
-	{
+
+	if (tableSel != null && columnSel != null) {
 		if (tableSel.value == '...' || tableSel.value == '')
 			EBC_LoadData('@JTC/Empty', null, columnSel, false);
-		else
-		{
+		else {
 			// it needs to auto-join columns when right column will be loaded
 			JTC_autoJoinQueue[rowIndex] = 1;
 			EBC_LoadData(
 				"CombinedColumnList",
-				"tables=" + JTC_GetCleanDataSource(tableSel.value) +
-				"&" + "joinFields=true", columnSel,
+				"tables=" +
+				JTC_GetCleanDataSource(tableSel.value) +
+				"&" +
+				"joinFields=true",
+				columnSel,
 				false);
 		}
 	}
 }
 
-function JTC_SelectRightTableSelValue(id, rowIndex)
-{
+function JTC_SelectRightTableSelValue(id, rowIndex) {
 	//check oldValue, then from last table to upper
 	var rightTableSel = document.getElementsByName(id + '_RightTable')[rowIndex];
 	var oldValue = rightTableSel.value;
-	if (oldValue == '...')
-	{
+	if (oldValue == '...') {
 		oldValue = rightTableSel.getAttribute("oldValue");
 		if (oldValue != null && oldValue != '...')
 			EBC_SetSelectedIndexByValue(rightTableSel, oldValue);
@@ -216,17 +209,14 @@ function JTC_SelectRightTableSelValue(id, rowIndex)
 	JTC_SetRightColumnValues(id, rowIndex);
 	autoJoined = JTC_AutoJoin(id, rowIndex);
 	var tableSel = document.getElementsByName(id + '_Table');
-	for (var i=rowIndex-1;i>=0 && !autoJoined;i--)
-	{
-		if (tableSel[i].value != '...')
-		{
+	for (var i = rowIndex - 1; i >= 0 && !autoJoined; i--) {
+		if (tableSel[i].value != '...') {
 			EBC_SetSelectedIndexByValue(rightTableSel, tableSel[i].value);
 			JTC_SetRightColumnValues(id, rowIndex);
 			autoJoined = JTC_AutoJoin(id, rowIndex);
 		}
 	}
-	if (!autoJoined)
-	{
+	if (!autoJoined) {
 		EBC_SetSelectedIndexByValue(rightTableSel, '...');
 		JTC_SetRightColumnValues(id, rowIndex);
 	}
@@ -270,8 +260,7 @@ function JTC_GetTableList(id) {
 			var num = countBefore + 1;
 			if (num > 1)
 				newElem.table += "*" + num;
-		}
-		else if (tables[i].alias) {
+		} else if (tables[i].alias) {
 			newElem.table += "*" + tables[i].alias;
 			newElem.alias = tables[i].alias;
 		}
@@ -280,45 +269,42 @@ function JTC_GetTableList(id) {
 	return tablesCopy;
 }
 
-function JTC_SetRightTableSelValues(id, i , tablesWithAliases)
-{
+function JTC_SetRightTableSelValues(id, i, tablesWithAliases) {
 	var body = document.getElementById(id).tBodies[0];
 	var row = body.rows[i];
-	
+
 	var rightTableSel = EBC_GetSelectByName(row, 'RightTable');
-	if (rightTableSel==null)
+	if (rightTableSel == null)
 		return;
 
 	var oldValue = rightTableSel.value;
-	EBC_ChangeAllTablesSel(null , rightTableSel, i, true, tablesWithAliases); 
-		
+	EBC_ChangeAllTablesSel(null, rightTableSel, i, true, tablesWithAliases);
+
 	EBC_SetSelectedIndexByValue(rightTableSel, oldValue);
-	if(rightTableSel.value!="...")
+	if (rightTableSel.value != "...")
 		rightTableSel.setAttribute("oldValueRight", rightTableSel.value);
 }
 
-function JTC_innerShowHideParams(row, hide, visibilityMode, tagName)
-{
+function JTC_innerShowHideParams(row, hide, visibilityMode, tagName) {
 	if (tagName == null)
 		tagName = "DIV";
 	var elements = row.getElementsByTagName(tagName);
 	var count = elements.length;
-	for (var i = 0; i < count; i++)
-	{
+	for (var i = 0; i < count; i++) {
 		var elem = elements[i];
 		if (elem.attributes["visibilityMode"] != null && elem.attributes["visibilityMode"].value == visibilityMode)
 			elem.style["display"] = hide ? 'none' : 'inline';
 	}
 }
-function JTC_ShowHideParams(e)
-{
-	if(e) ebc_mozillaEvent = e;
+
+function JTC_ShowHideParams(e) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
-	if(row==null)
+	if (row == null)
 		return;
 	var tableSel = EBC_GetSelectByName(row, 'Table');
 	var joinSel = EBC_GetSelectByName(row, 'Join');
-	if(tableSel==null || joinSel==null)
+	if (tableSel == null || joinSel == null)
 		return;
 	var hideRightTable = (row["sectionRowIndex"] == 0 || tableSel.value == '...' || joinSel.value == 'CROSS_JOIN');
 	var hideJoinType = (row["sectionRowIndex"] == 0 || tableSel.value == '...');
@@ -329,21 +315,19 @@ function JTC_ShowHideParams(e)
 	JTC_UpdateAdditionalConditionsElem(row, 'Join');
 }
 
-function JTC_TableChanged(e)
-{
-	if(e) ebc_mozillaEvent = e;
+function JTC_TableChanged(e) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e instanceof HTMLElement ? e : undefined);
-	
+
 	if (row == null || row.parentNode == null || row.parentNode.parentNode == null)
 		return;
-	
+
 	var tableId = EBC_GetParentTable(row).id;
-	
-	if (row.rowIndex < 0 && row["sectionRowIndex"]<0)
+
+	if (row.rowIndex < 0 && row["sectionRowIndex"] < 0)
 		return;
 
-	if (row.rowIndex>0 && row["sectionRowIndex"]>0)
-	{
+	if (row.rowIndex > 0 && row["sectionRowIndex"] > 0) {
 		JTC_ShowHideParams(e);
 	}
 
@@ -351,63 +335,54 @@ function JTC_TableChanged(e)
 	var startFrom = 1;
 	if (row["sectionRowIndex"] > 0)
 		startFrom = row["sectionRowIndex"];
-		
+
 	var tableSels = document.getElementsByName(tableId + '_Table');
 	var columnSels = document.getElementsByName(tableId + '_Column');
 	var rightTableSels = document.getElementsByName(tableId + '_RightTable');
 	var rightColumnSel = document.getElementsByName(tableId + '_RightColumn');
-	
-	if (row["sectionRowIndex"] > 0 && tableSels[row["sectionRowIndex"] ] != null)
-	{
-		if (columnSels != null && columnSels[row["sectionRowIndex"]] != null)
-		{
+
+	if (row["sectionRowIndex"] > 0 && tableSels[row["sectionRowIndex"]] != null) {
+		if (columnSels != null && columnSels[row["sectionRowIndex"]] != null) {
 			columnSels[row["sectionRowIndex"]].onchange = null;
-			
-			try
-			{
-				if (tableSels[row["sectionRowIndex"] ].value == '...')
+
+			try {
+				if (tableSels[row["sectionRowIndex"]].value == '...')
 					EBC_LoadData('@JTC/Empty', null, columnSels[row["sectionRowIndex"]], false);
-				else
-				{
+				else {
 					EBC_LoadData(
 						"CombinedColumnList",
-						"tables=" + tableSels[row["sectionRowIndex"]].value +
-						"&" + "joinFields=true",
+						"tables=" +
+						tableSels[row["sectionRowIndex"]].value +
+						"&" +
+						"joinFields=true",
 						columnSels[row["sectionRowIndex"]],
 						false);
 				}
-			}
-			finally
-			{
+			} finally {
 				columnSels = document.getElementsByName(tableId + '_Column');
 				columnSels[row["sectionRowIndex"]].onchange = JTC_LeftColumnChanged;
 			}
 		}
 	}
-	
+
 	// RightTable possible values
 	var tablesWithAliases = JTC_GetTableList(tableId);
-	
-	for (var i=startFrom;i<tableSels.length;i++)
-	{
-		if (tableSels[i].value != '...')
-		{
+
+	for (var i = startFrom; i < tableSels.length; i++) {
+		if (tableSels[i].value != '...') {
 			tableSels[i].onchange = null;
 			columnSels[i].onchange = null;
 			rightTableSels[i].onchange = null;
 			rightColumnSel[i].onchange = null;
-			
-			try
-			{
+
+			try {
 				// UpdateRightTable possible values
-				JTC_SetRightTableSelValues(tableId, i , tablesWithAliases)
+				JTC_SetRightTableSelValues(tableId, i, tablesWithAliases)
 				JTC_leftAutoJoinQueue[i] = 1;
 				// Update Right table and join Fields
 				if (i == startFrom)
 					JTC_SelectRightTableSelValue(tableId, i);
-			}
-			finally
-			{
+			} finally {
 				tableSels = document.getElementsByName(tableId + '_Table');
 				columnSels = document.getElementsByName(tableId + '_Column');
 				rightTableSels = document.getElementsByName(tableId + '_RightTable');
@@ -424,40 +399,34 @@ function JTC_TableChanged(e)
 	JTC_OnListChanged(tableId);
 }
 
-function JTC_LeftColumnChanged(e)
-{
-	if(e) ebc_mozillaEvent = e;
+function JTC_LeftColumnChanged(e) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	var tableId = EBC_GetParentTable(row).id;
 	JTC_CheckAliases(tableId);
 }
 
-function JTC_RightTableChanged(e)
-{
-	if(e) ebc_mozillaEvent = e;
+function JTC_RightTableChanged(e) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e instanceof HTMLElement ? e : undefined);
 	var tableId = EBC_GetParentTable(row).id;
-	
+
 	var columnSels = EBC_GetSelectByName(row, 'Column');
 	var rightTableSels = EBC_GetSelectByName(row, 'RightTable');
 	var rightColumnSel = EBC_GetSelectByName(row, 'RightColumn');
-	
+
 	columnSels.onchange = null;
 	rightColumnSel.onchange = null;
 	rightTableSels.onchange = null;
-	
-	try
-	{
-		if (row["sectionRowIndex"] > -1)
-		{
+
+	try {
+		if (row["sectionRowIndex"] > -1) {
 			JTC_SetRightColumnValues(tableId, row["sectionRowIndex"]);
 			rightColumnSel = EBC_GetSelectByName(row, 'RightColumn');
 			if (rightTableSels.value != '...')
 				JTC_AutoJoin(tableId, row["sectionRowIndex"]);
 		}
-	}
-	finally
-	{
+	} finally {
 		columnSels.onchange = JTC_LeftColumnChanged;
 		rightTableSels.onchange = JTC_RightTableChanged;
 		rightColumnSel.onchange = JTC_RightColumnChanged;
@@ -468,9 +437,8 @@ function JTC_RightTableChanged(e)
 	JTC_CheckAliases(tableId);
 }
 
-function JTC_RightColumnChanged(e)
-{
-	if(e) ebc_mozillaEvent = e;
+function JTC_RightColumnChanged(e) {
+	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow();
 	var tableId = EBC_GetParentTable(row).id;
 	JTC_CheckAliases(tableId);
@@ -478,11 +446,9 @@ function JTC_RightColumnChanged(e)
 
 //===============================================
 
-function JTC_RegisterOnListChangedHandler(id, ctrlId, func)
-{
+function JTC_RegisterOnListChangedHandler(id, ctrlId, func) {
 	var arr = JTC_onListChangedHandler[id];
-	if (arr == null)
-	{
+	if (arr == null) {
 		arr = new Array();
 		JTC_onListChangedHandler[id] = arr;
 	}
@@ -497,86 +463,82 @@ function JTC_OnListChanged(id) {
 	var body = table.tBodies[0];
 	var count = body.rows.length;
 	var allLoaded = true;
-	for (var i = 0; i < count; i++)
-	{
+	for (var i = 0; i < count; i++) {
 		var tableSel = EBC_GetSelectByName(body.rows[i], 'Table');
-		if(tableSel.options.length==1 && tableSel.options[0].text=='Loading ...')
+		if (tableSel.options.length == 1 && tableSel.options[0].text == 'Loading ...')
 			allLoaded = false;
 	}
-	if(!allLoaded)
+	if (!allLoaded)
 		return;
 	var tablesWithAliases = JTC_GetTableList(id);
 	var tables = new Array();
-	for (var i = 0;i<tablesWithAliases.length; i++)
+	for (var i = 0; i < tablesWithAliases.length; i++)
 		tables.push(tablesWithAliases[i].table);
-	
-	if(tables.toString()==JTC_oldTableList.toString())
+
+	if (tables.toString() == JTC_oldTableList.toString())
 		return;
 	JTC_oldTableList = tables;
 	var handlers = JTC_onListChangedHandler[id];
-	
-	if (handlers != null)
-	{
+
+	if (handlers != null) {
 		for (var i = 0; i < handlers.length; i++)
 			handlers[i].func(handlers[i].id, tables, true);
 	}
 }
 
-function getEnd(source, len)
-{
+function getEnd(source, len) {
 	return (source.length <= len) ? source : source.substr(source.length - len, len);
 }
 
-function isStringContains(source, s)
-{
-	return (source.indexOf(s)>-1);
+function isStringContains(source, s) {
+	return (source.indexOf(s) > -1);
 }
 
 var cuthalf = 150;
 var buf = new Array((cuthalf * 2) - 1);
 
 function LeveDist(s, t) {
-  var i, j, m, n, cost, flip, result;
-  s = s.substr(0, cuthalf);
-  t = t.substr(0, cuthalf);
-  m = s.length;
-  n = t.length;
-  if (m == 0)
-    result = n;
-  else if (n == 0)
-    result = m;
-  else {
-    flip = false;
-    for (i = 0; i <= n; i++)
-      buf[i] = i;
-    for (i = 1; i <= m; i++) {
-      if (flip)
-        buf[0] = i;
-      else
-        buf[cuthalf] = i;
-      for (j = 1; j <= n; j++) {
-        if (s.charAt(i - 1) == t.charAt(j - 1))
-          cost = 0;
-        else
-          cost = 1;
-        if (flip)
-          buf[j] = Math.min(Math.min(buf[cuthalf + j] + 1, buf[j - 1] + 1), buf[cuthalf + j - 1] + cost);
-        else
-          buf[cuthalf + j] = Math.min(Math.min(buf[j] + 1, buf[cuthalf + j - 1] + 1), buf[j - 1] + cost);
-      }
-      flip = !flip;
-    }
-    if (flip)
-      result = buf[cuthalf + n];
-    else
-      result = buf[n];
-  }
-  return result;
+	var i, j, m, n, cost, flip, result;
+	s = s.substr(0, cuthalf);
+	t = t.substr(0, cuthalf);
+	m = s.length;
+	n = t.length;
+	if (m == 0)
+		result = n;
+	else if (n == 0)
+		result = m;
+	else {
+		flip = false;
+		for (i = 0; i <= n; i++)
+			buf[i] = i;
+		for (i = 1; i <= m; i++) {
+			if (flip)
+				buf[0] = i;
+			else
+				buf[cuthalf] = i;
+			for (j = 1; j <= n; j++) {
+				if (s.charAt(i - 1) == t.charAt(j - 1))
+					cost = 0;
+				else
+					cost = 1;
+				if (flip)
+					buf[j] = Math.min(Math.min(buf[cuthalf + j] + 1, buf[j - 1] + 1), buf[cuthalf + j - 1] + cost);
+				else
+					buf[cuthalf + j] = Math.min(Math.min(buf[j] + 1, buf[cuthalf + j - 1] + 1), buf[j - 1] + cost);
+			}
+			flip = !flip;
+		}
+		if (flip)
+			result = buf[cuthalf + n];
+		else
+			result = buf[n];
+	}
+	return result;
 }
 
 // Looks up and selects equal columns by their name
 function JTC_Internal_FindEqualColumns(row) {
-  var columnSel = EBC_GetSelectByName(row, 'Column');
+	var columnSel = EBC_GetSelectByName(row, 'Column');
 	var rightColumnSel = EBC_GetSelectByName(row, 'RightColumn');
 	var rightColumn;
 	var column;
@@ -584,75 +546,75 @@ function JTC_Internal_FindEqualColumns(row) {
 	var leftOptionIndex = -1;
 	var stopSearch = false;
 	var moreThanOneEqualNames = false;
-	
-	//for intelligent autojoin
-  /*var leftTable = EBC_GetSelectByName(row, 'Table');
-  var leftTableName = leftTable.value;
-  while (leftTableName.indexOf('[') >= 0)
-    leftTableName = leftTableName.replace('[', '');
-  while (leftTableName.indexOf(']') >= 0)
-    leftTableName = leftTableName.replace(']', '');
-  var leftTableNodes = leftTableName.split('.');
-  leftTableName = leftTableNodes[leftTableNodes.length - 1].toUpperCase();
-  var rightTable = EBC_GetSelectByName(row, 'RightTable');
-  var rightTableName = rightTable.value;
-  while (rightTableName.indexOf('[') >= 0)
-    rightTableName = rightTableName.replace('[', '');
-  while (rightTableName.indexOf(']') >= 0)
-    rightTableName = rightTableName.replace(']', '');
-  var rightTableNodes = rightTableName.split('.');
-  rightTableName = rightTableNodes[rightTableNodes.length - 1].toUpperCase();
-  var bestLeftIndex = -1;
-  var bestRightIndex = -1;
-  var bestCombosedDist = 10000;
-  var currentDist = 10000;
-  var composed = '';
-  for (i = 0; i < rightColumnSel.options.length; i++) {
-    rightColumn = rightColumnSel.options[i].text.toUpperCase();
-    if (rightColumn == "...")
-      continue;
-    for (j = 0; j < columnSel.options.length; j++) {
-      column = columnSel.options[j].text.toUpperCase();
-      if (column == "...")
-        continue;
-      composed = leftTableName + column;	    
-      if (Math.abs(composed.length - rightColumn.length) <= 0) {
-        currentDist = LeveDist(composed, rightColumn);
-        if (currentDist < bestCombosedDist) {
-          bestCombosedDist = currentDist;
-          bestLeftIndex = j;
-          bestRightIndex = i;
-        }
-      }	    
-      composed = rightTableName + rightColumn;
-      if (Math.abs(composed.length - column.length) <= 0) {
-        currentDist = LeveDist(composed, column);
-        if (currentDist < bestCombosedDist) {
-          bestCombosedDist = currentDist;
-          bestLeftIndex = j;
-          bestRightIndex = i;
-        }
-      }
-    }
-  }
-  if (bestCombosedDist <= 1) {
-    rightColumnSel.selectedIndex = bestRightIndex;
-    columnSel.selectedIndex = bestLeftIndex;
-    return true;
-  }
-  return false;*/
 
-//for old variant	
+	//for intelligent autojoin
+	/*var leftTable = EBC_GetSelectByName(row, 'Table');
+	var leftTableName = leftTable.value;
+	while (leftTableName.indexOf('[') >= 0)
+		leftTableName = leftTableName.replace('[', '');
+	while (leftTableName.indexOf(']') >= 0)
+		leftTableName = leftTableName.replace(']', '');
+	var leftTableNodes = leftTableName.split('.');
+	leftTableName = leftTableNodes[leftTableNodes.length - 1].toUpperCase();
+	var rightTable = EBC_GetSelectByName(row, 'RightTable');
+	var rightTableName = rightTable.value;
+	while (rightTableName.indexOf('[') >= 0)
+		rightTableName = rightTableName.replace('[', '');
+	while (rightTableName.indexOf(']') >= 0)
+		rightTableName = rightTableName.replace(']', '');
+	var rightTableNodes = rightTableName.split('.');
+	rightTableName = rightTableNodes[rightTableNodes.length - 1].toUpperCase();
+	var bestLeftIndex = -1;
+	var bestRightIndex = -1;
+	var bestCombosedDist = 10000;
+	var currentDist = 10000;
+	var composed = '';
+	for (i = 0; i < rightColumnSel.options.length; i++) {
+		rightColumn = rightColumnSel.options[i].text.toUpperCase();
+		if (rightColumn == "...")
+			continue;
+		for (j = 0; j < columnSel.options.length; j++) {
+			column = columnSel.options[j].text.toUpperCase();
+			if (column == "...")
+				continue;
+			composed = leftTableName + column;
+			if (Math.abs(composed.length - rightColumn.length) <= 0) {
+				currentDist = LeveDist(composed, rightColumn);
+				if (currentDist < bestCombosedDist) {
+					bestCombosedDist = currentDist;
+					bestLeftIndex = j;
+					bestRightIndex = i;
+				}
+			}
+			composed = rightTableName + rightColumn;
+			if (Math.abs(composed.length - column.length) <= 0) {
+				currentDist = LeveDist(composed, column);
+				if (currentDist < bestCombosedDist) {
+					bestCombosedDist = currentDist;
+					bestLeftIndex = j;
+					bestRightIndex = i;
+				}
+			}
+		}
+	}
+	if (bestCombosedDist <= 1) {
+		rightColumnSel.selectedIndex = bestRightIndex;
+		columnSel.selectedIndex = bestLeftIndex;
+		return true;
+	}
+	return false;*/
+
+	//for old variant
 	for (i = 0; i < rightColumnSel.options.length && !stopSearch; i++) {
 		rightColumn = rightColumnSel.options[i].text.toUpperCase();
 		if (rightColumn == "...")
 			continue;
-		for (j=0; j<columnSel.options.length && !stopSearch; j++) {
+		for (j = 0; j < columnSel.options.length && !stopSearch; j++) {
 			column = columnSel.options[j].text.toUpperCase();
 			if (column == "...")
-			  continue;			
+				continue;
 			if (column == rightColumn) {
-			  if (rightOptionIndex!=-1)
+				if (rightOptionIndex != -1)
 					moreThanOneEqualNames = true;
 				rightOptionIndex = i;
 				leftOptionIndex = j;
@@ -663,8 +625,8 @@ function JTC_Internal_FindEqualColumns(row) {
 	}
 	var flag = stopSearch || (!moreThanOneEqualNames && rightOptionIndex > -1 && leftOptionIndex > -1);
 	if (flag) {
-	  rightColumnSel.selectedIndex = rightOptionIndex;
-	  columnSel.selectedIndex = leftOptionIndex;
+		rightColumnSel.selectedIndex = rightOptionIndex;
+		columnSel.selectedIndex = leftOptionIndex;
 	}
 	return flag;
 }
@@ -696,20 +658,20 @@ function JTC_AddCondition(e) {
 
 	var leftTableSel = newRow.find('select[name$="_Table"]');
 	leftTableSel.attr('additional', 'true')
-				.prop('disabled', 'disabled')
-				.val(jq$(row).find('select[name$="_Table"]').val())
-				.next('input[name$="_Additional"]').val("true");
+		.prop('disabled', 'disabled')
+		.val(jq$(row).find('select[name$="_Table"]').val())
+		.next('input[name$="_Additional"]').val("true");
 	newRow.find('select[name$="_RightTable"]')
-		  .attr('additional', 'true')
-		  .prop('disabled', 'disabled')
-		  .val(jq$(row).find('select[name$="_RightTable"]').val());
+		.attr('additional', 'true')
+		.prop('disabled', 'disabled')
+		.val(jq$(row).find('select[name$="_RightTable"]').val());
 	newRow.find('select[name$="_Join"]')
-		  .attr('additional', 'true')
-		  .prop('disabled', 'disabled')
-		  .val(jq$(row).find('select[name$="_Join"]').val());
+		.attr('additional', 'true')
+		.prop('disabled', 'disabled')
+		.val(jq$(row).find('select[name$="_Join"]').val());
 	newRow.find('input[name$="_TableAlias"]')
-		  .attr('additional', 'true')
-		  .prop('disabled', 'disabled');
+		.attr('additional', 'true')
+		.prop('disabled', 'disabled');
 
 	newRow.find('select[name$="ConditionOperator"]').parent().show();
 
@@ -760,7 +722,8 @@ function JTC_UpdateAdditionalConditionsElem(row, elemName) {
 	var baseRow = jq$(row);
 	var additionalConditionRow = baseRow.next();
 	while (jq$(additionalConditionRow).attr('additional') == 'true') {
-		additionalConditionRow.find('select[name$="_' + elemName + '"]').val(baseRow.find('select[name$="_' + elemName + '"]').val());
+		additionalConditionRow.find('select[name$="_' + elemName + '"]')
+			.val(baseRow.find('select[name$="_' + elemName + '"]').val());
 		additionalConditionRow = jq$(additionalConditionRow).next();
 	}
 }
@@ -782,9 +745,7 @@ function JTC_InsertDataSourceBelow(e) {
 	EBC_internalInsertHandler(row, selectionIndex + 1, null);
 }
 
-
-function JTC_RemoveHandler(e)
-{
+function JTC_RemoveHandler(e) {
 	if (e) ebc_mozillaEvent = e;
 	var row = EBC_GetRow(e instanceof HTMLElement ? e : undefined);
 	JTC_RemoveConditions(row);
@@ -799,23 +760,22 @@ function JTC_RemoveHandler(e)
 	}
 }
 
-function JTC_InitRow(row)
-{
+function JTC_InitRow(row) {
 	var tableSel = EBC_GetSelectByName(row, 'Table');
-	if(tableSel==null)
+	if (tableSel == null)
 		return;
 	var table = tableSel.value;
 	var joinSel = EBC_GetSelectByName(row, 'Join');
 	var join;
-	if (joinSel!=null)
+	if (joinSel != null)
 		join = joinSel.value;
 	var columnSel = EBC_GetSelectByName(row, 'Column');
 	var rightTableSel = EBC_GetSelectByName(row, 'RightTable');
 	var rightColumnSel = EBC_GetSelectByName(row, 'RightColumn');
 	var rightTable;
-	if (rightTableSel!=null)
+	if (rightTableSel != null)
 		rightTable = rightTableSel.value;
-		
+
 	//stop events 
 	if (tableSel != null)
 		tableSel.onchange = null;
@@ -825,50 +785,51 @@ function JTC_InitRow(row)
 		rightTableSel.onchange = null;
 	if (rightColumnSel != null)
 		rightColumnSel.onchange = null;
-		
-	try
-	{
+
+	try {
 		tableSel.setAttribute("oldValue", EBC_GetSelectValue(tableSel));
-		if(rightTableSel!=null && rightTableSel.value!="...")
+		if (rightTableSel != null && rightTableSel.value != "...")
 			rightTableSel.setAttribute("oldValueRight", rightTableSel.value);
-		
+
 		EBC_LoadData("TableList", "hash=" + JTC_hash, tableSel, false);
-		if (joinSel!=null)
-		{
+		if (joinSel != null) {
 			EBC_LoadData('@JTC/JoinTypes', null, joinSel);
 			joinSel = EBC_GetSelectByName(row, 'Join');
 			EBC_SetSelectedIndexByValue(joinSel, 'INNER');
 		}
 
-		if (columnSel!=null)
-		{
+		if (columnSel != null) {
 			if (table == '...' || row.tableIndex == 0)
 				EBC_LoadData('@JTC/Empty', null, columnSel);
 			else
 				EBC_LoadData(
 					"CombinedColumnList",
-					"tables=" + table +
-					"&" + "joinFields=true", columnSel, false);
+					"tables=" +
+					table +
+					"&" +
+					"joinFields=true",
+					columnSel,
+					false);
 		}
 
-		if (rightColumnSel!=null)
-		{
+		if (rightColumnSel != null) {
 			if (rightTable == '...' || row.tableIndex == 0)
 				EBC_LoadData('@JTC/Empty', null, rightColumnSel);
 			else
 				EBC_LoadData(
 					"CombinedColumnList",
-					"tables=" + JTC_GetCleanDataSource(rightTable) +
-					"&" + "joinFields=true",
-					rightColumnSel, false);
+					"tables=" +
+					JTC_GetCleanDataSource(rightTable) +
+					"&" +
+					"joinFields=true",
+					rightColumnSel,
+					false);
 		}
 
 		var hideRightTable = (row["sectionRowIndex"] == 0 || table == '...' || join == 'CROSS_JOIN');
 		JTC_innerShowHideParams(row, row["sectionRowIndex"] == 0, '1');
 		JTC_innerShowHideParams(row, hideRightTable, '2');
-	}
-	finally
-	{
+	} finally {
 		tableSel = EBC_GetSelectByName(row, 'Table');
 		columnSel = EBC_GetSelectByName(row, 'Column');
 		rightTableSel = EBC_GetSelectByName(row, 'RightTable');
@@ -885,16 +846,14 @@ function JTC_InitRow(row)
 	}
 }
 
-function JTC_InitRows(id)
-{
+function JTC_InitRows(id) {
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];
 	var count = body.rows.length;
-	var i =0;
-	
+	var i = 0;
+
 	// load join types
-	for (i=1;i<count;i++)
-	{
+	for (i = 1; i < count; i++) {
 		var joinSel = EBC_GetSelectByName(body.rows[i], 'Join');
 		if (joinSel != null)
 			EBC_LoadData('@JTC/JoinTypes', null, joinSel);
@@ -903,31 +862,34 @@ function JTC_InitRows(id)
 }
 
 function JTC_Init(id, autoJoinOnRenderedRows, tablesHash, allowDomainJoin, joinedAutomatically) {
-  allTabsFilled = true;
+	allTabsFilled = true;
 	if (allowDomainJoin == null)
-	    allowDomainJoin = false;
+		allowDomainJoin = false;
 
 	if (joinedAutomatically == null)
-	  joinedAutomatically = false;
+		joinedAutomatically = false;
 	JTC_JoinedAutomatically[id] = joinedAutomatically;
-	
+
 	JTC_hash = tablesHash;
 	EBC_LoadTableInfo();
 	JTC_PrepareTabStrip(id);
-	//if(typeof(DisableEnableTabsFrom)!='undefined'  && typeof(firstDisabledTabIndex)!='undefined')
-	//	DisableEnableTabsFrom(false, firstDisabledTabIndex);
 	EBC_RegisterControl(id);
 	table = document.getElementById(id);
 	EBC_RegisterRowInsertHandler(table, JTC_InitRow);
 	EBC_SetData('@JTC/Empty', [{ name: '', options: [{ value: '...', text: '...' }] }]);
-	var joinTypesOptions = [{name: '', options: [
-		{ value: '...', text: '...' },
-		{ value: 'INNER', text: jsResources.JoinInner },
-		{ value: 'CROSS_JOIN', text: jsResources.JoinCross },
-		{ value: 'LEFT_OUTER', text: jsResources.JoinLeft },
-		{ value: 'RIGHT_OUTER', text: jsResources.JoinRight },
-		{ value: 'FULL_OUTER', text: jsResources.JoinFull }
-	]}];
+	var joinTypesOptions = [
+		{
+			name: '',
+			options: [
+				{ value: '...', text: '...' },
+				{ value: 'INNER', text: jsResources.JoinInner },
+				{ value: 'CROSS_JOIN', text: jsResources.JoinCross },
+				{ value: 'LEFT_OUTER', text: jsResources.JoinLeft },
+				{ value: 'RIGHT_OUTER', text: jsResources.JoinRight },
+				{ value: 'FULL_OUTER', text: jsResources.JoinFull }
+			]
+		}
+	];
 	if (allowDomainJoin) {
 		joinTypesOptions[0].options.push({ value: 'DOMAIN', text: jsResources.Domain });
 	}

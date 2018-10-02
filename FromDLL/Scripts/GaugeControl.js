@@ -35,26 +35,18 @@
 */
 
 (function (ns) {
-	ns.isDefined = function (value) {
-		return typeof value !== 'undefined';
-	};
-
-	ns.isUndefined = function (value) {
-		return typeof value === 'undefined';
-	};
-
-	ns.getValue = function (value, defaultValue) {
-		return ns.isDefined(value) ? value : defaultValue;
-	};
-
 	ns.pages = ns.pages || {};
 	ns.pages.designer = ns.pages.designer || {};
+
 	ns.pages.designer.context = ns.pages.designer.context || {};
 
 	var context = ns.pages.designer.context;
 	context.qac_works = ns.getValue(context.qac_works, false);
 	context.qac_requests = ns.getValue(context.qac_requests, 0);
 	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+	context.tableListById = ns.getValue(context.tableListById, {});
+	context.descriptions = ns.getValue(context.descriptions, []);
 
 })(window.izenda || (window.izenda = {}));
 
@@ -79,19 +71,20 @@ function GC_OnTableListChangedHandler(id, tables) {
 		lastCallParams_GC_OnTableListChangedHandler[1] = tables;
 		return;
 	}
-	tablesSave[id] = tables;
+	pageContext.tableListById[id] = tables;
 	var table = document.getElementById(id);
 	var body = table.tBodies[0];
 	if(tables.join != null)
 		tables = tables.join("'");
 	var additionalData = null;
-	if(descriptions != null && descriptions.length > 0)
+
+	if (pageContext.descriptions != null && pageContext.descriptions.length > 0)
 	{
 		additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }] }];
-		for (var i = 0; i < descriptions.length; i++) {
-			var calcField = descriptions[i];
+		for (var i = 0; i < pageContext.descriptions.length; i++) {
+			var calcField = pageContext.descriptions[i];
 			var option = {
-				value: calcFieldPrefix + calcField.fldId,
+				value: pageContext.calcFieldPrefix + calcField.fldId,
 				text: '[' + calcField.description + '] (calc)',
 				fieldIndex: calcField.fieldIndex
 			};
@@ -177,12 +170,13 @@ function GC_OnColumnChangedHandler(e) {
 	if (row == null)
 		return;
 
+	var pageContext = izenda.pages.designer.context;
 	var rowFunc = EBC_GetSelectByName(row, 'Function');
 	jq$(rowFunc).removeAttr('disabled');
 	if (columnSel.options.length === 0
 		|| columnSel.selectedIndex < 0
 		|| columnSel.selectedIndex > columnSel.options.length - 1
-		|| columnSel.options[columnSel.selectedIndex].value.indexOf(calcFieldPrefix) == 0)
+		|| columnSel.options[columnSel.selectedIndex].value.indexOf(pageContext.calcFieldPrefix) == 0)
 		jq$(rowFunc).attr('disabled', 'true');
 			
 	EBC_SetFunctions(row, false, row["sectionRowIndex"] != 1);
@@ -230,7 +224,7 @@ function GC_OnColumnChangedHandler(e) {
 		else {
 			if (selField != null)
 				selField.disabled = false;
-			if (selFunc != null && !selField.disabled && selField.options[selField.selectedIndex].value.indexOf(calcFieldPrefix) == -1)
+			if (selFunc != null && !selField.disabled && selField.options[selField.selectedIndex].value.indexOf(pageContext.calcFieldPrefix) == -1)
 				selFunc.disabled = false;
 			if (i == disableAfterIndex && selField != null)
 			{
@@ -323,7 +317,7 @@ function GC_OnFieldsListChangedHandler(id, fields)
 			pageContext.qac_timers++;
 		setTimeout(function () {
 			GC_PopulateDescriptions(fields);
-			GC_OnTableListChangedHandler(id, tablesSave[id]);
+			GC_OnTableListChangedHandler(id, pageContext.tableListById[id]);
 			if (pageContext.qac_works) {
 				pageContext.qac_timers--;
 				izenda.pages.designer.QuickAdd_Close_Callback();
@@ -338,8 +332,9 @@ function GC_OnFieldsListInitialized(id, fields)
 {
 	if (!GC_DescSet)
 	{
+		var pageContext = izenda.pages.designer.context;
 		GC_PopulateDescriptions(fields);
-		GC_OnTableListChangedHandler(id, tablesSave[id]);
+		GC_OnTableListChangedHandler(id, pageContext.tableListById[id]);
 	}
 	GC_DescSet = true;
 }

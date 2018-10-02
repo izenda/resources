@@ -3,19 +3,12 @@ var RE_EditorsParamsList = new Array();
 var RE_ContentSections = null;
 
 (function (ns) {
-
-	ns.isFunction = function (value) {
-		return typeof value === 'function';
-	};
-
-})(window.izenda || (window.izenda = {}));
-
-(function (ns) {
 	ns.pages = ns.pages || {};
 	ns.pages.designer = ns.pages.designer || {};
 
-})(window.izenda || (window.izenda = {}));
+	ns.pages.designer.context = ns.pages.designer.context || {};
 
+})(window.izenda || (window.izenda = {}));
 
 // Prevent jQuery UI dialog from blocking focusin
 jq$(document).on('focusin', function (e) {
@@ -159,9 +152,10 @@ function RE_InitToolbarItems(editor) {
 
 	// Fields descriptions
 	var fieldsItems = [];
+	var pageContext = izenda.pages.designer.context;
 
 	if (izenda.isFunction(izenda.pages.designer.GetFieldsList)) {
-		var fields = izenda.pages.designer.GetFieldsList(fieldsId);
+		var fields = izenda.pages.designer.GetFieldsList(pageContext.fieldsId);
 		if (fields != null)
 			for (var i = 0; i < fields.length; i++)
 				fieldsItems.push({ text: fields[i].description, onclick: function () { editor.insertContent('[' + this._text + ']'); } });
@@ -187,7 +181,7 @@ function RE_InitToolbarItems(editor) {
 	// Columns
 	var columnItems = [];
 	try {
-		var tempSelect = jq$(jq$('#' + fieldsId + ' select[name$="Column"]')[0]);
+		var tempSelect = jq$(jq$('#' + pageContext.fieldsId + ' select[name$="Column"]')[0]);
 		var currentGroup = "";
 		tempSelect.find('option').each(function (idx, e) {
 			if (e.text != null && e.text != '' && e.text != '...') {
@@ -213,7 +207,7 @@ function RE_InitToolbarItems(editor) {
 	// Subreports
 	var subreportsItems = []
 	try {
-		var tempSelect = jq$(jq$('#' + fieldsId + ' select[name$="Subreport"]')[0]);
+		var tempSelect = jq$(jq$('#' + pageContext.fieldsId + ' select[name$="Subreport"]')[0]);
 		tempSelect.find('option').each(function (idx, e) {
 			if (e.text != null && e.text != '' && e.text != '...' && e.value != null && e.value != "(AUTO)")
 				subreportsItems.push({ text: e.text, onclick: function () { editor.insertContent('[[' + this._text + ']]'); } });

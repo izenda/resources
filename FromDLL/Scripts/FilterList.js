@@ -44,26 +44,18 @@ var showingC = false;
 var CC_Initialized = false;
 
 (function (ns) {
-	ns.isDefined = function (value) {
-		return typeof value !== 'undefined';
-	};
-
-	ns.isUndefined = function (value) {
-		return typeof value === 'undefined';
-	};
-
-	ns.getValue = function (value, defaultValue) {
-		return ns.isDefined(value) ? value : defaultValue;
-	};
-
 	ns.pages = ns.pages || {};
 	ns.pages.designer = ns.pages.designer || {};
+
 	ns.pages.designer.context = ns.pages.designer.context || {};
 
 	var context = ns.pages.designer.context;
 	context.qac_works = ns.getValue(context.qac_works, false);
 	context.qac_requests = ns.getValue(context.qac_requests, 0);
 	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+	context.tableListById = ns.getValue(context.tableListById, {});
+	context.descriptions = ns.getValue(context.descriptions, []);
 
 })(window.izenda || (window.izenda = {}));
 
@@ -73,14 +65,16 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 	cc_paths[id] = { path: path, options: options };
 	var table = document.getElementById(id);
 	var additionalData = null;
-	if (descriptions && descriptions.length > 0) {
+
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.descriptions && pageContext.descriptions.length > 0) {
 		additionalData = [{
 			name: IzLocal.Res('js_calcFields', 'Calc fields'),
 			options: []
 		}];
-		descriptions.forEach(function(calcField) {
+		pageContext.descriptions.forEach(function(calcField) {
 			var option = {
-				value: calcFieldPrefix + calcField.fldId,
+				value: pageContext.calcFieldPrefix + calcField.fldId,
 				text: '[' + calcField.description + '] (calc)',
 				fieldIndex: calcField.fieldIndex
 			};
@@ -113,7 +107,7 @@ function CC_LoadColumns(id, path, options, selectName, row) {
 		var currRow = rows[i];
 		var columnSel = EBC_GetSelectByName(currRow, selectName);
 		var value = columnSel.getAttribute("oldValue");
-		if (!value || value.indexOf(calcFieldPrefix) === 0)
+		if (!value || value.indexOf(pageContext.calcFieldPrefix) === 0)
 			value = EBC_GetSelectValue(columnSel);
 		columnSel.value = value;
 		EBC_LoadData(path, options, columnSel, true, null, additionalData, function (newOpt) {
@@ -532,12 +526,16 @@ function CC_RemoveRow(id) {
 }
 
 function CC_LoadFields(row) {
+	var pageContext = izenda.pages.designer.context;
+
 	var id = EBC_GetParentTable(row).id;
-	CC_OnTableListChangedHandler(id, tablesSave[id], true, "SelectValue", row);
+	CC_OnTableListChangedHandler(id, pageContext.tableListById[id], true, "SelectValue", row);
 }
 
 function CC_OnTableListInitialized(id, tables) {
-	tablesSave[id] = tables;
+	var pageContext = izenda.pages.designer.context;
+
+	pageContext.tableListById[id] = tables;
 	cc_paths[id] = { path: "CombinedColumnList", options: "tables=" + tables };
 }
 
@@ -568,7 +566,7 @@ function CC_OnTableListChangedHandler(id, tables, loadFields, selectName, row) {
 		selectName = "Column";
 	if (tables.join != null)
 		tables = tables.join('\'');
-	tablesSave[id] = tables;
+	pageContext.tableListById[id] = tables;
 	cc_paths[id] = { path: "CombinedColumnList", options: "tables=" + tables };
 	if (loadFields)
 		CC_LoadColumns(id, "CombinedColumnList", "tables=" + tables, selectName, row);
@@ -664,7 +662,8 @@ function CC_InitRow(row) {
 		CC_LoadColumns(id, cc_paths[id].path, cc_paths[id].options, null, row);
 	}
 
-	var tables = "tables=" + tablesSave[id];
+	var pageContext = izenda.pages.designer.context;
+	var tables = "tables=" + pageContext.tableListById[id];
 	if (operatorSel != null)
 		EBC_LoadData('OperatorList', tables, operatorSel);
 	if (timePeriodSel != null)
@@ -713,7 +712,9 @@ function CC_OnColumnChangedHandler(e) {
 		if (colFullName == null)
 			colFullName = "";
 		var id = EBC_GetParentTable(row).id;
-		var tables = "tables=" + tablesSave[id];
+
+		var pageContext = izenda.pages.designer.context;
+		var tables = "tables=" + pageContext.tableListById[id];
 		EBC_LoadData("OperatorList", EBC_JoinParams("typeGroup", dataType) + "&" + tables + "&colFullName=" + colFullName, operatorSel);
 		if (CC_allowNewFilters != null && (CC_allowNewFilters == null || CC_allowNewFilters)) {
 			var columnSel = EBC_GetSelectByName(row, 'Column');
@@ -988,8 +989,9 @@ function CC_InitAutoComplete(row) {
 }
 
 function CC_OnFieldsListChangedHandler(id, fields) {
+	var pageContext = izenda.pages.designer.context;
 	EBC_PopulateDescriptions(fields);
-	CC_OnTableListChangedHandler(id, tablesSave[id], true);
+	CC_OnTableListChangedHandler(id, pageContext.tableListById[id], true);
 }
 
 function CC_OnFieldsListInitialized(id, fields) {

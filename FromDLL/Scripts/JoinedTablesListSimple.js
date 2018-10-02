@@ -1,4 +1,4 @@
-﻿var JTCS_dsListId = new Array();
+var JTCS_dsListId = new Array();
 var JTCS_categoryComboId = new Array();
 var JTCS_recentComboId = new Array();
 var JTCS_lastAllowed = new Array();
@@ -9,35 +9,44 @@ var JTCS_initialTexts = new Array();
 var JTCS_initialTitles = new Array();
 var JTCS_onListChangedHandler = {};
 
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+	ns.pages.designer.context = ns.pages.designer.context || {};
+
+})(window.izenda || (window.izenda = {}));
+
 function JTCS_RegisterOnListChangedHandler(id, ctrlId, func) {
 	var arr = JTCS_onListChangedHandler[id];
 	if (arr == null) {
 		arr = new Array();
 		JTCS_onListChangedHandler[id] = arr;
 	}
-	var handler = { };
+	var handler = {};
 	handler.id = ctrlId;
 	handler.func = func;
 	arr.push(handler);
 }
 
 function JTCS_PrepareTabStrip(id) {
-	if (window.tabStripId && !window.tabStriptIdisIlligal)
+	var pageContext = izenda.pages.designer.context;
+	if (pageContext.tabStripId && !window.tabStriptIdisIlligal)
 		return;
 	var table = document.getElementById(id);
 	while (table != null && table.tagName != 'SPAN')
 		table = table.parentNode;
 	table = table.firstChild.childNodes;
 	A: for (var i = table.length - 1; i >= 0; --i) {
-		   var node = table[i];
-		   if (node.tagName == 'DIV' && node.className == 'TabStrip')
-			   for (var j = node.childNodes.length - 1; j >= 0; --j)
-				   if (node.childNodes[j].tagName == 'TABLE') {
-					   var tid = node.childNodes[j].tBodies[0].rows[0].id;
-					   window.tabStripId = tid.substr(0, tid.length - 4);
-					   break A;
-				   }
-	   }
+		var node = table[i];
+		if (node.tagName == 'DIV' && node.className == 'TabStrip')
+			for (var j = node.childNodes.length - 1; j >= 0; --j)
+				if (node.childNodes[j].tagName == 'TABLE') {
+					var tid = node.childNodes[j].tBodies[0].rows[0].id;
+					pageContext.tabStripId = tid.substr(0, tid.length - 4);
+					break A;
+				}
+	}
 	window.tabStriptIdisIlligal = true;
 }
 
@@ -79,11 +88,12 @@ function JTCS_OnListChanged(id, tablesList) {
 }
 
 function JTCS_UpdateTabStrip(id, allowContinue) {
-	if (window.DisableEnableTabsFrom && window.firstDisabledTabIndex) {
+	var pageContext = izenda.pages.designer.context;
+	if (window.DisableEnableTabsFrom && pageContext.firstDisabledTabIndex) {
 		JTCS_PrepareTabStrip(id);
 		if (allowContinue != JTCS_lastAllowed[id]) {
 			JTCS_lastAllowed[id] = allowContinue;
-			DisableEnableTabsFrom(JTCS_lastAllowed[id], firstDisabledTabIndex);
+			DisableEnableTabsFrom(JTCS_lastAllowed[id], pageContext.firstDisabledTabIndex);
 		}
 	}
 }
@@ -297,20 +307,18 @@ function JTCS_Init(id, dsListId, categoryComboId, recentComboId, initialDatasour
 	JTCS_maxAllowed[id] = maxAllowed;
 	JTCS_oldTablesHash[id] = '';
 	JTCS_PrepareTabStrip(id);
-	//if (typeof (DisableEnableTabsFrom) != 'undefined' && typeof (firstDisabledTabIndex) != 'undefined')
-	//  DisableEnableTabsFrom(false, firstDisabledTabIndex);
 	EBC_RegisterControl(id);
 	EBC_LoadConstraints();
-//  JTCS_StoreInitialOrder(id);
 	JTCS_UpdateControls(id, dsListId, initialDatasources);
 	JTCS_UpdateDatasourcesAvailability(id, false);
 	JTCS_Init_executes = false;
-	if (typeof CHC_OnTableListChangedHandlerWithStoredParams === "function")
-		CHC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof GC_OnTableListChangedHandlerWithStoredParams === "function")
-		GC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof MC_OnTableListChangedHandlerWithStoredParams === "function")
-		MC_OnTableListChangedHandlerWithStoredParams();
-	if (typeof RC_OnTableListChangedHandlerWithStoredParams === "function")
-		RC_OnTableListChangedHandlerWithStoredParams();
+
+	if (typeof izenda.pages.designer.CallChartTableListChangeHandlerWithStoredParams !== 'undefined')
+		izenda.callIfFunction(izenda.pages.designer.CallChartTableListChangeHandlerWithStoredParams);
+	if (typeof GC_OnTableListChangedHandlerWithStoredParams !== 'undefined')
+		izenda.callIfFunction(GC_OnTableListChangedHandlerWithStoredParams);
+	if (typeof MC_OnTableListChangedHandlerWithStoredParams !== 'undefined')
+		izenda.callIfFunction(MC_OnTableListChangedHandlerWithStoredParams);
+	if (typeof RC_OnTableListChangedHandlerWithStoredParams !== 'undefined')
+		izenda.callIfFunction(RC_OnTableListChangedHandlerWithStoredParams);
 }

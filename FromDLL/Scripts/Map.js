@@ -40,26 +40,17 @@ var DMC_wasMapType = '...';
 var lastCallParams_MC_OnTableListChangedHandler = new Array();
 
 (function (ns) {
-	ns.isDefined = function (value) {
-		return typeof value !== 'undefined';
-	};
-
-	ns.isUndefined = function (value) {
-		return typeof value === 'undefined';
-	};
-
-	ns.getValue = function (value, defaultValue) {
-		return ns.isDefined(value) ? value : defaultValue;
-	};
-
 	ns.pages = ns.pages || {};
 	ns.pages.designer = ns.pages.designer || {};
+
 	ns.pages.designer.context = ns.pages.designer.context || {};
 
 	var context = ns.pages.designer.context;
 	context.qac_works = ns.getValue(context.qac_works, false);
 	context.qac_requests = ns.getValue(context.qac_requests, 0);
 	context.qac_timers = ns.getValue(context.qac_timers, 0);
+
+	context.tableListById = ns.getValue(context.tableListById, {});
 
 })(window.izenda || (window.izenda = {}));
 
@@ -74,12 +65,11 @@ function MC_OnTableListChangedHandler(id, tables) {
 		return;
 
 	var pageContext = izenda.pages.designer.context;
-	var scWacWorksVal = pageContext.qac_works;
 
 	var jtcsInitExecutesVal = false;
 	if (typeof JTCS_Init_executes != 'undefined' && JTCS_Init_executes != null && JTCS_Init_executes === true)
 		jtcsInitExecutesVal = true;
-	if (scWacWorksVal || jtcsInitExecutesVal) {
+	if (pageContext.qac_works || jtcsInitExecutesVal) {
 		lastCallParams_MC_OnTableListChangedHandler = new Array();
 		lastCallParams_MC_OnTableListChangedHandler[0] = id;
 		lastCallParams_MC_OnTableListChangedHandler[1] = tables;
@@ -87,14 +77,14 @@ function MC_OnTableListChangedHandler(id, tables) {
 	}
 	if (typeof tables.join == 'function')
 		tables = tables.join('\'');
-	tablesSave[id] = tables;
+	pageContext.tableListById[id] = tables;
 	var additionalData = null;
-	if (typeof descriptions != 'undefined' && descriptions != null && descriptions.length > 0) {
+	if (typeof pageContext.descriptions != 'undefined' && pageContext.descriptions != null && pageContext.descriptions.length > 0) {
 		additionalData = [{ name: '', options: [{ value: '', text: '------', disabled: true }] }];
-		for (var i = 0; i < descriptions.length; i++) {
-			var calcField = descriptions[i];
+		for (var i = 0; i < pageContext.descriptions.length; i++) {
+			var calcField = pageContext.descriptions[i];
 			var option = {
-				value: calcFieldPrefix + calcField.fldId,
+				value: pageContext.calcFieldPrefix + calcField.fldId,
 				text: '[' + calcField.description + '] (calc)',
 				fieldIndex: calcField.fieldIndex
 			};
@@ -122,8 +112,9 @@ function MC_OnTableListChangedHandler(id, tables) {
 }
 
 function MC_OnFieldsListChangedHandler(id, fields) {
+	var pageContext = izenda.pages.designer.context;
 	DMC_PopulateDescriptions(fields);
-	MC_OnTableListChangedHandler(id, tablesSave[id]);
+	MC_OnTableListChangedHandler(id, pageContext.tableListById[id]);
 }
 
 function DMC_GetMapType(id) {
@@ -222,12 +213,14 @@ function DMC_FieldsChanged(id) {
 	function getControlState(name, checkAllowed, functionName) {
 		var state = {};
 
+		var pageContext = izenda.pages.designer.context;
+
 		var selectControl = document.getElementById(id + '_' + name);
 		if(checkAllowed)
 			DMC_CheckFieldAllowed(selectControl);
 		var value = selectControl.value;
 		var fieldSelected = value !== '...' && value !== 'None';
-		var isCalcFieldSelected = izenda.utils.string.startsWith(value, calcFieldPrefix);
+		var isCalcFieldSelected = izenda.utils.string.startsWith(value, pageContext.calcFieldPrefix);
 
 		state.value = value;
 		state.selected = fieldSelected;
@@ -317,9 +310,11 @@ function DMC_OnValueColumnChanged(e, columnID, functionID) {
 	var tryToSetDefaultFunction = false;
 	var defaultAggregateFunction = 'None';
 
+	var pageContext = izenda.pages.designer.context;
+
 	var rowFunc = EBC_GetSelectByName(row, functionID);
 	rowFunc.removeAttribute('disabled');
-	if (e.options[e.selectedIndex].value.indexOf(calcFieldPrefix) === 0) {
+	if (e.options[e.selectedIndex].value.indexOf(pageContext.calcFieldPrefix) === 0) {
 		rowFunc.setAttribute('disabled', 'disabled');
 		defaultAggregateFunction = 'ForceNone';
 		tryToSetDefaultFunction = true;
@@ -333,9 +328,10 @@ function DMC_PopulateDescriptions(fields) {
 }
 
 function DMC_OnFieldsListInitialized(id, fields) {
+	var pageContext = izenda.pages.designer.context;
 	if (!DMC_DescSet) {
 		DMC_PopulateDescriptions(fields);
-		MC_OnTableListChangedHandler(id, tablesSave[id]);
+		MC_OnTableListChangedHandler(id, pageContext.tableListById[id]);
 	}
 	DMC_DescSet = true;
 }
