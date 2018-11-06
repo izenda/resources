@@ -1106,7 +1106,7 @@ function GotRenderedReportSet(returnObj, id) {
 		return;
 	izenda.report.loadReportResponse(returnObj, "#renderedReportDiv");
 
-	AdHoc.Utility.InitGaugeAnimations(null, null, false);
+	AdHoc.Utility.InitGaugeAnimations(null, null);
 	// Dirty workaround for IE8
 	if (jq$.support.opacity == false)
 		setTimeout(function () { jq$('body')[0].className = jq$('body')[0].className; }, 200);
@@ -1297,7 +1297,7 @@ function DisplayTooltip_CallBack(url, xmlHttpRequest) {
 		if (toolTip == FADINGTOOLTIP)
 			tooltip_height = (FADINGTOOLTIP.style.pixelHeight) ? FADINGTOOLTIP.style.pixelHeight : FADINGTOOLTIP.offsetHeight;
 		transparency = 0;
-		AdHoc.Utility.InitGaugeAnimations(null, null, true);
+		AdHoc.Utility.InitGaugeAnimations(null, null);
 	}
 }
 

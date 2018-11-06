@@ -1,0 +1,115 @@
+﻿<izenda-dashboard-background background-color="$ctrl.$izendaBackgroundService.backgroundColor"
+							 background-image="$ctrl.$izendaBackgroundService.finalBackgroundImageUrl"
+							 background-image-repeat="$ctrl.$izendaBackgroundService.backgroundImageRepeat"
+							 hue-rotate="$ctrl.$izendaBackgroundService.backgroundHueRotate">
+</izenda-dashboard-background>
+
+<izenda-bootstrap-modal opened="$ctrl.isLicenseFailed">
+	<div class="modal-header">
+		<div class="row">
+			<div class="col-md-12">
+				<b ng-bind=":: 'js_LicenseCheckFailed' | izendaLocale: 'License Check Failed'"></b>
+			</div>
+		</div>
+	</div>
+	<div class="modal-body">
+		<div class="container-fluid">
+			<span ng-bind=":: 'js_DashboardExtnesionsRequiredPage' | izendaLocale: 'This page requires Dashboard Extensions'"></span>
+			<br />
+			<span ng-bind=":: 'js_PleaseContact' | izendaLocale: 'Please contact sales@izenda.com for details.'"></span>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-default izenda-common-width-100" data-dismiss="modal"
+				ng-bind=":: 'js_close' | izendaLocale: 'Close'"></button>
+	</div>
+</izenda-bootstrap-modal>
+
+<izenda-bootstrap-modal keyboard="false" backdrop="'static'" opened="$ctrl.exportProgress">
+	<div class="modal-header">
+		<span ng-bind="$ctrl.getExportWaitMessageHeaderText()"></span>
+	</div>
+	<div class="modal-body">
+		<div class="container-fluid">
+			<span ng-bind="$ctrl.getExportWaitMessageText()"></span>
+		</div>
+	</div>
+</izenda-bootstrap-modal>
+
+<!-- global message boxes -->
+<izenda-message-component></izenda-message-component>
+
+<!-- global notification popups -->
+<izenda-notification-component></izenda-notification-component>
+
+<div class="iz-dash-root">
+	<div class="iz-dash-body-container"
+		 ng-mousemove="$ctrl.globalMousemoveHandler($event)"
+		 ng-mouseout="$ctrl.globalMouseoutHandler($event)"
+		 ng-style="$ctrl.tileContainerStyle"
+		 ng-hide="$ctrl.$izendaGalleryService.galleryState.isEnabled">
+		<div class="tile-grid-cell shadow"
+			 ng-show="$ctrl.isGridShadowVisible"
+			 ng-style="$ctrl.gridShadowStyle">
+			<div class="iz-dash-select-report-front-container"
+				 ng-show="$ctrl.isGridShadowPlusButtonVisible">
+				<button type="button" class="iz-dash-select-report-front-btn2 btn"
+						ng-attr-title="{{'js_SelectReport' | izendaLocale: 'Select report part to add'}}">
+					<span class="glyphicon glyphicon-plus"></span>
+				</button>
+			</div>
+		</div>
+		<div class="dashboard-grid"
+			 ng-click="$ctrl.globalClickHandler($event)"
+			 ng-show="$ctrl.isGridVisible"
+			 ng-style="$ctrl.gridStyle">
+		</div>
+		<izenda-dashboard-tile ng-repeat="tile in $ctrl.model.tiles"
+							   tile="tile"
+							   tiles="$ctrl.model.tiles"
+							   grid-width="$ctrl.tileWidth"
+							   grid-height="$ctrl.tileHeight"
+							   is-dashboard-changing-now="false"
+							   on-tile-delete="$ctrl.$onTileDelete(tile)"
+							   on-tile-report-selected="$ctrl.$onTileReportSelected(tile)"
+							   on-tile-drag-start="$ctrl.$onTileDragStart(tile)"
+							   on-tile-drag="$ctrl.$onTileDrag(tile, shadowPosition)"
+							   on-tile-drag-end="$ctrl.$onTileDragEnd(eventResult)"
+							   on-tile-resize-start="$ctrl.$onTileResizeStart(tile)"
+							   on-tile-resize="$ctrl.$onTileResize(tile, shadowPosition)"
+							   on-tile-resize-end="$ctrl.$onTileResizeEnd(eventResult)">
+		</izenda-dashboard-tile>
+	</div>
+
+	<div class="iz-dash-gallery-container"
+		 ng-show="$ctrl.$izendaGalleryService.galleryState.isEnabled"
+		 ng-style="$ctrl.galleryContainerStyle">
+		<izenda-gallery play-timeout="$ctrl.$izendaGalleryService.galleryState.playDelay"
+						play-started="$ctrl.$izendaGalleryService.galleryState.isPlayStarted"
+						play-stop-on-complete="!$ctrl.$izendaGalleryService.galleryState.isPlayRepeat"
+						width="70%"
+						height="80%"
+						enabled="$ctrl.$izendaGalleryService.galleryState.isEnabled"
+						is-full-screen="$ctrl.$izendaGalleryService.galleryState.isFullScreen"
+						model="$ctrl.model"
+						on-fullscreen-change="$ctrl.galleryToggleFullscreen(isFullscreen)"
+						on-play-started-change="$ctrl.galleryTogglePlayStarted(isPlayStarted)"></izenda-gallery>
+	</div>
+	<!--
+	<div class="iz-dash-gallery-container"
+		 ng-show="$ctrl.$izendaGalleryService.galleryState.isEnabled"
+		 ng-style="$ctrl.galleryContainerStyle">
+	  <izenda-gallery play-timeout="$ctrl.$izendaGalleryService.galleryState.playDelay"
+					  play-started="$ctrl.$izendaGalleryService.galleryState.isPlayStarted"
+					  play-stop-on-complete="!$ctrl.$izendaGalleryService.galleryState.isPlayRepeat"
+					  width="70%"
+					  height="80%"
+					  enabled="$ctrl.$izendaGalleryService.galleryState.isEnabled"
+					  gallery-items="$ctrl.galleryTiles"
+					  is-full-screen="$ctrl.$izendaGalleryService.galleryState.isFullScreen"
+					  ng-model="$ctrl.galleryTileIndex"
+					  update-counter="$ctrl.galleryUpdateCounter">
+	  </izenda-gallery>
+	</div>
+	  -->
+</div>

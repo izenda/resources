@@ -846,7 +846,7 @@
 		}
 
 		callFunctionSelectOnChangeHandlers(id);
-		CC_UpdateFiltersFromLogic();
+		ns.pages.designer.FilterLogicEdit_OnChange();
 	}
 
 	function toogleExpressionType(expressionInput) {
@@ -1793,13 +1793,13 @@
 		checkGroupingAndFunctionsWithStoredParams();
 
 		if (typeof ns.pages.designer.CallChartTableListChangeHandlerWithStoredParams !== 'undefined')
-			ns.callIfFunction(izenda.pages.designer.CallChartTableListChangeHandlerWithStoredParams);
+			ns.callIfFunction(ns.pages.designer.CallChartTableListChangeHandlerWithStoredParams);
 		if (typeof GC_OnTableListChangedHandlerWithStoredParams !== 'undefined')
-			izenda.callIfFunction(GC_OnTableListChangedHandlerWithStoredParams);
-		if (typeof CC_OnTableListChangedHandlerWithStoredParams !== 'undefined')
-			izenda.callIfFunction(CC_OnTableListChangedHandlerWithStoredParams);
+			ns.callIfFunction(GC_OnTableListChangedHandlerWithStoredParams);
+		if (typeof ns.pages.designer.CallFilterTableListChangeHandlerWithStoredParams !== 'undefined')
+			ns.callIfFunction(ns.pages.designer.CallFilterTableListChangeHandlerWithStoredParams);
 		if (typeof EBC_CheckFieldsCountWithStoredParams !== 'undefined')
-			izenda.callIfFunction(EBC_CheckFieldsCountWithStoredParams);
+			ns.callIfFunction(EBC_CheckFieldsCountWithStoredParams);
 	};
 
 	ns.pages.designer.InitFieldTable = function (id, checked, mustGroupOrFunction, allowComparativeArithmeticArg, groupByMonthNameArg) {

@@ -166,7 +166,7 @@ function GotRenderedReportSet(returnObj, id) {
 	if (id != 'getrenderedreportset' || !returnObj)
 		return;
 	izenda.report.loadReportResponse(returnObj, '#renderedReportDiv');
-	AdHoc.Utility.InitGaugeAnimations(null, null, false);
+	AdHoc.Utility.InitGaugeAnimations(null, null);
 	// Dirty workaround for IE8
 	if (jq$.support.opacity == false)
 		setTimeout(function() { jq$('body')[0].className = jq$('body')[0].className; }, 200);

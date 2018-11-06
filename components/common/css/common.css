@@ -1,3 +1,11 @@
+.izenda-common-noselect {
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
 .izenda-common-cursor-pointer {
 	cursor: pointer;
 }
@@ -280,21 +288,31 @@
 
 .izenda-common-btn-dark {
 	outline: transparent;
-	color: #fff;
+	color: #b3cbda;
 	background-color: #1c4389;
+	outline: 0;
 }
 
 .izenda-common-btn-dark.active {
-	color: #1c4389;
-	background-color: #b3cbda;
+	color: #1c4389 !important;
+	background-color: #b3cbda !important;
+	border: 1px solid transparent !important;
 }
 
 .izenda-common-btn-dark:focus {
+	color: #b3cbda;
 	background-color: #1c4389;
+	outline: 0 !important;
 }
 
-.izenda-common-btn-dark:hover, .izenda-common-btn-dark:link:hover, .izenda-common-btn-dark:visited:hover, .izenda-common-btn-dark:active:hover {
-	background-color: #3668A3;
+.izenda-common-btn-dark:hover, .izenda-common-btn-dark.active:hover, .izenda-common-btn-dark:link:hover, .izenda-common-btn-dark:visited:hover {
+	color: #fff;
+	background-color: #2558b3;
+}
+
+.izenda-common-btn-dark[disabled]:hover {
+	color: #b3cbda;
+	background-color: #1c4389;
 }
 
 .izenda-common-splashscreen {

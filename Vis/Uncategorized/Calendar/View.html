@@ -17,6 +17,7 @@
 
 	#VIS_ID_CONTAINER .fc {
 		font-size: 1em;
+		color: #333;
 	}
 
 	/* Custom URL
@@ -190,13 +191,13 @@ NOTE: use percentage font sizes or else old IE chokes
 	}
 
 	#VIS_ID_CONTAINER .fc-state-default.fc-corner-left { /* non-theme */
-		border-top-left-radius: 4px;
-		border-bottom-left-radius: 4px;
+		border-top-left-radius: 2px;
+		border-bottom-left-radius: 2px;
 	}
 
 	#VIS_ID_CONTAINER .fc-state-default.fc-corner-right { /* non-theme */
-		border-top-right-radius: 4px;
-		border-bottom-right-radius: 4px;
+		border-top-right-radius: 2px;
+		border-bottom-right-radius: 2px;
 	}
 
 	/* icons in buttons */
@@ -215,17 +216,10 @@ NOTE: use percentage font sizes or else old IE chokes
 
 	#VIS_ID_CONTAINER .fc-state-default {
 		background-color: #f5f5f5;
-		background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
-		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
-		background-image: -webkit-linear-gradient(top, #ffffff, #e6e6e6);
-		background-image: -o-linear-gradient(top, #ffffff, #e6e6e6);
-		background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
-		background-repeat: repeat-x;
 		border-color: #e6e6e6 #e6e6e6 #bfbfbf;
-		border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+		border-color: rgba(0, 0, 0, 0.25);
 		color: #333;
 		text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
-		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
 	}
 
 	#VIS_ID_CONTAINER .fc-state-hover,
@@ -249,8 +243,6 @@ NOTE: use percentage font sizes or else old IE chokes
 	#VIS_ID_CONTAINER .fc-state-down,
 	#VIS_ID_CONTAINER .fc-state-active {
 		background-color: #cccccc;
-		background-image: none;
-		box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 0 1px 2px rgba(0, 0, 0, 0.05);
 	}
 
 	#VIS_ID_CONTAINER .fc-state-disabled {
@@ -513,10 +505,14 @@ temporary rendered events).
 		display: block; /* make the <a> tag block */
 		font-size: .85em;
 		line-height: 1.6;
-		border-radius: 3px;
-		border: 1px solid #2f7ed8;
 		background-color: #ffffff;
 		font-weight: normal; /* undo jqui's ui-widget-header bold */
+	}
+
+	#VIS_ID_CONTAINER .fc-event .fc-content {
+		border-radius: 2px;
+		border-width: 1px;
+		border-style: solid;
 	}
 
 	/* overpower some of bootstrap's and jqui's styles on <a> tags */
@@ -569,18 +565,19 @@ temporary rendered events).
 
 	#VIS_ID_CONTAINER .fc-event .fc-title {
 		text-align: center;
-		height: 20px;
-		line-height: 20px;
+		height: 26px;
+		line-height: 26px;
 		padding: 0 2px;
 		position: relative;
 		overflow: hidden;
 		text-overflow: ellipsis;
+		font-size: 1.15em;
 	}
 
 	#VIS_ID_CONTAINER .fc-event .fc-value {
 		color: #4c4c4c;
 		background-color: #ffffff;
-		font-size: 24px;
+		font-size: 1.7em;
 		overflow: hidden;
 		text-align: center;
 		padding-left: 10px;
@@ -597,18 +594,37 @@ temporary rendered events).
 	}
 
 	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content {
-		height: 88px;
+		height: 78px;
 	}
 
 	#VIS_ID_CONTAINER .fc-popover td {
 		border: none;
 	}
 
+	#VIS_ID_CONTAINER .fc-more-cell div {
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	#VIS_ID_CONTAINER .izenda-vis-medium-view .fc-month-view .fc-day-grid-event .fc-content {
+		height: 26px;
+	}
+
+	#VIS_ID_CONTAINER .izenda-vis-compact-view .fc-month-view .fc-day-grid-event .fc-content {
+		height: 20px;
+	}
+
+	#VIS_ID_CONTAINER .izenda-vis-compact-view .fc-month-view .fc-day-grid-event .fc-content .fc-title {
+		font-size: 1em;
+		height: 20px;
+		line-height: 20px;
+	}
+
 	/* Horizontal Events
 --------------------------------------------------------------------------------------------------*/
 	/* events that are continuing to/from another week. kill rounded corners and butt up against edge */
-	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-start,
-	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-end {
+	#VIS_ID_CONTAINER .fc-ltr .fc-row .fc-h-event.fc-not-start,
+	#VIS_ID_CONTAINER .fc-rtl .fc-row .fc-h-event.fc-not-end {
 		margin-left: 0;
 		border-left-width: 0;
 		padding-left: 1px; /* replace the border with padding */
@@ -616,8 +632,8 @@ temporary rendered events).
 		border-bottom-left-radius: 0;
 	}
 
-	#VIS_ID_CONTAINER .fc-ltr .fc-h-event.fc-not-end,
-	#VIS_ID_CONTAINER .fc-rtl .fc-h-event.fc-not-start {
+	#VIS_ID_CONTAINER .fc-ltr .fc-row .fc-h-event.fc-not-end,
+	#VIS_ID_CONTAINER .fc-rtl .fc-row .fc-h-event.fc-not-start {
 		margin-right: 0;
 		border-right-width: 0;
 		padding-right: 1px; /* replace the border with padding */
@@ -665,8 +681,19 @@ be a descendant of the grid when it is being dragged.
 */
 
 	#VIS_ID_CONTAINER .fc-day-grid-event {
-		margin: 1px 2px 0; /* spacing between events and edges */
+		margin: 0 2px; /* spacing between events and edges */
 		padding: 0 0;
+	}
+
+
+
+	#VIS_ID_CONTAINER .fc-day-grid-event:not(:first-child) { /* more cell */
+		margin-top: 10px;
+	}
+
+	#VIS_ID_CONTAINER .fc-content-skeleton tr:not(:first-child) .fc-event {
+		padding-top: 10px;
+		padding-bottom: 10px;
 	}
 
 	#VIS_ID_CONTAINER .fc-day-grid-event .fc-content {
@@ -693,6 +720,7 @@ be a descendant of the grid when it is being dragged.
 		font-size: .85em;
 		cursor: pointer;
 		text-decoration: none;
+		white-space: nowrap;
 	}
 
 	#VIS_ID_CONTAINER a.fc-more:hover {
@@ -737,6 +765,13 @@ be a descendant of the grid when it is being dragged.
 	#VIS_ID_CONTAINER .fc-toolbar .fc-center {
 		display: inline-block;
 	}
+
+
+	#VIS_ID_CONTAINER .izenda-vis-compact-view .fc-toolbar .fc-center {
+		margin-top: 1em;
+		padding: 0 18px;
+	}
+	
 
 	/* the things within each left/right/center section */
 	#VIS_ID_CONTAINER .fc .fc-toolbar > * > * { /* extra precedence to override button border margins */
@@ -1355,12 +1390,7 @@ be a descendant of the grid when it is being dragged.
 				var valueDiv = contentDiv.find('.fc-value'),
 					valueSpan = valueDiv.find('span:first-child');
 
-				var fontSize = 24;
-				if (isSetSpecificFontSize) {
-					valueDiv.css('font-size', '30px');
-					fontSize = 30;
-				}
-
+				var fontSize = 20;
 				izenda.utils.html.adjustTextBlockInContainer(contentDiv, valueSpan, {
 					useDynamicFontSize: vis.getProperty('DynamicFontSize'),
 					maxFontSize: fontSize,
@@ -1368,12 +1398,11 @@ be a descendant of the grid when it is being dragged.
 				});
 			}
 
-			var valueField = VIS_COLUMNS[1],
-					isNumValue = ['Numeric', 'Real', 'Money'].indexOf(valueField.sqlType) > -1,
-					isSetSpecificFontSize = !vis.context.isExportToImage && isNumValue;
 			jq$(document).ready(function () {
-				jq$('#VIS_ID').empty();
-				jq$('#VIS_ID').append('<div id="VIS_ID_CALENDAR"></div>');
+				vis.element.empty();
+				vis.element.removeClass('izenda-vis-compact-view izenda-vis-medium-view izenda-vis-normal-view');
+				vis.element.addClass('izenda-vis-{size}-view'.format({ size: vis.width <= 535 ? 'compact' : vis.width <= 915 ? 'medium' : 'normal' }));
+				vis.element.append('<div id="VIS_ID_CALENDAR"></div>');
 				jq$('#VIS_ID_CALENDAR').width(vis.width - 20);
 				jq$('#VIS_ID_CALENDAR').fullCalendar({
 					header: {
@@ -1386,17 +1415,56 @@ be a descendant of the grid when it is being dragged.
 					editable: false,
 					slotEventOverlap: false,
 					eventLimit: true,
+					eventLimitClick: function (cellInfo, jsEvent) {
+						var eventsContainer = document.createElement('div');
+						var style =
+							'<style type="text/css">' +
+								'.izenda-vis-tooltip .fc-title-date {text-align: left;padding: 0 6px;background-color: #1c4e89;color: white;height: 26px;line-height: 26px;font-size: 1.15em;}' +
+								'.izenda-vis-tooltip .fc-content {font-family: \'Open Sans\', sans-serif;color: #fff;overflow: hidden;height: 78px;position: relative;z-index: 2;text-align: center;border-radius: 2px;border-width: 1px;border-style: solid;}' +
+								'.izenda-vis-tooltip .fc-content {/* more cell */margin: 5px;}' +
+								'.izenda-vis-tooltip .fc-content table {width: 100%;height: 100%;border-collapse: collapse;}' +
+								'.izenda-vis-tooltip .fc-content tr:not(:first-child) {height: 100%;}' +
+								'.izenda-vis-tooltip .fc-content td {padding: 0;}' +
+								'.izenda-vis-tooltip .fc-title {text-align: center;height: 26px;line-height: 26px;padding: 0 2px;position: relative;overflow: hidden;text-overflow: ellipsis;font-size: 1.15em;}' +
+								'.izenda-vis-tooltip .fc-value {color: #4c4c4c;background-color: #ffffff;font-size: 1.7em;overflow: hidden;text-align: center;padding-left: 10px;padding-right: 10px;}' +
+							'</style>';
+
+						var events = '<div class="fc-title-date">{date}</div>'.format({ date: cellInfo.date.format('dddd, MMMM D') });
+						izenda.each(cellInfo.hiddenSegs, function(segment) {
+							var event = segment.event;
+							var eventColor = color(event.item);
+							events += ('<div class="fc-content" style="border-color: {color}">' +
+								'<table><tr>' +
+								'<td><div class="fc-title" style="background-color: {color};">{title}</div></td>' +
+								'</tr><tr>' +
+								'<td class="fc-value-cell "><div class="fc-value"><span>{value}</span><span class="fc-placeholder"></span></div></td>' +
+								'</tr></table>' +
+								'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue });
+						});
+
+						eventsContainer.innerHTML = style + events;
+						
+						ReportingServices.showTip(eventsContainer, {
+							element: cellInfo.dayEl.get(0),
+							mode: 'popup',
+							style: 'none',
+							offset: { x: cellInfo.dayEl.width() * -1 - 1, y: 1},
+							showCaption: false,
+							tipStyle: 'background-color: #fff; border-radius: 2px; border-color: #1c4e89; box-shadow: 2px 2px 6px #777;',
+							containerStyle: 'padding: 0; margin: 0;',
+							showClose: true
+						});
+					},
 					events: events,
 					eventRender: function (event, jqElement) {
 						var eventColor = color(event.item);
-						jqElement.css('border-color', eventColor);
-						jqElement.html(('<div class="fc-content">' +
+						jqElement.html(('<div class="fc-content" style="border-color: {color}">' +
 							'<table><tr>' +
 							'<td><div class="fc-title" style="background-color: {color};">{title}</div></td>' +
 							'</tr><tr>' +
 							'<td class="fc-value-cell "><div class="fc-value"><span>{value}</span><span class="fc-placeholder"></span></div></td>' +
 							'</tr></table>' +
-							'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue }));
+							'</div>').format({ color: eventColor, title: event.title, value: event.formattedValue}));
 						services.tipOn(jqElement[0], '<span style="color:{color};">\u25CF</span><span> {title}: </span><span>{value}</span>'
 							.format({ color: color(event.item), title: event.title, value: event.formattedValue }));
 					},
@@ -1410,7 +1478,7 @@ be a descendant of the grid when it is being dragged.
 					eventAfterAllRender: function (view) {
 						vis.setProperty('CurrentView', view.type);
 
-						jq$('#VIS_ID .fc-more').on('show-popover', function (e) {
+						vis.element.find('.fc-more').on('show-popover', function (e) {
 							var popover = jq$('#VIS_ID .fc-more-popover');
 							popover.css('top', jq$(this).closest('.fc-row').get(0).offsetTop);
 							popover.find('.fc-content').each(function () {

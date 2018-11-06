@@ -212,8 +212,8 @@
 			}
 
 			function equalsMultipleString(a, b, ci) {
-				var arr1 = jq$.isArray(a) ? a : [a],
-					arr2 = jq$.isArray(b) ? b : [b],
+				var arr1 = Array.isArray(a) ? a : [a],
+					arr2 = Array.isArray(b) ? b : [b],
 					len1 = arr1.length,
 					len2 = arr2.length;
 				for (var i = 0; i < len1; ++i) {

@@ -7,16 +7,25 @@
 		stroke: #333;
 		fill: #fff;
 	}
+
 	#VIS_ID_CONTAINER .edgePath path {
 		stroke: #333;
-		fill: #333;
+		fill: #333 !important; /* fix arrows in IE11 */
 		stroke-width: 1.5px;
+	}
+
+	#VIS_ID_CONTAINER .edgePath path.path {
+		fill-opacity: 0.0; /* fix paths in Edge (browser) */
 	}
 
 	#VIS_ID_CONTAINER .label {
 		color: #000000;
 		font-weight: normal;
 		font-size: 100%;
+	}
+
+	#VIS_ID_CONTAINER [id^=arrowhead] {
+		fill-opacity: 1.0; /* fix arrows in IE11 */
 	}
 </style>
 
@@ -135,6 +144,13 @@
 			zoom.translate([(svgElement.attr('width') - graph.graph().width * initialScale) / 2, 20])
 				.scale(initialScale)
 				.event(svgElement);
+
+			svgElement.selectAll('path.path').each(function (e) {
+				var edge = graph.edge(e);
+				d3.select(this).attr("marker-end", function() {
+					return "url(#" + edge.arrowheadId + ")"; // fix arrows in Chrome
+				});
+			});
 
 			subscriptions.push(vis.events.subscribe('MetricChange', function () {
 				var metric = vis.getProperty('Metric');

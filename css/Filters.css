@@ -150,6 +150,7 @@ ul.tagit {
 
 	.comboboxTreeMultyselect .tree {
 		border: 1px solid #8FB3D4;
+		border: 1px solid #aaaaaa;
 		max-height: 300px;
 		overflow-y: scroll;
 		overflow-x: hidden;
@@ -184,14 +185,14 @@ ul.tagit {
 		}
 
 	.comboboxTreeMultyselect .textArea {
-		border: 1px solid #8FB3D4;
+		border: 1px solid #aaaaaa;
 		cursor: text;
 		overflow: hidden;
 		padding-bottom: 2px;
 		padding-left: 2px;
 		padding-top: 0;
 		min-height: 18px;
-		width: 298px;
+		width: 300px;
 	}
 
 	.comboboxTreeMultyselect .cInput {
@@ -225,11 +226,11 @@ ul.tagit {
 
 	.comboboxTreeMultyselect .cValid {
 		background-color: #E0E9F1;
-		border: 1px solid #BAC2CC;
+		border: 1px solid #aaaaaa;
 		color: #243241;
 		cursor: default;
 		font-size: 12px;
-		margin-top: 1px;
+		margin: 1px;
 		padding: 0 1px 1px 4px;
 		position: relative;
 		z-index: 1;
@@ -264,9 +265,11 @@ ul.tagit {
 
 	.comboboxTreeMultyselect .selectedValues {
 		display: inline-block;
-		border: 1px solid #BAC2CC;
+		border: 1px solid #aaaaaa;
 		min-width: 300px;
 		max-width: 300px;
+		padding: 1px;
+		margin-top: -1px;
 	}
 
 	.comboboxTreeMultyselect .hiddenTree {

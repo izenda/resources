@@ -1,8 +1,33 @@
 <!-- dashboard toolbar -->
-<div ng-include="'###RS###extres=components.dashboard.templates.toolbar.html'"></div>
-
+<!--<div ng-include="'###RS###extres=components.dashboard.templates.toolbar.html'"></div>-->
 <!-- filters panel -->
-<div ng-include="'###RS###extres=components.filter.templates.filters-legacy.html'"></div>
-
+<!--<div ng-include="'###RS###extres=components.filter.templates.filters-legacy.html'"></div>-->
 <!-- dashboard body -->
-<div ng-include="'###RS###extres=components.dashboard.templates.dashboard.html'"></div>
+<!--<div ng-include="'###RS###extres=components.dashboard.templates.dashboard.html'"></div>-->
+<izenda-dashboard-toolbar></izenda-dashboard-toolbar>
+
+<izenda-dashboard></izenda-dashboard>
+
+<!--<div ng-controller="TestController">
+  <h1>Test controller</h1>
+  <div style="background-color: green; top: 0;">
+	<a class="btn btn-default" ng-click="$izendaGalleryService.galleryState.isEnabled = !$izendaGalleryService.galleryState.isEnabled">Enable/Disable</a>
+	<a class="btn btn-default" ng-click="$izendaGalleryService.galleryState.isPlayStarted = !$izendaGalleryService.galleryState.isPlayStarted">isPlayStarted</a>
+	<a class="btn btn-default" ng-click="$izendaGalleryService.galleryState.isPlayRepeat = !$izendaGalleryService.galleryState.isPlayRepeat">isPlayRepeat</a>
+	<a class="btn btn-default" ng-click="$izendaGalleryService.galleryState.isFullScreen = !$izendaGalleryService.galleryState.isFullScreen">isFullScreen</a>
+  </div>
+  <div style="width: 1024px; height: 768px; background-color: #00ced1;">
+	<div class="iz-dash-gallery-container"
+		 ng-show="$izendaGalleryService.galleryState.isEnabled"
+		 ng-style="{width: '100%', height: '100%'}">
+	  <izenda-gallery play-timeout="$izendaGalleryService.galleryState.playDelay"
+					  play-started="$izendaGalleryService.galleryState.isPlayStarted"
+					  play-stop-on-complete="!$izendaGalleryService.galleryState.isPlayRepeat"
+					  width="70%"
+					  height="80%"
+					  enabled="$izendaGalleryService.galleryState.isEnabled"
+					  is-full-screen="$izendaGalleryService.galleryState.isFullScreen"
+					  model="model"></izenda-gallery>
+	</div>
+  </div>
+</div>-->

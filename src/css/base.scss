@@ -1,30 +1,40 @@
 ﻿// base functions and mixins
 @import "config.scss";
 
-@mixin prefix($property, $value, $prefixes: ()) {
+@mixin prefix($property, $value, $prefixes: (), $important: 0) {
 	@each $p in $prefixes {
-		#{'-' + $p + '-' + $property}: $value;
+		@if $important == 1 {
+			#{'-' + $p + '-' + $property}: $value !important;
+		}
+		@else {
+			#{'-' + $p + '-' + $property}: $value;
+		}
 	}
 	// Output standard non-prefixed declaration
-	#{$property}: $value;
+	@if $important == 1 {
+		#{$property}: $value !important;
+	}
+	@else {
+		#{$property}: $value;
+	}
 }
-
 // create -webkit-border-radius, -moz-border-radius,...
-@mixin izenda-border-radius($radius) {
-	@include prefix(border-radius, $radius, webkit moz ms);
+@mixin izenda-border-radius($radius, $important: 0) {
+	@include prefix(border-radius, $radius, webkit moz ms, $important);
 }
-
 // create -webkit-border-shadow, -moz-border-shadow,...
-@mixin izenda-box-shadow($shadow) {
-	@include prefix(box-shadow, $shadow, webkit moz);
+@mixin izenda-box-shadow($shadow, $important: 0) {
+	@include prefix(box-shadow, $shadow, webkit moz, $important);
 }
-
 // create -webkit-transition, -moz-transition,...
-@mixin izenda-transition($transition) {
-	@include prefix(transition, $transition, webkit moz o);
+@mixin izenda-transition($transition, $important: 0) {
+	@include prefix(transition, $transition, webkit moz o, $important);
 }
-
 // create -webkit-user-select, -moz-user-select,...
-@mixin izenda-user-select($user-select) {
-	@include prefix(user-select, $user-select, webkit khtml moz ms);
+@mixin izenda-user-select($user-select, $important: 0) {
+	@include prefix(user-select, $user-select, webkit khtml moz ms, $important);
+}
+// create -webkit-box-sizing, -moz-box-sizing,...
+@mixin izenda-box-sizing($box-sizing, $important: 0) {
+	@include prefix(box-sizing, $box-sizing, webkit moz ms o, $important);
 }

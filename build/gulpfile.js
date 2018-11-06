@@ -1,10 +1,11 @@
-﻿/// <binding BeforeBuild='[BUILD-ALL]' ProjectOpened='[WATCH]' />
+/// <binding />
 const gulp = require('gulp');
 const fs = require('fs');
 const asyncStream = require('async');
 const mergeStream = require('merge-stream');
 const sourcemaps = require('gulp-sourcemaps');
 const clean = require('gulp-clean');
+const deleteEmpty = require('delete-empty');
 const rename = require('gulp-rename');
 const wrap = require('gulp-wrap');
 const sass = require('gulp-sass');
@@ -16,6 +17,8 @@ const concat = require('gulp-concat');
 const glec = require('gulp-line-ending-corrector');
 const foreach = require('gulp-foreach');
 const ts = require('gulp-typescript');
+var dashboardTsProject = ts.createProject('Resources/src/tsconfig.dashboard.json');
+var instantReportTsProject = ts.createProject('Resources/src/tsconfig.instant-report.json');
 
 // we're running gulp build using website root folder as root directory 
 // (look at the gulp "--cwd" parameter)
@@ -28,6 +31,17 @@ const FOLDER_DIST_VENDOR = `${FOLDER_DIST}/vendor`;
 ////////////////////// APPLICATION //////////////////////
 
 const SASS_TARGET = '-dest.scss';
+
+let TS_CONFIG = {
+	noImplicitAny: false,
+	noEmitOnError: true,
+	removeComments: true,
+	declaration: false,
+	experimentalDecorators: true,
+	module: 'none',
+	target: 'es5',
+	lib: ['dom', 'es5', 'es6']
+};
 
 ////////////////////////////////// Utility functions //////////////////////////////////
 
@@ -66,58 +80,6 @@ function hideAndRevealRequire() {
 	typeof(izendaRequire) === 'object' ? izendaRequire.define : undefined);`,
 		{},
 		{ parse: false });
-}
-
-/**
- * Compile bunch of TypeScript sources into a JS file.
- * @param {Array<string>} files Files for the compilation. Files order is important. If you want to make
- * initialization shorter, you may fill array with the relative pathss and call
- * "files = files.map(f => `${relativeFolderName}/${f}.ts`)"
- * @param {string} destFileName Result file name which will contain all compiles sources.
- * @param {string} destFolder Result file directory.
- * @param {function} cb gulp callback to let gulp know that everything has completed.
- */
-function buildTs(files, destFolder, destFileName, cb) {
-	if (cb)
-		cb(); // Do not remove! It will be uncommented later.
-	return;
-	gutil.log(gutil.colors.yellow(`Build TypeScript ${destFolder}/${destFileName}`));
-	gutil.log(gutil.colors.grey(`sources: ${files.join(',')}`));
-
-	var tsResult = gulp.src(files)
-		.pipe(plumber(error => {
-			return errorAndDelete(error, `${destFolder}/${destFileName}`, cb);
-		}))
-		.pipe(ts({
-			noImplicitAny: false,
-			noEmitOnError: true,
-			removeComments: false,
-			module: 'none',
-			target: 'es5',
-			lib: ['dom', 'es5', 'es6']
-		}));
-	return tsResult.js
-		.pipe(concat(destFileName))
-		.pipe(eol())
-		.pipe(gulp.dest(destFolder));
-}
-
-/**
- * All TypeScript tasks.
- * @param {function} cb gulp callback to let gulp know that everything has completed.
- */
-function buildAllTs(cb) {
-	// Do not remove! It will be uncommented later.
-	if (cb)
-		cb();
-	return;
-	const testTask = buildTs([`${FOLDER_SRC}/test/test.ts`], `${FOLDER_DIST}/test`, `test.js`, cb);
-	// add tasks and merge it using "return mergeStream(testTask);"
-	return testTask;
-}
-
-function deleteTs() {
-	return deleteOther(`${FOLDER_DIST}/test`, `test.js`);
 }
 
 ////////////////////////////////// SASS //////////////////////////////////
@@ -180,7 +142,7 @@ function deleteOther(fileRelativeDir, fileName) {
 function errorAndDelete(error, destFullName, cb) {
 	logError(error);
 	if (destFullName) {
-		gutil.log(gutil.colors.red(`Delete ${destFullName}`));
+		gutil.log(gutil.colors.green(`Delete ${destFullName}`));
 		return gulp
 			.src([destFullName], { read: false })
 			.pipe(clean());
@@ -214,6 +176,21 @@ function eol() {
 
 ////////////////////////////////// GULP TASKS //////////////////////////////////
 
+gulp.task('clean-empty', (cb) => {
+	deleteEmpty(FOLDER_DIST)
+		.then(deleted => cb()) //=> ['foo/aa/', 'foo/a/cc/', 'foo/b/', 'foo/c/']
+		.catch(e => logError(e));
+});
+
+gulp.task('clean-typescript', () => {
+	return gulp.src([
+		`${FOLDER_DIST}/common/*`,
+		`${FOLDER_DIST}/dashboard/*`,
+		`${FOLDER_DIST}/instant-report/*`
+	], { read: false })
+		.pipe(clean());
+});
+
 /**
  * Clean only application
  */
@@ -237,7 +214,7 @@ gulp.task('build-css', () => {
 /**
  * Copy application files
  */
-gulp.task('copy-application', () => {
+gulp.task('[copy-application]', () => {
 	return gulp.src([
 		`${FOLDER_SRC}/**/*`,
 		`!${FOLDER_SRC}/**/*.ts`,
@@ -246,14 +223,86 @@ gulp.task('copy-application', () => {
 		.pipe(gulp.dest(FOLDER_DIST));
 });
 
-/**
- * Build TypeScript sources.
- */
-gulp.task('build-typescript', (cb) => {
-	cb(); // Do not remove! It will be uncommented later.
-	//const testTask = buildTs([`${FOLDER_SRC}/test/test.ts`], `${FOLDER_DIST}/test`, `test.js`, cb);
-	// add tasks and merge it using "return mergeStream(testTask);"
-	//return testTask;
+gulp.task('typescript-typings', () => {
+	// angular-typings
+	const angularTypingsStream = gulp.src(`${FOLDER_NODE_MODULES}/@types/angular/index.d.ts`)
+		.pipe(eol())
+		.pipe(rename('angular.d.ts'))
+		.pipe(gulp.dest(`${FOLDER_SRC}/common/@types`));
+
+	//const angularJqliteStream = gulp.src(`${FOLDER_NODE_MODULES}/@types/angular/jqlite.d.ts`)
+	//	.pipe(eol())
+	//	.pipe(rename('jqlite.d.ts'))
+	//	.pipe(gulp.dest(`${FOLDER_SRC}/common/@types`));
+
+	const jqueryTypingsStream = gulp.src(`${FOLDER_NODE_MODULES}/@types/jquery/index.d.ts`)
+		.pipe(eol())
+		.pipe(rename('jquery.d.ts'))
+		.pipe(gulp.dest(`${FOLDER_SRC}/common/@types`));
+	return mergeStream(angularTypingsStream, /*angularJqliteStream,*/ jqueryTypingsStream);
+});
+
+gulp.task('build-typescript-instant-report', cb => {
+	gutil.log(gutil.colors.yellow(`Build TypeScript instant report module`));
+
+	return instantReportTsProject
+		.src()
+		.pipe(sourcemaps.init())
+		.pipe(instantReportTsProject())
+		.js
+		.pipe(replace(/^define\("/gm, 'izendaRequire.define("'))
+		// add console.log to the loading modules:
+		//.pipe(replace(/^define\("([^"]+)",(.+)\{$/gm, 'izendaRequire.define("$1",$2{ console.log("$1");'))
+		.pipe(rename('module.js'))
+		.pipe(sourcemaps.write())
+		.pipe(eol())
+		.pipe(gulp.dest(`${FOLDER_DIST}/instant-report`));
+});
+
+gulp.task('build-typescript-dashboards', cb => {
+	gutil.log(gutil.colors.yellow(`Build TypeScript dashboards module`));
+
+	return dashboardTsProject
+		.src()
+		.pipe(sourcemaps.init())
+		.pipe(dashboardTsProject())
+		.js
+		.pipe(replace(/^define\("/gm, 'izendaRequire.define("'))
+		// add console.log to the loading modules:
+		//.pipe(replace(/^define\("([^"]+)",(.+)\{$/gm, 'izendaRequire.define("$1",$2{ console.log("$1");'))
+		.pipe(rename('module.js'))
+		.pipe(sourcemaps.write())
+		.pipe(eol())
+		.pipe(gulp.dest(`${FOLDER_DIST}/dashboard`));
+});
+
+gulp.task('build-typescript-common', (cb) => {
+	gutil.log(gutil.colors.yellow(`Build TypeScript common module`));
+
+	var tsResult = gulp
+		.src([
+			`${FOLDER_SRC}/common/**/*.ts`,
+			`!${FOLDER_SRC}/common/types/module.d.ts`
+		])
+		.pipe(sourcemaps.init())
+		.pipe(plumber(error => {
+			return errorAndDelete(error, `${FOLDER_DIST}/common/module.js`, cb);
+		}))
+		.pipe(ts(Object.assign(TS_CONFIG, { declaration: true })));
+
+	const tsStream = tsResult
+		.js
+		.pipe(concat('module.js'))
+		.pipe(sourcemaps.write())
+		.pipe(eol())
+		.pipe(gulp.dest(`${FOLDER_DIST}/common`));
+	const dtsStream = tsResult
+		.dts
+		.pipe(concat('module.d.ts'))
+		.pipe(replace(/^\s*\/\/\/\s*<reference.*$/gm, ''))
+		.pipe(eol())
+		.pipe(gulp.dest(`${FOLDER_SRC}/common/types`));
+	return mergeStream(tsStream, dtsStream);
 });
 
 //////////////////////// VENDOR //////////////////////
@@ -360,6 +409,7 @@ izendaRequire.define(['angular'], function(angular) {
 	const angularCssStream = gulp.src(`${angularSrc}/angular-csp.css`)
 		.pipe(eol())
 		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/angular`));
+
 	return mergeStream(angularSrcStream, angularCookiesStream, angularCssStream);
 });
 
@@ -438,6 +488,31 @@ gulp.task('bootstrap', (callback) => {
 				.on('finish', next);
 		}
 	], callback);
+});
+
+/**
+ * Prepare rxjs lib.
+ */
+gulp.task('rxjs', () => {
+	const src = `${FOLDER_NODE_MODULES}/rx/dist`;
+
+	const stream = gulp.src(`${src}/rx.all.min.js`)
+		.pipe(hideAndRevealRequire())
+		.pipe(glec({
+			eolc: 'CRLF',
+			encoding: 'utf8'
+		}))
+		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/rxjs`));
+
+	const src2 = `${FOLDER_NODE_MODULES}/rx-angular/dist`;
+	const stream2 = gulp.src(`${src2}/rx.angular.js`)
+		.pipe(hideAndRevealRequire())
+		.pipe(glec({
+			eolc: 'CRLF',
+			encoding: 'utf8'
+		}))
+		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/rxjs`));
+	return mergeStream(stream, stream2);
 });
 
 /**
@@ -542,6 +617,17 @@ var izendaRequire = (function () {
 		.pipe(gulp.dest(`${FOLDER_DIST_VENDOR}/requirejs`));
 });
 
+gulp.task('build-typescript',
+	gulp.series(
+		'clean-typescript',
+		//'typescript-typings', // TODO: Automate typings copying.
+		gulp.parallel(
+			'build-typescript-instant-report',
+			'build-typescript-dashboards'
+		)
+	)
+);
+
 /**
  * Build only application default task
  */
@@ -549,10 +635,11 @@ gulp.task('[build-application]',
 	gulp.series(
 		'clean-application',
 		gulp.parallel(
-			gulp.series(
-				'build-typescript'),
-			'copy-application',
-			'build-css')));
+			'build-typescript',
+			'[copy-application]',
+			'build-css')
+	)
+);
 
 /**
  * Build vendor libs
@@ -571,12 +658,15 @@ gulp.task('[build-vendor]',
 			'corejs',
 			'moment',
 			'require',
-			'resize-sensor')));
+			'rxjs',
+			'resize-sensor')
+	)
+);
 
 /**
  * Build all
  */
-gulp.task('[BUILD-ALL]', gulp.parallel('[build-vendor]', '[build-application]'));
+gulp.task('[BUILD-ALL]', gulp.series(gulp.parallel('[build-vendor]', '[build-application]'), 'clean-empty'));
 
 /**
  * Watch for changes
@@ -587,18 +677,21 @@ gulp.task('[WATCH]', gulp.series('[BUILD-ALL]', () => {
 	// Watch TS
 	watch([
 		`${FOLDER_SRC}/**/*.ts`,
+		`!${FOLDER_SRC}/**/*.d.ts`,
 		`!${FOLDER_SRC}/vendor/**/*`
 	], function (file) {
 		// file was deleted
 		if (file.event === 'unlink') {
-			deleteTs();
+			gutil.log(gutil.colors.green(`[TS delete] ${file.basename}`));
+			gulp.start(['clean-typescript']);
 			return;
 		}
 		// ts file changed.
 		try {
-			buildAllTs();
+			gutil.log(gutil.colors.green(`[TS build] ${file.basename}`));
+			gulp.start(['build-typescript']);
 		} catch (e0) {
-			gutil.error('Failed to build ts: ', e0);
+			gutil.log('Failed to build ts: ', e0);
 		}
 	});
 
@@ -609,10 +702,13 @@ gulp.task('[WATCH]', gulp.series('[BUILD-ALL]', () => {
 	], function (file) {
 		const relativePath = file.relative.split('\\').join('/');
 		const relativeDir = relativePath.substr(0, relativePath.length - file.basename.length - 1);
-		if (file.event === 'unlink')
+		if (file.event === 'unlink') {
+			gutil.log(gutil.colors.green(`[Other delete] ${file.basename}`));
 			deleteOther(relativeDir, file.basename);
-		else
+		} else {
+			gutil.log(gutil.colors.green(`[Build delete] ${file.basename}`));
 			buildOther(relativeDir, file.basename);
+		}
 	});
 
 	// watch SASS

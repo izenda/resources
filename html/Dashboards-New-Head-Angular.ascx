@@ -176,8 +176,9 @@
 </style>
 
 <script type="text/javascript">
-  ensureIzPidProcessed();
-  window.angularPageId$ = (new Date()).getTime().toString();
+	window.jQ = window.jq$;
+	ensureIzPidProcessed();
+	window.angularPageId$ = (new Date()).getTime().toString();
 </script>
 <script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ModernScripts.jquery.purl"></script>
 <script type="text/javascript" src="./<%=AdHocSettings.ResourcesProviderUniqueUrlWithDelimiter%>js=ModernScripts.url-settings"></script>

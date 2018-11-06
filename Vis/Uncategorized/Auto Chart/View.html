@@ -263,7 +263,7 @@
 				if (!vis.breadcrumb.shown) {
 					vis.breadcrumb.show();
 				}
-				var hasValues = metric === 'All' ? izenda.utils.array.any(vis.metrics, function (item) {
+				var hasValues = metric === 'All' ? vis.metrics.some(function (item) {
 					return !isNaN(vis.itemValue(root, item));
 				}) : !isNaN(vis.itemValue(root, metric));
 				if ((type.is('pie|funnel') && vis.itemValue(root, metric) == 0)

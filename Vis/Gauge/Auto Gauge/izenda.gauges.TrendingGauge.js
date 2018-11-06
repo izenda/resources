@@ -153,12 +153,18 @@
 				if (subscriptionCurrentItemChange)
 					subscriptionCurrentItemChange.remove();
 
-				pointElement
-					.attr('r', state.pointRadius);
+				var isOneValueChart = context.data.length === 1;
+
+				if(!isOneValueChart)
+					pointElement
+						.attr('r', state.pointRadius);
+
+				var xRangeLeft = 0;
+				var xRangeRight = state.width - state.offset * 2;
 
 				var x = d3v4.scaleTime()
 					.domain(d3v4.extent(context.data, function (d) { return d.date; }))
-					.range([0, state.width - state.offset * 2]);
+					.range([xRangeLeft, xRangeRight]);
 
 				var y = d3v4.scaleLinear()
 					.domain([d3v4.min(context.data, function (d) {
@@ -168,22 +174,31 @@
 					})])
 					.range([state.height * 0.52, state.height * 0.32]);
 
+				function prepareXValueData(data) {
+					if (isOneValueChart)
+						return [{ items: context.data[0].items, xValue: xRangeLeft }, { items: context.data[0].items, xValue: xRangeRight }];
+
+					return data.map(function (item) {
+						return { items: item.items, xValue: x(item.date) };
+					});
+				}
+
 				var area = d3v4.area()
-					.x(function (d) { return x(d.date); })
+					.x(function (d) { return d.xValue; })
 					.y0(state.height - state.offset * 2)
 					.y1(function (d) { return y(d.items[0].value); });
 
 				areaElement
-					.attr('d', area)
+					.attr('d', area(prepareXValueData(context.data)))
 					.attr('transform', 'translate(' + state.offset + ',' + state.offset + ')')
 					.attr('stroke-width', 0);
 
 				var lineFunction = d3v4.line()
-					.x(function (d) { return x(d.date); })
+					.x(function (d) { return d.xValue; })
 					.y(function (d) { return y(d.items[0].value); })
 					.curve(d3v4.curveLinear);
 				lineElement
-					.attr('d', lineFunction(context.data))
+					.attr('d', lineFunction(prepareXValueData(context.data)))
 					.attr('stroke-width', state.lineBorderWidth)
 					.attr('transform', 'translate(' + state.offset + ',' + state.offset + ')');
 
@@ -194,10 +209,12 @@
 					};
 				}
 
-				var currentItemIndex = context.data.length - 1;
-				var currentItem = context.data[currentItemIndex];
-				var currentPoint = getPointByItem(currentItem);
-				pointElement.interrupt().attr('transform', 'translate(' + currentPoint.x + ',' + currentPoint.y + ')');
+				if (!isOneValueChart) {
+					var currentItemIndex = context.data.length - 1;
+					var currentItem = context.data[currentItemIndex];
+					var currentPoint = getPointByItem(currentItem);
+					pointElement.interrupt().attr('transform', 'translate(' + currentPoint.x + ',' + currentPoint.y + ')');
+				}
 
 				var seed = 0;
 				function getUniqueId() {

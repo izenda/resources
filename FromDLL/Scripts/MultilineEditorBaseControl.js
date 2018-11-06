@@ -40,6 +40,12 @@ var ebc_rowRemoveHandlers = {};
 var ebc_selTable = new Array();
 var caCalendarsPoolIndex = 1000;
 
+(function (ns) {
+	ns.pages = ns.pages || {};
+	ns.pages.designer = ns.pages.designer || {};
+
+})(window.izenda || (window.izenda = {}));
+
 function EBC_RegiserForUnusedRowsRemoving(tbl) {
 	ebc_selTable.push(tbl);
 }
@@ -65,8 +71,8 @@ function EBC_InsertRow(table, n, newRow) {
 		tb.insertBefore(newRow, r[n]);
 	newRow._table = table;
 	var filterNumber = EBC_GetInputByName(newRow, 'FilterNumber');
-	if (filterNumber != null && CC_RenumFilters != null)
-		CC_RenumFilters(EBC_GetParentTable(newRow));
+	if (filterNumber != null && typeof izenda.pages.designer.RenumFilters !== 'undefined')
+		izenda.callIfFunction(izenda.pages.designer.RenumFilters, EBC_GetParentTable(newRow));
 	return newRow;
 }
 

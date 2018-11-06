@@ -16,6 +16,11 @@
 		return typeof value === 'function';
 	};
 
+	ns.isInteger = function (value) {
+		return typeof value === 'number' &&
+			isFinite(value) && !(value % 1);
+	};
+
 	ns.isNullOrUndefined = function (value) {
 		return ns.isNull(value) || ns.isUndefined(value);
 	};
@@ -56,6 +61,25 @@
 			func.apply(null, args);
 	};
 
+	ns.each = function (arg, callback) {
+		if (!ns.isFunction(callback)) {
+			throw new ns.error.InvalidArgumentError('\'callback\' parameter should be a function.');
+		}
+
+		if (arg != null && typeof arg === 'object') {
+			for (var prop in arg) {
+				if (arg.hasOwnProperty(prop)) {
+					callback(arg[prop], prop);
+				}
+			}
+		} else if (Array.isArray(arg)) {
+			var len = arg.length;
+			for (var i = 0; i < len; ++i) {
+				callback(arg[i], i);
+			}
+		}
+	};
+
 	// Dates are written in the Microsoft JSON format, e.g. "\/Date(1198908717056)\/".
 	var reMsAjax = /^\/Date\((d|-|.*)\)[\/|\\]$/;
 	ns.JSONParserExtension = function (key, value) {
@@ -73,6 +97,26 @@
 (function (ns) {
 	ns.error = ns.error || {};
 
+	ns.error.register = function (name) {
+		var errorTemplate = 'function {name}(message){ this.message = message }' +
+			'{name}.prototype = Object.create(Error.prototype);' +
+			'{name}.prototype.constructor = {name};' +
+			'return {name};';
+
+		ns.error[name] = new Function(errorTemplate.replace(/{name}/g, name))();
+	};
+
+	ns.error.register('InvalidArgumentError');
+
+})(window.izenda || (window.izenda = {}));
+
+(function (ns) {
+	ns.error = ns.error || {};
+
+	/**
+	 * extenstion methods
+	 */
+
 	ns.error.extractStackTrace = function (responseObject) {
 		var stacktrace = '';
 		if (responseObject.responseText) {
@@ -88,9 +132,9 @@
 	};
 
 	ns.error.defaultCallbackError = function (responseObject, preventReloading) {
-		var msg = "Error occurred on server side. ";
+		var msg = 'Error occurred on server side. ';
 		if (responseObject && responseObject.status && responseObject.statusText)
-			msg = "Server returned " + responseObject.status + ":" + responseObject.statusText + " response. ";
+			msg = 'Server returned ' + responseObject.status + ':' + responseObject.statusText + ' response. ';
 		if (responseObject.responseText) {
 			var stacktrace = izenda.error.extractStackTrace(responseObject);
 			if (stacktrace) {
@@ -105,6 +149,49 @@
 			ReportingServices.showConfirm(msg, function (result) { if (result == jsResources.OK) { location.reload(); } });
 		else
 			ReportingServices.showOk(msg);
+	};
+
+})(window.izenda || (window.izenda = {}));
+
+(function (ns) {
+	ns.utils = ns.utils || {};
+	ns.utils.dom = ns.utils.dom || {};
+	ns.utils.dom.select = ns.utils.dom.select || {};
+
+	ns.utils.dom.select.getSelectedOptionValues = function (select) {
+		var result = [];
+		if (ns.isDefined(select.selectedOptions))
+			for (var i = 0; i < select.selectedOptions.length; ++i)
+				result.push(select.selectedOptions[i].value);
+		else
+			for (var i = 0; i < select.options.length; ++i)
+				if (select.options[i].selected)
+					result.push(select.options[i].value);
+		return result;
+	};
+
+	ns.utils.dom.select.setOptionsByValues = function(select, values) {
+		for (var i = 0; i < select.options.length; ++i)
+			for (var j = 0; j < values.length; ++j)
+				if (select.options[i].value === values[j])
+					select.options[i].selected = true;
+	};
+
+})(window.izenda || (window.izenda = {}));
+
+(function (ns) {
+	ns.utils = ns.utils || {};
+	ns.utils.dom = ns.utils.dom || {};
+	ns.utils.dom.checkbox = ns.utils.dom.checkbox || {};
+
+	ns.utils.dom.checkbox.getCheckedOptions = function(parent) {
+		var checkboxes = parent.querySelectorAll('input[type="checkbox"]');
+		var checkedValues = [];
+		ns.each(checkboxes, function(checkbox) {
+			if (checkbox.checked)
+				checkedValues.push(checkbox.value);
+		});
+		return checkedValues;
 	};
 
 })(window.izenda || (window.izenda = {}));
@@ -200,11 +287,13 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	 */
 	function _processRequest() {
 		if (thisRequestObject.readyState == 4) {
+			if (CheckResponseForLoginRedirect(thisRequestObject))
+				return;
 			if (thisRequestObject.status == 200) {
 				if (!callbackSuccess)
 					return;
 				var toRet;
-				if (['getrenderedreportset', 'getcrsreportpartpreview', 'renderedreportpart', 'tinymceresource_editorcorejs'].indexOf(thisRequestObject.requestId) >= 0) {
+				if (['getrenderedreportset', 'renderedreportpart', 'tinymceresource_editorcorejs'].indexOf(thisRequestObject.requestId) >= 0) {
 					// process non json requests
 					toRet = thisRequestObject.responseText;
 				} else {
@@ -225,6 +314,27 @@ function AjaxRequest(url, parameters, callbackSuccess, callbackError, id, dataTo
 	}
 
 	return thisRequestObject;
+}
+
+function CheckResponseForLoginRedirect(req) {
+	if (!req || !req.responseURL)
+		return false;
+	var respUrl = req.responseURL;
+	var loginRd = respUrl.indexOf('ReturnUrl=') >= 0;
+	loginRd = loginRd || (respUrl.indexOf('login=1') >= 0 && respUrl.indexOf('lastUrl=') >= 0)
+	if (!loginRd)
+		return false;
+	var curHost = window.location.hostname;
+	var locRef = window.location.href;
+	var fullHostLen = locRef.indexOf(curHost) + curHost.length;
+	try {
+		if (locRef.substr(0, fullHostLen) === respUrl.substr(0, fullHostLen)) {
+			window.location = respUrl.substr(0, respUrl.indexOf('?'));
+			return true;
+		}
+	}
+	catch(e) {}
+	return false;
 }
 
 function getAppendedUrl(urlToAppend) {

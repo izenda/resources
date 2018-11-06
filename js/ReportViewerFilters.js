@@ -172,6 +172,13 @@ function CommitChangedFilter(field) {
 	CommitFiltersData(false, true, true);
 }
 
+function GetDataToCommit() {
+	var dataToCommit = new Array();
+	dataToCommit = dataToCommit.concat(GetFiltersDataToCommit());
+	dataToCommit = dataToCommit.concat(GetSubreportsFiltersDataToCommit());
+	return dataToCommit;
+}
+
 /**
  * Send filters data to server.
  * @param {boolean} updateReportSet
@@ -197,9 +204,7 @@ function CommitFiltersData(updateReportSet, forceUseSetFiltersDataMode, refreshF
 		return;
 	}
 
-	var dataToCommit = new Array();
-	dataToCommit = dataToCommit.concat(GetFiltersDataToCommit());
-	dataToCommit = dataToCommit.concat(GetSubreportsFiltersDataToCommit());
+	var dataToCommit = GetDataToCommit();
 
 	if (dataToCommit.length == 0) {
 		GetRenderedReportSet(true);
@@ -224,6 +229,13 @@ function CommitFiltersData(updateReportSet, forceUseSetFiltersDataMode, refreshF
 	if (useRefreshCascadingFiltersMode)
 		LockFilters();
 
+	// if external refresh function somewhere is defined - do not refresh filters.
+	if (window.cascadingFiltersChangedCustom) {
+		window.cascadingFiltersChangedCustom.call(window.cascadingFiltersChangedCustomContext, []);
+		return;
+	}
+
+	// prepare and run query
 	var cmd = useRefreshCascadingFiltersMode
 		? 'refreshcascadingfilters'
 		: 'setfiltersdata';
@@ -524,7 +536,7 @@ function RefreshFilters(returnObj) {
 	if (htmlFilters.is(':hidden'))
 		htmlFilters.show();
 	jq$('#tab1 #loadingDiv').hide();
-
+	
 	filtersData = returnObj.Filters;
 	calendars = new Array();
 

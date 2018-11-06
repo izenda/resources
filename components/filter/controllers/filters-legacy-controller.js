@@ -1,7 +1,5 @@
 izendaRequire.define([
-	'angular',
-	'../../common/core/services/event-service',
-	'../../common/query/services/url-service'
+	'angular'
 ], function (angular) {
 
 	angular

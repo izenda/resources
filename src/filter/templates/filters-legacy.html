@@ -1,54 +1,54 @@
 ﻿<div class="iz-filters-container"
-     ng-controller="IzendaFiltersLegacyController as izendaFiltersController"
-     ng-style="izendaFiltersController.containerStyle"
-     ng-init="izendaFiltersController.initialize()">
-  <div id="htmlFilters">
-    <table style="width: 100%;">
-      <tr>
-        <td class="filtersContent"></td>
-      </tr>
-      <tr>
-        <td class="subreportsFiltersContent" style="display: none;">
-          <div class="subreportsFiltersTitle" onclick="ToggleSubreportsFiltersControl();" style="height: 1px; background-color: #aaa; text-align: center; cursor: pointer;">
-            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px; display: none;">+</span>
-            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px;">-</span>
-            <span class="subreportsTitleText" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px;">Subreports</span>
-            <span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px; display: none;">+</span>
-            <span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px;">-</span>
-          </div>
-          <table class="subreportsFiltersTable" style="width: 100%;"></table>
-        </td>
-      </tr>
-      <tr>
-        <td class="filtersButtons">
-          <div id="updateBtnP" class="f-button" style="margin: 10px; margin-left: 8px;">
-            <a class="blue">
-              <img src="###RS###image=ModernImages.refresh-white.png" lang-alt="js_Refresh" alt="Refresh">
-              <span class="text" lang-text="js_UpdateResults">Update Results</span>
-            </a>
-          </div>
-        </td>
-      </tr>
-    </table>
-  </div>
-  <!-- Filters Templates -->
-  <div style="display: none;">
-    <!-- Single Filter Template -->
-    <div class="filterViewerTemplate filterInnerContentRoot" style="display: none;">
-      <div class="filterInnerContent">
-        <div class="filterHeader">
-          <div class="filterTitleContainer">
-            <span class="filterRequiredFlag" lang-title="js_Require" title="Require" style="display: none;">*</span>
-            <span class="filterTitle"></span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Add New Filter Template -->
-    <div class="addFilterTemplate" title="Add New Filter"></div>
-    <!-- Subreport Title Template-->
-    <div class="subreportTitleTemplate" style="height: 1px; background-color: #aaa; margin-top: 16px; margin-bottom: 16px; text-align: center;">
-      <span style="background-color: white; position: relative; color: #aaa; top: -11px; font-size: 16px; padding: 0px 10px;"></span>
-    </div>
-  </div>
+	 ng-controller="IzendaFiltersLegacyController as izendaFiltersController"
+	 ng-style="izendaFiltersController.containerStyle"
+	 ng-init="izendaFiltersController.initialize()">
+	<div id="htmlFilters">
+		<table style="width: 100%;">
+			<tr>
+				<td class="filtersContent"></td>
+			</tr>
+			<tr>
+				<td class="subreportsFiltersContent" style="display: none;">
+					<div class="subreportsFiltersTitle" onclick="ToggleSubreportsFiltersControl();" style="height: 1px; background-color: #aaa; text-align: center; cursor: pointer;">
+						<span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px; display: none;">+</span>
+						<span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: left; margin-left: 10px;">-</span>
+						<span class="subreportsTitleText" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px;">Subreports</span>
+						<span class="subreportsCollapse" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px; display: none;">+</span>
+						<span class="subreportsExpand" style="background-color: white; position: relative; color: #aaa; top: -13px; font-size: 18px; padding: 0px 10px; float: right; margin-right: 10px;">-</span>
+					</div>
+					<table class="subreportsFiltersTable" style="width: 100%;"></table>
+				</td>
+			</tr>
+			<tr>
+				<td class="filtersButtons">
+					<div id="updateBtnP" class="f-button" style="margin: 10px; margin-left: 8px;">
+						<a class="blue">
+							<img src="###RS###image=ModernImages.refresh-white.png" lang-alt="js_Refresh" alt="Refresh">
+							<span class="text" lang-text="js_UpdateResults">Update Results</span>
+						</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<!-- Filters Templates -->
+	<div style="display: none;">
+		<!-- Single Filter Template -->
+		<div class="filterViewerTemplate filterInnerContentRoot" style="display: none;">
+			<div class="filterInnerContent">
+				<div class="filterHeader">
+					<div class="filterTitleContainer">
+						<span class="filterRequiredFlag" lang-title="js_Require" title="Require" style="display: none;">*</span>
+						<span class="filterTitle"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Add New Filter Template -->
+		<div class="addFilterTemplate" title="Add New Filter"></div>
+		<!-- Subreport Title Template-->
+		<div class="subreportTitleTemplate" style="height: 1px; background-color: #aaa; margin-top: 16px; margin-bottom: 16px; text-align: center;">
+			<span style="background-color: white; position: relative; color: #aaa; top: -11px; font-size: 16px; padding: 0px 10px;"></span>
+		</div>
+	</div>
 </div>

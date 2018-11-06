@@ -231,7 +231,7 @@
 		styles.round = new RoundStyle();
 		styles.trending = new TrendingStyle();
 
-		var isDateExist = izenda.utils.array.any(VIS_COLUMNS, function (column) { return column.type === 'DateTime' });
+		var isDateExist = VIS_COLUMNS.some(function (column) { return column.type === 'DateTime' });
 
 		var vis = new izenda.visualization({
 			id: 'VIS_ID',
@@ -242,7 +242,7 @@
 			requirements: { d3: true, svg: true },
 			validate: function (columns, rows) {
 				return columns.length > 1
-					&& izenda.utils.array.any(columns.slice(1), function (column) { return izenda.visualization.isMetric(column); });
+					&& columns.slice(1).some(function (column) { return izenda.visualization.isMetric(column); });
 			},
 			defaultProperties: {
 				CurrentStyle: (isDateExist) ? 'trending' : 'simple',
@@ -863,9 +863,7 @@
 				for (var key in nonFilteredItems) {
 					if (nonFilteredItems.hasOwnProperty(key)) {
 						var values = nonFilteredItems[key];
-						if (values.length > 1) {
-							items.push({ title: key, data: values });
-						}
+						items.push({ title: key, data: values });
 					}
 				}
 

@@ -1,0 +1,26 @@
+{
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"allowJs": false,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"noImplicitAny": false,
+		"noEmitOnError": true,
+		"removeComments": false,
+		//"declaration": false,
+		"emitBOM": false,
+		"sourceMap": false,
+		"inlineSourceMap": false,
+		"target": "es5",
+		"module": "amd",
+		"lib": [ "es5", "es6", "dom", "es2015.core" ],
+		"skipLibCheck": true,
+		"typeRoots": [ "./types" ],
+		"types": [ "angular", "jquery", "izenda-external-libs" ],
+		"baseUrl": ".",
+		//"outDir": "../components/instant-report"
+		"outFile": "../components/instant-report/module.js"
+	},
+	"include": [ "./instant-report/**/*.ts", "./common/**/*.ts" ]
+}

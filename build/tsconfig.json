@@ -1,14 +1,23 @@
 {
-  "compilerOptions": {
-    "noImplicitAny": false,
-    "noEmitOnError": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "target": "es6"
-  },
-  "exclude": [
-    "node_modules",
-    "wwwroot",
-    "Resources"
-  ]
+	"compilerOptions": {
+		"allowJs": false,
+		"moduleResolution": "node",
+		"emitDecoratorMetadata": true,
+		"experimentalDecorators": true,
+		"noImplicitAny": false,
+		"noEmitOnError": true,
+		"removeComments": false,
+		//"declaration": false,
+		"emitBOM": false,
+		"sourceMap": true,
+		"target": "es5",
+		"module": "amd",
+		"lib": [ "es5", "es6", "dom", "es2015.core" ],
+		"skipLibCheck": true,
+		"typeRoots": [ "Resources/src/types" ],
+		"types": [ "angular", "jquery", "izenda-external-libs" ],
+		"baseUrl": "Resources/src",
+		"noEmit": true
+	},
+	"exclude": ["node_modules", "Resources"]
 }

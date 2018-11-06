@@ -62,7 +62,8 @@ var resourcesProvider;
 		if (cookieCategoryFullName) {
 			var cookieCategoryObject = this0.getCategoryByName(cookieCategoryFullName);
 			if (cookieCategoryObject)
-				$categoryEl = this0.$elLeftPanel.find('.category-item[data-category="' + cookieCategoryObject.fullName + '"]');
+				$categoryEl = this0.$elLeftPanel
+					.find('.category-item[data-category="' + cookieCategoryObject.fullName.replaceAll('\\', '\\\\') + '"]');
 		}
 		// if category not fount - get first not empty category
 		if (!$categoryEl || !$categoryEl.length)
@@ -149,7 +150,8 @@ var resourcesProvider;
 		var this0 = this;
 		var currentCategory = this0.categoriesModel.currentCategory;
 		if (currentCategory) {
-			var $categoryEl = this0.$elLeftPanel.find('.category-item[data-category="' + currentCategory.fullName + '"]');
+			var $categoryEl = this0.$elLeftPanel
+				.find('.category-item[data-category="' + currentCategory.fullName.replaceAll('\\', '\\\\') + '"]');
 			var categoryBottom = $categoryEl.position().top + $categoryEl.height();
 			var delta = categoryBottom - this0.$elSideMenu.height();
 			delta = (delta > 0) ? delta - 40 + this0.$elSideMenu.height() : 0;

@@ -1,0 +1,36 @@
+<div class="izenda-gallery-title-controls">
+	<div class="izenda-gallery-title"
+		 ng-bind="$ctrl.tileTitle"></div>
+</div>
+
+<div class="izenda-gallery-item izenda-gallery-opacity-transition izenda-report-with-id"
+	 ng-attr-tile-id="{{tile.id}}"
+	 reportid="{{tile.id}}"
+	 ng-repeat="tile in $ctrl.galleryTiles"
+	 ng-class="$ctrl.enabled ? 'active' : ''"
+	 ng-style="$ctrl.getTileStyle(tile)">
+	<div class="izenda-gallery-item-inner">{{tile.title}}, {{tile.description}}</div>
+</div>
+
+<div class="izenda-gallery-controls-round-panel"
+	 ng-show="$ctrl.galleryTiles.length > 1"
+	 ng-style="{visibility: $ctrl.state.isUiHidden ? 'hidden' : 'visible'}">
+	<div class="izenda-gallery-round-item-container"
+		 ng-repeat="tile in $ctrl.galleryTiles"
+		 ng-click="$ctrl.goTo(tile)">
+		<div class="izenda-gallery-round-item"
+			 ng-class="tile === $ctrl.currentTile ? 'active':''"></div>
+	</div>
+</div>
+
+<div class="izenda-gallery-side-button left"
+	 ng-show="$ctrl.galleryTiles.length > 1"
+	 ng-click="$ctrl.goPrevious()"
+	 ng-style="{visibility: $ctrl.state.isUiHidden ? 'hidden' : 'visible'}">
+	<span class="izenda-gallery-side-button-icon glyphicon glyphicon-arrow-left"></span>
+</div>
+<div class="izenda-gallery-side-button right"
+	 ng-show="$ctrl.galleryTiles.length > 1"
+	 ng-click="$ctrl.goNext()" ng-style="{visibility: $ctrl.state.isUiHidden ? 'hidden' : 'visible'}">
+	<span class="izenda-gallery-side-button-icon glyphicon glyphicon-arrow-right"></span>
+</div>

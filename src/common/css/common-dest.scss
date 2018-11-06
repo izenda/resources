@@ -1,6 +1,10 @@
 ﻿@import "../../css/config.scss";
 @import "../../css/base.scss";
 
+.izenda-common-noselect {
+	@include izenda-user-select(none);
+}
+
 .izenda-common-cursor-pointer {
 	cursor: pointer;
 }
@@ -265,23 +269,33 @@
 
 .izenda-common-btn-dark {
 	outline: transparent;
-	color: #fff;
+	color: $global-color-light;
 	background-color: $global-color-dark;
+	outline: 0;
 
 	&.active {
-		color: $global-color-dark;
-		background-color: $global-color-light;
+		color: $global-color-dark !important;
+		background-color: $global-color-light !important;
+		border: 1px solid transparent !important;
 	}
 
 	&:focus {
+		color: $global-color-light;
 		background-color: $global-color-dark;
+		outline: 0 !important;
 	}
 
 	&:hover,
+	&.active:hover,
 	&:link:hover,
-	&:visited:hover,
-	&:active:hover {
-		background-color: #3668A3;
+	&:visited:hover {
+		color: #fff;
+		background-color: lighten($global-color-dark, 10%);
+	}
+
+	&[disabled]:hover {
+		color: $global-color-light;
+		background-color: $global-color-dark;
 	}
 }
 

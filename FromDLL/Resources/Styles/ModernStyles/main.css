@@ -96,27 +96,6 @@ p {
 	text-indent: 0;
 }
 
-ul {
-}
-
-	ul ul {
-	}
-
-ol {
-}
-
-	ol ol {
-	}
-
-li {
-}
-
-	li li {
-	}
-
-dl dt {
-}
-
 dl dd {
 	margin-bottom: .75em;
 }
@@ -143,9 +122,6 @@ h2, h3 {
 	margin: 1em 0;
 }
 
-h2, h5 {
-}
-
 h4 {
 	font-size: 100%;
 }
@@ -161,34 +137,21 @@ h5, h6 {
 		margin-top: 0 !important;
 	}
 
-blockquote {
-}
-
 input, textarea, select, option {
 	font-family: Verdana, Arial, Geneva, sans-serif;
 	font-size: inherit;
 }
 
-input {
-}
 
-	input[type=button] {
-		padding: 6px 12px;
-		cursor: pointer;
-	}
+
+input[type=button] {
+	padding: 6px 12px;
+	cursor: pointer;
+}
 
 .layout input[type=button]:hover {
 	background-color: #ddd !important;
 	border-color: #ddd !important;
-}
-
-input[type=checkbox], input[type=radio] {
-	/*vertical-align: bottom;*/
-	/*margin-top: 8px;*/
-}
-
-select, option {
-	/*font-size: 95%;*/
 }
 
 option {
@@ -234,9 +197,6 @@ fieldset {
 table, td, th {
 	/*	border-spacing: 0;*/
 	border-width: 0;
-}
-
-th, td {
 }
 
 /* Links */
@@ -440,10 +400,6 @@ a span.plus {
 }
 
 
-
-.main-content {
-}
-
 	.main-content .page {
 		margin-bottom: 36px;
 	}
@@ -582,15 +538,6 @@ table.ReportTable td {
 	line-height: 18px;
 }
 
-tr.ReportHeader td {
-}
-
-tr.ReportItem td, tr.AlternatingItem td,
-tr.ReportItemAG td, tr.ReportItemAGTotal td,
-tr.ReportFooter td {
-}
-
-
 #loadingScreen {
 	font-weight: normal !important;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -659,9 +606,6 @@ tr.ReportFooter td {
 	text-align: center;
 }
 
-.iz-ui-tabs {
-}
-
 	.iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {
 		background-color: transparent !important;
 	}
@@ -702,9 +646,6 @@ tr.ReportFooter td {
 						background-color: transparent;
 					}
 
-
-.iz-ui-tabs-panel div.thumbs {
-}
 
 .iz-ui-tabs-panel div.thumb {
 	cursor: pointer;
@@ -900,10 +841,6 @@ tr.ReportFooter td {
 				color: #000;
 			}
 
-
-.iz-ui-tabs-panel div.thumbs {
-}
-
 .iz-ui-tabs-panel div.thumb {
 	cursor: pointer;
 	position: relative;
@@ -919,9 +856,6 @@ tr.ReportFooter td {
 		outline: 1px solid #cecece;
 		background-color: #fff;
 	}
-
-.tab-content {
-}
 
 .filter-selector {
 	display: inline-block;
@@ -999,11 +933,6 @@ tr.ReportFooter td {
 	margin: 0 1px;
 }
 
-
-
-.j-metro {
-}
-
 	.j-metro h1,
 	.j-metro h2,
 	.j-metro h3,
@@ -1020,9 +949,6 @@ tr.ReportFooter td {
 	.iz-ui-tabs-nav .iz-ui-state-default a {
 		font-weight: normal !important;
 	}
-
-.iz-ui-dialog-titlebar {
-}
 
 .iz-ui-widget-content .iz-ui-state-default,
 .j-metro .iz-ui-button {
@@ -1255,4 +1181,94 @@ a.button {
 
 .highcharts-tooltip {
 	pointer-events: initial !important;
+}
+
+
+/* Report Designer */
+
+.izenda-field select {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	height: 25px;
+}
+
+.izenda-row-value input[type="text"] {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 1px solid #aaaaaa;
+	height: 25px;
+	padding: 1px 2px;
+}
+
+/* Report Designer - Filters */
+
+.izenda-filter-calendar input {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	padding-right: 29px;
+}
+
+.izenda-filter-calendar input + img {
+	position: absolute;
+	margin-left: -29px;
+	margin-top: 2px;
+}
+
+.izenda-filter-list textarea {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.izenda-filter-equals input[type="text"] {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 1px solid #aaaaaa;
+	height: 25px;
+	padding: 1px 2px;
+}
+
+.izenda-filter-autocomplete ul.tagit {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 1px solid #aaaaaa;
+	vertical-align: middle;
+	height: 28px;
+}
+
+.izenda-filter-autocomplete ul.tagit input {
+	height: 22px;
+}
+
+.izenda-filter-popup input[type="button"] {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 1px solid #aaaaaa;
+	height: 25px;
+	padding: 0;
+}
+
+.izenda-filter-checkbox div {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	border: 1px solid #aaaaaa;
+	background-color: white;
+	overflow: auto;
+	padding: 1px 2px;
+}
+
+.izenda-filter-select select {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	height: 25px;
+}
+
+.izenda-filter-multiple select {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	height: inherit;
+}
+
+.izenda-filter-tree .comboboxTreeMultyselect div {
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
 }
