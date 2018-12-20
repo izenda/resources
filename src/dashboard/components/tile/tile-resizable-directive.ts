@@ -30,7 +30,7 @@ class IzendaTileResizable implements ng.IDirective {
 	};
 	link: ($scope: IIzendaTileResizableScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => void;
 
-	constructor(private readonly $izendaDashboardStorage: any) {
+	constructor(private readonly $izendaDashboardStorageService: any) {
 		IzendaTileResizable.prototype.link = ($scope: IIzendaTileResizableScope, $element: ng.IAugmentedJQuery) => {
 
 			// initialize resizable
@@ -129,7 +129,7 @@ class IzendaTileResizable implements ng.IDirective {
 						t.backTilePopupOpened = false;
 					});
 					// turn off window resize handler
-					this.$izendaDashboardStorage.turnOffWindowResizeHandler();
+					this.$izendaDashboardStorageService.turnOffWindowResizeHandler();
 
 					// context variables
 					$tile = (angular.element(event.target) as angular.IAugmentedJQuery);
@@ -215,7 +215,7 @@ class IzendaTileResizable implements ng.IDirective {
 					$tile.css('opacity', 1);
 
 					// turn on window resize handler
-					this.$izendaDashboardStorage.turnOnWindowResizeHandler();
+					this.$izendaDashboardStorageService.turnOnWindowResizeHandler();
 
 					// fire onResizeEnd handler:
 					if (angular.isFunction($scope.onResizeEnd)) {
@@ -251,10 +251,10 @@ class IzendaTileResizable implements ng.IDirective {
 	}
 
 	static factory(): ng.IDirectiveFactory {
-		const directive = ($izendaDashboardStorage: DashboardStorageService) => new IzendaTileResizable($izendaDashboardStorage);
-		directive.$inject = ['$izendaDashboardStorage'];
+		const directive = ($izendaDashboardStorageService: DashboardStorageService) => new IzendaTileResizable($izendaDashboardStorageService);
+		directive.$inject = ['$izendaDashboardStorageService'];
 		return directive;
 	}
 }
 
-izendaDashboardModule.directive('izendaTileResizable', ['$izendaDashboardStorage', IzendaTileResizable.factory()]);
+izendaDashboardModule.directive('izendaTileResizable', ['$izendaDashboardStorageService', IzendaTileResizable.factory()]);

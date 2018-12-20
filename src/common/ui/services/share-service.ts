@@ -14,9 +14,13 @@ export default class IzendaShareService {
 	subjects: Array<IzendaSelectItemModel>;
 	shareModel: IzendaShareModel;
 
+	static get injectModules(): any[] {
+		return ['$q', '$izendaCommonQueryService'];
+	}
+
 	constructor(
 		private readonly $q: ng.IQService,
-		private readonly $izendaCommonQuery: IzendaCommonQueryService) {
+		private readonly $izendaCommonQueryService: IzendaCommonQueryService) {
 		this.reset();
 	}
 
@@ -89,7 +93,7 @@ export default class IzendaShareService {
 	private loadShareData(): ng.IPromise<void> {
 		return this.$q(resolve => {
 
-			this.$izendaCommonQuery.getShareData().then(json => {
+			this.$izendaCommonQueryService.getShareData().then(json => {
 				// fill available rights collection
 				this.rights = json.Rights.map(rightJson => new IzendaSelectItemModel(rightJson.Text, rightJson.Value));
 
@@ -108,10 +112,6 @@ export default class IzendaShareService {
 		this.rights = new Array<IzendaSelectItemModel>();
 		this.subjects = new Array<IzendaSelectItemModel>();
 		this.shareModel = new IzendaShareModel();
-	}
-
-	static get injectModules(): any[] {
-		return ['$q', '$izendaCommonQuery'];
 	}
 
 	/**

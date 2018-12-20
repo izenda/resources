@@ -210,7 +210,7 @@ _____________________________________________________________________
 		};
 
 		instance.toString = function () {
-			return params.map(p => p.name + '=' + p.value).join('&');
+			return params.map(function(p) { return p.name + '=' + p.value; }).join('&');
 		};
 	}
 

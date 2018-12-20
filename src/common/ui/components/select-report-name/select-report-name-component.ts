@@ -13,7 +13,7 @@ import IzendaCommonQueryService from 'common/query/services/common-query-service
 @IzendaComponent(
 	izendaUiModule,
 	'izendaSelectReportNameComponent',
-	['$q', '$izendaLocale', '$izendaUrl', '$izendaSettings', '$izendaCommonQuery', 'izenda.common.ui.reportNameInputPlaceholderText',
+	['$q', '$izendaLocaleService', '$izendaUrlService', '$izendaSettingsService', '$izendaCommonQueryService', 'izenda.common.ui.reportNameInputPlaceholderText',
 		'izenda.common.ui.reportNameEmptyError', 'izenda.common.ui.reportNameInvalidError'],
 	{
 		templateUrl: '###RS###extres=components.common.ui.components.select-report-name.select-report-name-template.html',
@@ -53,22 +53,22 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 
 	constructor(
 		private readonly $q: ng.IQService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
-		private readonly $izendaCommonQuery: IzendaCommonQueryService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
+		private readonly $izendaCommonQueryService: IzendaCommonQueryService,
 		reportNameInputPlaceholderText: string[],
 		private readonly reportNameEmptyError: string,
 		private readonly reportNameInvalidError: string) {
 
-		this.isCategoryAllowed = $izendaSettings.getCommonSettings().showCategoryTextboxInSaveDialog;
-		this.reportNameInputPlaceholderText = this.$izendaLocale
+		this.isCategoryAllowed = $izendaSettingsService.getCommonSettings().showCategoryTextboxInSaveDialog;
+		this.reportNameInputPlaceholderText = this.$izendaLocaleService
 			.localeText(reportNameInputPlaceholderText[0], reportNameInputPlaceholderText[1]);
-		this.textCreateNew = $izendaLocale.localeText('js_CreateNew', 'Create New');
-		this.textUncategorized = $izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
-		this.textErrorReportNameEmpty = $izendaLocale.localeText(reportNameEmptyError[0], reportNameEmptyError[1]);
-		this.textErrorInvalidReportName = $izendaLocale.localeText(reportNameInvalidError[0], reportNameInvalidError[1]);
-		this.textErrorInvalidCategoryName = $izendaLocale.localeText('js_InvalidCategoryName', 'Invalid Category Name');
+		this.textCreateNew = $izendaLocaleService.localeText('js_CreateNew', 'Create New');
+		this.textUncategorized = $izendaLocaleService.localeText('js_Uncategorized', 'Uncategorized');
+		this.textErrorReportNameEmpty = $izendaLocaleService.localeText(reportNameEmptyError[0], reportNameEmptyError[1]);
+		this.textErrorInvalidReportName = $izendaLocaleService.localeText(reportNameInvalidError[0], reportNameInvalidError[1]);
+		this.textErrorInvalidCategoryName = $izendaLocaleService.localeText('js_InvalidCategoryName', 'Invalid Category Name');
 
 		this.isOpenedInner = false;
 		this.isNewReportDialog = false;
@@ -115,26 +115,26 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 		this.isOpenedInner = true;
 		this.resetForm();
 
-		const reportInfo = this.$izendaUrl.getReportInfo();
+		const reportInfo = this.$izendaUrlService.getReportInfo();
 		this.nextId = 1;
 
 		// show loading message inside select control
 		this.categories = [];
 		this.categories.push({
 			id: -1,
-			name: this.$izendaLocale.localeText('js_Loading', 'Loading...')
+			name: this.$izendaLocaleService.localeText('js_Loading', 'Loading...')
 		});
 		this.selectedCategory = this.categories[0];
 		this.reportName = reportInfo.name;
 
-		this.$izendaCommonQuery.getReportSetCategory(this.textUncategorized).then(data => {
+		this.$izendaCommonQueryService.getReportSetCategory(this.textUncategorized).then(data => {
 			this.categories = [];
 			this.selectedCategory = null;
 			this.reportSets = data.ReportSets;
 
 			// add categories
 			// "Create new"
-			if (this.$izendaSettings.getCommonSettings().allowCreateNewCategory)
+			if (this.$izendaSettingsService.getCommonSettings().allowCreateNewCategory)
 				this.categories.push({
 					id: this.nextId++,
 					name: this.textCreateNew
@@ -156,7 +156,7 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 						currentCategoryName = this.textUncategorized;
 					currentCategoryName = !report.Subcategory
 						? currentCategoryName
-						: currentCategoryName + this.$izendaSettings.getCategoryCharacter() + report.Subcategory;
+						: currentCategoryName + this.$izendaSettingsService.getCategoryCharacter() + report.Subcategory;
 
 					if (this.categories && this.categories.length) {
 						if (!this.categories.find(c => c.name === currentCategoryName)) {
@@ -218,7 +218,7 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 	 * Set form to it's initial state
 	 */
 	resetForm() {
-		const reportInfo = this.$izendaUrl.getReportInfo();
+		const reportInfo = this.$izendaUrlService.getReportInfo();
 		this.errorMessages = [];
 		this.isCreatingNewCategory = false;
 		this.newCategoryName = '';
@@ -232,7 +232,7 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 			this.reportName = '';
 		} else {
 			const separatorIndex = (reportInfo && reportInfo.name)
-				? reportInfo.name.lastIndexOf(this.$izendaSettings.getCategoryCharacter())
+				? reportInfo.name.lastIndexOf(this.$izendaSettingsService.getCategoryCharacter())
 				: -1;
 			this.reportName = (separatorIndex < 0) ? reportInfo.name : reportInfo.name.substr(separatorIndex + 1);
 		}
@@ -306,9 +306,9 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 			}
 
 			// check report name is valid
-			var settings = this.$izendaSettings.getCommonSettings();
+			var settings = this.$izendaSettingsService.getCommonSettings();
 			var reportNameFixed = window.utility.fixReportNamePath(this.reportName,
-				this.$izendaSettings.getCategoryCharacter(),
+				this.$izendaSettingsService.getCategoryCharacter(),
 				settings.stripInvalidCharacters,
 				settings.allowInvalidCharacters);
 			if (!reportNameFixed) {
@@ -321,7 +321,7 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 			// check category
 			if (this.isCreatingNewCategory) {
 				var fixedCategoryName = window.utility.fixReportNamePath(this.newCategoryName,
-					this.$izendaSettings.getCategoryCharacter(),
+					this.$izendaSettingsService.getCategoryCharacter(),
 					settings.stripInvalidCharacters,
 					settings.allowInvalidCharacters);
 				if (!fixedCategoryName) {
@@ -346,10 +346,10 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 			var selectedCategoryName = this.selectedCategory.name;
 
 			// resolve if it is same report
-			var reportInfo = this.$izendaUrl.getReportInfo();
+			var reportInfo = this.$izendaUrlService.getReportInfo();
 			if (reportInfo.name === this.reportName && reportInfo.category === selectedCategoryName) {
 				this.errorMessages.push(this.getErrorTextReportExist(selectedCategoryName +
-					this.$izendaSettings.getCategoryCharacter() +
+					this.$izendaSettingsService.getCategoryCharacter() +
 					this.reportName));
 				reject();
 				return false;
@@ -359,7 +359,7 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 			if (selectedCategoryName === this.textUncategorized) {
 				if (this.isReportInReportList(this.reportName, this.reportSets)) {
 					this.errorMessages.push(this.getErrorTextReportExist(selectedCategoryName +
-						this.$izendaSettings.getCategoryCharacter() +
+						this.$izendaSettingsService.getCategoryCharacter() +
 						this.reportName));
 					reject();
 					return false;
@@ -367,11 +367,11 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 				resolve();
 				return true;
 			} else {
-				this.$izendaCommonQuery.getReportSetCategory(selectedCategoryName).then(data => {
+				this.$izendaCommonQueryService.getReportSetCategory(selectedCategoryName).then(data => {
 					this.reportSets = data.ReportSets;
 					if (this.isReportInReportList(this.reportName, data.ReportSets)) {
 						this.errorMessages.push(this.getErrorTextReportExist(selectedCategoryName +
-							this.$izendaSettings.getCategoryCharacter() +
+							this.$izendaSettingsService.getCategoryCharacter() +
 							this.reportName));
 						reject();
 						return false;
@@ -406,13 +406,13 @@ export default class IzendaSelectReportNameComponent implements ng.IComponentCon
 	}
 
 	private getErrorTextCategoryExist(categoryName) {
-		return this.$izendaLocale.localeTextWithParams('js_CategoryExist',
+		return this.$izendaLocaleService.localeTextWithParams('js_CategoryExist',
 			'Category with name "{0}" already exist.',
 			[categoryName]);
 	}
 
 	private getErrorTextReportExist(fullReportName) {
-		return this.$izendaLocale.localeTextWithParams('js_ReportAlreadyExist',
+		return this.$izendaLocaleService.localeTextWithParams('js_ReportAlreadyExist',
 			'Dashboard or report "{0}" already exist',
 			[fullReportName]);
 	}
@@ -440,11 +440,11 @@ class IzendaCategorySelect implements ng.IDirective {
 	};
 	link: ($scope: IIzendaCategorySelectScope, $element: ng.IAugmentedJQuery) => void;
 
-	constructor(private readonly $izendaSettings: IzendaQuerySettingsService) {
+	constructor(private readonly $izendaSettingsService: IzendaQuerySettingsService) {
 		IzendaCategorySelect.prototype.link = ($scope: IIzendaCategorySelectScope, $element: ng.IAugmentedJQuery) => {
 
-			const categoryCharacter = $izendaSettings.getCategoryCharacter();
-			const commonSettings = $izendaSettings.getCommonSettings();
+			const categoryCharacter = $izendaSettingsService.getCategoryCharacter();
+			const commonSettings = $izendaSettingsService.getCommonSettings();
 			const stripInvalidCharacters = commonSettings.stripInvalidCharacters;
 			const allowInvalidCharacters = commonSettings.allowInvalidCharacters;
 			const categoryControl = new AdHoc.Utility.IzendaCategorySelectorControl(
@@ -501,13 +501,13 @@ class IzendaCategorySelect implements ng.IDirective {
 	}
 
 	static factory(): ng.IDirectiveFactory {
-		const directive = ($izendaSettings: IzendaQuerySettingsService) => new IzendaCategorySelect($izendaSettings);
-		directive.$inject = ['$izendaSettings'];
+		const directive = ($izendaSettingsService: IzendaQuerySettingsService) => new IzendaCategorySelect($izendaSettingsService);
+		directive.$inject = ['$izendaSettingsService'];
 		return directive;
 	}
 }
 
-izendaUiModule.directive('izendaCategorySelect', ['$izendaSettings', IzendaCategorySelect.factory()]);
+izendaUiModule.directive('izendaCategorySelect', ['$izendaSettingsService', IzendaCategorySelect.factory()]);
 
 class CategoryObject {
 	id: number;

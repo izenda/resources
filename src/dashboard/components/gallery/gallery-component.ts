@@ -14,7 +14,7 @@ import DashboardBackgroundService from 'dashboard/services/background-service';
 @IzendaComponent(
 	izendaDashboardModule,
 	'izendaGallery',
-	['rx', '$scope', '$window', '$element', '$interval', '$timeout', '$izendaUrl', '$izendaDashboardStorage', '$izendaBackgroundService'],
+	['rx', '$scope', '$window', '$element', '$interval', '$timeout', '$izendaUrlService', '$izendaDashboardStorageService', '$izendaBackgroundService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.gallery.gallery-template.html',
 		bindings: {
@@ -59,8 +59,8 @@ export class IzendaGalleryComponent implements ng.IComponentController {
 		private readonly $element: ng.IAugmentedJQuery,
 		private readonly $interval: ng.IIntervalService,
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaDashboardStorage: DashboardStorageService,
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaDashboardStorageService: DashboardStorageService,
 		private readonly $izendaBackgroundService: DashboardBackgroundService) {
 
 		this.subscriptions = [];
@@ -89,7 +89,7 @@ export class IzendaGalleryComponent implements ng.IComponentController {
 	$onInit() {
 		this.previousWidth = this.$window.innerWidth;
 		this.subscriptions = [
-			this.$izendaDashboardStorage.windowSize.subscribeOnNext(newWindowSize => {
+			this.$izendaDashboardStorageService.windowSize.subscribeOnNext(newWindowSize => {
 				if (this.previousWidth === newWindowSize.width || !this.enabled)
 					return;
 				this.previousWidth = newWindowSize.width;
@@ -500,7 +500,7 @@ export class IzendaGalleryComponent implements ng.IComponentController {
 			var loadingHtml = '<div class="izenda-common-vcentered-container">' +
 				'<div class="izenda-common-vcentered-item">' +
 				'<img class="izenda-common-img-loading" src="' +
-				this.$izendaUrl.settings.urlRpPage +
+				this.$izendaUrlService.settings.urlRpPage +
 				'image=ModernImages.loading-grid.gif" alt="Loading..." />' +
 				'</div>' +
 				'</div>';
@@ -510,13 +510,13 @@ export class IzendaGalleryComponent implements ng.IComponentController {
 				height: $tile.height(),
 				width: $tile.width()
 			};
-			this.$izendaDashboardStorage.loadTilesPreview(tile, size).then(tilesHtml => {
+			this.$izendaDashboardStorageService.loadTilesPreview(tile, size).then(tilesHtml => {
 				var $reportDiv = angular.element('<div class="report"></div>');
 				$tile.empty();
 				$tile.append($reportDiv);
 
 				// load html into this div
-				this.$izendaDashboardStorage.loadReportIntoContainer(tilesHtml, $reportDiv);
+				this.$izendaDashboardStorageService.loadReportIntoContainer(tilesHtml, $reportDiv);
 			},
 				error => {
 					$tile.empty();

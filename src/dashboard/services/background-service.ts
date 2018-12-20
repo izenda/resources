@@ -7,8 +7,11 @@ import 'izenda-external-libs';
 export default class DashboardBackgroundService {
 	hueRotate: boolean;
 
+	static get injectModules(): any[] {
+		return ['$cookies', '$rootScope'];
+	}
+
 	constructor(
-		private readonly rx: any,
 		private readonly $cookies: any) {
 		this.hueRotate = false;
 	}
@@ -107,10 +110,6 @@ export default class DashboardBackgroundService {
 
 	isStorageAvailable(): boolean {
 		return typeof (Storage) !== 'undefined';
-	}
-
-	static get injectModules(): any[] {
-		return ['rx', '$cookies', '$rootScope'];
 	}
 
 	/**

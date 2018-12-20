@@ -55,28 +55,27 @@
 		loaderUtils.storeDefaultJquery();
 		require(['angular', 'angular-cookies', 'angular-rx'], function (angular) {
 			loaderUtils.restoreDefaultJquery(); // restore default jQuery object after loading
-			require(['resizeSensor', 'msie-detect', 'minicolors', 'bootstrap-datetimepicker', 'css-parser', 'ion.rangeSlider'],
-				function (resizeSensor) {
-					window.resizeSensor = resizeSensor;
-					// load report viewer config (used for legacy js code)
-					loaderUtils.loadReportViewerConfig().then(function () {
-						// load module definitions
-						require(['filter/module-definition', 'dashboard/module'], function (filterModule, dashboardModule) {
-							// load main template:
-							angular.element.get('###RS###extres=components.dashboard.templates.dashboard-app.html').then(function (html) {
-								var placeHolder = document.getElementById('izendaDashboardMainContainer');
-								placeHolder.innerHTML = html;
-								// load root components and start dashboard application
-								require([
-									'dashboard/module-definition',
-									'dashboard/components/dashboard/dashboard-component',
-									'dashboard/components/toolbar/toolbar-component'], function (loaderModule) {
+			require(['resizeSensor', 'msie-detect', 'minicolors', 'bootstrap-datetimepicker', 'css-parser', 'ion.rangeSlider'], function (resizeSensor) {
+				window.resizeSensor = resizeSensor;
+				// load report viewer config (used for legacy js code)
+				loaderUtils.loadReportViewerConfig().then(function () {
+					// load module definitions
+					require(['filter/module-definition', 'dashboard/module'], function (filterModule, dashboardModule) {
+						// load main template:
+						angular.element.get('###RS###extres=components.dashboard.templates.dashboard-app.html').then(function (html) {
+							var placeHolder = document.getElementById('izendaDashboardMainContainer');
+							placeHolder.innerHTML = html;
+							// load root components and start dashboard application
+							require([
+								'dashboard/module-definition',
+								'dashboard/components/dashboard/dashboard-component',
+								'dashboard/components/toolbar/toolbar-component'], function (loaderModule) {
 									loaderModule.IzendaDashboardsLoader.bootstrap();
 								});
-							});
 						});
 					});
 				});
+			});
 		});
 	});
 })(izendaRequire.require, izendaRequire.define);

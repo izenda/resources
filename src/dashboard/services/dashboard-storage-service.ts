@@ -38,25 +38,34 @@ export default class DashboardStorageService {
 	windowSizeActive: any;
 	location: any;
 
+	static get injectModules(): any[] {
+		return [
+			'rx', '$q', '$window', '$interval', '$timeout', '$izendaLocaleService', '$izendaCompatibilityService',
+			'$izendaSettingsService', '$izendaUtilService', '$izendaUrlService', '$izendaRsQueryService',
+			'$izendaUtilUiService', 'izendaDashboardConfig', '$izendaDashboardQueryService',
+			'$izendaScheduleService', '$izendaShareService'
+		];
+	}
+
 	constructor(
 		private readonly $rx: any,
 		private readonly $q: ng.IQService,
 		private readonly $window: ng.IWindowService,
 		private readonly $interval: ng.IIntervalService,
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaCompatibility: IzendaCompatibilityService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
-		private readonly $izendaUtil: IzendaUtilService,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaRsQuery: IzendaRsQueryService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
+		private readonly $izendaUtilService: IzendaUtilService,
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaRsQueryService: IzendaRsQueryService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService,
 		private readonly $izendaDashboardConfig: IIzendaDashboardConfig,
-		private readonly $izendaDashboardQuery: DashboardQueryService,
+		private readonly $izendaDashboardQueryService: DashboardQueryService,
 		private readonly $izendaScheduleService: IzendaScheduleService,
 		private readonly $izendaShareService: IzendaShareService) {
 
-		this.UNCATEGORIZED = this.$izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+		this.UNCATEGORIZED = this.$izendaLocaleService.localeText('js_Uncategorized', 'Uncategorized');
 
 		// rx subjects
 		this.model = new this.$rx.BehaviorSubject(null);
@@ -80,7 +89,7 @@ export default class DashboardStorageService {
 		this._setFiltersRefreshCascadingInterceptor();
 
 		// subscribe on location change.
-		this.location = $izendaUrl.location;
+		this.location = $izendaUrlService.location;
 		this.location.subscribeOnNext(this._$onLocationChanged, this);
 
 		// subscribe on window resize
@@ -123,7 +132,7 @@ export default class DashboardStorageService {
 	 * Change location to new dashboard
 	 */
 	navigateNewDashboard() {
-		this.$izendaUrl.setIsNew();
+		this.$izendaUrlService.setIsNew();
 	}
 
 	/**
@@ -131,7 +140,7 @@ export default class DashboardStorageService {
 	 * @param {string} dashboardFullName dashboard report set full name.
 	 */
 	navigateToDashboard(dashboardFullName) {
-		this.$izendaUrl.setReportFullName(dashboardFullName);
+		this.$izendaUrlService.setReportFullName(dashboardFullName);
 	}
 
 	/**
@@ -149,12 +158,12 @@ export default class DashboardStorageService {
 				let newReportName = reportName || null;
 				let newReportCategory = categoryName || null;
 				let newReportFullName: string;
-				if (this.$izendaUtil.isUncategorized(newReportCategory))
+				if (this.$izendaUtilService.isUncategorized(newReportCategory))
 					newReportCategory = null;
 				if (newReportName) {
 					// if name was set
-					newReportFullName = this.$izendaUtil.createReportFullName(newReportName,
-						this.$izendaSettings.getCategoryCharacter(),
+					newReportFullName = this.$izendaUtilService.createReportFullName(newReportName,
+						this.$izendaSettingsService.getCategoryCharacter(),
 						newReportCategory);
 				} else {
 					// if name wasn't set
@@ -168,12 +177,12 @@ export default class DashboardStorageService {
 				const model: IzendaDashboardModel = this.model.getValue();
 				model.reportCategory = newReportCategory;
 				model.reportName = newReportName;
-				model.reportFullName = this.$izendaSettings.getReportFullName(newReportName, newReportCategory);
+				model.reportFullName = this.$izendaSettingsService.getReportFullName(newReportName, newReportCategory);
 
 				// create json and send save request
 				const json = this.createJsonConfigForSend();
-				this.$izendaDashboardQuery.saveDashboardNew(json).then(() => {
-					this.$izendaUrl.setReportFullName(newReportFullName);
+				this.$izendaDashboardQueryService.saveDashboardNew(json).then(() => {
+					this.$izendaUrlService.setReportFullName(newReportFullName);
 					resolve();
 				}, (error) => {
 					reject(error);
@@ -194,7 +203,7 @@ export default class DashboardStorageService {
 			try {
 				const sizeObject = size || { width: 0, height: 0 };
 				const json = this.createJsonConfigForSend();
-				this.$izendaDashboardQuery.loadTilesPreviewNew(json, tile, sizeObject)
+				this.$izendaDashboardQueryService.loadTilesPreviewNew(json, tile, sizeObject)
 					.then(result => resolve(result), error => reject(error));
 			} catch (e) {
 				reject(e);
@@ -328,7 +337,7 @@ export default class DashboardStorageService {
 			}
 		} catch (e) {
 			$container.empty();
-			const failedMsg = this.$izendaLocale.localeText('js_FailedToLoadReport', 'Failed to load report') + ': ' + e;
+			const failedMsg = this.$izendaLocaleService.localeText('js_FailedToLoadReport', 'Failed to load report') + ': ' + e;
 			$container.append(`<b>${failedMsg}</b>`);
 			console.error(failedMsg);
 		}
@@ -356,7 +365,7 @@ export default class DashboardStorageService {
 			}
 
 			const json = this.createJsonConfigForSend();
-			this.$izendaDashboardQuery.syncTilesNew(json, reportForPrint).then(() => {
+			this.$izendaDashboardQueryService.syncTilesNew(json, reportForPrint).then(() => {
 				if (type === 'html')
 					this.printDashboardAsHtml(reportForPrint).then(() => resolveWrapper(), error => rejectWrapper(error));
 				else if (type === 'excel')
@@ -375,7 +384,7 @@ export default class DashboardStorageService {
 	printDashboardAsHtml(reportForPrint) {
 		return this.$q((resolve, reject) => {
 			try {
-				var printUrl = `${this.$izendaUrl.settings.urlRsPage}?p=htmlreport&print=1`;
+				var printUrl = `${this.$izendaUrlService.settings.urlRsPage}?p=htmlreport&print=1`;
 				// print single tile if parameter is set:
 				if (angular.isString(reportForPrint) && reportForPrint !== '')
 					printUrl += `&reportPartName=${encodeURIComponent(reportForPrint)}`;
@@ -418,13 +427,13 @@ export default class DashboardStorageService {
 				if (typeof (window.angularPageId$) !== 'undefined')
 					addParam += `&anpid=${window.angularPageId$}`;
 
-				let url = this.$izendaUrl.settings.urlRsPage + '?';
+				let url = this.$izendaUrlService.settings.urlRsPage + '?';
 				if (reportForPrint)
 					url += `rpn=${reportForPrint}&`;
 				url += `output=${outputType}${addParam}`;
 
 				// download the file
-				this.$izendaRsQuery.downloadFileRequest('GET', url).then(() => resolve());
+				this.$izendaRsQueryService.downloadFileRequest('GET', url).then(() => resolve());
 			} catch (e) {
 				console.error(e);
 				reject(e);
@@ -455,7 +464,7 @@ export default class DashboardStorageService {
 		return this.$q((resolve, reject) => {
 			try {
 				const json = this.createJsonConfigForSend();
-				this.$izendaDashboardQuery.sendReportViaEmailNew(json, sendType, email)
+				this.$izendaDashboardQueryService.sendReportViaEmailNew(json, sendType, email)
 					.then(result => resolve(result), error => reject(error));
 			} catch (e) {
 				reject(e);
@@ -482,7 +491,7 @@ export default class DashboardStorageService {
 	 */
 	refreshFilters() {
 		const json = this.createJsonConfigForSend();
-		this.$izendaDashboardQuery.syncFiltersNew(json).then(filtersData => {
+		this.$izendaDashboardQueryService.syncFiltersNew(json).then(filtersData => {
 			this._setFiltersData(filtersData);
 		},
 			error => {
@@ -511,7 +520,7 @@ export default class DashboardStorageService {
 	 * Cancels refresh dashboard queries
 	 */
 	cancelRefreshDashboardQueries() {
-		this.$izendaRsQuery.cancelAllQueries({
+		this.$izendaRsQueryService.cancelAllQueries({
 			cancelList: [
 				{
 					wscmd: 'getDashboardTilePreviewNew'
@@ -527,7 +536,7 @@ export default class DashboardStorageService {
 		var newAutoRefresh = {
 			intervals: []
 		};
-		this.$izendaDashboardQuery.loadAutoRefreshIntervalsNew().then(data => {
+		this.$izendaDashboardQueryService.loadAutoRefreshIntervalsNew().then(data => {
 			for (let name in data)
 				if (data.hasOwnProperty(name))
 					newAutoRefresh.intervals.push({ name: name, value: data[name], selected: false });
@@ -596,7 +605,7 @@ export default class DashboardStorageService {
 			isCategorySet = true;
 		}
 		if (!isCategorySet) {
-			const uncategorized = categories.first(cat => this.$izendaUtil.isUncategorized(cat.name));
+			const uncategorized = categories.first(cat => this.$izendaUtilService.isUncategorized(cat.name));
 			if (uncategorized)
 				currentCategoryName = uncategorized.name; // if we have "uncategorized" dashboards - select it
 			else
@@ -629,9 +638,9 @@ export default class DashboardStorageService {
 		}
 		if (!isCurrentDashbiardNameSet && this.$izendaDashboardConfig.defaultDashboardName !== null) {
 			currentDashboardFullName = this.$izendaDashboardConfig.defaultDashboardName;
-			if (currentDashboardFullName && currentCategoryName && !this.$izendaUtil.isUncategorized(currentCategoryName)) {
+			if (currentDashboardFullName && currentCategoryName && !this.$izendaUtilService.isUncategorized(currentCategoryName)) {
 				currentDashboardFullName =
-					currentCategoryName + this.$izendaSettings.getCategoryCharacter() + currentDashboardFullName;
+					currentCategoryName + this.$izendaSettingsService.getCategoryCharacter() + currentDashboardFullName;
 			}
 			isCurrentDashbiardNameSet = true;
 		}
@@ -653,7 +662,7 @@ export default class DashboardStorageService {
 		const currentCategoryName = this._getWantedCategoryName();
 		const currentDashboardName = this._getWantedReportFullName(this.location.getValue());
 		const category = categories.first(cat => currentCategoryName === cat.name ||
-			(this.$izendaUtil.isUncategorized(currentCategoryName) && this.$izendaUtil.isUncategorized(cat.name)));
+			(this.$izendaUtilService.isUncategorized(currentCategoryName) && this.$izendaUtilService.isUncategorized(cat.name)));
 		var currentDashboardsCollection = [];
 		var currentDashboard = null;
 		if (category) {
@@ -661,7 +670,7 @@ export default class DashboardStorageService {
 				const dashObj = {
 					id: iDash,
 					fullName: dash,
-					text: this.$izendaUrl.extractReportName(dash)
+					text: this.$izendaUrlService.extractReportName(dash)
 				};
 				currentDashboardsCollection.push(dashObj);
 
@@ -684,7 +693,7 @@ export default class DashboardStorageService {
 	 * @param {boolean} updateFromSource is reload tiles from its sources required?
 	 */
 	_$onLocationChanged(newLocation, updateFromSource) {
-		this.$izendaRsQuery.cancelAllQueries();
+		this.$izendaRsQueryService.cancelAllQueries();
 		this.model.onNext(null);
 		this._loadCategories().then(() => {
 			if (newLocation.isNew) {
@@ -703,7 +712,7 @@ export default class DashboardStorageService {
 			} else {
 				if (newLocation.fullName) {
 					// show notification to a user if we change the location from wrong report to default.
-					let message = this.$izendaLocale.localeText('js_FailedToLoadDashboard',
+					let message = this.$izendaLocaleService.localeText('js_FailedToLoadDashboard',
 						'Failed to load dashboard "{0}". Opening default dashboard "{1}".');
 					message = message.replace('{0}', newLocation.fullName);
 					message = message.replace('{1}', wantedFullName);
@@ -719,7 +728,7 @@ export default class DashboardStorageService {
 	 */
 	_loadCategories() {
 		return this.$q((resolve, reject) => {
-			this.$izendaDashboardQuery.loadDashboardNavigationNew().then(
+			this.$izendaDashboardQueryService.loadDashboardNavigationNew().then(
 				(data) => {
 					if (!data) {
 						reject(`Failed to load dashboard categories. Result: ${data}`);
@@ -749,7 +758,7 @@ export default class DashboardStorageService {
 				},
 				error => {
 					var errorMessage =
-						this.$izendaLocale.localeText('js_DashboardLoadCatsError', 'Failed to get dashboard categories');
+						this.$izendaLocaleService.localeText('js_DashboardLoadCatsError', 'Failed to get dashboard categories');
 					reject(`${errorMessage}: ${error}`);
 				});
 		});
@@ -762,7 +771,7 @@ export default class DashboardStorageService {
 			if (angular.isFunction(CascadingFiltersChanged)) {
 				window.refreshFiltersLastGUID = GenerateGuid();
 				const json = this.createJsonConfigForSend();
-				this.$izendaDashboardQuery.syncFiltersNew(json).then(filtersData => {
+				this.$izendaDashboardQueryService.syncFiltersNew(json).then(filtersData => {
 					CascadingFiltersChanged(filtersData, `refreshcascadingfilters-${window.refreshFiltersLastGUID}`);
 				});
 			}
@@ -794,18 +803,19 @@ export default class DashboardStorageService {
 
 		// start loading
 		this.isLoaded.onNext(false, this);
-		this.$izendaDashboardQuery.loadDashboardNew(reportFullName, !!updateFromSource).then(dashboardModel => {
+		this.$izendaDashboardQueryService.loadDashboardNew(reportFullName, !!updateFromSource).then(dashboardModel => {
 			if (!angular.isObject(dashboardModel))
 				throw `Failed to load dashboard '${reportFullName}'`;
 
 			// set current rights
-			this.$izendaCompatibility.setRights(dashboardModel.effectiveRights);
+			this.$izendaCompatibilityService.setRights(dashboardModel.effectiveRights);
+			this.$izendaCompatibilityService.setUsesHiddenColumns(dashboardModel.usesHiddenColumns);
 
 			// update names
-			dashboardModel.reportFullName = this.$izendaSettings.getReportFullName(dashboardModel.reportName, dashboardModel.reportCategory);
+			dashboardModel.reportFullName = this.$izendaSettingsService.getReportFullName(dashboardModel.reportName, dashboardModel.reportCategory);
 			dashboardModel.tiles.forEach(tile => {
-				tile.reportName = this.$izendaUrl.extractReportName(tile.reportSetName);
-				tile.reportCategory = this.$izendaUrl.extractReportCategory(tile.reportSetName);
+				tile.reportName = this.$izendaUrlService.extractReportName(tile.reportSetName);
+				tile.reportCategory = this.$izendaUrlService.extractReportCategory(tile.reportSetName);
 			});
 
 			// set legacy filters from response
@@ -813,10 +823,19 @@ export default class DashboardStorageService {
 
 			// notify that model was changed and report was loaded
 			this.model.onNext(dashboardModel, this);
+
+			// show hidden columns warning
+			if (this.$izendaCompatibilityService.isUsesHiddenColumns()) {
+				this.$izendaUtilUiService.showMessageDialog(
+					this.$izendaLocaleService.localeText(
+						'js_dashboardUsesHiddenColumns',
+						'Dashboard contains tile with report which contains unavailable fields. Please re-save original report or chose another one.'));
+			}
+
 			this.isLoaded.onNext(true, this);
 
 		}, error => {
-			const errorMessage = this.$izendaLocale.localeText('js_LayoutLoadError', 'Failed to load dashboard layout');
+			const errorMessage = this.$izendaLocaleService.localeText('js_LayoutLoadError', 'Failed to load dashboard layout');
 			this.$izendaUtilUiService.showErrorDialog(`${errorMessage}: ${error}`);
 		});
 	}
@@ -827,7 +846,7 @@ export default class DashboardStorageService {
 	_newDashboard() {
 		this._updateCurrentCategory(); // update category objects
 
-		this.$izendaCompatibility.setRights('Full Access');
+		this.$izendaCompatibilityService.setRights('Full Access');
 		const newModelInstance = IzendaDashboardModel.createInstance(true);
 		const schedulePromise = this.$izendaScheduleService.setScheduleConfig(null);
 		const sharePromise = this.$izendaShareService.setShareConfig(null);
@@ -837,20 +856,11 @@ export default class DashboardStorageService {
 		});
 	}
 
-	static get injectModules(): any[] {
-		return [
-			'rx', '$q', '$window', '$interval', '$timeout', '$izendaLocale', '$izendaCompatibility',
-			'$izendaSettings', '$izendaUtil', '$izendaUrl', '$izendaRsQuery',
-			'$izendaUtilUiService', 'izendaDashboardConfig', '$izendaDashboardQuery',
-			'$izendaScheduleService', '$izendaShareService'
-		];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaDashboardStorage', DashboardStorageService.injectModules.concat(DashboardStorageService));
+		module.service('$izendaDashboardStorageService', DashboardStorageService.injectModules.concat(DashboardStorageService));
 	}
 }

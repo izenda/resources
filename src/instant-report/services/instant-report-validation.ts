@@ -1,186 +1,195 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import izendaInstantReportModule from 'instant-report/module-definition';
+import IzendaLocalizationService from 'common/core/services/localization-service';
+import IzendaCompatibilityService from 'common/core/services/compatibility-service';
+import IzendaInstantReportStorageService from 'instant-report/services/instant-report-storage';
+import IzendaInstantReportPivotService from 'instant-report/services/instant-report-pivot';
+import IzendaInstantReportSettingsService from 'instant-report/services/instant-report-settings';
 
-izendaInstantReportModule.factory('$izendaInstantReportValidation', [
-	'$q',
-	'$izendaLocale',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportPivots',
-	'$izendaInstantReportSettings',
-	'$izendaCompatibility',
-	function ($q, $izendaLocale, $izendaInstantReportStorage, $izendaInstantReportPivots, $izendaInstantReportSettings, $izendaCompatibility) {
-		'use strict';
+export default class IzendaInstantReportValidationService {
 
-		var validation = {
-			isValid: true,
-			messages: []
-		};
-		var binaryFieldsArray = ['Null', 'Unknown', 'Binary', 'VarBinary', 'Text', 'Image'];
+	validation = {
+		isValid: true,
+		messages: []
+	};
+	binaryFieldsArray: string[] = ['Null', 'Unknown', 'Binary', 'VarBinary', 'Text', 'Image'];
 
-		/**
-		 * Is report valid getter
-		 * @returns {boolean} 
-		 */
-		var isReportValid = function () {
-			return validation.isValid;
-		};
+	static get injectModules(): any[] {
+		return [
+			'$izendaLocaleService',
+			'$izendaInstantReportStorageService',
+			'$izendaInstantReportPivotService',
+			'$izendaInstantReportSettingsService',
+			'$izendaCompatibilityService'];
+	}
 
-		/**
-		 * Validation object getter
-		 * @returns {object} 
-		 */
-		var getValidation = function () {
-			return validation;
-		};
+	constructor(
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaInstantReportStorageService: IzendaInstantReportStorageService,
+		private readonly $izendaInstantReportPivotService: IzendaInstantReportPivotService,
+		private readonly $izendaInstantReportSettingsService: IzendaInstantReportSettingsService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService) {
 
-		/**
-		 * Get list of validation messages
-		 * @returns {Array}.
-		 */
-		var getValidationMessages = function () {
-			return validation.messages;
-		};
+	}
 
-		/**
-		 * Validate pivots. 
-		 */
-		var validatePivots = function () {
-			var pivotColumn = $izendaInstantReportPivots.getPivotColumn();
-			var pivotCells = $izendaInstantReportPivots.getCellValues();
+	/**
+	 * Is report valid getter
+	 * @returns {boolean} 
+	 */
+	isReportValid() {
+		return this.validation.isValid;
+	}
 
-			// check if pivot column was set:
-			if (angular.isObject(pivotColumn)) {
-				if (pivotCells.length === 0) {
-					// show warning when pivot cells wasn't added.
-					validation.isValid = false;
-					validation.messages.push({
+	/**
+	 * Validation object getter
+	 * @returns {object} 
+	 */
+	getValidation() {
+		return this.validation;
+	}
+
+	/**
+	 * Get list of validation messages
+	 * @returns {Array}.
+	 */
+	getValidationMessages() {
+		return this.validation.messages;
+	}
+
+	/**
+	 * Validate pivots. 
+	 */
+	validatePivots() {
+		const pivotColumn = this.$izendaInstantReportPivotService.getPivotColumn();
+		const pivotCells = this.$izendaInstantReportPivotService.getCellValues();
+
+		// check if pivot column was set:
+		if (angular.isObject(pivotColumn)) {
+			if (!pivotCells || !pivotCells.length) {
+				// show warning when pivot cells wasn't added.
+				this.validation.isValid = false;
+				this.validation.messages.push({
+					type: 'info',
+					text: this.$izendaLocaleService.localeText('js_AddPivotCellsWarning',
+						'You should add pivot cells to enable pivot view.')
+				});
+			} else {
+				const havePivotCells = pivotCells.some(p => angular.isObject(p));
+				if (!havePivotCells) {
+					this.validation.isValid = false;
+					this.validation.messages.push({
 						type: 'info',
-						text: $izendaLocale.localeText('js_AddPivotCellsWarning', 'You should add pivot cells to enable pivot view.')
+						text: this.$izendaLocaleService.localeText('js_SpecifyPivotColumnWarning',
+							'You should specify column for at least one pivot cell (pivot cells without column will be ignored).')
 					});
-				} else {
-					var havePivotCells = false;
-					angular.element.each(pivotCells, function () {
-						var pivotCell = this;
-						if (angular.isObject(pivotCell))
-							havePivotCells = true;
-					});
-					if (!havePivotCells) {
-						validation.isValid = false;
-						validation.messages.push({
-							type: 'info',
-							text: $izendaLocale.localeText('js_SpecifyPivotColumnWarning', 'You should specify column for at least one pivot cell (pivot cells without column will be ignored).')
-						});
-					}
 				}
 			}
-		};
+		}
+	}
 
-		/**
-		 * Clear all validation messages and state
-		 */
-		var clearValidation = function () {
-			validation.isValid = true;
-			validation.messages = [];
-		};
+	/**
+	 * Clear all validation messages and state
+	 */
+	clearValidation() {
+		this.validation.isValid = true;
+		this.validation.messages = [];
+	}
 
-		var getValidationActions = function () {
-			var result = [];
-			angular.element.each(validation.messages, function () {
-				var message = this;
-				if (message.additionalActionType)
-					result.push(message.additionalActionType)
+	/**
+	 * Return existing validation actions
+	 */
+	getValidationActions() {
+		return this.validation.messages
+			.map(m => m.additionalActionType)
+			.filter(a => !!a);
+	}
+
+	/**
+	 * Validate report set
+	 * @returns {boolean} report is valid
+	 */
+	validateReportSet() {
+		this.clearValidation();
+
+		const pivotColumn = this.$izendaInstantReportPivotService.getPivotColumn();
+		const activeFields = this.$izendaInstantReportStorageService.getAllFieldsInActiveTables();
+		const options = this.$izendaInstantReportStorageService.getOptions();
+
+		// try to find at least one active field
+		const binaryFields = [];
+		let hasActiveFields: boolean = false;
+		activeFields.forEach(field => {
+			hasActiveFields = hasActiveFields || field.checked;
+			if (field.checked && this.binaryFieldsArray.indexOf(field.sqlType) >= 0) {
+				binaryFields.push(field);
+			}
+		});
+
+		// try to find active pivot fields
+		hasActiveFields = hasActiveFields || this.$izendaInstantReportPivotService.isPivotValid();
+
+		// create validation result for fields
+		if (!hasActiveFields && !pivotColumn) {
+			this.validation.isValid = false;
+			this.validation.messages.push({
+				type: 'info',
+				text: this.$izendaLocaleService.localeText('js_YouShouldSelectField', 'You should select at least one field to see preview.')
 			});
-			return result;
 		}
 
-		/**
-		 * Validate report set
-		 * @returns {boolean} report is valid
-		 */
-		var validateReportSet = function () {
-			clearValidation();
-
-			var pivotColumn = $izendaInstantReportPivots.getPivotColumn();
-
-			// try to find at least one active field
-			var hasActiveFields: boolean = false;
-			var binaryFields = [];
-			var options = $izendaInstantReportStorage.getOptions();
-			var activeFields = $izendaInstantReportStorage.getAllFieldsInActiveTables();
-			angular.element.each(activeFields, function () {
-				hasActiveFields = hasActiveFields || this.checked;
-				if (this.checked && binaryFieldsArray.indexOf(this.sqlType) >= 0) {
-					binaryFields.push(this);
-				}
+		// stored procedure parameters validation
+		if (!this.$izendaInstantReportStorageService.isAllSpParametersAssigned()) {
+			this.validation.isValid = false;
+			this.validation.messages.push({
+				type: 'info',
+				text: this.$izendaLocaleService.localeText('js_spParameterIsRequired', 'Please specify values for your stored procedure parameters in the filters.')
 			});
-			// try to find active pivot fields
-			hasActiveFields = hasActiveFields || $izendaInstantReportPivots.isPivotValid();
+		}
 
-			// create validation result for fields
-			if (!hasActiveFields && !pivotColumn) {
-				validation.isValid = false;
-				validation.messages.push({
-					type: 'info',
-					text: $izendaLocale.localeText('js_YouShouldSelectField', 'You should select at least one field to see preview.')
-				});
-			}
+		// distinct validation
+		if (this.$izendaInstantReportSettingsService.getSettings().showDistinct && options.distinct && binaryFields.length > 0) {
+			const binaryFieldsString = binaryFields
+				.map((bField: any) => `"${bField.name}" (${bField.sqlType})`)
+				.join(', ');
+			this.validation.messages.push({
+				type: 'info',
+				additionalActionType: 'TURN_OFF_DISTINCT',
+				text: this.$izendaLocaleService.localeTextWithParams(
+					'js_ColumnsIsntCompatibleWithDistinct',
+					'Report contain columns: {0}. These columns are not compatable with "distinct" setting. Distinct setting was disabled!',
+					[binaryFieldsString])
+			});
+		}
 
-			// stored procedure parameters validation
-			if (!$izendaInstantReportStorage.isAllSpParametersAssigned()) {
-				validation.isValid = false;
-				validation.messages.push({
-					type: 'info',
-					text: $izendaLocale.localeText('js_spParameterIsRequired', 'Please specify values for your stored procedure parameters in the filters.')
-				});
-			}
+		// run pivots validation
+		this.validatePivots();
 
-			// distinct validation
-			if ($izendaInstantReportSettings.showDistinct && options.distinct && binaryFields.length > 0) {
-				var binaryFieldsString = binaryFields.map(function (bField) {
-					return '"' + bField.name + '" (' + bField.sqlType + ')';
-				}).join(', ');
-				validation.messages.push({
-					type: 'info',
-					additionalActionType: 'TURN_OFF_DISTINCT',
-					text: $izendaLocale.localeTextWithParams(
-						'js_ColumnsIsntCompatibleWithDistinct',
-						'Report contain columns: {0}. These columns are not compatable with "distinct" setting. Distinct setting was disabled!',
-						[binaryFieldsString])
-				});
-			}
+		return this.validation.isValid;
+	};
 
-			// run pivots validation
-			validatePivots();
+	/**
+	 * Validate report set and refresh preview.
+	 */
+	validateReportSetAndRefresh(forceRefresh: boolean = false) {
+		const validationResult = this.validateReportSet();
+		const validationActions = this.getValidationActions();
+		if (validationResult) {
+			// report is valid
+			if (validationActions.indexOf('TURN_OFF_DISTINCT') >= 0)
+				this.$izendaInstantReportStorageService.getOptions().distinct = false;
+			if (forceRefresh || !this.$izendaCompatibilityService.isSmallResolution())
+				this.$izendaInstantReportStorageService.getReportPreviewHtml();
+		} else {
+			// report not valid
+			this.$izendaInstantReportStorageService.clearReportPreviewHtml();
+		}
+	}
 
-			return validation.isValid;
-		};
+	static get $inject() {
+		return this.injectModules;
+	}
 
-		/**
-		 * Validate report set and refresh preview.
-		 */
-		var validateReportSetAndRefresh = function (forceRefresh) {
-			var validationResult = validateReportSet();
-			var validationActions = getValidationActions();
-			if (validationResult) {
-				// report is valid
-				if (validationActions.indexOf('TURN_OFF_DISTINCT') >= 0) {
-					$izendaInstantReportStorage.getOptions().distinct = false;
-				}
-				if (forceRefresh || !$izendaCompatibility.isSmallResolution())
-					$izendaInstantReportStorage.getReportPreviewHtml();
-			} else {
-				// report not valid
-				$izendaInstantReportStorage.clearReportPreviewHtml();
-			}
-		};
-
-		// public API
-		return {
-			isReportValid: isReportValid,
-			getValidation: getValidation,
-			getValidationMessages: getValidationMessages,
-			validateReportSet: validateReportSet,
-			validateReportSetAndRefresh: validateReportSetAndRefresh
-		};
-	}]);
+	static register(module: ng.IModule) {
+		module.service('$izendaInstantReportValidationService', IzendaInstantReportValidationService.injectModules.concat(IzendaInstantReportValidationService));
+	}
+}

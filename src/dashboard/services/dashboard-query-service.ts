@@ -1,12 +1,10 @@
 ﻿import 'izenda-external-libs';
 import * as angular from 'angular';
-import IzendaQuerySettingsService from 'common/query/services/settings-service';
 import IzendaUtilUiService from 'common/core/services/util-ui-service';
 import IzendaRsQueryService from 'common/query/services/rs-query-service';
 import IzendaLocalizationService from 'common/core/services/localization-service';
 import IzendaScheduleService from 'common/ui/services/schedule-service';
 import IzendaShareService from 'common/ui/services/share-service';
-import IzendaUrlService from 'common/query/services/url-service';
 
 import { IzendaDashboardModel } from 'dashboard/model/dashboard-model';
 import { IzendaDashboardTileModel } from 'dashboard/model/tile-model';
@@ -16,15 +14,18 @@ import { IzendaDashboardTileModel } from 'dashboard/model/tile-model';
 	 */
 export default class DashboardQueryService {
 
+	static get injectModules(): any[] {
+		return ['$q', '$izendaUtilUiService', '$izendaRsQueryService', '$izendaLocaleService', '$izendaScheduleService',
+			'$izendaShareService'];
+	}
+
 	constructor(
 		private readonly $q: ng.IQService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService,
-		private readonly $izendaRsQuery: IzendaRsQueryService,
-		private readonly $izendaLocale: IzendaLocalizationService,
+		private readonly $izendaRsQueryService: IzendaRsQueryService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
 		private readonly $izendaScheduleService: IzendaScheduleService,
-		private readonly $izendaShareService: IzendaShareService,
-		private readonly $izendaUrl: IzendaUrlService) {
+		private readonly $izendaShareService: IzendaShareService) {
 	}
 
 	/**
@@ -37,7 +38,7 @@ export default class DashboardQueryService {
 			throw 'dashboardFullName should be non-empty string.';
 
 		return this.$q((resolve, reject) => {
-			this.$izendaRsQuery.apiQuery('loadDashboardConfigNew', [dashboardFullName, updateFromSource]).then(json => {
+			this.$izendaRsQueryService.apiQuery('loadDashboardConfigNew', [dashboardFullName, updateFromSource]).then(json => {
 				// validate query result
 				if (!IzendaDashboardModel.isValidJson(json)) {
 					reject(`Query "loadDashboardConfigNew" returned invalid result:${JSON.stringify(json)}`);
@@ -63,7 +64,7 @@ export default class DashboardQueryService {
 		if (!json)
 			throw new Error('Dashboard json is empty');
 		const dashboardConfigParam = JSON.stringify(json);
-		return this.$izendaRsQuery.apiQuery('saveReportSetNew', [dashboardConfigParam]);
+		return this.$izendaRsQueryService.apiQuery('saveReportSetNew', [dashboardConfigParam]);
 	}
 
 	/**
@@ -74,7 +75,7 @@ export default class DashboardQueryService {
 	syncTilesNew(json: any, tile?: IzendaDashboardTileModel) {
 		const dashboardConfigParam = JSON.stringify(json);
 
-		return this.$izendaRsQuery.apiQuery('syncDashboardNew',
+		return this.$izendaRsQueryService.apiQuery('syncDashboardNew',
 			[dashboardConfigParam, tile && tile.reportFullName ? tile.reportFullName : '']);
 	}
 
@@ -85,7 +86,7 @@ export default class DashboardQueryService {
 	syncFiltersNew(dashboardConfig) {
 		const dashboardConfigParam = JSON.stringify(dashboardConfig);
 
-		return this.$izendaRsQuery.apiQuery('syncDashboardFiltersNew', [dashboardConfigParam]);
+		return this.$izendaRsQueryService.apiQuery('syncDashboardFiltersNew', [dashboardConfigParam]);
 	}
 
 	/**
@@ -99,7 +100,7 @@ export default class DashboardQueryService {
 
 		const dashboardConfigParam = JSON.stringify(dashboardConfig);
 
-		return this.$izendaRsQuery.apiQuery('getDashboardTilePreviewNew',
+		return this.$izendaRsQueryService.apiQuery('getDashboardTilePreviewNew',
 			[dashboardConfigParam, tile.reportFullName, size.width, size.height]);
 	}
 
@@ -109,7 +110,7 @@ export default class DashboardQueryService {
 	sendReportViaEmailNew(dashboardConfig, type, to) {
 		const dashboardConfigParam = JSON.stringify(dashboardConfig);
 
-		return this.$izendaRsQuery.apiQuery('sendDashboardEmailNew', [dashboardConfigParam, type, to]);
+		return this.$izendaRsQueryService.apiQuery('sendDashboardEmailNew', [dashboardConfigParam, type, to]);
 	}
 
 	/**
@@ -117,13 +118,13 @@ export default class DashboardQueryService {
 	 */
 	loadAutoRefreshIntervalsNew() {
 		return this.$q(resolve => {
-			this.$izendaRsQuery.apiQuery('autorefreshintervals', []).then(
+			this.$izendaRsQueryService.apiQuery('autorefreshintervals', []).then(
 				result => {
 					resolve(result);
 				},
 				error => {
 					const errorMessage =
-						this.$izendaLocale.localeText('js_DashboardAutoRefreshError', 'Failed to get auto refresh intervals');
+						this.$izendaLocaleService.localeText('js_DashboardAutoRefreshError', 'Failed to get auto refresh intervals');
 					this.$izendaUtilUiService.showErrorDialog(`${errorMessage}: ${error}`);
 				});
 		});
@@ -133,12 +134,7 @@ export default class DashboardQueryService {
 	 * Load dashboard navigation
 	 */
 	loadDashboardNavigationNew() {
-		return this.$izendaRsQuery.apiQuery('getDashboardCategoriesNew', []);
-	}
-
-	static get injectModules(): any[] {
-		return ['$q', '$izendaSettings', '$izendaUtilUiService', '$izendaRsQuery', '$izendaLocale', '$izendaScheduleService',
-			'$izendaShareService', '$izendaUrl'];
+		return this.$izendaRsQueryService.apiQuery('getDashboardCategoriesNew', []);
 	}
 
 	static get $inject() {
@@ -146,6 +142,6 @@ export default class DashboardQueryService {
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaDashboardQuery', DashboardQueryService.injectModules.concat(DashboardQueryService));
+		module.service('$izendaDashboardQueryService', DashboardQueryService.injectModules.concat(DashboardQueryService));
 	}
 }

@@ -11,9 +11,13 @@ export default class IzendaScheduleService {
 	sendEmailTypes: IzendaSelectItemModel[];
 	repeatTypes: IzendaSelectItemModel[];
 
+	static get injectModules(): any[] {
+		return ['$q', '$izendaCommonQueryService'];
+	}
+
 	constructor(
 		private readonly $q: ng.IQService,
-		private readonly $izendaCommonQuery: IzendaCommonQueryService) {
+		private readonly $izendaCommonQueryService: IzendaCommonQueryService) {
 		this.reset();
 	}
 
@@ -69,7 +73,7 @@ export default class IzendaScheduleService {
 			const stdTimeOffset = (jan1.getTime() - jan2.getTime()) / (1000 * 60);
 
 			// load schedule dictionaries:
-			this.$izendaCommonQuery.getScheduleData(stdTimeOffset).then(json => {
+			this.$izendaCommonQueryService.getScheduleData(stdTimeOffset).then(json => {
 
 				this.timezones = json.TimeZones.map(tz => {
 					const tzText = tz.Text ? tz.Text.replaceAll('&nbsp;', ' ') : '';
@@ -95,10 +99,6 @@ export default class IzendaScheduleService {
 		this.timezones = [];
 		this.sendEmailTypes = [];
 		this.repeatTypes = [];
-	}
-
-	static get injectModules(): any[] {
-		return ['$q', '$izendaCommonQuery'];
 	}
 
 	static get $inject() {

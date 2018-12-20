@@ -1,6 +1,5 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import IzendaLocalizationService from 'common/core/services/localization-service';
 import IzendaUtilService from 'common/core/services/util-service';
 import { IIzendaCommonSettings } from 'common/common-module-definition';
 
@@ -24,11 +23,12 @@ export default class IzendaQuerySettingsService {
 	readonly bulkCsv: boolean;
 	readonly categoryCharacter: string;
 
+	static get injectModules(): any[] {
+		return ['$izendaUtilService', '$izendaCommonSettings'];
+	}
+
 	constructor(
-		private readonly $log: ng.ILogService,
-		private readonly $q: ng.IQService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaUtil: IzendaUtilService,
+		private readonly $izendaUtilService: IzendaUtilService,
 		private readonly $izendaCommonSettings: IIzendaCommonSettings) {
 
 		// initialize formats
@@ -40,7 +40,7 @@ export default class IzendaQuerySettingsService {
 			'HH:mm:ss',
 			false,
 			'MM/DD/YYYY' + ($izendaCommonSettings.showTimeInFilterPickers ? ' HH:mm:ss' : ''));
-		let format = this.defaultDateFormat;
+		const format = this.defaultDateFormat;
 		this.dateFormat = new DateTimeFormat(format.longDate, format.longTime, format.shortDate,
 			format.shortTime, format.timeFormatForInnerIzendaProcessing, format.showTimeInFilterPickers, '');
 		this.dateFormat.longDate = this.convertDotNetTimeFormatToMoment($izendaCommonSettings.dateFormatLong);
@@ -49,7 +49,7 @@ export default class IzendaQuerySettingsService {
 		this.dateFormat.shortTime = this.convertDotNetTimeFormatToMoment($izendaCommonSettings.timeFormatShort);
 		this.dateFormat.showTimeInFilterPickers = $izendaCommonSettings.showTimeInFilterPickers;
 		this.dateFormat.defaultFilterDateFormat = this.dateFormat.shortDate +
-			($izendaCommonSettings.showTimeInFilterPickers ? ' ' + this.dateFormat.longTime : '');
+			($izendaCommonSettings.showTimeInFilterPickers ? ` ${this.dateFormat.longTime}` : '');
 
 		// culture
 		this.culture = $izendaCommonSettings.culture;
@@ -65,8 +65,6 @@ export default class IzendaQuerySettingsService {
 		this.categoryCharacter = '\\';
 		if (typeof $izendaCommonSettings.categoryCharacter != 'undefined')
 			this.categoryCharacter = $izendaCommonSettings.categoryCharacter;
-
-		$log.debug('Common settings initialized');
 	}
 
 	/**
@@ -81,7 +79,7 @@ export default class IzendaQuerySettingsService {
 	 * Default format string (en-US). This format used for sending dates to the server.
 	 * @param {string} customDateFormatString. Alternative date format if required.
 	 */
-	getDefaultDateFormatString(customDateFormatString: string): string {
+	getDefaultDateFormatString(customDateFormatString?: string): string {
 		const showTime = this.$izendaCommonSettings.showTimeInFilterPickers;
 		const timeFormatString = showTime ? ' ' + this.defaultDateFormat.timeFormatForInnerIzendaProcessing : '';
 		let dateFormatString = this.defaultDateFormat.shortDate;
@@ -97,7 +95,7 @@ export default class IzendaQuerySettingsService {
 	 * @returns {string} momentjs format string
 	 */
 	convertDotNetTimeFormatToMoment(format: string): string {
-		var converter = izenda.utils.date.formatConverter;
+		const converter = izenda.utils.date.formatConverter;
 		return converter.convert(format, converter.dotNet, converter.momentJs);
 	}
 
@@ -137,15 +135,11 @@ export default class IzendaQuerySettingsService {
 		let result = null;
 		if (reportName) {
 			result = '';
-			if (!this.$izendaUtil.isUncategorized(reportCategory))
+			if (!this.$izendaUtilService.isUncategorized(reportCategory))
 				result = reportCategory + this.getCategoryCharacter();
 			result += reportName;
 		}
 		return result;
-	}
-
-	static get injectModules(): any[] {
-		return ['$log', '$q', '$izendaLocale', '$izendaUtil', '$izendaCommonSettings'];
 	}
 
 	static get $inject() {
@@ -153,7 +147,7 @@ export default class IzendaQuerySettingsService {
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaSettings',
+		module.service('$izendaSettingsService',
 			IzendaQuerySettingsService.injectModules.concat(IzendaQuerySettingsService));
 	}
 }

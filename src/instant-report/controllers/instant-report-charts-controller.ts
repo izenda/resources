@@ -11,12 +11,12 @@ izendaInstantReportModule.controller('InstantReportChartsController', [
 	'$window',
 	'$timeout',
 	'$q',
-	'$izendaUrl',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportVisualization',
-	'$izendaInstantReportValidation',
+	'$izendaUrlService',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportVisualizationService',
+	'$izendaInstantReportValidationService',
 	'$log',
 	function (
 		$rootScope,
@@ -24,20 +24,20 @@ izendaInstantReportModule.controller('InstantReportChartsController', [
 		$window,
 		$timeout,
 		$q,
-		$izendaUrl,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportStorage,
-		$izendaInstantReportVisualization,
-		$izendaInstantReportValidation,
+		$izendaUrlService,
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportVisualizationService,
+		$izendaInstantReportValidationService,
 		$log) {
 		'use strict';
 		var vm = this;
 
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
-		$scope.$izendaInstantReportVisualization = $izendaInstantReportVisualization;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
+		$scope.$izendaInstantReportVisualizationService = $izendaInstantReportVisualizationService;
 
-		vm.visualizationConfig = $izendaInstantReportVisualization.getVisualizationConfig();
+		vm.visualizationConfig = $izendaInstantReportVisualizationService.getVisualizationConfig();
 		vm.selectedChart = null;
 
 		/**
@@ -46,14 +46,14 @@ izendaInstantReportModule.controller('InstantReportChartsController', [
 		vm.selectChart = function (chart) {
 			if (vm.selectedChart === chart) {
 				vm.selectedChart = null;
-				$izendaInstantReportStorage.selectChart(null);
-				if (!$izendaCompatibility.isSmallResolution())
-					$izendaInstantReportValidation.validateReportSetAndRefresh();
+				$izendaInstantReportStorageService.selectChart(null);
+				if (!$izendaCompatibilityService.isSmallResolution())
+					$izendaInstantReportValidationService.validateReportSetAndRefresh();
 			} else {
 				vm.selectedChart = chart;
-				$izendaInstantReportStorage.selectChart(chart);
-				if (!$izendaCompatibility.isSmallResolution())
-					$izendaInstantReportValidation.validateReportSetAndRefresh();
+				$izendaInstantReportStorageService.selectChart(chart);
+				if (!$izendaCompatibilityService.isSmallResolution())
+					$izendaInstantReportValidationService.validateReportSetAndRefresh();
 			}
 
 		};
@@ -86,12 +86,12 @@ izendaInstantReportModule.controller('InstantReportChartsController', [
 		*/
 		vm.init = function () {
 
-			$scope.$watch('$izendaInstantReportVisualization.getVisualizationConfig()', function (visConfig) {
+			$scope.$watch('$izendaInstantReportVisualizationService.getVisualizationConfig()', function (visConfig) {
 				vm.visualizationConfig = visConfig;
 				vm.prepareConfig();
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getSelectedChart()', function (chart) {
+			$scope.$watch('$izendaInstantReportStorageService.getSelectedChart()', function (chart) {
 				vm.selectedChart = chart;
 			});
 		};

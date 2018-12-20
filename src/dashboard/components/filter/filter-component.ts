@@ -11,7 +11,7 @@ import DashboardStorageService from 'dashboard/services/dashboard-storage-servic
 @IzendaComponent(
 	izendaDashboardModule,
 	'izendaDashboardFilters',
-	['rx', '$window', '$timeout', '$element', '$izendaUrl', '$izendaDashboardStorage'],
+	['rx', '$window', '$timeout', '$element', '$izendaUrlService', '$izendaDashboardStorageService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.filter.filter-template.html',
 		bindings: {}
@@ -25,14 +25,14 @@ export class IzendaDashboardFiltersComponent implements ng.IComponentController 
 		private readonly $window: ng.IWindowService,
 		private readonly $timeout: ng.ITimeoutService,
 		private readonly $element: ng.IAugmentedJQuery,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaDashboardStorage: DashboardStorageService) {
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaDashboardStorageService: DashboardStorageService) {
 
 		this.$window.useGetRenderedReportSetForFilters = false;
-		this.isFiltersActive = this.$izendaDashboardStorage.isFiltersActive.getValue();
+		this.isFiltersActive = this.$izendaDashboardStorageService.isFiltersActive.getValue();
 		// subscribe
 		this.subscriptions = [
-			this.$izendaDashboardStorage.isFiltersActive.subscribeOnNext(this.$onFiltersActiveChange, this)
+			this.$izendaDashboardStorageService.isFiltersActive.subscribeOnNext(this.$onFiltersActiveChange, this)
 		];
 	}
 
@@ -73,13 +73,13 @@ export class IzendaDashboardFiltersComponent implements ng.IComponentController 
 					// fast clicks handler (always runs before the handler with the enabled throttle condition)
 					$btn.children('a').removeClass('blue');
 					$btn.children('a').addClass('gray');
-					this.$izendaDashboardStorage.cancelRefreshDashboardQueries();
+					this.$izendaDashboardStorageService.cancelRefreshDashboardQueries();
 				} else {
 					// run refresh when throttling is done.
 					$btn.children('a').removeClass('gray');
 					$btn.children('a').addClass('blue');
 					this.$timeout(() => {
-						this.$izendaDashboardStorage.refreshDashboard(false, false);
+						this.$izendaDashboardStorageService.refreshDashboard(false, false);
 					}, 100);
 				}
 			});

@@ -1,8 +1,6 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import IzendaLocalizationService from 'common/core/services/localization-service';
 import IzendaUtilService from 'common/core/services/util-service';
-import IzendaRsQueryService from 'common/query/services/rs-query-service';
 import IzendaQuerySettingsService from 'common/query/services/settings-service';
 import IzendaPingService from 'common/query/services/ping-service';
 
@@ -28,20 +26,24 @@ export default class IzendaUrlService {
 	reportNameInfo: IzendaLocationModel;
 	location: any; // current location (rx.BehaviorSubject object)
 
+	static get injectModules(): any[] {
+		return ['rx',
+			'$window',
+			'$izendaSettingsService',
+			'$izendaPingService',
+			'$izendaUtilService'];
+	}
+
 	constructor(
 		private readonly rx: any,
 		private readonly $window: ng.IWindowService,
-		private readonly $rootScope: ng.IRootScopeService,
-		private readonly $log: ng.ILogService,
-		private readonly $izendaRsQuery: IzendaRsQueryService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
-		private readonly $izendaPing: IzendaPingService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaUtil: IzendaUtilService) {
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
+		private readonly $izendaPingService: IzendaPingService,
+		private readonly $izendaUtilService: IzendaUtilService) {
 
 		this.settings = $window.urlSettings$;
 		this.reportNameInfo = this.getLocation();
-		this.location = new rx.BehaviorSubject(this.reportNameInfo);
+		this.location = new this.rx.BehaviorSubject(this.reportNameInfo);
 		// subscribe on location change:
 		window.onpopstate = event => {
 			if (event.state && (event.state.rn || event.state.new)) {
@@ -49,7 +51,7 @@ export default class IzendaUrlService {
 			}
 		}
 		// start ping
-		this.$izendaPing.startPing();
+		this.$izendaPingService.startPing();
 	}
 
 	/**
@@ -127,7 +129,7 @@ export default class IzendaUrlService {
 	}
 
 	/**
-	 * Returns report full name (category delimiter: $izendaSettings.getCategoryCharacter())
+	 * Returns report full name (category delimiter: $izendaSettingsService.getCategoryCharacter())
 	 * @return {IzendaLocationModel} current location model.
 	 */
 	getLocation(): IzendaLocationModel {
@@ -177,7 +179,7 @@ export default class IzendaUrlService {
 		this.settings = new UrlSettings();
 
 		// cancel all current queries
-		//const countCancelled = this.$izendaRsQuery.cancelAllQueries();
+		//const countCancelled = this.$izendaRsQueryService.cancelAllQueries();
 		//if (countCancelled > 0)
 		//	this.$log.debug(`>>> Cancelled ${countCancelled} queries`);
 
@@ -212,7 +214,7 @@ export default class IzendaUrlService {
 	extractReportName(fullName: string): string {
 		if (!angular.isString(fullName) || fullName === '')
 			throw `Can't extract report name from object "${JSON.stringify(fullName)}" with type ${typeof (fullName)}`;
-		const parts = fullName.split(this.$izendaSettings.getCategoryCharacter());
+		const parts = fullName.split(this.$izendaSettingsService.getCategoryCharacter());
 		return parts[parts.length - 1];
 	}
 
@@ -225,12 +227,12 @@ export default class IzendaUrlService {
 		if (!angular.isString(fullName) || fullName === '')
 			throw `Can't extract report category from object "${JSON.stringify(fullName)}" with type ${typeof (fullName)}`;
 
-		const reportFullNameParts = fullName.split(this.$izendaSettings.getCategoryCharacter());
+		const reportFullNameParts = fullName.split(this.$izendaSettingsService.getCategoryCharacter());
 		let category: string;
 		if (reportFullNameParts.length >= 2)
-			category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join(this.$izendaSettings.getCategoryCharacter());
+			category = reportFullNameParts.slice(0, reportFullNameParts.length - 1).join(this.$izendaSettingsService.getCategoryCharacter());
 		else
-			category = this.$izendaUtil.getUncategorized();
+			category = this.$izendaUtilService.getUncategorized();
 		return category;
 	};
 
@@ -266,9 +268,9 @@ export default class IzendaUrlService {
 		result.reportName = this.extractReportName(reportSetName);
 		result.reportCategory = this.extractReportCategory(reportSetName);
 		result.reportNameWithCategory = result.reportName;
-		if (this.$izendaUtil.isUncategorized(result.reportCategory))
+		if (this.$izendaUtilService.isUncategorized(result.reportCategory))
 			result.reportNameWithCategory =
-				result.reportCategory + this.$izendaSettings.getCategoryCharacter() + result.reportNameWithCategory;
+				result.reportCategory + this.$izendaSettingsService.getCategoryCharacter() + result.reportNameWithCategory;
 		result.reportFullName = (result.reportPartName != null ? result.reportPartName + '@' : '') + result.reportSetName;
 		return result;
 	}
@@ -285,23 +287,11 @@ export default class IzendaUrlService {
 		return urlObj.data.param.query;
 	}
 
-	static get injectModules(): any[] {
-		return ['rx',
-			'$window',
-			'$rootScope',
-			'$log',
-			'$izendaRsQuery',
-			'$izendaSettings',
-			'$izendaPing',
-			'$izendaLocale',
-			'$izendaUtil'];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaUrl', IzendaUrlService.injectModules.concat(IzendaUrlService));
+		module.service('$izendaUrlService', IzendaUrlService.injectModules.concat(IzendaUrlService));
 	}
 }

@@ -36,7 +36,7 @@ class IzendaTileDraggable implements ng.IDirective {
 	constructor(
 		private readonly $rootScope: ng.IRootScopeService,
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaDashboardStorage: DashboardStorageService) {
+		private readonly $izendaDashboardStorageService: DashboardStorageService) {
 		IzendaTileDraggable.prototype.link = ($scope: IIzendaTileDraggableScope, $element: ng.IAugmentedJQuery) => {
 
 			const getTileByTile$ = ($t: ng.IAugmentedJQuery): IzendaDashboardTileModel => {
@@ -150,7 +150,7 @@ class IzendaTileDraggable implements ng.IDirective {
 					});
 
 					// turn off window resize handler
-					$izendaDashboardStorage.turnOffWindowResizeHandler();
+					$izendaDashboardStorageService.turnOffWindowResizeHandler();
 
 					// update tiles array;
 					$tilesArray = $scope.tiles.map(currentTile => angular.element(`.iz-dash-tile[tileid=${currentTile.id}]`));
@@ -305,7 +305,7 @@ class IzendaTileDraggable implements ng.IDirective {
 								$t.find('.report').show();
 							});
 							// turn on window resize handler
-							$izendaDashboardStorage.turnOnWindowResizeHandler();
+							$izendaDashboardStorageService.turnOnWindowResizeHandler();
 							// fire onMoveEnd handler:
 							if (angular.isFunction($scope.onMoveEnd)) {
 								$scope.onMoveEnd({ eventResult: eventResult });
@@ -332,12 +332,12 @@ class IzendaTileDraggable implements ng.IDirective {
 		const directive = (
 			$rootScope: ng.IRootScopeService,
 			$timeout: ng.ITimeoutService,
-			$izendaDashboardStorage: DashboardStorageService) =>
-			new IzendaTileDraggable($rootScope, $timeout, $izendaDashboardStorage);
-		directive.$inject = ['$rootScope', '$timeout', '$izendaDashboardStorage'];
+			$izendaDashboardStorageService: DashboardStorageService) =>
+			new IzendaTileDraggable($rootScope, $timeout, $izendaDashboardStorageService);
+		directive.$inject = ['$rootScope', '$timeout', '$izendaDashboardStorageService'];
 		return directive;
 	}
 }
 
 izendaDashboardModule.directive('izendaTileDraggable',
-	['$rootScope', '$timeout', '$izendaDashboardStorage', IzendaTileDraggable.factory()]);
+	['$rootScope', '$timeout', '$izendaDashboardStorageService', IzendaTileDraggable.factory()]);

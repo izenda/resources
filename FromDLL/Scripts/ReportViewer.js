@@ -1040,7 +1040,7 @@ function GotReportViewerConfig(returnObj, id) {
 		document.getElementById('menuBtnExcelExport').onclick = '';
 	}
 
-	if (!nrvConfig.ShowSaveControls)
+	if (!nrvConfig.ShowSaveControls || (nrvConfig.ReportIsReadOnly && !nrvConfig.ShowSaveAsToolbarButton))
 		document.getElementById('saveControls').style.display = 'none';
 	if (!nrvConfig.ShowSaveAsToolbarButton)
 		document.getElementById('saveAsBtn').style.display = 'none';
@@ -1058,6 +1058,8 @@ function GotReportViewerConfig(returnObj, id) {
 	if (!initialized)
 		GetRenderedReportSet(false);
 	AppendReportNameTitle(nrvConfig.ClearReportName);
+	if (nrvConfig.Warning)
+		ReportingServices.showOk(nrvConfig.Warning);
 }
 
 function ApplySecurityOptions() {

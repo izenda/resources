@@ -7,7 +7,11 @@ import IzendaLocalizationService from 'common/core/services/localization-service
  */
 export default class IzendaUtilService {
 
-	constructor(private readonly $izendaLocale: IzendaLocalizationService) { }
+	static get injectModules(): any[] {
+		return ['$izendaLocaleService'];
+	}
+
+	constructor(private readonly $izendaLocaleService: IzendaLocalizationService) { }
 
 	/**
 	 * Create human readable variable name version
@@ -30,7 +34,7 @@ export default class IzendaUtilService {
 	 * "Uncategorized" category localized name getter.
 	 */
 	get uncategorized(): string {
-		return this.$izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+		return this.$izendaLocaleService.localeText('js_Uncategorized', 'Uncategorized');
 	}
 
 	/**
@@ -97,7 +101,7 @@ export default class IzendaUtilService {
 	 * Get option by value from array of objects with "value" property (case insensitive): 
 	 * [{value:'text1',...}, {value:'text2', ...}, ...]
 	 */
-	getOptionByValue(options: any[], value: string, isLowerCaseComparison: boolean) {
+	getOptionByValue(options: any[], value: string, isLowerCaseComparison?: boolean) {
 		let i = 0;
 		if (!angular.isArray(options) || !options.length)
 			return null;
@@ -112,15 +116,11 @@ export default class IzendaUtilService {
 		return null;
 	}
 
-	static get injectModules(): any[] {
-		return ['$izendaLocale'];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaUtil', IzendaUtilService.injectModules.concat(IzendaUtilService));
+		module.service('$izendaUtilService', IzendaUtilService.injectModules.concat(IzendaUtilService));
 	}
 }

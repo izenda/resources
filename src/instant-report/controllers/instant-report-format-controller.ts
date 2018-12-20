@@ -12,10 +12,10 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 	'$timeout',
 	'$q',
 	'$log',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportSettings',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportSettingsService',
 	function (
 		$rootScope,
 		$scope,
@@ -23,12 +23,12 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 		$timeout,
 		$q,
 		$log,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportStorage,
-		$izendaInstantReportSettings) {
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportSettingsService) {
 		'use strict';
-		$scope.$izendaCompatibility = $izendaCompatibility;
+		$scope.$izendaCompatibilityService = $izendaCompatibilityService;
 		var vm = this;
 		vm.optGroups = {
 			'headerAndFooter': {
@@ -45,14 +45,14 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 			}
 		};
 
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
-		vm.options = $izendaInstantReportStorage.getOptions();
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
+		vm.options = $izendaInstantReportStorageService.getOptions();
 		vm.vgStyles = [];
 		vm.allActiveFields = [];
-		vm.drillDownFields = $izendaInstantReportStorage.getDrillDownFields();
+		vm.drillDownFields = $izendaInstantReportStorageService.getDrillDownFields();
 		vm.selectedDrilldownField = null;
 
-		vm.settings = $izendaInstantReportSettings;
+		vm.settings = $izendaInstantReportSettingsService.getSettings();
 		vm.ddkValuesMaxAmount = vm.settings.ddkValuesMaxAmount;
 		vm.allowVirtualDataSources = vm.settings.allowVirtualDataSources;
 
@@ -60,7 +60,7 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 		 * Restore default color settings.
 		 */
 		vm.restoreDefaultColors = function () {
-			$izendaInstantReportStorage.restoreDefaultColors();
+			$izendaInstantReportStorageService.restoreDefaultColors();
 		};
 
 		/**
@@ -82,7 +82,7 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 		 * update available collection
 		 */
 		vm.syncAvailableCollection = function () {
-			var activeTables = $izendaInstantReportStorage.getActiveTables();
+			var activeTables = $izendaInstantReportStorageService.getActiveTables();
 			vm.allActiveFields = [];
 			angular.element.each(activeTables, function () {
 				var table = this;
@@ -122,20 +122,20 @@ izendaInstantReportModule.controller('InstantReportFormatController', [
 			/**
 			 * Look for options change
 			 */
-			$scope.$watch('$izendaInstantReportStorage.getOptions()', function (options) {
+			$scope.$watch('$izendaInstantReportStorageService.getOptions()', function (options) {
 				vm.options = options;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getVgStyles()', function (styles) {
+			$scope.$watch('$izendaInstantReportStorageService.getVgStyles()', function (styles) {
 				vm.vgStyles = styles;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getDrillDownFields()', function (ddFields) {
+			$scope.$watch('$izendaInstantReportStorageService.getDrillDownFields()', function (ddFields) {
 				vm.drillDownFields = ddFields;
 				vm.syncAvailableCollection();
 			});
 
-			$scope.$watchCollection('$izendaInstantReportStorage.getActiveTables()', function () {
+			$scope.$watchCollection('$izendaInstantReportStorageService.getActiveTables()', function () {
 				vm.syncAvailableCollection();
 			});
 		};

@@ -12,11 +12,16 @@ export default class IzendaCompatibilityService {
 	private readonly ie8: boolean;
 	private readonly lteIe10: boolean;
 	private readonly gteIe9: boolean;
+	private usesHiddenColumns: boolean;
+
+	static get injectModules(): any[] {
+		return ['$window'];
+	}
 
 	constructor(private readonly $window: ng.IWindowService) {
 		this.ie8 = MsieDetect.isSpecificIeVersion(8, 'lte');
 		this.lteIe10 = MsieDetect.isSpecificIeVersion(10, 'lte');
-		this.gteIe9 = MsieDetect.isSpecificIeVersion(10, 'gte');
+		this.gteIe9 = MsieDetect.isSpecificIeVersion(9, 'gte');
 	}
 
 	private isIe8(): boolean {
@@ -56,6 +61,20 @@ export default class IzendaCompatibilityService {
 	isOneColumnView(): boolean {
 		return this.isMobile() || this.isSmallResolution();
 	};
+
+	/**
+	 * Set flag that indicates that report with hidden columns is currenly loaded.
+	 */
+	setUsesHiddenColumns(value: boolean) {
+		this.usesHiddenColumns = value;
+	}
+
+	/**
+	 * Get flat that indicates that report with hidden columns is currenly loaded.
+	 */
+	isUsesHiddenColumns(): boolean {
+		return this.usesHiddenColumns;
+	}
 
 	/**
 	 * Set rights for current dashboard
@@ -107,12 +126,19 @@ export default class IzendaCompatibilityService {
 	}
 
 	/**
-	 * Check is save allowed
+	 * Check is save allowed with hidden columns
 	 */
-	isSaveAllowed(): boolean {
+	isSaveAllowedWithHidden(): boolean {
 		let allowed = [this.rightFullAccess].indexOf(this.getRights()) >= 0;
 		allowed = allowed && !this.isIe8();
 		return allowed;
+	}
+
+	/**
+	 * Check is save allowed
+	 */
+	isSaveAllowed(): boolean {
+		return this.isSaveAllowedWithHidden() && !this.usesHiddenColumns;
 	}
 
 	/**
@@ -124,15 +150,11 @@ export default class IzendaCompatibilityService {
 		return allowed;
 	}
 
-	static get injectModules(): any[] {
-		return ['$window'];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaCompatibility', IzendaCompatibilityService.injectModules.concat(IzendaCompatibilityService));
+		module.service('$izendaCompatibilityService', IzendaCompatibilityService.injectModules.concat(IzendaCompatibilityService));
 	}
 }

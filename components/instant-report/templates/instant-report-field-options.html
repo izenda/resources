@@ -9,7 +9,7 @@
 					<!-- name + description -->
 					<form class="navbar-form navbar-left">
 						<div class="form-group">
-							<label class="nobold" ng-bind="fieldOptionsController.field.name + ' ' + $izendaLocale.localeText('js_As', 'as')"></label>
+							<label class="nobold" ng-bind="fieldOptionsController.field.name + ' ' + $izendaLocaleService.localeText('js_As', 'as')"></label>
 							<input type="text" class="form-control"
 								   ng-model="fieldOptionsController.field.description"
 								   ng-change="fieldOptionsController.onDescriptionWasSet()">
@@ -70,7 +70,7 @@
 
 						<!-- visual group -->
 						<li ng-class="fieldOptionsController.getVgButtonClass()"
-							ng-hide="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field) || fieldOptionsController.field.isPivotCellValue">
+							ng-hide="$izendaInstantReportStorageService.isBinaryField(fieldOptionsController.field) || fieldOptionsController.field.isPivotCellValue">
 							<a ng-attr-title="{{'js_VisualGroup' | izendaLocale: 'Visual group'}}"
 							   ng-click="fieldOptionsController.applyVg()">
 								<span class="glyphicon glyphicon-th-list"></span>
@@ -132,7 +132,7 @@
 								<label for="izInstFieldFunction"
 									   ng-bind=":: 'js_Function' | izendaLocale: 'Function'"></label>
 								<select class="form-control" id="izInstFieldFunction"
-										ng-disabled="$izendaInstantReportStorage.isActiveFieldsContainsBinary()"
+										ng-disabled="$izendaInstantReportStorageService.isActiveFieldsContainsBinary()"
 										ng-options="func as func.text for func in fieldOptionsController.field.groupByFunctionOptions"
 										ng-model="fieldOptionsController.field.groupByFunction"
 										ng-change="fieldOptionsController.onFunctionSelected()"></select>
@@ -143,7 +143,7 @@
 								<label for="izInstFieldFormats"
 									   ng-bind=":: 'js_Formats' | izendaLocale: 'Formats'"></label>
 								<select class="form-control" id="izInstFieldFormats"
-										ng-disabled="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field)"
+										ng-disabled="$izendaInstantReportStorageService.isBinaryField(fieldOptionsController.field)"
 										ng-options="format as format.text for format in fieldOptionsController.field.formatOptionGroups"
 										ng-model="fieldOptionsController.field.format"></select>
 							</div>
@@ -153,7 +153,7 @@
 								<label for="izInstSubtotalFieldFunction"
 									   ng-bind=":: 'js_SubtotalFunction' | izendaLocale: 'Subtotal Function'"></label>
 								<select class="form-control" id="izInstSubtotalFieldFunction"
-										ng-disabled="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field)"
+										ng-disabled="$izendaInstantReportStorageService.isBinaryField(fieldOptionsController.field)"
 										ng-options="func as func.text for func in fieldOptionsController.field.groupBySubtotalFunctionOptions"
 										ng-model="fieldOptionsController.field.groupBySubtotalFunction"
 										ng-change="fieldOptionsController.onSubtotalFunctionSelect()"></select>
@@ -165,7 +165,7 @@
 									   ng-bind=":: 'js_SubtotalExpression' | izendaLocale: 'Subtotal Expression'"></label>
 								<input type="text" class="form-control" id="izInstSubtotalFieldExpression"
 									   ng-disabled="fieldOptionsController.isSubtotalExpressionDisabled()"
-									   ng-attr-title="{{fieldOptionsController.isSubtotalExpressionDisabled() ? $izendaLocale.localeText('js_TurnOnSubtotals', 'You need to turn on subtotals first and select (Expression) subtotal function') : ''}}"
+									   ng-attr-title="{{fieldOptionsController.isSubtotalExpressionDisabled() ? $izendaLocaleService.localeText('js_TurnOnSubtotals', 'You need to turn on subtotals first and select (Expression) subtotal function') : ''}}"
 									   ng-model="fieldOptionsController.field.subtotalExpression">
 							</div>
 						</div>
@@ -229,7 +229,7 @@
 									<span class="glyphicon glyphicon-chevron-right with-label"
 										  ng-class="fieldOptionsController.expanded ? 'glyphicon-chevron-down' : 'glyphicon-chevron-right'"></span>
 									<span class="ds-tree-item-header-text bold"
-										  ng-bind="fieldOptionsController.expanded ? $izendaLocale.localeText('js_HideAdvancedFieldProperties', 'Hide advanced field properties') : $izendaLocale.localeText('js_ShowAdvancedFieldProperties', 'Show advanced field properties')"></span>
+										  ng-bind="fieldOptionsController.expanded ? $izendaLocaleService.localeText('js_HideAdvancedFieldProperties', 'Hide advanced field properties') : $izendaLocaleService.localeText('js_ShowAdvancedFieldProperties', 'Show advanced field properties')"></span>
 								</div>
 							</div>
 						</div>
@@ -270,13 +270,13 @@
 									</div>
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldSubreport" style="margin-top: 6px;"
 												   ng-bind=":: 'js_Subreport' | izendaLocale: 'Subreport'"></label>
 										</div>
 										<div class="col-md-4">
 											<select class="form-control" id="izInstFieldSubreport"
-													ng-disabled="$izendaInstantReportStorage.isBinaryField(fieldOptionsController.field)"
+													ng-disabled="$izendaInstantReportStorageService.isBinaryField(fieldOptionsController.field)"
 													ng-options="subreport.value as subreport.text for subreport in fieldOptionsController.subreports"
 													ng-model="fieldOptionsController.field.subreport"
 													ng-change="fieldOptionsController.subreportSelectedHandler()"></select>
@@ -284,7 +284,7 @@
 									</div>
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldDdStyle" style="margin-top: 6px;"
 												   ng-bind=":: 'js_DrillDownStyle' | izendaLocale: 'Drill-down style'"></label>
 										</div>
@@ -297,7 +297,7 @@
 									</div>
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldDdUrl" style="margin-top: 6px;"
 												   ng-bind=":: 'js_CustomUrl' | izendaLocale: 'Custom url'"></label>
 										</div>
@@ -311,7 +311,7 @@
 									<!-- highlights -->
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldTextHighlight" style="margin-top: 6px;"
 												   ng-bind=":: 'js_TextHighlight' | izendaLocale: 'Text highlight'"></label>
 										</div>
@@ -324,7 +324,7 @@
 
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldCellHighlight" style="margin-top: 6px;"
 												   ng-bind=":: 'js_CellHighlight' | izendaLocale: 'Cell highlight'"></label>
 										</div>
@@ -337,7 +337,7 @@
 
 									<div class="row default-bottom-margin">
 										<div class="col-md-2"
-											 ng-class="$izendaCompatibility.isSmallResolution() ? '' : 'text-right'">
+											 ng-class="$izendaCompatibilityService.isSmallResolution() ? '' : 'text-right'">
 											<label for="izInstFieldValueRanges" style="margin-top: 6px;"
 												   ng-bind=":: 'js_ValueRanges' | izendaLocale: 'Value ranges'"></label>
 										</div>

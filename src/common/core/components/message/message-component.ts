@@ -8,13 +8,13 @@ import IzendaUtilUiService from 'common/core/services/util-ui-service';
 /**
  * Message component definition
  */
-@IzendaComponent(izendaCoreModule, 'izendaMessageComponent', ['$izendaLocale', '$izendaUtilUiService'], {
+@IzendaComponent(izendaCoreModule, 'izendaMessageComponent', ['$izendaLocaleService', '$izendaUtilUiService'], {
 	templateUrl: '###RS###extres=components.common.core.components.message.message-template.html',
 	bindings: {},
 })
 export default class IzendaMessageComponent {
 	constructor(
-		private readonly $izendaLocale: IzendaLocalizationService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService) {
 
 	}

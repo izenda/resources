@@ -9,17 +9,17 @@
 	'$window',
 	'$rootScope',
 	'$log',
-	'$izendaUrl',
-	'$izendaEvent',
+	'$izendaUrlService',
+	'$izendaEventService',
 	IzendaFiltersLegacyController]);
 
 	/**
 	 * Controller for old non angular filters
 	 */
 	// ReSharper disable once InconsistentNaming
-	function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izendaUrl, $izendaEvent) {
+	function IzendaFiltersLegacyController($scope, $window, $rootScope, $log, $izendaUrlService, $izendaEventService) {
 		var _ = angular.element;
-		$scope.izendaUrl = $izendaUrl;
+		$scope.$izendaUrlService = $izendaUrlService;
 		var vm = this;
 		vm.opened = false;
 
@@ -80,7 +80,7 @@
 		 */
 		vm.initializeFilters = function (getFiltersFromQuery) {
 			if (getFiltersFromQuery)
-				GetFiltersData($izendaUrl.getFilterParamsString());
+				GetFiltersData($izendaUrlService.getFilterParamsString());
 			else
 				GetFiltersData();
 		};
@@ -110,11 +110,11 @@
 			vm.initializeFilters(false);
 
 			// 'refreshFilters' event handle
-			$izendaEvent.handleQueuedEvent('refreshFilters', $scope, vm, function () {
+			$izendaEventService.handleQueuedEvent('refreshFilters', $scope, vm, function () {
 				vm.initializeFilters(true);
 			});
 
-			$izendaEvent.handleQueuedEvent('dashboardUpdateFiltersEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
+			$izendaEventService.handleQueuedEvent('dashboardUpdateFiltersEvent', $scope, vm, function (reloadDashboardLayout, updateFromSource) {
 				if (reloadDashboardLayout || updateFromSource) {
 					vm.initializeFilters(false);
 				}
@@ -123,11 +123,11 @@
 			_('#updateBtnP > a').click(function (event) {
 				event.preventDefault();
 				CommitFiltersData(true);
-				$izendaEvent.queueEvent('dashboardRefreshEvent', [false, false], false);
+				$izendaEventService.queueEvent('dashboardRefreshEvent', [false, false], false);
 			});
 
 			// watch for location change: we can set dashboard when location is changing
-			$scope.$watch('izendaUrl.getReportInfo()', function (reportInfo) {
+			$scope.$watch('$izendaUrlService.getReportInfo()', function (reportInfo) {
 				if (!angular.isDefined(reportInfo))
 					return;
 				if (reportInfo.fullName === null && !reportInfo.isNew)

@@ -1,7 +1,7 @@
 ﻿<div ng-controller="InstantReportPivotsController as pivotsController"
 	 ng-init="pivotsController.init()" ng-cloak>
 
-	<div class="iz-inst-top-panel" ng-show="$izendaCompatibility.isSmallResolution() || pivotsController.panelOpened"
+	<div class="iz-inst-top-panel" ng-show="$izendaCompatibilityService.isSmallResolution() || pivotsController.panelOpened"
 		 droppable-accept=".datasource-field"
 		 on-drop="pivotsController.addPivotItem(arg0)"
 		 izenda-instant-report-field-droppable>

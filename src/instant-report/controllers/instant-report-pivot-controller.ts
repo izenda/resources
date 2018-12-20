@@ -5,35 +5,35 @@ import izendaInstantReportModule from 'instant-report/module-definition';
 izendaInstantReportModule.controller('InstantReportPivotsController', [
 	'$rootScope',
 	'$scope',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportPivots',
-	'$izendaInstantReportValidation',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportPivotService',
+	'$izendaInstantReportValidationService',
 	function (
 		$rootScope,
 		$scope,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportStorage,
-		$izendaInstantReportPivots,
-		$izendaInstantReportValidation) {
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportPivotService,
+		$izendaInstantReportValidationService) {
 		var vm = this;
-		$scope.$izendaInstantReportPivots = $izendaInstantReportPivots;
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
+		$scope.$izendaInstantReportPivotService = $izendaInstantReportPivotService;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
 
 		vm.panelOpened = false; // pivot panel state
-		vm.activeFields = $izendaInstantReportStorage.getAllFieldsInActiveTables(true);
-		vm.pivotColumn = $izendaInstantReportPivots.getPivotColumn();
-		vm.pivotOptions = $izendaInstantReportPivots.getPivotOptions();
-		vm.cellValues = $izendaInstantReportPivots.getCellValues();
+		vm.activeFields = $izendaInstantReportStorageService.getAllFieldsInActiveTables(true);
+		vm.pivotColumn = $izendaInstantReportPivotService.getPivotColumn();
+		vm.pivotOptions = $izendaInstantReportPivotService.getPivotOptions();
+		vm.cellValues = $izendaInstantReportPivotService.getCellValues();
 		vm.selectedFields = [];
 
 		var updateSelectedFieldsArray = function () {
 			vm.selectedFields = [];
 			vm.cellValues.forEach(cellValue => {
 				if (cellValue)
-					vm.selectedFields.push($izendaInstantReportStorage.getFieldBySysName(cellValue.sysname));
+					vm.selectedFields.push($izendaInstantReportStorageService.getFieldBySysName(cellValue.sysname));
 			});
 		}
 		updateSelectedFieldsArray();
@@ -61,18 +61,18 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		 * Update validation
 		 */
 		vm.updateValidation = function () {
-			$izendaInstantReportValidation.validateReportSet();
+			$izendaInstantReportValidationService.validateReportSet();
 		};
 
 		/**
 		 * Update validation state and refresh if needed.
 		 */
 		vm.updateReportSetValidationAndRefresh = function () {
-			$izendaInstantReportPivots.setDefaultGroup();
+			$izendaInstantReportPivotService.setDefaultGroup();
 
-			$izendaInstantReportStorage.clearReportPreviewHtml();
-			$izendaInstantReportStorage.applyAutoGroups(true);
-			$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportStorageService.clearReportPreviewHtml();
+			$izendaInstantReportStorageService.applyAutoGroups(true);
+			$izendaInstantReportValidationService.validateReportSetAndRefresh();
 		};
 
 		/**
@@ -80,19 +80,19 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		 */
 		vm.onPivotColumnFieldSelect = function () {
 			if (vm.pivotColumn !== null) {
-				var sourceField = $izendaInstantReportStorage.getFieldBySysName(vm.pivotColumn.sysname);
+				var sourceField = $izendaInstantReportStorageService.getFieldBySysName(vm.pivotColumn.sysname);
 
 				var groupName = null;
-				var oldPivotColumn = $izendaInstantReportPivots.getPivotColumn();
+				var oldPivotColumn = $izendaInstantReportPivotService.getPivotColumn();
 				if (angular.isObject(oldPivotColumn) && sourceField.sysname === oldPivotColumn.sysname) {
 					groupName = oldPivotColumn.groupByFunction.value;
 				}
 
-				$izendaInstantReportStorage.copyFieldObject(sourceField, vm.pivotColumn, true);
-				$izendaInstantReportStorage.resetFieldObject(vm.pivotColumn);
+				$izendaInstantReportStorageService.copyFieldObject(sourceField, vm.pivotColumn, true);
+				$izendaInstantReportStorageService.resetFieldObject(vm.pivotColumn);
 				vm.pivotColumn.isPivotColumn = true;
-				$izendaInstantReportPivots.setPivotColumn(vm.pivotColumn);
-				$izendaInstantReportStorage.initializeField(vm.pivotColumn).then(function () {
+				$izendaInstantReportPivotService.setPivotColumn(vm.pivotColumn);
+				$izendaInstantReportStorageService.initializeField(vm.pivotColumn).then(function () {
 
 					if (groupName !== null) {
 						angular.element.each(vm.pivotColumn.groupByFunctionOptions, function () {
@@ -125,12 +125,12 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 				return;
 			if (cellValue === null) {
 				// if field wasn't set yet
-				vm.cellValues[index] = cellValue = $izendaInstantReportStorage.createFieldObject(selectedField.name, selectedField.parentId, selectedField.tableSysname, selectedField.tableName,
+				vm.cellValues[index] = cellValue = $izendaInstantReportStorageService.createFieldObject(selectedField.name, selectedField.parentId, selectedField.tableSysname, selectedField.tableName,
 					selectedField.sysname, selectedField.typeGroup, selectedField.type, selectedField.sqlType);
 			}
-			$izendaInstantReportStorage.copyFieldObject(selectedField, cellValue, true);
-			$izendaInstantReportStorage.resetFieldObject(cellValue);
-			$izendaInstantReportStorage.initializeField(cellValue).then(function (f) {
+			$izendaInstantReportStorageService.copyFieldObject(selectedField, cellValue, true);
+			$izendaInstantReportStorageService.resetFieldObject(cellValue);
+			$izendaInstantReportStorageService.initializeField(cellValue).then(function (f) {
 				angular.element.each(f.groupByFunctionOptions, function () {
 					if (this.value.toLowerCase() === 'group')
 						f.groupByFunction = this;
@@ -146,7 +146,7 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		vm.onCellValueFunctionSelect = function (cellValue) {
 			if (cellValue.groupByFunction === null)
 				return;
-			$izendaInstantReportStorage.onFieldFunctionApplyed(cellValue);
+			$izendaInstantReportStorageService.onFieldFunctionApplied(cellValue);
 			vm.updateReportSetValidationAndRefresh();
 		};
 
@@ -155,20 +155,20 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		 */
 		vm.showAdvancedOptions = function (cellValue) {
 			cellValue.isPivotCellValue = true;
-			$izendaInstantReportStorage.applyFieldSelected(cellValue, true);
+			$izendaInstantReportStorageService.applyFieldSelected(cellValue, true);
 		};
 
 		/**
 		 * Create cell value item
 		 */
 		vm.addCellValue = function () {
-			$izendaInstantReportPivots.addCellValue();
+			$izendaInstantReportPivotService.addCellValue();
 			vm.selectedFields.push(null);
 			vm.updateValidation();
 		};
 
 		vm.clearPivots = function () {
-			$izendaInstantReportPivots.removePivots();
+			$izendaInstantReportPivotService.removePivots();
 			vm.updateReportSetValidationAndRefresh();
 		};
 
@@ -178,7 +178,7 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		vm.removeCellValue = function (cellValue) {
 			var idx = vm.cellValues.indexOf(cellValue);
 			vm.selectedFields.splice(idx, 1);
-			$izendaInstantReportPivots.removeCellValue(cellValue);
+			$izendaInstantReportPivotService.removeCellValue(cellValue);
 			vm.updateReportSetValidationAndRefresh();
 		}
 
@@ -186,7 +186,7 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		 * Move cell value
 		 */
 		vm.moveCellValueTo = function (fromIndex, toIndex) {
-			$izendaInstantReportPivots.moveCellValueTo(fromIndex, toIndex);
+			$izendaInstantReportPivotService.moveCellValueTo(fromIndex, toIndex);
 			vm.selectedFields.splice(toIndex, 0, vm.selectedFields.splice(fromIndex, 1)[0]);
 			$scope.$applyAsync();
 		}
@@ -195,7 +195,7 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		 * Reorder cells
 		 */
 		vm.reorderCellValue = function (fromIndex, toIndex) {
-			$izendaInstantReportPivots.swapCellValues(fromIndex, toIndex);
+			$izendaInstantReportPivotService.swapCellValues(fromIndex, toIndex);
 			var temp = vm.selectedFields[fromIndex];
 			vm.selectedFields[fromIndex] = vm.selectedFields[toIndex];
 			vm.selectedFields[toIndex] = temp;
@@ -208,23 +208,23 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		vm.addPivotItem = function (fieldSysName) {
 			if (!angular.isString(fieldSysName))
 				return;
-			if ($izendaInstantReportStorage.getActiveTables().length === 0)
+			if ($izendaInstantReportStorageService.getActiveTables().length === 0)
 				return;
 			// open panel
-			$izendaInstantReportStorage.setFiltersPanelOpened(false);
-			$izendaInstantReportPivots.setPivotsPanelOpened(true);
+			$izendaInstantReportStorageService.setFiltersPanelOpened(false);
+			$izendaInstantReportPivotService.setPivotsPanelOpened(true);
 
 			// create and add pivot item
-			var field = $izendaInstantReportStorage.getFieldBySysName(fieldSysName);
-			var newItem = $izendaInstantReportStorage.createFieldObject(
+			var field = $izendaInstantReportStorageService.getFieldBySysName(fieldSysName);
+			var newItem = $izendaInstantReportStorageService.createFieldObject(
 				field.name, field.parentId, field.tableSysname, field.tableName,
 				field.sysname, field.typeGroup, field.type, field.sqlType);
-			$izendaInstantReportStorage.initializeField(newItem).then(function (f) {
+			$izendaInstantReportStorageService.initializeField(newItem).then(function (f) {
 				$scope.$applyAsync();
 			});
-			$izendaInstantReportPivots.addPivotItem(newItem);
+			$izendaInstantReportPivotService.addPivotItem(newItem);
 
-			$izendaInstantReportStorage.applyAutoGroups(true);
+			$izendaInstantReportStorageService.applyAutoGroups(true);
 		};
 
 		/**
@@ -233,27 +233,27 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 		vm.init = function () {
 
 			// pivot panel state listener
-			$scope.$watch('$izendaInstantReportPivots.getPivotsPanelOpened()', function (opened) {
+			$scope.$watch('$izendaInstantReportPivotService.getPivotsPanelOpened()', function (opened) {
 				vm.panelOpened = opened;
 			});
 
 			// main pivot column
-			$scope.$watch('$izendaInstantReportPivots.getPivotColumn()', function (pivotColumn) {
+			$scope.$watch('$izendaInstantReportPivotService.getPivotColumn()', function (pivotColumn) {
 				vm.pivotColumn = pivotColumn;
 			});
 
 			// pivot cell values
-			$scope.$watchCollection('$izendaInstantReportPivots.getCellValues()', function (cellValues) {
+			$scope.$watchCollection('$izendaInstantReportPivotService.getCellValues()', function (cellValues) {
 				vm.cellValues = cellValues;
 				updateSelectedFieldsArray();
 			});
 
-			$scope.$watch('$izendaInstantReportPivots.getPivotOptions()', function (pivotOptions) {
+			$scope.$watch('$izendaInstantReportPivotService.getPivotOptions()', function (pivotOptions) {
 				vm.pivotOptions = pivotOptions;
 			});
 
 			// listen for active field items
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields) {
+			$scope.$watchCollection('$izendaInstantReportStorageService.getAllFieldsInActiveTables(true)', function (newActiveFields) {
 				// add:
 				var countOfChanges = 0;
 				angular.element.each(newActiveFields, function () {
@@ -283,7 +283,7 @@ izendaInstantReportModule.controller('InstantReportPivotsController', [
 					} else
 						i++;
 				}
-				$izendaInstantReportPivots.syncPivotState(vm.activeFields);
+				$izendaInstantReportPivotService.syncPivotState(vm.activeFields);
 			});
 		};
 	}

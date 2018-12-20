@@ -8,21 +8,20 @@ export default class DashboardGalleryService {
 	location: any;
 	galleryState: IzendaDashboardGalleryStateModel;
 
+	static get injectModules(): any[] {
+		return ['$izendaUrlService'];
+	}
+
 	constructor(
-		private readonly $rx: any,
-		private readonly $izendaUrl: IzendaUrlService) {
+		private readonly $izendaUrlService: IzendaUrlService) {
 		this.galleryState = new IzendaDashboardGalleryStateModel();
 		// subscibe on location change.
-		this.location = this.$izendaUrl.location;
+		this.location = this.$izendaUrlService.location;
 		this.location.subscribeOnNext(this.$onLocationChanged, this);
 	}
 
 	$onLocationChanged(newLocation) {
 		this.galleryState.reset();
-	}
-
-	static get injectModules(): any[] {
-		return ['rx', '$izendaUrl'];
 	}
 
 	static get $inject() {

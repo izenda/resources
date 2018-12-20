@@ -3,7 +3,7 @@
 	<form class="iz-inst-data-sources-search">
 		<div class="form-group">
 			<!-- mobile view -->
-			<div class="input-group" ng-if="$izendaCompatibility.isSmallResolution()">
+			<div class="input-group" ng-if="$izendaCompatibilityService.isSmallResolution()">
 				<input class="form-control"
 					   type="text"
 					   ng-attr-placeholder="{{'js_Search' | izendaLocale: 'Search'}}"
@@ -16,7 +16,7 @@
 				</span>
 			</div>
 			<!-- normal view -->
-			<div class="iz-inst-inner-glyphicon-container" ng-if="!$izendaCompatibility.isSmallResolution()">
+			<div class="iz-inst-inner-glyphicon-container" ng-if="!$izendaCompatibilityService.isSmallResolution()">
 				<input class="form-control"
 					   type="text"
 					   ng-attr-placeholder="{{'js_Search' | izendaLocale: 'Search'}}"
@@ -37,7 +37,7 @@
 		<div class="izenda-common-vcentered-container" ng-show="irDataSourceController.isDataSourcesLoading">
 			<div class="izenda-common-vcentered-item">
 				<img class="izenda-common-img-loading" style="width: 24px;"
-					 ng-src="{{$izendaUrl.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
+					 ng-src="{{$izendaUrlService.settings.urlRpPage}}image=ModernImages.loading-grid.gif"
 					 ng-attr-alt="{{'js_Loading' | izendaLocale: 'Loading...'}}" />
 			</div>
 		</div>
@@ -75,7 +75,7 @@
 		<!-- distinct option -->
 		<div class="ds-tree-item-distinct"
 			 ng-show="!irDataSourceController.isDataSourcesLoading && !irDataSourceController.searchPanelOpened"
-			 ng-if="$izendaInstantReportSettings.showDistinct">
+			 ng-if="$izendaInstantReportSettingsService.getSettings().showDistinct">
 			<label>
 				<input type="checkbox" ng-model="irDataSourceController.options.distinct" />
 				<span class="nobold"
@@ -154,7 +154,7 @@
 								<!-- show field options button for mobile devices -->
 								<span class="ds-multiple-button"
 									  ng-show="field.checked"
-									  ng-if="$izendaCompatibility.isSmallResolution()"
+									  ng-if="$izendaCompatibilityService.isSmallResolution()"
 									  ng-click="irDataSourceController.showFieldOptions(field); $event.stopPropagation();">
 									<span class="glyphicon glyphicon-cog"></span>
 								</span>

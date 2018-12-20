@@ -8,17 +8,17 @@ import izendaInstantReportModule from 'instant-report/module-definition';
 izendaInstantReportModule.controller('InstantReportValidationController', [
 	'$rootScope',
 	'$scope',
-	'$izendaLocale',
-	'$izendaInstantReportValidation',
+	'$izendaLocaleService',
+	'$izendaInstantReportValidationService',
 	function (
 		$rootScope,
 		$scope,
-		$izendaLocale,
-		$izendaInstantReportValidation) {
+		$izendaLocaleService,
+		$izendaInstantReportValidationService) {
 
 		'use strict';
 		var vm = this;
-		$scope.$izendaInstantReportValidation = $izendaInstantReportValidation;
+		$scope.$izendaInstantReportValidationService = $izendaInstantReportValidationService;
 
 		vm.isValid = true;
 		vm.messages = [];
@@ -28,8 +28,8 @@ izendaInstantReportModule.controller('InstantReportValidationController', [
 		* Initialize controller
 		*/
 		vm.init = function () {
-			$scope.$watch('$izendaInstantReportValidation.getValidationMessages()', function (messages) {
-				vm.isValid = $izendaInstantReportValidation.isReportValid();
+			$scope.$watch('$izendaInstantReportValidationService.getValidationMessages()', function (messages) {
+				vm.isValid = $izendaInstantReportValidationService.isReportValid();
 				vm.messages = [];
 				vm.infoMessages = [];
 				angular.element.each(messages, function () {

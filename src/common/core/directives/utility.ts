@@ -91,43 +91,78 @@ class IzendaFitAbsoluteElement implements ng.IDirective {
 	restrict = 'A';
 	link: ($scope: ng.IScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => void;
 
-	constructor(private readonly $window: ng.IWindowService, private readonly $timeout: ng.ITimeoutService) {
+	constructor(
+		private readonly $window: ng.IWindowService,
+		private readonly $timeout: ng.ITimeoutService,
+		private readonly $interval: ng.IIntervalService) {
 
-		IzendaFitAbsoluteElement.prototype.link =
-			($scope: ng.IScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
-				const windowResizeEventName = 'resize.izendaFitAbsoluteElement.' + Math.random();
-				const deltaTopString = String(attrs['deltaTop']);
-				const deltaTop = deltaTopString ? parseInt(deltaTopString) : 0;
-				const $parent = angular.element($element.parent());
+		IzendaFitAbsoluteElement.prototype.link = ($scope: ng.IScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
+			const windowResizeEventName = `resize.izendaFitAbsoluteElement.${Math.random()}`;
+			const deltaTopString = String(attrs['deltaTop']);
+			const deltaTop = parseInt(deltaTopString) || 0;
+			const $parent = angular.element($element.parent());
+			let topCache = -1;
 
-				var setTop = () => {
-					let topHeight = 0;
-					var $childs = $parent.children();
-					for (let i = 0; i < $childs.length; i++) {
-						const $child = angular.element($childs[i]);
-						const topValue = String($child.attr('data-izenda-fit-absolute-element'));
-						if (topValue === 'top')
-							topHeight += $child.height();
+			const setTop = (): boolean => {
+				const $childs = $parent.children('[data-izenda-fit-absolute-element-relative=top]');
+				if ($childs.length === 0)
+					return false;
+
+				let topHeight = 0;
+				let isSuccess = true;
+				for (let i = 0; i < $childs.length; i++) {
+					const $child = angular.element($childs[i]);
+					const topValue = String($child.attr('data-izenda-fit-absolute-element-relative'));
+					if (topValue === 'top') {
+						const childHeight = $child.height();
+						if (childHeight <= 0)
+							isSuccess = false;
+						topHeight += childHeight;
 					}
-					if (topHeight > 0)
-						$element.css('top', topHeight + deltaTop + 'px');
-				};
-
-				setTop();
-				this.$timeout(() => setTop(), 1000);
-				angular.element(this.$window).on(windowResizeEventName, () => setTop());
-
-				// destruction method
-				$element.on('$destroy', () => {
-					angular.element(this.$window).off(windowResizeEventName);
-				});
+				}
+				if (topHeight > 0 && topCache < 0 || topHeight + deltaTop !== topCache) {
+					topCache = topHeight + deltaTop;
+					$element.css('top', topHeight + deltaTop + 'px');
+				}
+				return isSuccess;
 			};
+
+			const setTopUntilSuccess = () => {
+				let attemptCount = 0;
+				if (setTop())
+					return;
+				let toolbarIntervalPromise = this.$interval(() => {
+					if (setTop() || attemptCount > 50) {
+						this.$interval.cancel(toolbarIntervalPromise);
+						toolbarIntervalPromise = null;
+						attemptCount = 0;
+					}
+					attemptCount++;
+				}, 100);
+			};
+
+			setTopUntilSuccess();
+
+			angular.element(this.$window).on(windowResizeEventName, () => {
+				setTopUntilSuccess();
+			});
+
+			angular.element(this.$window).on('izendaCustomResize', () => {
+				setTopUntilSuccess();
+			});
+
+			// destruction method
+			$element.on('$destroy', () => {
+				angular.element(this.$window).off(windowResizeEventName);
+				angular.element(this.$window).off('izendaCustomResize');
+			});
+		};
 	}
 
 	static factory(): ng.IDirectiveFactory {
 		const directive =
-			($window: ng.IWindowService, $timeout: ng.ITimeoutService) => new IzendaFitAbsoluteElement($window, $timeout);
-		directive.$inject = ['$window', '$timeout'];
+			($window: ng.IWindowService, $timeout: ng.ITimeoutService, $interval: ng.IIntervalService) => new IzendaFitAbsoluteElement($window, $timeout, $interval);
+		directive.$inject = ['$window', '$timeout', '$interval'];
 		return directive;
 	}
 }

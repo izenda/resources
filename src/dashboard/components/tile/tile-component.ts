@@ -45,8 +45,8 @@ izendaDashboardModule.constant('tileDefaults', {
 @IzendaComponent(
 	izendaDashboardModule,
 	'izendaDashboardTile',
-	['rx', '$element', '$interval', '$timeout', '$window', '$izendaCompatibility', '$izendaUtil', '$izendaUrl',
-		'$izendaUtilUiService', '$izendaLocale', '$izendaSettings', '$izendaDashboardSettings', '$izendaDashboardStorage'],
+	['rx', '$element', '$interval', '$timeout', '$window', '$izendaCompatibilityService', '$izendaUtilService', '$izendaUrlService',
+		'$izendaUtilUiService', '$izendaLocaleService', '$izendaSettingsService', '$izendaDashboardSettings', '$izendaDashboardStorageService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.tile.tile-template.html',
 		bindings: {
@@ -99,21 +99,21 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		private readonly $interval: ng.IIntervalService,
 		private readonly $timeout: ng.ITimeoutService,
 		private readonly $window: ng.IWindowService,
-		private readonly $izendaCompatibility: IzendaCompatibilityService,
-		private readonly $izendaUtil: IzendaUtilService,
-		private readonly $izendaUrl: IzendaUrlService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService,
+		private readonly $izendaUtilService: IzendaUtilService,
+		private readonly $izendaUrlService: IzendaUrlService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
 		private readonly $izendaDashboardSettings: IIzendaDashboardSettings,
-		private readonly $izendaDashboardStorage: DashboardStorageService) {
+		private readonly $izendaDashboardStorageService: DashboardStorageService) {
 
 	}
 
 	$onInit() {
 		this.subscriptions = [];
 
-		this.isIe = this.$izendaCompatibility.isIe();
+		this.isIe = this.$izendaCompatibilityService.isIe();
 		this.isButtonsVisible = true;
 		this.deleteConfirmClass = 'title-button hidden-confirm-btn';
 		this.tileSizeChanged = false;
@@ -128,8 +128,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		this.previousWidth = this.$window.innerWidth;
 
 		this.subscriptions = [
-			this.$izendaDashboardStorage.refreshObservable.subscribe(refreshInfo => this.$onRefresh(refreshInfo)),
-			this.$izendaDashboardStorage.windowSize.subscribeOnNext(newWindowSize => {
+			this.$izendaDashboardStorageService.refreshObservable.subscribe(refreshInfo => this.$onRefresh(refreshInfo)),
+			this.$izendaDashboardStorageService.windowSize.subscribeOnNext(newWindowSize => {
 				if (this.previousWidth === newWindowSize.width)
 					return;
 				this.previousWidth = newWindowSize.width;
@@ -169,14 +169,14 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	 * Check if one column view required
 	 */
 	isOneColumnView(): boolean {
-		return this.$izendaCompatibility.isOneColumnView();
+		return this.$izendaCompatibilityService.isOneColumnView();
 	}
 
 	/**
 	 * Check tile is read only
 	 */
 	isEditAllowed(): boolean {
-		return this.$izendaCompatibility.isEditAllowed();
+		return this.$izendaCompatibilityService.isEditAllowed();
 	}
 
 	/**
@@ -250,17 +250,17 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 
 	getWaitMessageHeaderText() {
 		if (this.exportProgress === 'export')
-			return this.$izendaLocale.localeText('js_ExportingInProgress', 'Exporting in progress.');
+			return this.$izendaLocaleService.localeText('js_ExportingInProgress', 'Exporting in progress.');
 		if (this.exportProgress === 'print')
-			return this.$izendaLocale.localeText('js_PrintingInProgress', 'Printing in progress.');
+			return this.$izendaLocaleService.localeText('js_PrintingInProgress', 'Printing in progress.');
 		return '';
 	}
 
 	getWaitMessageText() {
 		if (this.exportProgress === 'export')
-			return this.$izendaLocale.localeText('js_FinishExporting', 'Please wait till export is completed...');
+			return this.$izendaLocaleService.localeText('js_FinishExporting', 'Please wait till export is completed...');
 		if (this.exportProgress === 'print')
-			return this.$izendaLocale.localeText('js_FinishPrinting', 'Please finish printing before continue.');
+			return this.$izendaLocaleService.localeText('js_FinishPrinting', 'Please finish printing before continue.');
 		return '';
 	}
 
@@ -319,12 +319,12 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		if (!this.tile.reportFullName)
 			return;
 
-		this.$izendaDashboardStorage.printDashboard('html', this.tile.reportFullName).then(() => {
+		this.$izendaDashboardStorageService.printDashboard('html', this.tile.reportFullName).then(() => {
 			// HTML print print successfully completed handler
 			this.flipFront(true, false);
 		}, error => {
-			const errorTitle = this.$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error');
-			let errorText = this.$izendaLocale.localeText('js_FailedPrintReport',
+			const errorTitle = this.$izendaLocaleService.localeText('js_FailedPrintReportTitle', 'Report print error');
+			let errorText = this.$izendaLocaleService.localeText('js_FailedPrintReport',
 				'Failed to print report "{0}". Error description: {1}.');
 			errorText = errorText.replaceAll('{0}', this.model.reportFullName ? this.model.reportFullName : '');
 			errorText = errorText.replaceAll('{1}', error);
@@ -341,11 +341,11 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		this.closeBackTilePopup();
 		// download the file
 		// TODO very easy to add PDF print for tile: 'excel' => 'pdf'
-		this.$izendaDashboardStorage.printDashboard('excel', this.tile.reportFullName).then(() => {
+		this.$izendaDashboardStorageService.printDashboard('excel', this.tile.reportFullName).then(() => {
 			this.flipFront(true, false);
 		}, (error) => {
-			const errorTitle = this.$izendaLocale.localeText('js_FailedExportReportTitle', 'Report export error');
-			let errorText = this.$izendaLocale.localeText('js_FailedExportReport',
+			const errorTitle = this.$izendaLocaleService.localeText('js_FailedExportReportTitle', 'Report export error');
+			let errorText = this.$izendaLocaleService.localeText('js_FailedExportReport',
 				'Failed to export report "{0}". Error description: {1}.');
 			errorText = errorText.replaceAll('{0}', this.model.reportFullName ? this.model.reportFullName : '');
 			errorText = errorText.replaceAll('{1}', error);
@@ -400,8 +400,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		if (!this.tile.isSourceReportDeleted) {
 			this.$window.open(this.getReportViewerLink(), '_blank');
 		} else {
-			let errorText = this.$izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" doesn\'t exist.');
-			errorText = errorText.replaceAll(/\{0\}/, this.getSourceReportName());
+			let errorText = this.$izendaLocaleService.localeText('js_SourceReportNotExist', 'Source report "{0}" doesn\'t exist.');
+			errorText = errorText.replace(new RegExp(/\{0\}/g), this.getSourceReportName());
 			this.$izendaUtilUiService.showErrorDialog(errorText);
 		}
 	}
@@ -415,8 +415,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		if (!this.tile.isSourceReportDeleted) {
 			this.$window.open(this.getReportEditorLink(), '_blank');
 		} else {
-			let errorText = this.$izendaLocale.localeText('js_SourceReportNotExist', 'Source report "{0}" not exist.');
-			errorText = errorText.replaceAll(/\{0\}/, this.getSourceReportName());
+			let errorText = this.$izendaLocaleService.localeText('js_SourceReportNotExist', 'Source report "{0}" not exist.');
+			errorText = errorText.replace(new RegExp(/\{0\}/g), this.getSourceReportName());
 			this.$izendaUtilUiService.showErrorDialog(errorText);
 		}
 	}
@@ -441,7 +441,7 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		const loadingHtml =
 			`<div class="izenda-common-vcentered-container">
 	<div class="izenda-common-vcentered-item">
-		<img class="izenda-common-img-loading" src="${this.$izendaUrl.settings.urlRpPage}image=ModernImages.loading-grid.gif" alt="Loading..." />
+		<img class="izenda-common-img-loading" src="${this.$izendaUrlService.settings.urlRpPage}image=ModernImages.loading-grid.gif" alt="Loading..." />
 	</div>
 </div>`;
 		const $body = this.$element.find('.animate-flip> .flippy-front> .frame> .report');
@@ -458,7 +458,7 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		};
 
 		// load preview
-		this.$izendaDashboardStorage.loadTilesPreview(this.tile, size).then(tilesHtml => {
+		this.$izendaDashboardStorageService.loadTilesPreview(this.tile, size).then(tilesHtml => {
 			this.applyTileHtml(tilesHtml);
 		}, error => {
 			this.applyTileHtml(error);
@@ -515,7 +515,7 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		const resultType = eventResult.type; // 'swap', 'move' or 'none'
 		if (resultType === 'swap' && eventResult.targetTile && eventResult.isTileSizeChanged) {
 			// we have to notify another tile about swap
-			this.$izendaDashboardStorage.refreshDashboard(false, false, eventResult.targetTile);
+			this.$izendaDashboardStorageService.refreshDashboard(false, false, eventResult.targetTile);
 		}
 		if (eventResult.isTileSizeChanged)
 			this.refreshTile(false);
@@ -545,9 +545,17 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		// hide select report part dialog
 		this.closeBackTilePopup();
 		const rpInfo = reportPartInfo;
+		if (rpInfo.UsesHiddenColumns) {
+			this.$izendaUtilUiService.showMessageDialog(
+				this.$izendaLocaleService.localeText(
+					'js_cannotAddReportWithHiddenColumnsToTile',
+					'You cannot add this report into the dashboard because it contains hidden columns. Please re-save the original report as a report with a different name or chose another one.'));
+			return;
+		}
+
 		let fName = rpInfo.Name;
-		if (!this.$izendaUtil.isUncategorized(rpInfo.Category))
-			fName = rpInfo.Category + this.$izendaSettings.getCategoryCharacter() + fName;
+		if (!this.$izendaUtilService.isUncategorized(rpInfo.Category))
+			fName = rpInfo.Category + this.$izendaSettingsService.getCategoryCharacter() + fName;
 
 		const nameparts = rpInfo.Name.split('@');
 		const name = nameparts[0];
@@ -558,11 +566,11 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 			return tile.reportPartName === part &&
 				tile.reportName === name &&
 				((tile.reportCategory === rpInfo.Category) ||
-					(this.$izendaUtil.isUncategorized(tile.reportCategory) && this.$izendaUtil.isUncategorized(rpInfo.Category)));
+					(this.$izendaUtilService.isUncategorized(tile.reportCategory) && this.$izendaUtilService.isUncategorized(rpInfo.Category)));
 		}).length > 0;
 
 		if (isTileInDashboard) {
-			const errorText = this.$izendaLocale.localeText('js_CantSelectReportPart',
+			const errorText = this.$izendaLocaleService.localeText('js_CantSelectReportPart',
 				'Can\'t select report part because dashboard already contains tile with that report.');
 			this.$izendaUtilUiService.showNotification(errorText);
 			return;
@@ -570,14 +578,14 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 
 		// update report parameters
 		this.tile.previousReportFullName = this.tile.reportFullName;
-		angular.extend(this.tile, this.$izendaUrl.extractReportPartNames(fName, true));
+		angular.extend(this.tile, this.$izendaUrlService.extractReportPartNames(fName, true));
 		this.tile.title = rpInfo.Title;
 
 		// update report name with category variable
 		this.tile.reportNameWithCategory = this.tile.reportName;
-		if (!this.$izendaUtil.isUncategorized(this.tile.reportCategory))
+		if (!this.$izendaUtilService.isUncategorized(this.tile.reportCategory))
 			this.tile.reportNameWithCategory = this.tile.reportCategory +
-				this.$izendaSettings.getCategoryCharacter() +
+				this.$izendaSettingsService.getCategoryCharacter() +
 				this.tile.reportNameWithCategory;
 
 		if (rpInfo.IsLocked)
@@ -630,12 +638,18 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	getTileStyle() {
 		const top = this.gridHeight * this.getY();
 		const left = this.gridWidth * this.getX();
-		return {
-			'transform': `translate3d(${left}px,${top}px,0)`,
+		const result = {
 			'width': (this.gridWidth * this.getWidth()) + 'px',
 			'height': (this.gridHeight * this.getHeight()) + 'px',
 			'z-index': (this.tile.backTilePopupOpened ? '3' : '1')
 		};
+		if (this.$izendaCompatibilityService.isLteIe10()) {
+			result['x'] = `${left}px`;
+			result['y'] = `${top}px`;
+		} else {
+			result['transform'] = `translate3d(${left}px,${top}px,0)`;
+		}
+		return result;
 	}
 
 	/**
@@ -670,7 +684,7 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	 * Get report viewer link for tile report
 	 */
 	private getReportViewerLink() {
-		return getAppendedUrl(`${this.$izendaUrl.settings.urlReportViewer}?rn=${this.getSourceReportName()}`);
+		return getAppendedUrl(`${this.$izendaUrlService.settings.urlReportViewer}?rn=${this.getSourceReportName()}`);
 	}
 
 	/**
@@ -678,8 +692,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	 */
 	private getReportEditorLink() {
 		const designerUrl = this.tile.designerType === 'InstantReport'
-			? this.$izendaUrl.settings.urlInstantReport
-			: this.$izendaUrl.settings.urlReportDesigner;
+			? this.$izendaUrlService.settings.urlInstantReport
+			: this.$izendaUrlService.settings.urlReportDesigner;
 		return getAppendedUrl(`${designerUrl}?rn=${this.getSourceReportName()}`);
 	}
 
@@ -688,8 +702,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	 */
 	private getSourceReportName() {
 		let result = this.tile.reportName;
-		if (!this.$izendaUtil.isUncategorized(this.tile.reportCategory))
-			result = this.tile.reportCategory + this.$izendaSettings.getCategoryCharacter() + result;
+		if (!this.$izendaUtilService.isUncategorized(this.tile.reportCategory))
+			result = this.tile.reportCategory + this.$izendaSettingsService.getCategoryCharacter() + result;
 		return result;
 	}
 
@@ -699,7 +713,7 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 	private applyTileHtml(htmlData) {
 		// load tile content
 		const $report = angular.element(this.$element).find('.report');
-		this.$izendaDashboardStorage.loadReportIntoContainer(htmlData, $report);
+		this.$izendaDashboardStorageService.loadReportIntoContainer(htmlData, $report);
 
 		const numberOfCellInComplexReport = 3000;
 		const numberOfCells = angular.element(this.$element).find('.ReportTable td').length;

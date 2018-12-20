@@ -15,8 +15,8 @@ import DashboardGalleryService from 'dashboard/services/gallery-service';
 @IzendaComponent(
 	izendaDashboardModule,
 	'izendaDashboard',
-	['rx', '$window', '$element', '$interval', '$timeout', '$rootScope', '$izendaLocale', '$izendaCompatibility',
-		'$izendaDashboardSettings', '$izendaDashboardStorage', '$izendaBackgroundService', '$izendaGalleryService'],
+	['rx', '$window', '$element', '$interval', '$timeout', '$rootScope', '$izendaLocaleService', '$izendaCompatibilityService',
+		'$izendaDashboardSettings', '$izendaDashboardStorageService', '$izendaBackgroundService', '$izendaGalleryService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.dashboard.dashboard-template.html'
 	})
@@ -46,10 +46,10 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 		private readonly $interval: ng.IIntervalService,
 		private readonly $timeout: ng.ITimeoutService,
 		private readonly $rootScope: ng.IRootScopeService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaCompatibility: IzendaCompatibilityService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService,
 		private readonly $izendaDashboardSettings: IIzendaDashboardSettings,
-		private readonly $izendaDashboardStorage: DashboardStorageService,
+		private readonly $izendaDashboardStorageService: DashboardStorageService,
 		private readonly $izendaBackgroundService: DashboardBackgroundService,
 		private readonly $izendaGalleryService: DashboardGalleryService) {
 	}
@@ -80,13 +80,13 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 		this.previousWidth = this.$window.innerWidth;
 
 		this.subscriptions = [
-			this.$izendaDashboardStorage.model.subscribeOnNext(this.$onDashboardModelUpdate, this),
-			this.$izendaDashboardStorage.isLoaded.subscribeOnNext(this.$onDashboardIsLoadedUpdate, this),
-			this.$izendaDashboardStorage.exportProgress.subscribeOnNext((newValue) => {
+			this.$izendaDashboardStorageService.model.subscribeOnNext(this.$onDashboardModelUpdate, this),
+			this.$izendaDashboardStorageService.isLoaded.subscribeOnNext(this.$onDashboardIsLoadedUpdate, this),
+			this.$izendaDashboardStorageService.exportProgress.subscribeOnNext((newValue) => {
 				this.$timeout(() => this.exportProgress = newValue, 1);
 			}, this),
 			//this.$izendaBackgroundService.background.subscribeOnNext(this.$onDashboardBackgroundChanged, this),
-			this.$izendaDashboardStorage.windowSize.subscribeOnNext(newWindowSize => {
+			this.$izendaDashboardStorageService.windowSize.subscribeOnNext(newWindowSize => {
 				if (this.previousWidth === newWindowSize.width)
 					return;
 				this.previousWidth = newWindowSize.width;
@@ -216,7 +216,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 			throw 'Tile not found';
 		this.model.removeTile(tile);
 		this.updateDashboardSize();
-		this.$izendaDashboardStorage.refreshFilters();
+		this.$izendaDashboardStorageService.refreshFilters();
 	}
 
 	/**
@@ -224,7 +224,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * @param {IzendaDashboardTileModel} tile tile model object.
 	 */
 	$onTileReportSelected(tile) {
-		this.$izendaDashboardStorage.refreshFilters();
+		this.$izendaDashboardStorageService.refreshFilters();
 	}
 
 	/**
@@ -272,7 +272,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	globalClickHandler($event) {
 		if (!this.isMouseEventsEnabled)
 			return true;
-		if (event['which'] !== 1)
+		if (typeof (event['which']) !== 'undefined' && event['which'] !== 1)
 			return true;
 		// get {x, y} click coordinates
 		const x = Math.floor($event.offsetX / this.tileWidth);
@@ -307,7 +307,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 			return;
 		this.updateTileSize();
 		this.updateGallerySize();
-		const isOneColumn = this.$izendaCompatibility.isOneColumnView();
+		const isOneColumn = this.$izendaCompatibilityService.isOneColumnView();
 		const maxHeight = this.model.getMaxHeight(isOneColumn);
 
 		let maxHeightPixels = maxHeight * this.tileHeight;
@@ -371,7 +371,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	}
 
 	showGrid() {
-		const isOneColumn = this.$izendaCompatibility.isOneColumnView();
+		const isOneColumn = this.$izendaCompatibilityService.isOneColumnView();
 		if (isOneColumn)
 			return;
 		this.isGridVisible = true;
@@ -388,7 +388,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * Show tile grid shadow
 	 */
 	showTileGridShadow(shadowBbox, showPlusButton) {
-		const isOneColumn = this.$izendaCompatibility.isOneColumnView();
+		const isOneColumn = this.$izendaCompatibilityService.isOneColumnView();
 		if (isOneColumn)
 			return;
 		this.isGridShadowVisible = true;
@@ -417,17 +417,17 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 
 	getExportWaitMessageHeaderText() {
 		if (this.exportProgress === 'export')
-			return this.$izendaLocale.localeText('js_ExportingInProgress', 'Exporting in progress.');
+			return this.$izendaLocaleService.localeText('js_ExportingInProgress', 'Exporting in progress.');
 		if (this.exportProgress === 'print')
-			return this.$izendaLocale.localeText('js_PrintingInProgress', 'Printing in progress.');
+			return this.$izendaLocaleService.localeText('js_PrintingInProgress', 'Printing in progress.');
 		return '';
 	}
 
 	getExportWaitMessageText() {
 		if (this.exportProgress === 'export')
-			return this.$izendaLocale.localeText('js_FinishExporting', 'Please wait till export is completed...');
+			return this.$izendaLocaleService.localeText('js_FinishExporting', 'Please wait till export is completed...');
 		if (this.exportProgress === 'print')
-			return this.$izendaLocale.localeText('js_FinishPrinting', 'Please finish printing before continue.');
+			return this.$izendaLocaleService.localeText('js_FinishPrinting', 'Please finish printing before continue.');
 		return '';
 	}
 }

@@ -13,13 +13,13 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 	'$q',
 	'$sce',
 	'$log',
-	'$izendaLocale',
-	'$izendaSettings',
-	'$izendaCompatibility',
+	'$izendaLocaleService',
+	'$izendaSettingsService',
+	'$izendaCompatibilityService',
 	'$izendaUtilUiService',
-	'$izendaInstantReportQuery',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportValidation',
+	'$izendaInstantReportQueryService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportValidationService',
 	function (
 		$rootScope,
 		$scope,
@@ -28,44 +28,44 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		$q,
 		$sce,
 		$log,
-		$izendaLocale,
-		$izendaSettings,
-		$izendaCompatibility,
+		$izendaLocaleService,
+		$izendaSettingsService,
+		$izendaCompatibilityService,
 		$izendaUtilUiService,
-		$izendaInstantReportQuery,
-		$izendaInstantReportStorage,
-		$izendaInstantReportValidation) {
+		$izendaInstantReportQueryService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportValidationService) {
 		'use strict';
-		$scope.$izendaLocale = $izendaLocale;
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
-		$scope.$izendaSettings = $izendaSettings;
-		$scope.$izendaCompatibility = $izendaCompatibility;
+		$scope.$izendaLocaleService = $izendaLocaleService;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
+		$scope.$izendaSettingsService = $izendaSettingsService;
+		$scope.$izendaCompatibilityService = $izendaCompatibilityService;
 		var vm = this;
 
 		vm.panelOpened = false;
 		vm.filters = [];
-		vm.filterOptions = $izendaInstantReportStorage.getFilterOptions();
-		vm.options = $izendaInstantReportStorage.getOptions();
+		vm.filterOptions = $izendaInstantReportStorageService.getFilterOptions();
+		vm.options = $izendaInstantReportStorageService.getOptions();
 		vm.activeFields = [];
 		vm.currentValue = '';
-		vm.dateFormat = $izendaSettings.getDateFormat();
-		vm.culture = $izendaSettings.getCulture();
+		vm.dateFormat = $izendaSettingsService.getDateFormat();
+		vm.culture = $izendaSettingsService.getCulture();
 
 		/**
 		 * Add new filter
 		 */
 		vm.addFilter = function (fieldSysName) {
-			$izendaInstantReportStorage.createNewFilter(fieldSysName).then(function (filter) {
+			$izendaInstantReportStorageService.createNewFilter(fieldSysName).then(function (filter) {
 				if (filter.field !== null && !filter.field.allowedInFilters) {
-					var errorTitle = $izendaLocale.localeText('js_Error', 'Error');
-					var errorText = $izendaLocale.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.');
+					var errorTitle = $izendaLocaleService.localeText('js_Error', 'Error');
+					var errorText = $izendaLocaleService.localeText('js_FieldForbiddenForFiltering', 'This field is forbidden to use for filtering.');
 					$izendaUtilUiService.showNotification(errorText, errorTitle);
 					return;
 				}
-				$izendaInstantReportStorage.getFilters().push(filter);
+				$izendaInstantReportStorageService.getFilters().push(filter);
 				filter.initialized = true;
-				$izendaInstantReportValidation.validateReportSet();
-				$izendaInstantReportStorage.setFilterOperator(filter, null).then(function () {
+				$izendaInstantReportValidationService.validateReportSet();
+				$izendaInstantReportStorageService.setFilterOperator(filter, null).then(function () {
 					$scope.$applyAsync();
 				});
 			});
@@ -75,12 +75,12 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 * Swap filter handler
 		 */
 		vm.reorderFilters = function (index1, index2) {
-			$izendaInstantReportStorage.swapFilters(index1, index2);
-			var allfilters = $izendaInstantReportStorage.getFilters();
+			$izendaInstantReportStorageService.swapFilters(index1, index2);
+			var allfilters = $izendaInstantReportStorageService.getFilters();
 			var index = Math.min(index1, index2);
 			var filter = allfilters[index];
-			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
-				$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 					$scope.$applyAsync();
 				});
 			});
@@ -90,13 +90,13 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 * Move to filter handler
 		 */
 		vm.moveFilterTo = function (index1, index2) {
-			$izendaInstantReportStorage.moveFilterTo(index1, index2);
-			var allfilters = $izendaInstantReportStorage.getFilters();
+			$izendaInstantReportStorageService.moveFilterTo(index1, index2);
+			var allfilters = $izendaInstantReportStorageService.getFilters();
 			var index = Math.min(index1, index2);
 			index = index > 0 ? index - 1 : 0;
 			var filter = allfilters[index];
-			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
-				$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 					$scope.$applyAsync();
 				});
 			});
@@ -106,11 +106,11 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 * Remove filter
 		 */
 		vm.removeFilter = function (filter) {
-			var allfilters = $izendaInstantReportStorage.getFilters();
+			var allfilters = $izendaInstantReportStorageService.getFilters();
 			var count = allfilters.length;
-			var index = $izendaInstantReportStorage.getFilters().indexOf(filter);
-			$izendaInstantReportStorage.removeFilter(filter);
-			$izendaInstantReportValidation.validateReportSet();
+			var index = $izendaInstantReportStorageService.getFilters().indexOf(filter);
+			$izendaInstantReportStorageService.removeFilter(filter);
+			$izendaInstantReportValidationService.validateReportSet();
 			if (count === 0)
 				return;
 
@@ -121,8 +121,8 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 			} else {
 				nextFilter = allfilters[index - 1];
 			}
-			$izendaInstantReportStorage.updateFieldFilterExistentValues(nextFilter).then(function () {
-				$izendaInstantReportStorage.refreshNextFiltersCascading(nextFilter).then(function () {
+			$izendaInstantReportStorageService.updateFieldFilterExistentValues(nextFilter).then(function () {
+				$izendaInstantReportStorageService.refreshNextFiltersCascading(nextFilter).then(function () {
 					$scope.$applyAsync();
 				});
 			});
@@ -136,12 +136,12 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 				return;
 			filter.values = [];
 			filter.currentValue = '';
-			$izendaInstantReportValidation.validateReportSet();
-			$izendaInstantReportStorage.loadFilterFormats(filter);
-			$izendaInstantReportStorage.setFilterOperator(filter).then(function () {
-				$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter);
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
-					$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportValidationService.validateReportSet();
+			$izendaInstantReportStorageService.loadFilterFormats(filter);
+			$izendaInstantReportStorageService.setFilterOperator(filter).then(function () {
+				$izendaInstantReportStorageService.getPopupFilterCustomTemplate(filter);
+				$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter, true).then(function () {
+					$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 						$scope.$applyAsync();
 					});
 				});
@@ -154,7 +154,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		vm.onFilterOperatorChange = function (filter) {
 			filter.values = [];
 			var asyncPromise = $q(function (resolve) {
-				var operatorType = $izendaInstantReportStorage.getFieldFilterOperatorValueType(filter.operator);
+				var operatorType = $izendaInstantReportStorageService.getFieldFilterOperatorValueType(filter.operator);
 				if (operatorType === 'oneValue' || operatorType === 'oneDate') {
 					filter.values = [''];
 					resolve();
@@ -176,7 +176,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 					return;
 				}
 				if (operatorType === 'select_popup') {
-					$izendaInstantReportStorage.getPopupFilterCustomTemplate(filter).then(function () {
+					$izendaInstantReportStorageService.getPopupFilterCustomTemplate(filter).then(function () {
 						resolve();
 					});
 					return;
@@ -185,8 +185,8 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 			});
 
 			asyncPromise.then(function () {
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
-					$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+				$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter, true).then(function () {
+					$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 						$scope.$applyAsync();
 					});
 				});
@@ -212,7 +212,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		vm.updateAutoCompleteItems = function (filter, autocompleteText) {
 			return $q(function (resolve) {
 				filter.possibleValue = autocompleteText;
-				$izendaInstantReportStorage.updateFieldFilterExistentValues(filter, true).then(function () {
+				$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter, true).then(function () {
 					filter.possibleValue = null;
 					resolve(filter.existentValues);
 				});
@@ -235,8 +235,8 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 				});
 			}
 			// refresh cascading:
-			$izendaInstantReportStorage.updateFieldFilterExistentValues(filter).then(function () {
-				$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportStorageService.updateFieldFilterExistentValues(filter).then(function () {
+				$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 					$scope.$applyAsync();
 				});
 			});
@@ -249,7 +249,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 			if (vm.filters.length === 0)
 				return;
 			if (vm.filterOptions.filterLogic) {
-				$izendaInstantReportStorage.refreshFiltersForFilterLogic().then(function () {
+				$izendaInstantReportStorageService.refreshFiltersForFilterLogic().then(function () {
 					$scope.$applyAsync();
 				});
 			} else {
@@ -262,7 +262,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 */
 		vm.onPopupValueChange = function (filter, newValue) {
 			filter.values = newValue.split(',');
-			$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 				$scope.$applyAsync();
 			});
 		};
@@ -300,7 +300,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 				values.splice(index, 1);
 			else
 				values.push(value);
-			$izendaInstantReportStorage.refreshNextFiltersCascading(filter).then(function () {
+			$izendaInstantReportStorageService.refreshNextFiltersCascading(filter).then(function () {
 				$scope.$applyAsync();
 			});
 		};
@@ -317,48 +317,48 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 * Get filter value type
 		 */
 		vm.getFilterOperatorType = function (filter) {
-			return $izendaInstantReportStorage.getFieldFilterOperatorValueType(filter.operator);
+			return $izendaInstantReportStorageService.getFieldFilterOperatorValueType(filter.operator);
 		};
 
 		/**
 		 * Apply filters
 		 */
 		vm.applyFilters = function () {
-			$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportValidationService.validateReportSetAndRefresh();
 		};
 
 		/**
 		 * Close filters panel
 		 */
 		vm.closeFiltersPanel = function () {
-			$izendaInstantReportStorage.setFiltersPanelOpened(false);
+			$izendaInstantReportStorageService.setFiltersPanelOpened(false);
 		};
 
 		/**
 		 * Initialize watches
 		 */
 		vm.initWatchers = function () {
-			$scope.$watch('$izendaSettings.getDateFormat()', function (dateFormat) {
+			$scope.$watch('$izendaSettingsService.getDateFormat()', function (dateFormat) {
 				vm.dateFormat = dateFormat;
 			}, true);
 
-			$scope.$watch('$izendaSettings.getCulture()', function (culture) {
+			$scope.$watch('$izendaSettingsService.getCulture()', function (culture) {
 				vm.culture = culture;
 			});
 
-			$scope.$watchCollection('$izendaInstantReportStorage.getFilters()', function (newFilters, oldFilters) {
+			$scope.$watchCollection('$izendaInstantReportStorageService.getFilters()', function (newFilters, oldFilters) {
 				vm.filters = newFilters;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getFilterOptions()', function (newValue) {
+			$scope.$watch('$izendaInstantReportStorageService.getFilterOptions()', function (newValue) {
 				vm.filterOptions = newValue;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getOptions()', function (options) {
+			$scope.$watch('$izendaInstantReportStorageService.getOptions()', function (options) {
 				vm.options = options;
 			});
 
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllFieldsInActiveTables(true)', function (newActiveFields) {
+			$scope.$watchCollection('$izendaInstantReportStorageService.getAllFieldsInActiveTables(true)', function (newActiveFields) {
 				// sync collection elements:
 				// add:
 				angular.element.each(newActiveFields, function () {
@@ -389,7 +389,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 				}
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getFiltersPanelOpened()', function (opened) {
+			$scope.$watch('$izendaInstantReportStorageService.getFiltersPanelOpened()', function (opened) {
 				vm.panelOpened = opened;
 			});
 		};
@@ -398,7 +398,7 @@ izendaInstantReportModule.controller('InstantReportFiltersController', [
 		 * Initialize controller
 		 */
 		vm.init = function () {
-			vm.filters = $izendaInstantReportStorage.getFilters();
+			vm.filters = $izendaInstantReportStorageService.getFilters();
 		};
 
 		vm.initWatchers();

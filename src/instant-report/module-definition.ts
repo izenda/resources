@@ -7,6 +7,7 @@ import 'common/ui/module';
 // common
 import izendaUiModule from 'common/ui/module-definition';
 import { IzendaCommonLoader } from 'common/common-module-definition';
+import { IIzendaInstantReportConfig } from 'instant-report/models/instant-report-config';
 
 // Create instant report angular module
 const izendaInstantReportModule = angular.module('izendaInstantReport', [
@@ -25,7 +26,8 @@ izendaUiModule
 	.value('izenda.common.ui.reportNameInvalidError', ['js_InvalidReportName', 'Invalid report name']);
 
 export class IzendaInstantReportLoader {
-	static configureInstantReportModules(configObject) {
+
+	static configureInstantReportModules(instantReportConfig: IIzendaInstantReportConfig) {
 		// configure instant report module
 		const module = izendaInstantReportModule
 			.config(['$logProvider', $logProvider => $logProvider.debugEnabled(false)])
@@ -36,7 +38,7 @@ export class IzendaInstantReportLoader {
 					return $delegate;
 				}]);
 			}])
-			.constant('$izendaInstantReportSettings', configObject);
+			.value('$izendaInstantReportSettingsValue', instantReportConfig);
 		return module;
 	}
 
@@ -60,8 +62,8 @@ export class IzendaInstantReportLoader {
 				.when(commonQuerySettingsPromise, instantReportSettingsPromise)
 				.then((commonSettingsResult, instantReportSettingsResult) => {
 					// get instant report config object
-					const configObject = instantReportSettingsResult[0];
-					configObject['moveUncategorizedToLastPostion'] = true;
+					const configObject = instantReportSettingsResult[0] as IIzendaInstantReportConfig;
+					configObject.moveUncategorizedToLastPosition = true;
 					// create and configure modules:
 					IzendaInstantReportLoader.configureInstantReportModules(configObject);
 					// bootstrap application:

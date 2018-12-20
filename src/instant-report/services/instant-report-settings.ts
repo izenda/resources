@@ -1,53 +1,58 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import izendaInstantReportModule from 'instant-report/module-definition';
+import IzendaRsQueryService from 'common/query/services/rs-query-service';
+import { IIzendaInstantReportConfig } from 'instant-report/models/instant-report-config';
 
 /**
  * Instant report settings service.
  */
-izendaInstantReportModule.factory('$izendaInstantReportSettings', [
-	'$izendaRsQuery',
-	function ($izendaRsQuery) {
+export default class IzendaInstantReportSettingsService {
 
-		var settingsObject = null;
+	private settingsObject: IIzendaInstantReportConfig = null;
 
-		/**
-		 * Get instant report settings from server.
-		 */
-		function getInstantReportSettings() {
-			return $izendaRsQuery.query('getInstantReportSettings', [], {
-				dataType: 'json',
-				cache: true
-			}, {
-					handler: function () {
-						return 'Failed to get instant report settings';
-					},
-					params: []
-				});
-		};
+	static get injectModules(): any[] {
+		return ['$injector', '$izendaRsQueryService'];
+	}
 
-		/**
-		 * Load settings and set settingsObject
-		 */
-		function initialize() {
-			getInstantReportSettings().then(function (resultObject) {
-				settingsObject = resultObject;
+	constructor(
+		private readonly $injector: ng.auto.IInjectorService,
+		private readonly $izendaRsQueryService: IzendaRsQueryService) {
+
+		// first try to get settings object if it have been already loaded
+		this.settingsObject = this.$injector.get<IIzendaInstantReportConfig>('$izendaInstantReportSettingsValue');
+		if (!angular.isObject(this.settingsObject))
+			// if not loaded - load now.
+			this.loadInstantReportSettings().then(resultObject => {
+				this.settingsObject = resultObject as IIzendaInstantReportConfig;
 			});
-		}
+	}
 
-		/**
-		 * Settings getter
-		 */
-		var getSettings = function () {
-			return settingsObject;
-		};
+	/**
+	 * Get instant report settings from server.
+	 */
+	private loadInstantReportSettings() {
+		return this.$izendaRsQueryService.query('getInstantReportSettings', [], {
+			dataType: 'json',
+			cache: true
+		}, {
+				handler: () => 'Failed to get instant report settings',
+				params: []
+			});
+	}
 
-		// initialize service
-		initialize();
+	/**
+	 * Settings getter
+	 */
+	getSettings(): IIzendaInstantReportConfig {
+		return this.settingsObject;
+	}
 
-		// public api
-		return {
-			getInstantReportSettings: getInstantReportSettings,
-			getSettings: getSettings
-		};
-	}]);
+	static get $inject() {
+		return this.injectModules;
+	}
+
+	static register(module: ng.IModule) {
+		module.service('$izendaInstantReportSettingsService',
+			IzendaInstantReportSettingsService.injectModules.concat(IzendaInstantReportSettingsService));
+	}
+}

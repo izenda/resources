@@ -10,9 +10,13 @@ export default class IzendaUtilUiService {
 	message: any = null;
 	dialogBox: any = null;
 
+	static get injectModules(): any[] {
+		return ['$timeout', '$izendaLocaleService'];
+	}
+
 	constructor(
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaLocale: IzendaLocalizationService) {
+		private readonly $izendaLocaleService: IzendaLocalizationService) {
 	}
 
 	/**
@@ -88,7 +92,7 @@ export default class IzendaUtilUiService {
 	 * @param {string} title Error title (optional)
 	 */
 	showErrorDialog(message: string, title?: string) {
-		const titleText = angular.isDefined(title) ? title : this.$izendaLocale.localeText('js_Error', 'Error');
+		const titleText = angular.isDefined(title) ? title : this.$izendaLocaleService.localeText('js_Error', 'Error');
 		this.showMessageDialog(message, titleText, 'danger');
 	}
 
@@ -130,10 +134,6 @@ export default class IzendaUtilUiService {
 			return n.id === id;
 		});
 		return found ? found : null;
-	}
-
-	static get injectModules(): any[] {
-		return ['$timeout', '$izendaLocale'];
 	}
 
 	static get $inject() {

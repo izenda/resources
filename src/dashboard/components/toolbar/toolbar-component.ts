@@ -17,9 +17,9 @@ import DashboardGalleryService from 'dashboard/services/gallery-service';
 	izendaDashboardModule,
 	'izendaDashboardToolbar',
 	['rx', '$window', '$element', '$interval', '$timeout', '$rootScope',
-		'izendaDashboardConfig', '$izendaSettings', '$izendaLocale', '$izendaUtil', '$izendaUtilUiService',
-		'$izendaCompatibility', '$izendaUrl',
-		'$izendaScheduleService', '$izendaShareService', '$izendaDashboardSettings', '$izendaDashboardStorage',
+		'izendaDashboardConfig', '$izendaSettingsService', '$izendaLocaleService', '$izendaUtilService', '$izendaUtilUiService',
+		'$izendaCompatibilityService', '$izendaUrlService',
+		'$izendaScheduleService', '$izendaShareService', '$izendaDashboardSettings', '$izendaDashboardStorageService',
 		'$izendaBackgroundService', '$izendaGalleryService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.toolbar.toolbar-template.html'
@@ -67,16 +67,16 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 		private readonly $timeout: any,
 		private readonly $rootScope: any,
 		private readonly dashboardConfig: any,
-		private readonly $izendaSettings: any,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaUtil: IzendaUtilService,
+		private readonly $izendaSettingsService: any,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaUtilService: IzendaUtilService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService,
-		private readonly $izendaCompatibility: IzendaCompatibilityService,
-		private readonly $izendaUrl: IzendaUrlService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService,
+		private readonly $izendaUrlService: IzendaUrlService,
 		private readonly $izendaScheduleService: IzendaScheduleService,
 		private readonly $izendaShareService: IzendaShareService,
 		private readonly $izendaDashboardSettings: IIzendaDashboardSettings,
-		private readonly $izendaDashboardStorage: DashboardStorageService,
+		private readonly $izendaDashboardStorageService: DashboardStorageService,
 		private readonly $izendaBackgroundService: DashboardBackgroundService,
 		private readonly $izendaGalleryService: DashboardGalleryService) {
 
@@ -86,7 +86,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 		this.isHueRotate = isChrome || isSafari || isFirefox;
 		this.isHueRotateEnabled = false;
 		this.isSaveReportModalOpened = false;
-		this.isHtml5FullScreenSupported = this.$izendaCompatibility.isHtml5FullScreenSupported();
+		this.isHtml5FullScreenSupported = this.$izendaCompatibilityService.isHtml5FullScreenSupported();
 	}
 
 	$onInit() {
@@ -99,7 +99,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 		this.shareModalOpened = false;
 
 		// settings
-		this.commonSettings = this.$izendaSettings.getCommonSettings();
+		this.commonSettings = this.$izendaSettingsService.getCommonSettings();
 		this.isDesignLinksAllowed = this.commonSettings.showDesignLinks;
 		this.printMode = this.$izendaDashboardSettings.allowedPrintEngine;
 
@@ -128,12 +128,12 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 
 		// subscribe
 		this.subscriptions = [
-			this.$izendaDashboardStorage.model.subscribeOnNext(this.$onDashboardModelUpdate, this),
-			this.$izendaDashboardStorage.autoRefresh.subscribeOnNext(this.$onAutorefreshUpdate, this),
-			this.$izendaDashboardStorage.categories.subscribeOnNext(this.$onCategoriesUpdate, this),
-			this.$izendaDashboardStorage.currentCategory.subscribeOnNext(next => this.currentCategory = next),
-			this.$izendaDashboardStorage.currentDashboard.subscribeOnNext(next => this.currentDashboard = next),
-			this.$izendaDashboardStorage.windowSize.subscribeOnNext(newWindowSize => {
+			this.$izendaDashboardStorageService.model.subscribeOnNext(this.$onDashboardModelUpdate, this),
+			this.$izendaDashboardStorageService.autoRefresh.subscribeOnNext(this.$onAutorefreshUpdate, this),
+			this.$izendaDashboardStorageService.categories.subscribeOnNext(this.$onCategoriesUpdate, this),
+			this.$izendaDashboardStorageService.currentCategory.subscribeOnNext(next => this.currentCategory = next),
+			this.$izendaDashboardStorageService.currentDashboard.subscribeOnNext(next => this.currentDashboard = next),
+			this.$izendaDashboardStorageService.windowSize.subscribeOnNext(newWindowSize => {
 				// resize handler
 			}, this)
 		];
@@ -161,7 +161,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Create new dashboard button handler.
 	 */
 	createNewDashboard() {
-		this.$izendaDashboardStorage.navigateNewDashboard();
+		this.$izendaDashboardStorageService.navigateNewDashboard();
 	}
 
 	/**
@@ -173,15 +173,15 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 			this.isSaveReportModalOpened = true;
 		} else {
 			this.hideButtonBar();
-			this.$izendaDashboardStorage
+			this.$izendaDashboardStorageService
 				.saveDashboard()
 				.then(() => {
-					this.$izendaUtilUiService.showNotification(this.$izendaLocale.localeText('js_DashboardSaved',
+					this.$izendaUtilUiService.showNotification(this.$izendaLocaleService.localeText('js_DashboardSaved',
 						'Dashboard sucessfully saved'));
 				},
 					(error) => {
-						const msgCantSave = this.$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
-						const msgError = this.$izendaLocale.localeText('js_Error', 'Error');
+						const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
+						const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
 						var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
 						this.$izendaUtilUiService.showErrorDialog(errorText);
 					});
@@ -202,15 +202,15 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	onSave(reportName, categoryName) {
 		this.hideButtonBar(() => {
 			this.isSaveReportModalOpened = false;
-			this.$izendaDashboardStorage
+			this.$izendaDashboardStorageService
 				.saveDashboard(reportName, categoryName)
 				.then(() => {
-					this.$izendaUtilUiService.showNotification(this.$izendaLocale.localeText('js_DashboardSaved',
+					this.$izendaUtilUiService.showNotification(this.$izendaLocaleService.localeText('js_DashboardSaved',
 						'Dashboard sucessfully saved'));
 				},
 					(error) => {
-						const msgCantSave = this.$izendaLocale.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
-						const msgError = this.$izendaLocale.localeText('js_Error', 'Error');
+						const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
+						const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
 						var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
 						this.$izendaUtilUiService.showErrorDialog(errorText);
 					});
@@ -223,7 +223,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * @param {number} intervalIndex auto refresh interval index. Automatic refresh will turn on if this argument is set.
 	 */
 	refreshDashboard(intervalIndex) {
-		this.$izendaDashboardStorage.refreshDashboard(false, false);
+		this.$izendaDashboardStorageService.refreshDashboard(false, false);
 		if (!this.autoRefresh)
 			return;
 		if (angular.isNumber(intervalIndex)) {
@@ -234,17 +234,10 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 			if (intervalValue >= 1) {
 				intervalValue *= 1000;
 				this.refreshInterval = setInterval(
-					() => this.$izendaDashboardStorage.refreshDashboard(false, false),
+					() => this.$izendaDashboardStorageService.refreshDashboard(false, false),
 					intervalValue);
 			}
 		}
-	}
-
-	/**
-	 * Refresh whole dashboard layout and tiles.
-	 */
-	syncDashboard() {
-		this.$izendaDashboardStorage.refreshDashboard(true, true);
 	}
 
 	closeScheduleDialog() {
@@ -256,7 +249,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	}
 
 	openToolbarDashboard(dashboardObj) {
-		this.$izendaDashboardStorage.navigateToDashboard(dashboardObj.fullName);
+		this.$izendaDashboardStorageService.navigateToDashboard(dashboardObj.fullName);
 	}
 
 	showButtonBar() {
@@ -281,7 +274,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 */
 	toggleGalleryMode(enableGalleryMode) {
 		if (enableGalleryMode)
-			this.$izendaDashboardStorage.toggleFiltersPanel(false);
+			this.$izendaDashboardStorageService.toggleFiltersPanel(false);
 		this.$izendaGalleryService.galleryState.isEnabled = enableGalleryMode;
 	}
 
@@ -289,7 +282,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Open gallery in fullscreen mode
 	 */
 	toggleGalleryModeFullScreen() {
-		this.$izendaDashboardStorage.toggleFiltersPanel(false);
+		this.$izendaDashboardStorageService.toggleFiltersPanel(false);
 		this.$izendaGalleryService.galleryState.isFullScreen = !this.$izendaGalleryService.galleryState.isFullScreen;
 	}
 
@@ -297,7 +290,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Turn off/on gallery play
 	 */
 	toggleGalleryPlay() {
-		this.$izendaDashboardStorage.toggleFiltersPanel(false);
+		this.$izendaDashboardStorageService.toggleFiltersPanel(false);
 		this.$izendaGalleryService.galleryState.isPlayStarted = !this.$izendaGalleryService.galleryState.isPlayStarted;
 	}
 
@@ -336,7 +329,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 */
 	toggleDashboardFilters() {
 		if (this.isFiltersEditAllowed) {
-			this.$izendaDashboardStorage.toggleFiltersPanel();
+			this.$izendaDashboardStorageService.toggleFiltersPanel();
 		}
 	}
 
@@ -344,35 +337,42 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Hue rotate toolbar btn icon
 	 */
 	get hueRotateBtnImageUrl() {
-		return this.$izendaUrl.settings.urlRpPage + 'extres=images.color' + (!this.isHueRotateEnabled ? '-bw' : '') + '.png';
+		return this.$izendaUrlService.settings.urlRpPage + 'extres=images.color' + (!this.isHueRotateEnabled ? '-bw' : '') + '.png';
 	}
 
 	/**
 	 * Check if one column view required
 	 */
 	get isOneColumnView() {
-		return this.$izendaCompatibility.isOneColumnView();
+		return this.$izendaCompatibilityService.isOneColumnView();
 	}
 
 	/**
 	 * Check is filters allowed
 	*/
 	get isFullAccess() {
-		return this.$izendaCompatibility.isFullAccess();
+		return this.$izendaCompatibilityService.isFullAccess();
 	}
 
 	/**
 	 * Check is filters allowed
 	 */
 	get isFiltersEditAllowed() {
-		return this.$izendaCompatibility.isFiltersEditAllowed();
+		return this.$izendaCompatibilityService.isFiltersEditAllowed();
+	}
+
+	/**
+	 * Check is save allowed
+	 */
+	get isSaveAllowed() {
+		return this.model && this.$izendaCompatibilityService.isSaveAllowedWithHidden() && !this.model.tilesWithHiddenColumns.length;
 	}
 
 	/**
 	 * Check is save as allowed
 	 */
 	get isSaveAsAllowed() {
-		return this.$izendaCompatibility.isSaveAsAllowed();
+		return this.model && this.$izendaCompatibilityService.isSaveAsAllowed() && !this.model.tilesWithHiddenColumns.length;
 	}
 
 	/**
@@ -393,7 +393,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Check is edit allowed
 	 */
 	get isReadOnly() {
-		return this.$izendaCompatibility.isEditAllowed();
+		return this.$izendaCompatibilityService.isEditAllowed();
 	}
 
 	/**
@@ -430,7 +430,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 			const file = $fileBtn[0]['files'][0];
 			// test file information
 			if (!file.type.match('image.*')) {
-				alert(this.$izendaLocale.localeText('js_ShouldBeImage', 'File should be image'));
+				alert(this.$izendaLocaleService.localeText('js_ShouldBeImage', 'File should be image'));
 				return;
 			}
 			// read the file:
@@ -487,12 +487,12 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Print whole dashboard
 	 */
 	printDashboard() {
-		this.$izendaDashboardStorage.printDashboard('html').then(() => {
+		this.$izendaDashboardStorageService.printDashboard('html').then(() => {
 			// HTML print print successfully completed handler
 		},
 			error => {
-				const errorTitle = this.$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error');
-				let errorText = this.$izendaLocale.localeText('js_FailedPrintReport',
+				const errorTitle = this.$izendaLocaleService.localeText('js_FailedPrintReportTitle', 'Report print error');
+				let errorText = this.$izendaLocaleService.localeText('js_FailedPrintReport',
 					'Failed to print report "{0}". Error description: {1}.');
 				errorText = errorText.replaceAll('{0}', this.model.reportFullName ? this.model.reportFullName : '');
 				errorText = errorText.replaceAll('{1}', error);
@@ -505,12 +505,12 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 	 * Print dashboard as pdf
 	 */
 	printDashboardPdf() {
-		this.$izendaDashboardStorage.printDashboard('pdf').then(() => {
+		this.$izendaDashboardStorageService.printDashboard('pdf').then(() => {
 			// PDF print print successfully completed handler
 		},
 			error => {
-				const errorTitle = this.$izendaLocale.localeText('js_FailedPrintReportTitle', 'Report print error');
-				let errorText = this.$izendaLocale.localeText('js_FailedPrintReport',
+				const errorTitle = this.$izendaLocaleService.localeText('js_FailedPrintReportTitle', 'Report print error');
+				let errorText = this.$izendaLocaleService.localeText('js_FailedPrintReport',
 					'Failed to print report "{0}". Error description: {1}.');
 				errorText = errorText.replaceAll('{0}', this.model.reportFullName ? this.model.reportFullName : '');
 				errorText = errorText.replaceAll('{1}', error);
@@ -556,22 +556,22 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 					.email);
 			if (!isEmailValid) {
 				this.sendEmailState.errorOccured = true;
-				this.sendEmailState.errors.push(this.$izendaLocale.localeText('js_IncorrectEmail', 'Incorrect Email'));
+				this.sendEmailState.errors.push(this.$izendaLocaleService.localeText('js_IncorrectEmail', 'Incorrect Email'));
 			} else {
 				this.sendEmailState.isLoading = true;
-				this.$izendaDashboardStorage.sendEmail(this.sendEmailState.sendType, this.sendEmailState.email).then(result => {
+				this.$izendaDashboardStorageService.sendEmail(this.sendEmailState.sendType, this.sendEmailState.email).then(result => {
 					this.sendEmailState.opened = false;
 					if (result === 'OK') {
 						this.$izendaUtilUiService.showNotification(
-							this.$izendaLocale.localeText('js_EmailWasSent', 'Email  was sent'));
+							this.$izendaLocaleService.localeText('js_EmailWasSent', 'Email  was sent'));
 					} else {
-						const errorText = this.$izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email');
+						const errorText = this.$izendaLocaleService.localeText('js_FailedToSendEmail', 'Failed to send email');
 						this.$izendaUtilUiService.showErrorDialog(errorText);
 					}
 				},
 					error => {
 						console.error(error);
-						const errorText = this.$izendaLocale.localeText('js_FailedToSendEmail', 'Failed to send email');
+						const errorText = this.$izendaLocaleService.localeText('js_FailedToSendEmail', 'Failed to send email');
 						this.$izendaUtilUiService.showErrorDialog(errorText);
 					});
 			}
@@ -589,7 +589,7 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 		if (type === 'Link') {
 			if (!this.model.reportFullName) {
 				const errorText =
-					this.$izendaLocale.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard');
+					this.$izendaLocaleService.localeText('js_CantSendUnsavedLink', 'Cannot email link to unsaved dashboard');
 				this.$izendaUtilUiService.showNotification(errorText);
 				return;
 			}

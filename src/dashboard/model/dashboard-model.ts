@@ -15,6 +15,8 @@ export class IzendaDashboardModel implements IIzendaRawModel {
 	reportFullName: string = null;
 	sourceReportFullName: string = null;
 	effectiveRights: string = null;
+	usesHiddenColumns: boolean = false;
+	reportsWithHiddenColumns: string[] = [];
 	filters: any;
 	tiles: IzendaDashboardTileModel[] = [];
 
@@ -60,9 +62,15 @@ export class IzendaDashboardModel implements IIzendaRawModel {
 	 */
 	get tilesSorted(): IzendaDashboardTileModel[] {
 		return this.tiles.sort((tile1, tile2) => {
-			if (tile1.y != tile2.y)
+			if (tile1.y !== tile2.y)
 				return tile1.y - tile2.y;
 			return tile1.x - tile2.x;
+		});
+	}
+
+	get tilesWithHiddenColumns(): IzendaDashboardTileModel[] {
+		return this.tiles.filter(t => {
+			return this.reportsWithHiddenColumns.indexOf(t.reportFullName) >= 0;
 		});
 	}
 
@@ -76,6 +84,8 @@ export class IzendaDashboardModel implements IIzendaRawModel {
 		this.reportFullName = json.reportFullName;
 		this.sourceReportFullName = json.sourceReportFullName;
 		this.effectiveRights = json.effectiveRights;
+		this.usesHiddenColumns = json.usesHiddenColumns;
+		this.reportsWithHiddenColumns = json.reportsWithHiddenColumns;
 
 		this.filters = json.filters;
 		this.tiles = json.tiles.map(tileCfg => IzendaDashboardTileModel.createInstance(false, tileCfg));
@@ -91,7 +101,7 @@ export class IzendaDashboardModel implements IIzendaRawModel {
 			.filter(tile => !!tile.reportFullName)
 			.slice();
 		tilesCopy.sort((tile1, tile2) => {
-			if (tile1.y != tile2.y)
+			if (tile1.y !== tile2.y)
 				return tile1.y - tile2.y;
 			return tile1.x - tile2.x;
 		});

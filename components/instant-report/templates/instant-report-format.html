@@ -131,11 +131,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_BorderColor' | izendaLocale: 'Border color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.borderColor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.borderColor" />
@@ -144,11 +144,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_HeaderColor' | izendaLocale: 'Header color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.headerColor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.headerColor" />
@@ -159,11 +159,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_HeaderForegroundColor' | izendaLocale: 'Header foreground color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.headerForecolor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.headerForecolor" />
@@ -172,11 +172,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_ItemColor' | izendaLocale: 'Item color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.itemColor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.itemColor" />
@@ -187,11 +187,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_ItemForegroundColor' | izendaLocale: 'Item foreground color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.itemForeColor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.itemForeColor" />
@@ -200,11 +200,11 @@
 							<label class="nobold"
 								   ng-bind=":: 'js_AlternatingItemColor' | izendaLocale: 'Alternating item color'">
 							</label>
-							<span ng-if="!$izendaCompatibility.isSmallResolution()"
+							<span ng-if="!$izendaCompatibilityService.isSmallResolution()"
 								  izenda-color-picker inline="false"
 								  ng-model="irFormatController.options.style.itemAltColor">
 							</span>
-							<input ng-if="$izendaCompatibility.isSmallResolution()"
+							<input ng-if="$izendaCompatibilityService.isSmallResolution()"
 								   class="form-control"
 								   ng-attr-type="{{Modernizr.inputtypes.color ? 'color' : 'text'}}"
 								   ng-model="irFormatController.options.style.itemAltColor" />

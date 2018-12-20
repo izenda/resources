@@ -10,7 +10,7 @@ import IzendaShareService from 'common/ui/services/share-service';
 @IzendaComponent(
 	izendaUiModule,
 	'izendaShareComponent',
-	['$izendaLocale', '$izendaShareService'],
+	['$izendaLocaleService', '$izendaShareService'],
 	{
 		templateUrl: '###RS###extres=components.common.ui.components.share.share-template.html',
 		bindings: {
@@ -25,7 +25,8 @@ export default class IzendaShareComponent {
 	rights: Array<IzendaSelectItemModel>;
 	shareRules: Array<IzendaShareRuleModel>;
 
-	constructor(private readonly $izendaLocale: IzendaLocalizationService,
+	constructor(
+		private readonly $izendaLocaleService: IzendaLocalizationService,
 		private readonly $izendaShareService: IzendaShareService) {
 	}
 
@@ -34,7 +35,7 @@ export default class IzendaShareComponent {
 	 */
 	getShareRuleValidationMessage(shareRule: IzendaShareRuleModel) {
 		if (!shareRule.right && !shareRule.subject)
-			return this.$izendaLocale.localeText('js_NessesarySelectRight',
+			return this.$izendaLocaleService.localeText('js_NessesarySelectRight',
 				'It is necessary to choose the right, otherwise it will be ignored.');
 		return null;
 	}

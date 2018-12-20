@@ -13,10 +13,10 @@ izendaInstantReportModule.controller('InstantReportColumnsSortController', [
 	'$q',
 	'$sce',
 	'$log',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportValidation',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportValidationService',
 	function (
 		$rootScope,
 		$scope,
@@ -25,21 +25,26 @@ izendaInstantReportModule.controller('InstantReportColumnsSortController', [
 		$q,
 		$sce,
 		$log,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportStorage,
-		$izendaInstantReportValidation) {
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportValidationService) {
 		'use strict';
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
 		var vm = this;
 
 		//vm.panelOpened = false;
-		vm.activeFields = $izendaInstantReportStorage.getAllActiveFields();
+		vm.activeFields = $izendaInstantReportStorageService.getAllActiveFields();
 
 		vm.columnReordered = function (fromIndex, toIndex, isVisualGroupColumn) {
-			$izendaInstantReportStorage.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn, false);
-			if (!$izendaCompatibility.isSmallResolution())
-				$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportStorageService.moveFieldToPosition(fromIndex, toIndex, isVisualGroupColumn, false);
+			if (!$izendaCompatibilityService.isSmallResolution())
+				$izendaInstantReportValidationService.validateReportSetAndRefresh();
+			$scope.$applyAsync();
+		};
+
+		vm.columnSelected = function(field) {
+			$izendaInstantReportStorageService.applyFieldSelected(field, true);
 			$scope.$applyAsync();
 		};
 
@@ -47,7 +52,7 @@ izendaInstantReportModule.controller('InstantReportColumnsSortController', [
 		 * Initialize watches
 		 */
 		vm.initWatchers = function () {
-			$scope.$watch('$izendaInstantReportStorage.getAllActiveFields()', function (newActiveFields) {
+			$scope.$watch('$izendaInstantReportStorageService.getAllActiveFields()', function (newActiveFields) {
 				vm.activeFields = newActiveFields;
 			}, true);
 		};
@@ -67,31 +72,33 @@ interface IIzendaInstantReportColumnsReorderScope extends ng.IScope {
 	ngItems: any;
 	showSortButtons: any;
 	onReorder: any;
+	onClick: any;
 }
 
 /**
  * Columns reorder directive
  */
 angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
-	'$izendaLocale',
-	'$izendaInstantReportStorage',
-	function ($izendaLocale, $izendaInstantReportStorage) {
+	'$izendaLocaleService',
+	'$izendaInstantReportStorageService',
+	function ($izendaLocaleService, $izendaInstantReportStorageService) {
 		return {
 			restrict: 'EA',
 			scope: {
 				ngItems: '=',
 				showSortButtons: '@',
-				onReorder: '&'
+				onReorder: '&',
+				onClick: '&'
 			},
 			template:
-				'<div class="izenda-reorder-header vg">' + $izendaLocale.localeText('js_VisGroupColumns', 'Visual group columns') + '</div>' +
+				'<div class="izenda-reorder-header vg">' + $izendaLocaleService.localeText('js_VisGroupColumns', 'Visual group columns') + '</div>' +
 				'<ul class="izenda-reorder list-unstyled vg">' +
 				'<li class="izenda-reorder-item" ng-repeat="item in vgList" ng-bind="item.title">' +
 				'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
 				'<span class="pull-right glyphicon glyphicon-arrow-down"></span>' +
 				'</li>' +
 				'</ul>' +
-				'<div class="izenda-reorder-header simple">' + $izendaLocale.localeText('js_Columns', 'Columns') + '</div>' +
+				'<div class="izenda-reorder-header simple">' + $izendaLocaleService.localeText('js_Columns', 'Columns') + '</div>' +
 				'<ul class="izenda-reorder list-unstyled simple">' +
 				'<li class="izenda-reorder-item" ng-repeat="item in simpleList" ng-bind="item.title">' +
 				'<span class="pull-right glyphicon glyphicon-arrow-up"></span>' +
@@ -103,6 +110,11 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 					$simpleList = element.find('.izenda-reorder.simple'),
 					$vgListHeader = element.find('.izenda-reorder-header.vg'),
 					$simpleListHeader = element.find('.izenda-reorder-header.simple');
+
+				var doClick = function(field) {
+					if (field && angular.isFunction(scope.onClick))
+						scope.onClick({ field: field });
+				} 
 
 				/**
 				 * Call reorder handler
@@ -159,18 +171,21 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 						$vgList.show();
 						$vgList.empty();
 						angular.element.each(vgList, function (i) {
-							var table = $izendaInstantReportStorage.getTableById(this.parentId);
+							var table = $izendaInstantReportStorageService.getTableById(this.parentId);
 							var $el = angular.element('<li class="izenda-reorder-item"></li>');
 							$el.attr('data-order', i);
 							$vgList.append($el);
 
 							var $span = angular.element('<span class="izenda-reorder-item-text"></span>');
 							$span.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
+							$span.on('click', function () {
+								doClick(vgList[i]);
+							});
 							$el.append($span);
 
 							if (scope.showSortButtons) {
 								var $arrowUp = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn1" title="' +
-									$izendaLocale.localeText('js_MoveColumnUp', 'Move column up') + '"><span class="glyphicon glyphicon-arrow-up"></span></span>');
+									$izendaLocaleService.localeText('js_MoveColumnUp', 'Move column up') + '"><span class="glyphicon glyphicon-arrow-up"></span></span>');
 								$el.append($arrowUp);
 								$arrowUp.on('click', function () {
 									var index = angular.element(this).closest('.izenda-reorder-item').index();
@@ -179,7 +194,7 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 									}
 								});
 								var $arrowDown = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn2" title="' +
-									$izendaLocale.localeText('js_MoveColumnDown', 'Move column down') + '"><span class="glyphicon glyphicon-arrow-down"></span></span>');
+									$izendaLocaleService.localeText('js_MoveColumnDown', 'Move column down') + '"><span class="glyphicon glyphicon-arrow-down"></span></span>');
 								$el.append($arrowDown);
 								$arrowDown.on('click', function () {
 									var index = angular.element(this).closest('.izenda-reorder-item').index();
@@ -204,18 +219,21 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 						$simpleList.show();
 						$simpleList.empty();
 						angular.element.each(simpleList, function (i) {
-							var table = $izendaInstantReportStorage.getTableById(this.parentId);
+							var table = $izendaInstantReportStorageService.getTableById(this.parentId);
 							var $el = angular.element('<li class="izenda-reorder-item"></li>');
 							$el.attr('data-order', i);
 							$simpleList.append($el);
 
 							var $span = angular.element('<span class="izenda-reorder-item-text"></span>');
 							$span.text(table.name + ' → ' + (this.description !== '' ? this.description : this.name));
+							$span.on('click', function () {
+								doClick(simpleList[i]);
+							});
 							$el.append($span);
 
 							if (scope.showSortButtons) {
 								var $arrowUp = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn1" title="' +
-									$izendaLocale.localeText('js_MoveColumnUp', 'Move column up') + '"><span class="glyphicon glyphicon-arrow-up"></span></span>');
+									$izendaLocaleService.localeText('js_MoveColumnUp', 'Move column up') + '"><span class="glyphicon glyphicon-arrow-up"></span></span>');
 								$el.append($arrowUp);
 								$arrowUp.on('click', function () {
 									var index = angular.element(this).closest('.izenda-reorder-item').index();
@@ -224,7 +242,7 @@ angular.module('izendaInstantReport').directive('instantReportColumnsReorder', [
 									}
 								});
 								var $arrowDown = angular.element('<span class="ds-multiple-button izenda-reorder-item-btn2" title="' +
-									$izendaLocale.localeText('js_MoveColumnDown', 'Move column down') + '"><span class="glyphicon glyphicon-arrow-down"></span></span>');
+									$izendaLocaleService.localeText('js_MoveColumnDown', 'Move column down') + '"><span class="glyphicon glyphicon-arrow-down"></span></span>');
 								$el.append($arrowDown);
 								$arrowDown.on('click', function () {
 									var index = angular.element(this).closest('.izenda-reorder-item').index();

@@ -26,23 +26,23 @@ class IzendaToolbarFolderMenuAccordion implements ng.IDirective {
 	link: ($scope: IIzendaToolbarFolderMenuAccordionScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => void;
 
 	constructor(private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaUtil: IzendaUtilService) {
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaUtilService: IzendaUtilService) {
 		IzendaToolbarFolderMenuAccordion.prototype.link = ($scope: IIzendaToolbarFolderMenuAccordionScope, $element: ng.IAugmentedJQuery, attrs: ng.IAttributes) => {
 
 			// add category 'in' class for currentCategory
 			$scope.getCategoryClass = (index: number): string =>
-				$izendaUtil.isCategoriesEqual($scope.categories[index].name, $izendaUrl.getReportInfo().category) ? 'in' : '';
+				$izendaUtilService.isCategoriesEqual($scope.categories[index].name, $izendaUrlService.getReportInfo().category) ? 'in' : '';
 
 			// get category item activated or not class
 			$scope.getCategoryItemClass = (itemName: string): string =>
-				itemName === $izendaUrl.getReportInfo().fullName ? 'active' : '';
+				itemName === $izendaUrlService.getReportInfo().fullName ? 'active' : '';
 
 			// remove category part from report name
-			$scope.extractReportName = (fullName: string): string => $izendaUrl.extractReportName(fullName);
+			$scope.extractReportName = (fullName: string): string => $izendaUrlService.extractReportName(fullName);
 
 			// navigate to dashboard
-			$scope.goToDashboard = (dashboard: string): void => $izendaUrl.setReportFullName(dashboard);
+			$scope.goToDashboard = (dashboard: string): void => $izendaUrlService.setReportFullName(dashboard);
 
 			// toggle accordion handler
 			$scope.toggleAccordion = (index: number) => {
@@ -64,15 +64,16 @@ class IzendaToolbarFolderMenuAccordion implements ng.IDirective {
 	}
 
 	static factory(): ng.IDirectiveFactory {
-		const directive = ($timeout: ng.ITimeoutService,
-			$izendaUrl: IzendaUrlService,
-			$izendaUtil: IzendaUtilService) =>
-			new IzendaToolbarFolderMenuAccordion($timeout, $izendaUrl, $izendaUtil);
-		directive.$inject = ['$timeout', '$izendaUrl', '$izendaUtil'];
+		const directive = (
+			$timeout: ng.ITimeoutService,
+			$izendaUrlService: IzendaUrlService,
+			$izendaUtilService: IzendaUtilService) =>
+			new IzendaToolbarFolderMenuAccordion($timeout, $izendaUrlService, $izendaUtilService);
+		directive.$inject = ['$timeout', '$izendaUrlService', '$izendaUtilService'];
 		return directive;
 	}
 }
 
-izendaDashboardModule.directive('izendaToolbarFolderMenuAccordion', ['$timeout', '$izendaUrl', '$izendaUtil',
+izendaDashboardModule.directive('izendaToolbarFolderMenuAccordion', ['$timeout', '$izendaUrlService', '$izendaUtilService',
 	IzendaToolbarFolderMenuAccordion.factory()]);
 

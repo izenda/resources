@@ -1,12 +1,18 @@
 ﻿import 'izenda-external-libs';
 import izendaInstantReportModule from 'instant-report/module-definition';
+import IzendaInstantReportQueryService from 'instant-report/services/instant-report-query';
+import IzendaInstantReportPivotService from 'instant-report/services/instant-report-pivot';
+import IzendaInstantReportSettingsService from 'instant-report/services/instant-report-settings';
+import IzendaInstantReportVisualizationService from 'instant-report/services/instant-report-visualization';
+import IzendaInstantReportStorageService from 'instant-report/services/instant-report-storage';
+import IzendaInstantReportValidationService from 'instant-report/services/instant-report-validation';
 
-import 'instant-report/services/instant-report-pivot';
-import 'instant-report/services/instant-report-query';
-import 'instant-report/services/instant-report-settings';
-import 'instant-report/services/instant-report-storage';
-import 'instant-report/services/instant-report-validation';
-import 'instant-report/services/instant-report-visualization';
+IzendaInstantReportQueryService.register(izendaInstantReportModule);
+IzendaInstantReportPivotService.register(izendaInstantReportModule);
+IzendaInstantReportSettingsService.register(izendaInstantReportModule);
+IzendaInstantReportVisualizationService.register(izendaInstantReportModule);
+IzendaInstantReportStorageService.register(izendaInstantReportModule);
+IzendaInstantReportValidationService.register(izendaInstantReportModule);
 
 import 'instant-report/directive/instant-report-field-draggable';
 import 'instant-report/directive/instant-report-left-panel-resize';

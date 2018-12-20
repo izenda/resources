@@ -6,6 +6,10 @@ import 'izenda-external-libs';
  */
 export default class IzendaLocalizationService {
 
+	static get injectModules(): any[] {
+		return [];
+	}
+
 	constructor() {
 		IzLocal.LocalizePage();
 	}
@@ -36,24 +40,20 @@ export default class IzendaLocalizationService {
 		return result;
 	}
 
-	static get injectModules(): any[] {
-		return [];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaLocale', IzendaLocalizationService.injectModules.concat(IzendaLocalizationService));
+		module.service('$izendaLocaleService', IzendaLocalizationService.injectModules.concat(IzendaLocalizationService));
 		/**
 		 * Filter which is used for the applying localization.
 		 * Sample usage: <div ng-bind=":: 'js_close' | izendaLocale: 'Close'" /> where 'Close' - "defaultValue" parameter value.
 		 */
 		module.filter('izendaLocale', [
-			'$izendaLocale',
-			($izendaLocale: IzendaLocalizationService) => {
-				return (text: string, defaultValue: string) => $izendaLocale.localeText(text, defaultValue);
+			'$izendaLocaleService',
+			($izendaLocaleService: IzendaLocalizationService) => {
+				return (text: string, defaultValue: string) => $izendaLocaleService.localeText(text, defaultValue);
 			}
 		]);
 	}

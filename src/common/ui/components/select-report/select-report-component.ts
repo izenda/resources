@@ -13,7 +13,7 @@ import IzendaCommonQueryService from 'common/query/services/common-query-service
 @IzendaComponent(
 	izendaUiModule,
 	'izendaSelectReportComponent',
-	['$timeout', '$izendaLocale', '$izendaUrl', '$izendaSettings', '$izendaCommonQuery'],
+	['$timeout', '$izendaLocaleService', '$izendaUrlService', '$izendaSettingsService', '$izendaCommonQueryService'],
 	{
 		templateUrl: '###RS###extres=components.common.ui.components.select-report.select-report-template.html',
 		bindings: {
@@ -38,12 +38,12 @@ export default class IzendaSelectReportComponent implements ng.IComponentControl
 
 	constructor(
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaUrl: IzendaUrlService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
-		private readonly $izendaCommonQuery: IzendaCommonQueryService) {
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaUrlService: IzendaUrlService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
+		private readonly $izendaCommonQueryService: IzendaCommonQueryService) {
 
-		this.uncategorizedText = this.$izendaLocale.localeText('js_Uncategorized', 'Uncategorized');
+		this.uncategorizedText = this.$izendaLocaleService.localeText('js_Uncategorized', 'Uncategorized');
 		this.reset();
 	}
 
@@ -57,7 +57,7 @@ export default class IzendaSelectReportComponent implements ng.IComponentControl
 			// timeout is needed for the smoother modal animation
 			this.$timeout(() => {
 				this.hideAll = false;
-				this.$izendaCommonQuery.getReportSetCategory(this.uncategorizedText).then(data => {
+				this.$izendaCommonQueryService.getReportSetCategory(this.uncategorizedText).then(data => {
 					const reportSets = data.ReportSets;
 					this.addCategoriesToModal(reportSets);
 					this.addReportsToModal(reportSets);
@@ -101,7 +101,7 @@ export default class IzendaSelectReportComponent implements ng.IComponentControl
 				const category = report.Category ? report.Category : this.uncategorizedText;
 				return !report.Subcategory
 					? category
-					: category + this.$izendaSettings.getCategoryCharacter() + report.Subcategory;
+					: category + this.$izendaSettingsService.getCategoryCharacter() + report.Subcategory;
 			});
 		// make categories unique
 		this.categories = Array.from(new Set<string>(this.categories));
@@ -146,7 +146,7 @@ export default class IzendaSelectReportComponent implements ng.IComponentControl
 		this.groups = [];
 		if (!this.category)
 			this.category = this.uncategorizedText;
-		this.$izendaCommonQuery.getReportSetCategory(this.category).then(data => {
+		this.$izendaCommonQueryService.getReportSetCategory(this.category).then(data => {
 			this.addReportsToModal(data.ReportSets);
 			this.isLoading = false;
 		});
@@ -168,13 +168,13 @@ export default class IzendaSelectReportComponent implements ng.IComponentControl
 		let reportFullName = item.Name;
 
 		if (item.CategoryFull)
-			reportFullName = item.CategoryFull + this.$izendaSettings.getCategoryCharacter() + reportFullName;
+			reportFullName = item.CategoryFull + this.$izendaSettingsService.getCategoryCharacter() + reportFullName;
 
 		if (!isReportPart) {
 			// if report set selected
 			this.isLoading = true;
 			this.groups = [];
-			this.$izendaCommonQuery.getReportParts(reportFullName).then(data => {
+			this.$izendaCommonQueryService.getReportParts(reportFullName).then(data => {
 				var reports = data.Reports;
 				this.addReportPartsToModal(reports);
 				this.isLoading = false;

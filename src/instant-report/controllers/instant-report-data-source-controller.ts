@@ -14,14 +14,14 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 	'$log',
 	'$sce',
 	'$anchorScroll',
-	'$izendaUrl',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportQuery',
-	'$izendaInstantReportPivots',
-	'$izendaInstantReportValidation',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportSettings',
+	'$izendaUrlService',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportQueryService',
+	'$izendaInstantReportPivotService',
+	'$izendaInstantReportValidationService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportSettingsService',
 	function (
 		$rootScope,
 		$scope,
@@ -31,21 +31,21 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		$log,
 		$sce,
 		$anchorScroll,
-		$izendaUrl,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportQuery,
-		$izendaInstantReportPivots,
-		$izendaInstantReportValidation,
-		$izendaInstantReportStorage,
-		$izendaInstantReportSettings) {
+		$izendaUrlService,
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportQueryService,
+		$izendaInstantReportPivotService,
+		$izendaInstantReportValidationService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportSettingsService) {
 		'use strict';
 		var vm = this;
 		var angularJq$ = angular.element;
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
-		$scope.$izendaCompatibility = $izendaCompatibility;
-		$scope.$izendaUrl = $izendaUrl;
-		$scope.$izendaInstantReportSettings = $izendaInstantReportSettings;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
+		$scope.$izendaCompatibilityService = $izendaCompatibilityService;
+		$scope.$izendaUrlService = $izendaUrlService;
+		$scope.$izendaInstantReportSettingsService = $izendaInstantReportSettingsService;
 		$scope.trustAsHtml = function (value) {
 			return $sce.trustAsHtml(value);
 		};
@@ -56,7 +56,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		vm.searchResults = [];
 		var previousResultsCount = null;
 		vm.searchPanelOpened = false;
-		vm.options = $izendaInstantReportStorage.getOptions();
+		vm.options = $izendaInstantReportStorageService.getOptions();
 
 		vm.columnSortPanelOpened = false;
 		vm.columnSortPanelButtonEnabled = false;
@@ -124,7 +124,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 				vm.searchQueryRunning = false;
 				return;
 			}
-			$izendaInstantReportStorage.searchInDataDources(vm.searchString, vm.searchResults.length, vm.searchResults.length + count - 1).then(function (searchResults) {
+			$izendaInstantReportStorageService.searchInDataDources(vm.searchString, vm.searchResults.length, vm.searchResults.length + count - 1).then(function (searchResults) {
 				previousResultsCount = searchResults.length;
 				angular.element.each(searchResults, function () {
 					vm.searchResults.push(this);
@@ -139,7 +139,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Get filtered datasources
 		 */
 		vm.searchInDataDources = function () {
-			if ($izendaCompatibility.isSmallResolution())
+			if ($izendaCompatibilityService.isSmallResolution())
 				return;
 			if (searchState.timeoutId !== null)
 				$timeout.cancel(searchState.timeoutId);
@@ -223,7 +223,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Check if field have group
 		 */
 		vm.isFieldGrouped = function (field) {
-			return field.checked && $izendaInstantReportStorage.isFieldGrouped(field);
+			return field.checked && $izendaInstantReportStorageService.isFieldGrouped(field);
 		};
 
 		/**
@@ -235,7 +235,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 				table.collapsed = !table.collapsed;
 				// if table is lazy - load fields.
 				if (table.lazy) {
-					$izendaInstantReportStorage.loadLazyFields(table).then(function () {
+					$izendaInstantReportStorageService.loadLazyFields(table).then(function () {
 						$scope.$applyAsync();
 						resolve(table);
 					});
@@ -249,7 +249,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Update validation state and refresh if needed.
 		 */
 		vm.updateReportSetValidationAndRefresh = function () {
-			$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportValidationService.validateReportSetAndRefresh();
 		};
 
 		/**
@@ -259,13 +259,12 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 			if (!field)
 				return;
 			var needToCheck = !field.checked;
-			var pivotsEnabled = $izendaInstantReportPivots.isPivotValid();
+			var pivotsEnabled = $izendaInstantReportPivotService.isPivotValid();
 
-			$izendaInstantReportStorage.applyFieldChecked(field, needToCheck, pivotsEnabled).then(function () {
-				$izendaInstantReportStorage.updateVisualGroupFieldOrders();
+			$izendaInstantReportStorageService.applyFieldChecked(field, needToCheck, pivotsEnabled).then(function () {
 				// turn on autogroup if pivots are turned on
 				if (pivotsEnabled && needToCheck) {
-					$izendaInstantReportStorage.applyAutoGroups(true);
+					$izendaInstantReportStorageService.applyAutoGroups(true);
 				}
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
@@ -274,9 +273,9 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 
 		vm.getFieldTooltip = function (field) {
 			if (!field.checked)
-				return $izendaLocale.localeText('js_ToggleReportField', 'Toggle report field');
+				return $izendaLocaleService.localeText('js_ToggleReportField', 'Toggle report field');
 			else if (!field.selected)
-				return $izendaLocale.localeText('js_SelectReportField', 'Select report field');
+				return $izendaLocaleService.localeText('js_SelectReportField', 'Select report field');
 			else
 				return '';
 		}
@@ -296,7 +295,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 			if (field.checked && !allowUncheck)
 				return;
 
-			if (!$izendaCompatibility.isSmallResolution()) {
+			if (!$izendaCompatibilityService.isSmallResolution()) {
 				// check field occurs in selectField function
 				vm.toggleFieldChecked(field);
 			}
@@ -306,7 +305,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Activate/deactivate table
 		 */
 		vm.activateTable = function (table) {
-			$izendaInstantReportStorage.applyTableActive(table).then(function () {
+			$izendaInstantReportStorageService.applyTableActive(table).then(function () {
 				vm.updateReportSetValidationAndRefresh();
 				$scope.$applyAsync();
 			});
@@ -316,10 +315,10 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Show field options
 		 */
 		vm.selectField = function (field) {
-			if ($izendaCompatibility.isSmallResolution()) {
+			if ($izendaCompatibilityService.isSmallResolution()) {
 				vm.toggleFieldChecked(field);
 			} else {
-				$izendaInstantReportStorage.applyFieldSelected(field, true);
+				$izendaInstantReportStorageService.applyFieldSelected(field, true);
 			}
 		};
 
@@ -327,8 +326,8 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Show field options button
 		 */
 		vm.showFieldOptions = function (field) {
-			$izendaInstantReportStorage.applyFieldSelected(field, true);
-			if ($izendaCompatibility.isSmallResolution()) {
+			$izendaInstantReportStorageService.applyFieldSelected(field, true);
+			if ($izendaCompatibilityService.isSmallResolution()) {
 				$scope.irController.setLeftPanelActiveItem(7);
 			}
 		}
@@ -358,7 +357,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Add more than one same fields to report
 		 */
 		vm.addAnotherField = function (field) {
-			var anotherField = $izendaInstantReportStorage.addAnotherField(field, true);
+			var anotherField = $izendaInstantReportStorageService.addAnotherField(field, true);
 			vm.toggleFieldChecked(anotherField);
 		};
 
@@ -366,7 +365,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 		 * Remove more than one same field
 		 */
 		vm.removeAnotherField = function (field, multiField) {
-			$izendaInstantReportStorage.removeAnotherField(field, multiField);
+			$izendaInstantReportStorageService.removeAnotherField(field, multiField);
 			vm.updateReportSetValidationAndRefresh();
 			$scope.$applyAsync();
 		};
@@ -392,7 +391,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 				var tSysName = searchResult['tSysName'];
 				if (isField) {
 					var fieldSysName = searchResult['fSysName'];
-					var field = $izendaInstantReportStorage.getFieldBySysName(fieldSysName, true);
+					var field = $izendaInstantReportStorageService.getFieldBySysName(fieldSysName, true);
 					vm.selectField(field);
 					$scope.$applyAsync();
 				}
@@ -408,7 +407,7 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 			vm.turnOffSearch(true);
 			$scope.$applyAsync();
 
-			var table = $izendaInstantReportStorage.getTableBySysname(searchResultObject['tSysName']);
+			var table = $izendaInstantReportStorageService.getTableBySysname(searchResultObject['tSysName']);
 			if (!table.collapsed) {
 				gotoSearchTarget(searchResultObject);
 			} else {
@@ -431,14 +430,14 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 			/**
 			 * Look for options change
 			 */
-			$scope.$watch('$izendaInstantReportStorage.getOptions()', function (options) {
+			$scope.$watch('$izendaInstantReportStorageService.getOptions()', function (options) {
 				vm.options = options;
 			});
 
 			/**
 			 * Listen for complete loading page.
 			 */
-			$scope.$watch('$izendaInstantReportStorage.getPageReady()', function (isPageReady) {
+			$scope.$watch('$izendaInstantReportStorageService.getPageReady()', function (isPageReady) {
 				if (isPageReady) {
 					vm.isDataSourcesLoading = false;
 				}
@@ -447,14 +446,14 @@ izendaInstantReportModule.controller('InstantReportDataSourceController', [
 			/**
 			 * Look for datasources change
 			 */
-			$scope.$watch('$izendaInstantReportStorage.getDataSources()', function (datasources) {
+			$scope.$watch('$izendaInstantReportStorageService.getDataSources()', function (datasources) {
 				vm.dataSources = datasources;
 			});
 
 			/**
 			 * Look for checked fields count
 			 */
-			$scope.$watchCollection('$izendaInstantReportStorage.getAllActiveFields()', function (newActiveFields) {
+			$scope.$watchCollection('$izendaInstantReportStorageService.getAllActiveFields()', function (newActiveFields) {
 				vm.columnSortPanelButtonEnabled = newActiveFields.length > 1;
 			});
 		};

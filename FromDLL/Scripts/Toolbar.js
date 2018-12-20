@@ -36,11 +36,6 @@
 
 function disableAnchor(obj, disable)
 {
-	// The following statement prevents client-side activation of diabled buttons
-	if (obj!=null && obj.attributes['canactivateonclient'])
-		if (obj.attributes['canactivateonclient'].value=='0')
-			return;
-
 	var image = obj.firstChild;
 
 	if(disable)
@@ -69,6 +64,10 @@ function disableAnchor(obj, disable)
 	}
 	else
 	{
+		// The following statement prevents client-side activation of diabled buttons
+		if (obj != null && obj.attributes['canactivateonclient'])
+			if (obj.attributes['canactivateonclient'].value == '0')
+				return;
 		obj.style.cursor = "";
 		if(image!=null && image.src!=null)
 		{

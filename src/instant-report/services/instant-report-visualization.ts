@@ -1,86 +1,89 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import izendaInstantReportModule from 'instant-report/module-definition';
+import IzendaInstantReportQueryService from 'instant-report/services/instant-report-query';
 
 /**
  * Instant report chart service. Contains charts data and its functions.
  */
-izendaInstantReportModule.factory('$izendaInstantReportVisualization', [
-	'$q',
-	'$izendaInstantReportQuery',
-	function ($q, $izendaInstantReportQuery) {
-		'use strict';
+export default class IzendaInstantReportVisualizationService {
 
-		var _visConfig = _createDefaultConfig();
+	visConfig: any;
 
-		/**
-		 * Create default config object
-		 */
-		function _createDefaultConfig() {
-			return {
-				categories: []
-			};
-		}
+	static get injectModules(): any[] {
+		return ['$q', '$izendaInstantReportQueryService'];
+	}
 
-		/**
-		 * Get current config.
-		 */
-		function getVisualizationConfig() {
-			return _visConfig;
-		}
+	constructor(private readonly $q: ng.IQService,
+		private readonly $izendaInstantReportQueryService: IzendaInstantReportQueryService) {
+		this.visConfig = this.createDefaultConfig();
+	}
 
-		/**
-		 * Load visualizations. Designed as async operation for future async config loading.
-		 * @returns {promise object}.
-		 */
-		function loadVisualizations() {
-			_visConfig = _createDefaultConfig();
-
-			return $q(function (resolve) {
-				// run query:
-				$izendaInstantReportQuery.getVisualizationConfig().then(function (config) {
-					if (!angular.isObject(config) || !angular.isArray(config.categories)) {
-						resolve();
-						return;
-					}
-					// set config:
-					_visConfig = config;
-					// add category name to each visualization object:
-					angular.element.each(_visConfig.categories, function () {
-						var categoryName = this.name;
-						angular.element.each(this.charts, function () {
-							this.categoryName = categoryName;
-						});
-					});
-					resolve();
-				});
-			});
-		};
-
-		/**
-		 * Find visualization object by given name and category.
-		 * @param {string} category.
-		 * @param {string} name.
-		 * @returns {object} visualization object.
-		 */
-		function findVisualization(category, name) {
-			var result = null;
-			angular.element.each(_visConfig.categories, function () {
-				if (this.name === category) {
-					angular.element.each(this.charts, function () {
-						if (this.name === name)
-							result = this;
-					});
-				}
-			});
-			return result;
-		};
-
-		// public API:
+	/**
+	 * Create default config object
+	 */
+	createDefaultConfig() {
 		return {
-			getVisualizationConfig: getVisualizationConfig,
-			loadVisualizations: loadVisualizations,
-			findVisualization: findVisualization
+			categories: []
 		};
 	}
-]);
+
+	/**
+	 * Get current config.
+	 */
+	getVisualizationConfig() {
+		return this.visConfig;
+	}
+
+	/**
+	 * Load visualizations. Designed as async operation for future async config loading.
+	 * @returns {promise object}.
+	 */
+	loadVisualizations() {
+		this.visConfig = this.createDefaultConfig();
+
+		return this.$q(resolve => {
+			// run query:
+			this.$izendaInstantReportQueryService.getVisualizationConfig().then(config => {
+				if (!angular.isObject(config) || !angular.isArray(config.categories)) {
+					resolve();
+					return;
+				}
+				// set config:
+				this.visConfig = config;
+
+				// add category name to each visualization object:
+				this.visConfig.categories
+					.filter(c => !!c.charts)
+					.forEach(c => c.charts.forEach(chart => chart.categoryName = c.name));
+				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Find visualization object by given name and category.
+	 * @param {string} category.
+	 * @param {string} name.
+	 * @returns {object} visualization object.
+	 */
+	findVisualization(category, name) {
+		var result = null;
+		this.visConfig.categories
+			.filter(c => c.name === category)
+			.forEach(c => {
+				const charts = c.charts.filter(ch => ch.name === name);
+				if (charts && charts.length)
+					result = charts[0];
+			});
+		return result;
+	}
+
+	static get $inject() {
+		return this.injectModules;
+	}
+
+	static register(module: ng.IModule) {
+		module.service('$izendaInstantReportVisualizationService',
+			IzendaInstantReportVisualizationService.injectModules.concat(IzendaInstantReportVisualizationService));
+	}
+}

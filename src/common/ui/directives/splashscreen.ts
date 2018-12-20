@@ -20,7 +20,7 @@ class IzendaSplashScreen implements ng.IDirective {
 	};
 	link: ($scope: IIzendaSplashScreenScope) => void;
 
-	constructor(private readonly $timeout: ng.ITimeoutService, $izendaUrl: IzendaUrlService) {
+	constructor(private readonly $timeout: ng.ITimeoutService, $izendaUrlService: IzendaUrlService) {
 		IzendaSplashScreen.prototype.link = ($scope: IIzendaSplashScreenScope) => {
 
 			var splashTimeout: ng.IPromise<any> = null;
@@ -37,7 +37,7 @@ class IzendaSplashScreen implements ng.IDirective {
 			// loading spinner
 			const defaultLoadingIndicatorUrl = angular.isString($scope.loadingIndicatorUrl)
 				? $scope.loadingIndicatorUrl
-				: $izendaUrl.settings.urlRpPage + 'image=ModernImages.loading-grid.gif';
+				: $izendaUrlService.settings.urlRpPage + 'image=ModernImages.loading-grid.gif';
 			const parentSelectorText = angular.isString($scope.parentSelector) ? $scope.parentSelector : 'body';
 			let bodyOverflow: string;
 			let bodyPadding: string;
@@ -108,10 +108,10 @@ class IzendaSplashScreen implements ng.IDirective {
 	}
 
 	static factory(): ng.IDirectiveFactory {
-		const directive = ($timeout: ng.ITimeoutService, $izendaUrl: IzendaUrlService) => new IzendaSplashScreen($timeout, $izendaUrl);
-		directive.$inject = ['$timeout', '$izendaUrl'];
+		const directive = ($timeout: ng.ITimeoutService, $izendaUrlService: IzendaUrlService) => new IzendaSplashScreen($timeout, $izendaUrlService);
+		directive.$inject = ['$timeout', '$izendaUrlService'];
 		return directive;
 	}
 }
 
-izendaUiModule.directive('izendaSplashScreen', ['$timeout', '$izendaUrl', IzendaSplashScreen.factory()]);
+izendaUiModule.directive('izendaSplashScreen', ['$timeout', '$izendaUrlService', IzendaSplashScreen.factory()]);

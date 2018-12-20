@@ -146,7 +146,7 @@
 			<div ng-show="$ctrl.sendEmailState.isLoading">
 				<div class="izenda-common-vcentered-container" style="height: 50px;">
 					<div class="izenda-common-vcentered-item">
-						<img class="izenda-common-img-loading" ng-src="{{$ctrl.$izendaUrl.settings.urlRpPage + 'image=ModernImages.loading-grid.gif'}}" />
+						<img class="izenda-common-img-loading" ng-src="{{$ctrl.$izendaUrlService.settings.urlRpPage + 'image=ModernImages.loading-grid.gif'}}" />
 					</div>
 				</div>
 			</div>
@@ -314,14 +314,6 @@
 							</li>
 						</ul>
 					</li>
-
-					<li>
-						<a ng-attr-title="{{'js_RefreshReport' | izendaLocale: 'Refresh Report'}}"
-						   ng-click="$ctrl.syncDashboard()"
-						   ng-hide="$ctrl.$izendaGalleryService.galleryState.isEnabled">
-							<span class="glyphicon glyphicon-retweet"></span>
-						</a>
-					</li>
 					<!-- filters -->
 					<li>
 						<a ng-attr-title="{{'js_ShowDashboardFilters' | izendaLocale: 'Show dashboard filter'}}"
@@ -374,7 +366,7 @@
 					</li>
 					<!-- save -->
 					<li class="dropdown"
-						ng-show="$ctrl.isShowSaveControls && !$ctrl.$izendaGalleryService.galleryState.isEnabled && ($ctrl.isSaveAsAllowed || $ctrl.isFullAccess)">
+						ng-show="$ctrl.isShowSaveControls && !$ctrl.$izendaGalleryService.galleryState.isEnabled && ($ctrl.isSaveAsAllowed || $ctrl.isSaveAllowed)">
 						<a class="dropdown-toggle" data-toggle="dropdown"
 						   ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
 						   ng-hide="$ctrl.$izendaGalleryService.galleryState.isEnabled">
@@ -383,7 +375,7 @@
 						<ul class="dropdown-menu">
 							<li>
 								<a ng-attr-title="{{'js_SaveDashboard' | izendaLocale: 'Save dashboard'}}"
-								   ng-hide="!$ctrl.isFullAccess"
+								   ng-show="$ctrl.isSaveAllowed"
 								   ng-click="$ctrl.saveDashboard(false)">
 									<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
 									<span ng-bind=":: 'js_SaveDashboard' | izendaLocale: 'Save dashboard'"></span>
@@ -391,6 +383,7 @@
 							</li>
 							<li ng-show="$ctrl.isShowSaveAsToolbarButton">
 								<a ng-attr-title="{{'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'}}"
+								   ng-show="$ctrl.isSaveAsAllowed"
 								   ng-click="$ctrl.saveDashboard(true)">
 									<span class="glyphicon glyphicon-floppy-disk"></span>&nbsp;
 									<span ng-bind=":: 'js_SaveDashboardAs' | izendaLocale: 'Save dashboard as'"></span>

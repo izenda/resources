@@ -6,7 +6,7 @@
 
 <a ng-if="!$ctrl.isTitleSet() && !$ctrl.isUncategorized($ctrl.tile.reportCategory)"
    title="{{$ctrl.getTitleText()}}"
-   href="{{$ctrl.$izendaUrl.settings.urlReportList}}#{{$ctrl.tile.reportCategory}}"
+   href="{{$ctrl.$izendaUrlService.settings.urlReportList}}#{{$ctrl.tile.reportCategory}}"
    ng-bind="$ctrl.tile.reportCategory"></a>
 
 <span ng-if="!$ctrl.isTitleSet() && !$ctrl.isUncategorized($ctrl.tile.reportCategory) && $ctrl.tile.reportName">/</span>

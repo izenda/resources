@@ -9,14 +9,14 @@ izendaRequire.define(['jquery'], function(jq$) {
 
 		var dfd = jq$.Deferred();
 		var uSettings = window.urlSettings$;
-		let url = uSettings.urlRsPage + '?wscmd=reportviewerconfig&wsarg0=0&wsarg1=0&wsarg2=' + encodeURIComponent(uSettings.reportInfo.fullName);
+		var url = uSettings.urlRsPage + '?wscmd=reportviewerconfig&wsarg0=0&wsarg1=0&wsarg2=' + encodeURIComponent(uSettings.reportInfo.fullName);
 		url = appendParameterToUrl(url, 'izpid', window.izendaPageId$);
 		url = appendParameterToUrl(url, 'anpid', window.angularPageId$);
 
 		jq$.get({
 			url: url,
 			dataType: 'json',
-			success: returnObj => {
+			success: function (returnObj) {
 				window.nrvConfig = returnObj;
 				window.nrvConfig.serverDelimiter = '?';
 				if (window.nrvConfig.ResponseServerUrl.indexOf('?') >= 0)

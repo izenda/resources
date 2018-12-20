@@ -2,19 +2,19 @@
 <nav class="iz-inst-navbar navbar navbar-default">
 	<div class="collapse in navbar-collapse">
 		<ul class="iz-inst-nav nav navbar-nav">
-			<li ng-if="!$izendaCompatibility.isSmallResolution()">
+			<li ng-if="!$izendaCompatibilityService.isSmallResolution()">
 				<a ng-attr-title="{{irController.getToggleButtonTitle()}}"
 				   ng-click="irController.toggleLeftPanel()">
-					<span class="glyphicon glyphicon-chevron-left"
+					<span class="svg-icon icon-16 glyphicon glyphicon-chevron-left"
 						  ng-class="irController.leftPanel.opened ? 'glyphicon-chevron-left' : 'glyphicon-chevron-right'"></span>
 				</a>
 			</li>
 			<!-- refresh button -->
-			<li ng-if="!$izendaCompatibility.isSmallResolution()"
+			<li ng-if="!$izendaCompatibilityService.isSmallResolution()"
 				ng-class="irController.isValid ? '' : 'disabled'">
 				<a ng-attr-title="{{'js_RefreshPreview' | izendaLocale: 'Refresh report preview'}}"
 				   ng-click="irController.isValid ? irController.applyChanges() : ''">
-					<span class="glyphicon glyphicon-refresh"></span>&nbsp;
+					<span class="svg-icon icon-16 glyphicon glyphicon-refresh"></span>&nbsp;
 					<span ng-bind=":: 'js_UpdateResults' | izendaLocale: 'Update Results'"></span>
 				</a>
 			</li>
@@ -25,7 +25,7 @@
 				   class="dropdown-toggle"
 				   ng-click="irController.openNavBarDropdown($event)"
 				   role="button">
-					<span class="glyphicon glyphicon-list-alt" ng-if="$izendaCompatibility.isSmallResolution()"></span>
+					<span class="svg-icon icon-16 glyphicon glyphicon-list-alt" ng-if="$izendaCompatibilityService.isSmallResolution()"></span>
 					<span ng-bind=":: 'js_PreviewRecords' | izendaLocale: 'Preview Records'"></span>
 					:
 					<span ng-bind="(irController.previewTop > 0 ? irController.previewTop + ' ' : 'All ')"></span>
@@ -64,21 +64,21 @@
 				</ul>
 			</li>
 			<!-- save -->
-			<li class="dropdown" ng-if="irController.settings.showSaveControls && (irController.rights.isSaveAllowed || irController.rights.isSaveAsAllowed)"
+			<li class="dropdown" ng-if="irController.isSaveButtonVisible() || irController.isSaveAsButtonVisible()"
 				ng-class="irController.isValid ? '' : 'disabled'">
 				<a ng-attr-title="{{'js_SaveReport' | izendaLocale: 'Save report'}}"
 				   class="dropdown-toggle"
 				   ng-click="irController.openNavBarDropdown($event)"
 				   role="button">
-					<span class="glyphicon svg-icon icon-16 save"></span>
-					<span ng-if="$izendaCompatibility.isSmallResolution()"
+					<span class="svg-icon icon-16 glyphicon svg-icon icon-16 save"></span>
+					<span ng-if="$izendaCompatibilityService.isSmallResolution()"
 						  ng-bind=":: 'js_Save' | izendaLocale: 'Save'"></span>
 					<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					<li ng-if="irController.rights.isSaveAllowed">
+					<li ng-if="irController.isSaveButtonVisible()">
 						<a ng-click="irController.saveReport(false)">
-							<span class="glyphicon svg-icon icon-16 save"></span>
+							<span class="svg-icon icon-16 glyphicon svg-icon icon-16 save"></span>
 							&nbsp;
 							<b ng-bind=":: 'js_Save' | izendaLocale: 'Save'"></b>
 							<br />
@@ -86,9 +86,9 @@
 								  ng-bind=":: 'js_SaveChangesMessage' | izendaLocale: 'Save changes to the report for everyone it is shared with'"></span>
 						</a>
 					</li>
-					<li ng-if="irController.rights.isSaveAsAllowed">
+					<li ng-if="irController.isSaveAsButtonVisible()">
 						<a ng-click="irController.saveReport(true)">
-							<span class="glyphicon svg-icon icon-16 save"></span>
+							<span class="svg-icon icon-16 glyphicon svg-icon icon-16 save"></span>
 							&nbsp;
 							<b ng-bind=":: 'js_SaveAs' | izendaLocale: 'Save as'"></b>
 							<br />
@@ -102,8 +102,8 @@
 			<li ng-class="irController.activeFields.length !== 0 ? '' : 'disabled'">
 				<a ng-attr-title="{{'js_OpenReportInReportDesigner' | izendaLocale: 'Open report in Report Designer'}}"
 				   ng-click="irController.activeFields.length !== 0 ? irController.openReportInDesigner() : ''">
-					<span class="glyphicon glyphicon-pencil"></span>
-					<span ng-if="$izendaCompatibility.isSmallResolution()"
+					<span class="svg-icon icon-16 glyphicon glyphicon-pencil"></span>
+					<span ng-if="$izendaCompatibilityService.isSmallResolution()"
 						  ng-bind=":: 'js_OpenInDesigner' | izendaLocale: 'Open in report designer'"></span>
 				</a>
 			</li>
@@ -114,13 +114,13 @@
 				   class="dropdown-toggle"
 				   ng-click="irController.openNavBarDropdown($event, true)"
 				   role="button">
-					<span class="glyphicon svg-icon icon-16 print"></span>
-					<span ng-if="$izendaCompatibility.isSmallResolution()"
+					<span class="svg-icon icon-16 glyphicon svg-icon icon-16 print"></span>
+					<span ng-if="$izendaCompatibilityService.isSmallResolution()"
 						  ng-bind=":: 'js_Print' | izendaLocale: 'Print'"></span>
 					<span class="caret"></span>
 				</a>
 				<ul class="dropdown-menu">
-					<li ng-if="!$izendaCompatibility.isSmallResolution()">
+					<li ng-if="!$izendaCompatibilityService.isSmallResolution()">
 						<a ng-click="irController.printReport('html')"
 						   ng-show="['Html', 'Html2PdfAndHtml'].indexOf(irController.settings.allowedPrintEngine) >= 0">
 							<img class="icon-16" src="###RS###image=ModernImages.print-32.png" alt="">
@@ -151,8 +151,8 @@
 				   class="dropdown-toggle"
 				   role="button"
 				   ng-click="irController.openNavBarDropdown($event)">
-					<span class="glyphicon svg-icon icon-16 glyphicon-log-out"></span>
-					<span ng-if="$izendaCompatibility.isSmallResolution()"
+					<span class="svg-icon icon-16 glyphicon svg-icon icon-16 glyphicon-log-out"></span>
+					<span ng-if="$izendaCompatibilityService.isSmallResolution()"
 						  ng-bind=":: 'js_Export' | izendaLocale: 'Export'"></span>
 					<span class="caret"></span>
 				</a>
@@ -204,15 +204,15 @@
 			<li ng-class="!irController.isValid || !irController.isExistingReport ? 'disabled' : ''">
 				<a ng-attr-title="{{'js_Email' | izendaLocale: 'Email'}}"
 				   ng-click="(!irController.isValid || !irController.isExistingReport) ? '' : irController.sendReportLinkEmail()"
-				   ng-attr-title="{{irController.isExistingReport ? $izendaLocale.localeText('js_SendEmailLink', 'Send email with report link') : $izendaLocale.localeText('js_SendEmailMustSave', 'You must save a report before it can be emailed')}}">
-					<span class="glyphicon svg-icon icon-16 email"></span>
-					<span ng-if="$izendaCompatibility.isSmallResolution()"
+				   ng-attr-title="{{irController.isExistingReport ? $izendaLocaleService.localeText('js_SendEmailLink', 'Send email with report link') : $izendaLocaleService.localeText('js_SendEmailMustSave', 'You must save a report before it can be emailed')}}">
+					<span class="svg-icon icon-16 glyphicon svg-icon icon-16 email"></span>
+					<span ng-if="$izendaCompatibilityService.isSmallResolution()"
 						  ng-bind=":: 'js_EmailReport' | izendaLocale: 'Email report'"></span>
 				</a>
 			</li>
 
 			<!-- filters -->
-			<li ng-if="!$izendaCompatibility.isSmallResolution()"
+			<li ng-if="!$izendaCompatibilityService.isSmallResolution()"
 				ng-class="irController.filtersPanelOpened ? 'active' : ''">
 				<a ng-attr-title="{{'js_EditFilters' | izendaLocale: 'Edit Report Filters'}}"
 				   ng-disabled="irController.activeFields.length === 0"
@@ -220,7 +220,7 @@
 				   droppable-accept=".datasource-field"
 				   on-drop="irController.addFilter(arg0)"
 				   izenda-instant-report-field-droppable>
-					<span class="glyphicon glyphicon-filter"></span>
+					<span class="svg-icon icon-16 glyphicon glyphicon-filter"></span>
 					<span class="highlight-notification-round"
 						  ng-show="irController.filtersCount > 0"
 						  ng-bind="irController.filtersCount"></span>
@@ -228,7 +228,7 @@
 			</li>
 
 			<!-- pivots -->
-			<li ng-if="!$izendaCompatibility.isSmallResolution()"
+			<li ng-if="!$izendaCompatibilityService.isSmallResolution()"
 				ng-class="irController.pivotsPanelOpened ? 'active' : ''">
 				<a ng-attr-title="{{'js_EditPivots' | izendaLocale: 'Edit Pivots'}}"
 				   ng-disabled="irController.activeFields.length === 0"
@@ -236,7 +236,7 @@
 				   droppable-accept=".datasource-field"
 				   on-drop="irController.addPivotItem(arg0)"
 				   izenda-instant-report-field-droppable>
-					<span class="glyphicon glyphicon-transfer"></span>
+					<span class="svg-icon icon-16 glyphicon glyphicon-transfer"></span>
 					<span class="highlight-notification-round"
 						  ng-show="irController.pivotCellsCount > 0"
 						  ng-bind="irController.pivotCellsCount"></span>

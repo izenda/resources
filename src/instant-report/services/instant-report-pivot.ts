@@ -1,243 +1,211 @@
 ﻿import * as angular from 'angular';
 import 'izenda-external-libs';
-import izendaInstantReportModule from 'instant-report/module-definition';
-
-/**
- * Default pivot config object
- */
-izendaInstantReportModule.constant('izendaInstantReportDefaultPivotConfig', {
-	pivotColumn: null,
-	cellValues: [],
-	options: {
-		addSideTotals: false
-	}
-});
+import IzendaUtilService from 'common/core/services/util-service';
+import IzendaInstantReportDefaultPivotConfig from 'instant-report/models/instant-report-pivot-config';
 
 /**
  * Pivot storage service
  */
-izendaInstantReportModule.factory('$izendaInstantReportPivots', [
-	'$injector',
-	'$q',
-	'$rootScope',
-	'$izendaUtil',
-	function ($injector, $q, $rootScope, $izendaUtil) {
-		'use strict';
+export default class IzendaInstantReportPivotService {
 
-		/////////////////////////////////////////
-		// common functions and variables
-		/////////////////////////////////////////
+	private static $izendaInstantReportPivotsDefaultConfigName = '$izendaInstantReportPivotsDefaultConfig';
+	private pivotConfig: IzendaInstantReportDefaultPivotConfig;
+	private pivotsPanelOpened: boolean;
 
-		// variables
-		var defaultConfig = $injector.get('izendaInstantReportDefaultPivotConfig');
-		var pivotConfig = angular.extend({}, defaultConfig);
-		var pivotsPanelOpened = false;
-
-		/**
-		 * Get pivot column field wrapper
-		 */
-		var getPivotColumn = function () {
-			return pivotConfig.pivotColumn;
-		};
-
-		/**
-		 * Set pivot column
-		 */
-		var setPivotColumn = function (value) {
-			pivotConfig.pivotColumn = value;
-		};
-
-		/**
-		 * Set default group for pivot column.
-		 */
-		var setDefaultGroup = function () {
-			if (!angular.isObject(pivotConfig.pivotColumn))
-				return;
-			if (!pivotConfig.pivotColumn.groupByFunction)
-				pivotConfig.pivotColumn.groupByFunction = $izendaUtil.getOptionByValue(pivotConfig.pivotColumn.groupByFunctionOptions, 'GROUP', true);
-		}
-
-		/**
-		 * Clear pivots
-		 */
-		var removePivots = function () {
-			pivotConfig.pivotColumn = null;
-			pivotConfig.cellValues = [];
-			pivotConfig.options.addSideTotals = false;
-		};
-
-		/**
-		 * Get pivot options object
-		 */
-		var getPivotOptions = function () {
-			return pivotConfig.options;
-		};
-
-		/**
-		 * Get pivots panel state
-		 */
-		var getPivotsPanelOpened = function () {
-			return pivotsPanelOpened;
-		};
-
-		/**
-		 * Set pivots panel state
-		 */
-		var setPivotsPanelOpened = function (value) {
-			pivotsPanelOpened = value;
-		};
-
-		/////////////////////////////////////////
-		// cell value functions
-		/////////////////////////////////////////
-
-		/**
-		 * Get pivot fields wrappers
-		 */
-		var getCellValues = function () {
-			return pivotConfig.cellValues;
-		};
-
-		/**
-		 * Check is pivot added and valid.
-		 * @returns {boolean} is valid
-		 */
-		var isPivotValid = function () {
-			return angular.isObject(pivotConfig.pivotColumn) && pivotConfig.cellValues.length > 0;
-		};
-
-		/**
-		 * Add cell value field
-		 */
-		var addCellValue = function () {
-			pivotConfig.cellValues.push(null);
-		};
-
-		/**
-		 * Remove cell value
-		 */
-		var removeCellValue = function (cellValue) {
-			var cellValues = pivotConfig.cellValues;
-			var idx = cellValues.indexOf(cellValue);
-			if (idx >= 0) {
-				cellValues.splice(idx, 1);
-			}
-		};
-
-		/**
-		 * Replace cell values by each other
-		 */
-		var swapCellValues = function (fromIndex, toIndex) {
-			var cellValues = pivotConfig.cellValues;
-			var temp = cellValues[fromIndex];
-			cellValues[fromIndex] = cellValues[toIndex];
-			cellValues[toIndex] = temp;
-		};
-
-		/**
-		 * Move cell value to position
-		 */
-		var moveCellValueTo = function (fromIndex, toIndex) {
-			var cellValues = pivotConfig.cellValues;
-			cellValues.splice(toIndex, 0, cellValues.splice(fromIndex, 1)[0]);
-		};
-
-		/**
-		 * Set cell value field, update available groups, formats, etc...
-		 */
-		var setCellValueField = function (index, newField) {
-			pivotConfig.cellValues[index] = newField;
-		};
-
-		/**
-		 * Add pivot column or cell if pivot column already defined
-		 */
-		var addPivotItem = function (fieldCopy) {
-			if (!angular.isObject(pivotConfig.pivotColumn)) {
-				pivotConfig.pivotColumn = fieldCopy;
-			} else {
-				pivotConfig.cellValues.push(fieldCopy);
-			}
-		};
-
-		/**
-		 * Synchronizes pivot
-		 */
-		var syncPivotState = function (activeFieldsInActiveTables) {
-			removeNotActiveFields(activeFieldsInActiveTables);
-		};
-
-		/**
-		 * Remove pivot column and pivot cell if corresponging fields are no
-		 * longer available.
-		 * @param {array} array of currently active fields.
-		 */
-		var removeNotActiveFields = function (activeFieldsInActiveTables) {
-			var isFieldInList = function (field, fieldList) {
-				if (!angular.isArray(fieldList))
-					return false;
-				for (var i = 0; i < fieldList.length; i++)
-					if (fieldList[i].sysname === field.sysname)
-						return true;
-				return false;
-			};
-			if (angular.isObject(pivotConfig.pivotColumn)) {
-				if (!isFieldInList(pivotConfig.pivotColumn, activeFieldsInActiveTables))
-					pivotConfig.pivotColumn = null;
-			}
-			var j = 0;
-			while (j < pivotConfig.cellValues.length) {
-				var cellValue = pivotConfig.cellValues[j];
-				if (cellValue && !isFieldInList(cellValue, activeFieldsInActiveTables)) {
-					pivotConfig.cellValues.splice(j, 1);
-				}
-				j++;
-			}
-		};
-
-		/////////////////////////////////////////
-		// data
-		/////////////////////////////////////////
-
-		/**
-		 * Prepare pivots for send
-		 */
-		var getPivotDataForSend = function () {
-			if (!pivotConfig.pivotColumn)
-				return null;
-			return pivotConfig;
-		};
-
-		/**
-		 * Load pivot
-		 */
-		var loadPivotData = function (pivotData) {
-			pivotConfig = pivotData;
-			return $q(function (resolve) {
-				resolve();
-			});
-		};
-
-		// PUBLIC API
-		return {
-			getPivotsPanelOpened: getPivotsPanelOpened,
-			setPivotsPanelOpened: setPivotsPanelOpened,
-			getPivotColumn: getPivotColumn,
-			getPivotOptions: getPivotOptions,
-			setPivotColumn: setPivotColumn,
-			setDefaultGroup: setDefaultGroup,
-			removePivots: removePivots,
-			getCellValues: getCellValues,
-			addCellValue: addCellValue,
-			removeCellValue: removeCellValue,
-			swapCellValues: swapCellValues,
-			moveCellValueTo: moveCellValueTo,
-			addPivotItem: addPivotItem,
-			setCellValueField: setCellValueField,
-			getPivotDataForSend: getPivotDataForSend,
-			loadPivotData: loadPivotData,
-			isPivotValid: isPivotValid,
-			syncPivotState: syncPivotState
-		};
+	static get injectModules(): any[] {
+		return ['$injector', '$q', '$izendaUtilService'];
 	}
-]);
+
+	constructor(private readonly $injector: ng.auto.IInjectorService,
+		private readonly $q: ng.IQService,
+		private readonly $izendaUtilService: IzendaUtilService) {
+
+		const defaultConfig = this.$injector.get(IzendaInstantReportPivotService.$izendaInstantReportPivotsDefaultConfigName);
+		this.pivotConfig = IzendaInstantReportDefaultPivotConfig.fromObject(defaultConfig);
+		this.pivotsPanelOpened = false;
+	}
+
+	/**
+	 * Get pivot column field wrapper
+	 */
+	getPivotColumn() {
+		return this.pivotConfig.pivotColumn;
+	}
+
+	/**
+	 * Set pivot column
+	 */
+	setPivotColumn(value) {
+		this.pivotConfig.pivotColumn = value;
+	}
+
+	/**
+	 * Set default group for pivot column.
+	 */
+	setDefaultGroup() {
+		if (!angular.isObject(this.pivotConfig.pivotColumn))
+			return;
+		if (!this.pivotConfig.pivotColumn.groupByFunction)
+			this.pivotConfig.pivotColumn.groupByFunction = this.$izendaUtilService.getOptionByValue(this.pivotConfig.pivotColumn.groupByFunctionOptions, 'GROUP', true);
+	}
+
+	/**
+	 * Clear pivots
+	 */
+	removePivots() {
+		this.pivotConfig.pivotColumn = null;
+		this.pivotConfig.cellValues = [];
+		this.pivotConfig.options.addSideTotals = false;
+	}
+
+	/**
+	 * Get pivot options object
+	 */
+	getPivotOptions() {
+		return this.pivotConfig.options;
+	}
+
+	/**
+	 * Get pivots panel state
+	 */
+	getPivotsPanelOpened() {
+		return this.pivotsPanelOpened;
+	}
+
+	/**
+	 * Set pivots panel state
+	 */
+	setPivotsPanelOpened(value) {
+		this.pivotsPanelOpened = value;
+	}
+
+	/////////////////////////////////////////
+	// cell value functions
+	/////////////////////////////////////////
+
+	/**
+	 * Get pivot fields wrappers
+	 */
+	getCellValues() {
+		return this.pivotConfig.cellValues;
+	}
+
+	/**
+	 * Check is pivot added and valid.
+	 * @returns {boolean} is valid
+	 */
+	isPivotValid() {
+		return angular.isObject(this.pivotConfig.pivotColumn) && this.pivotConfig.cellValues.length > 0;
+	}
+
+	/**
+	 * Add cell value field
+	 */
+	addCellValue() {
+		this.pivotConfig.cellValues.push(null);
+	}
+
+	/**
+	 * Remove cell value
+	 */
+	removeCellValue(cellValue) {
+		const cellValues = this.pivotConfig.cellValues;
+		const idx = cellValues.indexOf(cellValue);
+		if (idx >= 0) {
+			cellValues.splice(idx, 1);
+		}
+	}
+
+	/**
+	 * Replace cell values by each other
+	 */
+	swapCellValues(fromIndex, toIndex) {
+		const cellValues = this.pivotConfig.cellValues;
+		const temp = cellValues[fromIndex];
+		cellValues[fromIndex] = cellValues[toIndex];
+		cellValues[toIndex] = temp;
+	}
+
+	/**
+	 * Move cell value to position
+	 */
+	moveCellValueTo(fromIndex, toIndex) {
+		const cellValues = this.pivotConfig.cellValues;
+		cellValues.splice(toIndex, 0, cellValues.splice(fromIndex, 1)[0]);
+	}
+
+	/**
+	 * Set cell value field, update available groups, formats, etc...
+	 */
+	setCellValueField(index, newField) {
+		this.pivotConfig.cellValues[index] = newField;
+	}
+
+	/**
+	 * Add pivot column or cell if pivot column already defined
+	 */
+	addPivotItem(fieldCopy) {
+		if (!angular.isObject(this.pivotConfig.pivotColumn)) {
+			this.pivotConfig.pivotColumn = fieldCopy;
+		} else {
+			this.pivotConfig.cellValues.push(fieldCopy);
+		}
+	}
+
+	/**
+	 * Synchronizes pivot
+	 */
+	syncPivotState(activeFieldsInActiveTables) {
+		this.removeNotActiveFields(activeFieldsInActiveTables);
+	}
+
+	/**
+	 * Remove pivot column and pivot cell if corresponging fields are no
+	 * longer available.
+	 * @param {array} array of currently active fields.
+	 */
+	removeNotActiveFields(activeFieldsInActiveTables) {
+		const isFieldInList = (field, fieldList) => fieldList && fieldList.some(f => f.sysname === field.sysname);
+
+		if (this.pivotConfig.pivotColumn && !isFieldInList(this.pivotConfig.pivotColumn, activeFieldsInActiveTables))
+			this.pivotConfig.pivotColumn = null;
+
+		this.pivotConfig.cellValues = this.pivotConfig.cellValues.filter(cv => isFieldInList(cv, activeFieldsInActiveTables));
+	}
+
+	/////////////////////////////////////////
+	// data
+	/////////////////////////////////////////
+
+	/**
+	 * Prepare pivots for send
+	 */
+	getPivotDataForSend() {
+		return this.pivotConfig.pivotColumn ? this.pivotConfig : null;
+	}
+
+	/**
+	 * Load pivot
+	 */
+	loadPivotData(pivotData) {
+		this.pivotConfig = pivotData;
+		return this.$q(resolve => resolve());
+	}
+
+	static get $inject() {
+		return this.injectModules;
+	}
+
+	static register(module: ng.IModule) {
+		module
+			.value(IzendaInstantReportPivotService.$izendaInstantReportPivotsDefaultConfigName, {
+				pivotColumn: null,
+				cellValues: [],
+				options: {
+					addSideTotals: false
+				}
+			})
+			.service('$izendaInstantReportPivotService',
+				IzendaInstantReportPivotService.injectModules.concat(IzendaInstantReportPivotService));
+	}
+}

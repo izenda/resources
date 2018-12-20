@@ -1,6 +1,6 @@
 ﻿<div ng-controller="InstantReportFiltersController as filtersController"
 	 ng-init="filtersController.init()" ng-cloak>
-	<div class="iz-inst-top-panel" ng-show="$izendaCompatibility.isSmallResolution() || filtersController.panelOpened"
+	<div class="iz-inst-top-panel" ng-show="$izendaCompatibilityService.isSmallResolution() || filtersController.panelOpened"
 		 droppable-accept=".datasource-field"
 		 on-drop="filtersController.addFilter(arg0)"
 		 izenda-instant-report-field-droppable>

@@ -4,12 +4,14 @@ import izendaUiModule from 'common/ui/module-definition';
 import IzendaLocalizationService from 'common/core/services/localization-service';
 import IzendaCompatibilityService from 'common/core/services/compatibility-service';
 
+type IzendaDateTimePickerDatePart = 'date' | 'time' | 'datetime';
+
 interface IIzendaDateTimePickerScope extends ng.IScope {
 	model: any;
 	ngDisabled: any;
 	dateFormat: any;
 	locale: any;
-	datepart: any;
+	datepart: IzendaDateTimePickerDatePart;
 	showAdditionalButtons: any;
 	htmlContainerSelector: any;
 	onChange: any;
@@ -45,11 +47,11 @@ class IzendaDateTimePicker implements ng.IDirective {
 
 	constructor(private readonly $window: ng.IWindowService,
 		private readonly $timeout: ng.ITimeoutService,
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaCompatibility: IzendaCompatibilityService) {
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService) {
 
 		// change template if resolution is too low
-		if (this.$izendaCompatibility.isSmallResolution())
+		if (this.$izendaCompatibilityService.isSmallResolution())
 			this.template = '<div class="izenda-common-date-picker-inline"/>';
 
 
@@ -59,7 +61,7 @@ class IzendaDateTimePicker implements ng.IDirective {
 			const uid = Math.floor(Math.random() * 1000000);
 			const $input = $element.children('input,.izenda-common-date-picker-inline');
 			const $btn = $element.children('.input-group-addon');
-			const isSmallResolution = $izendaCompatibility.isSmallResolution();
+			const isSmallResolution = $izendaCompatibilityService.isSmallResolution();
 			const getPicker: () => any = () => $input.data('DateTimePicker');
 
 			/**
@@ -69,17 +71,30 @@ class IzendaDateTimePicker implements ng.IDirective {
 			 * @param {string} datepart what part will be updated: '"date"|"time"|"datetime"'
 			 */
 			const getUpdatedDateValue = (baseDate, newDate, datepart) => {
-				if (!baseDate) return new Date(newDate);
-				var currDate = new Date(baseDate); // clone base date
-				if (datepart.indexOf('date') >= 0) {
-					currDate.setFullYear(newDate.getFullYear());
-					currDate.setMonth(newDate.getMonth());
-					currDate.setDate(newDate.getDate());
-				}
-				if (datepart.indexOf('time') >= 0) {
-					currDate.setHours(newDate.getHours());
-					currDate.setMinutes(newDate.getMinutes());
-					currDate.setSeconds(newDate.getSeconds());
+				if (!baseDate)
+					return new Date(newDate);
+
+				var currDate = new Date(baseDate);
+				if (datepart === 'datetime') {
+					currDate = new Date(newDate);
+				} else if (datepart === 'date') {
+					currDate = new Date(
+						newDate.getFullYear(),
+						newDate.getMonth(),
+						newDate.getDate(),
+						baseDate.getHours(),
+						baseDate.getMinutes(),
+						baseDate.getSeconds(),
+						0);
+				} else if (datepart === 'time') {
+					currDate = new Date(
+						baseDate.getFullYear(),
+						baseDate.getMonth(),
+						baseDate.getDate(),
+						newDate.getHours(),
+						newDate.getMinutes(),
+						newDate.getSeconds(),
+						0);
 				}
 				return currDate;
 			}
@@ -145,20 +160,20 @@ class IzendaDateTimePicker implements ng.IDirective {
 						vertical: 'bottom'
 					},
 					tooltips: {
-						today: $izendaLocale.localeText('js_GoToToday', 'Go to today'),
-						clear: $izendaLocale.localeText('js_ClearSelection', 'Clear selection'),
-						close: $izendaLocale.localeText('js_ClosePicker', 'Close the picker'),
-						selectMonth: $izendaLocale.localeText('js_SelectMonth', 'Select Month'),
-						prevMonth: $izendaLocale.localeText('js_PreviousMonth', 'Previous Month'),
-						nextMonth: $izendaLocale.localeText('js_NextMonth', 'Next Month'),
-						selectYear: $izendaLocale.localeText('js_SelectYear', 'Select Year'),
-						prevYear: $izendaLocale.localeText('js_PreviousYear', 'Previous Year'),
-						nextYear: $izendaLocale.localeText('js_NextYear', 'Next Year'),
-						selectDecade: $izendaLocale.localeText('js_SelectDecade', 'Select Decade'),
-						prevDecade: $izendaLocale.localeText('js_PreviousDecade', 'Previous Decade'),
-						nextDecade: $izendaLocale.localeText('js_NextDecade', 'Next Decade'),
-						prevCentury: $izendaLocale.localeText('js_PreviousCentury', 'Previous Century'),
-						nextCentury: $izendaLocale.localeText('js_NextCentury', 'Next Century')
+						today: $izendaLocaleService.localeText('js_GoToToday', 'Go to today'),
+						clear: $izendaLocaleService.localeText('js_ClearSelection', 'Clear selection'),
+						close: $izendaLocaleService.localeText('js_ClosePicker', 'Close the picker'),
+						selectMonth: $izendaLocaleService.localeText('js_SelectMonth', 'Select Month'),
+						prevMonth: $izendaLocaleService.localeText('js_PreviousMonth', 'Previous Month'),
+						nextMonth: $izendaLocaleService.localeText('js_NextMonth', 'Next Month'),
+						selectYear: $izendaLocaleService.localeText('js_SelectYear', 'Select Year'),
+						prevYear: $izendaLocaleService.localeText('js_PreviousYear', 'Previous Year'),
+						nextYear: $izendaLocaleService.localeText('js_NextYear', 'Next Year'),
+						selectDecade: $izendaLocaleService.localeText('js_SelectDecade', 'Select Decade'),
+						prevDecade: $izendaLocaleService.localeText('js_PreviousDecade', 'Previous Decade'),
+						nextDecade: $izendaLocaleService.localeText('js_NextDecade', 'Next Decade'),
+						prevCentury: $izendaLocaleService.localeText('js_PreviousCentury', 'Previous Century'),
+						nextCentury: $izendaLocaleService.localeText('js_NextCentury', 'Next Century')
 					}
 				});
 			// create picker
@@ -225,13 +240,13 @@ class IzendaDateTimePicker implements ng.IDirective {
 	static factory(): ng.IDirectiveFactory {
 		const directive = ($window: ng.IWindowService,
 			$timeout: ng.ITimeoutService,
-			$izendaLocale: IzendaLocalizationService,
-			$izendaCompatibility: IzendaCompatibilityService) =>
-			new IzendaDateTimePicker($window, $timeout, $izendaLocale, $izendaCompatibility);
-		directive.$inject = ['$window', '$timeout', '$izendaLocale', '$izendaCompatibility'];
+				$izendaLocaleService: IzendaLocalizationService,
+				$izendaCompatibilityService: IzendaCompatibilityService) =>
+			new IzendaDateTimePicker($window, $timeout, $izendaLocaleService, $izendaCompatibilityService);
+		directive.$inject = ['$window', '$timeout', '$izendaLocaleService', '$izendaCompatibilityService'];
 		return directive;
 	}
 }
 
 izendaUiModule.directive('izendaDateTimePicker',
-	['$window', '$timeout', '$izendaLocale', '$izendaCompatibility', IzendaDateTimePicker.factory()]);
+	['$window', '$timeout', '$izendaLocaleService', '$izendaCompatibilityService', IzendaDateTimePicker.factory()]);

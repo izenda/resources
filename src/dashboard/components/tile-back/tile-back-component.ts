@@ -15,7 +15,7 @@ import { IzendaDashboardTileModel } from 'dashboard/model/tile-model';
 @IzendaComponent(
 	izendaDashboardModule,
 	'izendaDashboardTileBack',
-	['$izendaSettings', '$izendaDashboardSettings', '$izendaCompatibility'],
+	['$izendaSettingsService', '$izendaDashboardSettings', '$izendaCompatibilityService'],
 	{
 		templateUrl: '###RS###extres=components.dashboard.components.tile-back.tile-back-template.html',
 		bindings: {
@@ -48,9 +48,9 @@ export class IzendaDashboardTileBackComponent implements ng.IComponentController
 	printMode: string;
 
 	constructor(
-		private readonly $izendaSettings: IzendaQuerySettingsService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
 		private readonly $izendaDashboardSettings: IIzendaDashboardSettings,
-		private readonly $izendaCompatibility: IzendaCompatibilityService) {
+		private readonly $izendaCompatibilityService: IzendaCompatibilityService) {
 
 		this.showAllInResults = true;
 		this.isDesignLinksAllowed = true;
@@ -128,11 +128,11 @@ export class IzendaDashboardTileBackComponent implements ng.IComponentController
 	 * Check if one column view required
 	 */
 	isOneColumnView(): boolean {
-		return this.$izendaCompatibility.isOneColumnView();
+		return this.$izendaCompatibilityService.isOneColumnView();
 	}
 
 	private initializeAdHocSettings() {
-		var settings = this.$izendaSettings.getCommonSettings();
+		var settings = this.$izendaSettingsService.getCommonSettings();
 		this.isDesignLinksAllowed = settings.showDesignLinks; // show/hide "go to designer" button
 		this.showAllInResults = settings.showAllInResults; // show "ALL" in tile top slider
 		this.printMode = this.$izendaDashboardSettings.allowedPrintEngine; // allowed print modes

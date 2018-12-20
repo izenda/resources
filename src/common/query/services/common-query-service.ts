@@ -8,23 +8,27 @@ import IzendaRsQueryService from 'common/query/services/rs-query-service';
  */
 export default class IzendaCommonQueryService {
 
+	static get injectModules(): any[] {
+		return ['$izendaRsQueryService', '$izendaLocaleService'];
+	}
+
 	constructor(
-		private readonly $izendaRsQuery: IzendaRsQueryService,
-		private readonly $izendaLocale: IzendaLocalizationService) { }
+		private readonly $izendaRsQueryService: IzendaRsQueryService,
+		private readonly $izendaLocaleService: IzendaLocalizationService) { }
 
 	/**
 	 * Used for refresh session timeout
 	 */
 	ping(): angular.IPromise<number> {
-		return this.$izendaRsQuery.query('ping', [], { dataType: 'text' });
+		return this.$izendaRsQueryService.query('ping', [], { dataType: 'text' });
 	}
 
 	/**
 	 * Create new dashboard report set and set it as CurrentReportSet
 	 */
 	newDashboard(): angular.IPromise<any> {
-		return this.$izendaRsQuery.query('newcrs', ['DashboardDesigner'], { dataType: 'json' }, {
-			handler: () => this.$izendaLocale.localeText('js_DashboardCreateError', 'Failed to create new dashboard'),
+		return this.$izendaRsQueryService.query('newcrs', ['DashboardDesigner'], { dataType: 'json' }, {
+			handler: () => this.$izendaLocaleService.localeText('js_DashboardCreateError', 'Failed to create new dashboard'),
 			params: []
 		});
 	}
@@ -37,8 +41,8 @@ export default class IzendaCommonQueryService {
 		if (!angular.isString(reportSetFullName) || reportSetFullName.trim() === '')
 			throw new Error('reportSetFullName should be non empty string');
 
-		const errorText = this.$izendaLocale.localeText('js_DashboardCheckExistError', 'Failed to check dashboard exist');
-		return this.$izendaRsQuery.query('checkreportsetexists', [reportSetFullName], { dataType: 'text' }, {
+		const errorText = this.$izendaLocaleService.localeText('js_DashboardCheckExistError', 'Failed to check dashboard exist');
+		return this.$izendaRsQueryService.query('checkreportsetexists', [reportSetFullName], { dataType: 'text' }, {
 			handler: name => `${errorText}: ${name}`,
 			params: [reportSetFullName]
 		});
@@ -49,8 +53,8 @@ export default class IzendaCommonQueryService {
 	 * @param {string} reportSetFullName Report set full name for check.
 	 */
 	setCrs(reportSetFullName: string): angular.IPromise<any> {
-		const errorText = this.$izendaLocale.localeText('js_SetCrsError', 'Failed to set current report set');
-		return this.$izendaRsQuery.query('setcurrentreportset', [reportSetFullName], { dataType: 'text' }, {
+		const errorText = this.$izendaLocaleService.localeText('js_SetCrsError', 'Failed to set current report set');
+		return this.$izendaRsQueryService.query('setcurrentreportset', [reportSetFullName], { dataType: 'text' }, {
 			handler: name => `${errorText}: ${name}`,
 			params: [reportSetFullName]
 		});
@@ -62,12 +66,12 @@ export default class IzendaCommonQueryService {
 	 */
 	getReportSetCategory(category: string): angular.IPromise<any> {
 		var categoryStr = angular.isDefined(category)
-			? (category.toLowerCase() === this.$izendaLocale.localeText('js_Uncategorized', 'Uncategorized').toLowerCase()
+			? (category.toLowerCase() === this.$izendaLocaleService.localeText('js_Uncategorized', 'Uncategorized').toLowerCase()
 				? ''
 				: category)
 			: '';
-		const errorText = this.$izendaLocale.localeText('js_GetCategoryError', 'Failed to get reports for category');
-		return this.$izendaRsQuery.query('reportlistdatalite', [categoryStr], { dataType: 'json' }, {
+		const errorText = this.$izendaLocaleService.localeText('js_GetCategoryError', 'Failed to get reports for category');
+		return this.$izendaRsQueryService.query('reportlistdatalite', [categoryStr], { dataType: 'json' }, {
 			handler: name => `${errorText}: ${name}`,
 			params: [category]
 		});
@@ -78,8 +82,8 @@ export default class IzendaCommonQueryService {
 	 * @param {string} reportFullName Report full name (xxx@aaa\bbb).
 	 */
 	getReportParts(reportFullName: string): angular.IPromise<any> {
-		const errorText = this.$izendaLocale.localeText('js_ReportPartsError', 'Failed to get report parts for report');
-		return this.$izendaRsQuery.query('reportdata', [reportFullName], { dataType: 'json' }, {
+		const errorText = this.$izendaLocaleService.localeText('js_ReportPartsError', 'Failed to get report parts for report');
+		return this.$izendaRsQueryService.query('reportdata', [reportFullName], { dataType: 'json' }, {
 			handler: name => `${errorText}: ${name}`,
 			params: [reportFullName]
 		});
@@ -90,7 +94,7 @@ export default class IzendaCommonQueryService {
 	 * @param {number} clientTimezoneOffset Default timezone.
 	 */
 	getScheduleData(clientTimezoneOffset: number): angular.IPromise<any> {
-		return this.$izendaRsQuery.query('getCrsSchedule', [String(clientTimezoneOffset)], { dataType: 'json' }, {
+		return this.$izendaRsQueryService.query('getCrsSchedule', [String(clientTimezoneOffset)], { dataType: 'json' }, {
 			handler: () => 'Failed to get schedule data',
 			params: []
 		});
@@ -101,14 +105,10 @@ export default class IzendaCommonQueryService {
 	 * @param {boolean} defaultShareConfig If true - share config will get from new empty reportset, false - from current report set.
 	 */
 	getShareData(defaultShareConfig?: boolean): angular.IPromise<any> {
-		return this.$izendaRsQuery.query('getCrsShare', [defaultShareConfig ? 'true' : 'false'], { dataType: 'json' }, {
+		return this.$izendaRsQueryService.query('getCrsShare', [defaultShareConfig ? 'true' : 'false'], { dataType: 'json' }, {
 			handler: () => 'Failed to get share data',
 			params: []
 		});
-	}
-
-	static get injectModules(): any[] {
-		return ['$izendaRsQuery', '$izendaLocale'];
 	}
 
 	static get $inject() {
@@ -116,6 +116,6 @@ export default class IzendaCommonQueryService {
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaCommonQuery', IzendaCommonQueryService.injectModules.concat(IzendaCommonQueryService));
+		module.service('$izendaCommonQueryService', IzendaCommonQueryService.injectModules.concat(IzendaCommonQueryService));
 	}
 }

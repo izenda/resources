@@ -9,17 +9,19 @@ export default class IzendaRsQueryService {
 	rsQueryBaseUrl: string;
 	private readonly requestList: Array<RequestListItem>;
 
+	static get injectModules(): any[] {
+		return ['$window', '$http', '$q', '$injector', '$izendaLocaleService', '$izendaUtilUiService'];
+	}
+
 	constructor(
 		private readonly $window: ng.IWindowService,
-		private readonly $rootScope: ng.IRootScopeService,
 		private readonly $http: ng.IHttpService,
 		private readonly $q: ng.IQService,
 		private readonly $injector: ng.auto.IInjectorService,
-		private readonly $log: ng.ILogService,
-		private readonly $izendaLocale: IzendaLocalizationService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
 		private readonly $izendaUtilUiService: IzendaUtilUiService) {
 
-		this.urlSettings = this.$window['urlSettings$'];
+		this.urlSettings = this.$window.urlSettings$;
 		this.rsQueryBaseUrl = this.urlSettings.urlRsPage;
 		this.requestList = new Array<RequestListItem>();
 	}
@@ -43,32 +45,19 @@ export default class IzendaRsQueryService {
 	 * @param {any} errorOptions Error options.
 	 * @param {boolean} invalidateInCacheParameter Do we need to invalidate caches.
 	 */
-	query(wsCmd: string, wsArgs: any[], options: any, errorOptions?: any, invalidateInCacheParameter: boolean = false): angular.IPromise<any> {
+	query(wsCmd: string, wsArgs: any[], options: any, errorOptions?: any, invalidateInCacheParameter: boolean = false)
+		: angular.IPromise<any> {
+
 		// prepare params:
-		var params = {
-			'wscmd': wsCmd
-		};
-		if (angular.isArray(wsArgs)) {
-			for (let i = 0; i < wsArgs.length; i++) {
-				var wsArg = wsArgs[i];
-				params['wsarg' + i] = (angular.isDefined(wsArg) && wsArg != null) ? wsArg : '';
-			}
-		} else {
-			throw new Error('wsArgs: expected array, but got: ' + typeof (wsArgs));
-		}
+		const params = this.createQueryParametersObject(wsCmd, wsArgs);
 
 		// set default error options if it is not defined:
-		let currentErrorOptions: any;
-		if (angular.isUndefined(errorOptions)) {
-			currentErrorOptions = {
-				handler: (wsCmd2, wsArgs2) => {
-					return 'Query: "' + wsCmd2 + '" [' + wsArgs2 + '] failed.';
-				},
+		const currentErrorOptions = angular.isObject(errorOptions)
+			? errorOptions
+			: {
+				handler: (wsCmd2, wsArgs2) => `Query: "${wsCmd2}" [${wsArgs2}] failed.`,
 				params: [wsCmd, wsArgs]
 			};
-		} else {
-			currentErrorOptions = errorOptions;
-		}
 		return this.rsQuery(params, options, currentErrorOptions, invalidateInCacheParameter);
 	}
 
@@ -91,10 +80,7 @@ export default class IzendaRsQueryService {
 			}
 
 			// create params array
-			const params = { 'wscmd': wsCmd };
-			wsArgs.forEach((wsArg, i) => {
-				params['wsarg' + i] = (angular.isDefined(wsArg) && wsArg !== null) ? wsArg : '';
-			});
+			const params = this.createQueryParametersObject(wsCmd, wsArgs);
 
 			// run query
 			this.rsQuery(params, { dataType: 'json', method: 'POST' }, null, invalidateInCacheParameter)
@@ -107,31 +93,31 @@ export default class IzendaRsQueryService {
 	 * @param {any} options (optional) options.cancelList may set custom queries to cancel.
 	 */
 	cancelAllQueries(options?: any) {
-		let opts = options || {};
+		const opts = options || {};
 		// queries which we can cancel
-		let cancellableQueries = opts.hasOwnProperty('cancelList')
+		const cancellableQueries = opts.hasOwnProperty('cancelList')
 			? opts['cancelList']
 			: this.$injector.get('izenda.common.query.cancellableQueries');
 
-		let count = this.requestList.length;
+		const count = this.requestList.length;
 		let i = 0;
 		while (i < this.requestList.length) {
-			let request = this.requestList[0];
+			const request = this.requestList[0];
 			let cancel = false;
 			if (angular.isArray(cancellableQueries)) {
-				var requestUrl = request.url;
-				var requestParams = request.queryParamsFinal;
+				const requestUrl = request.url;
+				const requestParams = request.queryParamsFinal;
 				for (let j = 0; j < cancellableQueries.length; j++) {
-					var cancelRule = cancellableQueries[j];
+					const cancelRule = cancellableQueries[j];
 					if (angular.isString(cancelRule)) {
 						cancel = cancel || requestUrl.indexOf(cancelRule) >= 0;
 					} else if (angular.isObject(cancelRule)) {
 						if ('wscmd' in cancelRule) {
-							cancel = cancel || requestUrl.indexOf('wscmd=' + cancelRule['wscmd']) >= 0;
+							cancel = cancel || requestUrl.indexOf(`wscmd=${cancelRule['wscmd']}`) >= 0;
 							cancel = cancel || requestParams.hasOwnProperty('wscmd') && requestParams['wscmd'] === cancelRule['wscmd'];
 						}
 					} else {
-						throw 'Unknown cancel rule: ' + cancelRule;
+						throw `Unknown cancel rule: ${cancelRule}`;
 					}
 				}
 			}
@@ -185,11 +171,11 @@ export default class IzendaRsQueryService {
 						window.navigator.msSaveBlob(blob, filename);
 						resolve();
 					} else {
-						let urlFunc = window.URL || window['webkitURL'];
+						const urlFunc = window.URL || window['webkitURL'];
 						var downloadUrl = urlFunc.createObjectURL(blob);
 						if (filename) {
 							// use HTML5 a[download] attribute to specify filename
-							let linkElement = document.createElement('a');
+							const linkElement = document.createElement('a');
 							// safari doesn't support this yet
 							if (typeof linkElement.download === 'undefined') {
 								window.location.href = downloadUrl;
@@ -217,7 +203,7 @@ export default class IzendaRsQueryService {
 				else if (method.toLowerCase() === 'get')
 					xhr.send();
 				else
-					throw 'Unsupported request method: ' + method;
+					throw `Unsupported request method: ${method}`;
 			} else {
 				if (method.toLowerCase() === 'post') {
 					// old browser post request
@@ -239,7 +225,7 @@ export default class IzendaRsQueryService {
 					document.body.removeChild(form);
 				} else {
 					// old browser get request
-					let linkElement2 = document.createElement('a');
+					const linkElement2 = document.createElement('a');
 					linkElement2.href = url;
 					linkElement2.target = '_blank';
 					document.body.appendChild(linkElement2);
@@ -254,46 +240,40 @@ export default class IzendaRsQueryService {
 	/**
 	 * Do query to custom url
 	 */
-	private customQuery(baseUrl: string, queryParams: any,
+	private customQuery(
+		baseUrl: string,
+		queryParams: object,
 		options: { method: string, dataType: string },
 		errorOptions: any,
 		invalidateInCacheParameter: boolean): angular.IPromise<any> {
 
-		const queryParamsFinal = angular.extend({}, queryParams);
+		const queryParamsFinal = angular.copy<object>(queryParams);
+
 		// apply izendaPageId$
 		if (typeof (window['izendaPageId$']) !== 'undefined')
 			queryParamsFinal['izpid'] = window['izendaPageId$'];
 		if (typeof (window['angularPageId$']) !== 'undefined')
 			queryParamsFinal['anpid'] = window['angularPageId$'];
 
-		const isPost = angular.isObject(options) && options.method === 'POST';
+		const isPost = options && options.method === 'POST';
+
 		let postData = {};
 		let url = baseUrl;
-
 		if (!isPost) {
 			// GET request url:
-			url += '?';
-			for (let paramName in queryParamsFinal) {
-				if (queryParamsFinal.hasOwnProperty(paramName)) {
-					url += paramName + '=' + encodeURIComponent(queryParamsFinal[paramName]) + '&';
-				}
-			}
-			if (url.substring(url.length - 1) === '&') {
-				url = url.substring(0, url.length - 1);
-			}
+			const kvStrings: string[] = [];
+			for (let paramName in queryParamsFinal)
+				if (queryParamsFinal.hasOwnProperty(paramName))
+					kvStrings.push(`${paramName}=${encodeURIComponent(queryParamsFinal[paramName])}`);
 			if (invalidateInCacheParameter)
-				if (url.endsWith('?'))
-					url += 'iic=1';
-				else
-					url += '&iic=1';
+				kvStrings.push('iic=1');
+			url += `?${kvStrings.join('&')}`;
 		} else {
 			// POST request params string:
 			let postParamsString = 'urlencoded=true';
-			for (var paramName2 in queryParamsFinal) {
-				if (queryParamsFinal.hasOwnProperty(paramName2)) {
-					postParamsString += '&' + paramName2 + '=' + encodeURIComponent(queryParamsFinal[paramName2]);
-				}
-			}
+			for (let paramName in queryParamsFinal)
+				if (queryParamsFinal.hasOwnProperty(paramName))
+					postParamsString += `&${paramName}=${encodeURIComponent(queryParamsFinal[paramName])}`;
 			postData = {
 				data: postParamsString
 			};
@@ -370,9 +350,9 @@ export default class IzendaRsQueryService {
 			} else if (response.message)
 				errorText = response.message;
 			else if (response.config)
-				errorText = this.$izendaLocale.localeText('js_QueryFailed', 'Query failed') + ': ' + JSON.stringify(response.config);
+				errorText = this.$izendaLocaleService.localeText('js_QueryFailed', 'Query failed') + ': ' + JSON.stringify(response.config);
 			else
-				errorText = this.$izendaLocale.localeText('localeVariable', 'An unknown error occurred.');
+				errorText = this.$izendaLocaleService.localeText('localeVariable', 'An unknown error occurred.');
 			if (resolver['$izendaRsQueryCancelled']) {
 				if (needToReject)
 					resolver.reject(errorText);
@@ -400,8 +380,17 @@ export default class IzendaRsQueryService {
 		}
 	}
 
-	static get injectModules(): any[] {
-		return ['$window', '$rootScope', '$http', '$q', '$injector', '$log', '$izendaLocale', '$izendaUtilUiService'];
+	private createQueryParametersObject(wsCmd: string, wsArgs: any[]): object {
+		let params = {
+			'wscmd': wsCmd
+		};
+		// add wsargN=... parameters into params variable.
+		if (wsArgs && wsArgs.length)
+			params = wsArgs.reduce((currentParams: any, wsArg: any, wsArgIdx: number) => {
+				currentParams[`wsarg${wsArgIdx}`] = typeof (wsArg) !== 'undefined' && wsArg != null ? wsArg : '';
+				return currentParams;
+			}, params);
+		return params;
 	}
 
 	static get $inject() {
@@ -420,7 +409,7 @@ export default class IzendaRsQueryService {
 		}, {
 			wscmd: 'getCrsShare'
 		}])
-		.service('$izendaRsQuery', IzendaRsQueryService.injectModules.concat(IzendaRsQueryService));
+			.service('$izendaRsQueryService', IzendaRsQueryService.injectModules.concat(IzendaRsQueryService));
 	}
 }
 

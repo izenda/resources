@@ -4,6 +4,10 @@ import 'izenda-external-libs';
 export default class IzendaEventService {
 	private readonly events: any = {};
 
+	static get injectModules(): any[] {
+		return ['$rootScope', '$log'];
+	}
+
 	constructor(
 		private readonly $rootScope: ng.IRootScopeService,
 		private readonly $log: ng.ILogService) { }
@@ -63,15 +67,11 @@ export default class IzendaEventService {
 		this.events[eventName] = [];
 	}
 
-	static get injectModules(): any[] {
-		return ['$rootScope', '$log'];
-	}
-
 	static get $inject() {
 		return this.injectModules;
 	}
 
 	static register(module: ng.IModule) {
-		module.service('$izendaEvent', IzendaEventService.injectModules.concat(IzendaEventService));
+		module.service('$izendaEventService', IzendaEventService.injectModules.concat(IzendaEventService));
 	}
 }

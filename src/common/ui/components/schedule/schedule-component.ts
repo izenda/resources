@@ -13,7 +13,7 @@ import IzendaScheduleService from 'common/ui/services/schedule-service';
 @IzendaComponent(
 	izendaUiModule,
 	'izendaScheduleComponent',
-	['$izendaLocale', '$izendaSettings', '$izendaScheduleService'],
+	['$izendaLocaleService', '$izendaSettingsService', '$izendaScheduleService'],
 	{
 		templateUrl: '###RS###extres=components.common.ui.components.schedule.schedule-template.html',
 		bindings: {
@@ -28,8 +28,8 @@ export default class IzendaScheduleComponent {
 	culture: string;
 
 	constructor(
-		private readonly $izendaLocale: IzendaLocalizationService,
-		private readonly $izendaSettings: IzendaQuerySettingsService,
+		private readonly $izendaLocaleService: IzendaLocalizationService,
+		private readonly $izendaSettingsService: IzendaQuerySettingsService,
 		private readonly $izendaScheduleService: IzendaScheduleService) {
 	}
 
@@ -37,7 +37,7 @@ export default class IzendaScheduleComponent {
 	 * Component init
 	 */
 	$onInit() {
-		this.dateFormat = this.$izendaSettings.dateFormat;
-		this.culture = this.$izendaSettings.culture;
+		this.dateFormat = this.$izendaSettingsService.dateFormat;
+		this.culture = this.$izendaSettingsService.culture;
 	}
 }

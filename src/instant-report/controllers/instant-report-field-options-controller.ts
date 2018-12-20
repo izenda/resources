@@ -13,11 +13,11 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 	'$q',
 	'$sce',
 	'$log',
-	'$izendaLocale',
-	'$izendaCompatibility',
-	'$izendaInstantReportQuery',
-	'$izendaInstantReportStorage',
-	'$izendaInstantReportValidation',
+	'$izendaLocaleService',
+	'$izendaCompatibilityService',
+	'$izendaInstantReportQueryService',
+	'$izendaInstantReportStorageService',
+	'$izendaInstantReportValidationService',
 	function (
 		$rootScope,
 		$scope,
@@ -26,31 +26,31 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		$q,
 		$sce,
 		$log,
-		$izendaLocale,
-		$izendaCompatibility,
-		$izendaInstantReportQuery,
-		$izendaInstantReportStorage,
-		$izendaInstantReportValidation) {
+		$izendaLocaleService,
+		$izendaCompatibilityService,
+		$izendaInstantReportQueryService,
+		$izendaInstantReportStorageService,
+		$izendaInstantReportValidationService) {
 		'use strict';
 		var vm = this;
 		var primaryButtonClass = "izenda-common-btn-dark",
 			activeButtonClass = "izenda-common-btn-dark active";
 
-		$scope.$izendaLocale = $izendaLocale;
-		$scope.$izendaInstantReportStorage = $izendaInstantReportStorage;
+		$scope.$izendaLocaleService = $izendaLocaleService;
+		$scope.$izendaInstantReportStorageService = $izendaInstantReportStorageService;
 		vm.field = null;
 		vm.currentSortFunction = 'asc';
 		vm.isSubtotalsEnabled = false;
 
-		vm.drillDownStyles = $izendaInstantReportStorage.getDrillDownStyles();
-		vm.subreports = $izendaInstantReportStorage.getSubreports();
+		vm.drillDownStyles = $izendaInstantReportStorageService.getDrillDownStyles();
+		vm.subreports = $izendaInstantReportStorageService.getSubreports();
 		vm.expanded = false;
 		vm.ddkValuesMaxAmount = -1;
 		/**
 		 * Get class 
 		 */
 		vm.getPanelClass = function () {
-			if ($izendaCompatibility.isSmallResolution())
+			if ($izendaCompatibilityService.isSmallResolution())
 				return 'expanded';
 			if (!angular.isObject(vm.field) || !$scope.irController.isLeftPanelBodyActive(0))
 				return 'collapsed';
@@ -70,7 +70,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		 * Fires when description was set manually.
 		 */
 		vm.onDescriptionWasSet = function () {
-			$izendaInstantReportStorage.applyDescription(vm.field);
+			$izendaInstantReportStorageService.applyDescription(vm.field);
 		};
 
 		/**
@@ -79,28 +79,28 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		vm.onFunctionSelected = function () {
 			if (vm.field.groupByFunction === null)
 				return;
-			$izendaInstantReportStorage.onFieldFunctionApplyed(vm.field);
+			$izendaInstantReportStorageService.onFieldFunctionApplied(vm.field);
 		};
 
 		/**
 		 * Fires when typegroup was selected
 		 */
 		vm.onTypeGroupSelected = function () {
-			$izendaInstantReportStorage.onExpressionTypeGroupApplyed(vm.field);
+			$izendaInstantReportStorageService.onExpressionTypeGroupApplied(vm.field);
 		};
 
 		/**
 		 * Fires when expression changed.
 		 */
 		vm.onExpressionChanged = function () {
-			$izendaInstantReportStorage.onExpressionApplyed(vm.field);
+			$izendaInstantReportStorageService.onExpressionApplied();
 		};
 
 		/**
 		 * Update preview
 		 */
 		vm.applyChanges = function () {
-			$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportValidationService.validateReportSetAndRefresh();
 		};
 
 		/**
@@ -152,15 +152,15 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 			if (!angular.isDefined(sortFunction)) {
 				if (vm.field.sort === null) {
 					// enable selected sort
-					$izendaInstantReportStorage.applyFieldSort(vm.field, vm.currentSortFunction);
+					$izendaInstantReportStorageService.applyFieldSort(vm.field, vm.currentSortFunction);
 				} else {
 					// disable selected sort
-					$izendaInstantReportStorage.applyFieldSort(vm.field, null);
+					$izendaInstantReportStorageService.applyFieldSort(vm.field, null);
 				}
 			} else {
 				// set and enable selected sort
 				vm.currentSortFunction = sortFunction;
-				$izendaInstantReportStorage.applyFieldSort(vm.field, vm.currentSortFunction);
+				$izendaInstantReportStorageService.applyFieldSort(vm.field, vm.currentSortFunction);
 			}
 		};
 
@@ -177,7 +177,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		 * Apply field italic.
 		 */
 		vm.applyFieldItalic = function () {
-			$izendaInstantReportStorage.applyFieldItalic(vm.field, !vm.field.italic);
+			$izendaInstantReportStorageService.applyFieldItalic(vm.field, !vm.field.italic);
 		};
 
 		/**
@@ -200,8 +200,8 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		vm.applyFieldVisible = function () {
 			if (vm.field.isVgUsed)
 				return;
-			$izendaInstantReportStorage.applyFieldVisible(vm.field, !vm.field.visible);
-			$izendaInstantReportValidation.validateReportSetAndRefresh();
+			$izendaInstantReportStorageService.applyFieldVisible(vm.field, !vm.field.visible);
+			$izendaInstantReportValidationService.validateReportSetAndRefresh();
 		};
 
 		/**
@@ -217,7 +217,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		 * Apply field bold.
 		 */
 		vm.applyFieldBold = function () {
-			$izendaInstantReportStorage.applyFieldBold(vm.field, !vm.field.bold);
+			$izendaInstantReportStorageService.applyFieldBold(vm.field, !vm.field.bold);
 		};
 
 		/**
@@ -240,7 +240,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		vm.applyVg = function () {
 			if (!vm.field.visible)
 				return;
-			$izendaInstantReportStorage.applyVisualGroup(vm.field, !vm.field.isVgUsed);
+			$izendaInstantReportStorageService.applyVisualGroup(vm.field, !vm.field.isVgUsed);
 		};
 
 		/**
@@ -249,7 +249,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		vm.onSubtotalFunctionSelect = function () {
 			var subtotalFunction = vm.field.groupBySubtotalFunction;
 			if (subtotalFunction !== 'DEFAULT')
-				$izendaInstantReportStorage.getOptions().isSubtotalsEnabled = true;
+				$izendaInstantReportStorageService.getOptions().isSubtotalsEnabled = true;
 		};
 
 		/**
@@ -270,7 +270,7 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		*/
 		vm.subreportSelectedHandler = function () {
 			vm.field.drillDownStyle = (vm.field.subreport) ? 'DetailLinkNewWindow' : '';
-			$izendaInstantReportStorage.disableEmbeddedDrillDownStyle(vm.field);
+			$izendaInstantReportStorageService.disableEmbeddedDrillDownStyle(vm.field);
 			$scope.$applyAsync();
 		};
 
@@ -278,34 +278,34 @@ izendaInstantReportModule.controller('InstantReportFieldOptionsController', [
 		 * Close panel
 		 */
 		vm.closePanel = function () {
-			$izendaInstantReportStorage.setCurrentActiveField(null);
+			$izendaInstantReportStorageService.setCurrentActiveField(null);
 		};
 
 		/**
 		* Initialize watchers
 		*/
 		vm.initWatchers = function () {
-			$scope.$watch('$izendaInstantReportStorage.getCurrentActiveField()', function (field) {
+			$scope.$watch('$izendaInstantReportStorageService.getCurrentActiveField()', function (field) {
 				vm.field = field;
 				vm.expanded = false;
 				if (angular.isObject(vm.field)) {
-					$izendaInstantReportStorage.disableEmbeddedDrillDownStyle(vm.field);
+					$izendaInstantReportStorageService.disableEmbeddedDrillDownStyle(vm.field);
 				}
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getDrillDownStyles()', function (ddStyles) {
+			$scope.$watch('$izendaInstantReportStorageService.getDrillDownStyles()', function (ddStyles) {
 				vm.drillDownStyles = ddStyles;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getExpressionTypes()', function (types) {
+			$scope.$watch('$izendaInstantReportStorageService.getExpressionTypes()', function (types) {
 				vm.expressionTypes = types;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getSubreports()', function (subreports) {
+			$scope.$watch('$izendaInstantReportStorageService.getSubreports()', function (subreports) {
 				vm.subreports = subreports;
 			});
 
-			$scope.$watch('$izendaInstantReportStorage.getOptions().isSubtotalsEnabled', function (isSubtotalsEnabled) {
+			$scope.$watch('$izendaInstantReportStorageService.getOptions().isSubtotalsEnabled', function (isSubtotalsEnabled) {
 				vm.isSubtotalsEnabled = isSubtotalsEnabled;
 			});
 		};

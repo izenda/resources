@@ -246,7 +246,6 @@ a.collapse-link {
 
 .iz-inst-sidepanel-button {
 	cursor: pointer;
-	display: inline-block;
 	height: 20%;
 	max-height: 128px;
 	width: 128px;
@@ -861,6 +860,7 @@ a.collapse-link {
 	}*/
 
 .iz-inst-mainpanel-body {
+	visibility: hidden;
 	overflow: auto;
 	padding: 17px;
 	position: absolute;
