@@ -621,41 +621,48 @@
 			}
 
 			function registerLabelEvents() {
+				var labels = [];
+
 				function fixPosition(pos, fix) {
 					pos.left += fix.left;
 					pos.top += fix.top;
 				}
 
-				function registerLink(index, name, link) {
-					var itemAxisLabel = jq$(elements[index]);
-					if (type.is('pie') && itemAxisLabel.text() != name)
+				function registerLink(name, link) {
+					var itemAxisLabel = labels[name];
+					if (!itemAxisLabel)
 						return;
 
-					itemAxisLabel
-						.bind('click', function (e) {
+					itemAxisLabel.jqe
+						.unbind('click')
+						.bind('click', function (event) {
+							event.stopPropagation();
 							window.open(link, '_blank');
 						})
 						.attr('class', 'izenda-vis-autochart-label-link')
 						.each(function () {
-							services.tipOn(this, "Open '" + chartOptions.usedData[index].name + "' a new tab/window");
+							services.tipOn(this, "Open '" + name + "' a new tab/window");
 						});
 				}
 				function register(index, name, subreportlink) {
+					var itemAxisLabel = labels[name];
+					if (!itemAxisLabel)
+						return;
+
 					var style = vis.getProperty('SubreportMode');
 					if (style == 'EmbeddedDetail' && (vis.context.isDashboards || isVml))
 						style = 'DetailLinkPopup';
 
 					var shownIndex = null;
-					var itemAxisLabel = jq$(elements[index]);
 
-					if (type.is('pie') && itemAxisLabel.text() != name)
-						return;
+					itemAxisLabel.jqe
+						.unbind('click')
+						.bind('click', vis.safeWrapper(function (event) {
+							event.stopPropagation();
 
-					itemAxisLabel
-						.bind('click', vis.safeWrapper(function () {
 							function getContext() {
 								return {
-									element: elements[index],
+									element: itemAxisLabel.element,
 									css: { 'background-color': chartOptions.usedColors[index] },
 									mode: 'popup',
 									style: 'sharp',
@@ -664,12 +671,14 @@
 									maxHeight: 500,
 									orientation: 'right|50%',
 									showGlyph: true,
-									overlay: true, overlayStyle: 'pointer-events: none',
+									overlay: true,
+									overlayStyle: 'pointer-events: none',
 									title: chartOptions.usedData[index].name,
 									showCaption: false,
 									glyphSize: 6
 								};
 							}
+
 							var loadImage = '<img style="padding: 2px 5px 0px 5px;" id="loadingImg" src="###RS###image=loading.gif" />',
 								rvSubreportlink = urlSettings.urlReportViewer + '?' + subreportlink,
 								rsSubreportlinkForPopup = urlSettings.urlRsPage + '?' + subreportlink + '&mw=1&paging=0&reportonly=1';
@@ -690,6 +699,7 @@
 												angle = angle % 360;
 											return angle;
 										}
+
 										function fixDelta(angle) {
 											if (angle > 180)
 												angle = angle - 360;
@@ -719,7 +729,7 @@
 											return;
 										}
 
-										var timer = setInterval(function () {
+										var timer = setInterval(function() {
 											tick++;
 											chart.series[0].update({ startAngle: normalize(_angle + delta * (tick / tickCount)) });
 
@@ -734,6 +744,7 @@
 											}
 										}, time / tickCount);
 									}
+
 									function adjustimages() {
 										var bounds = {};
 										var scrollable = services.fitScollable(expandContainer, { maxWidth: vis.width, maxHeight: 300 }, bounds);
@@ -756,6 +767,7 @@
 											margin: '0 auto 0 ' + (xpos < 0 ? 0 : xpos) + 'px'
 										});
 									}
+
 									function removeExpandPanel() {
 										jq$(chart.renderer.box).find('[class=expandtools]').remove();
 										vis.container.find('.izenda-vis-autochart-expand-panel').remove();
@@ -785,7 +797,7 @@
 									var uc = chartOptions.usedColors[index];
 
 									services.showTip(loadImage, getContext());
-									AjaxRequest(rsSubreportlinkForPopup, null, function (returnObj, id) {
+									AjaxRequest(rsSubreportlinkForPopup, null, function(returnObj, id) {
 										if (id != 'getrenderedreportset' || typeof returnObj === 'undefined' || returnObj == null)
 											return;
 										var html = returnObj;
@@ -799,7 +811,13 @@
 												.add();
 											if (y < chart.chartHeight - 20)
 												chart.renderer.path(['M', cx, y, 'L', cx, chart.chartHeight - 20])
-													.attr({ 'stroke-width': 2, 'stroke': uc, 'opacity': 0.8, 'stroke-linecap': 'round', 'class': 'expandtools' })
+													.attr({
+														'stroke-width': 2,
+														'stroke': uc,
+														'opacity': 0.8,
+														'stroke-linecap': 'round',
+														'class': 'expandtools'
+													})
 													.add();
 											chart.renderer.path(['M', cx - 10, chart.chartHeight, cx + 10, chart.chartHeight, cx, chart.chartHeight - 10, 'Z'])
 												.attr({ 'fill': uc, 'class': 'expandtools' })
@@ -815,7 +833,7 @@
 												maxHeight: 500
 											}, adjustimages));
 
-											expandCloseButton.bind('click', function () {
+											expandCloseButton.bind('click', function() {
 												removeExpandPanel()
 											});
 
@@ -830,8 +848,8 @@
 										}
 
 										if (type.is('pie')) {
-											rotate(index, function () {
-												var le = elements[index], $le = jq$(le);
+											rotate(index, function() {
+												var le = itemAxisLabel.element, $le = itemAxisLabel.jqe;
 												fixPosition(pos, $le.position());
 												fixPosition(pos, $le.parents().eq(0).position());
 												fixPosition(pos, $le.parents().eq(1).position());
@@ -844,36 +862,36 @@
 												finish();
 											});
 										} else if (type.is('funnel')) {
-											var element = elements[index].parentNode;
+											var element = itemAxisLabel.element.parentNode;
 											var xforms = element.transform.baseVal;
 											var firstXForm = xforms.getItem(0);
 											if (firstXForm.type == SVGTransform.SVG_TRANSFORM_TRANSLATE) {
 												var firstX = firstXForm.matrix.e;
 												var firstY = firstXForm.matrix.f;
 
-												var box = elements[index].getBBox();
+												var box = itemAxisLabel.element.getBBox();
 												x = box.x + firstX + 10;
 												y = box.y + firstY + 10 + box.height;
 												w = box.width;
 												cx = x + w / 2;
 												finish();
-												
+
 											}
 										} else {
-											var box = elements[index].getBBox();
+											var box = itemAxisLabel.element.getBBox();
 											x = box.x;
 											y = box.y + box.height;
 											w = box.width;
 											cx = x + w / 2;
 											finish();
 										}
-									}, function (responseObject) {
+									}, function(responseObject) {
 										izenda.error.defaultCallbackError(responseObject, true);
 									}, 'getrenderedreportset');
 									break;
 								case 'DetailLinkPopup':
 									services.showTip(loadImage, getContext());
-									AjaxRequest(rsSubreportlinkForPopup, null, function (returnObj, id) {
+									AjaxRequest(rsSubreportlinkForPopup, null, function(returnObj, id) {
 										if (id != 'getrenderedreportset' || typeof returnObj === 'undefined' || returnObj == null)
 											return;
 										var html = returnObj;
@@ -885,7 +903,7 @@
 											movable: true,
 											onshow: izenda.report.registerPostRenderHandlers
 										}, true));
-									}, function (responseObject) {
+									}, function(responseObject) {
 										izenda.error.defaultCallbackError(responseObject, true);
 									}, 'getrenderedreportset');
 
@@ -919,23 +937,34 @@
 				}
 
 				function claimLabels() {
-					elements = [];
+					function addLabel(element, getText) {
+						var jqe = jq$(element);
+						var text = getText ? getText(jqe) : jqe.text();
+						labels[text] = {
+								element: element,
+								jqe: jqe
+							};
+					}
+
 					if (type.is('pie')) {
 						vis.container.find('div.highcharts-data-labels span').each(function () {
-							elements.push(this);
+							addLabel(this);
 						});
 					}
 					else if (type.is('funnel')) {
 						izenda.visualization.disperseFunnelLabels(chart.renderer.box);
 						vis.container.find('.highcharts-data-labels text').each(function () {
-							elements.push(this);
-							izenda.utils.html.adjustTextBlockInContainer(vis.container, jq$(this).find('tspan').last());
+							addLabel(this, function(jqe) {
+								return jqe.find('tspan').last().text();
+							});
+							var lasttspan = jq$(this).find('tspan').last();
+							izenda.utils.html.adjustTextBlockInContainer(vis.container, lasttspan);
 						});
 					}
 					else {
 						for (var f in chart.xAxis[0].ticks) {
 							if (chart.xAxis[0].ticks[f].label) {
-								elements.push(chart.xAxis[0].ticks[f].label.element);
+								addLabel(chart.xAxis[0].ticks[f].label.element);
 							}
 						}
 					}
@@ -951,13 +980,12 @@
 							if (vis.columns[columnIndex].target) {
 								register(i, name, link);
 							} else if (vis.columns[columnIndex].url) {
-								registerLink(i, name, link);
+								registerLink(name, link);
 							}
 						}
 					}
 				}
 
-				var elements;
 				claimLabels();
 				registerLabels();
 			}

@@ -337,16 +337,29 @@ function CheckResponseForLoginRedirect(req) {
 	return false;
 }
 
-function getAppendedUrl(urlToAppend) {
-	if (typeof (window.izendaPageId$) !== 'undefined') {
-		if (urlToAppend.indexOf("?") == -1)
-			urlToAppend = urlToAppend + "?";
-		else {
-			if (urlToAppend[urlToAppend.length - 1] != '&' && urlToAppend[urlToAppend.length - 1] != '?')
-				urlToAppend = urlToAppend + "&";
-		}
-		urlToAppend = urlToAppend + 'izpid=' + window.izendaPageId$;
+function getAppendedUrl(urlToAppend, queryParams) {
+	function prepareToAddParam(url) {
+		if (url.indexOf('?') == -1)
+			return url + '?';
+		if (url[url.length - 1] != '&')
+			return url + '&';
+		return url;
 	}
+
+	if (izenda.isDefined(window.izendaPageId$)) {
+		urlToAppend = prepareToAddParam(urlToAppend);
+		urlToAppend += 'izpid=' + window.izendaPageId$;
+	}
+
+	// add filter values from URL when loading dashboards
+	if (izenda.isDefined(queryParams) && queryParams.wscmd === 'loadDashboardConfigNew') {
+		var urlParams = location.search.substring(1);
+		if (!izenda.isEmptyString(urlParams)) {
+			urlToAppend = prepareToAddParam(urlToAppend);
+			urlToAppend += urlParams;
+		}
+	}
+
 	return urlToAppend;
 }
 

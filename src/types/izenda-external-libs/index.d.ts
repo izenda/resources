@@ -66,7 +66,7 @@ interface IzendaLocale {
 declare var izendaRequire: any;
 declare var moment: any;
 declare var IzLocal: IzendaLocale;
-declare function getAppendedUrl(url: string): string;
+declare function getAppendedUrl(url: string, queryParams?: object): string;
 declare function appendParameterToUrl(url: string, paramName: string, paramValue: string): string;
 declare var izenda: any;
 declare var AdHoc: any;

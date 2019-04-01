@@ -639,6 +639,8 @@ class IzendaDashboardTileComponent implements ng.IComponentController {
 		const top = this.gridHeight * this.getY();
 		const left = this.gridWidth * this.getX();
 		const result = {
+			'left': '0',
+			'top': '0',
 			'width': (this.gridWidth * this.getWidth()) + 'px',
 			'height': (this.gridHeight * this.getHeight()) + 'px',
 			'z-index': (this.tile.backTilePopupOpened ? '3' : '1')

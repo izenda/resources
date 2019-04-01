@@ -63,7 +63,6 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 		this.tileWidth = 100;
 		this.tileHeight = 100;
 		this.tileContainerStyle = {
-			height: 0,
 			backgroundColor: 'transparent'
 		};
 		this.isMouseEventsEnabled = true;
@@ -252,16 +251,16 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 				top: y * this.tileHeight,
 				width: this.tileWidth,
 				height: this.tileHeight
-			},
-				true);
+			}, true);
 		}
 	}
 
 	/**
 	 * Dashboard mouse out
 	 */
-	globalMouseoutHandler() {
-		if (!this.isMouseEventsEnabled)
+	globalMouseoutHandler($event) {
+		if (!this.isMouseEventsEnabled
+			|| ($event.relatedTarget && angular.element($event.relatedTarget).closest('.iz-dash-body-container').length > 0))
 			return;
 		this.hideGrid();
 	}
@@ -272,7 +271,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	globalClickHandler($event) {
 		if (!this.isMouseEventsEnabled)
 			return true;
-		if (typeof (event['which']) !== 'undefined' && event['which'] !== 1)
+		if (typeof ($event['which']) !== 'undefined' && $event['which'] !== 1)
 			return true;
 		// get {x, y} click coordinates
 		const x = Math.floor($event.offsetX / this.tileWidth);
@@ -316,7 +315,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 			if (additionalBox.top + additionalBox.height > maxHeightPixels)
 				maxHeightPixels = additionalBox.top + additionalBox.height;
 		// set height:
-		this.tileContainerStyle.height = (maxHeightPixels + this.tileHeight + 1) + 'px';
+		angular.element('.iz-dash-body-container').height((maxHeightPixels + this.tileHeight + 1) + 'px');
 	}
 
 	/**

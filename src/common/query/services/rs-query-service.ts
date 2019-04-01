@@ -294,7 +294,7 @@ export default class IzendaRsQueryService {
 		let contentType = 'text/html';
 		if (dataType === 'json')
 			contentType = 'text/json';
-		url = getAppendedUrl(url);
+		url = getAppendedUrl(url, queryParamsFinal);
 		const requestId = (+new Date).toString() + '_' + Math.floor(Math.random() * 1000000).toString(); // pseudo random UID.
 		const reqHeaders = {} as ng.IHttpRequestConfigHeaders;
 		reqHeaders['Content-Type'] = contentType;

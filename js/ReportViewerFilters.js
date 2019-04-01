@@ -71,7 +71,6 @@ function GetFilterValues(index, filters, id) {
 		filters = filtersData;
 	if (id == null)
 		id = index;
-
 	var result = new Array();
 	result[0] = '';
 	switch (filters[index].ControlType) {
@@ -486,7 +485,9 @@ function GenerateNewFilterDropDown() {
 	if (fieldsList && fieldsList.length) {
 		var optgroupText = null;
 		fieldsList.forEach(function (field) {
-			if (field.Coefficient || ['GROUP', 'NONE'].indexOf(field.AggregateFunction) < 0) {
+			//indexOf(field.AggregateFunction.toUpperCase())
+			if (field.Coefficient ||
+				['GROUP', 'NONE'].indexOf(field.AggregateFunction.toUpperCase()) < 0) {
 				if (!optgroupText)
 					optgroupText = '<optgroup label="' + IzLocal.Res('js_calcFields') + '">';
 				// add calc field option
