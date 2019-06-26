@@ -3,12 +3,16 @@
 		shape-rendering: crispEdges;
 	}
 
+	#VIS_ID_CONTAINER .izenda-vis-timeline-chart text {
+		font-family: 'Segoe UI', Tahoma, Verdana, Arial, Helvetica, sans-serif;
+	}
+
 	#VIS_ID_CONTAINER .izenda-vis-timeline-mini text {
-		font: 9px sans-serif;
+		font-size: 9px;
 	}
 
 	#VIS_ID_CONTAINER .izenda-vis-timeline-main text {
-		font: 12px sans-serif;
+		font-size: 12px;
 	}
 
 	#VIS_ID_CONTAINER .izenda-vis-timeline-mini-item0 {
@@ -108,7 +112,7 @@
 			function getW() { return vis.width - m[1] - m[3]; }
 			function getH() { return vis.height - m[0] - m[2]; }
 
-			var m = [18, 5, 15, 60], //top right bottom left
+			var m = [19, 5, 19, 5], //top right bottom left
 				minLH = 7, lPortion = 5;
 
 			if (!vis.context.isDashboard && ((getH() / lPortion) / laneLength < minLH)) {
@@ -116,16 +120,13 @@
 			}
 
 			if (getH() / lPortion > minLH) {
-				minLH = (vis.height / lPortion) / laneLength;
+				minLH = (getH() / lPortion) / laneLength;
 			}
 
 			var w = getW(), h = getH(),
 				miniHeight = laneLength * minLH,
 				mainHeight = h - miniHeight;
 
-			var x = d3.time.scale()
-					.domain([new Date(timeBegin), new Date(timeEnd)])
-					.range([0, w]);
 			var y1 = d3.scale.linear()
 				.domain([0, laneLength])
 				.range([0, mainHeight]);
@@ -138,12 +139,6 @@
 				.attr('width', vis.width)
 				.attr('height', vis.height)
 				.attr('class', 'izenda-vis-timeline-chart');
-
-			chart.append('defs').append('clipPath')
-				.attr('id', 'VIS_ID_CLIP')
-				.append('rect')
-				.attr('width', w)
-				.attr('height', mainHeight);
 
 			function createAxislabel(pane) {
 				return pane.append('g').attr('class', 'izenda-vis-timeline-axisX izenda-vis-timeline-axisX2').append('text');
@@ -174,7 +169,17 @@
 				var t = izenda.visualization.labelBBox(chart, lanes[i], function (pane) { return pane.append('g').attr('class', 'izenda-vis-timeline-main').append('text'); }).width;
 				m3 = m3 > t ? m3 : t;
 			}
-			m[3] = m3 + 5;
+			m[3] += m3 + 5;
+
+			var x = d3.time.scale()
+				.domain([new Date(timeBegin), new Date(timeEnd)])
+				.range([0, getW()]);
+
+			chart.append('defs').append('clipPath')
+				.attr('id', 'VIS_ID_CLIP')
+				.append('rect')
+				.attr('width', getW())
+				.attr('height', mainHeight);
 
 			var main = chart.append('g')
 				.attr('transform', 'translate(' + m[3] + ',' + m[0] + ')')
@@ -189,17 +194,8 @@
 				.attr('class', 'izenda-vis-timeline-mini');
 
 			//main lanes and texts
-			main.append('g').selectAll('line')
-				.data(items)
-				.enter()
-				.append('line')
-					.attr('x1', 0)
-					.attr('y1', function (d) { return y1(d.lane); })
-					.attr('x2', w)
-					.attr('y2', function (d) { return y1(d.lane); })
-					.attr('stroke', 'lightgray');
-
-			main.append('g').selectAll('text')
+			var verticalText = main.append('g');
+			verticalText.selectAll('text')
 				.data(lanes)
 				.enter().append('text')
 				.text(function (d) { return d; })
@@ -208,6 +204,17 @@
 				.attr('dy', '.5ex')
 				.attr('text-anchor', 'end');
 
+			var widthChartArea = getW();
+			main.append('g').selectAll('line')
+				.data(items)
+				.enter()
+				.append('line')
+				.attr('x1', 0)
+				.attr('y1', function (d) { return y1(d.lane); })
+				.attr('x2', widthChartArea)
+				.attr('y2', function (d) { return y1(d.lane); })
+				.attr('stroke', 'lightgray');
+
 			//mini lanes and texts
 			mini.append('g').selectAll('line')
 				.data(items)
@@ -215,14 +222,14 @@
 				.append('line')
 					.attr('x1', 0)
 					.attr('y1', function (d) { return y2(d.lane); })
-					.attr('x2', w)
+					.attr('x2', widthChartArea)
 					.attr('y2', function (d) { return y2(d.lane); })
 					.attr('stroke', 'lightgray');
 
 			mini.append('g').selectAll('text')
 				.data(lanes)
 				.enter().append('text')
-				.text(function () { return ''; })
+				.text(function (d) { return ''; })
 				.attr('x', -m[1])
 				.attr('y', function (d, i2) { return y2(i2 + .5); })
 				.attr('dy', '.5ex')
@@ -232,7 +239,8 @@
 				.attr('clip-path', 'url(#VIS_ID_CLIP)');
 
 			//mini item rects
-			mini.append('g').selectAll('miniItems')
+			var miniItemsGroup = mini.append('g');
+			miniItemsGroup.selectAll('miniItems')
 				.data(items)
 				.enter().append('rect')
 				.attr('class', function (d) { return 'izenda-vis-timeline-mini-item' + (d.lane % 3); })
@@ -252,7 +260,7 @@
 				.attr('class', 'izenda-vis-timeline-axisX')
 				.attr('transform', 'translate(' + m[3] + ', ' + (vis.height - m[0]) + ')');
 
-			var x2 = d3.time.scale().range([0, w]);
+			var x2 = d3.time.scale().range([0, getW()]);
 			var axisX2 = d3.svg.axis()
 				.scale(x2)
 				.orient('top')
@@ -264,8 +272,6 @@
 				.attr('class', 'izenda-vis-timeline-axisX izenda-vis-timeline-axisX2')
 				.attr('transform', 'translate(' + m[3] + ', ' + m[0] + ')');
 
-			var timerSetExtent = null;
-
 			function display() {
 				var rects, labels,
 					extents = brush.extent().map(function (item) { return item instanceof Date ? item.getTime() : item; }),
@@ -276,21 +282,13 @@
 					return;
 				}
 
-				if (!vis.context.isImageRender) {
-					clearTimeout(timerSetExtent);
-					timerSetExtent = setTimeout(function () {
-						vis.setProperty('ExtentBegin', minExtent);
-						vis.setProperty('ExtentEnd', maxExtent);
-					}, 300);
-				}
-
 				var visItems = items.filter(function (d) { return d.start < maxExtent && d.end > minExtent; });
 
 				mini.select('.izenda-vis-timeline-mini-active')
 					.call(brush.extent([minExtent, maxExtent]));
 
 				var x1 = d3.time.scale()
-					.range([0, w])
+					.range([0, getW()])
 					.domain([minExtent, maxExtent]);
 				x2.domain([new Date(minExtent), new Date(maxExtent)]);
 
@@ -339,16 +337,8 @@
 				labels.exit().remove();
 			}
 
-			var extentBegin = vis.getProperty('ExtentBegin'),
-				extentEnd = vis.getProperty('ExtentEnd');
-			if (!extentBegin || !extentEnd) {
-				if (!vis.context.isImageRender) {
-					vis.setProperty('ExtentBegin', timeBegin + (timeEnd - timeBegin) / 3);
-					vis.setProperty('ExtentEnd', timeBegin + (timeEnd - timeBegin) * 2 / 3);
-				}
-				extentBegin = vis.getProperty('ExtentBegin');
-				extentEnd = vis.getProperty('ExtentEnd');
-			}
+			var extentBegin = timeBegin,
+				extentEnd = vis.context.isImageRender ? timeEnd : timeBegin + (timeEnd - timeBegin) / 3;
 
 			var brush = d3.svg.brush()
 				.x(x)

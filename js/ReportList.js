@@ -701,7 +701,7 @@ var resourcesProvider;
 	ReportListRenderer.prototype.createThumbElement = function (report, imageMode, buttonsMode, titleMode, directLinkMode) {
 		var this0 = this;
 		var directLink = this0.createDirectLink(report);
-		var $element = jq$('<div></div>').addClass(isTouch ? 'thumb no-hover' : 'thumb');
+		var $element = jq$('<div></div>').addClass(isTouch ? 'thumb no-hover' : 'thumb hover');
 		if (imageMode) {
 			$element.on('click', function (event) {
 				if ((event.which === null && event.button < 2) || (event.which !== null && event.which < 2)) {

@@ -13,6 +13,9 @@ export class IzendaDashboardModel implements IIzendaRawModel {
 	reportName: string = null;
 	reportCategory: string = null;
 	reportFullName: string = null;
+	previousReportName: string = null;
+	previousReportCategory: string = null;
+	previousReportFullName: string = null;
 	sourceReportFullName: string = null;
 	effectiveRights: string = null;
 	usesHiddenColumns: boolean = false;

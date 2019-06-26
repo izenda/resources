@@ -151,9 +151,15 @@ export default class DashboardStorageService {
 	 * @throws {reject function} promise will reject with a message as argument if something went wrong.
 	 */
 	saveDashboard(reportName?: string, categoryName?: string): ng.IPromise<void> {
-		return this.$q((resolve, reject) => {
-			try {
+		const restorePreviousReportName = (model: IzendaDashboardModel) => {
+			model.reportCategory = model.previousReportCategory;
+			model.reportName = model.previousReportName;
+			model.reportFullName = model.previousReportFullName;
+		};
 
+		return this.$q((resolve, reject) => {
+			const model: IzendaDashboardModel = this.model.getValue();
+			try {
 				// prepare report name variables
 				let newReportName = reportName || null;
 				let newReportCategory = categoryName || null;
@@ -174,10 +180,20 @@ export default class DashboardStorageService {
 				}
 
 				// update report names in the model
-				const model: IzendaDashboardModel = this.model.getValue();
+				model.previousReportCategory = model.reportCategory;
+				model.previousReportName = model.reportName;
+				model.previousReportFullName = model.reportFullName;
 				model.reportCategory = newReportCategory;
 				model.reportName = newReportName;
 				model.reportFullName = this.$izendaSettingsService.getReportFullName(newReportName, newReportCategory);
+
+				if (model.tiles.filter(t => t && !!t.reportFullName).length === 0) {
+					// show "no tiles" error.
+					const message = this.$izendaLocaleService.localeText('js_CantSaveEmptyDashboard', 'Can\'t save empty dashboard.');
+					restorePreviousReportName(model);
+					reject(message);
+					return;
+				}
 
 				// create json and send save request
 				const json = this.createJsonConfigForSend();
@@ -185,9 +201,11 @@ export default class DashboardStorageService {
 					this.$izendaUrlService.setReportFullName(newReportFullName);
 					resolve();
 				}, (error) => {
+					restorePreviousReportName(model);
 					reject(error);
 				});
 			} catch (e) {
+				restorePreviousReportName(model);
 				reject(e);
 			}
 		});

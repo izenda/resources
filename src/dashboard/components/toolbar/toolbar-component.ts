@@ -179,12 +179,12 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 					this.$izendaUtilUiService.showNotification(this.$izendaLocaleService.localeText('js_DashboardSaved',
 						'Dashboard sucessfully saved'));
 				},
-					(error) => {
-						const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
-						const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
-						var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
-						this.$izendaUtilUiService.showErrorDialog(errorText);
-					});
+				(error) => {
+					const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
+					const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
+					var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
+					this.$izendaUtilUiService.showErrorDialog(errorText);
+				});
 		}
 	}
 
@@ -208,12 +208,12 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 					this.$izendaUtilUiService.showNotification(this.$izendaLocaleService.localeText('js_DashboardSaved',
 						'Dashboard sucessfully saved'));
 				},
-					(error) => {
-						const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
-						const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
-						var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
-						this.$izendaUtilUiService.showErrorDialog(errorText);
-					});
+				(error) => {
+					const msgCantSave = this.$izendaLocaleService.localeText('js_CantSaveDashboard', 'Can\'t save dashboard');
+					const msgError = this.$izendaLocaleService.localeText('js_Error', 'Error');
+					var errorText = `${msgCantSave} "${this.model.reportFullName}". ${msgError}: "${error}"`;
+					this.$izendaUtilUiService.showErrorDialog(errorText);
+				});
 
 		});
 	}

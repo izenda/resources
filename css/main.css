@@ -656,24 +656,14 @@ table.ReportTable td {
 	vertical-align: top;
 }
 
-	.iz-ui-tabs-panel div.thumb:hover {
-		outline: 8px solid #cddbf6;
-		background-color: #cddbf6;
-	}
+.iz-ui-tabs-panel div.thumb.hover:hover {
+	outline: 8px solid #cddbf6;
+	background-color: #cddbf6;
+}
 
-	.iz-ui-tabs-panel div.thumb.text-mode:hover {
-		outline: 2px solid #cddbf6;
-	}
-
-	.iz-ui-tabs-panel div.thumb.no-hover {
-		outline: 8px solid #cddbf6;
-		background-color: #cddbf6;
-	}
-
-	.iz-ui-tabs-panel div.thumb.text-mode.no-hover {
-		outline: 2px solid #cddbf6;
-		background-color: #cddbf6;
-	}
+.iz-ui-tabs-panel div.thumb.text-mode.hover:hover {
+	outline: 2px solid #cddbf6;
+}
 
 .report-list-icon {
 	width: 170px;
@@ -703,14 +693,12 @@ table.ReportTable td {
 	height: 220px;
 }
 
-.iz-ui-tabs-panel div.thumb:hover img,
-.iz-ui-tabs-panel div.thumb.no-hover img {
+.iz-ui-tabs-panel div.thumb.hover:hover img {
 	opacity: .85;
 	outline: none;
 }
 
-.iz-ui-tabs-panel div.thumb:hover .thumb-container,
-.iz-ui-tabs-panel div.thumb:hover.no-hover .thumb-container {
+.iz-ui-tabs-panel div.thumb.hover:hover .thumb-container {
 	outline: none;
 }
 
@@ -726,8 +714,8 @@ table.ReportTable td {
 	left: 0;
 }
 
-.iz-ui-tabs-panel div.thumb:hover .thumb-buttons,
-.iz-ui-tabs-panel div.thumb.no-hover:hover .thumb-buttons {
+.iz-ui-tabs-panel div.thumb.hover:hover .thumb-buttons,
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-buttons {
 	display: block;
 }
 
@@ -795,10 +783,13 @@ table.ReportTable td {
 	background-image: url(###RS###image=ModernImages.template-icon.png);
 }
 
-.iz-ui-tabs-panel div.thumb:hover .thumb-button:hover,
-.iz-ui-tabs-panel div.thumb.no-hover .thumb-button {
+.iz-ui-tabs-panel div.thumb.hover:hover .thumb-button:hover {
 	background-color: #b0c8e9;
 	opacity: 1;
+}
+
+.iz-ui-tabs-panel div.thumb.no-hover .thumb-button {
+	background-color: rgba(255, 255, 255, 0.75);
 }
 
 .iz-ui-tabs, .iz-ui-tabs .iz-ui-tabs-panel {
@@ -807,7 +798,7 @@ table.ReportTable td {
 
 	.iz-ui-tabs .iz-ui-tabs-nav li.iz-ui-state-default {
 		/*  background-color: transparent;
-  border: 1px solid transparent;*/
+		border: 1px solid transparent;*/
 		margin: 0 0 0 6px;
 		position: relative;
 		top: 1px;

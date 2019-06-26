@@ -294,7 +294,7 @@
 		}
 	};
 
-	var setRowsVisibility = function (id) {
+	var setRowsVisibility = function (id, resetOrder) {
 		var table = document.getElementById(id);
 		var body = table.tBodies[0];
 		var count = body.rows.length;
@@ -362,13 +362,15 @@
 					functionSelect.selectedIndex = 0;
 			}
 
-			var orderAscCheckbox = EBC_GetElementByName(row, 'OrderAsc', 'INPUT');
-			if (orderAscCheckbox != null)
-				orderAscCheckbox.checked = currentChartItemContext.ascChecked;
+			if (resetOrder) {
+				var orderAscCheckbox = EBC_GetElementByName(row, 'OrderAsc', 'INPUT');
+				if (orderAscCheckbox != null)
+					orderAscCheckbox.checked = currentChartItemContext.ascChecked;
 
-			var orderDescCheckbox = EBC_GetElementByName(row, 'OrderDesc', 'INPUT');
-			if (orderDescCheckbox != null)
-				orderDescCheckbox.checked = currentChartItemContext.descChecked;
+				var orderDescCheckbox = EBC_GetElementByName(row, 'OrderDesc', 'INPUT');
+				if (orderDescCheckbox != null)
+					orderDescCheckbox.checked = currentChartItemContext.descChecked;
+			}
 
 			var rowVisibility = izenda.isNull(currentChartItemContext.label) ||
 				(!isAdvancedPropertiesVisible && currentChartItemContext.advanced)
@@ -445,7 +447,7 @@
 			loadChartColumnsData(id);
 		}
 
-		setRowsVisibility(id);
+		setRowsVisibility(id, element != null);
 
 		setPropertiesVisibility(id);
 
