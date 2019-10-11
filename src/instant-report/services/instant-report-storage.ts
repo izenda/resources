@@ -125,7 +125,7 @@ export default class IzendaInstantReportStorageService {
 		this.isPageReady = false;
 		var startInitializingTimestamp = (new Date()).getTime();
 		this.$q.all([this.loadDataSources(), this.initializeVgStyles(), this.initializeSubreports(), this.initializeDrillDownStyles(),
-		this.initializeExpressionTypes(), this.$izendaInstantReportVisualizationService.loadVisualizations()]).then(() => {
+		this.initializeExpressionTypes(), this.initializeCharts()]).then(() => {
 			this.isPageInitialized = true;
 			if (angular.isString(this.existingReportLoadingSchedule)) {
 				// existing report
@@ -711,6 +711,20 @@ export default class IzendaInstantReportStorageService {
 
 	getSubreports() {
 		return this.subreports;
+	}
+
+	/**
+	* Initialize charts
+	*/
+	initializeCharts() {
+		return this.$q(resolve => {
+			const settings = this.$izendaInstantReportSettingsService.getSettings();
+			if (!settings.showChartTab || !settings.visionAllowed) {
+				resolve();
+				return;
+			}
+			this.$izendaInstantReportVisualizationService.loadVisualizations().then(() => resolve());
+		});
 	}
 
 	/////////////////////////////////////////

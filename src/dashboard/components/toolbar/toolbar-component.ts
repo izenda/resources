@@ -389,6 +389,10 @@ class IzendaDashboardToolbarComponent implements ng.IComponentController {
 		return this.commonSettings.showSaveAsToolbarButton;
 	}
 
+	get isShowDesignDashboardLink() {
+		return this.commonSettings.showDesignDashboardLink;
+	}
+
 	/**
 	 * Check is edit allowed
 	 */

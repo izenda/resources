@@ -42,6 +42,7 @@ export interface IIzendaCommonSettings {
 	showAllInResults: boolean;
 	showCategoryTextboxInSaveDialog: boolean;
 	showDesignLinks: boolean;
+	showDesignDashboardLink: boolean;
 	showSaveAsToolbarButton: boolean;
 	showSaveControls: boolean;
 	showTimeInFilterPickers: boolean;

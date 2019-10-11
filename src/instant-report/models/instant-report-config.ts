@@ -10,6 +10,7 @@ export interface IIzendaInstantReportConfig {
 	showScheduleControls: boolean;
 	showSharingControl: boolean;
 	showChartTab: boolean;
+	visionAllowed: boolean;
 	showAllInPreview: boolean;
 	distinct: boolean;
 	showDistinct: boolean;

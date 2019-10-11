@@ -238,6 +238,9 @@
 			var itemRects = main.append('g')
 				.attr('clip-path', 'url(#VIS_ID_CLIP)');
 
+			if (timeBegin === timeEnd)
+				throw new izenda.error.Abort('no results');
+
 			//mini item rects
 			var miniItemsGroup = mini.append('g');
 			miniItemsGroup.selectAll('miniItems')

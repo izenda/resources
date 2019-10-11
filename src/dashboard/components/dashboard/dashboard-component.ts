@@ -26,7 +26,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	tileWidth: number;
 	tileHeight: number;
 	tileContainerStyle: any;
-	isMouseEventsEnabled: boolean;
+	isMouseEventsEnabledManual: boolean;
 	galleryContainerStyle: any;
 	rootWidth: number;
 	previousWidth: number;
@@ -58,14 +58,13 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 		this.isLicenseFailed = !this.$izendaDashboardSettings.dashboardsAllowed;
 		if (this.isLicenseFailed)
 			return;
-
 		this.exportProgress = null;
 		this.tileWidth = 100;
 		this.tileHeight = 100;
 		this.tileContainerStyle = {
 			backgroundColor: 'transparent'
 		};
-		this.isMouseEventsEnabled = true;
+		this.isMouseEventsEnabledManual = true;
 
 		this.initGrid();
 
@@ -96,6 +95,10 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 		];
 	}
 
+	get isMouseEventsEnabled() {
+		return this.isMouseEventsEnabledManual && this.$izendaCompatibilityService.isEditAllowed();
+	}
+
 	initGrid() {
 		this.isGridVisible = false;
 		this.gridStyle = null;
@@ -119,6 +122,8 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * @param {IzendaDashboardModel} newModel new dashboard model object.
 	 */
 	$onDashboardModelUpdate(newModel) {
+		this.hideGrid();
+		this.isMouseEventsEnabledManual = true;
 		this.model = newModel;
 		if (!this.model)
 			return;
@@ -130,6 +135,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * @param {boolean} newIsLoaded new isLoaded value.
 	 */
 	$onDashboardIsLoadedUpdate(newIsLoaded) {
+		this.hideGrid();
 		this.isLoaded = newIsLoaded;
 	}
 
@@ -285,7 +291,7 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * Disable mouse move/out/click handlers for dashboard 
 	 */
 	turnOffMouseHandlers() {
-		this.isMouseEventsEnabled = false;
+		this.isMouseEventsEnabledManual = false;
 		this.hideGrid();
 	}
 
@@ -293,7 +299,8 @@ export class IzendaDashboardComponent implements ng.IComponentController {
 	 * Enable mouse move/out/click handlers for dashboard 
 	 */
 	turnOnMouseHandlers() {
-		this.isMouseEventsEnabled = true;
+		if (this.$izendaCompatibilityService.isEditAllowed())
+			this.isMouseEventsEnabledManual = true;
 	}
 
 	/**

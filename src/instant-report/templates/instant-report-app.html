@@ -72,7 +72,7 @@
 			<div class="iz-inst-sidepanel-button charts"
 				 ng-class="irController.getLeftPanelClass(1)"
 				 ng-click="irController.setLeftPanelActiveItem(1)"
-				 ng-show="irController.settings.showChartTab">
+				 ng-show="irController.settings.showChartTab && irController.settings.visionAllowed">
 				<div class="iz-inst-sidepanel-button-inner">
 					<span class="iz-inst-sidepanel-button-text" ng-bind=":: 'js_Charts' | izendaLocale: 'Charts'"></span>
 				</div>

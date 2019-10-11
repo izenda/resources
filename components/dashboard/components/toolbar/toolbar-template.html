@@ -263,7 +263,7 @@
 						</div>
 					</li>
 					<!-- new dashboard -->
-					<li ng-show="!$ctrl.isOneColumnView && !$ctrl.$izendaGalleryService.galleryState.isEnabled" ng-if="$ctrl.isDesignLinksAllowed">
+					<li ng-show="!$ctrl.isOneColumnView && !$ctrl.$izendaGalleryService.galleryState.isEnabled" ng-if="$ctrl.isDesignLinksAllowed && $ctrl.isShowDesignDashboardLink">
 						<a ng-attr-title="{{'js_CreateNewDashboard' | izendaLocale: 'Create new dashboard'}}"
 						   ng-click="$ctrl.createNewDashboard()">
 							<span class="glyphicon glyphicon-plus"></span>
