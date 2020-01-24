@@ -1411,7 +1411,8 @@ export default class IzendaInstantReportStorageService {
 			filterOptions: filterOptions,
 			schedule: null,
 			share: {},
-			pivot: null
+			pivot: null,
+			reportId: this.reportSet.reportId
 		};
 		if (typeof (reportSetConfig.options.page.itemsPerPage) !== 'number') {
 			reportSetConfig.options.page.itemsPerPage = parseInt(reportSetConfig.options.page.itemsPerPage);
