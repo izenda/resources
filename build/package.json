@@ -10,7 +10,7 @@
 		"angular": "1.6.10",
 		"angular-cookies": "1.6.10",
 		"bootstrap": "3.3.7",
-		"bootstrap-sass": "3.3.7",
+		"bootstrap-sass": "3.4.1",
 		"css-element-queries": "0.4.0",
 		"eonasdan-bootstrap-datetimepicker": "4.17.47",
 		"ion-rangeslider": "2.2.0",
