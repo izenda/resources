@@ -327,12 +327,13 @@ export default class IzendaRsQueryService {
 			var data = response.data;
 			if (angular.isObject(data) && angular.isString(data['izendaQueryStatus'])) {
 				// API query result
-				if (data['izendaQueryStatus'] === 'ok')
-					resolver.resolve(data['result']);
-				else if (data['izendaQueryStatus'] === 'error')
+				if (data['izendaQueryStatus'] === 'ok') {
+					resolver.resolve(data['result'] || 'OK');
+				} else if (data['izendaQueryStatus'] === 'error') {
 					resolver.reject(data['error']);
-				else
+				} else {
 					resolver.reject('Unknown izendaQueryStatus: ' + data['izendaQueryStatus']);
+				}
 			} else {
 				// Non-API json query result
 				resolver.resolve(data);
