@@ -1,4 +1,4 @@
-﻿var highlightedTablesCache = [];
+var highlightedTablesCache = [];
 var highlightedFieldsCache = [];
 
 function IzendaDatasourcesSearch(databaseSchema, options) {
@@ -274,7 +274,7 @@ function IzendaDatasourcesSearch(databaseSchema, options) {
 			return;
 		}
 		openAutocomplete(true);
-		controls.$searchAutocomplete.append('<div class="izenda-autocomplete-loading">Finding results for "' + searchString + '"...</div>');
+		addAutocompleteLoadingMessage(searchString);
 		getData(searchString, true, function (searchResults) {
 			hideAutocomplete();
 			applySearch({

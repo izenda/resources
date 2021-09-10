@@ -688,19 +688,20 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	filterContent.show();
 	filterContent.find('.filterInnerContent').prop('id', filter.Uid);
 
-	var escapedAlias = window.utility.htmlEncode(filter.Alias ? filter.Alias : filter.FriendlyColumnName);
+	var alias = filter.Alias ? filter.Alias : filter.FriendlyColumnName;
+	var filterTitle = alias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\'');
 	if (!isSimpleFilter) {
 		// filter header hover effect
 		filterContent.find('.filterHeader')
 			.on('mouseover', function () {
 				var $filterHeader = jq$(this);
 				$filterHeader.find('.filterTitle')
-					.attr('title', escapedAlias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\''))
-					.html(escapedAlias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\''));
+					.attr('title', filterTitle)
+					.text(filterTitle);
 			})
 			.on('mouseout', function () {
 				var $filterHeader = jq$(this);
-				$filterHeader.find('.filterTitle').text(escapedAlias);
+				$filterHeader.find('.filterTitle').text(alias);
 			});
 	}
 	if (!isSimpleFilter && (typeof nrvConfig == 'undefined' || nrvConfig == null || typeof nrvConfig.ReportIsLocked == 'undefined' || nrvConfig.ReportIsLocked == null || nrvConfig.ReportIsLocked == false)) {
@@ -714,7 +715,7 @@ function GetFilterContent(filters, index, divsId, hasFilterLogic, isSimpleFilter
 	//if (isSimpleFilter)
 	//	filterContent.find('.filterTitle, .filterTitleContainer').attr('onmouseover', '');
 	filterContent.find('.filterTitle').prop('id', divsId);
-	filterContent.find('.filterTitle').html(escapedAlias + ' - ' + filter.OperatorFriendlyName.replace(/\\'/g, '\''));
+	filterContent.find('.filterTitle').text(filterTitle);
 	var filterInnerContent = GenerateFilterControl(isSimpleFilter ? filter.GUID : index, filter.ControlType, filter.Value, filter.Values, filter.ExistingLabels, filter.ExistingValues, index == filters.length - 1 && !hasFilterLogic);
 	filterContent.find('.filterInnerContent').append(filterInnerContent);
 	if (filter.Required)

@@ -1321,7 +1321,7 @@ _____________________________________________________________________
 			var divCount = divElems.length;
 			for (var i = 0; i < divCount; i++) {
 				var elem = divElems[i];
-				if (elem.getAttribute('visibilityMode') === 2) {
+				if (elem.getAttribute('visibilityMode') == 2) {
 					edit2Shown = elem.style.display !== 'none';
 					break;
 				}
